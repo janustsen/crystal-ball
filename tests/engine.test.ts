@@ -61,3 +61,9 @@ test('learning explanation preserves the chosen baseline and conversational targ
  try{const result=await predict('Will I be conversational in Spanish in six months?',{level:'New beginner',practice:'30 minutes',conversation:'Weekly',deadline:'In 6 months'},false,provider(()=>undefined));assert.equal(result.kind,'ok');if(result.kind==='ok'){assert.match(result.value.headline,/conversational Spanish/);assert.match(result.value.why,/new beginner/);assert.doesNotMatch(result.value.why,/intermediate/);assert.match(result.value.why,/conversation practice/);assert.ok(!result.value.assumptions.some(a=>a.includes('News headlines')));}}finally{globalThis.fetch=original;}
  assert.equal(planFor('Will my side project gain customers?',{}).topic,'general');
 });
+
+test('bounded forecasts never replace the server explanation with extra model fields',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0],reason:42,assumption:{untrusted:true}}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('How many users will my project have in four weeks?',{current_users:'100',weekly_growth:'2',growth_weeks:'4'},false,provider(()=>undefined));assert.equal(result.kind,'ok');if(result.kind==='ok')assert.match(result.value.why,/100.*2.*4.*108/);}finally{globalThis.fetch=original;}
+});
