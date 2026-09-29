@@ -1,0 +1,51 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent, read-only)",
+  "phase": "app",
+  "score": 6.4,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 6.0,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 6.5,
+    "performance_15": 6.0
+  },
+  "method_note": "I looked at the PNGs in docs/evidence/ as images: home, ask, question-1, research, reveal, why, share, exported-card, history, knowledge, paywall, explore, blocked, network-error, timeout, large-reveal, money-reveal, home-small, keyboard-focus and general-card-1. I read the source and logs as text: verification-summary.md, drive.json, performance-headed.json, SETUP.md, src/questions.ts, server/engine.ts and server/provider.ts, plus a grep for a11y props across app/ and src/. I did not play the .webm or .mp4 files and ran nothing. Claims about motion and video come from the docs only.",
+  "evidence": [
+    "OBSERVED (drive.json): the real flow ran in the browser at 390x844. Ask → plan in 468 ms → three cards → predict in 2361 ms against local Ollama → reveal → why → share/export → history persisted after reload. The flow is real and connected.",
+    "SOURCE (server/engine.ts:50-54, src/questions.ts): the Spanish flow shown everywhere in the evidence is decided entirely by code. Cards come from a regex topic registry. `choices=[choices[prepared?0:1]]` leaves exactly one allowed answer, so Qwen's enum-constrained call can only return what the rule already chose. Money, growth and relocation work the same way. The model only authors content on the 'general' path, and there `result.reason` is discarded: line 73 overwrites `reasoning` with a template. Qwen is effectively decoration in the showcased flows. It is honest arithmetic, but it is not an oracle experience.",
+    "VISUAL (reveal.png): the headline 'You will need help speaking Spanish in 6 months.' is awkward and deflating, and it breaks '6' onto a line by itself. The 'Did it come true? Yes / Not quite / Not yet' card is cut off by the tab bar at 390x844.",
+    "VISUAL (why.png): 'Behind the mist' reads like a debug dump: 'Your level: New beginner; practice: 30 minutes; feedback: Rarely; target: In 6 months. Upcoming interruption: none supplied; feedback change: none supplied; use: not supplied.' The text runs under the floating Ask orb. This is the weakest moment in the product.",
+    "VISUAL (reveal.png, money-reveal.png): the app asks 'Did it come true?' seconds after a 6-month or 5-year forecast. Yes/No are live immediately, which is a logic and UX error.",
+    "VISUAL (home.png, ask.png, keyboard-focus.png): the suggestion lists are cut off by the tab bar ('Where will I live next y…'). There is no visible bottom inset, and the centre orb overlaps content on every scrolling screen.",
+    "VISUAL (question-1.png, general-card-1.png): the progress label 'Getting to know you · 1' has no total, and the constellation progress glyph is tiny and unexplained. Model-generated options are repetitive ('Writing 30/15/10 minutes daily'), in descending order, with no 'none yet' option.",
+    "VISUAL (exported-card.png): the palette, typography and orb are cohesive and premium. But the bottom ~35% of the 9:16 card is empty, there is no question context, and there is no brand mark or CTA at the foot. As a story share it undersells itself.",
+    "VISUAL (share.png): the preview card is clipped by the tab bar. The share/export action buttons are not visible in the captured frame.",
+    "VISUAL (knowledge.png): the first thing on the You tab is a disabled 'Save with Apple' button whose caption says it needs the iOS app, so it is a dead control. 'Edit Your level' has capitalization spliced in from a label. 'Forget' is a bare text link with weak affordance for a destructive action.",
+    "VISUAL (large-reveal.png): at 200% text the tab labels disappear entirely (icons only). The header wordmark doesn't scale while '3 readings' does. The headline takes the whole screen and the actions end up far below the fold. Usable, but not designed.",
+    "VISUAL (network-error.png vs timeout.png): recovery is good. Both say nothing was charged, answers are kept, and offer Try again / Edit question. But the network error never says 'you're offline', and timeout is missing the 'Review answers' action that network-error has, so the two are inconsistent.",
+    "VISUAL (blocked.png): gentle, clear redirect copy and 'No reading was spent'. The self_harm category routes to a separate redirect in source; I did not verify it in a screenshot.",
+    "SOURCE: only 18 accessibility prop occurrences across app/ and src/. There is no evidence of live-region announcements when the reveal arrives or on error. The axe scan reports zero violations, but that proves only the absence of detectable violations, not good screen-reader flow.",
+    "OBSERVED performance: the headed home sample was 16.7 ms mean / 18.4 ms p95 over 120 frames, and cold load to controls was 581 ms. But the primary drive's own sample was 34.5 ms mean with a 133 ms max. Reduced-motion (22 ms) ran slower than animated, and the blank page (21 ms) was slower too, so the harness is noisy. Nothing was measured during the reveal animation, the research wait or the export. JS was 461 KB. Predict latency was 2.4 s observed, with a 4.7 s median in the bake-off.",
+    "SOURCE (SETUP.md:16-18, verification-summary.md): the native deferrals are listed honestly: VoiceOver, Dynamic Type, keyboard avoidance, safe-area, hold-to-speak, notifications, RevenueCat. Mocks exist and the claims are not overstated. The paywall is labelled 'Test mode · no real payments'. This meets the authorized web-substitute bar."
+  ],
+  "blockers": [
+    "Rewrite the Why panel as human prose: two or three sentences naming the one or two decisive facts ('Daily practice is solid, but rare conversation is what usually stalls speaking'). Never print 'none supplied' or 'not supplied'. On the general path, show the model's `reason` instead of overwriting it.",
+    "Let the model phrase the rule-based outcome. Keep the arithmetic and rules as grounding, but have Qwen write a confident, specific, positively framed headline (e.g. 'You'll hold simple Spanish conversations by March — once you start speaking weekly.'). Avoid orphaned '6' line breaks with balanced text wrapping or a max-width.",
+    "Fix bottom insets everywhere. Add scroll padding equal to the tab bar plus the orb overhang so the 'Did it come true?' row, the Why panel, the share preview and the suggestion lists are never hidden. Re-capture every screen at 390x844 and 375x667 to prove it.",
+    "Gate 'Did it come true?' on the forecast horizon. Before the due date, show 'Check back on <date>' next to the reminder. Show Yes / Not quite only once the horizon has passed.",
+    "Show a total on question progress ('1 of 3') and give model-generated options a quality floor: include a zero/none option, order ascending, no repeated prefixes.",
+    "Recompose the export card: vertically centre or fill the lower third (the question, subtly, if the user opts in; a brand mark or 'Ask your own at…'). Show the share/export buttons within the first viewport of the Share screen.",
+    "Hide or restyle the web-only disabled 'Save with Apple' as an informational row, not a dead primary button. Fix 'Edit Your level' → 'Edit level'. Give Forget a confirmation dialog and button styling.",
+    "Accessibility: announce the reveal headline and error states through a live region / accessibilityLiveRegion, and keep tab labels at large text (let the tab bar grow, or use a vertical label). Scale the header consistently. Add evidence of screen-reader reading order for the reveal and card flows, not just axe results.",
+    "Make the error states consistent: the network error should say you appear offline, and timeout should also offer Review answers.",
+    "Performance: capture rAF during the reveal animation, the research wait and the export encode in the headed profile, and explain or fix the 34.5 ms / 133 ms max in the primary drive. Add an optimistic transition so the 2–5 s predict wait feels intentional; the research screen currently offers only Cancel and static copy."
+  ],
+  "strengths": [
+    "A genuinely cohesive cosmic visual language: an elegant serif display face with clean sans body text, a restrained violet/gold/teal palette, and a high-quality orb illustration that sits consistently across the app, the reveal and the export.",
+    "A complete, really observed end-to-end loop on local Ollama with no paid APIs: ask → context cards → prediction → why → PNG/MP4 export → persisted history → knowledge editing → mock credits → explore.",
+    "Strong trust and recovery design: 'nothing was charged / answers are kept' on failure, a real offline failure and retry, a 60-second timeout, a cancel during the wait, no credit charged on a safety block, and a clear 'Test mode · no real payments' paywall.",
+    "Privacy is handled well: private answers are kept off the share card, and the speculative label is retained on every artifact.",
+    "Honest evidence: failed runs are preserved, headless versus headed performance limits are disclosed, the native device checks are explicitly deferred in SETUP.md, and there are no claims of predictive accuracy or native verification."
+  ]
+}
+```

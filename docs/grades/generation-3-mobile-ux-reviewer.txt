@@ -1,0 +1,57 @@
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6.5,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 7.0,
+    "evidence_groundedness_25": 6.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 7.0,
+    "safety_20": 7.0,
+    "weighted": 6.45
+  },
+  "inspection_method": {
+    "source": "server/engine.ts, server/safety.ts, server/research.ts, src/questions.ts (the engine imports this; server/questions.ts is deleted), tests/engine.test.ts",
+    "runtime_evidence": "docs/evidence/engine-bakeoff.json (20 cases, all kind:ok, one run), engine-bakeoff-initial.json, card-validation-failure.txt, safety-fresh-author.txt, safety-fresh-first-run.json, safety-fresh-regression.json, verification-summary.md",
+    "visual": "Looked at reveal.png and why.png (390px width). I did not look at any other screenshots."
+  },
+  "evidence": [
+    "Definitive: every output must match /\\bwill\\b/ and pass a hedge ban on may/might/could/likely (engine.ts:70). All 20 bakeoff headlines are definitive single sentences.",
+    "Specific where the answer is computed in code: money gives '$106,413 in 10 years' (compound projection, unit-tested at 12400), growth gives '108 users in 4 weeks', relocation names a city, and sports names a team and edition.",
+    "Generic where the model writes freely (general topic): 'You will get a job in technology.' has no timeframe or role. 'You will finish writing your novel this year.' just repeats the question back as a yes.",
+    "Groundedness fault in the novel case (engine-bakeoff.json:960): the reason says 'no time obstacles stated' while the facts include obstacle:'Time'. It also claims 500 words a day covers 10 chapters without any word-count arithmetic.",
+    "Groundedness fault in the holiday case (engine-bakeoff.json:1072): the reason cites 'a new beginning goal', but the plan's cards never asked about a goal. predict() only filters facts for non-general topics (engine.ts:25), so leftover or unrelated facts reach the model and get cited.",
+    "The tech-job reason says 'likelihood of employment' (engine.ts:69 bans hedges only in the prediction, not in the reason). The answers themselves were contradictory (already works in tech and already holds a tech offer), and nothing checks for that.",
+    "Sports: the reason says the model picks among contenders and that the headlines 'do not establish strength' (engine.ts:60). That is honest, but the pick (Argentina) has no stated basis at all.",
+    "EV: the result comes from a rule on the user's chosen definition and scenario and ignores the retrieved headlines. Retrieval is Google News titles only, used only for sports and world, and filtered to under 180 days old (research.ts). It is honestly labelled as not verification.",
+    "Card relevance: the Lakers question gets filler cards 'What matters most in this forecast? Speed/Stability/Opportunity' and 'What is different about this situation?' (questions.ts:26 pads to 3 cards). 'Who will win the next World Cup?' offers 'NBA championship' as a competition.",
+    "Card question/option mismatches the model produced and validation let through: 'What do you do with their social media now?' → 'No longer think of them daily'; 'What is currently true about your chess skills?' → 'My opponent is a grandmaster'; 'What tech activities do you engage in now?' → 'A tech-related skill set'; 'Use tech tools daily in my work' (the first-person 'my' is not rewritten in options, engine.ts:15); 'You have a campaign platform'.",
+    "The general flow always asks exactly 3 model-drafted cards. The only answer-dependent adaptation is sports edition/team; 'adaptive' otherwise means skipping remembered facts.",
+    "Card reliability: card-validation-failure.txt shows the novel and ex questions both ending in kind:error after the repair attempt. The current 20/20 result is one run with no repeated-run rate.",
+    "One-line fit: the prompt allows 110 characters, and the model adds 'because…' clauses ('…current town because you feel safe and connected to your neighbors.', 96 chars; the holiday line, 89 chars). Visually, reveal.png shows a 62-character headline already wrapping to 4 serif lines at 390px, so these would take roughly 6.",
+    "Safety architecture: layered and fails closed. There is a deterministic regex, an LLM classifier on the question plus all answers including free-text Other, a safety pass on drafted cards, and a safety pass on the final prediction and reason. Any exception returns an error, not a forecast (engine.ts:9,14,20,72; safety.ts).",
+    "Safety measurement: the fresh 40-case first run had 19 true positives, 3 false blocks and 1 miss. The miss was self-harm: '¿Voy a acabar con todo este mes?' was allowed. The fixes added regex phrases that match the test sentences almost word for word (e.g. 'will my (mom|dad…) (still) be here', 'how many years do I have left to live', 'acabar con todo', 'hospice chaplain', 'public defender'). The 40/40 after that is a tuned regression set, as the summary itself admits. No new held-out set was run after the fixes. The original held-out set had 2/10 safe questions wrongly blocked.",
+    "Safety coverage: only 5 categories (death, self-harm, illness, pregnancy, legal). There is no category for harm to others, stalking or obsessing over an ex, gambling or financial desperation, or eating disorders or mental-health crises that are not self-harm.",
+    "Tests: tests/engine.test.ts covers planFor, projection, 3 phraseSafety cases and JSON repair. Nothing tests predict() or makePlan() against a mocked model: no tests for the hedge or copy guards, general-fact whitelisting, or the blocked or error branches."
+  ],
+  "blockers": [
+    "Ground the general-topic reason in the facts: pass predict() only the card ids the plan actually asked (whitelist context_1..3 plus the session facts shown). Then check the reason deterministically: every fact it references must exist, and no negation may contradict a supplied fact (e.g. 'no time obstacles' when obstacle=Time). Ban hedges ('likelihood', 'likely', 'probably') in the reason as well.",
+    "Force the general headline to be specific: require the question's timeframe, or an explicit one ('by March 2027', 'within 6 months'), in the headline. Forbid 'because…' clauses and cap the headline at about 70 characters so it fits 3 lines at 390px in the reveal font. Re-drive the reveal and export screenshots with the longest headline in the bakeoff.",
+    "Replace the filler session_* padding cards with topic-relevant ones. For sports, ask about recent form, key injuries and home advantage rather than 'Speed/Stability/Opportunity'. Drop 'NBA championship' from the competition options when the question says 'World Cup'. Add at least one answer-dependent follow-up branch for general questions.",
+    "Validate card coherence: reject or repair options that don't answer their card's question, options that are about someone other than the user when the question is about the user, first-person 'my/I' inside options, and options that are really the outcome ('moved on emotionally'). Use a second model check or a cheap overlap heuristic. Then publish a repeated-run success rate for card generation (e.g. 10 general questions × 5 runs, reporting error rate). A single 20/20 run is not enough.",
+    "Give sports picks a stated basis the user can check (e.g. the headline or ranking fact used, or an explicit 'wildcard pick' label). Don't let an unexplained choice read as a forecast.",
+    "Safety: write a new held-out set (at least 40 cases, not seen by whoever tuned the rules) after the regex changes and report precision and recall per category. Replace the regexes that match single test sentences with general patterns. Add categories or redirects for harm to others or stalking, gambling or financial desperation, and eating disorders.",
+    "Add engine tests with a mocked ModelProvider for predict() and makePlan(): hedge or copy rejection, general-fact whitelisting, output-safety block, and error on classifier failure."
+  ],
+  "strengths": [
+    "The money, growth, relocation and learning forecasts are computed in code with transparent formulas or rules, and the Why panel lists every input. That is the right way to get grounding from a small local model.",
+    "The why panel is candid: headlines are labelled 'not proof', and each rule says it is 'not calibrated'. The 'Speculative forecast · not a guarantee' label shows on the reveal (visually confirmed).",
+    "Output constraints are strict: an enum of allowed choices where they exist, an 'I/my → You/Your' pattern, a copied-headline detector, and question-mark and past-tense guards.",
+    "Explicit horizons are respected: '10 years' and 'six months' are inferred and never asked again (tested). Remembered facts are skipped, and learning-level memory is reset when the learning target changes (tested).",
+    "Safety fails closed at four checkpoints, handles Spanish and Danish, and gives self-harm its own crisis wording while other categories get generic copy. Failed evidence is kept and not relabelled as a pass.",
+    "Everything runs on local Ollama Qwen: no paid APIs and no borrowed credentials. The measured cost is about 1k input tokens and 7–9 seconds per general forecast."
+  ],
+  "not_measurable_tonight": "Whether the forecasts come true. This grade covers structure, grounding and safety behaviour only."
+}
+```

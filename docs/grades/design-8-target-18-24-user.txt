@@ -1,0 +1,44 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 7.6,
+  "evidence": {
+    "source_inspection": [
+      "docs/design/ui-rules.md: the 'pocket observatory' thesis and 10 numbered rules. Tokens are ink #0B0620→#2A1458, orb #A77BFF/#5CE1E6, gold #F5C76B, ivory/secondary text. It covers 375×667 and 200% text, a 1080×1920 share safe region, and 8 s / 60 s wait budgets, and says honestly which parts are hypotheses and which are standards.",
+      "docs/design/motion.md: one motion authority table with properties, durations, easing formulas (cubic-out and sine written out), reduced-motion equivalents and haptics for idle, press, card advance, research→reveal, disclosure, export, notice, error and forget/undo. It includes a reveal storyboard covering 0–800 ms.",
+      "docs/design/system.md: composition alternatives (tarot deck, dashboard, observatory), component list, per-screen specs, a component anatomy/state table, voice and copy guidance, and headline patterns.",
+      "docs/design/contrast.json: 20 measured pairs, all at or above minimum (lowest is 6.04 for non-text lavender and 6.97 for placeholder). Covers focus ring, selected border, disabled text, tabs and the export label.",
+      "docs/design/review.html (≈955 KB with embedded images; read by grep for structure and captions): visual grammar, composition choice, three reveal frames, a flow recording, the actual story MP4, a state coverage table with deferred native checks named, and about 40 captioned state captures, each tied to a rule number."
+    ],
+    "visual_inspection": [
+      "home.png: strong. The orb is a real focal object with orbit, mist and specular highlight. The serif hero is paired with a quiet sans. The gold CTA gives a clear hierarchy, and the raised center-orb tab reads as a distinctive brand element.",
+      "selected-1.png: clean single card with a 3-point progress constellation, a cyan ring plus star marker (selection not shown by color alone) and a separate Next button.",
+      "research.png / timeout.png: honest copy with no fake progress. Cancel, Try again and Edit are all present. 'The mist is too thick' keeps the metaphor short.",
+      "reveal.png / why.png: gold rim and constellation distinguish the settled orb from idle. The label sits directly under the headline, and Why expands inline.",
+      "reveal-frame-300.png: the headline and label are captured mid-fade together, which matches the spec.",
+      "exported-card.png / share.png: the private-by-default card keeps the speculative label and omits the question and facts.",
+      "large-home.png / large-reveal.png: at 200% text the label comes before the headline, the orb shrinks to a thumbnail, Ask moves early and nothing is clamped.",
+      "paywall.png: test mode is stated clearly, price and period are equally visible, and there is no fake urgency."
+    ]
+  },
+  "blockers": [
+    "The share artifact is not worth sharing for 18–24 users (visual). exported-card.png leaves roughly the bottom 35% as a faint zigzag on empty gradient. There is no hook such as a 'The Ball says…' frame, and no topic or category glyph. The headline is the only content. Redesign the 1080×1920 composition with a stronger typographic frame, clear branding at the bottom, and a reason a friend would want to tap through. Keep the privacy and safe-zone rules.",
+    "The reveal is under-dramatized for the product's key moment (spec plus frames). The whole payoff is a glow up to 35% opacity and a text fade that finishes by 800 ms. The Home orb press is only a scale change to 0.94, and nothing links it to the research phase. Specify an anticipation beat (tap → mist surge → handoff into research) and a slightly longer reveal with a distinct beat. Keep reduced-motion equivalents and the no-forced-wait rule, for example by making the reveal skippable on tap.",
+    "The sample reveal copy weakens the oracle voice (visual). 'You will need help speaking Spanish in 6 months' is clunky and reads as a scold. It contradicts system.md's own rule that negative verdicts stay 'direct and kind'. The review sheet should show hero examples that land, with one per headline pattern (yes/no, number, named outcome, skill), including a kind negative.",
+    "Identity is inconsistent across states (visual vs spec). The timeout header drops the orb mark and uses a sans wordmark. The large-text header becomes '✧ Crystal Ball' in sans. The large-text tab icons change to sparkle, pie-clock and moon, which contradicts system.md's house/compass/clock/person roles. Fix both the spec and the captures so the wordmark and icon set stay the same in every state and text size.",
+    "There is a rendering defect in the share preview (visual). In share.png the speculative label shows mixed gold and white fragments ('Specul*ative* forecast · not a *guarantee*'). A design review sheet shouldn't ship with a visible glitch in the privacy-critical label.",
+    "Truncation lacks an affordance (visual). In why.png the explanation panel is hard-cut at the tab bar with no fade or scroll cue. In home.png the suggestion row is cut mid-line. Specify a scroll-edge treatment.",
+    "The design docs have grown by patching, and it shows (source). The same rules are restated across ui-rules, system and motion: viewport ends above the orb, label before headline in large text, constellation ≠ question count. Sections like 'Concrete small-screen…' and 'Additional interaction' are appended. Consolidate so each fact has one owner and a builder can't read two slightly different versions.",
+    "Motion proof is thin. There are three browser frames that the sheet itself says are 'not exact keyframes', plus one flow recording. Add a keyframe strip or a short capture for the press→research→reveal sequence and for the reduced-motion final frame, so the 25% motion criterion is backed by more than prose."
+  ],
+  "strengths": [
+    "It has a real, coherent thesis. The glass orb is the one expressive object and everything else stays quiet. The captures deliver on it, and it doesn't look like a generic gradient dashboard or a tarot template.",
+    "Accessibility is taken unusually seriously. The measured contrast table covers non-text elements, selection isn't shown by color alone, 200% text is captured on screen, reduced-motion equivalents exist for every motion, focus handling and announcements are specified for Why, and deferred native checks are named honestly.",
+    "State coverage is thorough: empty, populated, timeout, offline, sensitive-topic redirect, self-harm support link, daily cap, export failure, voice unavailable, friend isolation, and restore.",
+    "The honesty rules are enforced visually: a persistent speculative label (kept in the export too), no fake percent-complete, no fabricated popularity, and test-mode billing with price and period equally visible.",
+    "The motion spec is buildable, with exact easing functions, a single authority file and haptic mapping.",
+    "The typography pairing (Cormorant display with DM Sans interface) and the gold-for-action / cyan-for-selection split are applied consistently in the main flow."
+  ]
+}
+```

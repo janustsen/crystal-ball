@@ -1,0 +1,53 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app",
+  "score": 7.1,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 7.0,
+    "performance_15": 8.0
+  },
+  "evidence": [
+    "[visual] home.png, ask.png, question-1.png, research.png, reveal.png, why.png, share.png, exported-card.png, history.png, knowledge.png, paywall.png, blocked.png, explore.png, home-small.png, network-error.png, timeout.png, money-1.png, money-reveal.png, large-reveal.png, large-question.png, keyboard-focus.png inspected as images.",
+    "[source/log] drive.json: a real local Ollama call (qwen3:4b-instruct-2507-q4_K_M) was observed. Planning took 523 ms, the prediction 1489 ms, and the whole flow 8.9 s. Credit went from 1 to 0 readings, History survived a reload (persisted:true), and the sensitive question was blocked at 77 ms without charging a reading.",
+    "[source] drive-extended.mjs sets context.setOffline(true) before the final card, then retries successfully (network-error.png, retry-reveal.png). drive-states.mjs holds the engine route for 62 s so the app's own 60 s timeout fires (timeout.png). Both are real browser recoveries, not stubbed UI.",
+    "[source/log] drive-extended.json and drive-states.json record only screen names and booleans, with no engine response bodies or latencies. So verification-summary.md's statement that 'JSON logs retain response bodies and timings' holds only for drive.json.",
+    "[source] verification-summary.md says a fresh runtime replay of the engine bakeoff is still required after the latest validation changes. The current engine has therefore not been re-benchmarked.",
+    "[log/visual] The model output is weak for the target user. The headline 'You will need help speaking Spanish in 6 months.' is clumsy and deflating. The Why text reads 'rarely feedback' (ungrammatical) and sounds like a template, and it ends with 'No external evidence supports the future outcome'. Nobody aged 18–24 screenshots that.",
+    "[visual] money-1.png shows a 10-step progress track for the net-worth question. Ten cards is heavy friction for this audience. The 'Getting to know you · 1' label never shows the total.",
+    "[visual] At 200% text, large-reveal.png cuts the headline off at '5 years' and pushes the label above a shrunken orb. large-question.png cuts off the card title 'How many people use your…'. Tab labels disappear. The screenshots don't show whether the screen scrolls, and no scrolled capture proves it does.",
+    "[visual] In share.png, the speculative label on the preview card renders with some letter runs in different weights or colours ('Specul*ative* forecast · not a *guarantee*'), unlike the exported PNG. This is a preview rendering defect.",
+    "[visual] exported-card.png is a strong composition at 1080×1920, but roughly the bottom 35% is empty gradient. There is no app name or link call-to-action, so the card that is supposed to drive virality gives no way back to the app.",
+    "[visual] In knowledge.png, the 'Forget' ghost buttons are low-contrast, differ in size from 'Edit …', and are misaligned. 'Edit Your level' has odd capitalisation, and the third row is cut off by the tab bar.",
+    "[visual] history.png has one plain text row with no chevron or card affordance, and three-quarters of the screen is empty. Nothing makes it clear the row can be tapped.",
+    "[visual] explore.png is a static list with the dead-end caption 'Sample predictions · community feed preview'. The only action per item is a small cyan text link.",
+    "[source] Native boundaries sit behind a port and are tested with mocks in tests/integrations.test.ts: notification permission granted/denied/failed with a 30-day schedule; Apple unavailable/canceled/null token/identity mismatch; purchases never configured in mock mode, and sandbox without a key rejects; the voice press/release race. SETUP.md §'Native development, deferred until Xcode exists' honestly lists VoiceOver, Dynamic Type, keyboard avoidance, safe area, Android back, hold-to-speak and notifications as deferred device checks.",
+    "[source] No purchasePackage call exists anywhere in app/ or src/. The sandbox purchase path is only wired as far as configure/getOfferings/restore. That is acceptable under the no-billing scope but is not mock-tested.",
+    "[source] native.ts: the friend link puts the raw private question into the URL query. This is user-initiated, but it contradicts the 'your answers stay private' framing unless the user is told.",
+    "[log] performance-headed.json: animation frames average 16.67 ms (p95 18.4 ms), and controls are ready in 581 ms. drive.json's headless run shows 54 ms mean and 133 ms max, which the summary discloses as a harness limitation. JS bundle is 461 KB. This is a browser sample only, not a device measurement.",
+    "[source] verification-summary.md: axe reports zero violations across all tabs and the paywall; gradient contrast is checked separately. The summary correctly says browser checks are not proof of VoiceOver or Dynamic Type support."
+  ],
+  "blockers": [
+    "Make the reveal worth sharing. Have the model or post-processing produce a confident, specific, positive-leaning headline instead of phrasing like 'You will need help…', and fix the Why grammar ('rarely feedback'). Then re-run the engine bakeoff on the current code, as the summary itself says is required, and save a semantic spot-check of at least 10 reveals.",
+    "Fix 200% text on the reveal and question cards. The headline and card title must stay fully readable, either by scaling the type down or with a scroll container, and a scrolled or complete screenshot must prove it. Keep tab labels or give the icons accessible names.",
+    "Cut the money flow from 10 cards to 5 or fewer (infer or default currency and horizon), and show 'n of N' progress on every card.",
+    "Fix the speculative-label rendering glitch in the share preview so it matches the export exactly.",
+    "Rebalance the exported card: fill or close the empty bottom third and add an app name or link call-to-action so the share brings people back.",
+    "Polish the You/knowledge screen: consistent button sizes, readable 'Forget' contrast, sentence-case labels, and space so the last row clears the tab bar.",
+    "Give History rows clear tap affordances (card or chevron, outcome chip) and make Explore items tappable cards rather than small text links.",
+    "Make drive-extended.json and drive-states.json record engine response bodies and latencies, as drive.json does, so the summary's claim about the logs is true for every drive.",
+    "Either keep the private question out of friend links or say explicitly in the UI that the question text is shared."
+  ],
+  "strengths": [
+    "The core flow runs against a real local model with fast observed latency: about 1.5 s for the prediction and about 9 s for the whole flow.",
+    "The cosmic palette is consistent across screens: a well-rendered orb, elegant serif display type, and a gold primary button with strong hierarchy.",
+    "Recovery is genuinely exercised with real offline and 60 s timeout paths. Screens state that no reading was charged and offer retry, review and edit choices, and answers are kept.",
+    "The safety redirect is kind, charges no reading, and saves no knowledge, which fits the audience.",
+    "The speculative label stays on the reveal, the share preview and the export. The paywall is clearly marked as test mode.",
+    "Native integrations sit behind a small mockable port with meaningful failure-path tests, and deferred device checks are listed honestly without claiming a simulator run.",
+    "Evidence discipline is good: failed captures are kept, and the headless performance limitation and synthetic-only safety gate are stated plainly."
+  ]
+}
+```

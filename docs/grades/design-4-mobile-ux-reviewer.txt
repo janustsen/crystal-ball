@@ -1,0 +1,44 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.5,
+  "subscores": {
+    "unified_cosmic_mystic_thesis": 8.5,
+    "visual_polish": 7.0,
+    "interaction_and_animation_specification": 7.5,
+    "accessibility_and_complete_states": 7.0
+  },
+  "method": {
+    "source_inspection": ["docs/design/system.md", "docs/design/ui-rules.md", "docs/design/motion.md", "docs/design/contrast.json", "docs/design/review.html (structure, captions, and image references via grep; file is 953KB, so embedded payloads were not rendered)"],
+    "visual_inspection": ["docs/evidence/home.png", "selected-1.png", "research.png", "reveal.png", "why.png", "share.png", "exported-card.png", "paywall.png", "large-home.png", "large-reveal.png"],
+    "not_inspected": ["review.html was not rendered in a browser", "flow-recording.webm and exported-story.mp4 were not played", "the remaining roughly 20 captures referenced by the review sheet"]
+  },
+  "evidence": [
+    "Thesis: ui-rules.md:3 and system.md:3 both use the same idea, a 'pocket/tiny observatory' built around one glass orb, with fortune-telling theater limited to the mist and the reveal. system.md:9 records rejected alternatives (tarot deck, dashboard), and the review sheet repeats them. Every inspected capture follows this: the same orb on Home, Research, Reveal, Share and the export, with gold used for actions and cyan for selection.",
+    "Visual (captures): home.png has a clear hierarchy of serif display type, then the orb, then one gold CTA. selected-1.png shows a clean card list with a ring-and-star marker for selection. reveal.png keeps the speculative label right under the headline. The export composition matches the app.",
+    "Motion: motion.md is the single timing source. It gives property, duration, easing, the reduced-motion equivalent and the haptic for 10 interactions, plus a reveal storyboard and captured frames at 0, 300 and 800 ms that are honestly labeled as observed rather than exact keyframes.",
+    "Accessibility: contrast.json has 20 measured pairs, including disabled text, placeholder, focus ring, selected border and tab states, all at or above the thresholds. ui-rules.md gives specific rules for 200% text (a 96pt decorative orb, no line clamps), 375×667 layout budgets, disclosure focus behavior and Android back.",
+    "States: the review sheet shows captures of timeout, offline, long wait, safety redirect, empty History and empty You, restore, friend isolation, voice unavailable, keyboard focus and large text, and says what remains deferred to device testing."
+  ],
+  "blockers": [
+    "The design-system tokens are corrupted. In system.md:6 the hex values contain spaces ('#0B 0620', '#A 77BFF', '#5CE 1E 6', '#F 5C 76B', '#F 7F 1FF', '#160F 30', '#C 4B 8D 8'), so they are not valid colors. Fix them to match ui-rules.md:5 and contrast.json, and make one file the token source.",
+    "The 200% tab bar contradicts itself. ui-rules.md:3 says labels yield to icons, and large-home.png does show icons only. But large-reveal.png (visual) shows all five labels at 200%, crammed together with no gaps ('HomeExplore Ask History You'), while its caption claims icon tabs. Make the behavior the same on every screen and recapture.",
+    "The reading-counter copy changes from screen to screen: '1 reading', '0 readings', '3 readings' and '3 left' (large-reveal). '0 readings' next to a reading that was just revealed reads like an error. Define one label, such as 'N left today', plus the design for the zero state.",
+    "The share preview does not match the exported artifact. share.png shows the speculative label in secondary lavender with no date. exported-card.png shows it in gold with a date. Rule 9 says the preview must represent the artifact, so they have to match.",
+    "The exported card is top-heavy. exported-card.png leaves roughly the lower 30% (y≈1400–1920) as an empty gradient. The spec reserves only the bottom 420px for overlays, so there is visible dead space inside the safe region. Rebalance the vertical composition or place a decorative element such as the constellation or the wordmark there.",
+    "Research screen alignment is broken. In research.png the heading and body are centered, but the 'This can take up to a minute…' helper text is left-aligned, and the Cancel button floats centered at a different width. Pick one alignment system for the research state.",
+    "The motion spec has gaps and one internal contradiction. system.md:40 says the reveal adds 'one gentle luminance swell', while motion.md defines a mist opacity swell. No motion is specified for: the orb reacting while voice is held (currently a text label only, which is a missed mystic moment), Notice entrance and exit, confirmation after a simulated purchase, share-export progress, or the timeout/error transition. The research→reveal haptic is 'Selection'; a success or notification haptic, or a justification for Selection, is needed.",
+    "Required states are missing from the review sheet. system.md:31 requires a 'keyboard open' check, but no soft-keyboard capture showing the input and Next staying visible is presented (keyboard-focus.png is web focus). Explore, one of the four tabs, is absent from the observed-states grid even though explore.png exists. There is no capture at 375×667 at standard text for Reveal/Why and no reduced-motion frame. paywall-purchased.png exists but is not shown.",
+    "Non-text contrast is incomplete. The unselected radio ring and the card/field borders carry state and affordance but are not in contrast.json (WCAG 1.4.11, minimum 3:1). The 13pt speculative label on the reveal is small next to a 34pt headline; set a minimum size or weight for this trust-critical label and justify it.",
+    "Large-text Home hierarchy: in large-home.png the 'Ask the Ball' button sits above the page's H1, so reading order runs from the eyebrow to the CTA to the heading. Either put the heading first, or document why the CTA is placed first."
+  ],
+  "strengths": [
+    "A strong, specific identity: the SVG glass orb with an orbit ring and internal mist looks like its own object, not a generic gradient template, and it holds up from the 96pt thumbnail to the 1080×1920 export.",
+    "Honest design: no fake percent-complete, no fabricated engagement counts, a speculative label on both screen and export, a clearly labeled test-mode paywall with billing period stated, and cancellation that never spends a credit.",
+    "Detailed accessibility thinking: measured contrast, small-screen pixel budgets, disclosure focus and announcement rules, no zoom lock, and a selection marker that does not rely on color alone.",
+    "The review sheet is built on real captures and states plainly what was observed and what is deferred to device testing, instead of relying on prose.",
+    "Controls stay quiet and are separated from the theater, so the questions and paywall stay readable without ornament."
+  ]
+}
+```

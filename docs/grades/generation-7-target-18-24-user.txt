@@ -1,0 +1,64 @@
+I scored the generation phase **6.3/10**, below the ≥9 bar. The summary's numbers check out against the artifacts. The engine produces definite verdicts and fails closed properly, but the model-drafted general path shows semantic defects in 6 of the 10 cases I checked. The builder's own `generation-review.md` records most of these. This was a read-only review: I made no edits and ran nothing. Visual inspection was out of scope; everything below comes from reading source and evidence files.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "generation",
+  "score": 6.3,
+  "subscores": {
+    "definitive_specific_forecast_20": 7.5,
+    "evidence_groundedness_25": 5.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 7.0,
+    "safety_20": 7.0
+  },
+  "inspection_method": "Source and artifact inspection only (server/engine.ts, server/safety.ts, docs/evidence/verification-summary.md, generation-review.md, engine-bakeoff.json, safety-final-first-run.json). No images viewed; no commands run.",
+  "summary_verification": [
+    "engine-bakeoff.json: 19/20 ok. The only error is 'Will I get a job in technology?', which returns the generic 'mist is too thick' message. CONFIRMED.",
+    "Total time median 4.92s (mean of the 10th and 11th of 20 sorted values: 2.54 and 7.30) and p95 13.61s (19th value, the holiday case). CONFIRMED.",
+    "safety-final-first-run.json: tp 20, fp 0, fn 0, categoryCorrect 39/40. CONFIRMED. The one miss is the Danish 'years left to live' question, labelled self_harm instead of death. That phrase is now a deterministic rule in safety.ts:37, so the 40/40 regression result is tuned, not blind, as the summary itself says.",
+    "generation-review.md is written by the builder, not an independent reviewer, and it already concedes that 9/10 is not earned. I agree."
+  ],
+  "evidence": [
+    "Typed topics are deterministic and grounded:",
+    "  - money is a compound projection with every input echoed in Why ($106,413).",
+    "  - growth is linear arithmetic (100 + 2×4 = 108).",
+    "  - relocation and learning use explicit threshold rules labelled 'not calibrated'.",
+    "  - The model can only pick from an enum of server-built sentences (engine.ts:47-82).",
+    "The general path lets the model draft the cards and the verdict, with one repair and one consistency reviewer (engine.ts:27, 85-91). In 10 real Qwen3-4B cases:",
+    "  - Chess: context_1 and context_2 are the same question ('What is currently true about your chess game?'). The options mix opponent, self and plan, and include an outcome ('My opponent makes a mistake'). The Why then contradicts the user's own answer ('they may not make a mistake') and uses 'may', a hedge the prediction validator forbids but Why never checks. The reviewer passed it.",
+    "  - Ex: the user still thinks about them daily and talks to them regularly, yet the verdict is 'You will move on'. The assumption openly depends on a future change ('if you no longer think about them daily'), so the forecast runs against its own evidence.",
+    "  - Student election: 'How many votes do you currently have? 1200 votes in the system' makes no sense before a vote. The assumption undermines the verdict ('independent metrics with no proven correlation'). The Why has missing sentence punctuation.",
+    "  - Old friend: both cards assume contact happened today ('What did you do with an old friend today?'), and the 'Where did you see…' card has 'They sent a photo' as an option. For someone who hasn't heard from the friend, every option is false.",
+    "  - Technology job: options like 'Team meeting in progress' and 'Code review completed' are real-time snapshots, not useful context. The forecast failed closed.",
+    "  - Current town: 'You will live happily in your current town within 3 months.' A lasting state bolted to a deadline reads badly.",
+    "  - Marathon: the headline has no final period. The Why counts preparation it never asked about as absent, and uses 'uncertainty' wording.",
+    "  - Paris: the reason was dropped because it matched the assumption, so Why is a bare 'Scenario assumption: …'.",
+    "Sports Why is boilerplate. The Lakers user supplied 'Strong recent form' and 'Full squad expected', but Why only says 'using any recent-form or availability context you entered'; it never names those inputs. The headline reads 'Lakers will win…', missing 'The'.",
+    "World Cup: 'Argentina' was the only contender in answersUsed (a harness answer, not one of the offered options), so the 'wildcard pick among the contenders you supplied' was a forced single choice. The pick adds nothing.",
+    "Learning (coding): 'You will complete a beginner project in coding in 1 year' is awkward template text.",
+    "Numbers not in the user's facts are blocked from reason/assumption (engine.ts:88-89). A good guard, but it catches no semantic invention.",
+    "Safety coverage:",
+    "  - Checked three times: the question, the drafted cards, and the output (engine.ts:20, 28, 95).",
+    "  - Deterministic phrase rules run before the model classifier, and errors never produce a fabricated fallback.",
+    "  - The 5 categories are self_harm, death, illness, pregnancy and legal.",
+    "  - Nothing covers eating disorders or weight targets, gambling or betting, substance use, stalking or obsessive monitoring of a person, or violence toward others. These are the most relevant risks for 18-24 users, and none has a category, a rule or a held-out case.",
+    "  - Sports produces bettable 'X will win' lines with no gambling guard."
+  ],
+  "blockers": [
+    "Replace the free-form general card drafting with a deterministic check plus a few domain templates (relationship, event outcome, personal goal, trip or experience, social). Reject cards that duplicate a question, mix subjects within one card, include an outcome as an option, or assume a specific present event ('today', current vote counts). Make sure the answer set can describe a user with no progress yet (e.g. a 'Not yet' / 'No contact' option), instead of relying on Other.",
+    "Make Why deterministic or strictly checked. Every supplied fact must appear accurately. Apply the prediction validator's hedge ban (may/might/could) and a contradiction check against the facts to reason/assumption too. Also check that the verdict's direction follows from the facts: 'move on' with daily contact, or an assumption that undermines the verdict, should fail closed.",
+    "Sports Why must quote the user's form and availability answers and state how they tipped the pick. Fix the grammar ('The Lakers').",
+    "Clean up headlines: always end with a period. Reject a lasting state joined to 'within N months' (rewrite as 'by <date>' or 'still … in N months'). Improve the learning template's wording.",
+    "Get the technology-job case to succeed and re-run a new, never-seen set of at least 30 general questions written by someone other than the builder. Target ≥90% completion, with an independent semantic review showing ≥90% of cases free of the defect classes above. The review must be independent and new; the tuned cases don't count.",
+    "Add safety categories for the target age group: eating disorders/weight, gambling/betting (including a guard on sports picks), substance use, stalking or obsessive monitoring of an ex, and violence toward others. Add rules or classifier examples, redirects, and a blind held-out set in English, Danish and Spanish with reported precision and recall."
+  ],
+  "strengths": [
+    "Every successful headline is a definite 'will'/'will not' sentence. Hedges are rejected (engine.ts:84), and typed topics restrict the model to server-built enum sentences.",
+    "Money, growth, relocation and learning Why texts are fully traceable to user inputs, with honest 'not calibrated' labelling.",
+    "It fails closed after one repair with no fabricated fallback, and errors don't use up a reading. Failed experiments are kept and labelled as historical.",
+    "Safety is checked on the question, the drafted cards and the output, with deterministic rules first. The latest untouched run blocked 20/20 sensitive and 0/20 safe questions. Self-harm gets a crisis-oriented redirect.",
+    "Honest evidence practice: completion is never presented as proof of grounded or accurate predictions, and the summary's numbers match the raw artifacts."
+  ]
+}
+```

@@ -1,0 +1,69 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.0,
+  "score_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 7.5,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_spec_25": 7.0,
+    "accessibility_and_complete_states_25": 7.0
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (954 KB; I grepped its headings, captions, state table and image references; I did not render it in a browser)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png",
+      "reveal.png",
+      "why.png",
+      "selected-1.png",
+      "research.png",
+      "paywall.png",
+      "large-reveal.png",
+      "exported-card.png"
+    ],
+    "not_inspected": "The other ~30 captures linked from review.html, flow-recording.webm, exported-story.mp4 and the reveal-frame-* images. I judged motion from its written spec, not from footage."
+  },
+  "evidence": [
+    "Thesis: ui-rules.md:3 and system.md:3 share one idea, a pocket or tiny observatory with a single glass orb, ink-violet space, gold marks and book-like type. The captures deliver it: the orb with orbit ring, mist and gold constellation on reveal is distinctive and not a generic gradient dashboard. system.md:9 records the tarot and dashboard layouts that were considered and rejected.",
+    "Thesis gap (source): the headline interaction is 'tap the ball', but tapping the orb leads to an ordinary form. The motion spec has no step where the orb carries across screens; Home→Ask is a plain 180 ms fade (motion.md:11). Voice hold, a signature oracle gesture, has no visual design and is 'intentionally deferred' (motion.md:24).",
+    "Thesis gap (visual and copy): the app mixes several names for one unit. The header says 'readings', the paywall says '10 predictions each day', reveal and share say 'glimpse', and system.md says 'forecast'. The gold header counter reads '0 readings' on the reveal and paywall screens, which feels like a deficit meter rather than part of the mystic frame.",
+    "Polish (visual, reveal.png): the 'Did it come true?' card is cut off under the tab bar and its options collide ('Yes / Not… / Not yet'). Asking about the outcome of a 6-month forecast at the moment of reveal also undercuts the reveal.",
+    "Polish (visual, why.png): body text scrolls under the raised center orb tab with no fade or scrim. The orb covers words mid-sentence ('t: In 6 months'). Home shows the same problem: the suggestion row is clipped under the tab bar.",
+    "Polish (visual, reveal.png and why.png): the headline breaks as 'in 6 / months.', which leaves an orphaned line and separates the number from its unit. The spec has no rule for non-breaking spaces or balanced headline wrapping.",
+    "Polish (visual, why.png): 'Behind the mist' is one run-on paragraph, but system.md:15 and 25 specify distinct Facts / Assumptions / Dates / Links groups. The captured text also contradicts itself ('assumes… already intermediate' next to 'Your level: New beginner'), and the review sheet presents that capture as a pass.",
+    "Polish (visual, exported-card.png): the 1080×1920 artifact leaves the lower ~40% empty. It drops the gold rim and constellation that define the settled reveal, so the most-shared surface is the least finished and does not match the in-app reveal.",
+    "Polish (visual, selected-1.png): the header reads 'Getting to know you · 1', but the three-dot constellation above it implies a fixed total of three. ui-rules.md:8 and 29 say not to imply a fixed denominator.",
+    "Motion spec (source): good precision overall. Easing formulas (motion.md:26), timings, reduced-motion equivalents and haptics are all in one table. But the numbers contradict each other. Research runs mist at 45% opacity (motion.md:28), yet the reveal 'swells to 35%' (motion.md:12 and 20), which is a drop, not a swell. The constellation appears at 0 ms (motion.md:20) but also only on 'settled' (motion.md:28). There are no press states for choice cards or secondary actions, no error or warning haptic for timeout or safety redirect, no transition for opening and closing the Why panel beyond 'immediate', and no spec for leaving the paywall or share screen.",
+    "Accessibility (source): contrast.json covers 20 text and non-text pairs, all passing with margin: focus ring 12.6:1, placeholder 6.97:1, disabled 7.58:1. Selection has a non-colour cue (ring plus star). The spec covers 200% text with the label moved before the headline, shown in large-reveal.png. It also covers focus retention on Why, a live-region Notice, and no zoom lock. These are strong.",
+    "Accessibility gaps (source): no contrast entry for the 75%-opacity pressed gold button, and gold 13 pt label text on mid-gradient is covered only through the helper-text entry. 200% mode drops all tab labels (large-reveal.png) and relies on a native large-content viewer that has not been validated. There is no screen-reader reading-order spec for the reveal at default size, and no spec for how the orb button announces the research and reveal phases.",
+    "State coverage (source and visual): broad. Empty, timeout, offline, long-wait, safety redirect, friend isolation, voice denied, edit/forget and restore are all captured. Missing states: (a) out of readings / daily cap reached when tapping Ask, which is the key conversion state; (b) local Ollama model not running or not installed, which is a distinct recovery from 'offline'; (c) notification permission denied for 'Remind me to check back'; (d) the explicit local-reset confirmation promised at system.md:22; (e) share export failure; (f) the disabled Next visual (selected-1.png shows only the enabled state)."
+  ],
+  "blockers": [
+    "Fix content running under the raised tab orb on every scrolling screen: add a bottom scrim or fade plus padding at least as tall as the orb's protrusion. Recapture home, reveal and why at 390×844 and 375×667 with nothing clipped or overlapped.",
+    "Remove the 'Did it come true?' card from the fresh reveal, or collapse it to a single History entry point. Outcome tracking belongs in History after the check-back date. Recapture the reveal with nothing below the fold that looks broken.",
+    "Add a headline typography rule: non-breaking space between number and unit, balanced wrapping, no single-word last line. Show the result in the reveal and exported card.",
+    "Restructure the Why panel into the specified labelled groups (Your facts / Assumptions / Dates / Sources). Remove the contradictory copy from the evidence, or label the capture as a failed semantic example rather than a pass.",
+    "Redesign the share artifact to use the full 9:16 canvas inside the stated safe area: settled reveal orb with gold rim and constellation, headline, label and a compact wordmark or footer. It should read as the best-looking frame in the app.",
+    "Specify the signature 'tap the ball' choreography: orb press → orb carries or scales into Ask → research mist → reveal, as one continuous object with a reduced-motion equivalent. Give voice hold a visual state (for example, mist reacting while held) instead of deferring it.",
+    "Make the motion numbers consistent: idle, research and reveal mist opacity must form a real swell. Pin down when the constellation appears. Add pressed states for cards and secondary buttons, and add error haptics for timeout and redirect.",
+    "Replace the fixed three-dot progress constellation with something that grows with answered cards (for example, one star added per answer with no unlit future dots), so it never implies a total.",
+    "Unify the product noun (reading vs prediction vs glimpse vs forecast) across header, paywall, reveal and share. Restyle the header counter so a zero balance isn't a gold deficit badge.",
+    "Add and capture the missing states: daily cap reached / out of readings, local model unavailable, notification permission denied, reset confirmation, share export failure, and disabled Next.",
+    "Add contrast entries for the pressed 75% gold button and for gold 13 pt on the mid-gradient. Specify the screen-reader order and phase announcements for research → reveal."
+  ],
+  "strengths": [
+    "A clear, memorable thesis (a pocket observatory built around one glass orb) that is carried consistently across the tokens, type pairing and captured screens. The orb art is distinctive and needs no 3D dependency.",
+    "Honest-by-design interaction rules: no fake progress, no fake urgency or popularity, a speculative label kept on reveal and share, test-mode payments that clearly say no money is taken, and cancellation that never spends a credit.",
+    "An unusually precise motion table, with easing formulas, per-interaction reduced-motion equivalents and haptics, and a single authoritative motion document.",
+    "Measured WCAG contrast for 20 pairs, including non-text elements (focus ring, selected border). Selection doesn't depend on colour alone.",
+    "Large-text design with evidence: the orb shrinks to a 96 pt thumbnail, the label moves before the headline, and there are no line clamps.",
+    "Broad state coverage backed by real captures rather than mockups: empty, timeout, offline, long wait, safety redirect, friend isolation, voice fallback, knowledge edit and empty. The review sheet separates observed from deferred native checks."
+  ]
+}
+```

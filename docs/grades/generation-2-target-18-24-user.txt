@@ -1,0 +1,48 @@
+```json
+{
+  "role": "Independent target-user grader (18-24), generation phase",
+  "phase": "generation",
+  "score": 6.4,
+  "method": "Source inspection only: server/*.ts, src/questions.ts, tests/engine.test.ts, docs/evidence/engine-bakeoff.json, the safety evidence JSONs, and docs/research/safety-policy.md. I viewed no images or HTML for this phase and ran nothing. Predictive accuracy was not measured and is not claimed.",
+  "subscores": {
+    "definitive_specific_forecast_20": 6.5,
+    "evidence_groundedness_25": 6.0,
+    "adaptive_question_relevance_20": 6.0,
+    "one_line_fit_15": 7.5,
+    "safety_20": 6.5
+  },
+  "evidence": [
+    "engine-bakeoff.json has 10 runtime cases and 2 of them failed with 'The mist is too thick': the Lakers NBA question and 'Will I finish writing my novel this year?'. A 20% failure rate on ordinary questions is a big problem for this audience.",
+    "Money, growth, relocation and learning outputs are strong and specific ('Your net worth will be $106,413 in 10 years.', 'Your project will reach 108 users in 4 weeks.'). A hand check of the money compounding gives about $106.4k, which matches. But the server works out the single allowed answer and the LLM only 'chooses' from a one-item enum (engine.ts:26-47,59), so the model adds nothing on these topics.",
+    "EV question: the answer is one hardcoded string, engine.ts:56. It ignores the user's 'definition' and 'scenario' answers completely. It also answers a different question: the user asked whether EVs will 'lead' sales, and the answer says they will 'remain below half', which is close to certain and so predicts almost nothing. The bakeoff harness also sent general-topic answers (goal/effort/obstacle) to a world plan, so this path was never exercised with its real cards.",
+    "General-topic output is vague: 'Yes, your next holiday will be memorable.' It ignores the supplied fact 'booked a destination abroad'. The general prompt makes the Why fall back to a generic line ('model-generated speculative choice').",
+    "News grounding is weak. The queries are fixed strings: 'technology outlook', 'election outlook', and '{competition} {edition} results rankings' (engine.ts:21). None of them uses the team or the user's actual subject. The World Cup 2030 pick came with 'Haiti drops 5 spots' and the 2026 schedule as sources. To its credit, the Why says plainly that headlines do not verify the pick.",
+    "The topic router is regex-only (src/questions.ts:12-19) and misroutes likely 18-24 questions. 'Will I move on from my ex?' and 'Will I live happily?' match the relocation pattern and get city/lease cards. 'Will I get a job in technology?' and 'Will I win the student council election?' go to world and get 'A clear majority' cards. 'Will I win my chess match?' matches sports and gets World Cup/NBA cards.",
+    "The LLM-generated general cards use the wrong voice ('How much have I written this month?'), and some options are 40+ character sentences. The UI skips facts the user already supplied, and tests cover that.",
+    "Safety: the phrase rules plus the LLM classifier caught 20/20 on the corrected outsider set and 20/20 sensitive items on the held-out set. But safeContext() (safety.ts:17) hardcodes the exact earlier false-block phrases ('pregnancy memoir', 'novel about a cancer survivor', 'consulate.s visa section', 'paralegal certification exam', 'immigration caseworker'). That is fitting to the test set, which the verification summary partly admits ('now a regression set').",
+    "Safety false blocks likely for this audience: 'terminal' (learning to use the command line) and 'stroke' (swimming) are blocked as illness, and 'sentence' is blocked as legal (safety.ts:6-7).",
+    "Harm categories missing from both the deterministic rules and the classifier prompt, all high-relevance for 18-24: eating disorders and weight-loss targets, abuse or domestic violence ('will he hit me again'), gambling and crypto-bet outcomes, substance use, and a partner's cheating or stalking.",
+    "safety-policy.md says 'Model output is checked again before reveal', but predict() never screens the generated headline (engine.ts:61-63). The documented contract and the code disagree.",
+    "The predict error path returns raw exception messages to the client (engine.ts:64)."
+  ],
+  "blockers": [
+    "Get the runtime error rate to 0 of at least 20 varied questions, including single-team sports ('Lakers will not win' style) and general-topic questions. Add a deterministic fallback headline built from the choices and facts instead of the 'mist' error.",
+    "Replace the hardcoded EV answer with a forecast that actually uses the user's definition and scenario answers and addresses 'lead' as asked. Route non-EV world topics to prompts that use the answers.",
+    "Make general forecasts cite at least one supplied fact in the headline or Why (e.g. 'Your booked trip abroad will be the highlight of your year.'). Reject outputs that reference none of the facts or just echo 'Yes, <question>'.",
+    "Build news queries from the question's entities (team, country, subject). Drop headlines that don't mention the chosen contender or subject, and show 'no relevant sources' rather than off-topic ones.",
+    "Harden topic routing: use the LLM classifier, or at least negative rules, for 'move on', 'live happily', 'job in technology', 'student election', 'chess match'. Add those as test cases.",
+    "Write the LLM context cards in second person with short options (≤6 words). Test this with an assertion.",
+    "Remove the phrase-specific safeContext allowlist. Fix false blocks through the classifier or narrower rules ('terminal illness', 'had a stroke'), and evaluate on a fresh held-out set that the builder did not write.",
+    "Add categories for eating disorders/weight, abuse/violence, gambling/crypto outcomes and substance use, with redirect copy and held-out tests.",
+    "Screen the generated headline with safety() before reveal, as the policy promises. Otherwise, correct the policy document."
+  ],
+  "strengths": [
+    "The deterministic money and growth calculators are transparent, correct, and grounded entirely in the user's inputs.",
+    "Honest labelling: 'Speculative forecast · not a guarantee', and a Why that says headlines don't verify the pick. Assumptions are listed.",
+    "Output validation rejects hedging words, questions, 'I' openers, over-110-character lines and headlines copied from news titles.",
+    "Safety is layered (phrase rules, then the classifier, then a fail-closed error), with good euphemism coverage ('kms', 'unalive', 'log off permanently') and some Spanish and Danish coverage. It screens user answers as well as the question.",
+    "Sports cards adapt (women's and men's edition validation, NBA teams), and cards for facts the user already gave are skipped, with unit tests.",
+    "Latency is 1.5–3 seconds on a local Qwen model, with no paid APIs."
+  ]
+}
+```

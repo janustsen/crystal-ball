@@ -1,0 +1,46 @@
+I scored the research phase **8.5/10**, below the ≥9 bar. The findings are honest and the pricing and model decisions are ready to act on. Two things hold the score down: the safety layer fails its own release gate with no concrete plan to fix it, and the model-quality evidence was never re-run under the current prompt. I only read files; nothing was changed or executed. Four of the six blockers from the previous review (round 7, 8.3) are fixed or mostly fixed: the Nebula price file, the production search candidate, the archive split, and a new blind safety run.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 8.5,
+  "evidence": {
+    "visual_inspection": [
+      "docs/research/evidence/tarot-ai.jpeg: matches the visual-observations.md notes. Preview 1 is a purple/gold menu with three equal modes (Fingerprint Reading, Classic reading, Card Of The Day). Preview 2 has a quiet centre with a row of face-down cards along the bottom. Preview 3 shows 'Hold to scan your finger'. Header shows 23 ratings, 4.7, age 4+, and What's New lists 'Premium: personalized AI deep-dive reading'. comparables.md is right to warn that 23 ratings is too few to count as proven demand."
+    ],
+    "source_inspection": [
+      "Previous blocker fixed: store-prices.json now includes Nebula's $2.99 subscription, the $4.99 Relationship Check-In and the $9.99 Chat Balance Offer, so it matches nebula-iap.txt and the $2.99–$49.99 range quoted in comparables.md.",
+      "Previous blocker fixed: research-path.md names Brave Search API as a production candidate. It links the official announcement ($5 per 1,000 requests) and the API and help pages (storage rights require a specific plan; no rights to third-party pages). Its cost split is $0.005 search, $0.003 inference and $0.002 hosting, which fills the whole $0.010 ceiling, and it rejects paid deep mode on that basis.",
+      "Previous blocker fixed: question-engine.md now holds only current policy; history lives in archive/question-engine-history.md and archive/safety-routing-history.md.",
+      "Safety numbers are internally consistent. Fresh-40 confusion table: 17+2+4+4+4+3 = 34/40 correct categories, 1 sensitive miss, 3 false blocks, so 95% recall and 86.4% precision. Fourth blind set: 17/20 blocked (85%) and 1/20 false blocks (5%). 8B blocked 14/20 (70%), and all three 4B misses were also 8B misses.",
+      "comparison-summary.json matches the model-bakeoff.md table: 4B median 1.6815s, p95 2.48s, safety 27/30; 1.7B safety 17/30; 10-card flow 3890/699 tokens in 22.186s.",
+      "blind-review.txt supports the 8.23 / 7.47 / 5.93 scores and the preference for 4B being conditional. All three models block the safe World Cup question. Candidate A's 104-user arithmetic error, which the automated checker misses, is disclosed in model-bakeoff.md.",
+      "review-sample.json records n=0 for all three Apple RSS feeds, and no complaint frequencies are invented from it.",
+      "source-excerpts.md holds dated verbatim excerpts for Together, Groq, RevenueCat (10.7% / 2.1%), Pew ('Nearly a quarter… 18 to 29') and TikTok (9:16, at least 540×960).",
+      "The decisions.md Safety row stops at the third set (95% recall / 86.4% precision). The failed fourth set (85% recall) appears only in a trailing paragraph, so the authoritative table understates the current failure.",
+      "decisions.md's Evidence column still cites implementation files (src/questions.ts, server/provider.ts, server/research.ts, server/safety.ts, ../evidence/engine-bakeoff.json) as research evidence.",
+      "Groq's cost is computed only on the assumed 8K/1K tokens ($0.0104). Using the measured 10-card flow (3,890 in / 699 out) it is about $0.0059. The docs say shorter prompts 'may fit' but never do this sum.",
+      "Glued number-word tokens remain: pricing.md ('at or below$0.010', 'At300', 'assumed30%-fee net$4.19'), source-excerpts.md ('rechecked2026-09-29', 'per1M', 'proposed1080×1920'), comparables.md ('age18–29', 'of18–24'), review-response.md ('Rounds3–4', ',21 constrained', ',30 held-out')."
+    ]
+  },
+  "blockers": [
+    "Safety has no concrete fix. The independent gate failed on its latest run: 3 sensitive misses (Spanish lifespan, Danish paternal survival, Danish not-waking ideation), 8B does worse, a model ensemble cannot help, and translation mistranslates. 'Retain 4B, don't deploy publicly' is a limitation, not a fix. Shortlist at least one sourced, locally runnable dedicated safety classifier (for example Qwen3Guard, Llama Guard or ShieldGemma, with model card, licence and language coverage). Run it once, untuned, on the same fourth 40-case set and the three misses, and record recall, false blocks and latency. If none helps, commit to a named fallback, such as blocking unsupported languages from the classifier path, and measure what it costs in false blocks.",
+    "Update the decisions.md Safety row to the latest first-run result (fourth set: 85% recall, 5% false blocks, gate failed, 8B at 70%). The authoritative table must not show the more favourable earlier set.",
+    "The model-quality decision still rests on the pre-fix 8.23 blind review. The sports-overblock fix is supported only by n=3 on one question. Re-run the blinded 10-fixture × 3-repeat set under the current prompt and presentation rules with a fresh reviewer, or explicitly move the model-quality decision out of research and into the generation gate, with the 8.23 kept as the research-phase result of record.",
+    "Separate research evidence from implementation claims in decisions.md. Cite research artifacts in its Evidence column (bakeoff JSON, blind review, safety first-run files, search-expanded.json), and list src/ and server/ files in a separate 'Implemented in' column or document.",
+    "Recompute the hosted cost on the measured 3/6/10-card token counts for both Groq and Together, including one repair and the $0.005 Brave query. State whether each candidate clears or fails the $0.010 ceiling, rather than 'may fit'.",
+    "The share safe-zone figures (y=300–1500, 420px bottom) still rest only on a TikTok ad-spec floor. Cite a primary Instagram/Meta Stories safe-zone source, or reword the numbers throughout as an unsourced, conservative allowance that must be verified by previewing in each destination (ui-rules.md half does this already).",
+    "Fix the glued number-word tokens listed above. Janus reads these documents directly, and 'At300' and 'assumed30%-fee net$4.19' hurt scanability of the pricing gate."
+  ],
+  "strengths": [
+    "Measurement is exceptionally honest. Four safety runs are shown chronologically, with first runs kept separate from tuned regression runs. Failed pilots are kept (the context-bound pilot scored 4.5/10, the deep-research pilot didn't pay off, the review feed returned n=0, the relocation repair invented details). The docs repeatedly refuse to call a structural pass a semantic or predictive pass.",
+    "The local model choice rests on primary measurements: 90 blinded reveals across three Qwen variants, median and p95 latency, token counts, and 3/6/10-card flow timings. Its limits are stated (a p95 from n=30 is only descriptive; the size and tuning confound means no scaling law).",
+    "Pricing is ready to decide on. It has a hard launch gate (≤$0.010 all-in per prediction) and a pessimistic $0.03 loss boundary. The token budget is reconciled with measured flows, and there are explicit reversal thresholds (4/5 price recall; a >25% relative conversion drop; >5% refund or confusion). The $5.99 price is labelled a competitor-anchored placeholder.",
+    "Retrieval has a per-query relevance audit (independent reviewer: Google News 36/45, Wikipedia 24/45). Bing is rejected on quoted terms of use. There are clear eligibility rules (180-day cutoff, geography/edition check, at least two distinct leads before calling evidence anything but limited). A production provider is named, with a cost and storage-rights gate.",
+    "The competitor evidence is primary and dated: listing captures, IAP accessibility snapshots and the expanded review excerpt. Store marketing previews are explicitly kept separate from installed flows and exported cards.",
+    "The UI rules are specific and testable: hex tokens with measured contrast (ivory on ink 17.89:1), a 44pt minimum target, a 527pt viewport budget at 375×667, orb sizes 240→160→96pt, 8s/60s loading budgets, the focus behaviour for Why, and a private-by-default share preview.",
+    "The user-test plan has per-task time budgets, price-recall criteria, and triggers that would reverse the daily limit and the card flow. It states plainly that no 18–24 participants have been tested and that Pew's 18–29 figure is only a proxy."
+  ]
+}
+```

@@ -1,0 +1,55 @@
+I graded the generation phase at **5/10**. The ≥9 bar isn't met; the raw weighted rubric comes to 5.3.
+
+The biggest problem is in `docs/evidence/engine-bakeoff.json` (real local Qwen, today 09:41 UTC). For 2 of the 3 open-ended questions, the "prediction" shown to the user was just a news headline copied word for word, publisher suffix included. The current `server/engine.ts:46-47` would still allow that. The phone screenshots also look out of date: `reveal.png` and `why.png` show a headline that the current fixed wording for learning questions can no longer produce. I read the screenshots visually and the code as source; I ran nothing.
+
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "generation-1",
+  "score": 5,
+  "evidence": [
+    "RUNTIME (docs/evidence/engine-bakeoff.json, real local Qwen run 2026-09-29 09:41Z): 'Will I finish writing my novel this year?' produced the headline 'I Finished Writing Another Book! 📖🎉 But Will Anyone Even Read It? 🫠 - Substack'. That is sources[0].title copied word for word. It is not a forecast about me.",
+    "RUNTIME (same file): 'Will my next holiday be memorable?' produced 'It's time to book: When to buy holiday, spring break and summer flights for the best fares in 2026-27 - The 20'. That is a copied Points Guy headline, cut off partway through. So 2 of 3 open-ended questions returned garbage as the reveal.",
+    "SOURCE (server/engine.ts:45-47): for open-ended questions the only checks are maxLength 110 and a ban on may/might/could/likely. Nothing rejects a copied source title, a trailing ' - Publisher', emoji, a result that doesn't start with 'You will' or name the subject, or a result that doesn't answer the question. That is why the two failures above get through.",
+    "RUNTIME: 'Will EVs lead global new-car sales next year?' → 'EVs will lead global new-car sales next year'. It just repeats the question, has no number, and its own attached source says EVs were 25% of global new-car sales in 2025. The forecast contradicts the evidence shown under it.",
+    "RUNTIME: the retrieved sources are mostly unrelated. Growth question → Burning Man, Macy's AI agent, AAA July 4th travel. Relocation → advertiser streaming budgets, a Def Leppard documentary, Jimmy Kimmel. Danish → a Brooklyn furniture store. The filter in server/research.ts:11-12 needs only 2 keyword hits ('weeks', 'next year', 'six months'), so filler words count as relevance. Only the sports questions got relevant headlines.",
+    "SOURCE (server/engine.ts:48): the 'Why this prediction?' text honestly says headlines 'do not verify the prediction'. But because every result carries 3 unrelated links, the forecast looks researched when it isn't. For me as a user, that's worse than showing no sources.",
+    "RUNTIME: the AI-written follow-up cards for open-ended questions break the app's own prompt rule ('Never ask the user to predict the outcome'). The EV cards ask the user for the EV share, growth rate and market dominance. The holiday cards ask which outcome will happen ('You will travel to a destination...'). Options are cut off mid-word ('...globally in 2', '...for the '). The 60-character schema cap makes the model stop mid-sentence, and nothing rejects the result.",
+    "RUNTIME: the bakeoff's recorded answers for open-ended questions (goal/horizon/effort/obstacle) don't match the cards the app actually showed (context_1..3). The saved facts are just the first option on each card. So what the transcript calls 'answers' isn't what was actually answered.",
+    "SOURCE (src/questions.ts:7, server/engine.ts:29): the growth flow asks 'How often do users return?' (retention), but the projection ignores the answer. That's a wasted question, and the '108 users in 4 weeks' figure is plain 100 + 2×4 arithmetic.",
+    "SOURCE (src/questions.ts:8): 'Will the Lakers win the NBA championship?' still asks 'Which team is your pick?', so the app asks for something the question already says. For 'Who will win the next World Cup?' the 'oracle' just repeats my own team pick ('Argentina will win…'). That's my guess read back to me, not a prediction.",
+    "SOURCE + RUNTIME: money, growth, sports, relocation and learning use fixed wording or a formula. The net worth result '$106,413 in 10 years' checks out against projection() and is specific. The Danish and coding results are fixed, clear one-liners. This part is solid.",
+    "RUNTIME (docs/evidence/safety-outsider-corrected.json, verification-summary.md): slang self-harm ('kms', 'unalive', 'log off permanently', 'whole bottle'), Spanish and Danish self-harm and death, and green card / H-1B / work-permit questions are blocked. Safe look-alikes ('log off social media', paralegal exam, consulate job) are allowed. The summary is honest that this is a corrected regression set, not held-out evidence. The original held-out set was 20/20 blocked with 2/10 safe questions wrongly blocked.",
+    "SOURCE (server/safety.ts:17): the 'safe context' step removes whitelisted phrases before classification. That's a small hole, since unusual mixed phrasings reach the model with the phrase already stripped. server/engine.ts:18 re-checks safety on the question plus all answers (including 'Other' text) before predicting, which is good.",
+    "VISUAL (docs/evidence/reveal.png, why.png): the reveal is one large serif line with a gold 'Speculative forecast · not a guarantee' label. The layout reads well for my age group, but the headline shown ('You will need a year to hold a basic Spanish conversation.') can't be produced by the current learning wording in engine.ts:37, so the screenshots predate the current code.",
+    "Future predictive accuracy was not measured and cannot be judged tonight. Everything above covers structure and meaning only."
+  ],
+  "blockers": [
+    "Reject copied source titles in open-ended results: fail validation if the headline matches or is 60%+ of any sources[].title, contains ' - ' followed by a publisher, contains emoji, or doesn't address the subject (e.g. must be in second person or name the question's subject). On failure, retry once, then fall back to a fixed sentence built from the user's answers. Rerun the bakeoff and show 0 copied headlines across at least 10 open-ended questions.",
+    "Make open-ended forecasts specific and not contradicted by their own sources: require a concrete anchor (a number, date or named outcome) taken from the user's answers or a source. Add a check that rejects a headline that just repeats the question (e.g. the EV case).",
+    "Fix news relevance: drop filler words ('weeks', 'months', 'six', 'four', 'next', 'year', 'writing', 'holiday') before keyword matching, require topic nouns to match, and show 'No relevant news found' instead of unrelated links. Grade retrieval precision on the bakeoff questions and aim for ≥80% relevant.",
+    "Enforce the follow-up card rules in the validator, not just the prompt: reject options that start with 'You will' or state outcomes, and options that end mid-word or at the 60-character cap. Ask for fewer words per option so the cap is never reached.",
+    "Stop asking what the question already says: skip the team card when the question names a team or competition. Either use retention in the growth projection or remove that card.",
+    "Refresh the evidence: rerun drive.mjs / drive-extended.mjs against the current engine so reveal.png and why.png match current output. Fix the bakeoff so it records the answers actually chosen for AI-generated cards.",
+    "Add engine.test.ts cases that feed a fake model a copied-headline response and a cut-off option, and check both are rejected."
+  ],
+  "strengths": [
+    "The money, growth, relocation, learning and sports flows use fixed wording with enums or a formula, so the result is definitive, one line and never hedged (e.g. '$106,413 in 10 years', 'Lakers will win the 2027 NBA championship').",
+    "The net worth projection has clear stated assumptions, handles inflation, rejects non-numeric answers with a clear error, and has a unit test.",
+    "Safety is the strongest area: a fixed keyword/phrase check plus a model classifier, slang and Spanish/Danish coverage, answer text re-checked before predicting, generic redirect copy that avoids category-specific advice, and honest labeling of the corrected set as a regression set.",
+    "Honest framing: the 'Speculative forecast · not a guarantee' label, assumptions listed per forecast, and 'why' text that doesn't overclaim.",
+    "Sports follow-ups adapt correctly (NBA → Lakers/Celtics/Thunder, Women's World Cup → 2027), impossible World Cup editions are rejected, and learned facts are skipped on later sessions (covered by a test).",
+    "It runs on local Qwen in about 2–11 s per full prediction with small token counts and no paid APIs. A malformed model response gets one repair attempt and then an error, never a made-up result."
+  ]
+}
+```
+
+Rubric breakdown:
+
+| Area | Weight | Score |
+|---|---|---|
+| Definitive specific forecast | 20% | 6 |
+| Evidence groundedness | 25% | 3 |
+| Adaptive question relevance | 20% | 5 |
+| One-line fit | 15% | 5 |
+| Safety | 20% | 8 |

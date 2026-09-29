@@ -1,0 +1,52 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 7.4,
+  "subscores": {
+    "unified_cosmic_mystic_thesis_25": 7.5,
+    "visual_polish_25": 6.8,
+    "interaction_and_animation_spec_25": 7.3,
+    "accessibility_and_complete_states_25": 8.0
+  },
+  "method": {
+    "source_inspection": "Read the text of docs/design/system.md, ui-rules.md, motion.md and contrast.json. For review.html (955 KB, mostly embedded TTF fonts) I read the headings, captions, state-coverage table and image references with grep, not in a rendered browser. I did not run any commands.",
+    "visual_inspection": "Looked at the actual 390x844 captures linked from review.html: home, question-1, selected-1, research, reveal, reveal-frame-300, timeout, history, share, paywall and large-reveal, plus the 1080x1920 exported-card. I did not play the webm flow recording or the mp4 story."
+  },
+  "evidence": [
+    "Clear thesis, stated consistently in ui-rules.md:3 and system.md:3: a 'pocket observatory' with one glass orb, ink-violet space, gold marks and a Cormorant/DM Sans pairing. The captures follow it. The orb (orbit ring, cyan mist, gold satellite) is a recognizable signature object.",
+    "The composition choice is argued rather than asserted: tarot deck and dashboard were rejected with reasons (system.md:9, repeated in review.html).",
+    "motion.md is one authority with real numbers: 3.2s sine breath, 12s/6s mist, 120/180 ms press, 180 ms cubic-out entrance, a reveal storyboard from 0 to 800 ms, easing formulas, reduced-motion behavior per row, and haptics.",
+    "contrast.json measures 20 pairs, including non-text (focus ring, selected border) and disabled text. All pass WCAG AA by a wide margin.",
+    "review.html captures 39 real states, including long wait, timeout, offline, safety redirect, the three History states, empty You, friend mode, voice unavailable, keyboard focus, and 200% text on Home, a card and the reveal. Most apps at this stage do not capture this many.",
+    "Visual defect (reveal.png, reveal-frame-300.png): a 'Did it come true?' card with Yes / No / Not yet sits under the tab bar and is clipped mid-glyph on the hero screen. It also asks for an outcome on a 6-month forecast made seconds earlier.",
+    "Voice-rule violation: system.md:52 says 'Avoid repeated diminutives'. The captures read 'Your future has a little mystery', 'A little glimpse of what's next', 'A little perspective' (all on Home), 'Send a little wonder', 'Your little archive of tomorrow' and 'A little more wonder'. To an 18–24 user this reads as twee.",
+    "Motion contradiction: motion.md:28 puts research mist at 45% opacity, while the research→reveal row (motion.md:12) 'swells' it to 35%. That is a dip, not a swell, so the spec can't be built as written.",
+    "Inconsistent share: the export (exported-card.png) uses the idle orb, without the gold rim and constellation that define the reveal. The lower ~40% of the 1080x1920 frame is an empty gradient, and there is no reason to tap or look again. The on-screen preview (share.png) pushes the export actions below the fold.",
+    "Progress contradiction: question-1.png shows a 3-dot constellation next to 'Getting to know you · 1'. Three dots read as a denominator, which ui-rules.md rule 4 forbids ('do not fake a fixed denominator').",
+    "Generic chrome: the tab icons are stock outlines (house, sparkle, clock, crescent moon for 'You'), and the sky is a flat violet gradient with sparse dots. Outside the orb, nothing is mystic-specific. Headline typography carries the mood alone.",
+    "Small inconsistencies: History shows '9/29/2026' while the share card shows 'Sep 29, 2026'. On the reveal and paywall, a gold '0 readings' counter in the header reads like a scarcity nag. The Ask tab isn't marked active on Share even though Share is part of the Ask flow.",
+    "In large-text reveal (large-reveal.png), the speculative label comes first as specified. But the headline takes the whole viewport and no action or Why is visible. The tab labels disappear by design, which leaves four unlabeled glyphs.",
+    "Missing expressive moments in the spec: the voice-hold orb animation is 'intentionally deferred'. The raised center Ask orb has no press or active animation, and Notice has no motion. Haptics cover only selection and success."
+  ],
+  "blockers": [
+    "Reveal: move 'Did it come true?' off the fresh reveal, or show it only after the forecast's check-back date. Make sure nothing on the reveal is clipped by the tab bar at 390x844 and 375x667, and recapture.",
+    "Copy pass: remove 'little' from every screen except at most one brand line, so the design follows its own voice rule. Rewrite headline examples so they sound like something a 22-year-old would screenshot (the Spanish example reads like a deficit notice).",
+    "motion.md: settle the research (45%) vs reveal (35%) opacity conflict, e.g. research 30% → reveal swell to 55% → settle 20%. Update system.md and the storyboard to match, then recapture reveal frames that show the swell.",
+    "Share artifact: use the settled reveal orb (gold rim and constellation) in the export. Rebalance the 1080x1920 layout so the lower third isn't empty, e.g. a question teaser, an 'ask your own' line, or a constellation baseline inside the safe region. Keep export actions visible in the preview without scrolling.",
+    "Progress indicator: either drop the fixed 3-dot preview or render only answered and current points, so the constellation never implies a total.",
+    "Give the chrome a cosmic identity: custom tab glyphs in the orb's line and orbit language (a moon for 'You' is arbitrary), plus one more layer of sky texture (a faint nebula or constellation lines) held at measured contrast.",
+    "Specify the missing motion: a press and active state for the center Ask orb, a voice-listening orb state (it can be designed now even if mic validation is deferred), a Notice enter/exit, and a haptic on reveal and on the orb tap.",
+    "Large-text reveal: set a minimum so the primary action or Why toggle is visible or clearly reachable within the first viewport, e.g. cap the display size or move the orb thumbnail inline. Recapture.",
+    "Use one date format everywhere, and demote the header readings counter from gold to secondary color on non-paywall screens."
+  ],
+  "strengths": [
+    "A real, defensible thesis ('pocket observatory'), with alternatives considered, and one memorable signature object.",
+    "The orb artwork is tasteful and above average for a prototype: glass highlight, orbit ring and distinct research and reveal phase art (the reveal constellation is a nice touch).",
+    "Motion is specified at build level: durations, easing formulas, reduced-motion equivalents and a storyboard, with captured frames as evidence instead of prose.",
+    "Accessibility is taken seriously: measured contrast including non-text and disabled pairs, 200% text layouts with reordered content, focus retention on the disclosure, live announcements, no zoom lock, and selection shown without relying on color.",
+    "State coverage is unusually complete and honest: timeout, offline, long wait, safety redirect, empty states, friend isolation, a mock-billing notice and truthful restore. Native VoiceOver and Dynamic Type are correctly marked as deferred rather than claimed.",
+    "Trust design suits a skeptical 18–24 audience: 'Speculative forecast · not a guarantee' stays next to the headline and survives into the export, the paywall uses no fake urgency, and 'Nothing was charged' appears in the recovery copy."
+  ]
+}
+```

@@ -1,0 +1,60 @@
+```json
+{
+  "role": "independent target 18–24 user grader",
+  "phase": "design",
+  "score": 7.4,
+  "rubric": {
+    "unified_cosmic_mystic_thesis": 8.5,
+    "visual_polish": 7.0,
+    "interaction_and_animation_specification": 6.5,
+    "accessibility_and_complete_states": 7.5
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (text and image/video references only; the file is 955 KB, mostly embedded data)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png", "home-small.png", "large-home.png", "question-2.png",
+      "research.png", "timeout.png", "blocked.png", "reveal.png", "reveal-frame-300.png",
+      "why.png", "general-reveal.png", "large-reveal.png", "share.png", "exported-card.png",
+      "history.png", "paywall.png", "failure.png (not linked from review.html)"
+    ],
+    "not_inspected": "flow-recording.webm, exported-story.mp4 and about 25 other captures linked from review.html. I could not play the videos, so I can't vouch for any motion claim."
+  },
+  "evidence": [
+    "Thesis: all four docs describe the same 'pocket observatory': one glass orb in ink-violet space, gold celestial marks, Cormorant for display and DM Sans for UI. The theater is kept to the mist and the reveal; controls and explanations stay plain. The captures follow this on every tab I opened.",
+    "The design names the rejected compositions (tarot deck, dashboard) and explains why the orb-first layout wins. It sets headline patterns and bans invented odds and claims of supernatural accuracy.",
+    "contrast.json records 20 measured pairs, all above minimum. The lowest text pair is placeholder at 6.97:1; non-text includes focus ring 12.6:1 and selected border 7.66:1. Gold buttons use ink text at 12.5:1.",
+    "motion.md gives numbers for each interaction: durations, easings with formulas, a reduced-motion column, a haptic column, and a 0/200/250/700/800 ms reveal timeline. It says it does not claim a shared-element transition or native haptic feel.",
+    "Visual: research, timeout, safety redirect and paywall all keep the orb and the tone. The copy is kind and specific ('The mist is too thick.' / 'Nothing was charged.'). The paywall's test-mode label is honest and billing periods are clear.",
+    "Visual: exported-card.png breaks the headline as 'You will speak basic Spanish in 6 / months.' ui-rules.md says 'Keep numbers and time units together.' The share preview in share.png has the same break.",
+    "Visual: reveal-frame-300.png looks identical to the settled reveal.png as far as I can see: gold rim, constellation and text all at full strength. review.html presents 0/300/800 ms frames as the reveal motion evidence, but they show no visible difference, so the timeline is unproven.",
+    "Visual: why.png's explanation contradicts itself. It says 'new beginner' and '30 minutes' daily, then 'This scenario treats an intermediate starting point, or 20…'. The question card offered 10/20/45 minutes, not 30. The 'new beginner' phrasing is also ungrammatical. This is the screen meant to make the app feel trustworthy.",
+    "Visual: at 200% text, large-home.png breaks the display headline one or two words per line ('A / glimpse / of what's') and the orb is off-screen, so the page no longer reads as an observatory. In large-reveal.png the headline runs under the fold at display size. Tab labels are removed at 200% by design, leaving icons only.",
+    "Visual: the disabled Next button in question-2.png is a flat muted slab. It is legible, but it's the dullest element on a key screen. The exported card's lower half is mostly empty, with a faint constellation.",
+    "Visual: failure.png is stale. It has a different ✧ wordmark and different sparkle/moon tab icons, and it actually shows the Ask screen, not a failure. review.html doesn't link it, but it still sits in evidence/ looking like a current state.",
+    "States: review.html links captures for empty, populated and outcome History; empty/edit/forget-undo Knowledge; offline, timeout and longer-wait recovery; daily cap; export failure; voice unavailable; keyboard focus; friend mode; restore; self-harm support. VoiceOver, Dynamic Type and native haptics are honestly listed as deferred device checks."
+  ],
+  "blockers": [
+    "Fix headline wrapping so a number never separates from its unit, in the app and in the 1080×1920 export (for example a non-breaking space between number and unit, or balanced line breaks). Re-capture exported-card.png and share.png.",
+    "Prove the reveal timeline visually. Capture frames where the difference shows: glow rising at ~250 ms, text partly faded at ~300–500 ms, settled at 800 ms. Or state plainly that the current frames show no difference. Otherwise the motion section is text only.",
+    "Specify the missing signature moments for a mystic app aimed at 18–24s: the Home orb tap into Ask (continuity or a deliberate cut), a question card-to-card transition, the moment the reveal arrives from research, and the Why expand. Right now the only 'magic' is a 0.35-opacity glow and a gold rim. Add one memorable but short choreographed beat that still respects 'no ceremony delay' and has a reduced-motion equivalent.",
+    "Make Why internally consistent in the reference capture: no beginner-vs-intermediate or 30-vs-20-minute contradiction, correct grammar, and facts matching the answer options the user actually picked. Add a design rule that Why may only restate recorded answers.",
+    "Rework the 200% layout. Cap the display face or switch it to the body scale at large text so the headline doesn't break per word. Keep a visible (if smaller) orb or wordmark anchor. Add a 200% capture of the tab bar showing it can still be discovered without labels, or keep short labels.",
+    "Give the disabled primary action and the exported card's lower third a deliberate visual treatment. Tie the constellation to the reveal motif, or tighten the composition so critical content isn't floating mid-frame.",
+    "Remove or relabel stale evidence (failure.png) so reviewers can't mistake superseded iconography for the current state."
+  ],
+  "strengths": [
+    "One coherent visual thesis that runs through tokens, copy, composition and states. It feels like one product, not a template.",
+    "Unusually honest documentation: it separates hypotheses from measurements, browser from device, and structural from semantic proof. The mock-billing labels are truthful.",
+    "Measured contrast, focus and selection that doesn't rely on color alone, 44/52 pt targets, a reduced-motion column for every interaction, and a Why disclosure that announces its state.",
+    "Recovery and safety states are complete and on-brand without being alarming ('No reading was spent').",
+    "The captured Home, research and reveal screens are clean and attractive at 390×844. The orb is a distinctive centerpiece, not a generic gradient."
+  ],
+  "verdict": "Strong, credible thesis and broad state coverage, but it misses the 9 bar. The design breaks its own number/unit rule in the one shareable artifact. The motion evidence shows no visible animation. The explanation screen contradicts itself, and the 200% layout loses the composition."
+}
+```

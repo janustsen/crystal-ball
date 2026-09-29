@@ -1,0 +1,32 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 8.2,
+  "inspection_mode": "Source inspection only: I read the markdown and JSON in docs/research, docs/design/ui-rules.md, and the evidence JSON they cite. I did not open any images or HTML, so this grade includes no visual judgment of the store captures or exported cards. I did not read earlier grades in docs/grades.",
+  "evidence": [
+    "Primary sources are real and dated. The prices in store-prices.json match the App Store listings linked in comparables.md, and Nebula's missing billing periods are called out rather than guessed. source-excerpts.md quotes RevenueCat (10.7% vs 2.1%), Pew (18–29 proxy) and TikTok (9:16, at least 540×960) word for word, and says what each figure does not prove.",
+    "The model bake-off numbers match comparison-summary.json exactly: 4B median 1.68s and p95 2.48s; 8B median 5.25s; safety passes 27/27/17 out of 30; 3/6/10-card flow token counts. The blind review keeps the scores (4B 8.23, 8B 7.47, 1.7B 5.93) separate from the identity mapping.",
+    "Failures are kept and explained: the unconstrained question engine repeated the same card; the relocation repair invented a 'tropical island escape'; bounded-deep retrieval hedged and took 11.16s vs 3.84s for light; the review RSS returned n=0; the context-bound pilot scored 4.5/10 and is now labeled harness-only. The docs also say the arithmetic checker cannot catch the 8B 104-user error.",
+    "The pricing decision gate is concrete and can be checked: all-in cost must be ≤$0.010 per reading, against $4.19 net at an assumed 30% store fee. The loss scenario is written out, and the prices are stated to be placeholders.",
+    "safety-heldout.json supports the reported 20 TP / 0 FN / 2 FP. Both false positives (the cancer-survivor novel and the pregnancy memoir) are named in safety-policy.md.",
+    "safety-outsider-baseline.json (docs/evidence) shows the outsider-written set did worse on first contact: recall 11/14 = 78.6%, precision 84.6%. Two self-harm phrasings were allowed: 'log off permanently' and 'kms if I fail my finals'. The H-1B case was also allowed, and two harmless legal-job questions were blocked. The corrected run on the same 20 cases scores 14/14. decisions.md does say this is not untouched held-out accuracy, but its Safety row still leads with '20/20 sensitive blocked'.",
+    "ui-rules.md is specific enough to build from: exact hex tokens, measured contrast ratios, pixel budgets for a 375×667 screen, the 1080×1920 share-card safe region, the Why-expansion focus behavior, and 8s/60s loading thresholds, which it labels as budgets rather than measurements."
+  ],
+  "blockers": [
+    "The decisions table hides the most important safety result. The Safety row in decisions.md should cite safety-outsider-baseline.json directly: on first contact with an outsider set, two self-harm phrasings were missed (recall 78.6%). It should also say that the 14/14 corrected result comes from tuning on those same cases. Before calling any safety number held-out, add a third fresh outsider set that nobody has tuned against, with self-harm slang and euphemism in English, Spanish and Danish. Missing self-harm is the one failure an entertainment oracle cannot ship with.",
+    "decisions.md contradicts itself. The Questions row lists 'money10; learning4; relocation5; growth4; sports3; general4'. The correction paragraph below it lists 'growth3 … world3, general3', and question-engine.md says growth and relocation cap at six. The header also still reports research round 4 scores although round 5 exists. Collapse these into one current table with a single set of counts.",
+    "General free synthesis is the highest-risk path, and the research phase has no semantic grade for it. The Headline row says 'semantic review pending' and names engine-bakeoff.json, but no research doc reports a graded result from it. Either cite an independent semantic grade of the real engine's general-question outputs (with the rubric and a pass/fail against the at-least-9 generation bar), or explicitly defer the question to the generation gate and remove it from the research claims.",
+    "The zero-variance tradeoff is stated but never decided with evidence. Bounded choices always produce the same pick, which conflicts with the 'surprising reveal' promise. Decide whether seeded variation, temperature, or deterministic output is intended, and give the reason and a test.",
+    "The hosted shortlist contradicts the pricing gate without saying so. Groq Qwen3.8 27B costs about $0.0104 per reading on the model alone, which already exceeds the ≤$0.010 all-in gate before any search or hosting cost. Either say this comparator can only be a latency reference, or drop it.",
+    "The formatting damages trust in the numbers. Collapsed spaces such as 'Free1/day', 'Plus$5.99mo/$39.99yr10/day' and 'scores8.4/8.4/8.3' in decisions.md, pricing.md and source-excerpts.md make figures ambiguous at the one page meant to drive decisions. Fix them."
+  ],
+  "strengths": [
+    "Failures are recorded unusually candidly: failed pilots are kept alongside the corrections, and structural passes are never presented as semantic or predictive-accuracy passes.",
+    "Measurement is honest. The docs say when a p95 comes from only 30 runs, which timings include cold loads or model contention, that the user flows exclude human thinking time and UI time, and that hosted providers were not measured because no authorized key existed. The hosted replay plan is concrete: 30 runs, zero unsafe outputs, zero invented citations, and at least 9/10 on the rubric to adopt.",
+    "The retrieval research separates transport success from quality and from permission to use the content. Bing and DuckDuckGo are rejected with evidence, Google News is labeled prototype-only because of licensing, and there is a rule for when a news lead counts as eligible (180 days, edition and geography checks).",
+    "Each architecture decision is tied to a named failure it fixes: server-side arithmetic, a question registry instead of free-form cards, server-owned sources, fixed redirect copy, and fail-closed errors.",
+    "The user-test script has pass/fail thresholds and stop conditions: price-recall fields, 5/5 recognizing that test mode charges nothing, time budgets per task, and one sensitive-topic scare stops the test. It never presents the untested audience as validated."
+  ]
+}
+```

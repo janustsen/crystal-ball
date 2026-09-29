@@ -1,0 +1,45 @@
+**Score: 8/10, below your bar of 9.** The research is honest and mostly well sourced. But it still has no evidence from 18–24 users, even as a proxy. The share-card safe zone has no source, and the newest safety result sits outside the decision table.
+
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "research",
+  "score": 8,
+  "weighted_breakdown": {
+    "sourced_primary_evidence_30": 7.8,
+    "specificity_25": 8.5,
+    "decision_readiness_25": 7.5,
+    "honest_measurement_and_limitations_20": 9.0,
+    "weighted_total": 8.14
+  },
+  "inspection_method": {
+    "source_inspection": "Read decisions.md, model-bakeoff.md, comparables.md, pricing.md, safety-policy.md, user-test.md, research-path.md, question-engine.md, review-response.md, visual-observations.md, evidence/boundary-blocker.md, evidence/store-prices.json and docs/design/ui-rules.md. Checked the recall field in docs/evidence/safety-next-first-run.json (0.85) and safety-next-8b-comparison.json (0.70); both match the docs. Read the prior research-7 target-user grade only to see which of its blockers were fixed. research-8-target-18-24-user.txt exists but is empty.",
+    "visual_inspection": "None this round. No images or HTML were opened. Store-screenshot annotations were checked against the source text only."
+  },
+  "evidence": [
+    "Two earlier blockers are fixed. safety-policy.md now records the neutral non-self-harm copy, which matches decisions.md. The old question caps are moved to archive/question-engine-history.md, and question-engine.md points to the caps in decisions.md.",
+    "The daily limits are now labelled as test hypotheses, not observed demand (decisions.md, pricing.md). user-test.md has a concrete reversal rule: if 2 or more of 5 participants hit the limit before a first satisfactory card, test a three-reading allowance first.",
+    "The fourth blind safety set is reported honestly. Qwen 4B blocked 17 of 20 sensitive questions (85% recall) and wrongly blocked 1 of 20 safe ones (5%). Qwen 8B blocked only 14 of 20 (70%), and a translation probe fixed only 1 of 3 misses. Neither alternative was adopted, and public release is explicitly not recommended. The JSON matches.",
+    "The research makes little use of primary sources that were reachable. The Apple RSS review sample returned n=0. The price and repetition complaints still rest on one featured 2024 Co–Star review and one 2020 Pattern review. No visible dated reviews were systematically coded, even though the web listings are reachable.",
+    "The share-card safe zone (x 90–990, y 300–1500) is still unsourced. ui-rules.md calls it a 'conservative proposed overlay allowance', and no Meta or TikTok safe-zone guidance is cited. For 18–24 users, sharing is the growth channel.",
+    "The consistent-versus-fresh answer question is still deferred. The optimistic/base/constrained scenario alternative only triggers after a five-person test that is not authorized, and no mock-up or sample output exists for design to use now.",
+    "The latency target is still unreconciled. decisions.md sets under 8 seconds at p95 but copies no current-engine median or p95. The only number in the doc is a historical 22.2-second pipeline, and the current numbers are left to 'raw browser and current-engine timings'.",
+    "The cost figures check out: $5.99 × 0.7 = $4.19; 300 × $0.010 = $3; Groq at 8K/1K tokens = $0.0104; Together Qwen3.5 9B = $0.00161. Hosted models are correctly a shortlist with a written replay plan (30 runs, zero unsafe outputs, zero invented citations, average of at least 9), which is acceptable because no key was authorized."
+  ],
+  "blockers": [
+    "Collect a proxy review sample. Capture every visible dated review on the five App Store web listings. Code each for price, repetition, trust and sharing, and report n, the date range and the method. Label it as a proxy, not 18–24 evidence. This is the largest gap in the evidence score.",
+    "Source the share safe zone. Cite official Instagram/Meta Stories and Reels guidance and TikTok guidance for UI overlays, then derive x 90–990 and y 300–1500 from them. Otherwise mark it as unsourced in decisions.md.",
+    "Settle answer freshness before design locks. Specify the optimistic/base/constrained scenario choice, with one sample output per scenario for a real fixture question, as a buildable design option now. Keep the user test as the thing that validates it, not the thing that triggers it.",
+    "Put the latest safety result in the decision table. The Safety row still shows the 95% recall run as current. The 85% / 5% fourth-set result and the failed gate appear only in the paragraph at the bottom, so a skimming reader sees the wrong status.",
+    "Latency: copy the measured current-engine median and p95 for planning and reveal into decisions.md, or state explicitly that the generation phase owns this number and there is no current-engine measurement yet.",
+    "Fix the missing spaces, which remain: 'at or below$0.010', 'At300', 'assumed30%-fee net$4.19' (pricing.md); 'age18–29', 'of18–24' (comparables.md); 'Rounds3–4', 'Retained exact... primary numeric source excerpts,21' (review-response.md)."
+  ],
+  "strengths": [
+    "Failures are kept rather than overwritten: first-run and regression safety results are separate, the 4.5/10 context-pilot review stands, invented specificity from the repair pilot is documented, and the empty RSS sample is reported as n=0.",
+    "The cost gate can be acted on: at most $0.010 per successful prediction all-in, compared against $4.19 net per month. Paid Plus stays off until that is measured, and Brave search at $0.005 a query is priced against the same ceiling.",
+    "Model selection has blinded identities and repeated measurement (90 outputs; median and p95 per variant; token counts for 3-, 6- and 10-card flows). The confounds are stated: model size and instruction tuning differ, and p95 from 30 runs is descriptive only.",
+    "The retrieval policy is specific and privacy-preserving: fixed public queries only, server-owned sources, a 180-day background cutoff, fewer than two relevant leads labels the evidence limited, and the licensing gap is acknowledged.",
+    "The user-test script is ready to run once authorized: time budgets per task, pass criteria for price comprehension, 5 of 5 must recognise test mode, and a stop-and-fix rule for any sensitive-topic scare."
+  ]
+}
+```

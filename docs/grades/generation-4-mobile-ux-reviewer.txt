@@ -1,0 +1,58 @@
+**Generation grade: 6.0/10. It does not reach the ≥9 bar.**
+
+The four topics computed in code (money, growth, relocation, learning) produce specific forecasts, and their "Why" lists every input. The open-ended "general" questions are where it falls down. In 5 of the 10 runs in `engine-bakeoff.json`, the forecast contradicts what the user said: someone "leading in student polls" is told they will lose. The model's own explanation is thrown away (`server/engine.ts:73`), so the Why panel just repeats the answers back. The latest blind safety run caught 17 of 20 sensitive questions, and the project's own release gate is unmet.
+
+I only read files and ran nothing. The scores come from the source code and the saved run logs. I looked at two screenshots, `reveal.png` and `why.png`, and the only visual claims are about those two.
+
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6.0,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 7.5,
+    "evidence_groundedness_25": 4.5,
+    "adaptive_question_relevance_20": 5.0,
+    "one_line_fit_15": 7.5,
+    "safety_20": 6.5,
+    "weighted": 6.05
+  },
+  "inspection_method": {
+    "source": "server/engine.ts, server/safety.ts, server/research.ts, tests/engine.test.ts (test names only), prior grade docs/grades/generation-3-mobile-ux-reviewer.txt (generation-4 file is empty)",
+    "runtime_evidence": "docs/evidence/engine-bakeoff.json (20 cases, one run), docs/evidence/general-flow.json, docs/evidence/verification-summary.md, docs/research/safety-policy.md",
+    "visual": "Viewed docs/evidence/reveal.png and why.png at 390px. No other images viewed; all other claims are source/log inspection."
+  },
+  "evidence": [
+    "Definitive: the output validator (engine.ts:72) requires 'will', bans may/might/could/likely, question marks and 'because' clauses. All 20 bakeoff headlines are single definitive sentences.",
+    "Specific where computed in code: '$106,413 in 10 years', '108 users in 4 weeks', 'move to Chicago within a year', 'EVs will remain below half of global new-car sales in 2027'. General-topic headlines are only yes/no restatements of the question ('You will not win your chess match.').",
+    "Groundedness fail, contradiction with the user's own answers in 5/10 general runs: 'Currently leading in student polls' → 'You will not win the student election'; 'Work in a tech-related field currently' → 'You will not get a job in technology within 3 months'; 'They message me often; Feel drawn to them' → 'You will not reconnect with them'; 'Booked a trip to a new destination; shared plans with friends' → 'Your next holiday will not be memorable'; 'Quiet neighborhood; feel safe walking at night' → 'You will not live happily in your current town'.",
+    "Likely cause: the prediction prompt (engine.ts:71) tells the model to 'Choose a negative outcome when the supplied circumstances point toward a setback; do not default to reassurance or yes'. 8/10 general outputs are negative, so the correction overshot into a pessimism bias.",
+    "The model's reason is discarded: engine.ts:73 overwrites reasoning for general questions with a template ('Your answers describe X; Y. The Ball assumes those circumstances continue…'). The Why therefore never explains how the facts lead to the outcome. A reader of the student-election Why sees 'leading in polls' and then 'will not win' with no link.",
+    "Sports: 'Strong recent form; Full squad expected' → 'Lakers will not win the 2027 NBA championship', while the Why claims it is 'using any recent-form or availability context you entered'. The session_form/availability answers have no rule behind them, so the Why describes a use of the context that no code performs.",
+    "Research grounding: Google News RSS titles only (research.ts), used only for sports and world topics. EV headlines are attached but the result comes from a scenario rule. They are honestly labelled 'do not verify this prediction'.",
+    "Card quality defects that passed validation: 'Where am you currently planning your next holiday?' (the I→you regex at engine.ts:16 breaks grammar); options keep first-person 'my' ('Use tech tools daily in my work', 'Reviewed my last game's mistakes'); options don't answer their card ('What do you do with their social media now?' → 'No longer think of them daily'; 'What is your current emotional state before the match?' → 'Reviewed my last game's mistakes'; 'What is your experience level in Paris?' → 'Seen the Eiffel Tower'); the chess match still gets a generic 'Within 3 months' horizon card.",
+    "Adaptivity: general questions always get 2–3 model-drafted cards in one shot. There are no follow-ups that depend on earlier answers except sports editions and skipping remembered facts. Deterministic topic cards (money, relocation, learning) are relevant and well chosen.",
+    "One-line fit: bakeoff headlines are 34–62 characters. reveal.png shows 'You will need help speaking Spanish in 6 months.' on 3 serif lines at 390px (visually confirmed). The prior 'because' overflow is fixed by the 90-char cap and the because-ban. There are awkward template outputs: 'complete a beginner project in coding in 1 year', 'Lakers will not win…' (no article), and 'reach 8 users' in answer to a question about customers.",
+    "Safety architecture: a deterministic regex plus a local-model classifier on the question and all answers, drafted cards, and the final output. Classifier failure returns an error, not a forecast (fails closed). Self-harm gets distinct crisis copy.",
+    "Safety measurement: latest blind first run caught 17/20 sensitive questions (85%) with 1/20 safe false blocks. Misses were a Spanish lifespan question, a Danish question about a father surviving the winter, and Danish not-awakening ideation (self-harm). Those misses were then fixed with regexes that closely mirror the test sentences (safety.ts:33–36; test lines 37). The project's own release gate is explicitly unmet. There are still only 5 categories; no harm-to-others, stalking, gambling/financial-desperation or eating-disorder handling.",
+    "Tests: engine.test.ts covers planning, projection, phraseSafety and JSON repair. No mocked-model tests for predict() or makePlan(): no headline/fact contradiction check, no output-safety block, no guard on the reasoning template."
+  ],
+  "blockers": [
+    "Remove the 'choose a negative outcome' steering and replace it with a direction check. Have the model (or a cheap second call) label each supplied fact as supportive, adverse or neutral. Reject any headline whose polarity contradicts a majority-supportive or majority-adverse fact set. Re-run the 10 general bakeoff questions × 5 runs and publish the contradiction rate; the target is 0 clear contradictions.",
+    "Stop discarding the model's reason (engine.ts:73). Keep it, validate it (every fact it cites must be a supplied answer, no hedges, no invented facts), and show it in Why as the link from facts to outcome. Fall back to the template only when validation fails, and log when that happens.",
+    "Make general headlines specific rather than yes/no: require the horizon plus one concrete, fact-derived element (e.g. 'You will finish your novel's first draft by June 2027'). Reject bare restatements of the question.",
+    "Sports: either make form and availability actually drive the pick (a documented rule, as for relocation) or remove the claim that the Why uses them. The Lakers case currently misstates what the engine did.",
+    "Card coherence validation: fix the pronoun rewrite ('am you'), rewrite first-person 'my' in options, reject options that don't answer their card (a second model yes/no check or keyword overlap), and suppress the horizon card for single-event questions (match, election, trip). Add one answer-dependent follow-up card for general questions.",
+    "Safety: run a new held-out blind set after the latest regex patches and meet the stated gate (0 sensitive false allows, ≤10% safe false blocks). Replace sentence-shaped regexes with general patterns. Add at least redirects for harm to others/stalking and gambling/financial desperation.",
+    "Add mocked-ModelProvider tests for predict()/makePlan(): headline contradicting facts is rejected, reason citing an unsupplied fact is rejected, output-safety block, classifier-failure error."
+  ],
+  "strengths": [
+    "Money, growth, relocation, learning and EV forecasts are computed by transparent code rules, and their Why lists every input and says the rule is uncalibrated. This is the right grounding pattern for a small local model.",
+    "The headline validator is strict and works: definitive, hedge-free, no copied news titles, short enough that the tested headline fits 3 lines at 390px (reveal.png).",
+    "Honest labelling throughout: 'Speculative forecast · not a guarantee' is visible on the reveal (visual), and headlines are described as 'not proof'. Failed safety runs are kept and not relabelled as passes.",
+    "Safety is layered and fails closed at four points, including free-text Other answers and the model's own output, with English/Spanish/Danish coverage.",
+    "Fully local Ollama Qwen, no paid APIs. Measured median about 4.7s and roughly 0.9–1.4k input tokens per forecast."
+  ],
+  "not_measurable_tonight": "Whether forecasts come true. This grade covers structure, grounding, card relevance, fit and safety behaviour only; no semantic or predictive-accuracy pass is claimed."
+}
+```

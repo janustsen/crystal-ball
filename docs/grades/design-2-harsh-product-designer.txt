@@ -1,0 +1,66 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent)",
+  "phase": "design",
+  "score": 6.8,
+  "subscores": {
+    "unified_cosmic_mystic_thesis_25": 7.5,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_spec_25": 5.5,
+    "accessibility_and_complete_states_25": 7.5
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (HTML source only; not rendered in a browser)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png", "explore.png", "question-1.png", "selected-1.png", "research.png",
+      "network-error.png", "blocked.png", "reveal.png", "why.png", "share.png", "exported-card.png",
+      "history.png", "knowledge.png", "paywall.png", "large-home.png", "large-reveal.png"
+    ],
+    "not_inspected": "The other captures linked from review.html (ask, selected-2, knowledge-edit, paywall-purchased, friend, money-*, large-question, exported-story.mp4). I did not run or drive the app."
+  },
+  "evidence": [
+    "The thesis is stated in both specs and is consistent: a 'pocket observatory', ink-to-violet sky, one glass orb, gold reserved for emphasis, Cormorant with DM Sans. It holds on every screen I looked at (visual). The orb with its orbit ring and mist ribbon is the one ownable element, and it looks good.",
+    "The design admits the reasoning behind its layout (system.md §Composition alternatives): it compared tarot-deck, dashboard and observatory layouts and says why it chose the observatory. That is real decision-making.",
+    "Contrast.json lists measured pairs, all ≥6:1. That includes placeholder, disabled, focus ring and inactive tabs (source).",
+    "The honesty rules show up in the captures, not just the prose: the 'Speculative forecast · not a guarantee' label sits right under the headline, research shows no fake percentage, the paywall says 'Test mode · no real payments', and the failure and blocked screens say 'Nothing was charged' (visual).",
+    "The motion specs contradict each other (source):",
+    "- Idle breath: system.md says a 6s opacity+scale breath plus a second mist layer drifting the opposite way over 12s. motion.md says scale-only 0.97→1.025 at 3.2s per half (6.4s) and specifies no mist drift at all.",
+    "- Selection timing: system.md and ui-rules both say 140ms. motion.md says 'immediate, no spatial movement'.",
+    "- Haptics: system.md says selection and reveal. motion.md says 'selection on card only'.",
+    "system.md says 'fortune-telling theater belongs in the mist and reveal', but the reveal is specified as a plain 600ms group fade. The emotional peak of the product has no mist, glow or orb choreography. The share clip is a 1→1.015 camera scale, which is barely perceptible.",
+    "Exported 1080×1920 card (visual): the first headline line collides with the orb's floor shadow ellipse at y≈1000. There is also about 200px of dead space between the headline and the label, and the label is low-emphasis secondary text. This is the viral artifact, and it has a visible layout bug.",
+    "Large-text reveal at 375×667 / 200% (visual): the headline fills the viewport and the 'not a guarantee' label is pushed below the fold. It is technically still in reading order, but the rule that the label is 'never staggered after an already-readable claim' is broken in viewport terms.",
+    "Network error (visual): the heading 'The mist is too thick.' is repeated word for word as the first body sentence.",
+    "Research (visual): the helper line 'This can take up to a minute…' is left-aligned under centered heading and body text.",
+    "Question cards (visual): the radio indicators are about 6px glyphs. The selected state rests mostly on a cyan border. The disabled Next is a muted fill that reads close to an enabled secondary button.",
+    "Knowledge (visual): the fact labels are raw lowercase keys ('level', 'practice', 'conversation'), although system.md requires 'a human label'. The 'Forget' links are gold, which contradicts 'gold reserved for the primary action' / 'Share the sole gold action'.",
+    "Explore (visual): the caption 'Sample predictions · community feed preview' softens the honesty rule, because 'community feed' implies real users.",
+    "History (visual): only the pending 'Waiting to unfold' state is shown. There is no rendered yes/no outcome state and no empty-History state on the board, and no check-back affordance is visible on the row.",
+    "State coverage gaps on the board: the 8s 'still looking' and 60s timeout states, offline, empty History, empty Knowledge, keyboard-open, reduced-motion toggle UI, voice permission denied, and focus-ring appearance are all specified but not shown. home-small.png exists but is not on the board.",
+    "review.html is a captioned gallery, not an annotated review sheet. It has no token swatches, type specimen, spacing/radius callouts, motion storyboard frames, or marked deviations from spec. The docs are also full of missing-space typos ('minimum3', 'Private-by-default9:16', '375×667,200%', 'actions16/20', 'Radius32'), which reads as unproofed.",
+    "The header count ('1 left', '0 left', '5 left') has no label on screen. motion.md explains its meaning, but the UI does not."
+  ],
+  "blockers": [
+    "Reconcile the motion contract into one source of truth: one idle-breath timing, specified mist drift (layer, property, range, period), selection timing, and a haptic map. Remove the copies from system.md or turn them into pointers.",
+    "Design the reveal as the theatrical moment the thesis promises: a storyboarded mist or glow change in the orb before the headline, plus a reduced-motion equivalent. Keep headline and label arriving together. Give the share clip motion you can actually see. Add missing transitions: tapping the orb into Ask, Why expand/collapse, button press, and focus-ring appearance.",
+    "Fix the exported card: move the headline clear of the orb shadow, close the dead gap, and give the speculative label stronger emphasis inside the safe region. Use a locale-aware date.",
+    "At 200% text, keep the speculative label in the first viewport with the headline, for example by letting it wrap immediately under a smaller orb, or by specifying the headline's max scale. Re-capture.",
+    "Polish passes: remove the duplicate error copy; center or left-align research text consistently; make radio indicators at least 16–20px with a clear selected mark; make disabled Next clearly distinct from secondary; use human-readable Knowledge labels; take gold off 'Forget'; rename 'community feed preview' to 'Sample prompts'; label the header credit count.",
+    "Add the missing states to the board as real captures: 8s long-wait and 60s timeout, offline, empty History, empty Knowledge, History resolved yes/no plus the check-back action, keyboard-open Ask/Other at 375×667, voice denied, reduced-motion toggle, and visible keyboard focus.",
+    "Turn review.html into an annotated sheet with token and type specimens, callouts on each capture tying it to the rule it satisfies, a motion storyboard strip, and a list of known deviations. Proofread the docs for the missing-space typos."
+  ],
+  "strengths": [
+    "A coherent, restrained cosmic-mystic identity with one memorable object (the orb). It looks good at 390×844 and avoids tarot-app clichés.",
+    "Unusually strong honesty design: an adjacent uncertainty label, no fake progress or popularity, clear test-mode billing, and 'no reading spent' on failure or block.",
+    "Contrast is measured, not asserted, and covers the secondary, disabled, placeholder, focus and inactive-tab pairs.",
+    "Clear small-screen budgets (84pt nav, 56pt header, the orb shrinks before text does), inline Why with specified focus and announce behavior, and no nested modal.",
+    "The design separates observed web evidence from native checks it hasn't done yet (VoiceOver, Dynamic Type, billing), and states share-safe-area assumptions as conservative proposals."
+  ]
+}
+```

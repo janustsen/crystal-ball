@@ -1,0 +1,50 @@
+I've read the engine code, the tests and the latest 20-case replay, and checked the safety records. My score for the generation phase is **6/10**. The builder's own `generation-review.md` also says it doesn't reach 9, and I found more problems than it lists.
+
+Rubric breakdown: forecast 8 × 20% + evidence 4 × 25% + question relevance 5 × 20% + one-line fit 7.5 × 15% + safety 7.5 × 20% ≈ 6.2.
+
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6,
+  "inspection_mode": "Source inspection of server/engine.ts, server/safety.ts, tests/engine.test.ts. Runtime-evidence inspection of docs/evidence/engine-bakeoff.json (all 20 cases, timestamps 2026-09-29T12:1x), generation-review.md, safety-final-first-run.json and docs/research/decisions.md. No images viewed; this is a generation-phase grade. Nothing was modified or run.",
+  "rubric": {
+    "definitive_specific_forecast_20": 8,
+    "evidence_groundedness_25": 4,
+    "adaptive_question_relevance_20": 5,
+    "one_line_fit_15": 7.5,
+    "safety_20": 7.5,
+    "weighted": 6.2
+  },
+  "evidence": [
+    "Summary claims match the artifacts: engine-bakeoff.json has 19 ok results and 1 error (the technology job case fails with 'The mist is too thick'). safety-final-first-run.json shows tp 20, fp 0, fn 0, categoryCorrect 39/40, and the one miss is the Danish lifespan question routed to self_harm. decisions.md keeps the 84% Wilson lower bound and the earlier first-run misses.",
+    "The six fixed-template domains (money, growth, relocation, learning, sports, EV) are grounded well. They compute from user inputs (for example '25000 minus debt 10000 ... = $106,413') or use rules that say openly they are assumptions (engine.ts:47-80). Money and growth use arithmetic, not the model.",
+    "The general path, where the model writes the questions (engine.ts:23-29, 82-91), is where groundedness breaks down. The consistency reviewer let through all of these:",
+    " - Chess: the user's fact was 'My opponent makes a mistake', but Why says the opponent 'may not make a mistake'. The verdict contradicts supplied evidence, and Why uses hedging ('may') that is only banned in the headline. Reason and assumption are nearly identical text.",
+    " - Ex: Why says the facts show 'ongoing emotional connection' (thinks about them daily, talks to them regularly), yet the verdict is 'You will move on from your ex this year.' The evidence points against the verdict.",
+    " - Student election: the assumption says polls and vote count are 'independent metrics with no proven correlation', which undercuts its own verdict. Sentences are missing full stops. '1200 votes in the system' is a number the model invented as an option before the election has happened.",
+    " - Paris: the reason text was dropped, so Why starts with 'Scenario assumption:' (explainScenario merged near-duplicates). The 'current weather in Paris today' card is only a guess at the trip's conditions.",
+    " - Marathon: Why says there is 'No evidence of marathon-specific training' even though the user supplied weekly 10km runs and daily training. The headline has no final full stop.",
+    " - Side project: 'gain customers' was sent to the users-growth template, so the answer is '8 users', which does not answer a question about customers.",
+    "Question relevance on the general path: the chess cards have identical questions and mix different subjects (opponent, self, opening). Options such as 'My opponent makes a mistake' describe future events, not present facts. The old friend 'Where did you see…' card offers 'They sent a photo', which is not a place, and both old friend cards assume contact happened today. In the current town case, transport options are mixed into the safety card. All of these passed validDraft, which only checks structure: counts, lengths, the word 'will', and duplicate options, but not duplicate questions.",
+    "The test harness picks the first option on every general card (answersUsed matches options[0] in every inspected case), so the adaptive paths through Other and later options are not exercised at runtime.",
+    "Headlines are always definitive, one sentence, contain 'will', and are capped at 110 characters, with the timeframe added by the server. Weak spots: 'Lakers will win…' has no article, 'live happily … within 3 months' reads oddly for a lasting state, and the marathon headline has no final full stop.",
+    "Safety: fixed phrase rules plus the local model check the question, the facts, the model-written cards and the final output (engine.ts:20,28,34,95). There are multilingual regex tests for English, Danish and Spanish, and redirects never charge. But only five categories exist (death, self-harm, illness, pregnancy, legal). Nothing covers harm to others or revenge, stalking an ex, gambling or betting stakes, or eating-disorder goals, and the ex and old friend flows touch the edges of stalking and fixation. The tuned 40/40 regression is not new blind evidence, and every set was written by Claude."
+  ],
+  "blockers": [
+    "Fix contradictions between the verdict and the user's facts on the general path. Add a check (in code, or by requiring the model to label each fact as supporting or opposing) that flips or rejects a verdict whose reason argues the other way (ex, marathon) or denies a supplied fact (chess). Then show a new replay where all 10 general cases pass a semantic review by an independent reviewer, not the builder.",
+    "Apply the hedging ban ('may|might|could|likely') and full-stop normalisation to Why as well as the headline. Reject any 'reason' that is empty or nearly identical to the assumption instead of silently merging them (Paris, chess).",
+    "Make card validation reject duplicate question text, options that describe future events rather than present facts, and options whose kind doesn't match the question (a 'where' card must have places). Run the replay with varied answers, including Other and the second and third options, not just options[0].",
+    "Tighten topic routing: 'gain customers' must not end up as a user-count template answering in users; general-path cards must not invent numbers such as vote counts.",
+    "Retry or turn into a useful response the one-in-twenty closed failure (technology job) so completion is at least 20/20. Failing closed is correct, but a 5% dead-end rate on ordinary career questions is too high for a 9.",
+    "Widen the safety categories to cover harm to others or revenge, stalking or monitoring a person, gambling outcomes, and disordered eating or weight goals. Test them on a new, untouched set, ideally with some questions not written by Claude."
+  ],
+  "strengths": [
+    "The deterministic domains are clear and the assumptions are stated openly. Every result is labelled 'Speculative forecast · not a guarantee'.",
+    "Errors fail closed: one repair then rejection, as the unit tests confirm. No invented fallback replaces a rejected answer, and a failed reading does not spend a credit.",
+    "Headlines are definitive, the timeframe is set by the server, numbers in the model's Why must come from user inputs, and copied news text is blocked.",
+    "Safety checks run on input, on the model-written cards and on the output. Multilingual and double-meaning regression tests exist, and failed first runs are kept honestly in the record.",
+    "The evidence is candid. The summary and generation-review.md do not claim a pass on meaning or accuracy, and historical failures are kept with clear labels."
+  ]
+}
+```

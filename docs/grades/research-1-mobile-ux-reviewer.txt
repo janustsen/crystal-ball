@@ -1,0 +1,37 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 6.5,
+  "evidence": [
+    "Inspection method: I read the source of every file in docs/research/, docs/research/evidence/*.json, docs/design/ui-rules.md and scripts/bakeoff.py. The research phase has no images or HTML, so I did no visual inspection. I did not run any commands.",
+    "Arithmetic I checked by hand is correct: Together $0.17/$0.25 at 8K input + 1K output = $0.00161; Flash = $0.00100; Groq = $0.0078; 0.7 × $5.99 = $4.19; 300 × $0.03 = $9; 30 × $0.03 = $0.90; the annual plan saves 44% (39.99 / 71.88); Co–Star questions work out to $0.28–$0.60 each; the net-worth fixture's expected $146,962 matches a 4% effective annual rate with monthly deposits.",
+    "bakeoff.json supports model-bakeoff.md: 10 raw outputs, the timings in the table, token counts of about 136–170 input and 47–86 output, and the model's wrong $48,000. The 13.1 km half-marathon error is real (a half marathon is 13.1 mi, about 21.1 km).",
+    "The quality scores in model-bakeoff.md are the builder's own ratings, each from a single run at temperature 0.2. The doc says so, but no blind or second grader was used.",
+    "Despite the 'bake-off' name, only one local model was run (qwen3 4B Q4). A 24 GiB M5 could run larger local Qwen models (for example 8B or 14B) with no key and no cost, but none were tested.",
+    "scripts/bakeoff.py only tests the final reveal step. It never tests generating the 3–10 adaptive question cards, which are the core mobile interaction, so the latency and quality of the whole flow are unknown. The 8,000-input-token budget in pricing.md is about 50× the measured ~155 input tokens and nothing in the docs derives it.",
+    "search-probe.json keeps only status, time, byte count and a snippet of about 160 characters per source. research-path.md claims the Google News results were relevant headlines from Yahoo, Bloomberg and Morningstar, that Bing mostly matched 'US', and that Bing's feed restricts reuse to personal noncommercial use. None of those claims is in the saved evidence, and there is no probe script, so the word 'Reproducible' is not earned. The test was one query only.",
+    "The Wikipedia snippet shows suggestion 'infection' for the query 'US inflation outlook', but the doc does not examine whether the results actually matched the topic.",
+    "comparables.md is honestly labelled as a desk review of store listings. It links primary App Store listings and a Nebula support page, but captured no screenshots or archived snapshots of onboarding or paywall screens. Featured reviews date from 2020 and 2024, and the Tarot AI price is missing. For a mobile UX review, the flow lessons are inferred from listing text, not observed.",
+    "ui-rules.md is specific: hex colors, ≥44 pt targets, ≥16 body text, 140/600 ms motion, a 110-character headline cap, 1080×1920 share composition, rules for Other/Back/retry/cancel, and a motion toggle. I computed secondary text #C4B8D8 on #2A1458 at about 8.4:1 and gold on #2A1458 at about 9.9:1, so both pass. The document itself states no contrast ratios, and it sets no rule for text drawn over the #5CE1E6 / #A77BFF orb glow, where ivory text would likely fail.",
+    "The rules are written for iOS only (pt units, Apple tab-bar guidance, Apple sign-in). An Expo app also ships on Android, and the rules skip the Android back gesture, the Android navigation bar inset, keyboard avoidance for the Other field and the question input, and when to ask for voice or microphone permission.",
+    "The docs never say how an Expo app on a phone reaches Ollama running on the Mac (LAN address, tunnel, or a server in between). That choice drives the loading-state UX and the whole prototype's viability."
+  ],
+  "blockers": [
+    "Run the same 10 fixtures, plus a card-generation suite, on at least two more local Qwen sizes that fit in 24 GiB, at 3+ repetitions each. Report median and p95 latency and the failure counts: hedges, arithmetic errors, invented facts, missing redirects. Have someone other than the builder grade the outputs blind. Only then choose the prototype model.",
+    "Add a fixture that measures the whole Ask flow: planning, then 3/6/10 card generation, then reveal. Record measured tokens and end-to-end seconds on the target transport, then replace the unexplained 8K-token budget in pricing.md with the measured figure plus a stated retry multiplier.",
+    "Commit the search probe script and save the parsed items (title, source, date, URL) for Google News and Wikipedia, plus the Bing terms text. Run at least 5 different public-topic queries, including sports and a local event, and score whether each result is relevant.",
+    "Save dated screenshots or archived snapshots of the comparables' onboarding, first answer and paywall. Better still, record an installed walkthrough of at least 2 of them, so the flow lessons come from observed screens rather than listing text.",
+    "Add to ui-rules.md: computed contrast ratios for every text/background pair, including text over the orb gradient; a limit on how far text can scale with Dynamic Type/font scaling, and the fallback layout at that size; Android back behaviour and navigation-bar insets; keyboard avoidance on card input; microphone permission timing and denial fallback; loading-copy thresholds tied to measured latency (for example, what shows after 2 s and after 8 s).",
+    "Document how the prototype phone reaches local Ollama, and what the user sees when the Mac is unreachable."
+  ],
+  "strengths": [
+    "It is candid about failures: the $48k arithmetic error, the km/mi mistake, hedges in the headline, and refusals that give no redirect are each reported, and each comes with a concrete fix (calculate numbers in code, reject hedges and repair once, use fixed safety redirects).",
+    "It keeps what was measured separate from what was not: hosted models are explicitly 'not executed', no key was borrowed, and local $0 API cost is not presented as free.",
+    "The unit economics are internally consistent, include a pessimistic scenario showing Plus losing money, and refuse to treat RevenueCat's cross-app medians as a forecast for this app.",
+    "The grounding contract is strong: sources are owned by the server, retrieval text is treated as untrusted, the model gets no browsing tool, and personal answers never go into search queries.",
+    "The UI rules can actually be tested, and they cover mobile failure states (cancel with no charge, retry that keeps answers, an empty History state, a private-by-default share preview, an honest paywall).",
+    "The planned research with 18–24-year-olds names its sample size, its tasks and a falsifiable success threshold."
+  ]
+}
+```

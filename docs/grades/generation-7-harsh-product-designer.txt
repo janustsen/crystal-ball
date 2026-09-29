@@ -1,0 +1,69 @@
+```json
+{
+  "role": "independent harsh product-designer grader (read-only, no builder context)",
+  "phase": "generation",
+  "score": 6.5,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 7.5,
+    "evidence_groundedness_25": 5.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 8.0,
+    "safety_20": 8.0,
+    "weighted": 6.65,
+    "note": "Rounded down because the builder's own generation-review.md lists 9 of 10 general-path cases with semantic defects. Predictive accuracy was not measured and cannot be measured tonight; this score covers only structure and semantics."
+  },
+  "inspection_method": {
+    "source_inspection": [
+      "server/engine.ts (makePlan, predict, validDraft, validForecast, consistency reviewer, safety at input, draft and output)",
+      "tests/engine.test.ts (test names and assertions)",
+      "docs/evidence/verification-summary.md, generation-review.md, engine-bakeoff.json (all 20 cases read), general-flow.json, drive.json and drive-states.json timestamps",
+      "docs/research/decisions.md and safety-policy.md safety tables (grep)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/general-reveal.png (390px reveal: the headline fits in 2 lines, the 'Speculative forecast · not a guarantee' label is visible, and the Why link and Share button are clear)"
+    ],
+    "not_run": "No commands were run, per the brief. Timings and test pass counts are taken from the artifacts and were not reproduced."
+  },
+  "summary_verification": {
+    "19_of_20_completed": "Confirmed. engine-bakeoff.json shows the 'Will I get a job in technology?' case with kind:error ('The mist is too thick'). The remaining 19 are ok. The createdAt values of 2026-09-29T12:1x match the current round.",
+    "generation_review_matches_raw": "Confirmed and fair. Every defect the review lists is visible in the raw headlines and Why text. The review undersells some problems (see blockers).",
+    "general_flow_current": "Confirmed. general-flow.json has runAt 2026-09-29T12:12:34Z, the novel cards contain no Spanish or money facts, and the self-harm redirect was not charged.",
+    "caveat": "The summary says the running final sequence 'must be checked before delivery'. drive.json (12:14:15Z) and drive-states.json (12:11:16Z) exist, but the summary itself does not state that the final outcome passed."
+  },
+  "evidence": [
+    "Deterministic domains are genuinely grounded and specific. Money: 'Your net worth will be $106,413 in 10 years.', with the full compounding inputs shown in Why. Growth: '100 + 2×4 = 108'. Relocation and learning use visible rule thresholds and label them as assumptions.",
+    "Headline discipline is enforced in code. The prediction must contain 'will', may/might/could/likely are rejected, the length cap is 90/110 characters, because/due-to clauses are rejected, and text copied from a news headline is rejected (engine.ts:84). There is one repair, then the request fails closed (provider tests).",
+    "Invented numbers are rejected: any digit in reason or assumption that is absent from the supplied facts fails validation (engine.ts:88-89).",
+    "Student election Why: 'Polls show 60% support and you have 1200 votes in the system Scenario assumption: Poll support and vote count are independent metrics with no proven correlation'. The assumption undercuts the verdict, and a sentence period is missing.",
+    "Chess: two cards share the same question, 'What is currently true about your chess game?', and validDraft does not check that card questions are unique. The Why contains 'may', and the reason and assumption say the same thing: 'The opponent plays confidently, so they may not make a mistake'.",
+    "Marathon: the user trains daily and runs 10 km per week, yet the verdict is 'You will not finish a marathon next year'. It is justified by 'No evidence of marathon-specific training', which treats a question that was never asked as a negative fact. The headline has no terminal period, the Why run-on is missing a period, and 'worn shoes' is presented as evidence.",
+    "Ex: the facts are 'think about them daily' and 'share updates', but the verdict is a positive 'You will move on'. The assumption openly requires a future change in behavior ('if you no longer think about them daily'). Groundedness is inverted.",
+    "Novel (general-flow.json and engine-bakeoff.json): nobody asks for the target length or the number of chapters remaining, so '3 chapters + 500 words/day → finish this year' cannot be grounded. The assumption restates the reason.",
+    "Paris: the card asks 'What is the current weather in Paris?', which is irrelevant and changes daily. Why has no reason sentence at all, only 'Scenario assumption: …'.",
+    "Old friend: 'What did you do with an old friend today?' and 'Where did you see an old friend today?' are leading cards whose options presuppose the outcome. 'Sent a photo' is offered as a 'where' answer.",
+    "Current town: 'You will live happily in your current town within 3 months' is a nonsensical horizon for an ongoing state. The generic horizon card is used regardless of question semantics.",
+    "Side project: the question asks about customers and the headline answers users ('Your project will reach 8 users'). The growth domain does not preserve the question's noun.",
+    "First-person text leaks into the model-authored options shown to the user, e.g. 'Update my progress weekly' and 'My shoes are worn out'. optionLabel strips only I/am/have, not my.",
+    "Sports: 'Argentina will win the 2030 Men's World Cup.' The Why states honestly that this is a 'wildcard pick' with no verified odds, which is transparent but not grounded.",
+    "Safety: the classifier runs on the question, on the model-drafted cards and on the final headline plus Why (engine.ts:20,28,34,95). The fifth untouched set gave 20/20 sensitive blocked, 0/20 safe blocked and 39/40 correct categories, with one death question misrouted to self-harm support. Earlier first-run misses are retained in safety-policy.md. The tests cover multilingual forms, polysemy and creative-framing bypasses. No public clearance is claimed."
+  ],
+  "blockers": [
+    "Build a fixed, multi-sample semantic eval for the general path: at least 20 general questions, run 3 or more times each, graded by a reviewer who is not the builder against a written rubric (card relevance, verdict follows from facts, no presupposition, no leading cards). For ≥9, at least 90% of general readings must be defect-free by that rubric. The current rate is about 1 in 10.",
+    "Add a verdict-direction check. When the supplied facts point against the outcome (ex: daily thoughts; marathon: daily training → 'not'), either the verdict must follow the facts or the Why must name the specific supplied fact that tips it. Reject Why text that treats an unasked question as negative evidence ('no evidence of X').",
+    "Enforce Why well-formedness in code: reason and assumption each end with punctuation; reason must be non-empty and distinct from the assumption (reject rather than collapse, as happened with Paris and chess); ban hedge words in reason and assumption as well as in the headline; reject an assumption that contradicts or undermines the verdict (student election).",
+    "Card quality gates: card questions must be unique; reject cards phrased 'today' or 'current weather' unless the event is today; reject cards whose options presuppose the outcome (old friend); normalize or reject my/me in options; for completion goals (novel, marathon, course), require a card about the target or remaining scope.",
+    "Choose the horizon from question semantics. Ongoing-state questions (happiness, relationships) must not default to 'within 3 months'. The headline noun must match the question noun (customers vs. users).",
+    "Fix or explicitly scope the technology-job failure. A 1-in-20 fail-closed rate with a generic error is acceptable for safety but costs a reading attempt in the UX. Show it in repeated-run stats, not a single run.",
+    "Sports: either ground the pick in the dated retrieved rankings or form data that is already fetched, surfaced in Why as dated context, or change the labelling to 'wildcard' so users do not read it as a forecast. Today it is structurally honest but contributes nothing to groundedness.",
+    "Safety, to go from 8 to 9 or higher: one more untouched blind set run after the death→self-harm routing fix, plus a small blind set of adversarial general-path prompts where the harm appears only in the answers the user gives to the cards. predict() classifies the facts, but no blind evidence shows that this catches it."
+  ],
+  "strengths": [
+    "The architecture is right: deterministic, transparent computation for quantitative domains, with the model restricted to the general path and wrapped in schema validation, one repair and fail-closed behavior. No fabricated fallback, and errors do not spend credits.",
+    "Headlines are consistently definitive, short and single-line-fit. The visual reveal at 390px shows a two-line serif verdict with the honest 'Speculative forecast · not a guarantee' label directly beneath it.",
+    "The invented-number guard and the copied-headline guard are concrete anti-hallucination measures that go beyond prompting.",
+    "The safety defense is layered (input, drafted cards, output) and uses blind held-out sets with first-run misses preserved rather than overwritten.",
+    "The evidence is honest. generation-review.md itself refuses a 9/10, failed experiments (the card-reviewer run at 10/20 and the holiday repairs) are retained, and the summary never equates completion with semantic or predictive quality.",
+    "The memory-leak regression is fixed with a request-boundary test that failed before the fix and passes after it."
+  ]
+}
+```

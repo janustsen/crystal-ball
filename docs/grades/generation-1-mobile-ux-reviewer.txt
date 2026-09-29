@@ -1,0 +1,56 @@
+I scored the generation phase **4.5 / 10**, well short of the 9 bar. The worst finding: in 2 of the 3 general questions in the builder's own test run (`docs/evidence/engine-bakeoff.json`), the "prediction" shown to the user was a copied news headline. I only read files; nothing was modified or run. The file meant for this role's earlier grade (`docs/grades/generation-1-mobile-ux-reviewer.txt`) is empty, so there was no earlier score to compare with.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "generation",
+  "score": 4.5,
+  "subscores": {
+    "definitive_specific_forecast_20": 5,
+    "evidence_groundedness_25": 3,
+    "adaptive_question_relevance_20": 4,
+    "one_line_fit_15": 6,
+    "safety_20": 6.5,
+    "weighted": 4.7,
+    "note": "Future predictive accuracy is not measured and not claimed. All passes below are structural or semantic only."
+  },
+  "evidence": [
+    "SOURCE: server/engine.ts:24-44. For money, growth, relocation, learning and sports, the headline comes from a server-written template, and the schema's enum limits the model to choosing between those sentences. That makes these headlines definitive and specific (engine-bakeoff: '$106,413 in 10 years', '108 users in 4 weeks', 'Argentina will win the 2030 Men's World Cup'). But the specificity comes from templates, not from the model's own judgement.",
+    "RUNTIME (engine-bakeoff.json, row 'Will I finish writing my novel this year?'): the headline is 'I Finished Writing Another Book! 📖🎉 But Will Anyone Even Read It? 🫠 - Substack'. That is a copy of the first retrieved news title, publisher suffix included, shown under the label 'Speculative forecast'.",
+    "RUNTIME (row 'Will my next holiday be memorable?'): the headline is \"It's time to book: When to buy holiday, spring break and summer flights for the best fares in 2026-27 - The 20\". Again a copied news title, this time cut off mid-word at the 110-character limit.",
+    "RUNTIME (row 'Will EVs lead global new-car sales next year?'): the headline just restates the question and adds nothing specific, even though one retrieved source says 'EVs hit 25% of global new car sales in 2025'. The model contradicts that evidence without saying so.",
+    "SOURCE: engine.ts:47. The only check on free-form headlines is length plus a ban on may/might/could/likely. Nothing rejects a headline that copies a news title, names a publisher, or fails to answer the question.",
+    "RUNTIME (sources): the retrieved 'context' is off-topic for growth (a Burning Man film, Macy's, AAA July 4th travel), relocation (Def Leppard, Jimmy Kimmel, ad buys) and Danish (a furniture store fire). SOURCE: server/research.ts:12 accepts any title that shares 2 non-stopword terms, such as 'next year' leftovers or 'Danish'.",
+    "SOURCE: engine.ts:48. The 'Why this prediction?' text is one fixed sentence. It never links the headline to specific answers or sources, so the user cannot see how the evidence led to the forecast.",
+    "SOURCE: research.ts:5 sends the user's raw personal question to Google News. It happens after the safety check, but it is still a third-party privacy leak that the user is never told about.",
+    "RUNTIME (general-path cards): the model-generated cards break the prompt's own rule 'Never ask the user to predict the outcome'. Examples: 'EVs will account for over 50% of new-car sales globally in 2', and every holiday option ('The holiday will include at least one unexpected adventure'). Options are cut off mid-word ('in 2', 'by next', 'for the '), because the 60-character limit silently truncates them instead of rejecting them.",
+    "RUNTIME (novel cards): the options are invented, over-specific personal claims ('I have already written 10,000 words this month'). They don't let the user describe their real situation.",
+    "SOURCE: src/questions.ts:7 and engine.ts:29. The growth flow asks 'How often do users return?' and then ignores the answer; the projection is linear: current + weekly×weeks. Relocation asks about work, lease and runway, and learning asks about practice and conversation, but none of those answers is used deterministically. The model just picks between two sentences.",
+    "SOURCE: questions.ts:4. Money takes 10 cards before any reveal (screenshots money-1…money-10.png exist), which is heavy for a phone. If the user picks currency 'Other', engine.ts:25 silently falls back to USD.",
+    "SOURCE (good): questions.ts adaptPlan fixes the 'every learning question becomes Spanish' problem and the nonexistent sports editions raised in context-independent-review.txt. engine.ts:40-41 rejects impossible World Cup editions, and tests/engine.test.ts:19-25 covers both fixes.",
+    "VISUAL (docs/evidence/reveal.png): the headline fits the 390px layout cleanly in about 3 serif lines, with the speculative label directly under it. But the text shown ('You will need a year to hold a basic Spanish conversation.') is not a sentence the current engine can produce, so this screenshot predates the current engine and does not verify it.",
+    "VISUAL (docs/evidence/large-reveal.png): at large text size, the headline scrolls above the fold and the reveal starts mid-sentence ('be $6,371 in 5 years.'). The one-line forecast is not seen as a whole at large sizes.",
+    "RUNTIME (safety-outsider-corrected.json): 20/20 correct, 14 true positives, 0 misses. SOURCE: safety.ts:4,17 contains the test phrases word for word ('log off permanently', 'gone for good', 'cutting my arms', 'whole bottle', 'consulate.s visa section', 'paralegal certification exam', 'immigration caseworker'). The fixes were written to fit the test set, so the result shows no generalization. verification-summary.md honestly calls it a regression set.",
+    "RUNTIME (verification-summary.md): the original held-out set blocked all 20 sensitive cases but also wrongly blocked 2 of 10 safe ones. SOURCE: plain-word regex matches will wrongly block everyday questions containing 'judge', 'sentence', 'stroke' (swimming), 'terminal' (airport), 'arrested development', 'stroke of luck'. No test covers those.",
+    "SOURCE (good): engine.ts:18 re-runs safety over the question plus all answers, including free-text 'Other', before predicting. When the classifier fails, the app shows an error rather than a prediction (fail closed). Every result carries the 'not a guarantee' label and assumption notes."
+  ],
+  "blockers": [
+    "Free-form headline check (engine.ts:47): reject a headline that shares a long substring with any retrieved news title or contains ' - Publisher'. Require it to be in second person or about the named subject, and to answer the question's yes/no or quantity. On failure, repair once, then fall back to a deterministic template rather than showing junk. Re-run the bakeoff and show every general row passing.",
+    "General-path cards: after generation, check that no option is an outcome claim ('will …') or cut off mid-word. Raise the length limit or reject over-long options instead of truncating. Keep the prompt's 'never ask the user to predict' rule in code, not just in the prompt. Replace invented 'I have written 10,000 words' options with neutral ranges.",
+    "Research relevance: require that the question's main subject (not 'next year', 'weeks' or 'Danish' alone) appears in the title. Drop sources below the bar, and show 'No relevant news' honestly. In the bakeoff, sources were off-topic in at least 3 of the 10 cases.",
+    "Real 'Why': build it from the facts that drove the forecast (for example '100 users + 2/week × 4 weeks') and state which source, if any, was used. For the general path, show when the pick contradicts the evidence, as in the EV case.",
+    "Use every answer you collect: put retention into the growth maths, and put lease, runway and work (relocation) and practice and conversation (learning) into a simple deterministic score that decides the choice. Otherwise, stop asking those cards.",
+    "Money flow: cut it to 5 or fewer cards with sensible defaults. Honour or reject currency 'Other' explicitly.",
+    "Safety: write a fresh held-out set of at least 30 cases that has never influenced the regex, including safe everyday uses of 'judge', 'sentence', 'stroke' and 'terminal'. Report its false-allow and false-block rates. Remove the literal test phrases from safeContext and replace them with general context patterns.",
+    "Privacy: tell users before their question text goes to Google News, or strip personal context from the query.",
+    "Refresh the reveal screenshots with the current engine, and keep the full headline visible above the fold at large text size."
+  ],
+  "strengths": [
+    "Templated domains produce definitive, checkable, second-person forecasts with real numbers computed deterministically (tested compound projection, input-range validation).",
+    "Earlier review blockers are fixed in code and tests: language extracted from the question, sports editions and teams adapted to the chosen competition, impossible World Cup years rejected.",
+    "The safety layer checks the question plus all answers, fails closed when the classifier errors, and uses generic redirect copy that avoids category-specific advice. The self-harm redirect gives a clear route to emergency help.",
+    "Honest labelling throughout: 'Speculative forecast · not a guarantee', notes that headlines are leads not proof, and no inflated claims in verification-summary.md.",
+    "The engine runs entirely on local Ollama (2–11 s per full run, under 1k tokens) with no paid APIs, and the schema-constrained JSON is repaired once and then rejected (tested)."
+  ]
+}
+```

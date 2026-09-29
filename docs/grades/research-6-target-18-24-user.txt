@@ -1,0 +1,36 @@
+```json
+{
+  "role": "independent target-user grader (18–24), research phase",
+  "phase": "research",
+  "score": 7.6,
+  "inspection_method": "Source inspection only. I read docs/research/*.md, docs/design/ui-rules.md, and spot-checked evidence JSON/TXT (store-prices.json, comparison-summary.json, source-excerpts.md, blind-review.txt, safety-*.json summaries, safety-fresh-author.txt). I did not visually inspect any of the images (.jpeg/.png), so claims in visual-observations.md are taken as written. I modified no files and ran no commands.",
+  "evidence": [
+    "Primary sources are cited with dates: App Store listing URLs with SKU-level prices in store-prices.json, which honestly records Nebula periods as null; Together/Groq pricing pages rechecked 2026-09-29 in source-excerpts.md; exact quotes from Pew (18–29) and RevenueCat (10.7% hard paywall vs 2.1% freemium median); the Bing reuse restriction quoted.",
+    "Model bake-off numbers match their raw evidence. comparison-summary.json matches model-bakeoff.md: 4B median 1.68s, p95 2.48s, safety 27/30; 1.7B 17/30; 8B median 5.25s. The blind-review means of 8.23 / 7.47 / 5.93 appear in blind-review.txt. The 3-, 6- and 10-card token counts (1361/2227/3890 input) are used correctly in the repricing in pricing.md.",
+    "Failures are kept rather than hidden: the unconstrained question engine repeating project_user_growth and asking the user for the outcome itself; a question pilot showing a 'last forecast' card to first-time users; the relocation repair inventing a 'tropical island'; the 8B 104-user arithmetic error that the narrow checker missed; the context-bound pilot rated 4.5/10 and demoted to harness-only; real-engine general answers copying news titles; the Apple RSS review sample at n=0.",
+    "Safety measurement separates first-run results from tuned regression results. The outsider baseline scored recall 78.6% and precision 84.6%. The fresh 40-case first run scored recall 95% and precision 86.4%, confirmed in safety-fresh-first-run.json, with category accuracy 34/40. The 20/20 and 1.0/1.0 results are correctly labeled as regression, not generalization. The fresh set includes Spanish and Danish, plus benign near-misses such as 'kill this bug', 'sudden death' and 'sourdough starter dead'.",
+    "Unit economics are decision-ready: a $0.010 all-in ceiling per prediction, derived explicitly (300 uses × $0.01 = $3 < $4.19 net after a 30% fee), a pessimistic $0.03 loss case, and a note that Groq's assumed $0.0104 already fails the ceiling.",
+    "The hosted inference constraint is handled acceptably. Hosted models are a labeled shortlist ('No hosted requests were made') with a concrete replay plan: 30 runs, median/p95 latency, zero unsafe outputs, zero invented citations, and a ≥9 rubric average required before adoption.",
+    "The retrieval audit scores 5 queries × 3 leads per provider, with an independent rubric result (Google News 36/45, Wikipedia 24/45). It records the date-hallucination failure (the model called 2026 headlines 'not current') and turns it into a server-owned date mitigation.",
+    "The 18–24 audience evidence is honestly absent. decisions.md and user-test.md state that no participants were contacted and treat Pew 18–29 as a proxy. user-test.md sets measurable pass criteria (4/5 unaided task completion, 5/5 test-mode recognition, correct recall of every price field, time budgets for each task)."
+  ],
+  "blockers": [
+    "The documents contradict each other on card caps. decisions.md sets maxima of learning 4, relocation 5, growth 3. question-engine.md says learning and relocation cap at six and that growth 'also caps at six'. Keep one authoritative table and mark the other as superseded.",
+    "research-path.md opens by prescribing Wikipedia plus Google News RSS as the live path. The end of the same file says Wikipedia was not selected. Rewrite or strike the opening paragraph so a reader deciding from the top of the file isn't misled.",
+    "Safety evidence is scattered across three differently sized sets: 14-case outsider (decisions.md), 30-case held-out (safety-policy.md) and 40-case fresh (decisions.md). None of them states who wrote the cases, whether the author saw the phrase rules, or which set is the adoption gate. safety-fresh-author.txt contains cases but no provenance. Name the gate set, document how independent its author was, and put all three first-run results in one table.",
+    "Category accuracy of 34/40 (85%) matters because redirects are category-specific. The self-harm copy differs from the others. Report the confusion matrix and state whether any self-harm case was routed to non-self-harm copy. For an 18–24 audience, that miss is the one that matters.",
+    "The general-topic synthesis path, which drives the bulk of 18–24 questions (career, relationships-adjacent, school), has no semantic grade on the current engine. The research defers it to the 'generation gate' but gives no pass criterion. Define the gate: n, rubric, independent grader, and which general-topic prompts count as target-user realistic.",
+    "The ten-case light-vs-deep retrieval benchmark described in research-path.md was never run; only one EV case exists. Either run it or formally drop deep mode as a decision, rather than leaving it as an open plan.",
+    "The current server's lexical relevance filter is described as 'stricter than the original probe' but its precision is unmeasured. Run the same 15-lead rubric against the implemented filter so the retrieval decision rests on the shipped behavior, not the probe.",
+    "Target-user desirability is zero-evidence on the core bet: 'accountable specificity', 'consistency over surprise', and whether a definitive headline plus a 'not a guarantee' label is trusted or felt as condescending. These are acknowledged, but for a ≥9 research grade, add at least a no-recruitment proxy: public 18–24 discourse samples (Reddit/TikTok comments on Co–Star or AI tarot), sourced and counted. Alternatively, explicitly lower the stated confidence of the commercial wedge in decisions.md."
+  ],
+  "strengths": [
+    "Measurement is exceptionally honest. 'Structural pass' is consistently kept separate from semantic or predictive quality, which is exactly what AGENTS.md demands.",
+    "Numbers trace to retained raw artifacts, and the ones I spot-checked matched.",
+    "Failed evidence is preserved and each failure is paired with a concrete mitigation: deterministic arithmetic, a constrained question registry, server-owned sources and dates, fixed safety copy, and fail-closed repair.",
+    "Pricing is anchored to observed competitor SKUs, with a quantified cost ceiling, stop thresholds, and pilot sample sizes per arm.",
+    "The UI rules are concrete and testable: measured contrast ratios, 375×667 layout budgets, 200% text behavior, share safe region, and focus handling for Why.",
+    "The privacy boundary is stated clearly: no personal text goes to search, and shares are private by default."
+  ]
+}
+```

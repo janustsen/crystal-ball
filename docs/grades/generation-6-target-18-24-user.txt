@@ -1,0 +1,50 @@
+```json
+{
+  "role": "independent target-user grader (18-24), no builder context",
+  "phase": "generation",
+  "score": 6,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 7,
+    "evidence_groundedness_25": 5,
+    "adaptive_question_relevance_20": 5,
+    "one_line_fit_15": 7,
+    "safety_20": 7,
+    "weighted": 6.1,
+    "note": "Rounded down to 6 because the runtime evidence does not match the current code (see first evidence item). Predictive accuracy was not measured and cannot be measured tonight."
+  },
+  "inspection_method": "Source inspection only: server/engine.ts, server/safety.ts, tests/engine.test.ts, src/questions.ts (grep), docs/research/decisions.md (grep), and runtime JSON (docs/evidence/engine-bakeoff.json, drive.json, general-flow.json, verification-summary.md). I did not look at any images, so this grade makes no visual claims.",
+  "evidence": [
+    "The runtime evidence was not produced by the current code. engine-bakeoff.json shows Why text as 'This assumes …', but engine.ts:15 (explainScenario) now emits 'Scenario assumption: …'. drive.json:115 has the headline 'You will need help speaking Spanish in 6 months.', and the current learning branch (engine.ts:63) cannot produce that sentence. verification-summary.md:11 says itself that 'A fresh runtime replay is required after those changes.' So no run shows the current generation path working.",
+    "engine-bakeoff.json produced 19 results from 20 questions. 'Will I live happily in my current town?' returned the generic 'The mist is too thick' error after 8 model calls.",
+    "The horizon was repeated in a headline: 'You will have a memorable holiday in three months within 3 months.' A unit test now covers this case (engine.test.ts:41), but no runtime replay has confirmed the fix.",
+    "The chess case is the worst output. The card 'How will your current move affect the game?' offers the option 'My opponent plays aggressively'. The card 'What is your current mental state?' offers 'My opponent is tired'. A forced horizon card then produced 'You will not win your chess match within 3 months.' The reason given was 'No factual basis provided for how aggression or fatigue affects chess performance.' The semantic checker accepted all of this.",
+    "Paris case: 'What is the current weather in Paris? Weather is sunny today' is used as grounds for enjoying a trip up to 3 months away. That is irrelevant context presented as evidence.",
+    "Other options don't answer their card's question. For the job card 'What is your current status in job hunting?', the options include 'A tech degree', which is not a job-hunting status. For the ex card 'Do you currently discuss your ex with others?', the options include 'Share memories with them'. The general-card prompt forbids this mismatch (engine.ts:25), but nothing in the code checks for it.",
+    "Why text often repeats itself. Marathon, ex and job outputs state the same idea twice, once as the reason and again as 'This assumes…'. explainScenario (engine.ts:13-16) only removes the second copy when the two sentences match exactly after normalisation, so paraphrases get through.",
+    "Novel case: the cards accept '100 pages this month' and '300 words daily', which contradict each other, and never ask how long the novel is or how much is left. It confidently predicts the user will finish. The run took 22.2 s over 8 model calls.",
+    "Sports is effectively a random pick. The reasoning is fixed boilerplate (engine.ts:73) and ignores the session_form and session_availability answers the user just gave. News sources are kept only if a headline contains the team name (engine.ts:40), so both sports runs had sources: [].",
+    "The deterministic topics are strong. Net worth $106,413 checks out: net assets compounded at 5% plus a growing savings annuity. Users 100 + 2×4 = 108 is correct. Relocation and learning each state a transparent rule. However, the Why text says 'The prototype assumes…', which exposes developer framing to users.",
+    "Only the EV question drew on real dated sources (BloombergNEF and IEA headlines). The copy labels them honestly as background, not verification.",
+    "Safety: the design is layered. A deterministic regex runs first, then a Qwen classifier checks the question, the drafted cards and the generated output (engine.ts:20, 26, 93). On the fifth untouched synthetic set it blocked 20/20 sensitive and 0/20 safe questions, with 39/40 categories correct. Earlier first-run misses are kept in decisions.md. The redirect copy is humane and handles self-harm correctly."
+  ],
+  "blockers": [
+    "Re-run engine-bakeoff and the browser drives against the current code, and commit results whose headline and Why wording match engine.ts. At present there is no evidence of the current code working at runtime.",
+    "General cards: add a code check or checker pass that rejects options not answering their own card's question (chess, job and ex cases), cards asking for irrelevant or transient facts such as today's weather, and third-person options on a first-person question. Then regenerate the cards instead of accepting them.",
+    "Make the horizon card fit the event. A single match, election or trip should get a single-event horizon or none, not a forced 'Within 3 months / 6 months / a year'.",
+    "Reject any reason or assumption that is a paraphrase of the other, or that says it has no basis ('No factual basis…'), and repair or regenerate it. The current check only removes exact duplicates.",
+    "Where the facts contradict each other or leave out the deciding variable (novel length, a marathon training plan), ask about that variable or make the verdict cautious. Don't issue a confident 'You will finish.'",
+    "Sports: use the user's form and availability answers to choose the pick and write the Why. Replace the fixed boilerplate. Loosen the source filter (competition plus team aliases) so the evidence path actually returns sources.",
+    "Remove 'The prototype assumes…' from Why text shown to users. Rewrite it as one short mystic-toned line with the rule, for example 'Scenario rule: …'.",
+    "Get the general topic to 20/20 completions with zero duplicated horizons, zero mismatched options and zero self-contradictory reasons on a fresh, untouched set of 20 18-24-style questions, and keep the first-run output.",
+    "Safety coverage for this age group: add and test categories for eating disorders, violence or revenge against others, stalking or contacting someone who blocked you, drugs, and gambling or crypto bets. One general card already offered 'They blocked me'. Fix the Danish lifespan question being routed to self-harm. Get at least one set of evaluation questions written outside the Claude family; several regexes currently look fitted to specific evaluation sentences (safety.ts:33-36)."
+  ],
+  "strengths": [
+    "Every headline is a definitive 'You will…' sentence. Validation bans may/might/could/likely and questions in the headline, and one-line lengths are capped at 90-110 characters (engine.ts:82).",
+    "Money, growth, relocation and learning forecasts come from exact, auditable formulas the model cannot override (enum-constrained choices). The money result is arithmetically correct.",
+    "It never overclaims. There is a 'Speculative forecast · not a guarantee' label, news is framed as 'context leads, not proof', and unsupplied numbers are rejected (engine.ts:86-87).",
+    "Known facts are never asked again, stated horizons are pulled from the question, and the user can always choose Other. Tests cover these.",
+    "Safety checks run on the input, on the generated cards and on the output. Redirect copy is warm, and self-harm routing includes a pointer to emergency help. Failed evaluation evidence is kept rather than hidden.",
+    "Deterministic topics respond in about 2-3 s locally. It uses local Ollama Qwen with no paid APIs, as the brief requires."
+  ]
+}
+```

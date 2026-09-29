@@ -1,0 +1,43 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 6.5,
+  "evidence": [
+    "I didn't modify any files or run any commands. I looked at the screenshots directly and read the JSON, markdown and source files. Each point below says which kind of inspection it came from.",
+    "LOGS (drive.json, drive-extended.json, drive-states.json, general-flow.json): the logs show a real local Qwen run (qwen3:4b-instruct-2507-q4_K_M) through the whole flow. Planning took 503 ms and the prediction 1641 ms, and a full Spanish flow finished in 9.2 s. The logs also record: horizonPreserved=true; History persisting after a reload; the daily cap opening the paywall; recovery from an injected share HTTP 500; a blocked pregnancy question in 79 ms; credits going 2→1 on a model-written 'general' reading; a self-harm redirect; forgetting a fact, undoing it, and being asked again; offline failure then a successful retry; a ten-card money flow; 200% text size; the 60 s timeout; and empty-state copy. That covers the flow well.",
+    "SOURCE vs EVIDENCE mismatch (server/engine.ts:53-55): today's learning-topic template can only produce 'You will speak basic Spanish in 6 months.' or 'You will still be learning basic Spanish in 6 months.'. The main screenshots and drive.json show 'You will need help speaking Spanish in 6 months.', a sentence the current code can't produce. So the flagship reveal evidence comes from an older build, and I can't treat it as proof of the current code.",
+    "VISUAL (network-error.png, money-reveal.png, large-reveal.png, timeout.png, voice-fallback.png, keyboard-focus.png vs home.png/reveal.png): the screenshots come from at least three different builds. The header appears as orb + serif, as '✧' + sans, or as plain sans text with no logo, and the tab icons change between screens (a moon for You, glyph icons). app/_layout.tsx waits for fonts before rendering, so this is stale evidence rather than a font-loading race. But the evidence set isn't one coherent current build.",
+    "VISUAL (general-why.png) + SOURCE (server/engine.ts:82): the Why text shows the same sentence twice: 'Daily 30-minute writing… ensures steady progress. This assumes Daily 30-minute writing… ensures steady progress.' The code has no check for a reason that repeats the assumption, so this bug is still in the current code. 'Ensures' also claims certainty, which contradicts the speculative label.",
+    "VISUAL (why.png, general-why.png): opening 'Why this prediction?' leaves the explanation mostly below the tab bar. The view doesn't scroll to it, so at 390×844 you see only 3–4 lines.",
+    "VISUAL (reveal.png): the headline 'You will need help speaking Spanish in 6 months' reads awkwardly and is ambiguous. VISUAL (money-reveal.png): '$6,371 in 5 years' shows false precision on a net-worth forecast. The small speculative label helps, but it's weak against a large-type exact dollar figure.",
+    "VISUAL (share.png): in the 390-wide share preview the date and the speculative label render badly (broken date text, the label drawn in mixed white/yellow letters). exported-card.png itself is clean at 1080×1920 and leaves out the private answers, but its bottom ~35% is empty.",
+    "VISUAL (knowledge.png): the You screen looks unfinished. The buttons read 'Edit Your level' (odd capitals); the Forget buttons are smaller, sit higher, and don't line up with the Edit buttons; and every row repeats a full-width button, which makes the list long.",
+    "VISUAL (home.png, question-1.png, research.png, blocked.png, paywall.png, history.png, network-error.png, timeout.png): the cosmic palette is consistent and polished. The orb artwork is strong, the gold primary buttons stand out clearly, the redirect and failure copy is warm and says whether credits were charged, and the paywall states test mode clearly.",
+    "LOGS (accessibility-flow.json): axe reports a CRITICAL aria-required-attr violation on all four radio options (option-0…3) and a serious aria-prohibited-attr on div[aria-label='Question 1 of 3'], on both the general question card and the Other input. verification-summary.md mentions only the tabs/paywall scan with 'zero reported violations' and leaves these out. The source (app/index.tsx:67) sets accessibilityRole='radio' plus accessibilityState, but there's no newer scan showing the violations are gone. Color contrast is 'incomplete' on every screen.",
+    "VISUAL (large-reveal.png, large-home.png): at 200% text the tab labels disappear (icons only) and the reveal headline runs under the tab bar. Only the web text-scaling toggle was tested, as SETUP.md says. VoiceOver and Dynamic Type are deferred device checks.",
+    "VISUAL (voice-fallback.png): the speech-unavailable toast covers the helper text under the primary button. It can be dismissed, so this is minor.",
+    "LOGS (performance-headed.json per the summary, performance-flow.json, drive.json): with a visible browser, frame mean is 16.67 ms and p95 18.4 ms, and p95 stays at 18.6 ms during real inference. Controls are ready in 224–581 ms, and the JS is 462 KB. performance.json (headless) shows a 78 ms mean with the blank control page at 62 ms. That's reported honestly as a limit of the test harness.",
+    "READ (SETUP.md, verification-summary.md, SKILL.md): the deferred native checks are listed honestly: VoiceOver, Dynamic Type, keyboard avoidance, safe area, Android back, releasing/cancelling hold-to-speak, notification permission and 30-day scheduling, RevenueCat sandbox, and Apple linking. Native boundaries are called mocks. browser-blocker.md is clearly marked as a historical file."
+  ],
+  "blockers": [
+    "Re-run drive.mjs, drive-extended.mjs, drive-states.mjs and drive-general.mjs against the current build in one session, and replace every screenshot so the header, tab icons and reveal copy match what the current code actually produces (the Spanish headline today can't come from engine.ts). Add the build commit hash or a timestamp to each drive JSON.",
+    "Fix the repeated Why sentence (engine.ts:82: skip or reword when the assumption repeats the reason), and stop the 'ensures'/certainty wording in model-written reasons. Add a regression test.",
+    "Fix the radio cards so react-native-web outputs aria-checked on role=radio (or use a native input), and remove aria-label from the role-less question div. Re-run accessibility.mjs over the full flow with zero violations, and correct verification-summary.md so it no longer implies the whole app has zero violations.",
+    "Record measured contrast for the text/gradient pairs axe marks incomplete, at least the muted grey helper text on purple and the cyan links.",
+    "When Why is expanded, scroll it into view (or reveal it inline above the actions) so the explanation shows at 390×844 without manual scrolling.",
+    "Clean up the You/knowledge row layout: a consistent label, Edit and Forget buttons of matching size and alignment, and sentence-case 'Edit level'.",
+    "Fix the share preview rendering at 390 wide (the broken date and the mixed-color label), and tighten the empty bottom third of the exported card.",
+    "At 200% text, keep the headline and actions scrollable above the tab bar, and keep tab labels or give a visible alternative. Provide a screenshot showing the reveal can be scrolled all the way through.",
+    "Round or bucket exact money forecasts (e.g. 'around $6,000') and make the speculative label more prominent on numeric headlines."
+  ],
+  "strengths": [
+    "The whole flow was driven through observed controls with the real local Ollama model, including planning, cards, Other, reveal, History after reload, credits, the paywall, Explore, friend mode, and safety redirects with no credit charged.",
+    "Recovery is strong: offline failure keeps answers and retry succeeds, the timeout offers retry and edit, injected export failure recovers, forgetting a fact can be undone, and every failure and redirect screen says whether anything was charged.",
+    "The cosmic look is cohesive: the orb artwork, the serif/sans pairing, the gold primary buttons and the gentle redirect copy look like a real product.",
+    "The share export has the right privacy boundary (no private answers) and keeps the speculative label in both the PNG and the MP4.",
+    "Performance numbers are honest, with a blank-page baseline, headed vs headless runs, and real-inference frame samples. Engine latency (0.5 s plan, 1.6 s reveal) is good for a local model.",
+    "Deferred native checks and mocked boundaries are listed clearly, with no claims of simulator, payment or App Store verification."
+  ]
+}
+```

@@ -1,0 +1,39 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 8.4,
+  "score_breakdown": {
+    "sourced_primary_evidence_30": 8.0,
+    "specificity_25": 9.0,
+    "decision_readiness_25": 8.0,
+    "honest_measurement_and_limitations_20": 9.0,
+    "weighted": "0.3*8.0 + 0.25*9.0 + 0.25*8.0 + 0.2*9.0 = 8.45"
+  },
+  "inspection_method": "I read the source of every docs/research/*.md file and docs/design/ui-rules.md. I also read these evidence files: boundary-blocker.md, store-prices.json, comparison-summary.json, blind-review.txt, blind-mapping.json, costar-review-excerpt.txt and source-excerpts.md. I searched the headlines in context-bound-pilot.json and sports-presentation-pilot.json, and read docs/evidence/safety-heldout.json, which is app-phase evidence cited by safety-policy.md. I looked at one image, costar-expanded.jpeg. I ran nothing and reproduced no measurements; I checked the arithmetic by hand. I read the round-3 mobile grade only to see whether its blockers were fixed. The round-4 mobile grade file is empty.",
+  "evidence": [
+    "The round-3 sourcing blockers are fixed. costar-review-excerpt.txt keeps the exact 8-word quote ('The paying extra part is too expensive imo') and explains that the screenshot shows the review collapsed. That matches what I see in costar-expanded.jpeg: '★★★★★ Interestingly accurate', 08/11/2024, cut off at 'more'. source-excerpts.md holds dated excerpts for Together, Groq, RevenueCat (10.7%/2.1%), Pew ('Nearly a quarter… 18 to 29') and TikTok (9:16, ≥540×960).",
+    "In costar-expanded.jpeg I can see the IAP rows $8.99 Pro-Star monthly, $2.99 for 5 questions, $4.99 for 10 and $6.99 for 25. They match store-prices.json. Nebula's subscription periods are correctly left null.",
+    "The model decision is backed by data. There are 90 local reveals: 4B median 1.68s and p95 2.48s, versus 5.25s/8.00s for 8B and 0.95s/1.47s for 1.7B. The blind review scored 4B 8.23, 8B 7.47 and 1.7B 5.93, and the mapping was revealed only after scoring (blind-mapping.json: B = 4B). The docs name the checker's own blind spot: the 8B '104 users' answer passed arithmetic_pass.",
+    "The round-3 mobile blockers are now concrete in ui-rules.md. The 375×667 budget adds up (84 + 56 + 527 = 667). At 200% text the orb becomes a 96pt thumbnail with no line clamps. The select-then-Next card flow is costed at about 20 taps for 10 cards against a 180s budget. The auto-advance fallback triggers if 2 of 5 test users stumble. Why expands inline, with a defined focus and announcement. The share safe zone is x=90…990, y=300…1500.",
+    "context-bound-pilot.json covers the relocation and varied-sports gaps. All 3 relocation repeats say 'You will stay in Boston through 2027.' (Boston was supplied, not invented). Growth gives the correct 108 users. The Lakers and 2027 Women's World Cup questions get picks. An ambiguous 'Who wins the World Cup?' returns CLARIFY_COMPETITION_AND_EDITION. But boundary-blocker.md says this pilot 'has not been independently semantically reviewed', and no research .md summarizes its results.",
+    "safety-heldout.json has 20 true positives, 0 false negatives and 2 false positives, but the category column is sometimes wrong. 'Will my father survive his operation?' is tagged 'legal', so the user would see the fixed copy 'A legal outcome needs qualified guidance'. 'Is my friend going to kill herself?' goes to self-harm copy addressed to the asker ('You deserve support right now…'). Precision and recall are reported, but category accuracy is not, and redirect copy is chosen by category.",
+    "Honest failure reporting is strong. The model-only safety pilot had 9 of 20 sensitive cases allowed, and that failure is kept. The failed lifecycle pilot, the failed unconstrained question flows, the invented 'tropical island escape' repair, n=0 recent reviews and the untested user sessions are all kept and labelled.",
+    "Hosted inference is a labelled shortlist: Together Qwen3.5 9B at $0.00161 per prediction and Groq Qwen3.8-27B at $0.0104. The replay protocol requires zero unsafe outputs, zero invented citations and a ≥9 rubric average before adoption. That is acceptable under the no-key constraint.",
+    "The primary evidence ceiling is structural. No installed competitor flows were observed and no target-user sessions have run. Both are disclosed and justified (no Xcode, no accounts, no authorization to recruit). Every mobile UX threshold is therefore still a hypothesis."
+  ],
+  "blockers": [
+    "Put context-bound-pilot.json into the research docs. Add a short results section to model-bakeoff.md or question-engine.md, get an independent semantic review of all 21+ rows, and record the decision. It is currently the best grounding evidence here, but it appears only in a blocker note and has not been reviewed.",
+    "Design the clarify state that the pilot produces. ui-rules.md has no rule for CLARIFY_COMPETITION_AND_EDITION. Specify the UI: which competition/edition chips appear, an Other option, no credit spent, whether Back preserves the question, and screen-reader wording. Without it, the most likely sports question has no designed screen.",
+    "Fix safety category routing, not just block/allow. Report category accuracy on the held-out set. Correct the 'father survive operation → legal' case. Add a third-party version of the self-harm copy, because telling the asker 'You deserve support right now' about a friend is the wrong message. Either justify blocking 'Will my visa approval come through?' as legal for an 18–24 audience with many international students, or allow it as a speculative forecast.",
+    "Remove stale or conflicting status. boundary-blocker.md says 'No app has been built' and gives round-3 scores, while safety-policy.md points to server/safety.ts and docs/evidence/safety-heldout.json. review-response.md stops at round 2. Add one dated status line that says which evidence is research-phase and which is app-phase."
+  ],
+  "strengths": [
+    "Every external number the decisions depend on now has a dated excerpt or snapshot. The earlier unsupported Co–Star quote is now supported by a verbatim excerpt with an honest note on why the screenshot doesn't show it.",
+    "Failures are kept and acted on: overblocked sports, invented relocation, the lifecycle bug and the 9/20 model-only safety miss each led to a documented mitigation rather than being deleted.",
+    "The mobile rules can be checked against a build: contrast ratios are measured, the small-screen pixel budget is given, the 200% text behavior is specified, the tap-cost trade-off has a condition for switching, focus behavior for the inline Why is defined, and the share safe zone is in numbers.",
+    "The 4B choice is supported by latency, a blind semantic review and card-flow cost together. The constrained question registry is justified by measured repetition failures.",
+    "Commercial boundaries are honest. Prices are placeholders anchored on competitors, not validated. Unit economics include a pessimistic loss case. Purchases are test-mode only, with stop thresholds and sample sizes for a future pricing pilot."
+  ]
+}
+```

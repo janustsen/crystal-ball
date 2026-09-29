@@ -1,0 +1,78 @@
+Design-phase score: **7.5 / 10**, below your 9 bar. The design direction is strong and the state coverage is thorough. It falls short on four things:
+
+- **Control borders fail contrast.** By my calculation the borders on input fields, choice cards and secondary buttons are below the 3:1 minimum, and `contrast.json` never measures them.
+- **Tab labels vanish at 200% text.** The tab bar goes icon-only, and the design docs endorse this as a feature.
+- **The share card isn't polished enough** for a product that grows through sharing.
+- **The reveal moment is thin** for 18–24 users.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 7.5,
+  "rubric_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.5,
+    "visual_polish_25": 7.0,
+    "interaction_and_animation_spec_25": 7.5,
+    "accessibility_and_complete_states_25": 7.0
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (955 KB, so I grepped its headings, figcaptions and image/video sources; I did not render it as a page)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png",
+      "reveal.png",
+      "why.png",
+      "selected-1.png",
+      "research.png",
+      "blocked.png",
+      "share.png",
+      "exported-card.png",
+      "paywall.png",
+      "large-home.png",
+      "large-reveal.png"
+    ],
+    "not_inspected": "Videos (flow-recording.webm, exported-story.mp4), the three reveal-frame PNGs and about 30 other review-sheet captures. I did not re-measure contrast with a tool; I computed sRGB luminance by hand from the token hex values."
+  },
+  "evidence": [
+    "THESIS (source + visual): 'Pocket observatory' is stated the same way in system.md, ui-rules.md and review.html. The captures follow it: one glass SVG orb with an orbit ring and internal mist, an ink-to-violet gradient, a sparse starfield, Cormorant display type with DM Sans body text, gold for actions and cyan for selection and links. The theatrical styling stays in the orb and reveal while the controls stay plain, which is a mature choice. The three layout options considered (tarot, dashboard, observatory) are documented with reasons.",
+    "THESIS (visual): The copy voice holds together ('The mist is gathering…', 'Behind the mist', 'Send a little wonder.', 'Let's look toward something gentler.'). For 18–24 users it leans calm and bookish more than magical. Nothing is off-brand, but nothing is especially screenshot-worthy apart from the orb.",
+    "POLISH (visual, home.png / reveal.png / selected-1.png / research.png / blocked.png / paywall.png): At 390×844 the hierarchy is clean, the 24 pt inset is consistent, the gold primary buttons are confident, and the raised orb tab gives the app a signature. The question card's selected state (cyan outline plus star) reads well. The paywall is honest: the test-mode panel is clear and the billing period sits on every price.",
+    "POLISH (visual, exported-card.png): The 1080×1920 share card has a widow ('You will speak basic Spanish in 6 / months.'). The bottom roughly 30% of the card is an empty band with a faint constellation. The disclaimer is set larger than the headline's visual weight. The wordmark is gold serif, which clashes with the ivory wordmark in the app. Of all the artifacts, this is the one that spreads the brand, and it looks like a template rather than something people would want to post.",
+    "POLISH (visual, share.png): The in-app preview card has tiny text (the date is unreadable) and the same widow. The two export buttons ('Export animated story' / 'Export story card') are a technically accurate choice, not a social one. There is no save or direct-share primary action.",
+    "POLISH (visual, large-home.png / large-reveal.png): At 200% text the display serif grows to about 72 pt. 'A / glimpse / of what's' takes the whole viewport. The reveal headline is cut off under the tab bar mid-glyph ('5 years' is only half visible) with no scroll cue. The speculative label wraps badly ('not a / guarantee'). The wordmark shrinks next to a huge gold '3 readings' counter. The screens are usable but look unfinished.",
+    "POLISH (visual, reveal.png vs home.png): The readings counter is gold on Home and secondary lavender on Reveal and Share. The depleted-state rule explains the lavender, but the counter reads as a style inconsistency between neighbouring screens.",
+    "MOTION (source, motion.md): This is a real single motion spec. It gives durations, easing formulas (cubic-out, sine ease-in-out), reduced-motion replacements and haptics for each interaction, plus a timed reveal sequence (0/200/250/700/800 ms). It explicitly rules out fake progress and artificial delay. The 8 s longer-wait message and 60 s timeout have stated sources. It is honest about what browser capture offsets can and cannot prove.",
+    "MOTION (source): The reveal is modest: a gold rim appears, a five-point constellation shows, glow peaks at 0.35 opacity, and the text fades over 600 ms, all settling within 800 ms. For entertainment aimed at 18–24 users, the payoff moment is under-built. Nothing happens inside the orb as the answer 'forms', and the mist clearing has no sound or haptic build-up; one Success haptic fires at 0 ms. Card-to-card transitions are the generic 180 ms fade and rise with no forward/back direction. The orb's behaviour while the microphone is listening is left for device validation. The Home orb press has no haptic.",
+    "ACCESSIBILITY (source, contrast.json): Twenty pairs are measured, and all text pairs pass comfortably (ivory on ink 17.89:1). The non-text pairs that identify controls were never measured, and by my calculation they fail WCAG 1.4.11 (3:1): field border #685281 on surface #160F30 ≈ 2.7:1; choice-card border #5A4473 on #160F30 ≈ 2.2:1; secondary-action border #66537F on #25193F ≈ 2.4:1 (and weaker against the page gradient). ui-rules.md says 'contrast.json measures text and non-text pairs', which overstates what the file covers.",
+    "ACCESSIBILITY (source + visual, large-home.png): At 200% the tab bar drops its visible labels and relies on icons plus accessible names. ui-rules.md and system.md present this as intended, but for sighted low-vision users it removes labels at exactly the moment they are needed.",
+    "STATES (source + review.html captions): State coverage is unusually complete. It covers default, selected, Other, 1–10 cards, research, long wait, timeout, offline, sensitive redirect, self-harm support, reveal, why, share preview, exported PNG and MP4, export failure, empty/populated/yes/no History, knowledge empty/edit/forget-undo, friend isolation, voice unavailable, keyboard focus, daily cap, mock paywall and restore, large text and reduced motion. Recovery copy is honest ('No reading was spent', 'Nothing was charged'). Deferred native checks are listed openly instead of claimed.",
+    "STATES (visual, why.png): The explanation text contradicts itself: 'You described yourself as new beginner… This scenario treats an intermediate starting point'. The review sheet shows it as a model state ('grounded explanation') without flagging it. The design phase should own an explanation template that makes this kind of contradiction visibly wrong.",
+    "CONSISTENCY (source): Small conflicts between documents. system.md says the headline sits 'within orb composition' while ui-rules.md says 'below the orb'. The radius wording differs (system.md: 'Selectable cards 16, utility fields 16'; ui-rules.md: 'Fields and buttons 16'). ui-rules.md claims to be the token authority, but review.html restates spacing and type values."
+  ],
+  "blockers": [
+    "Bring every control-boundary colour to at least 3:1 against the colour next to it: field border, choice-card border, secondary-action border and the unselected radio ring. Add these pairs, and the disabled border, to contrast.json, and re-capture selected-1.png, ask.png and share.png.",
+    "Keep visible tab labels at 200% text. Stack icon over label, allow two lines or make the bar taller, rather than going icon-only. Update ui-rules.md, system.md and large-home.png.",
+    "Specify and show a 200% reveal that doesn't cut the headline off under the navigation without warning. Cap the display serif size or reflow the layout, add a scroll affordance or fade at the fold, and keep the speculative label on one or two balanced lines. Re-capture large-reveal.png and large-home.png.",
+    "Redesign the 9:16 share card as the product's growth surface. Balance line breaks so no single word sits alone on the last line. Give the headline more weight than the disclaimer while keeping the disclaimer clearly readable. Use the lower band on purpose (for example a larger constellation, the date or a small wordmark). Make the wordmark colour match the app. Show at least two headline lengths (short, and the 110-character maximum) as annotated mockups inside the safe area.",
+    "Make the reveal a 'moment' in motion.md: a staged sequence of about 1.2–1.8 s. For example, the mist condenses to the core, the constellation draws point by point, a gold swell plays, then the text appears, with the haptic timed to the settle and actions never blocked. Include a reduced-motion equivalent and show it with frame captures or the recording in review.html.",
+    "Add directional card transitions (forward and back), orb choreography while the microphone is listening, and a Home-orb press haptic to the motion spec. Where these can't be proven in a browser, mark them clearly as spec-only.",
+    "Add an explanation-copy template to the design system, for example: 'You said X → we assumed Y → so Z', with a rule that assumptions must not contradict supplied facts. Flag the why.png capture as a known defect instead of showing it as a good state.",
+    "Settle the wording conflicts between documents (headline placement relative to the orb, radius roles) and have review.html link to the tokens instead of restating them."
+  ],
+  "strengths": [
+    "A clear, specific visual thesis. The glass orb with orbit and mist is memorable and gets used for the Home call to action, the tab, research, reveal, History thumbnails and share.",
+    "Restraint: the mysticism stays in the artwork while controls and explanations stay plain, which suits trust, safety and sharing.",
+    "A real motion authority, with easing formulas, reduced-motion equivalents and haptics per interaction, and an explicit ban on fake progress or ceremonial delay.",
+    "Excellent state coverage: recovery, safety redirects, empty states, friend isolation, daily cap, mock billing and export failure all have real captures.",
+    "Honest paywall and prediction framing: test-mode labelling, billing period next to every price, no fake urgency, and the speculative label always beside the headline.",
+    "Selection shown with an outline plus a star, not colour alone; a cyan focus ring at 12.6:1; generous 52/44 pt targets; all text contrast pairs pass well.",
+    "The review sheet is built from real captures and says plainly what was observed in the browser versus deferred to a device."
+  ]
+}
+```

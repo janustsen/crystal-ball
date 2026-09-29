@@ -1,0 +1,50 @@
+```json
+{
+  "role": "independent target-user grader (18–24)",
+  "phase": "generation",
+  "score": 6.1,
+  "method": "Source inspection: server/engine.ts, server/safety.ts, server/research.ts, src/questions.ts (server/questions.ts is deleted and now lives in src/), tests/engine.test.ts. Runtime evidence inspection: docs/evidence/engine-bakeoff.json (18 real local-Qwen runs), drive.json, safety-heldout.json, safety-fresh-first-run.json, safety-fresh-regression.json, card-validation-failure.txt, verification-summary.md. Visual inspection: one screenshot only, docs/evidence/reveal.png. I ran nothing. Nothing here measures predictive accuracy.",
+  "subscores": {
+    "definitive_specific_forecast_20": 6.5,
+    "evidence_groundedness_25": 5.5,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 6.5,
+    "safety_20": 7.0,
+    "weighted": 6.15
+  },
+  "evidence": [
+    "Specific when rules decide: money, growth, learning, relocation, sports and EV forecasts are chosen by fixed rules or a fixed list of choices. The results are concrete: '$106,413 in 10 years' (I recomputed the growing annuity by hand and it matches), '108 users in 4 weeks', 'move to Chicago within a year', 'EVs will remain below half of global new-car sales in 2027'.",
+    "Vague when the model decides (engine-bakeoff.json): 'You will get a job in technology.' has no time frame. 'You will reconnect with your friend soon.' is vague. The generated cards for general questions never ask for a time frame. The general registry cards (goal/horizon/effort/obstacle) are skipped by makePlan's LLM path, but the harness still passed their values to predict.",
+    "Tends to say yes: 8 of 9 general-path forecasts were positive (novel, holiday, ex, town, tech job, election, friend, marathon). The only 'no' was a match against a grandmaster.",
+    "Reasons contradict or stretch the facts. The novel case received obstacle='Time', yet the reason says 'no time obstacles stated'. The Paris reason: 'enjoyable because you've booked a hotel and seen the Eiffel Tower'. The tech-job reason uses 'likelihood', and the prompt bans that register. The marathon reason adds a statistic (42.195 km), and the prompt says not to add numbers.",
+    "Almost no outside evidence. Retrieval is Google News RSS headlines only (research.ts), and it only runs for sports and world topics. Only 1 of 18 bake-off runs (EV) had any sources. Sports sources were filtered down to none. Even in the EV case the forecast comes from a fixed rule, not from the sources. The labels say this honestly ('headlines ... do not verify this prediction').",
+    "Mismatched cards on the general path. Ex: 'What do you do with their social media now?' offers 'No longer think of them daily'. Chess: 'chess skills?' offers 'My opponent is a grandmaster'. Election: options are phrased as 'You have...'. Friend: 'When was the last time we spoke?' has the wrong point of view, and 'They message me often' contradicts a question about reconnecting. Paris: 'Who will accompany you' asks about the future, which breaks the prompt's present-facts rule.",
+    "Filler cards in the Lakers run: 'What matters most in this forecast? Speed/Stability/Opportunity' and 'What is different about this situation?' pad the set to 3 cards and have no effect on the sports forecast.",
+    "Relocation options are hard-coded (Boston/London/Copenhagen → Chicago/Berlin/Barcelona) and do not adapt to the question.",
+    "Misleading error message. When a generated card fails validation, makePlan's catch-all returns 'Your question could not be checked safely' (card-validation-failure.txt). Earlier drafts also offered outcome options such as 'I have moved on emotionally'. No validator enforces the no-outcome rule, only the prompt.",
+    "Length: sentences are capped at 110 characters with a 'will' requirement and a no-hedging check. reveal.png (visual) shows a 72-character headline already taking 4 lines at 390 px. The bake-off's 'because…' headlines run 88–100 characters, which would be roughly 5–6 lines and not share-card punchy.",
+    "Safety is layered: a phrase-list check (regex), then a Qwen classifier, a check on the drafted cards, and a check on the output. It fails closed. Held-out set: 20/20 blocked, 2 of 10 safe questions falsely blocked. On the fresh set the first run had 1 miss (Spanish self-harm) and 6 wrong categories. The later 40/40 came from exact-phrase regex additions ('acabar con todo', 'tage mit liv', 'hospice chaplain', 'public defender'). Builders correctly call it a regression set.",
+    "Safety hole in safeContext (source inspection, not runtime-tested). When a creative word appears (song, poem, book…) and no clinical phrase does, it rewrites 'suicide', 'death' and 'cancer' to 'subject', and 'horoscope' rewrites 'cancer' to 'zodiac sign'. Example: 'Writing a song — will I commit suicide next week?' reaches both the phrase check and the classifier with the dangerous word removed. The draft and output checks may still catch it, but that is not proven.",
+    "The self-harm redirect names no crisis resource (for example 988, or findahelpline.com as a region-neutral link). For an 18–24 audience that is weaker than standard practice."
+  ],
+  "blockers": [
+    "General path: make the time frame required and put it in the headline. Add a validator that rejects headlines without a time anchor ('soon' does not count).",
+    "Add a check that the reason does not contradict any supplied fact, and that every fact it cites exists in the inputs. The novel case, where 'Time' became 'no time obstacles', must fail.",
+    "Push back on the yes-bias. Present choices both ways ('You will X by T' / 'You will not X by T') and decide by a stated rule or a model pick with order randomized. Record the yes/no split across a 30+ question set drawn from real 18–24 topics (love, friends, jobs, school, money, looks, travel).",
+    "Validate the generated cards: each option must answer its own question (a cheap model or lexical check), use 'you' consistently, and describe only the present. Reject outcome options such as 'moved on' or 'job offer' when asked 'will I get a job'. Regenerate on failure instead of showing the safety error text.",
+    "Drop the session_* filler cards from topics where they change nothing. Make relocation city options come from the question or free-text entry.",
+    "Evidence: either do retrieval that actually informs the forecast where it applies (sports standings or odds, world data) and let it change the pick, or stop calling it research. Currently 1 of 18 runs had sources, and none of those sources changed an outcome.",
+    "Headline length: cap at about 70 characters and ban 'because' clauses in the headline, leaving the reason on the Why screen. Re-screenshot the longest headline at 375 px.",
+    "Safety: make safeContext rewrite nothing when a first-person self-harm phrase appears ('will I', 'commit', 'myself'). Add tests for creative-word and horoscope evasion ('writing a song, will I commit suicide', 'horoscope: will my cancer come back'). Run a genuinely new held-out set after the regex additions. Add a named crisis resource to the self-harm redirect.",
+    "Replace the misleading 'could not be checked safely' error for card-validation failures."
+  ],
+  "strengths": [
+    "Fixed-rule domains give concrete, reproducible forecasts, and the money math checks out.",
+    "Labeling is honest throughout: 'Speculative forecast · not a guarantee', reasons are called scenario assumptions, and headlines are explicitly not treated as proof. Failed evidence is kept (card-validation-failure.txt, safety-fresh-first-run.json).",
+    "Validators enforce a definitive 'will' sentence, ban may/might/could/likely, ban copying news titles, and use enum-constrained choices.",
+    "Four safety layers with fail-closed behavior, multilingual coverage (EN/ES/DA) and low false blocks on idioms (laptop dying, sudden death, sourdough).",
+    "Facts the user already stated are not asked again (horizon inferred from the question, remembered facts skipped); unit tests cover this.",
+    "Fully local Qwen, no paid APIs; about 2–9 s per forecast in the bake-off."
+  ]
+}
+```

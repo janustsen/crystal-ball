@@ -1,0 +1,33 @@
+{
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "prompt": "Review EACH card against its OWN options. A card collects input; it is NOT supposed to answer the original forecast. Do not judge whether the forecast can be proved or whether all inputs are sufficient. Approve relevant present-context cards. Example: for finishing a novel, asking daily writing time is valid even when novel length is unknown. Reject only a clear mismatch: options answer a different subject/dimension than their card, the card is unrelated to the forecast topic, or it asks the user to predict the outcome. Return valid and a brief issue.",
+  "rows": [
+    {
+      "name": "relevant but incomplete current facts",
+      "expected": true,
+      "actual": {
+        "issue": "The card 'How many pages have you drafted?' is relevant to the forecast of finishing a novel, as page count is a component of progress. The card 'How often do you write?' is also relevant as writing频率",
+        "valid": true
+      },
+      "correct": true
+    },
+    {
+      "name": "wrong subject",
+      "expected": false,
+      "actual": {
+        "issue": "The card asks about the opponent's state of mind, which is not directly relevant to the forecast of winning a chess match. The forecast is about the outcome of the match, not the opponent's emotional/",
+        "valid": false
+      },
+      "correct": true
+    },
+    {
+      "name": "predicts outcome",
+      "expected": false,
+      "actual": {
+        "issue": "The card asks whether 'you' will win, but the forecast is about 'I'. This creates a mismatch in subject, as 'I' and 'you' refer to different individuals. The card does not align with the original fore",
+        "valid": false
+      },
+      "correct": true
+    }
+  ]
+}

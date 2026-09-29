@@ -1,0 +1,68 @@
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "design",
+  "score": 8.0,
+  "score_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.5,
+    "visual_polish_25": 7.5,
+    "interaction_and_animation_spec_25": 8.0,
+    "accessibility_and_complete_states_25": 8.0
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (text, figcaptions and asset references pulled with grep; the file is 955 KB, mostly inlined assets, so it was not rendered as a page)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png",
+      "reveal.png",
+      "reveal-frame-300.png",
+      "why.png",
+      "selected-1.png",
+      "research.png",
+      "timeout.png",
+      "share.png",
+      "exported-card.png (1080×1920)",
+      "paywall.png",
+      "large-home.png",
+      "large-reveal.png"
+    ],
+    "not_inspected": "flow-recording.webm and exported-story.mp4 (video can't be viewed with read-only tools). The motion score rests on the spec plus three still reveal frames, not on seeing the animation play."
+  },
+  "evidence": [
+    "Thesis: one clear idea runs through the docs and the captures. The app is 'a tiny observatory' with an ink-violet sky, a glass orb with internal mist and an orbit ring, gold for action and cyan for selection. system.md compares three layouts (tarot deck, dashboard, observatory) and explains the choice. The captures follow it: the orb leads Home, Research and Reveal, and when the reading settles a gold rim and a small constellation appear inside the glass.",
+    "Visual (seen in captures): the Home hierarchy is strong. The Cormorant display serif against DM Sans body text gives the book-like tone the docs promise. The question card screen is calm and readable; the selected option shows a cyan ring plus a star mark, so it doesn't rely on color alone. Timeout and Research screens are on-theme ('The mist is too thick.').",
+    "Visual defect (seen in share.png): in the scaled-down share preview, the line 'Speculative forecast · not a guarantee' renders with broken gold/white fragments. That is a polish bug on the one screen whose job is to look finished.",
+    "Visual weakness (seen in exported-card.png): everything on the 1080×1920 card sits in the top ~66%. Below y≈1300 is just an empty gradient. That respects the safe zone, but the story card looks unfinished, and it is the main artifact people will share.",
+    "Visual weakness (seen in reveal-frame-300.png): the three full-width buttons appear at full opacity while the headline is still fading in, so for about 600 ms the buttons outweigh the answer. That undercuts ui-rules rule 5, 'Answer first'. Three stacked full-width buttons also make the reveal screen heavy; the third one is cut off by the nav bar at 390×844.",
+    "Motion (source): motion.md is the single place motion is defined. Its table gives, for each interaction, the property, duration, easing, reduced-motion version and haptic, and it writes out the easing formulas. Mist runs at 25% opacity idle and 45% during research, and the idle and research speeds differ, so each phase looks different. The reveal is storyboarded millisecond by millisecond. It avoids fake progress. Good discipline overall.",
+    "Motion gaps (source): no spec for the raised center orb in the tab bar (idle or pressed); the failure/timeout haptic isn't defined (only success is); voice-listening motion is explicitly deferred. There are no timings for the Notice banner or the History outcome toggle beyond 'no animation'. The docs admit that 'Actual captures/video… are the motion proof', and only three still frames are in the sheet.",
+    "Accessibility (source): contrast.json lists 20 measured pairs, all well above threshold, including focus ring, placeholder, disabled and inactive tabs. Disclosure announcements are specified, text scaling is never capped, the 200% layout rules are concrete, safe areas are defined, and the doc is honest about which native checks (VoiceOver, Dynamic Type) are deferred.",
+    "Accessibility (seen in captures): large-reveal.png at 200% puts the speculative label before the headline and shrinks the orb to a thumbnail, as specified. In large-home.png the 'Ask the Ball' button sits above the display headline, which reads oddly, and the orb is pushed below the fold on Home.",
+    "States (source + captures): the sheet shows empty, populated, came-true and wrong History; offline, timeout, 8 s longer wait and safety redirect; empty and edit Knowledge; paywall test mode and restore; friend isolation; voice fallback; keyboard focus. Coverage is broad and honest.",
+    "Consistency: ui-rules rule 5 names the label 'Forecast, not a guarantee', but every capture shows 'Speculative forecast · not a guarantee'. The token rules (rule 1) define no error, destructive or warning color, even though the specs require a destructive local-reset confirmation and error screens."
+  ],
+  "blockers": [
+    "Fix the share-preview label rendering so 'Speculative forecast · not a guarantee' is one consistent color and weight at preview scale, then re-capture share.png.",
+    "Recompose the 1080×1920 export so the lower safe band carries intentional decoration (horizon, constellation, a short brand line) instead of an empty gradient, with text still inside x=90…990, y=300…1500. Re-capture the still and the MP4.",
+    "Reveal hierarchy: let secondary actions fade in with or after the headline group (or fold 'Remind me' and 'Ask another' into a quieter row), so the answer is always the first thing seen. Update motion.md and re-capture the 0/300/800 ms frames.",
+    "Add semantic tokens for error, destructive and warning (with contrast.json entries), and specify plus capture the destructive reset-confirmation state.",
+    "Align the speculative-label copy between ui-rules rule 5 and the implemented string.",
+    "Complete the motion spec: raised tab-bar orb (idle, pressed, reduced motion), error/timeout haptic, and Notice appear/dismiss. Add annotated key frames or a frame strip to review.html so a reviewer can judge motion without playing video.",
+    "At 200% on Home, either keep a small decorative orb above the fold or put the headline before the early Ask action, so the large-text layout still reads as the observatory."
+  ],
+  "strengths": [
+    "A distinctive, coherent thesis: the observatory and glass orb carry across Home, Research, Reveal, Share and error copy without drifting into tarot cliché.",
+    "Plain interface copy sits alongside short oracle-voice moments, and the tone is honest: no fake urgency, no fake progress, 'Nothing was charged.'",
+    "motion.md gives one authoritative motion table with easing formulas and a reduced-motion version of every interaction.",
+    "Measured contrast data for text and non-text pairs, and selection that doesn't rely on color alone.",
+    "The review sheet shows real states (empty, error, safety, friend, large text, keyboard), and the docs clearly mark which native checks are deferred.",
+    "Ethical paywall: test mode is stated plainly, billing periods are shown, and the 44% annual savings claim is real arithmetic ($39.99 vs 12 × $5.99)."
+  ],
+  "verdict": "A solid 8, not a 9. The thesis and the motion/accessibility documentation are close to the bar. What's missing is finish on the most visible surfaces: the share artifact and the reveal hierarchy, one visible rendering defect, and gaps in the error-color tokens and the motion spec."
+}
+```

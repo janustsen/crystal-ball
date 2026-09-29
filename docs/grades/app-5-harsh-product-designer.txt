@@ -1,0 +1,49 @@
+```json
+{
+  "role": "harsh-product-designer grader",
+  "phase": "app",
+  "score": 7,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 7.5,
+    "weighted": 7.3
+  },
+  "method": "Read-only. VISUAL = I viewed the PNGs in docs/evidence/. SOURCE = I read app/index.tsx, src/ui.tsx, the drive JSONs, SETUP.md and the verify skill. I ran nothing and did not open the live app. I did not watch flow-recording.webm or exported-story.mp4.",
+  "evidence": [
+    "SOURCE drive.json: a real local Qwen run (qwen3:4b-instruct-2507-q4_K_M). Plan took 503 ms and returned 3 cards. Predict took 1641 ms. The whole flow took 9.2 s. Credits went from 1 reading to 0, and horizonPreserved is true.",
+    "VISUAL home/ask/question-1/selected-1/question-3/research/reveal/why/history/share at 390x844 all come from one consistent build (orb logo header, line tab icons). The palette is a coherent deep violet/indigo with gold primary CTAs and ice-cyan selection. The EB Garamond-style display serif paired with a DM Sans body works well.",
+    "VISUAL exported-card.png is a clean 1080x1920 card. It shows only the headline, date and the gold 'Speculative forecast · not a guarantee' label, with no private answers. The downscaled preview in share.png shows odd gold fragments inside that label. Those are probably resampling artifacts, not a rendering bug.",
+    "VISUAL general-why.png and SOURCE general-flow.json line 71: the Why text says 'Daily 30-minute writing with no distractions and consistent motivation ensures steady progress. This assumes Daily 30-minute writing with no distractions…'. The sentence is duplicated and a capital D lands mid-sentence. This is user-facing model-output slop, and the drive recorded it as a pass. The headline 'You will finish writing your novel this year' is based on that same empty reasoning.",
+    "VISUAL reveal.png: the headline 'You will need help speaking Spanish in 6 months.' does not answer 'Will I be conversational…?' and reads awkwardly. It is the hero screen and the share artifact. Why also says the scenario 'treats … 20 minutes daily with weekly feedback as enough', while the user supplied 30 minutes. The reasoning reads as template logic, not a personalised glimpse.",
+    "VISUAL money-reveal, network-error, large-home/large-reveal/large-question: these use an older header ('✧ Crystal Ball' in sans) and unicode tab glyphs (⌂ ✦ ◷ ☽). timeout.png and keyboard-focus.png show a third header variant (text only, no orb). SOURCE app/index.tsx now renders Orb + TabIcon. So the ten-card money flow, offline recovery, 200% text, timeout and keyboard-focus evidence was not captured on the current build, even though verification-summary.md presents it as current.",
+    "SOURCE drive-extended.json records only screen names and timestamps. It has no engine responses, so nothing verifies the $6,371 money headline or its horizon. The home suggestion asks '10 years' and the reveal says '5 years', and nothing in the evidence explains which answer set the horizon.",
+    "VISUAL daily-cap.png is pixel-identical to paywall.png. When the allowance runs out, the user lands on the paywall with nothing saying they used today's reading. The only signal is '0 readings' in small type in the header.",
+    "VISUAL knowledge.png: 'Edit Your level' / 'Edit Daily practice' have awkward title-case labels. The Forget buttons are a different height and baseline from the Edit buttons, and each fact row uses two stacked full buttons, which feels heavy. The third row is cut off at the fold. This is the weakest-designed screen.",
+    "VISUAL large-reveal.png (old build): in the in-app 'Large text (200%)' mode, the headline runs under the tab bar at the fold and the tab labels disappear, leaving icons only. SOURCE: this is an app-level toggle (fontSize 40, labels hidden), not browser zoom or Dynamic Type.",
+    "VISUAL blocked.png: the safety redirect is well written ('Let's look toward something gentler'), has a clear primary and secondary action, and says 'No reading was spent.' SOURCE: self_harm adds a findahelpline.com action.",
+    "VISUAL network-error/timeout: 'The mist is too thick' offers Try again, Review answers and Edit question, and says 'Nothing was charged. Your answers are kept.' SOURCE: a 60 s AbortController timeout, cancel via a generation counter, and an 8 s long-wait copy change.",
+    "SOURCE accessibility: tablist/tab roles with selected state, radiogroup/radio with checked state, an expanded state on Why, polite live regions, announceForAccessibility, a web :focus-visible outline, 44–58 px touch targets, and system reduce-motion via AccessibilityInfo. verification-summary.md reports 0 axe violations across the tabs and paywall, with gradient contrast checked separately.",
+    "SOURCE performance: the headed idle run has a 16.67 ms mean and 18.4 ms p95 frame time. The inference flow has p95 18.6 ms, with a 33.4 ms worst planning frame. Controls became available in 581 ms headed and 224 ms cold in drive.json. The primary drive saw a 133 ms max frame and a 19.9 ms mean. JS is 462 KB. All of this is browser-only, with no device profile.",
+    "SOURCE SETUP.md honestly lists what is deferred to a device: VoiceOver, Dynamic Type 200%, keyboard avoidance, safe area, Android back, hold-to-speak, notifications and the 30-day reminder, Apple link and RevenueCat. The paywall is visibly 'Test mode · no real payments' / 'simulate'. This matches firstmate's Expo-web authorization."
+  ],
+  "blockers": [
+    "Fix Why text synthesis so it cannot repeat or echo input: dedupe sentences, fix the casing of the 'This assumes' join, and require the reasoning to go beyond restating the user's answer. Add a semantic check to scripts/drive-general.mjs that fails on repeated sentences, then re-run it and capture general-why.png.",
+    "Make the headline answer the question asked, in its terms. For 'Will I be conversational in Spanish in six months?' that means a confident yes, no or partial glimpse (e.g. 'You'll hold simple Spanish conversations by spring — with more speaking practice'), not 'You will need help speaking Spanish'. Make Why use the real supplied value (30 min) instead of a fixed threshold template. Re-capture reveal/why/share/exported-card.",
+    "Re-run drive-extended.mjs and drive-states.mjs on the current build and replace the stale captures: money-*, network-error, retry-reveal, large-*, timeout, keyboard-focus, long-wait, voice-fallback. Record engine responses (headline, horizon, facts) in drive-extended.json the way drive.json does. Remove any statement that treats the old captures as current.",
+    "Add a depleted-allowance state before or at the top of the paywall, e.g. 'You've used today's free reading. Your next one arrives tomorrow at <time>', with a 'Come back tomorrow' secondary action. Make daily-cap.png visibly different from the voluntary paywall.",
+    "Redesign the You / knowledge rows: use a lighter pattern (a tappable row that edits inline, with a text or icon Forget action) and sentence-case labels such as 'Edit level'. Vertically align both actions and check that the rows scan cleanly at 390x844.",
+    "Large-text mode: keep the headline fully visible above the tab bar on the reveal screen (smaller orb or scroll-into-view) and keep a text label or tooltip for tabs. Re-capture at 200% on the current build.",
+    "Fill the dead lower half of the reveal screen at 390x844, for example by showing a short Why teaser under the label so the payoff screen isn't mostly empty space."
+  ],
+  "strengths": [
+    "A real end-to-end local pipeline: Ollama Qwen plans the cards, the answer is adapted, and the prediction is persisted and reloads from History. Credits are charged only on success, and all of this was observed through the UI rather than internal setters.",
+    "A distinctive, consistent cosmic visual identity: SVG orb artwork used across header, tabs, reveal and export, a restrained gold/ice accent system, and good serif display typography.",
+    "Recovery is thought through: cancel, a 60 s timeout, offline retry that keeps answers, 'Review answers', export-failure handling, and 'nothing was charged' copy on every failure.",
+    "The safety redirect is kind and gives a useful alternative path, charges nothing, and adds nothing to the knowledge bank.",
+    "Honest boundaries: the mock paywall is clearly labeled, native checks are listed as deferred rather than claimed, failed evidence is kept, and there are no paid APIs or borrowed credentials.",
+    "Share export is privacy-correct (headline plus label only) at the right 1080x1920 story size, with PNG and MP4 from one canvas composition."
+  ]
+}
+```

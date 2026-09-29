@@ -1,0 +1,32 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.9,
+  "evidence": {
+    "method": "I read system.md, ui-rules.md, motion.md and contrast.json in full. review.html (955 KB) was checked by grepping its structure and captions only, not rendered, so judgments about the review sheet's layout come from its markup. I looked at these PNG captures directly: home, question-2, selected-2, research, reveal, why, timeout, history, paywall, exported-card, large-home and large-reveal. I did not play the MP4s (the exported story and the full flow video), so the motion proof rests on the documented timings plus the three reveal frame captions (0, 300 and 800 ms).",
+    "thesis_25pct": "Score 8.5. 'Pocket observatory' is a clear idea and the captures follow it. The glass orb with its orbit ring, internal mist and a gold constellation that appears on reveal is used the same way on Home, Research, Reveal, Timeout, the center tab and the exported card. The docs record the tarot and dashboard layouts that were rejected. The copy mixes oracle voice with honesty well ('The mist is too thick. The Ball took too long. Nothing was charged.'). Weak points: the tab icons (house, sparkle, clock, moon) are generic outline icons, and History and Paywall are plain lists with nothing celestial beyond the background.",
+    "visual_polish_25pct": "Score 7.5. Seen in the captures: the Home and Reveal screens are well balanced, the Cormorant/DM Sans pairing works, and gold, cyan and violet each have a consistent job. Defects seen: (1) selected-2.png at 390×844: with Other open, the Next button is cut in half behind the tab bar, which contradicts ui-rules' 'keeps the ask/Other input and confirmation action visible'. (2) The Home headline says 'A glimpse of what's next.' at standard size, 'A little glimpse of what's…' at large text, and system.md specifies 'A little glimpse of what's next.' (3) History uses the date '9/29/2026' while the share card uses 'Sep 29, 2026'. (4) History has one bare row, no status chip for pending or came-true, and about 60% empty screen. (5) The exported card is top-heavy: the lower ~40% holds only a faint constellation, and the branding is a small gold 'Crystal Ball' with no mark. (6) Paywall buttons read '$5.99 / month · simulate', where the test-mode word crowds the price, and the pack offers sit below the fold.",
+    "motion_25pct": "Score 8.0. motion.md is a real single authority: property, duration, easing curve formula, reduced-motion equivalent and haptic for every interaction, plus a reveal storyboard and distinct idle, research and reveal artwork. Weaknesses: the reveal is described three times in slightly different terms (the table, the storyboard paragraph and a later paragraph), with 700–800 ms settle versus a 250 + 450 ms glow. The Research → Reveal handoff (mist stop versus orb continuity between screens) is not specified. Voice-hold animation is explicitly deferred. The proof is three browser-scheduled frames that the doc itself admits are not keyframes.",
+    "a11y_states_25pct": "Score 7.8. Strong: contrast.json has measured pairs for text, focus ring, selected border, disabled text and placeholder. Selection does not rely on color alone. The Why disclosure has defined focus and announcement behavior. Accessible names for the 200% icon-only tabs are specified. The state set is broad: empty History and You, timeout, offline, safety redirect, friend mode, voice denied, keyboard focus, mock restore, Undo on forget. Gaps: the clipped Next (above) is a confirmation-visibility failure in exactly the Other-field state the rules call out. The large-text Home puts the Ask button above the page heading, which is questionable as the first thing a screen reader or reader reaches. No capture shows keyboard-open on native, the offline Home, or the reduced-motion switch toggled. Dynamic Type and VoiceOver are deferred to device checks, which is honestly labeled but unverified."
+  },
+  "blockers": [
+    "Fix the question card so Next stays visible when Other is expanded at 390×844 and 375×667, either with a sticky footer action above the tab bar or by auto-scrolling to Next. Re-capture selected-2 and add a keyboard-open capture.",
+    "Pick one Home headline across system.md, the standard capture and the large-text capture, and use one date format across History, Reveal and Share.",
+    "Give History a designed state treatment: pending, came true and another path shown as status chips or glyphs with text, plus a cosmic touch such as a small orb or constellation thumbnail, so it doesn't read as an unstyled list.",
+    "Rebalance the 1080×1920 share card: fill the bottom safe band with deliberate branding (a wordmark with an orb glyph, and optionally an app line), and state the vertical rhythm in the docs.",
+    "Merge motion.md into one reveal storyboard with a single timeline (0/200/250/700/800 ms) and specify the Research → Reveal orb continuity. Cite the MP4 frame evidence for the reveal instead of the three admittedly imprecise stills.",
+    "Paywall: take 'simulate' out of the price labels (the Test mode panel already covers it) and bring at least one pack offer into view, or add a visible cue that more offers are below.",
+    "Large-text Home: put the heading (or a compact header) before the early Ask action in reading order, or document why the action comes first for screen-reader users.",
+    "Add review-sheet captures for reduced motion on, offline Home and the You reset confirmation so the claimed 'complete states' are all shown, not just described."
+  ],
+  "strengths": [
+    "The orb is a distinct signature object, used the same way across screens and the export.",
+    "Honest-product constraints are built into the design: a persistent speculative label (placed first at large text), no fake progress or popularity, 'Nothing was charged' on recovery, and a mock paywall that says it is test mode.",
+    "The motion spec is unusually complete, with easing formulas, a reduced-motion equivalent per row and haptics mapped.",
+    "Measured contrast data covers text and non-text pairs, and selection uses a non-color star marker.",
+    "The review sheet annotates real captures against numbered rules, including failure, safety, friend, large-text and export states.",
+    "It clearly separates project hypotheses (orb sizes, 8 s and 60 s budgets, share safe zones) from platform standards."
+  ]
+}
+```

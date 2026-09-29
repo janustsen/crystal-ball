@@ -1,0 +1,48 @@
+I checked the current evidence against the code with read-only tools. The verification summary is accurate: the latest engine replay really does complete 20 of 20 runs, with the latency the summary reports, and the builder's own review admits the same semantic defects I found. But completing a run is not the same as a good forecast. The cards and explanations the model produces for open-ended questions (the "general" topic) still have problems you can see in the current outputs, so this is well below the 9 bar.
+
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6.5,
+  "rubricBreakdown": {
+    "definitiveSpecificForecast_20": 7.0,
+    "evidenceGroundedness_25": 6.0,
+    "adaptiveQuestionRelevance_20": 5.5,
+    "oneLineFit_15": 7.5,
+    "safety_20": 7.0,
+    "weighted": 6.53
+  },
+  "inspectionMode": "Source and runtime-artifact inspection only (server/engine.ts, server/safety.ts, tests/engine.test.ts, docs/evidence/verification-summary.md, generation-review.md, engine-bakeoff.json at 2026-09-29T13:01–13:03Z). No images were visually inspected for this generation-phase grade. No commands were run.",
+  "evidence": [
+    "verification-summary.md matches the artifacts. engine-bakeoff.json has 20/20 kind:'ok'. generation-review.md reports the same latency figures and openly lists the remaining semantic defects. I did not treat the historical failure files (…-before-*.json, …-failure.json) as current.",
+    "Money is a deterministic calculation and is correct. I recomputed the $106,413 figure: net 15,000 at 5% gives 24,433, plus the growing annuity 6000·(1.05^10−1.02^10)/0.03 ≈ 81,980. Growth (108), relocation, learning and EV use transparent rules and clearly label their assumptions.",
+    "For general questions the model picks the key of one input fact and the server quotes that fact word for word (engine.ts:102). This fixes where the fact comes from, but the 'Scenario assumption' is still written by the model and often repeats the verdict. Ex case: 'You will not move on from your ex this year because you still think about them daily.' Here 'because' appears inside the assumption, which the prediction check blocks but the assumption check does not.",
+    "The chosen fact is often not the strongest one. The novel case quotes 'Update my progress weekly' instead of '3 chapters done' or '500 words daily'. Every other fact is ignored in the Why.",
+    "Every general case in the bakeoff answers with the FIRST option on every card. That is 11/11 cases and every card in them. So nothing shows the verdict changes when you change an answer. 10/11 general verdicts are positive, and the prompt pushes that way ('Lack of certainty is not a reason to pick failure'; 'unknown facts are not evidence against success').",
+    "Bad cards are in the current run: 'Where did you see an old friend today?' offers 'They sent a photo', and both friend cards assume contact happened today. 'What is your current work activity?' offers 'Team meeting in progress'. 'How many votes do you currently have? 1200 votes in the system' gives no total and assumes a count is already running. The Paris card asks about 'current weather', which is irrelevant unless the trip is this week. The town safety card offers 'Public transport runs on time'. The chess cards mix time and experience into preparation and preference questions.",
+    "Headlines that tack on a time window read wrongly: 'Your next holiday will be memorable within 3 months.', 'You will live happily in your current town within 3 months.', 'Your next trip to Paris will be enjoyable this week.', 'You will complete a beginner project in coding in 1 year.' formatForecast attaches the horizon mechanically (engine.ts:13).",
+    "The sports explanation says it uses 'any recent-form or availability context you entered', but never quotes that context (the Lakers answers 'Strong recent form' and 'Full squad expected' are not surfaced). Retrieved sources are filtered to nothing for both sports cases. 'Who will win' with a single contender leaves only one allowed answer, so there is no real forecast.",
+    "Safety is checked three times: on the input, on the generated cards (engine.ts:32) and on the output (engine.ts:103). There are deterministic phrase rules in English, Danish and Spanish plus a model classifier. The untouched synthetic set is 20/20 sensitive blocked and 0/20 safe blocked. By the summary's own admission, the 40/40 and polysemy results come from tuned cases, not blind ones, and decisions.md keeps the approximate 84% Wilson lower bound on file.",
+    "The single-sentence limits are enforced: prediction ≤90 characters, headline ≤110, a 'will' sentence with no hedging words, and a number check that stops the assumption inventing statistics. The fallback after one failed repair refuses rather than guessing, and tests/engine.test.ts:39 covers it."
+  ],
+  "blockers": [
+    "Add paired counterfactual replays for the general cases: the same question with first-option and last or opposite answers, plus an 'Other' free-text answer. Show that the verdict and the quoted fact change sensibly. Report the positive/negative split, and remove or rebalance the prompt lines that push toward positive answers.",
+    "Validate the assumption the way the prediction is validated. Reject 'because', 'due to' and restatements of the verdict or of the quoted fact (for example by token overlap with the headline or basis). Require a real future condition. Retain the failing ex and novel outputs as regression fixtures.",
+    "Make the fact choice defensible. Either quote two facts or add a deterministic tie-break that prefers progress or quantity facts over process facts. Or have the model rank the facts and have the server check the ranking against a simple relevance rubric.",
+    "Card quality gate: reject cards that assume an event already happened ('today', 'did you', 'in the system', 'in progress'). Reject options whose wording doesn't answer the question word (where, how many, how often). Re-run all 11 general cases and publish per-card pass/fail from an independent labeller. The target is zero option mismatches, compared with 5 known today.",
+    "Rewrite how the horizon is added to the headline. For state or experience verdicts (memorable, enjoyable, happily) use 'by <date>' or 'over the next 3 months', or ask the model to put the horizon in itself. Add tests for the four awkward headlines above.",
+    "Sports: quote the answers the user gave for form and availability in the Why. Refuse a 'who will win' question that has only one contender, or ask for at least two contenders.",
+    "Safety: add a fresh blind held-out set that the tuning never touched, including topics the categories don't cover today: surveillance or suspicion of a third party ('will my partner cheat', 'will my coworker get fired'), gambling or betting stakes, eating or weight extremes, and relationships where abuse is possible. Either add categories or document why they are allowed. Report the Wilson lower bound on that fresh set."
+  ],
+  "strengths": [
+    "Where a fact is quoted, the server now owns it word for word; the model cannot paraphrase what the user said.",
+    "Deterministic calculations for money, growth, relocation, learning and EV are correct, and the Why states the assumptions openly.",
+    "Every output is labelled 'Speculative forecast · not a guarantee', and news headlines are explicitly called background, not verification.",
+    "Safety runs on the input, the generated cards and the output. Categories are routed, the self-harm redirect is aware of third parties, and the sensitive-topic redirect does not charge a credit.",
+    "Structural limits on length, the 'will' verb, hedging words, invented numbers and duplicate cards, plus one repair and then refusal, are all enforced and unit tested.",
+    "Failed experiments are kept honestly, and the builder's own review names the same defects this grader found.",
+    "Local inference only (qwen3:4b), with total median 4.4 s and p95 7.0 s, and no paid APIs."
+  ]
+}
+```

@@ -1,0 +1,52 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 6.5,
+  "evidence": {
+    "inspected_sources": [
+      "docs/design/system.md (source)",
+      "docs/design/ui-rules.md (source)",
+      "docs/design/contrast.json (source)"
+    ],
+    "inspected_images_visually": [
+      "docs/evidence/home.png",
+      "docs/evidence/ask.png",
+      "docs/evidence/question-2.png",
+      "docs/evidence/reveal.png",
+      "docs/evidence/why.png",
+      "docs/evidence/share.png",
+      "docs/evidence/exported-card.png",
+      "docs/evidence/history.png",
+      "docs/evidence/failure.png"
+    ],
+    "not_inspected": "question-1/3/4.png. The system.md text points graders at a visual review sheet, but docs/design/ contains only three prose/JSON files. No HTML or contact-sheet review artifact exists.",
+    "thesis_25pct": "7/10. Source: 'pocket observatory' and 'glass orb with orbit paths and internal mist' are stated the same way in both docs, and the tarot and dashboard alternatives were considered and rejected. Visual: home, reveal and share keep the orb as the hero, and the gold, lavender and ink palette holds together. The weak spot is that the 'mist' barely reads in the captures: it looks like a static violet sphere with one cyan highlight. The exported card replaces the glass orb with a flat radial-gradient blob, which breaks the one unique element the thesis depends on.",
+    "visual_polish_25pct": "6/10. Visual: the serif/sans pairing is clean and spacing is consistent. Defects found: (1) the disabled 'Next' on question-2 is a muddy brown-tan fill that looks broken rather than intentionally disabled. (2) The Expo dev lightning overlay covers the Home tab in question-2, why and ask, so the captures were not cleaned. (3) The exported card uses a system sans (looks like Helvetica/Arial) for 'Crystal Ball' and the label instead of DM Sans, and it doesn't match its own in-app preview. (4) Reveal shows 'Did it come true?' on a prediction made seconds earlier. (5) The header reads '0 readings' on reveal and '1 reading' on home and ask, and there is no spec for what that counter means. (6) Radio indicators on the option cards are about 8px glyphs, too faint to scan. For an 18-24 audience the share artifact is the growth surface, and the export is the plainest image in the set.",
+    "interaction_animation_25pct": "5.5/10. Source: durations are given (6s breath, 12s mist, 140ms selection, 600ms reveal), plus reduced-motion stop rules, an 8s and 60s loading budget, and inline Why focus behavior. Missing: easing curves, scale and opacity amplitudes, orb press feedback, the reveal choreography sequence (what fades or moves, in what order, how the orb transitions into the headline), screen and tab transition specs, the research 'subtle orbit' parameters, haptic types, and the length, frame rate and loop of the animated share clip. Nothing was captured showing motion: no storyboard, no frame strip, no reduced-motion static comparison.",
+    "accessibility_states_25pct": "7/10. Source is strong: a measured contrast table, 44/52 targets, 200% text reflow rules, no line clamps, orb shrinking to a 96pt thumbnail, keyboard avoidance, Android back, voice-permission denial, an honest loading state, safety redirect, and cancel without charge. Visually, however, failure.png is byte-for-byte the home screen, with no error, retry or retained answers. There are no captures for research/loading, timeout, paywall, Explore, You/Knowledge, friend mode, empty History, the 375×667 viewport, 200% text or reduced motion, even though system.md lists these as required checks. contrast.json leaves out several colors that appear on screen: the disabled button, inactive tab labels, placeholder text, the cyan focus ring, and gold 13px captions on the scrim-less mist."
+  },
+  "blockers": [
+    "Add a single visual review sheet (HTML or PNG contact sheet) under docs/design/ with every screen and state annotated against the rubric: Home, Explore, Ask, each Question card including Other-input and disabled-Next, Research/loading at 0s, 8s and 60s timeout, Reveal, Why, Share preview, Export, History empty and filled, You/Knowledge empty and filled, Paywall, safety redirect, friend mode, and the cancel path.",
+    "Replace failure.png with an actual failure state that shows the error message, Retry, retained answers, and no credit spent. It currently duplicates Home.",
+    "Capture 375×667, 200% text scale, keyboard-open and reduced-motion variants of at least Home, Question and Reveal, and verify the rules for the 96pt orb thumbnail and headline reflow.",
+    "Write a motion spec with an easing curve and amplitude for each animation (for example, breath scale 0.98→1.02 with ease-in-out sine). Add orb press feedback, a step-by-step reveal choreography with timings, tab and screen transitions, loading-orbit parameters, haptic types, and the share clip's duration, fps, loop and file format. Add a storyboard or frame strip for the reveal.",
+    "Fix the export card so it uses the same glass-orb SVG, DM Sans and gold wordmark as the in-app preview, and make the speculative label legible at story size. Add some personality for 18-24 sharing, such as a date stamp, topic glyph or 'check back on' date, without leaking private data.",
+    "Redesign the disabled primary button so it reads as clearly disabled (for example, an outline or a desaturated ink fill with measured contrast) rather than a muddy gold, and add it to contrast.json.",
+    "Add contrast measurements for inactive tab labels, input placeholder, the focus ring against its surroundings, disabled states, and the gold caption on the mist gradient's brightest region.",
+    "Specify when 'Did it come true?' appears, since it should be hidden until the check-back date, and define the header reading-counter semantics so reveal and home agree.",
+    "Make the internal mist visible in the static renders (layered translucent wisps), or scale back the thesis language. As rendered, the 'mist' is a single highlight.",
+    "Enlarge the option-card radio indicators and show the selected-state visual in a capture.",
+    "Re-capture all evidence with the Expo dev overlay hidden."
+  ],
+  "strengths": [
+    "A clear 'pocket observatory' thesis with rejected alternatives written down, and the orb holds the hero position across screens.",
+    "A disciplined token set with measured WCAG contrast ratios that are all well above AA for primary text pairs.",
+    "Honesty rules suit a Gen Z entertainment app: the 'Speculative forecast · not a guarantee' label always sits next to the headline and carries into the export, with no fake percentages, no fake engagement counts and a truthful mock paywall.",
+    "A thoughtful interaction contract: selection then Next with no auto-advance, Other with explicit confirm, an adaptive count that doesn't promise a fixed denominator, Back that keeps answers, inline Why with no modal focus trap, and cancel that doesn't charge.",
+    "Concrete share safe zones for 1080×1920 and private-by-default share content.",
+    "Loading budgets (8s reassurance, 60s timeout) paired with retained answers.",
+    "Typography in the captures is legible and has real character (Cormorant display with DM Sans UI)."
+  ]
+}
+```

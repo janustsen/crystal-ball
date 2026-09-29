@@ -1,0 +1,60 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 6.9,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_from_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 6.5,
+    "performance_15": 7.0,
+    "weighted_total": 6.9
+  },
+  "method_note": "Read-only. VISUAL = I viewed the PNG captures in docs/evidence/. SOURCE = I read scripts/drive*.mjs, src/*, app/index.tsx and tests/. I ran nothing, did not watch exported-story.mp4 and did not open docs/design/review.html. Expo web at 390x844 was accepted as the authorized substitute for the iOS Simulator.",
+  "evidence": [
+    "VISUAL: The main flow was captured end to end at 390x844: Home, Ask, 4 cards (one using Other with '30 minutes'), 'The mist is gathering…', Reveal, Why, Share, History, You, Plans and purchase, Explore, the sensitive-question redirect, and Home at 375x667. The credit counter changes plausibly: 1 left → 0 left after the reading → 5 after the mock pack → still 5 after the blocked IVF question.",
+    "VISUAL + SOURCE: Offline recovery really happened. drive-extended.mjs calls context.setOffline(true) before the last card. network-error.png shows 'Try again' and 'Edit question' and the credit count stays at 5. retry-reveal was captured about 2.3s after going back online. This is a real recovery path, not a mocked one.",
+    "VISUAL: The returning-user flow shows 3 cards instead of 4, so known facts are skipped. The friend link banner renders. The 10-card money flow completes.",
+    "VISUAL DEFECT (share export): In exported-card.png (1080x1920) the orb's floor shadow ellipse sits on top of the words 'need help' in the headline. The card also leaves roughly 35% of its height as empty gradient below the disclaimer. This is the artifact users post publicly, and it has the most visible flaw in the app.",
+    "VISUAL DEFECT (Why): why.png shows 'practice at least20 minutes daily'. The space is missing before the number. The same missing space appears throughout the builder's docs ('at390×844', 'n30'), so it is probably a systematic whitespace-stripping bug in text post-processing rather than one model slip.",
+    "VISUAL DEFECT (answers contradict the question): The user asked about 'Spanish in six months', was asked 'When do you want to use it?', and the reveal predicts '3 months'. The user asked 'net worth in 10 years' and the reveal says '$6,371 in 5 years'. The question engine does not take the time horizon from the question, and the headline contradicts what the user asked. The driver always picks option-0, which is why this never got flagged.",
+    "VISUAL DEFECT (money prediction): '$6,371' is a falsely precise figure. The bakeoff fixture expects about $146,962 for similar inputs. Nothing on screen explains why the number is this low, so the prediction reads as broken rather than mystical.",
+    "VISUAL: network-error.png repeats 'The mist is too thick.' as both the title and the first sentence of the body.",
+    "VISUAL: The You screen shows raw lowercase fact keys as labels ('level', 'practice', 'conversation'). 'Forget' is a bare text link with no visible button area.",
+    "VISUAL: home-small.png still says 'Ask your first question' after the user has a reading in History and bought credits. The copy does not reflect the user's state.",
+    "VISUAL: 'Did it come true? Yes / Not quite / Not yet' are plain text links with no visible button area. They are probably smaller than 44pt in height (visual estimate, not measured).",
+    "VISUAL (large text, 375x667): In large-question.png the 'Back' button and the 'Getting to know you · 1' progress label run into each other and wrap. The heading takes the whole first screen, so no answer option is visible without scrolling. large-reveal.png is legible, and the orb shrinks correctly.",
+    "VISUAL strengths: The palette is consistent (deep violet, gold call-to-action, cyan focus/selection). The serif headings suit the product. The selected state uses both a border and a filled dot, so it does not rely on colour alone. The loading screen promises 'No reading is spent on failure'. The paywall clearly says 'Test mode · no real payments'.",
+    "SOURCE: The history check is weak. After page.reload() drive.mjs only waits for the heading text 'Your little archive of tomorrow.' It never confirms the prediction survived the reload or reopens it, which the verification skill requires. The large-text run does reopen a reading from History, but that happens in a later storage-state session.",
+    "SOURCE: Several steps the verification skill requires were never driven: Forget a fact, Restore purchases, 'Remind me to check back', Hold to speak, 200% browser zoom, and a privacy check of the exported PNG (I checked it by eye and found no private facts).",
+    "SOURCE: Native integrations (Notifications, Apple sign-in, RevenueCat, speech recognition, haptics) are wired in src/native.ts, src/purchases.ts and src/VoiceButton.tsx with web and unconfigured fallbacks. However, tests/ contains only engine.test.ts with 3 engine tests. No mock-based test covers any native adapter, so the requirement 'wired and tested with mocks' is not met.",
+    "SOURCE: VoiceButton calls ExpoSpeechRecognitionModule.stop() on every press-out, even when permission was denied or the start call failed. On a device this could throw unhandled. It is untested.",
+    "SOURCE: The accessibility wiring looks real. app/index.tsx reads AccessibilityInfo.isReduceMotionEnabled, uses live-region announcements and labels controls. The orb is hidden from assistive tech when it is not interactive. The builder's summary correctly declines to claim VoiceOver or Dynamic Type validation.",
+    "PERFORMANCE: drive.json records flowSeconds=10.6 from 'Look into the future' to the reveal, including the scripted 700ms screenshot waits. The reveal arrived about 2.6s after the loading screen. That is good for local Qwen, but the only record is timestamps: no engine latency, model id or raw output was logged alongside the screenshots. Nothing measures bundle size, first render, frame rate during the orb animation, or cold start.",
+    "STALE DOC: docs/evidence/browser-blocker.md still says 'real browser flow' and 'animated share export' are incomplete. verification-summary.md says both now exist. The stale checkpoint should be marked superseded or removed.",
+    "DEFERRED DEVICE CHECKS (listed honestly by builder): VoiceOver, Dynamic Type, real local notifications, Sign in with Apple, RevenueCat sandbox, speech recognition permissions, haptics, native share sheet, safe areas and notch on a real iPhone."
+  ],
+  "blockers": [
+    "Take the time horizon and currency/amount from the question text ('six months', '10 years') and either skip the matching card or pre-select that answer. The reveal must never contradict the horizon the user asked about. Add an engine test for this and a driver run that uses non-default answers.",
+    "Fix the dropped space before numbers in displayed text (the 'least20' bug). Add a regression test on the formatter.",
+    "Fix the share card layout so the orb shadow never overlaps the headline, and balance the empty space below the disclaimer. Re-export it and inspect it with long, short and 3-line headlines.",
+    "Money predictions need a sanity check (compare against the deterministic compounding the bakeoff already uses) and should show the key assumption. '$6,371 in 5 years' from a 10-year question is not shippable.",
+    "Add mock-based tests for the native adapters: reminder (permission denied, permission granted and scheduled), saveWithApple (unavailable, cancelled, identity mismatch), purchases (mock mode, sandbox without key), VoiceButton (permission denied, then no stop() crash). Record them as mocked checks in the evidence.",
+    "Complete the verification skill's own drive: confirm the History entry survives the reload and reopen it, Forget a fact and show it is asked again, run Restore purchases, run 'Remind me' (web preview message), run the Hold to speak fallback notice, and run 200% browser zoom.",
+    "Fix the large-text question header so Back and the progress label don't collide, and cap or scale the question heading so at least the first option is visible at 375x667.",
+    "Polish: give the knowledge facts readable labels ('Spanish level' instead of 'level'), make Forget and Yes/Not quite/Not yet into buttons at least 44pt tall, remove the duplicated error sentence, and make the Home call-to-action state-aware ('Ask another question').",
+    "Log engine latency, model id and the raw structured response for each reveal next to the screenshots so the performance and 'real local model' claims can be audited. Add one render or frame-rate measurement for the orb animation on web.",
+    "Mark docs/evidence/browser-blocker.md as superseded."
+  ],
+  "strengths": [
+    "A real end-to-end browser drive against local Ollama, with isolated browser contexts and dated screenshots for every major screen.",
+    "Real offline failure and retry: answers are kept, no credit is charged, and the flow recovers.",
+    "The sensitive-question redirect is kind, spends no credit and states that nothing was saved to the knowledge bank.",
+    "A coherent and attractive cosmic visual system. The orb artwork is strong, the gold call-to-action is clear, the selected state does not rely on colour alone, and the 'speculative forecast · not a guarantee' label stays visible.",
+    "The mock paywall is honest ('Test mode · no real payments') and changes the credit balance visibly.",
+    "Native adapters degrade gracefully on web with honest copy instead of fake success.",
+    "The system reduce-motion setting is honoured and there are in-app Large text and Reduce motion toggles, both verified in screenshots.",
+    "The builder's summary is candid about deferred device checks and does not overclaim VoiceOver, Dynamic Type or predictive accuracy."
+  ]
+}
+```

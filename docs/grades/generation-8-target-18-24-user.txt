@@ -1,0 +1,58 @@
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "generation",
+  "score": 6.5,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 8.0,
+    "evidence_groundedness_25": 5.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 8.0,
+    "safety_20": 8.0,
+    "weighted": 6.75,
+    "note": "Rounded down to 6.5 because the flaws are in the core general-topic path, which is where most 18-24 questions will land."
+  },
+  "inspection_method": "Source and JSON only: server/engine.ts, server/safety.ts, tests/engine.test.ts, docs/evidence/engine-bakeoff.json, generation-review.md, verification-summary.md, and a grep of decisions.md. I did not open any images or HTML, so this grade makes no visual claims.",
+  "summary_verification": [
+    "CONFIRMED: engine-bakeoff.json has 20 entries. 19 are ok and 1 is an error: 'Will I live happily in my current town?' failed with 'The mist is too thick'. That matches the summary.",
+    "CONFIRMED: every artifact timestamp falls between 2026-09-29T12:25 and 12:27Z, after the 12:16Z mirror check. This is the current run, not a historical capture.",
+    "CONFIRMED: the 'bounded-explanation guard' is the server-owned explanation for choice-constrained topics, tested at tests/engine.test.ts:65. It covers money, growth, relocation, learning, sports and EV. It does nothing for the general topic, where the Why text is still written by the model.",
+    "NOT RECOMPUTED: I did not recompute the latency medians and p95s by hand. Spot values look consistent with the summary: general cases take 7–13 s, typed cases 1.6–3.8 s.",
+    "NOTE: the previous grade round recorded the technology-job case as the failure. In this run it completes and current-town fails instead. Which case fails changes between runs, so one 19/20 run is not a stable completion rate."
+  ],
+  "evidence": [
+    "Definitive forecasts: all 19 headlines contain 'will', with no may/might/could, and the horizon is always attached (engine.ts:84 validator; formatForecast at engine.ts:6). Examples: 'Your net worth will be $106,413 in 10 years.', 'You will move to Chicago within a year.', 'Argentina will win the 2030 Men's World Cup.'",
+    "Typed-topic grounding is strong and fully explained by the server. Money uses real compounding (projection test at tests/engine.test.ts:11). Growth is exact arithmetic: 100 + 2×4 = 108. Relocation and learning use rules that state their own thresholds, with the chosen outcome locked by a schema enum (engine.ts:82).",
+    "General grading, election: 'Polls show 60% support for me' and '1200 votes' still produce 'You will not win the student election this week.' The Why is circular: 'do not ensure a win… do not guarantee a win'. The verdict contradicts the user's own facts, and the consistency reviewer at engine.ts:90 let it through.",
+    "General grading, chess: 'You will not win your chess match this week.' The Why reads 'No factual evidence links preparation or preference to a win', which dismisses the inputs instead of explaining the pick. The cards mix categories: '90 minutes available' sits under preparation and 'Played against this opponent before' under preference.",
+    "General grading, ex: the user thinks about their ex daily and talks to them regularly, yet the result is 'You will move on'. The Why claims ongoing connection 'suggests a gradual shift toward closure', which is a non-sequitur. The assumption line is missing its full stop: '…with friends No external evidence…'.",
+    "General grading, technology job: the Why is cut off mid-word ('The current job- Scenario assumption:'). It also turns 'Interview scheduled today' into something happening 'within the next three months'.",
+    "General grading, Paris: the Why leans on 'Weather is sunny today' to forecast the trip. Two joins are missing punctuation ('this week Scenario assumption', 'soon No external'). The cause is explainScenario (engine.ts:13-15) and the concatenation at engine.ts:96, which never add a terminal period.",
+    "General grading, marathon: the headline has no final period. The Why is only 'Scenario assumption: Daily training over 10km weekly with worn shoes…'. The reason field disappeared, and the shoe card is weak. The ex headline also has no final period.",
+    "Adaptive cards, old friend: 'Where did you see an old friend today?' assumes a meeting that may not have happened, and one option is 'They sent a photo'.",
+    "Adaptive cards, technology job: 'Team meeting in progress' is a present-moment status, not job-search context.",
+    "Adaptive cards, election: the options come with invented specifics such as '1200 votes in the system'.",
+    "Adaptive cards, current town: the safety card offers 'Public transport runs on time'.",
+    "Adaptive cards, typed domains: the cards are well built, with 'Other' always present and known facts never asked again (test at engine.test.ts:6).",
+    "One-line fit: every headline is well under the 110-character validator limit; the longest is about 60 characters. The worst phrasings are 'You will complete a beginner project in coding in 1 year.' and 'Lakers will win…' without 'the'.",
+    "Safety: a deterministic regex runs first, then the Qwen classifier. The check runs on the question, the drafted cards, the question plus facts, and the final output (engine.ts:20, 28, 34, 95), and everything fails closed with no credit spent. The latest untouched synthetic set blocked 20/20 sensitive and 0/20 safe questions, with 39/40 categories right. That is n=20 per class, with an approximately 84% Wilson lower bound. All sets were written by Claude, and several regex entries fit specific earlier phrasings (safety.ts:4, 18-26). The self-harm redirect points to emergency help and a trusted person."
+  ],
+  "blockers": [
+    "Make general verdicts follow the user's facts. Add a check that rejects a negative verdict when the facts favour a positive one, and the reverse: 60% support must not produce 'will not win', and daily contact must not produce 'will move on' reasoning. Alternatively, add a deterministic lean-scoring step for general cards, as relocation and learning already have.",
+    "Stop the Why from dismissing the user's inputs. Reject reasons such as 'No factual evidence links…' or 'do not guarantee', and require the reason to name at least one supplied fact that supports the chosen direction.",
+    "Fix the text-assembly defects at the source. explainScenario and the Why concatenation must end each segment with a period. Reject reasons that end in a fragment (a trailing hyphen or no terminal punctuation). formatForecast must always end the headline with a period. Add one test for each.",
+    "Improve card coherence for general questions. Reject cards that assume events ('Where did you see… today'), options on a different dimension from their question ('90 minutes available' under preparation), and present-moment trivia ('Team meeting in progress', 'Weather is sunny today' for a future trip). A cheap second-pass check with one repair is enough.",
+    "Measure completion over repeated runs. For example, run the 11 general questions 5 times each and report the error rate, then bring it below about 2% or return a graceful useful fallback. Which case fails changes between runs (technology job last time, current town now), so one 19/20 run proves nothing.",
+    "Have someone other than the builder rate the general-topic Why text on a fresh, untouched set of 18-24-style questions, with the first run kept. generation-review.md is the builder's own inspection and already lists defects in 7 of 11 general cases.",
+    "Safety: get one untouched test set written by an author who is not Claude and run it once without tuning. Report recall with its confidence interval. This is needed to move above 8 on this criterion; it is not required for the prototype to exist."
+  ],
+  "strengths": [
+    "The typed domains (money, growth, relocation, learning, sports, EV) are clear, deterministic and choice-locked. Their Why text is written by the server, arithmetic is exact, and each assumption is labelled.",
+    "Every completed reading gives a confident, specific one-line verdict with a horizon and no hedging, which suits this audience.",
+    "Honest framing everywhere: 'Speculative forecast · not a guarantee', 'No external evidence supports the future outcome', and news headlines are marked as context rather than proof.",
+    "Failures stay closed: one repair attempt, then an error with no charge. The builder did not invent a fallback to reach 20/20, and the failed case is kept in the evidence.",
+    "The memory-leak fix is real and tested: unrelated Spanish or money facts never reach general card generation (engine.test.ts:47).",
+    "Safety is layered across the question, the cards, the facts and the output, with humane redirect copy. Earlier failures and uncertainty bounds are kept rather than overwritten."
+  ]
+}
+```

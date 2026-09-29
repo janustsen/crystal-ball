@@ -1,0 +1,54 @@
+I'm finishing the read-only review of `server/`, `src/questions.ts`, `tests/` and the runtime evidence, then scoring. I made no file edits and ran no commands. There is no Write tool here, so I didn't create the plan file.
+
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6.0,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 6.5,
+    "evidence_groundedness_25": 4.0,
+    "adaptive_question_relevance_20": 6.0,
+    "one_line_fit_15": 8.0,
+    "safety_20": 7.0,
+    "weighted": 6.05
+  },
+  "evidence": [
+    "SOURCE server/engine.ts:26-58: forecasts for money, growth, relocation, learning, sports and EV come from fixed templates plus rules. For these topics the model only picks from a fixed enum of 1–4 pre-written sentences, so the headline is written by code, not by the model.",
+    "RUNTIME docs/evidence/engine-bakeoff.json: 10 real local-Qwen runs. 8 returned ok and 2 returned the generic error 'The mist is too thick' ('Will the Lakers win the NBA championship?' and 'Will I finish writing my novel this year?'). That is a 20% failure rate on ordinary questions.",
+    "LIKELY ROOT CAUSE of the Lakers failure, from source only (not confirmed by a run): engine.ts:60-62 applies copiedSource() even when choices is a fixed enum. If a retrieved headline shares at least 60% of the words in 'Lakers will win the 2027 NBA championship.', the only allowed answer is rejected and the repair attempt also fails. The runtime log shows 4 model calls (1 repair) before the error, which fits this.",
+    "RUNTIME holiday case: the headline is 'Yes, your next holiday will be memorable.' The user had said a destination abroad was booked and money was saved, and the answer uses none of it. This is the vague fortune-cookie output the rubric penalises. The Why text is boilerplate ('model-generated speculative choice using your context').",
+    "RUNTIME EV case: the headline 'EVs will remain below half of global new-car sales in 2027.' is hardcoded at engine.ts:56. The world-topic answers for definition and scenario (e.g. 'Support increases') cannot change the outcome. The bakeoff harness also sent general-topic facts (goal/horizon/effort/obstacle) for a world-topic plan, so this row does not test the world path it claims to test.",
+    "RUNTIME sports case: the pick is Argentina for 2030. The attached sources are 'Canada starts its road to World Cup 2030', 'Haiti drops 5 spots in FIFA rankings' and the 2026 ESPN schedule. None says anything about Argentina's chances. The research pipeline only puts headline titles in the prompt; no article content reaches the model.",
+    "SOURCE server/research.ts: Google News RSS titles only, top 3, filtered by keyword overlap. It runs only for sports and world topics; personal topics have no external evidence at all. The disclaimers are honest (engine.ts:63 says the headlines 'do not verify this prediction'), but honest disclaimers are not grounding.",
+    "SOURCE src/questions.ts: fixed per-topic card lists with good behaviour. Facts the user already gave are skipped, 'Other' is always offered, the deck stays between 3 and 10 cards, and sports editions and teams change with the chosen competition (tested in tests/engine.test.ts:19-25). The EV question's 3 world cards are generic and never feed the result.",
+    "RUNTIME general-topic cards from the LLM are written in the first person ('How much have I written this month?', 'Do I have a writing schedule?'). The options invent specifics ('I have written 15 pages this month'), and the answers are stored as whole question+answer strings (context_1…), which the prompt then uses weakly.",
+    "SOURCE money reasoning text (engine.ts:30) leaves out saving_growth, withdrawals, windfall and inflation, even though projection() uses all four. The Why explanation therefore under-describes the number shown.",
+    "SOURCE learning copy: 'You will complete a beginner project in coding in a year.' is clumsy templated grammar. The 'prepared' threshold (at least 20 minutes and weekly feedback, so a new beginner can hold a Danish conversation in 6 months) is an arbitrary rule, openly labelled as such.",
+    "One-line fit: the headline is enforced at ≤110 characters, must contain 'will', must have no hedge words, no '?' and no past tense. Every successful runtime headline is one sentence of about 40–60 characters.",
+    "SAFETY RUNTIME docs/evidence/safety-heldout.json: 20/20 sensitive questions blocked; 2 of 10 safe questions blocked by mistake (novel about a cancer survivor, pregnancy memoir). 'Will my father survive his operation?' was put in the 'legal' category; the generic redirect copy hides that. The classifier fails closed on errors (engine.ts:14).",
+    "SAFETY SOURCE server/safety.ts:17: safeContext() whitelists the exact phrases from the failed evaluation cases ('pregnancy memoir', 'novel about a cancer survivor', 'legal receptionist', 'death metal', …). That is tuning to the test set. verification-summary.md admits the corrected set is now a regression set rather than a held-out one, so the 0-false-block claim does not generalise.",
+    "SAFETY SOURCE regex over-blocking, read from the patterns rather than tested: 'judge' blocks 'Will the judges like my cake?'; 'sentenc\\w*' blocks writing questions that mention a sentence; 'stroke' blocks swimming stroke and 'stroke of luck'; 'terminal' blocks airport terminal; 'prison' blocks the TV show Prison Break; 'conceiv\\w*' blocks 'conceive a plan'. No test covers these.",
+    "Tests: tests/engine.test.ts runs 3 tests. None checks predict() output shape, the enum/copiedSource conflict, general-topic headline specificity, or benign phrases that happen to use sensitive words."
+  ],
+  "blockers": [
+    "Fix the enum/copiedSource conflict: skip copiedSource when choices.length > 0, or choose deterministically when there is only one choice. Then re-run the bakeoff and show that the Lakers case succeeds.",
+    "Get the general path to zero errors and make its answers specific. The model's sentence must quote at least one user-supplied fact (for example, 'Your booked trip abroad will…'). Validate this by requiring overlap with fact tokens, and retry once. Re-run a general-topic set of at least 10 questions with 0 errors and 0 generic 'Yes, X will be Y' headlines.",
+    "Make world forecasts respond to the user's answers: the definition and scenario choices must be able to change the headline, or the cards should be removed. Fix the bakeoff harness so world questions are answered with world cards.",
+    "Ground the evidence properly: filter out sources that don't mention the chosen entity (Argentina, Lakers, EV share). Pass short snippets or descriptions to the model, not just titles, and have the Why cite the specific source that bears on the pick. Otherwise show 'no relevant evidence found' instead of unrelated headlines.",
+    "Make the money Why list every input used (savings growth, withdrawals, windfall, inflation adjustment) so it matches the number shown.",
+    "Make LLM-generated context cards address the user in second person, and stop options from inventing specifics. Add a validation check that rejects first-person questions.",
+    "Replace the eval-phrase whitelist in safeContext with context rules that generalise, or accept LLM 'allow' when the regex hit is ambiguous. Tighten the ambiguous regex terms (judge, sentence, stroke, terminal, prison, conceive) with context requirements. Then run a new held-out set of at least 30 questions (at least 15 benign that contain sensitive words) that was never used for tuning, and report false blocks and misses.",
+    "Add tests for predict(): the one-choice enum case, and a general-topic headline that must reference facts (using a mocked provider), plus benign sensitive-word safety cases."
+  ],
+  "strengths": [
+    "Numeric topics (money, growth) give clear, checkable numbers with transparent arithmetic, and invalid input is rejected with specific messages.",
+    "The output contract is strict: one line of at most 110 characters, must contain 'will', no hedge words, no question marks. Every successful headline meets it.",
+    "Labelling is honest: 'Speculative forecast · not a guarantee', and it explicitly says headlines are not verification. That matches the AGENTS.md rule never to present a structural pass as predictive accuracy.",
+    "The question plan skips facts the user already gave, always offers 'Other', and adapts sports editions and contenders to the chosen competition, with tests.",
+    "Safety fails closed, checks both the question and the facts, recall on the held-out set is 20/20, the self-harm copy points to emergency help, and a generic redirect avoids giving advice for the wrong category.",
+    "Latency is 1.5–2.9 s for template topics on local Qwen with about 500 tokens, and no paid APIs are used."
+  ],
+  "inspection_mode": "Source and JSON evidence only. I did not visually inspect PNG, HTML or MP4 files; this phase is generation, not design. I also did not independently confirm any live behaviour."
+}
+```

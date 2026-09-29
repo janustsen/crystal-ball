@@ -1,0 +1,36 @@
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "research",
+  "score": 7,
+  "evidence": [
+    "Method: I only read the source files. I read docs/research/*.md, docs/research/evidence/bakeoff.json, docs/research/evidence/search-probe.json and docs/design/ui-rules.md. There are no images or HTML in scope, so nothing was inspected visually. To stay independent, I did not open docs/grades/*.",
+    "bakeoff.json matches the table in model-bakeoff.md. It has 10 cases, and the median of the 10 latencies is 1.8625s, so the stated 1.86s is correct. The cold maximum of 4.54s is correct. All headlines are 110 characters or shorter (the longest is 67).",
+    "The net-worth expected value of $146,962 checks out. Using a 4% effective annual rate converted to a monthly rate with end-of-month deposits gives about $146,965. The model's answer of $48,000 is wrong by roughly 3x. It is even below the $116k you get from principal plus contributions alone. Recommending deterministic calculation is a correct, evidence-backed mitigation.",
+    "The half-marathon error ('13.1km'; the real figure is 13.1 mi / 21.1 km) and the correct 108-user arithmetic both appear exactly as the raw outputs say.",
+    "Hedging failure: 4 of the 8 non-blocked answers hedge in the headline ('Likely', 'may', 'will likely'). The repair-once mitigation that is proposed was never run, so we don't know whether it works.",
+    "The safety cases are scored 7/10, but the raw refusals say 'I cannot predict the future, including your death'. That line breaks the product's own oracle voice and gives the user no redirect. For a target user, that is a worse experience than a 7 suggests.",
+    "search-probe.json only stores status, time, bytes and a 160-character sample. Several claims are not in the saved evidence: that Google News returned relevant Yahoo/Bloomberg/Morningstar headlines, that Bing results matched 'US' rather than inflation, and that Bing's feed restricts commercial reuse. The Wikipedia sample shows the suggestion 'infection', which calls the 'search returned articles' relevance claim into question.",
+    "comparables.md cites five App Store listings with ratings, prices, review dates and the capture date, and gives an honest confidence section. There is no Google Play data, no social/TikTok evidence, and no evidence specific to 18–24 users (age mix, what they ask, how willing they are to pay).",
+    "pricing.md: the arithmetic checks out ($5.99×0.7=$4.19; 30×$0.03=$0.90 → $3.29). But it assumes 8,000 input tokens per prediction, while the measured calls used about 136–170 input tokens. The gap between the two is never explained. The costs are also based on hosted prices, while the prototype engine is local Ollama. How the app will reach inference on phones is not decided.",
+    "Model 'bake-off': only one local model (qwen3 4B) was actually tested. The Mac has 24 GiB, so a larger local Qwen (e.g., 8B/14B) could have been run for free, with no key and no paid API. Leaving hosted models unmeasured is fine because there is no authorized key. Having only one local contestant is not.",
+    "Self-grading: the quality scores out of 10 are the builder's own and are not blind. Each case was run once at temperature 0.2, so nothing is known about run-to-run variance."
+  ],
+  "blockers": [
+    "Run at least one more local Qwen model (e.g., qwen3:8b or 14b through the same Ollama) on the same 10 fixtures, 3+ runs each. Report the median/p95 latency and how scores vary between runs. Then choose the model from that comparison, not by defaulting to the one already installed.",
+    "Put the prompt fix, validation and repair-once mitigation into the bakeoff harness and re-run it. Report how many headlines still hedge afterwards, whether safety redirects now give a kind suggested question in the product voice, and whether the net-worth case is handed off to a deterministic calculator.",
+    "Save the parsed search results in search-probe.json: the titles, source, date and URL for Google News, the Wikipedia hit titles, and the Bing terms text. That way the relevance and permission claims can be checked. Also check Google News RSS terms for app/commercial use, using the same standard that got Bing rejected. Either cite the terms or mark that route as prototype-only.",
+    "Reconcile the 8K-token budget in pricing with the measured ~150-token calls. Either measure a full 3/6/10-card flow locally or explain where the rest of the budget comes from. State the inference path the pricing assumes (hosted vs. device/server) as an explicit open decision.",
+    "Add evidence specific to 18–24 users: primary sources on who uses these apps by age, or on social sharing/TikTok behavior for Co–Star-style apps, plus a price-sensitivity anchor for students/young workers. Otherwise, label pricing and sharing as untested with this age group. Also attach the question script for the five-session user test, not just its success hypothesis.",
+    "Have a second pass grade the outputs without seeing which case is which (or with a written rubric per case), instead of relying only on the builder's own scores."
+  ],
+  "strengths": [
+    "The measurement is honest. Hosted models are clearly labeled 'not measured', no keys were borrowed, local API costs are called $0 but hardware and electricity are not called free, and quality scores are separated from how accurate predictions are.",
+    "The failures are candid and specific ($48k wrong, 13.1km, hedges), and each has a concrete mitigation. That is useful research.",
+    "The comparables use primary sources, list exact prices and SKUs, give capture dates and caveats, and turn directly into product rules (show the billing period, exact credit counts, a close button, editable memory that actually persists).",
+    "The grounding and privacy contract is strong for young users. Personal answers never reach search engines, sources come from the server rather than being invented by the model, shares are private by default, and there are no fake user counts or urgency.",
+    "The UI rules are specific and testable: exact hex colors, 44pt targets, text size of at least 16, animation timings, reduced motion, and the 1080×1920 safe region. They fit the cosmic mystic brief.",
+    "The pricing includes a pessimistic scenario that shows a loss, and guardrails are stated as targets rather than results."
+  ]
+}
+```

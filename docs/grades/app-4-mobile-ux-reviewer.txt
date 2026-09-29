@@ -1,0 +1,53 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 6.5,
+  "rubric_breakdown": {
+    "end_to_end_observed_behavior_35": 6.5,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 7.0,
+    "performance_15": 5.5
+  },
+  "evidence": {
+    "visual_inspection": [
+      "home.png / home-small.png: the orb, the serif display type and the gold primary CTA look good and the palette is consistent. On 375x667 the fold holds the headline, the orb and the CTA with nothing clipped.",
+      "question-1.png, money-7.png: the radio cards are readable and the constellation progress line is a nice touch. The step label reads 'Getting to know you · 7' with no total, so users can't tell how far they are from the end. The money flow is 10 cards, too long for an entertainment app. Options are bare numbers ('0', '2', '5') with the % only in the question, which reads like a spreadsheet.",
+      "reveal.png: the headline 'You will need help speaking Spanish in 6 months.' is awkward and not a satisfying oracle line. The speculative label is visible. 'Ask another question' is cut off by the tab bar at 390x844, so the action stack spills below the fold.",
+      "why.png: the copy includes 'rarely feedback', which is ungrammatical and produced by the template in server/engine.ts:54.",
+      "share.png: the in-app preview's date line is tiny and the speculative label looks unevenly coloured at preview scale. exported-card.png at 1080x1920 is clean, but roughly the bottom 30% of the canvas is empty, so the composition is top-weighted.",
+      "history.png: the date is '9/29/2026' in US numeric format while the card uses 'Sep 29, 2026'. The inconsistency looks unfinished. A single item leaves most of the screen empty with no next action.",
+      "knowledge.png: Edit buttons change width with their label, 'Edit Your level' has odd capitalization, and the Forget buttons look disabled because of their low visual weight.",
+      "network-error.png vs timeout.png: both are clear, keep the user's answers and say nothing was charged. The timeout screen drops 'Review answers', which is inconsistent with the network error screen.",
+      "blocked.png: kind copy, one clear redirect and it states that no reading was spent. It has no secondary way back to Home or to editing the question.",
+      "large-reveal.png (200%): the text scales, but the tab labels disappear, the label is pushed above the orb and the headline runs under the tab bar. It works but isn't laid out well. keyboard-focus.png: the focus ring is clearly visible."
+    ],
+    "source_and_log_inspection": [
+      "server/engine.ts:50-53, 34-48, 56-67: for learning, money, growth, relocation, sports and EV questions, the headline is picked by a deterministic rule and the model's JSON schema is limited to a single allowed value. The primary drive's reveal (Spanish, learning) and the extended money reveal ($6,371) are template or arithmetic output, not model-generated forecasts. Only the general-topic path (general-flow.json: 'You will finish writing your novel this year.') shows free model generation. The claim 'Wait for the real local model reveal' is structurally true, since Ollama is called, but it overstates what the demo shows.",
+      "drive.json: plan in 523 ms and predict in 1489 ms against local Ollama, from real response bodies. In the same run, the primary drive's rAF cadence averaged 54.5 ms with a 133 ms max (about 18 fps) during the flow.",
+      "performance-headed.json: animated mean 16.67 ms and p95 18.4 ms, but it was measured on a page with no inference, over 120 frames. Reduced-motion (22 ms) and blank (21 ms) baselines are slower than the animated run, so the harness is noisy. Nothing shows smooth frames during the reveal animation or while inference runs.",
+      "accessibility.json: axe reports zero violations on 5 tabs plus the paywall. Color contrast is 'incomplete' on 5 of 6 screens, and the claim relies on separate token-pair checks rather than on-screen measurement.",
+      "verification-summary.md and SETUP.md:16-18 honestly list the deferred device checks: VoiceOver, Dynamic Type, keyboard avoidance, safe area, hold-to-speak, notifications, and real RevenueCat/Apple flows. Native boundaries are mocked and labeled. The paywall shows 'Test mode · no real payments', and the 44% annual saving is arithmetically correct."
+    ]
+  },
+  "blockers": [
+    "The flagship demo flows must show real model output. Either let the model write the headline inside a rule-chosen verdict (the rule picks the direction, the model phrases it, validated against the facts), or make the primary drive use a general question. Then re-run drive.json and show the new outputs.",
+    "Fix the reveal copy: replace 'You will need help speaking Spanish' with an oracle-quality line such as 'You'll be holding simple Spanish conversations by March — with a little help.' Fix the 'rarely feedback' grammar in the Why template.",
+    "Show a total in card progress ('3 of 3') and cut the money flow from 10 cards to 5 or fewer by using defaults or skippable advanced cards. Put units in the options ('0%', '2%', '5%').",
+    "The reveal action stack must fit or clearly read as scrollable at 390x844. Reduce it to Share plus one secondary action, with 'Ask another' as a text link.",
+    "Performance: record rAF cadence during the reveal animation and while inference is in flight, in headed mode, and show p95 ≤ 20 ms. The primary drive's 54 ms mean needs an explanation or a fix.",
+    "Add 'Review answers' to the timeout screen so it matches the network error screen. Add a secondary 'Back to Home' / 'Edit question' on the sensitive-redirect screen.",
+    "Visual polish: use one date format across History and the card, and give History an empty-state action and a denser item design. Make Edit/Forget buttons a fixed width with sentence-case labels, and give Forget a clear destructive style. Fix the exported card's composition so the bottom third isn't empty, e.g. move the orb and text down or add a footer mark.",
+    "200% text: keep the tab labels or give the icons accessible names that are verified in the flow, and keep the speculative label below the headline at large sizes.",
+    "Run on-screen contrast measurement for the gradient screens (a screenshot pixel sample for each text/background pair) so contrast is no longer 'incomplete'."
+  ],
+  "strengths": [
+    "A coherent, attractive cosmic visual system. The orb artwork, the serif/sans pairing and the gold CTA read as premium and consistent across every screen.",
+    "Real end-to-end coverage with local Ollama and saved response bodies: Ask, cards with 'Other', reveal, Why, PNG and MP4 export, History persisting after reload, knowledge edit/forget with re-asking, the mock paywall with restore, the friend link, and blocking a sensitive question with no charge. All of it runs through accessible controls, not internal setters.",
+    "Strong recovery design: offline failure and the 60-second timeout keep the user's answers, charge nothing and offer retry, with retry shown to succeed.",
+    "The copy is honest throughout: the speculative label survives into exports, Why says when no evidence exists, test mode is disclosed, and the Explore feed is labeled as samples.",
+    "Honest evidence practice: historical failures are kept, the headless performance limitation is disclosed, and native checks are explicitly listed as deferred rather than claimed."
+  ],
+  "notes": "Tonight's authorization for Expo web at 390x844 was respected and nothing native is claimed. The score is held back mainly because the showcased reveals are rule-templated rather than model-generated, the reveal copy and several visual details fall short of 9-level polish, and the performance evidence doesn't cover the moments that matter."
+}
+```

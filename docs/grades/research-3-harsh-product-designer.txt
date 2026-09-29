@@ -1,0 +1,34 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 8.4,
+  "evidence": [
+    "Method: I read all of docs/research/*.md and docs/design/ui-rules.md, plus these evidence files: comparison-summary.json, blind-review.txt, followup-independent-review.txt, sports-presentation-pilot.json, question-policy-correction.json, store-prices.json and contrast.json. I made no edits and ran no commands.",
+    "Visual inspection: I only opened evidence/costar.jpeg. It matches comparables.md and visual-observations.md: 4.8 rating, 206K ratings, three previews ('Blame the stars' short statement, a chart that takes sustained reading, a compatibility pair) and a featured review dated 08/11/2024. I did not visually check the other four captures or costar-expanded.jpeg, so the Co–Star price-complaint quote is source-cited but not visually confirmed by me.",
+    "Arithmetic I checked by hand, all correct: Co–Star $0.28–$0.60 per question, packs $0.30/$0.40, annual 44% saving, Groq $0.0078 and Together $0.00161/$0.00100 per prediction, per-flow repricing of $0.000312 and $0.000836, $4.19 net at a 30% fee, and the $9 and $0.90 pessimistic costs. Contrast: ivory on ink comes out ≈17.88:1 and gold on ink ≈12.49:1, matching contrast.json.",
+    "Measurement is honest: 90 local reveals (3 models × 10 cases × 3 repeats) with median and p95 reported and cold loads included. The blind review's scores (4B 8.23 / 8B 7.47 / 1.7B 5.93) match model-bakeoff.md. The docs openly say the arithmetic_pass checker misses 8B's 104-vs-108 error.",
+    "Failed evidence is kept rather than hidden: the original question pilot showing a 'last forecast' card to first-time users, repeated project_user_growth cards, the relocation repair inventing a 'tropical island escape', a 0/3 sports-routing verdict before the fix, and 0/3 outcome-relevant World Cup leads.",
+    "Hosted models are handled as the rubric allows: a clearly labeled shortlist with retrieved prices, 'not measured' stated explicitly, no borrowed keys, and a concrete replay protocol (30 runs, zero unsafe outputs, zero invented citations, ≥9 average).",
+    "question-policy-correction.json passes all 16 structural checks. Learning now asks the user's level first, sports stops at 3 cards, and relocation starts with location, destination, work and lease.",
+    "ui-rules.md sets token hex values, type sizes, target sizes, motion durations, reduced-motion and 200% text scaling, keyboard avoidance, Android back behaviour, share privacy defaults and paywall honesty rules. All of it is specific enough to build from."
+  ],
+  "blockers": [
+    "The core grounding mitigation is not demonstrated with user context. The only pilot of the final 'model writes headline only, server renders facts' contract is sports with zero context (sports-presentation-pilot.json). Relocation invention is the known failure and was never re-run under that contract. Needed: a small executed pilot (e.g. relocation, learning, growth × 3 repeats) with supplied facts, the headline-only prompt and schema validation, then an independent check for invented entities or places and wrong-person voice.",
+    "The corrected question flows were never semantically re-reviewed. question-policy-correction.json only proves structure, and the independent review that found 5 of 16 flows materially failing came before the correction. Weak points remain: relocation options like 'Large city' / 'Another region' are too coarse to support a specific forecast, learning's 'resources: How prepared are you right now?' overlaps 'level', and the known-fact skip at budget 10 is still untested (every returning budget-10 flow has known={}). Needed: an independent review of the corrected flows and one budget-10 scenario that has known facts.",
+    "The 10-card path is unresearched after the correction. Every domain now caps at 6, and the only 10-card evidence is the failed unconstrained run. Needed: a concrete numeric registry (the net-worth case: savings, contribution, return, withdrawals and so on) replayed at 10 cards with a deterministic projection check. Otherwise the brief's 3–10 range is asserted but not prepared.",
+    "The safety classifier is claimed but not measured. Only death and cancer fixtures were executed. The local-model 'catches paraphrases' layer has no test at all, and self-harm, pregnancy, legal, prediction about another person, and euphemism cases were never run. Needed: a small labeled boundary set (about 20–30 cases, including safe near-misses like sports and 'death metal concert') with false-block and false-allow counts for the phrase layer and the 4B classifier.",
+    "The retrieval decision rule was never executed against the retained leads. The 180-day, topic, geography and deduplication rule is prose only. Needed: replay it over search-expanded.json and show which leads survive, for example that the World Cup governance and duplicate Bessent leads are dropped and the January-EV lead is flagged. Include a confusion count against the independent reviewer's scores.",
+    "Some secondary sources have no retained capture. Groq/Together prices, RevenueCat's 10.7%/2.1% figures, Pew's ~25% for ages 18–29 and the skills.sh install counts are link-only, while the store data has snapshots. Needed: dated captures or short verbatim excerpts in evidence/, like store-prices.json.",
+    "Minor design inconsistency: ui-rules rule 4 tells the UI to show '3–10 questions', but the research policy now stops sports at 3 and most domains at 6. The label should reflect the adaptive per-domain range or drop the numbers."
+  ],
+  "strengths": [
+    "Measurement is unusually honest: every limitation is stated, placeholders are called placeholders, transport success is not treated as quality, and headline RSS is explicitly 'not deep research'.",
+    "Failures lead to concrete, testable mitigations: deterministic compounding, server-owned sources and dates, fixed redirect copy, a single repair then a recoverable error, and ranking once per session to meet a ≤200 ms card transition.",
+    "Primary store evidence is dated and captured, with clear boundaries: marketing previews are not treated as installed flows, and the 1080×1920 export size is marked as a proposal.",
+    "Candidate identities were hidden during the independent blind review and revealed afterwards. The provisional 4B choice matches the review's conclusion, including its caveats.",
+    "Pricing has explicit unit economics, a loss boundary and stop/reject thresholds, and never claims validated willingness to pay.",
+    "The user-test script is decision-grade: time budgets per task, exact price-recall pass criteria, and stop-and-fix triggers."
+  ]
+}
+```

@@ -1,0 +1,66 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent, read-only)",
+  "phase": "generation",
+  "score": 6.5,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 7.5,
+    "evidence_groundedness_25": 5.5,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 8.0,
+    "safety_20": 7.5,
+    "weighted": 6.68,
+    "note": "Rounded down to 6.5. In 5 of 11 general cases the model's reasoning contradicts or ignores the user's answers, and general questions are the app's main use case."
+  },
+  "evidence": {
+    "method": "Source and artifact inspection only. I opened no images, ran no commands and changed no files. I read verification-summary.md, generation-review.md, engine-bakeoff.json (all 20 cases), general-flow.json, safety-final-first-run.json (header), server/engine.ts, server/safety.ts and the tests/engine.test.ts test list.",
+    "summary_checks": [
+      "CONFIRMED: engine-bakeoff.json has 20 cases. 19 returned kind 'ok'. 'Will I live happily in my current town?' returned the error 'The mist is too thick', so it failed closed.",
+      "CONFIRMED: there are 11 general cases (novel, holiday, ex, town, tech job, election, chess, Paris, old friend, customers, marathon), matching generation-review.md.",
+      "CONFIRMED: safety-final-first-run.json shows tp 20, fp 0, fn 0, categoryCorrect 39/40.",
+      "CONFIRMED: the memory-leak regression exists (tests/engine.test.ts:47) and checks that 'Spanish' and '25000' never reach the model input for general planning.",
+      "PARTLY CONFIRMED: the 'bounded-explanation guard' regression (tests/engine.test.ts:65) only covers template-bound forecasts that have a fixed list of allowed verdicts, where the model's extra reason/assumption fields are ignored. It does not guard free-form general reasons. The technology-job Why still ends mid-sentence ('The current job-'), which looks like the 250-character reason limit truncating the output. Nothing in validForecast (engine.ts:84) rejects an incomplete sentence, so this defect can happen again.",
+      "DISCREPANCY: general-flow.json (runAt 12:16:33Z) has sources: [] but its assumptions list still says 'News headlines are context leads, not proof of a future result.' The current engine.ts:44 only adds that line when sources exist. Either this capture came from different code than the one being graded, or another layer adds the line. Either way, the capture labelled current does not match current engine behaviour.",
+      "NOT INDEPENDENTLY RECOMPUTED: the latency p50/p95 figures. The per-case seconds are consistent with them (maximum total 13.05 s)."
+    ],
+    "runtime_observations": {
+      "strong_template_cases": "Money ($106,413 with the full calculation shown in Why), growth (100 + 2×4 = 108), relocation (rule shown openly), learning (Danish/coding/guitar thresholds stated honestly), sports (explicitly labelled a wildcard pick), EV (headlines filtered by title and labelled 'not proof'). These are specific, explained and honest.",
+      "general_verdict_defects": [
+        "Student election: user reports 60% poll support and 1200 votes, verdict is 'You will not win'. Why: 'do not ensure a win'. This reads uncertainty as evidence against winning and breaks the prompt's own 'extrapolate the supplied trajectory' rule. The consistency reviewer let it through.",
+        "Chess: 'You will not win'. Why: 'No factual evidence links preparation or preference to a win'. This refuses to explain the pick rather than explaining it.",
+        "Ex: user thinks about them daily and talks to them regularly, verdict is 'You will move on'. Why says ongoing connection 'suggests a gradual shift toward closure'. The reasoning runs backwards.",
+        "Marathon: Why has only a 'Scenario assumption', with no reason drawn from the user's facts. It says '10km weekly' when the user trains daily. The headline has no final period.",
+        "Tech job: the Why is truncated mid-word, and it reads 'Interview scheduled today' as happening 'within the next three months'.",
+        "Novel: reason and assumption largely repeat each other in both the replay and the UI capture."
+      ],
+      "general_card_defects": [
+        "Chess: the preparation card offers '90 minutes available'. The preference card offers 'Played against this opponent before'. Both mix different kinds of fact in one card.",
+        "Old friend: the card asks 'Where did you see an old friend today?' and offers 'They sent a photo'. It also presumes the user saw them today.",
+        "Paris: the card asks about today's weather in Paris to predict a future trip.",
+        "Tech job: 'Team meeting in progress' and 'Code review completed' are irrelevant to getting a tech job.",
+        "Election: 'How many votes do you currently have? 1200 votes in the system' makes no sense before an election happens.",
+        "Marathon: the shoe-condition card is weak context. Current town: a transport option sits under the safety card.",
+        "Structural validation (engine.ts:25) only checks count, length, uniqueness and 'will'. It cannot catch any of the above."
+      ],
+      "one_line": "All 19 headlines are single sentences within 110 characters, and the horizon is added by the server. Minor issues: two headlines lack a final period ('...this year', '...next year'), and 'complete a beginner project in coding in 1 year' reads awkwardly. The summary says the share card fits the headline in 3 lines; I did not inspect those PNGs visually.",
+      "safety": "Safety checks run in layers: fixed phrase rules plus a model classifier on the question, on the model-drafted cards, on question+facts, and on the final output. Tests cover Danish and Spanish phrasing and ordinary words that only look sensitive. The only untouched blind set is 40 items. The 40/40 and wording-ambiguity results come from tuned sets, as the summary itself admits, and decisions.md records an approximately 84% Wilson lower bound. The fixed rules are English/Danish/Spanish keywords. Five categories exist (self-harm, death, illness, pregnancy, legal), and no blocking category exists for predictions about third parties, eating disorders or gambling. Emotionally loaded relationship questions (the ex) pass through with fabricated reasoning. Failures do not charge a credit and offer retry/edit, which is correct."
+    }
+  },
+  "blockers": [
+    "Add a check for a sensible verdict direction on general forecasts: reject a negative verdict when the user's facts point positive (e.g. 60% support) and the reverse, unless the reason gives the counter-evidence. Add a regression for the election, chess and ex cases, failing before the fix and passing after.",
+    "Require the reason to cite at least one answer the user actually gave and to explain the direction of the pick. Reject empty or 'no evidence links X' reasons (chess, marathon). Reject reasons and assumptions that end mid-sentence or are cut off at the length limit (tech job), rather than relying on the maximum length.",
+    "Add a check that each card's options answer its own question and are all the same kind of fact. Examples: a 'where' card must offer places; a 'preparation' card must offer preparations; time-sensitive events should not be asked about as 'today' weather or 'current votes'. It can be one extra model call or a stricter reviewer prompt, with regressions for chess, old friend, Paris, tech job and election.",
+    "Re-run a fresh replay of all general cases after these fixes and have someone other than the builder do the semantic review. The target is at most 1 of 11 cases with a semantic defect; currently 5 to 7 of 11 have one. The review must stay separate from structural completion.",
+    "Reconcile general-flow.json with current engine.ts (the 'News headlines' assumption appears with zero sources). Either recapture it with the current code or explain which layer adds the line.",
+    "Safety: run one new untouched blind set of at least 60 items, including third-party harm, eating disorders, gambling/debt desperation and indirect wording in all three languages, and report its Wilson lower bound. Consider a gentle routing for emotionally loaded relationship forecasts."
+  ],
+  "strengths": [
+    "Template topics (money, growth, relocation, learning, sports, EV) are definitive, specific and fully explained. Their Why shows the actual inputs, formula or rule, and says openly that the scenario is not calibrated.",
+    "Fails closed: one repair, then an error with no invented fallback. The 19/20 result is reported honestly.",
+    "The builder's own generation-review.md already lists most of the semantic defects I found. The evidence does not oversell them, and history is kept separate from the current captures.",
+    "Invented numbers are rejected by comparing them with the numbers the user supplied. Headline hedging words (may/might/could/likely) are rejected. Copying news text into the verdict is rejected. The horizon is added by the server.",
+    "Memory isolation for general planning is proven by a regression that failed before the fix and passes after it.",
+    "Safety is checked four times per request (question, drafted cards, question+facts, final output), with multilingual fixed rules and word-ambiguity handling. Blocked requests are never charged."
+  ]
+}
+```

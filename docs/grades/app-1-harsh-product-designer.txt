@@ -1,0 +1,69 @@
+I'd give this a 6.2 out of 10, well short of the 9 bar. The flow works end to end on Expo web with the local model. But two readings answered a different question than the user asked, the exported share card has text drawn over the ball, and none of the native integrations are tested with mocks as the brief requires. I inspected images and source only; I ran nothing and changed no files.
+
+```json
+{
+  "role": "harsh-product-designer grader",
+  "phase": "app",
+  "score": 6.2,
+  "subscores": {
+    "end_to_end_observed_behavior_35": 6.5,
+    "visual_quality_screenshots_30": 6.5,
+    "accessibility_and_recovery_20": 6.0,
+    "performance_15": 5.0
+  },
+  "evidence": {
+    "visual_inspection": [
+      "home.png / ask.png / question-1..4 / selected-1..4 (390x844): consistent cosmic palette. Cormorant display type over DM Sans body, gold primary buttons, cyan selected state. The layout is clean and on-brand. The radio indicator is a tiny ~6px dot at the right edge, which is weak as a selection affordance. The cyan border carries the state.",
+      "selected-2.png: the 'Other' option was chosen and '30 minutes' typed into a separate field below it. This works, but the typed field floats as an unlabeled second box.",
+      "Card 4 of the Spanish flow asks 'When do you want to use it?' although the question already says 'in six months'. The drive picked '3 months', and reveal.png answers '…in 3 months.' The reading no longer answers the question asked.",
+      "money-5.png asks 'How many years ahead?' for 'What will my net worth be in 10 years?'. money-reveal.png answers '$6,371 in 5 years'. Same flaw, worse: the headline contradicts the question, and the figure is implausibly precise for a speculative forecast.",
+      "why.png: the rendered body text reads 'at least20 minutes', a missing-space bug visible to the user. The copy is also clipped under the tab bar at first reveal.",
+      "exported-card.png (1080x1920): the headline 'You will still need help with basic' is drawn over the orb's floor shadow, a visible overlap. The bottom ~30% of the card is empty. For a share artifact, this is the most important visual defect.",
+      "paywall-purchased.png: the confirmation 'Test purchase complete. No payment was taken.' sits behind the floating Ask orb and tab bar ('Test purchase co[orb]e'). The user can't see the result of the action they just took.",
+      "retry-reveal.png: the 'Did it come true?' Yes/Not quite/Not yet row is cut off by the tab bar.",
+      "home.png vs home-small.png / failure.png: after a completed reading, Home still says 'Ask your first question'. Source confirms it is hardcoded (app/index.tsx:58).",
+      "knowledge.png: fact labels are raw lowercase keys ('level', 'practice', 'conversation'), which looks like debug output. 'Save with Apple' appears on web, where it can only return a setup-stub message.",
+      "network-error.png: the title 'The mist is too thick.' is repeated in the body sentence. Try again and Edit question are clear, and retry-reveal.png shows the retained answers producing a reading. This is good recovery.",
+      "blocked.png: kind redirect, 'No reading was spent. Nothing was added to your knowledge bank.' Credits stay at 5 across blocked.png and home-small.png. Good.",
+      "large-home/large-question/large-reveal/friend.png: the in-app 2x text mode reflows without overlap and the orb shrinks. The tab bar labels do not scale. 'Getting to know you · 1' wraps awkwardly next to Back, and the question headline runs below the fold behind the tab bar.",
+      "explore.png: clearly labeled 'Sample predictions · community feed preview'. Honest.",
+      "failure.png is stale: its header says '5 readings' while every other screen says 'N left'. Remove it or re-capture it."
+    ],
+    "source_inspection": [
+      "src/native.ts: haptics, notifications, Apple sign-in to Supabase linkIdentity, and friend links are wired with web-branch fallbacks. tests/ has only engine.test.ts. No test mocks expo-notifications, expo-apple-authentication, react-native-purchases, speech (VoiceButton) or Share. That fails the explicit 'wired and tested with mocks' requirement.",
+      "src/purchases.ts: the RevenueCat sandbox boundary exists but is untested. The paywall is correctly mock-labeled.",
+      "src/ui.tsx: the Action/Orb components set accessibilityRole and accessibilityLabel. Reduce-motion honors both the system setting and the in-app setting. The focus-visible outline is injected for web. 'Large text' is an in-app 2x multiplier, not OS Dynamic Type, and the docs say so honestly.",
+      "app/index.tsx: 60s AbortController plus generation guard against stale responses. accessibilityLiveRegion appears only on the error text, not on the research→reveal transition or purchase notices.",
+      "Screen: paddingBottom 132 still leaves toasts and the last panel under the floating tab bar in the captures."
+    ],
+    "documentation": [
+      "verification-summary.md and SETUP.md list the deferred device checks honestly: VoiceOver, Dynamic Type, keyboard avoidance, safe area, Android back, hold-to-speak, notifications. They also say the safety set became a regression set, not a held-out claim. Credible.",
+      "drive.json / drive-extended.json contain only screen names and timestamps. There is no captured engine latency per call, no model name/tokens, no request/response, and no assertion results. They cannot independently show that a real Ollama call produced each reveal."
+    ],
+    "performance": [
+      "Transcript timestamps: research→reveal ~2.6s, whole 4-card flow 10.6s, retry ~2.3s, money reveal ~2.5s. These are fast for qwen3:4b, but no per-call engine timing or cold-start number is recorded.",
+      "No web bundle size, time to interactive, or animation frame evidence. The story export was checked only for format (1080x1920, 25fps, 4s), not generation time."
+    ]
+  },
+  "blockers": [
+    "Question engine: never ask for a parameter the question already states, such as the horizon in '10 years' or 'six months'. If a card is still shown, preselect the stated value and ensure the reveal headline answers the question as asked. Add a regression test for the Spanish and net-worth cases.",
+    "Fix the ShareCard still/story composition so the headline clears the orb and its shadow, rebalance the empty bottom third, and re-export both. Visually re-inspect exported-card.png and a frame from exported-story.mp4.",
+    "Fix the missing-space rendering in the Why text ('least20').",
+    "Move purchase and reminder notices above the tab bar, or make them toasts, with an accessibilityLiveRegion. Ensure the last content ('Did it come true?') clears the floating tab bar.",
+    "Make the Home CTA state-aware: not 'Ask your first question' once history exists.",
+    "Humanize the knowledge fact labels ('Your Spanish level', 'Daily practice'). Hide or disable 'Save with Apple' on web instead of showing a stub.",
+    "Add mock-based tests for src/native.ts (notification permission denied/granted plus 30-day trigger, Apple unavailable/cancel/identity mismatch, friendLink excludes private answers), src/purchases.ts (mock vs sandbox gating, restore), and VoiceButton hold/release/cancel. This is required by the brief.",
+    "Deduplicate the error-screen title and body copy.",
+    "Large-text mode: scale the tab labels, and fix the Back/'Getting to know you' header wrap.",
+    "Enrich the drive transcripts with per-call engine latency, model id, the reveal headline text, and pass/fail assertions (credit deltas, history count, no private facts on the card). Record a cold-start time and the web bundle size.",
+    "Delete or re-capture stale evidence (failure.png)."
+  ],
+  "strengths": [
+    "A cohesive, genuinely attractive cosmic identity: orb artwork, serif display type, and a restrained gold/cyan accent system that is consistent across all tabs.",
+    "The full loop was driven in a real browser: ask, adaptive cards with Other, reveal, Why, share export, History across reload, knowledge edit and forget, a returning session skipping learned facts, mock paywall credit changes, Explore, friend mode, sensitive redirect, 375x667, large text and reduced motion.",
+    "Strong recovery design: an offline failure keeps answers, charges nothing, and Try again succeeds. The sensitive redirect spends no reading and saves nothing.",
+    "Honest scoping: mock purchases are labeled in the UI, Explore is labeled as a sample, native checks are listed as deferred, and there is no inflation of safety or accuracy claims.",
+    "Privacy on the share card: only the prediction and the 'speculative' label appear. No private answers."
+  ]
+}
+```

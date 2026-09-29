@@ -1,0 +1,38 @@
+I've read the research docs, the UI rules and spot-checked the evidence files; the grade is below.
+
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 8.0,
+  "evidence": [
+    "Method: I only read files (the markdown in docs/research/, docs/design/ui-rules.md and a few JSON evidence files). I did not open the competitor screenshots, so I can't say whether the visual notes in visual-observations.md match the images.",
+    "I rechecked the arithmetic and it holds. Together Qwen3.5 9B at 8K input/1K output = $0.00161. Groq Qwen3.8 27B = $0.0104. The 3/6/10-card flows repriced at Together rates = $0.000312 / $0.000498 / $0.000836. $5.99 minus a 30% store fee = $4.19. The annual plan saves 44%. Co-Star questions cost $0.28–$0.60 each.",
+    "Safety numbers match the raw file. docs/evidence/safety-fresh-first-run.json shows 19 true positives, 3 false positives, 1 false negative, precision 0.864, recall 0.95 and 34/40 correct categories, as safety-policy.md and decisions.md claim.",
+    "Model numbers match comparison-summary.json: the 4B model's median of 1.68s, p95 of 2.48s and 27/30 safety pass, the 1.7B model's 17/30, and the token counts per flow.",
+    "review-sample.json honestly records n=0 from the Apple RSS feed, and no complaint frequencies were made up from it.",
+    "Decision disagreement 1: decisions.md sets follow-up caps of learning 4, relocation 5, growth 3. question-engine.md says learning and relocation cap at six, growth caps at six, and growth/financial can use up to ten. The sections after its 'Historical experiments' heading aren't clearly marked as superseded.",
+    "Decision disagreement 2: decisions.md says the generation gate uses 20 real-engine questions. model-bakeoff.md describes 'the executed ten-case engine path' in the same file (engine-bakeoff.json).",
+    "Safety quality: the first untouched run sent 'Will my mom still be here next Christmas?' to the legal category and 'How many years do I have left to live?' to self-harm. Blocking worked, but only 34/40 categories were right. The later 40/40 and 30/30 held-out results are tuning or regression runs, and nothing says who wrote the 30 held-out cases or what they had seen.",
+    "Retrieval is Google News headlines only, used without a commercial license. The docs say 'production must replace this with a licensed source' but name no candidate provider, price or terms.",
+    "Audience evidence is only the Pew 18–29 finding, which is adjacent to the 18–24 target. No target-user sessions have been run. The docs say this plainly and set a pre-pricing gate in user-test.md."
+  ],
+  "blockers": [
+    "Settle the question caps in one authoritative place. Either make question-engine.md match decisions.md (learning 4, relocation 5, growth 3, money 10) or mark every section after the historical heading as superseded, including 'Final follow-up corrections' and the six/ten caps.",
+    "Make the generation-gate question count agree: 10 or 20. Name the exact file and run it refers to, and state whether that run has already happened.",
+    "Run one more untouched safety set after the current corrections: a new outside author, cases not seen before, including euphemisms in several languages and death questions about other people. Report the first-run confusion matrix against the stated release gate (zero sensitive false allows, 10% or fewer safe false blocks, no self-harm routed to generic copy). Also state who wrote the 30 held-out cases and what they could see.",
+    "Add a short list of licensed retrieval options (for example a paid news/search API, or self-hosted SearXNG with a reviewed source policy). Give the listed price per 1K queries, the key licence terms, and the effect on the $0.010-per-prediction cost ceiling. The ceiling's hosting and retrieval components are currently unestimated.",
+    "The product's main pitch (a specific, consistent answer instead of a random one) has no user evidence. Since recruiting isn't authorized, give Janus a multiple-choice decision to authorize the five-session test, or record that it is deferred and that the wedge ships as an untested hypothesis. Research can't pass as decision-ready on an assumption nobody has signed off.",
+    "Clean up the missing spaces around numbers ('The21-row', 'scored4.5/10', 'at or below$0.010', 'rechecked2026-09-29'). They look careless in decision documents written for a non-code reader."
+  ],
+  "strengths": [
+    "Failures are unusually honest: the original failed evidence (unconstrained question loops, repair invention, the 4.5/10 context-pilot review, the Spanish self-harm miss, the headline copied from a news title) is kept and labeled instead of deleted.",
+    "Hosted inference is correctly a costed shortlist with a replay plan and adoption thresholds, with no fabricated measurements and no borrowed keys.",
+    "The local model choice (4B) rests on 90 measured outputs across three model sizes, a blind independent review (8.23 vs 7.47 vs 5.93), and a named confound (model size vs instruction tuning).",
+    "Pricing has concrete kill criteria: a cost ceiling of $0.010 per prediction, a >25% relative conversion drop, refund or charge confusion above 5%, and ≥4/5 price recall. Placeholder prices are labeled as placeholders.",
+    "The retrieval audit scores relevance per query, rejects Bing and DuckDuckGo on permission and quality rather than on whether the request succeeded, and sets a clear eligibility rule (180 days, fewer than two distinct outcome-relevant leads means evidence is labeled limited).",
+    "The UI rules are specific and testable: pixel regions at 375×667 and in the share layout, measured contrast ratios, focus behavior for the Why panel, and the 8s/60s loading and timeout states.",
+    "The comparables review cites store listings with captures, gives exact prices, and says clearly that no installed-app walkthroughs were observed."
+  ]
+}
+```

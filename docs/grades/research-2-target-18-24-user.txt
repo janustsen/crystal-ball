@@ -1,0 +1,33 @@
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "research",
+  "score": 8.0,
+  "evidence": [
+    "Source inspection: I read docs/research/*.md, docs/design/ui-rules.md and the key evidence files (blind-review.txt, blind-mapping.json, comparison-summary.json, store-prices.json, contrast.json, and the start of question-pilot.json).",
+    "Visual inspection of costar.jpeg: it matches comparables.md. The listing shows 4.8 from 206K ratings, a featured review dated 08/11/2024, and 'Blame the stars' screenshots.",
+    "The model-bakeoff.md numbers match the raw evidence. For 4B: median 1.6815s, p95 2.48s, safety 27/30, and 3/6/10-card flows at 11.05/14.90/22.19s with 1361/2227/3890 input tokens. The blind mapping B=4B matches the 8.23 score.",
+    "blind-review.txt is a real semantic review. It catches failures the automated checker misses, such as 8B's 104-user arithmetic and 4B misreading the EV constraints, and model-bakeoff.md says so openly.",
+    "store-prices.json lists the exact SKUs and states its own limits: Nebula's billing periods are unknown, and Tarot AI and Oracle Guru prices were not verified.",
+    "The retrieval audit scores relevance per query by hand (World Cup 0/3 outcome-relevant) and rejects Bing and DDG for terms or captcha reasons, not transport success.",
+    "user-test.md makes clear that no sessions have taken place. Nothing about the 18–24 audience is actually measured anywhere in the research."
+  ],
+  "blockers": [
+    "Nothing in the research comes from the target user. Sharing, price sensitivity, oracle tone and the forecast-vs-guarantee wording are all untested for 18–24s. Add sourced secondary evidence on 18–24 behavior, for example Pew or similar surveys on astrology and horoscope use by age, and how young adults share quiz or prediction content on Stories, TikTok and group chats. Or mine 20+ recent (2025–2026) App Store reviews of the comparables, coded for complaints about price, repetition, creepiness and sharing. At the moment there is one featured review per app, and some are from 2020 and 2024.",
+    "Pricing for students and young workers has no audience anchor. $5.99 and $39.99 rest only on competitor list prices. Cite at least one primary source on student or young-adult subscription spending or subscription fatigue, or state that the price is purely a competitor-anchored guess and set a concrete kill threshold for the $5.99/$7.99 test.",
+    "Sharing is the brief's growth wedge (UGC), yet there is no research on the share format. Capture 3–5 real examples of how Co–Star, Tarot AI and similar apps export share cards (dimensions, what is shown, what private data is omitted), backed by screenshots, instead of only the 1080×1920 rule.",
+    "The chosen 4B model still wrongly blocks the safe World Cup question in all 3/3 repeats. The mitigation is only described. Add a small executed check that a revised block/allow prompt or fixed allow-list gives a speculative sports pick. repair-pilot shows it can be done, but that isn't tied to the chosen prompt.",
+    "ui-rules.md says buttons use ink text on gold, but contrast.json has no ink-on-gold ratio. Add it.",
+    "The user-test script has no per-task time budgets and no pass/fail rule for task 7 (recalling the paywall price). Define what counts as 'understood the price' so the sessions produce a clear decision."
+  ],
+  "strengths": [
+    "The measurement honesty is exceptional. Failures are kept and explained: the unconstrained question engine repeating questions, 8B arithmetic errors, the repair pilot inventing a 'tropical island escape', and the model calling 2026 headlines 'not current'. Each comes with a concrete mitigation.",
+    "The blind, identity-hidden model review with a published rubric is stronger evidence than the builder's self-grades, and the builder labels which is which.",
+    "Hosted inference is clearly marked as a shortlist that was not executed, with listed prices and an adoption gate of zero unsafe outputs, zero invented citations and ≥9 average. That is acceptable given there is no key.",
+    "Decisions are concrete: 4B local, a constrained question registry, light retrieval as the default, Google News for the prototype only, deterministic arithmetic, fixed safety copy, and the credit rules.",
+    "Unit economics reconcile the assumed token budget with measured call totals and include a pessimistic loss scenario.",
+    "From my point of view as an 18–24 user, the product direction looks right: no birth-time form, anonymous start, a full first answer for free, a visible close button on the paywall, no fake urgency, and a private-by-default share preview.",
+    "ui-rules.md is specific and backed by measured WCAG ratios, text-scaling, keyboard and back-button behavior, and loading-time budgets."
+  ]
+}
+```

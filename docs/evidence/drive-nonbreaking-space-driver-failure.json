@@ -1,0 +1,146 @@
+[
+  {
+    "coldLoadToControlsMs": 583
+  },
+  {
+    "rafCadence": {
+      "frames": 120,
+      "meanMs": 37.5075,
+      "maxMs": 149.89999999999964,
+      "jsResourceBytes": 461333
+    }
+  },
+  {
+    "screen": "home",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:06.008Z"
+  },
+  {
+    "screen": "ask",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:07.002Z"
+  },
+  {
+    "engineAction": "plan",
+    "engineLatencyMs": 538,
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "learning",
+        "provided": {
+          "learning_target": "Spanish",
+          "deadline": "In 6 months"
+        },
+        "cards": [
+          {
+            "id": "level",
+            "question": "What is your level now?",
+            "options": [
+              "New beginner",
+              "Know the basics",
+              "Intermediate",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "practice",
+            "question": "How much time can you give it daily?",
+            "options": [
+              "10 minutes",
+              "20 minutes",
+              "45 minutes",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "conversation",
+            "question": "How often can you practice conversation?",
+            "options": [
+              "Rarely",
+              "Weekly",
+              "Daily",
+              "Other"
+            ],
+            "remember": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "question-1",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:08.668Z"
+  },
+  {
+    "screen": "selected-1",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:09.671Z"
+  },
+  {
+    "screen": "question-2",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:10.532Z"
+  },
+  {
+    "screen": "selected-2",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:11.559Z"
+  },
+  {
+    "screen": "question-3",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:12.479Z"
+  },
+  {
+    "screen": "selected-3",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:13.320Z"
+  },
+  {
+    "screen": "research",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:14.210Z"
+  },
+  {
+    "engineAction": "predict",
+    "engineLatencyMs": 1641,
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "29cd0511-d6e0-4177-b58c-5a0ec43b74a4",
+        "question": "Will I be conversational in Spanish in six months?",
+        "headline": "You will need help speaking Spanish in 6 months.",
+        "createdAt": "2026-09-29T11:09:15.109Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "You described yourself as new beginner, with 30 minutes of daily practice and rarely feedback. That suggests you will need more time or support by your target. This scenario treats an intermediate starting point, or 20 minutes daily with weekly feedback, as enough for basic progress. It is a planning assumption, not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "deadline": "In 6 months",
+          "level": "New beginner",
+          "practice": "30 minutes",
+          "conversation": "Rarely"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "flowSeconds": 9.809
+  },
+  {
+    "failure": "Error: Question horizon was not preserved"
+  },
+  {
+    "screen": "failure",
+    "url": "http://localhost:8087/",
+    "at": "2026-09-29T11:09:17.813Z"
+  }
+]

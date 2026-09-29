@@ -1,0 +1,50 @@
+I'd give the app phase **7.4/10**, below the ≥9 bar. It's close. The main blocker is visible in its own current screenshot: on the general question path, the "Why this prediction?" panel shows a run-on block with no punctuation and the card question repeated inside it. A 390px user sees that right away. I opened the images and read the JSON, markdown and source files; I did not run anything.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app",
+  "score": 7.4,
+  "subscores": {
+    "end_to_end_observed_behavior_35": 7.3,
+    "visual_quality_screenshots_30": 7.8,
+    "accessibility_and_recovery_20": 7.8,
+    "performance_15": 7.0
+  },
+  "evidence": [
+    "Checked the summary against the files: drive.json (2026-09-29T12:27:05Z), drive-extended.json, drive-states.json (12:28:09Z) and general-flow.json (12:45:40Z) are current and match its claims. Older failure captures (engine-bakeoff-*-failure, accessibility-flow-before-aria-fix, mirror-stale-snapshot-failure.txt) are clearly labelled as history and I did not count them as current.",
+    "drive.json (log): full Spanish flow. Real Qwen 4B planned 3 cards; 'Other' took '30 minutes' (selected-2.png shows the Other field with a cyan focus ring). The prediction took 1439 ms and the whole flow 9.3 s. Readings dropped 1→0 after the reveal. History survived a reload, the share export survived an injected HTTP 500, the daily cap opened the paywall, and a pregnancy question was redirected before any card.",
+    "general-flow.json plus general-why.png (visual): the model's novel cards are relevant, but the options repeat the question ('Write 500 words daily', 'Update my progress weekly'). The Why panel shows 'Recorded context: How many words do you write daily? Write 500 words daily Scenario assumption: You will write 500 words daily and maintain weekly updates No external evidence supports…'. Sentences run together with no punctuation between them, and the headline has no closing period. Source check: server/engine.ts:17 and :100 join these pieces with spaces only, and the general facts store the question text together with the answer.",
+    "generation-review.md: the builder admits option mismatches and weak or circular 'future conditions' in all 11 general cases. Completing a reading is not predictive accuracy, and the summary words this correctly.",
+    "Visual inspection (home, question-1, selected-2, research, reveal, why, share, exported-card, history, knowledge, paywall, timeout, general-failure, self-harm-redirect, large-reveal, money-reveal): the cosmic look (deep violet, gold call-to-action buttons, serif headings, glossy orb) is consistent and feels premium. Hierarchy is clear and the tab bar is solid. The 1080×1920 export is clean, and private answers stay off it.",
+    "Visual defects: the exported card breaks the headline as 'Spanish in / 6 months.'. The in-app share preview has an empty bottom third with only a faint constellation. On the knowledge screen, the conversation-frequency fact is labelled 'Practice feedback', which doesn't match its question. Each fact gets its own full Edit/Forget button row, so only about three facts fit on screen. In the 200% text reveal, the headline is cut off by the tab bar, and the 'not a guarantee' label moves above the orb.",
+    "money-reveal.png: 'Your net worth will be $6,371 in 5 years.' comes after ten money input cards (drive-extended money-1…10). That is too much effort for an 18–24 audience compared with 3 cards elsewhere, and a specific dollar figure reads as more precise than the label allows.",
+    "Recovery (visual plus log): the timeout screen says 'Nothing was charged' and offers Try again or Edit question. After a network error, a retry reached a reveal. Forget→Undo restored the fact, and a forgotten fact is asked again. Empty-state copy was checked. The self-harm redirect offers 'Find support near you', and the redirect cost no reading. general-failure.png says only 'Please ask again.' without the no-charge line, but no current log links to that screenshot, so I did not weigh it.",
+    "Accessibility: accessibility-flow.json has 0 axe violations in 5 contexts; the 'incomplete' entries are gradient contrast. screen-contrast.json measures 9.1–10.3:1 on the rendered gradients. accessibility-cards.json shows aria-checked is set and Other/Next stay visible at 375 and 390. Keyboard-focus, voice-fallback and reduced-motion screens exist. VoiceOver and Dynamic Type are correctly listed in SETUP.md as deferred to a device.",
+    "Performance: performance-flow.json (headed browser, real inference) shows 95th-percentile frame intervals of 18.6 ms in planning and reveal (599 frames) and 18.4 ms in research, but 33.3 ms in cards. drive.json's cold-load sample averages 59 ms per frame with a 133 ms worst frame (about 17 fps), and the summary never explains this. The engine run in engine-bakeoff.json completed 20/20 with a median of 4.57 s and 95th percentile of 7.05 s. The drive's 421 ms planning time is far faster than the 2.6 s bake-off median; I couldn't tell whether it was cached or warm. Controls appeared 307 ms after cold load.",
+    "Native honesty: SETUP.md lists deferred device checks: VoiceOver, Dynamic Type, keyboard avoidance, safe area, hold-to-speak, notification permission and 30-day scheduling, Apple account linking, and RevenueCat sandbox. The paywall visibly says 'Test mode · no real payments'. Using Expo web at 390×844 is within the authorized waiver.",
+    "Not verified by me: the flow-recording.webm and exported-story.mp4 videos (not viewed), the 24 passing tests and the export success (claimed only; no test output was captured in evidence), and the local Supabase access-rule checks (only the JSON exists)."
+  ],
+  "blockers": [
+    "Fix how the general Why text is built (server/engine.ts explainScenario and the basis quote). Store and quote only the user's answer, not question plus answer. Put sentence punctuation between the basis, assumption and disclaimer. Re-capture general-why.png showing grammatical, readable text.",
+    "Rewrite the general-card options so they don't repeat the question stem (for example '500 words', '3 chapters'). Drop or replace irrelevant cards like 'How often do you update your progress?'. Show this in a fresh general-flow capture plus 2–3 more general cases driven in the UI, not just the engine replay.",
+    "Cut the money flow from ten input cards to about 3–5, or show progress and let users skip, and re-capture it. Consider showing the net-worth figure as a range so it reads less exact.",
+    "Headline wrapping: stop the headline breaking with a lone '6 months.' on the card and preview (balance the lines or use a non-breaking space), and fill or shrink the empty bottom third of the share preview.",
+    "Knowledge screen: label facts from the card question ('Conversation practice', not 'Practice feedback'), and use compact inline Edit/Forget controls so more facts fit on screen.",
+    "In the 200% text reveal, keep the 'not a guarantee' label next to the headline and make sure the headline scrolls clear of the tab bar. Re-capture large-reveal.png.",
+    "Explain or fix the home cold-load frame timing in drive.json (59 ms average, 133 ms worst) and the 33 ms cards phase. Show card and home frames at or under ~18 ms at the 95th percentile, or document why the drive sample isn't representative.",
+    "Make every error screen say 'Nothing was charged' (general-failure copy), or show that the screen is unreachable in the current build.",
+    "Put the actual `npm run check` / `npm test` output (24 tests) in the evidence so the pass claim can be checked."
+  ],
+  "strengths": [
+    "Real local Qwen drives the whole flow from start to finish, including Other, Why, sharing, history, facts and the paywall, with timestamped logs that match the screenshots.",
+    "The visual identity is strong and consistent for the audience: cosmic palette, gold call-to-action buttons, elegant serif headings, a polished orb, and a shareable 1080×1920 card that leaves private details out.",
+    "Recovery is carefully designed: timeout and network retry keep your answers and don't charge, sharing survives a 500 error, forgetting a fact can be undone, and the stale-snapshot failure is kept and explained.",
+    "Wording is honest throughout: 'Speculative forecast · not a guarantee' on every reveal and card, 'Test mode · no real payments' on the paywall, and completion is never passed off as accuracy.",
+    "Sensitive topics are handled well: pregnancy and self-harm questions are caught before any cards, with warm wording, no reading charged and a support button.",
+    "Accessibility evidence goes beyond axe: rendered-contrast measurements, aria-checked checks at both phone sizes, 200% text, reduced motion and keyboard focus.",
+    "The reveal animation runs smoothly (599 frames, 18.6 ms at the 95th percentile) with real inference.",
+    "Device-only checks are listed honestly and not overclaimed."
+  ]
+}
+```

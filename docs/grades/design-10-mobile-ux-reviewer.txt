@@ -1,0 +1,102 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.8,
+  "verdict": "Below the 9 bar. The thesis is coherent, the documentation is disciplined, and the state coverage is unusually honest. It falls short on the moments that should sell an entertainment oracle: the reveal choreography, the share artifact composition, how research differs from idle when static, and the large-text display treatment. Some claimed properties also have no measurement behind them.",
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (single-line 955 KB file; structure, headings, figcaptions and asset references read via grep)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png",
+      "reveal.png",
+      "reveal-frame-0.png",
+      "reveal-frame-300.png",
+      "why.png",
+      "selected-1.png",
+      "question-1.png",
+      "research.png",
+      "timeout.png",
+      "history.png",
+      "paywall.png",
+      "exported-card.png",
+      "large-home.png",
+      "large-reveal.png"
+    ],
+    "not_inspected": "flow-recording.webm, exported-story.mp4 and the remaining roughly 30 captures in review.html. The motion scores rest on the spec text plus the 0/300 ms stills, not on viewing the videos. No commands were run and no files were modified."
+  },
+  "rubric": {
+    "unified_cosmic_mystic_thesis": {
+      "weight": 0.25,
+      "score": 8.5,
+      "evidence": [
+        "The 'pocket observatory' thesis is stated the same way in system.md, ui-rules.md and the review.html hero. It is one idea, not a mood board.",
+        "Composition alternatives (tarot deck, dashboard, observatory) are compared with reasons. The orb gets most of Home (home.png, visual).",
+        "The palette assigns roles consistently: gold for action and settled reveal, cyan for selection, links and focus, lavender for glow. In the captures gold appears only on primary actions, active tab, speculative label, reveal rim and constellation (visual).",
+        "The copy fits the thesis and stays calm: 'The mist is gathering…', 'The mist is too thick.', 'Your archive of tomorrow.', 'Behind the mist' (visual).",
+        "Weakness: the promise that 'fortune-telling theater belongs in the mist and reveal' is not delivered in the stills. Research, idle and timeout orbs look nearly identical (research.png, home.png, timeout.png, visual). The mystic register therefore comes almost entirely from copy and palette, not from any change in the object."
+      ]
+    },
+    "visual_polish": {
+      "weight": 0.25,
+      "score": 7.5,
+      "evidence": [
+        "Standard-size screens are clean. Cormorant/DM Sans pairing, consistent 24 pt inset, card radii and tab bar are coherent (selected-1.png, paywall.png, history.png, visual).",
+        "The orb artwork is well executed: glass highlight, orbit, internal mist, cast shadow (visual).",
+        "Share artifact (exported-card.png, visual): the headline wraps to an orphaned 'months.' line. Roughly the lower 30% (y≈1350–1920) holds only a faint constellation, so the frame feels top-heavy. The two-line gold label at almost headline scale competes with the prediction for attention.",
+        "Large-text Home (large-home.png, visual): the display headline breaks into one or two words per line ('A / glimpse / of what's'). The wordmark becomes smaller than the reading counter. Functional, but not polished.",
+        "Large-text reveal (large-reveal.png, visual): the orb separates the speculative label from the headline, so the label is no longer next to the result. The headline also runs under the tab bar at first view with no visible scroll cue.",
+        "Disabled Next (#322541, question-1.png) and the secondary action (#25193F, e.g. 'Edit question' in timeout.png) are close in both surface and border. Disabled currently reads as 'quiet button', not 'unavailable'.",
+        "The flagship Why capture in the review sheet (why.png, visual) is internally inconsistent. It says the user 'described yourself as new beginner' and then says 'This scenario treats an intermediate starting point.' The headline says 'basic Spanish'; the question asked about 'conversational'. This is engine output, but it is the sheet's showcase explanation and undermines the reveal's credibility."
+      ]
+    },
+    "interaction_and_animation_specification": {
+      "weight": 0.25,
+      "score": 7.5,
+      "evidence": [
+        "motion.md is a real single authority. It gives explicit durations, named easing formulas, reduced-motion alternatives and haptics for 14 interactions, plus a millisecond reveal timeline. This is well above typical design-phase specs (source).",
+        "Honest limits are stated well: no fake progress, no ceremonial delay, 8 s longer-wait message, 60 s timeout, and capture offsets explicitly called observed frames rather than keyframes (source).",
+        "The reveal is underpowered for an entertainment product. It is a 0→0.35 glow over 250 ms plus an 800 ms text fade, and the constellation simply 'appears' at 0 ms. The research→reveal handoff has no specified change of state.",
+        "reveal-frame-0.png (visual): Why, Share, Remind and Ask again are fully opaque while the headline is still nearly invisible. The user sees 'Share this glimpse' before the glimpse. The timeline never specifies when the actions enter.",
+        "Exits, back navigation between question cards, progress-constellation advance, and tab-orb press feedback are unspecified or 'immediate/static'. The raised Ask orb is the primary identity yet has no press state.",
+        "Research is described as '45% mist, 6 s rotation; static 15% cyan core and rim'. The research.png rim reads lavender-white like idle, so the reduced-motion 'static cyan phase' has no distinct visual shown in captures."
+      ]
+    },
+    "accessibility_and_complete_states": {
+      "weight": 0.25,
+      "score": 8.0,
+      "evidence": [
+        "State coverage in review.html is excellent. It has captioned captures for empty, populated, selected, Other, long wait, timeout, offline, safety redirect, self-harm support, daily cap, export failure, forget/undo, friend mode, voice unavailable, keyboard focus and 200% text (source + sampled visual).",
+        "contrast.json measures 20 text and non-text pairs, all passing with margin (source).",
+        "Selection uses a ring, a star and an outline, not color alone (selected-1.png, visual). History status uses a text chip ('Waiting to unfold', visual).",
+        "Native VoiceOver, Dynamic Type, haptics and keyboard insets are honestly deferred to device testing. This is acceptable in the design phase and not counted against the score.",
+        "Gaps: contrast.json does not measure the cyan focus ring against the gold primary button or against the selected-card fill (#25384B next to the ring). It also does not measure the disabled button against its surroundings as a non-text boundary (#766487 border vs page), or gold small text on the brighter page midpoint where the reveal label sits.",
+        "The 200% reveal breaks the stated 'label adjacent to headline' rule (large-reveal.png, visual), and it is presented as passing."
+      ]
+    }
+  },
+  "blockers": [
+    "Reveal choreography: specify and capture an entry for the actions in the reveal timeline. For example, actions fade in with or after the headline at 200–800 ms and are enabled immediately, so Share never appears before the prediction. Add one signature, non-delaying reveal beat, such as the five-point constellation drawing its strokes over ~400 ms while the mist settles, with a static final frame under reduced motion. Update the 0/300/800 ms captures.",
+    "Research state identity: make research visibly different from idle in a still frame, e.g. an actual cyan rim/core as motion.md already claims. Add a reduced-motion research capture showing that 'static cyan phase'.",
+    "Share artifact composition: balance the headline wrap (no single-word last line) and cut the speculative label to about 60–70% of headline size in secondary gold/ivory. Redistribute the vertical rhythm so the lower third is intentional, e.g. anchor the closing constellation and wordmark lower. Keep everything within x=90–990, y=300–1500. Re-export and re-capture.",
+    "200% text: keep the speculative label directly next to the headline, e.g. label → headline → orb, or orb above both. Tune display-type scaling so headings do not break into one word per line, e.g. a smaller serif step at large sizes while body text still reaches 200%. Show a scroll affordance where the headline meets the tab bar. Re-capture large-home and large-reveal.",
+    "Disabled vs secondary action: make disabled clearly unavailable, not just a quieter secondary button (e.g. dashed or no border, a distinctly different surface, plus the existing text change). Add both pairs to contrast.json.",
+    "Complete contrast.json: add focus ring vs gold button fill, focus ring vs selected-card fill, disabled border vs page background, and gold 13 pt label vs the brightest reveal-area gradient behind it.",
+    "Specify the missing interactions: raised Ask-orb press feedback, question card forward/back direction, progress-constellation advance, and overlay/paywall exit.",
+    "Replace or annotate the showcase Why capture. Its explanation contradicts the user's stated level (new beginner vs 'intermediate starting point') and the question's target (conversational vs basic). A design review sheet should not present an incoherent explanation as the reference Why state; if kept, label it as a known engine defect."
+  ],
+  "strengths": [
+    "One clear thesis carried consistently across docs, tokens, copy and captures.",
+    "motion.md is a real single source of truth: exact timings, easing math, reduced-motion and haptic columns, and an honest note on what the evidence cannot prove.",
+    "Unusually complete and honest state coverage, including safety redirect, self-harm support, offline, timeout without charge, daily cap, export failure, friend-mode isolation, forget/undo and voice fallback.",
+    "Commerce and uncertainty ethics are built into the design: always-visible speculative label, test-mode labelling, no fake urgency or popularity, a sample feed clearly labelled as samples, and outcomes the user marks rather than accuracy claims.",
+    "Measured contrast with generous margins. Selection and status never rely on color alone.",
+    "The review sheet grounds claims in real 390×844 and 375×667 captures and separates browser evidence from deferred native validation."
+  ]
+}
+```

@@ -1,0 +1,67 @@
+```json
+{
+  "role": "harsh-product-designer grader",
+  "phase": "design",
+  "score": 6.0,
+  "evidence": {
+    "artifacts_reviewed": {
+      "source_inspection": [
+        "docs/design/system.md",
+        "docs/design/ui-rules.md",
+        "docs/design/contrast.json"
+      ],
+      "visual_inspection": [
+        "docs/evidence/home.png",
+        "docs/evidence/ask.png",
+        "docs/evidence/question-2.png",
+        "docs/evidence/reveal.png",
+        "docs/evidence/why.png",
+        "docs/evidence/share.png",
+        "docs/evidence/exported-card.png",
+        "docs/evidence/history.png",
+        "docs/evidence/failure.png"
+      ],
+      "not_found": "The docs/design/ folder has no visual review sheet (HTML, board or annotated mock). It holds two prose files and a JSON contrast table. The only visuals are prototype captures in docs/evidence/."
+    },
+    "rubric": {
+      "unified_cosmic_mystic_thesis_25": {
+        "score": 7.5,
+        "notes": "The 'pocket observatory' thesis is clear and repeated in both docs. It sets out an ink-violet field, one glass orb as the hero, gold marks, a book-like serif, and quiet controls. The docs compare three layouts (tarot deck, dashboard, observatory) and argue for the one they chose. In the captures, the Home, Ask, Reveal and Share screens do carry the thesis consistently. It breaks down in the exported 9:16 card (visual): the orb there is a flat, blurry radial gradient with no glass highlight, orbit ring, sparkle or shadow, so the one object meant to be memorable is lost in the artifact users actually share. The export's brand line and forecast label also appear to be set in a system sans rather than DM Sans (visual, not confirmed in source). Explore, You, Paywall and Research have no visual evidence at all."
+      },
+      "visual_polish_25": {
+        "score": 6.0,
+        "notes": "Visual: the orb is well drawn, the serif display type is elegant, the gold primary buttons are strong, and the page inset is consistent. Defects: (1) In question-2, the disabled Next button is a muddy brown fill with dark text. It looks broken rather than intentionally disabled, and contrast.json has no disabled-state pair. (2) A dev-tool lightning overlay covers the Home tab label in question-2, ask.png and why.png, so these are not clean review captures. (3) In reveal.png the 'Did it come true?' card and in why.png the 'Your answers' section are cut off behind the tab bar, and no scroll affordance is shown. (4) Reveal stacks three full-width pill buttons of equal visual weight, 'Why this prediction?', 'Share this glimpse' and 'Remind me to check back', which reads as a generic button list. (5) The Home suggestion list is cut off below the fold under the tab bar. (6) The header reads '1 reading' on Ask and '0 readings' on Reveal, and nothing in the design explains what that counter means to the user. (7) The 'Speculative forecast · not a guarantee' label is small gold caption text. It passes contrast but is visually minor compared with ui-rules §5's 'persistent' framing."
+      },
+      "interaction_and_animation_spec_25": {
+        "score": 5.5,
+        "notes": "Source: the durations are specified (breath 6s, mist 12s counter-drift, selection 140ms, reveal 600ms). So are the stop conditions (unfocused screen, reduced motion), haptic scope, the loading ladder (show the current operation, 8s 'Still looking', 60s timeout), selection-then-Next with its rationale, and focus behaviour for the Why disclosure. Missing: no easing curves, and no choreography for the 600ms reveal (what fades or scales, in what order, whether the headline and label arrive together). The orb has no pressed, focused or held state, even though tapping it is the core action. There is no transition spec between Ask, Questions, Research and Reveal. Hold-to-speak has no recording or level-feedback visuals. The Research 'subtle orbit' is only named, never defined. The share clip's animation (length, loop, what moves) is unspecified, and its still fallback is not shown. There are no storyboard or frame images for any motion."
+      },
+      "accessibility_and_complete_states_25": {
+        "score": 5.0,
+        "notes": "Source strengths: measured contrast pairs, a rule that zoom is never disabled, a 200% text rule with a 96pt orb fallback, a 375×667 layout budget, a named focus target for Why, live-status announcements, reduced-motion toggle plus system setting, keyboard avoidance, Android back behaviour, a permission-timing rule and safe-area handling. States are well described in prose. Visual evidence is thin: failure.png is visually the same as home.png (only the counter differs, 0 vs 1), so there is no failure, timeout or retry capture. No captures exist for Research/loading, the safety redirect, cancel, empty History, the Explore feed, the You/Knowledge editor, the Paywall (test mode), the Other free-text input, the selected-option state, reduced motion, 200% text, 375×667, the keyboard-open layout, offline, or the friend-mode banner. The docs themselves make the 375×667, 200%, keyboard-open and reduced-motion checks mandatory, and none of them has an artifact. contrast.json has no disabled, focus-ring or tab-inactive pairs and no pairs for text over the gradient midpoint."
+      }
+    },
+    "weighted_total": "(7.5 + 6.0 + 5.5 + 5.0) / 4 = 6.0"
+  },
+  "blockers": [
+    "Produce a single visual review sheet (annotated HTML or image board) in docs/design/. It should show every screen side by side with callouts for tokens, spacing and states. The design phase currently has no visual deliverable of its own.",
+    "Redesign the exported 9:16 card so it uses the real glass orb (highlight, orbit ring, sparkle, shadow) and DM Sans or Cormorant for all text. Show the still version and describe the frames of the animated clip.",
+    "Replace failure.png with a real failure/timeout state showing retained answers, Retry and Cancel. Add captures for Research loading (the current-operation text and the 8s message), the safety redirect with its suggested safe question, and cancel returning Home with no credit spent.",
+    "Capture or mock the screens that have no visuals: Explore (labelled sample feed), You/Knowledge (edit, delete and empty states), mock Paywall (test-mode badge, prices and periods, restore), the Other input with the keyboard open, a selected option card, empty History, and the friend-mode banner.",
+    "Capture the required accessibility variants: 375×667, 200% text (orb reduced to a 96pt thumbnail, no clamping), reduced motion (static orb), and a visible keyboard focus ring on the orb, options and tabs.",
+    "Redesign the disabled Next button so it is clearly and intentionally disabled rather than muddy brown. Add disabled, focus-ring and inactive-tab pairs to contrast.json.",
+    "Specify the 600ms reveal choreography (sequence, easing, what arrives with the speculative label), the orb's pressed, focus and held states, screen-to-screen transitions, the Research orbit motion, and hold-to-speak recording feedback. Frame strips are needed, not just prose.",
+    "Fix the Reveal hierarchy: one clear primary action, with Why as an inline text disclosure rather than a third equal pill. Show the screen scrolled so nothing is hidden under the tab bar. Retake the captures without the dev-tool overlay.",
+    "Explain what the header reading counter means (for example 'readings left today') and keep it consistent across screens."
+  ],
+  "strengths": [
+    "A coherent, specific thesis (the pocket observatory with one glass orb), backed by three layout alternatives that were actually argued.",
+    "The in-app orb illustration is distinctive and polished. The Cormorant and DM Sans pairing on ink-violet gives a premium, mystic tone without resorting to tarot clichés.",
+    "The 'answer first, why second' rule is honest, and the speculative label stays next to the forecast on Reveal, Share and the export.",
+    "Measured WCAG contrast table. The primary palette and the ink-on-gold buttons clear AAA comfortably.",
+    "Considered small-screen budgets (84/56/527pt), orb shrink before text shrink, and no line clamping at 200% text.",
+    "Guardrails against dark patterns and fake data: no fake percentages, no source counters, no urgency in the paywall, sample content labelled as samples, and cancellation never spends a credit.",
+    "The disclosure rules for Share are precise: safe region x=90…990 and y=300…1500, private by default, and no facts or Why in the shared artifact."
+  ]
+}
+```

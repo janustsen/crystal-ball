@@ -1,0 +1,50 @@
+```json
+{
+  "role": "independent harsh product-designer grader",
+  "phase": "design",
+  "score": 7.2,
+  "score_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.0,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_spec_25": 7.0,
+    "accessibility_and_complete_states_25": 7.0
+  },
+  "inspection_method": {
+    "visual": "Viewed these PNG captures as images: home, selected-1, research, reveal, why, timeout, blocked, paywall, share, exported-card and large-home. I could not play flow-recording.webm or exported-story.mp4. I did not render review.html in a browser.",
+    "source": "Read system.md, ui-rules.md, motion.md and contrast.json in full. Read review.html (about 955 KB, one line) through grep only: headings, captions and image list."
+  },
+  "evidence": [
+    "Thesis is clear and repeated across docs: 'tiny/pocket observatory', one glass orb as the memorable object, quiet controls around it (system.md:3, ui-rules.md:3). Three layouts were compared and the choice is justified (system.md:9; review.html 'Composition choice').",
+    "Visual: the orb has real craft. It has a glass highlight arc, an orbit ellipse with a gold node, teal and violet inner mist, and a cast shadow. The Cormorant display over DM Sans body pairing reads as 'book-like' as the thesis intends (home.png, selected-1.png).",
+    "Visual: the reveal state is distinct. It adds a gold rim and a gold constellation inside the glass, and places the speculative label right under the headline (reveal.png). The label is also kept in the 1080×1920 export (exported-card.png).",
+    "Visual: in why.png the raised center Ask orb in the tab bar covers the explanation text ('...t: In 6 months' is cut off). This is an occlusion defect in a capture the review sheet shows.",
+    "Visual: reveal.png shows a 'Did it come true?' Yes/No/Not yet row on a forecast made seconds earlier for 6 months ahead. The row is cut off by the nav bar and its three labels are spaced oddly.",
+    "Visual: the exported share card (exported-card.png) uses the idle orb, without the reveal's gold rim or constellation. The artifact most likely to spread therefore loses the reveal signature. About 40% of the canvas below the label is empty gradient, and the stars are gone.",
+    "Visual: large-home.png at 200% puts 'Ask the Ball' above the display headline. The headline is then cut mid-phrase ('of what's') above the tab bar. The wordmark shrinks while '3 readings' grows, so header scaling is inconsistent.",
+    "Visual: blocked.png has one CTA and no secondary 'Edit question'/'Back' action, unlike timeout.png. The helper text is set almost touching the button, which breaks the 8/12/16 rhythm.",
+    "Source: motion.md contradicts itself. Lines 12 and 20 say the reveal mist 'swells to 35%'. Line 28 says research runs at 45% and idle at 25%. Going from research (45%) to reveal (35%) is a dip, not a swell. The reveal paragraph also puts the gold rim at 0 ms, which the table does not mention.",
+    "Source: motion.md defers voice animation (line 24). Haptics are specified only for selection and success, with none for errors, blocked results or purchase confirmation. The press and disabled states in the anatomy table have no captures.",
+    "Source: the required copy disagrees with the build. ui-rules Rule 5 requires the label 'Forecast, not a guarantee', but every capture says 'Speculative forecast · not a guarantee'.",
+    "Source: contrast.json measures 20 pairs, including focus ring, selected border, placeholder, disabled and tabs, and all pass with margin. This is strong.",
+    "Source: the review.html captions show broad state coverage: empty, offline, timeout, long wait, safety redirect, voice denied, keyboard focus, large text, friend context and mock restore. Each caption is tied to a rule number."
+  ],
+  "blockers": [
+    "Fix the tab-bar center orb covering content. Give scroll content bottom padding equal to the orb's raised height, or stop the orb protruding over the content area. Re-capture why.png and a long-scroll reveal.",
+    "Remove or defer the 'Did it come true?' row on a fresh reveal. Show it only in History after the target date, or collapse it into the 'Remind me to check back' action, and specify when it appears.",
+    "Bring the reveal signature (gold rim and constellation) into the share export, and recompose the lower 40% of the 1080×1920 canvas: sparse stars plus a quiet wordmark or URL inside the safe region. Re-capture exported-card.png and the MP4 frame.",
+    "Resolve the mist-opacity contradiction in motion.md with one table row per phase (idle, research, reveal-peak, settled), giving opacity, rotation speed, rim and constellation timing. Make the prose match the table.",
+    "Specify haptics and motion for error, safety redirect, purchase confirmation and export success/failure. Either specify the voice-hold orb state or explicitly mark it out of design scope with a fallback frame.",
+    "Rework the 200% Home hierarchy: headline or short greeting first, then the Ask action, with the headline not cut off at the fold. Specify how the wordmark and reading count scale together. Re-capture large-home.png.",
+    "Give the safety redirect a secondary 'Ask something else'/'Back' action and correct the button-to-helper spacing. Add captures of press, disabled and reduced-motion (static orb) states, since the anatomy table promises them.",
+    "Settle the speculative-label wording in one place and use it everywhere: either change ui-rules to 'Speculative forecast · not a guarantee' or change the build."
+  ],
+  "strengths": [
+    "A coherent, well-argued thesis, with composition alternatives explicitly rejected; nothing like a generic gradient dashboard.",
+    "The orb artwork is distinctive and separates the idle, research and reveal phases visually rather than only through labels.",
+    "Honest-design rules are built in: no fake progress, no fake urgency, test mode stated on the paywall, and 'Nothing was charged' recovery copy.",
+    "Contrast is measured, not asserted, including non-text focus and selection indicators.",
+    "State coverage is unusually complete for a design phase, and the review sheet uses real captures tied to rule numbers rather than mockups.",
+    "Small-screen and 200% decisions are concrete: orb shrinks 240→160→96 pt, no line clamps, the label comes before the headline in large-text mode, and there are safe-region pixel bounds for export."
+  ]
+}
+```

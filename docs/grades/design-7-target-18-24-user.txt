@@ -1,0 +1,61 @@
+```json
+{
+  "role": "independent target-user grader (18–24)",
+  "phase": "design",
+  "score": 7.2,
+  "rubric_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 7.5,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_spec_25": 7.5,
+    "accessibility_and_complete_states_25": 7.5
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (headings, captions and image list only; the file is 955 KB, so I did not read it in full)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png", "question-1.png", "research.png", "reveal.png", "reveal-frame-300.png",
+      "why.png", "share.png", "exported-card.png", "paywall.png", "history.png", "timeout.png",
+      "blocked.png", "large-home.png", "large-reveal.png"
+    ],
+    "not_inspected": "flow-recording.webm, exported-story.mp4 (I can't play video), Explore, Knowledge, friend, voice-fallback, and the remaining small-screen captures"
+  },
+  "evidence": [
+    "Thesis: ui-rules.md:3 sets up a 'pocket observatory': ink-violet, a glass sphere, gold celestial marks and book-like serif type. The captures follow it. Home (visual) has a large glass orb with an orbit ring and mist, a Cormorant display face and a gold CTA. It feels like one coherent thing, not a generic gradient dashboard.",
+    "Thesis weakness (visual): the gold 'constellation' on the reveal orb and the exported card is a jagged zig-zag that looks like a stock-price line chart. It does not look celestial. Next to a headline like 'Your net worth will be $6,371' it reads as finance, not astrology.",
+    "State artwork (visual): the orb looks almost the same in idle, research, timeout and safety-redirect (research.png, timeout.png, blocked.png). motion.md:28 promises 'distinct phase artwork', but in stills the research cyan core is barely visible. A failure state shows the same happy glowing orb as success.",
+    "Polish (visual): research, timeout, blocked, history and reveal all leave 30–45% of the viewport as empty gradient above the tab bar. History with one item is a bare text row with no status marker, iconography or orb motif. It looks unfinished rather than calm.",
+    "Polish (visual): in the exported 9:16 card (exported-card.png), roughly the bottom 35% holds only a faint zig-zag line. The brand mark is small gold sans text. For the share artifact meant to win on TikTok or IG, it feels under-designed and reads as low-energy to an 18–24 viewer.",
+    "Polish (visual): the share preview (share.png) shrinks the card so far that the brand and date are illegible, and the preview's label renders with odd mixed gold/ivory emphasis ('Spec**ulat**ive … **guarantee**'), a likely rendering artifact.",
+    "Polish (visual): dates are inconsistent. History shows '9/29/2026' and the share card shows 'Sep 29, 2026'. On Home, the suggestion row is cut off by the tab bar at first paint (acceptable as scroll content, but it reads as clipped).",
+    "Motion spec (source): motion.md is a real authority. It has a per-interaction table with property, duration, easing, reduced-motion behavior and haptic; the easing formulas; a reveal storyboard; and the rule of no fake progress. That is well above the usual standard.",
+    "Motion weakness: the signature reveal is a 35% glow swell plus a text fade (reveal-frame-300.png shows only the text at partial opacity). For the one moment that should feel magical to this audience, it is tame. Nothing continues from the Home orb tap into Ask, research and reveal (no shared-element or orb-zoom transition). The voice-listening orb state is explicitly deferred (motion.md:24).",
+    "Motion spec hygiene: reveal timing is written three times (the motion.md:12 table row, the storyboard at motion.md:20, and the prose at :22), with slightly different wording ('mist' vs 'separate reveal glow'). That invites drift.",
+    "Accessibility (source): contrast.json measures 20 pairs, including focus ring, selected border, placeholder, disabled text and tab states. Selection is marked without relying on color (ring plus star). Why stays inline with focus retained and an announcement. Zoom is never disabled. There is a 200% text plan. It's strong.",
+    "Accessibility weakness (visual): at 200% (large-home.png, large-reveal.png) the tab labels disappear, leaving icon-only sparkle, clock and moon glyphs whose meanings are not obvious. The '3 readings' header counter scales up and takes prime space. Large Home puts the CTA above the headline, and the reveal headline runs under the tab bar. It works, but it is clearly the least designed state.",
+    "Contrast gap: 'Tap the ball. Ask anything.' sits directly on the orb's outer purple glow (home.png), and contrast.json has no pair for that halo. The gradient-stop pair covers only #2A1458.",
+    "States (visual and source): the review sheet lists and shows captures for empty, long-wait, timeout, offline, safety redirect, voice unavailable, keyboard focus, history yes/no, knowledge edit/empty, restore and friend mode. That is near-complete coverage. Missing: the Remind-me notification permission denied/blocked state, the export failure visual, and the paywall post-restore state for a returning Plus user."
+  ],
+  "blockers": [
+    "Replace the zig-zag 'constellation' with an actual star-figure motif (for example, points joined in a closed or asterism shape with varied star sizes) so nothing reads as a finance chart. Apply it to the reveal orb, the exported card and the question progress.",
+    "Make orb phases visibly distinct in stills: research (stronger cyan core or swirling mist that is readable in a screenshot), timeout/error (dimmed or clouded glass, no gold), safety redirect (softer, desaturated). Add a side-by-side phase strip to review.html.",
+    "Redesign the exported 9:16 story: fill the lower composition with a deliberate element (a date and horizon ribbon, a stronger wordmark, a star field with depth) and give the brand mark real weight. Fix the mixed-emphasis rendering of the speculative label in the share preview.",
+    "Resolve the empty-lower-half problem on research, timeout, blocked and short History: vertically center or anchor the content, or add purposeful ambient content such as History row status glyphs and a mini-orb per reading.",
+    "Specify a signature reveal worth sharing: a continuous orb transition Home → Ask → research → reveal, plus a stronger but still non-flashing reveal beat (for example, mist parting and constellation lines drawing in). Keep a reduced-motion equivalent. Consolidate reveal timing into one table row and storyboard with no duplicate prose.",
+    "Design the 200% state properly: keep short tab labels (or a two-row, larger tab treatment), shrink or hide the reading counter, keep the headline before the CTA, and make sure the reveal headline and speculative label fit above the fold or clearly invite scrolling.",
+    "Add contrast measurements for text over the orb halo region, unify the date format, and add the missing notification-denied and export-failure state captures to the review sheet."
+  ],
+  "strengths": [
+    "A single memorable object (the glass orb with mist and an orbit), with composition alternatives explicitly argued and rejected.",
+    "Restrained, readable UI around the theatrical centerpiece: serif display paired with a sans UI face, gold for action and cyan for selection, applied consistently.",
+    "One motion authority with easing math, reduced-motion equivalents, haptics and a no-fake-progress rule.",
+    "Thorough measured contrast table and honest labeling of what needs device validation versus what has been verified in the browser.",
+    "Broad, real state coverage in captures (errors, safety redirect, empty states, friend mode, mock paywall with honest test-mode copy) instead of prose-only claims.",
+    "Trust-building copy ('Nothing was charged.', a speculative label kept on the exported artifact, no fake urgency) suits a skeptical 18–24 audience."
+  ]
+}
+```

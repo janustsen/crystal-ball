@@ -1,0 +1,41 @@
+```json
+{
+  "role": "independent target 18-24 user grader",
+  "phase": "research",
+  "score": 7.9,
+  "method": "I only inspected source. I read docs/research/*.md, docs/design/ui-rules.md, context-independent-review.txt, source-excerpts.md, docs/evidence/safety-outsider-baseline.json, safety-heldout.json summary fields and grep extracts of engine-bakeoff.json. I did not open or look at any images (competitor JPEGs, evidence PNGs) or review.html, so this grade makes no visual claims. I ran nothing and modified nothing.",
+  "subscores": {
+    "sourced_primary_evidence_30": 8.5,
+    "specificity_25": 8.5,
+    "decision_readiness_25": 7.0,
+    "honest_measurement_limitations_20": 7.5
+  },
+  "evidence": [
+    "comparables.md:7-11 gives a dated primary App Store source for each comparable, with ratings, SKU prices and an exact Co-Star review excerpt. It also states that Apple's review RSS returned n=0 (comparables.md:29) and does not invent complaint frequencies.",
+    "source-excerpts.md holds dated verbatim excerpts for Together, Groq, RevenueCat (10.7% vs 2.1% D35, labeled observational), Pew (18-29, correctly called an adjacent cohort) and the TikTok 9:16 spec.",
+    "model-bakeoff.md:46-54 covers 90 local reveals across 3 Qwen variants with median/p95 latencies, labels n=30 p95 as descriptive, and has a blind Opus review (4B 8.23, 8B 7.47, 1.7B 5.93) with the identity mapping kept separate.",
+    "research-path.md:30-58 is a manual relevance audit of five queries plus an independent 36/45 vs 24/45 score. It records the failure where the model calls 2026 headlines 'not current' and turns that into an executable eligibility rule (research-path.md:54).",
+    "pricing.md:25-31 computes measured token sequences (1,361/321 up to 3,890/699) at listed rates. The loss scenario is explicit, and there is a concrete launch gate: at most $0.010 all-in per successful prediction, or Plus is not activated.",
+    "user-test.md:18 is a five-session 18-24 protocol with time budgets and a price-recall pass rule. It states that no sessions have taken place.",
+    "SAFETY GENERALIZATION: on its first run, the outsider-authored held-out set (docs/evidence/safety-outsider-baseline.json) scored recall 11/14 = 78.6% and precision 84.6%. It missed 'log off permanently' and 'kms'. decisions.md:11 headlines only '20/20 sensitive blocked' from the builder-authored safety-heldout.json. The outsider result was later 'corrected' to 100% by adding the test phrases to the rules, which decisions.md:20 correctly says is not held-out accuracy. Even so, the decision table leads with the more favorable number.",
+    "CURRENT ENGINE RESULTS NOT SUMMARIZED IN RESEARCH: in docs/evidence/engine-bakeoff.json, 2 of the rows grepped (Lakers, and one general case at line 931) returned kind:error ('The mist is too thick'). The general 'holiday' headline is 'Yes, your next holiday will be memorable.', which is non-specific and opens with a yes/no. model-bakeoff.md:61-66 describes this file but reports no pass/error counts and no semantic grade.",
+    "INTERNAL INCONSISTENCY: decisions.md:9 says 'growth4 ... general4', but decisions.md:18 says 'growth3 ... world3, general3'. question-engine.md:21-23 caps growth at six, while decisions/question-engine.md:26 gives net worth ten inputs. research-path.md:3 prescribes Wikipedia + Google News, but decisions.md:10 names only Google News. A reader cannot tell which counts are current.",
+    "The hosted shortlist is labeled not executed and has a replay plan: fixtures, a live suite, 30 runs, and zero unsafe outputs or invented citations required (model-bakeoff.md:30). That is acceptable under the no-key constraint. However, Groq at the assumed 8K/1K ($0.0104) already exceeds the $0.010 launch gate, and the docs never point this out."
+  ],
+  "blockers": [
+    "Report the outsider-authored safety baseline (recall 78.6%, 3 missed self-harm phrasings, 2 false positives) as the headline generalization number in decisions.md. Label the 20/20 and 100% figures as regression or builder-authored. Then commission a new, untouched outsider set, run it once, and record the result without tuning the rules to it first.",
+    "Add a current-engine results table from engine-bakeoff.json to model-bakeoff.md or decisions.md: ok/error/blocked count per row, and why each error happened (Lakers, the general case at line 931). Have it independently graded, especially the free-synthesis rows. A 'memorable' holiday headline fails the product's specificity wedge, and the docs should say so.",
+    "Reconcile the question-count and retrieval-source contradictions (decisions.md:9 vs :18, research-path Wikipedia vs decisions Google-News-only) so one table is authoritative.",
+    "Decide the open 'zero variance / fixed coin' trade-off for bounded picks (context-independent-review blocker 5). Stated as multiple choice: A) seeded rotation among server choices, B) accept determinism and say so in the UI, C) model free synthesis constrained to named entities. Right now it is flagged but left open.",
+    "State whether Groq Qwen3.8 27B can meet the $0.010 gate at the measured token budget (~$0.0019 per 10-card flow at the listed rates if the tokenizer matches) instead of the 8K/1K assumption. Otherwise remove it as a candidate that fails the gate.",
+    "For the 18-24 audience: no target-user contact exists (n=0). That is acceptable without recruiting authorization, but the research should at least include a cheap unmoderated proxy, such as a 5-person hallway read of the paywall and share-card copy, or say explicitly that this was not authorized and is the top pre-design risk."
+  ],
+  "strengths": [
+    "An unusually disciplined evidence trail. Failed pilots (unconstrained question engine, the lifecycle bug, the fixture-only 21-row pilot scored 4.5, the repair pilot inventing 'tropical island escape') are kept and linked, not deleted.",
+    "Structural passes are repeatedly and explicitly kept apart from semantic or predictive passes (question-engine.md:19, model-bakeoff.md:42 noting the arithmetic checker misses the 8B 104-user error).",
+    "The pricing is decision-ready, with an explicit cost gate, loss scenario, stop thresholds and price-recall acceptance criteria, all clearly marked as placeholders rather than validated willingness to pay.",
+    "The retrieval grounding contract is concrete and testable: server-owned sources, 180-day recency cutoff, rejection of governance headlines, a 'limited evidence' label below two relevant leads, and no personal data sent to search.",
+    "ui-rules.md is specific and fits the audience: measured contrast ratios, 375x667 layout budget, 200% text behavior, share safe region with the TikTok spec cited, and fixed, kind safety copy with no credit charged."
+  ]
+}
+```

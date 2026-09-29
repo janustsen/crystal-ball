@@ -1,0 +1,9 @@
+> Historical checkpoint, superseded by firstmate authorization and the successful current drives. See docs/evidence/verification-summary.md and docs/research/decisions.md.
+
+# Boundary pilot blocker — 2026-09-29
+
+The repeated schema-output obstacle triggered the worker brief's stop rule. The first invocation aborted on malformed JSON; the second invocation retained malformed JSON as an explicit parse_error. Neither output should be accepted as a prediction. The completed safety slice is retained in safety-boundary-pilot.json: 20 sensitive cases and 10 safe near-misses, 9 sensitive cases classified allow, 0 safe cases classified blocked, plus 1 invalid JSON result. The invalid result must fail closed and is not included in the nine false-allow count. Category distinctions are not yet semantically graded. The context-bound forecast slice finished before the stop signal (21 rows); context-bound-pilot.json retains its outputs. It has not been independently semantically reviewed and is not a generation-gate pass.
+
+No app has been built; research round three remains below nine (8.4 product, 7.7 mobile, 8.2 target persona). Proposed next step for firstmate: authorize a separate deterministic sensitive-phrase layer combined with the local classifier, fail closed on malformed output, then re-run an expanded held-out boundary set before implementation. This is a proposal, not a validated safety guarantee.
+
+Other observations from this checkpoint: public US iTunes recent-review feeds returned zero entries for all three requested apps. review-sample.json records zero available reviews; it does not support complaint-frequency claims. A fresh Groq models-page lookup now lists Qwen3.8-27B at $0.80 input/$4.00 output per million, so the prior Qwen3.6 price in model-bakeoff.md must be superseded when research resumes. Together $0.17/$0.25 for Qwen3.5 9B and $0.09/$0.28 for Qwen3.8 Flash were reconfirmed. No hosted calls were made.

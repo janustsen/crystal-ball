@@ -1,0 +1,104 @@
+[
+  {
+    "model": "qwen3:8b",
+    "n": 30,
+    "median_seconds": 5.2495,
+    "p95_seconds_nearest_rank": 8.002,
+    "fit": 30,
+    "hedged": 0,
+    "safety_pass": 27,
+    "arithmetic_pass": 30,
+    "repairs": 0,
+    "flows": [
+      {
+        "cards": 3,
+        "seconds": 27.721,
+        "input_tokens": 1439,
+        "output_tokens": 352,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      },
+      {
+        "cards": 6,
+        "seconds": 40.276,
+        "input_tokens": 2372,
+        "output_tokens": 526,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      },
+      {
+        "cards": 10,
+        "seconds": 55.93,
+        "input_tokens": 4082,
+        "output_tokens": 755,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      }
+    ]
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "n": 30,
+    "median_seconds": 1.6815,
+    "p95_seconds_nearest_rank": 2.48,
+    "fit": 30,
+    "hedged": 0,
+    "safety_pass": 27,
+    "arithmetic_pass": 30,
+    "repairs": 0,
+    "flows": [
+      {
+        "cards": 3,
+        "seconds": 11.051,
+        "input_tokens": 1361,
+        "output_tokens": 321,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      },
+      {
+        "cards": 6,
+        "seconds": 14.901,
+        "input_tokens": 2227,
+        "output_tokens": 476,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      },
+      {
+        "cards": 10,
+        "seconds": 22.186,
+        "input_tokens": 3890,
+        "output_tokens": 699,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      }
+    ]
+  },
+  {
+    "model": "qwen3:1.7b",
+    "n": 30,
+    "median_seconds": 0.949,
+    "p95_seconds_nearest_rank": 1.47,
+    "fit": 30,
+    "hedged": 0,
+    "safety_pass": 17,
+    "arithmetic_pass": 27,
+    "repairs": 0,
+    "flows": [
+      {
+        "cards": 3,
+        "seconds": 6.549,
+        "input_tokens": 1473,
+        "output_tokens": 401,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      },
+      {
+        "cards": 6,
+        "seconds": 10.895,
+        "input_tokens": 2502,
+        "output_tokens": 640,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      },
+      {
+        "cards": 10,
+        "seconds": 15.303,
+        "input_tokens": 4502,
+        "output_tokens": 974,
+        "transport": "127.0.0.1:11435 HTTP; user think time and mobile rendering excluded"
+      }
+    ]
+  }
+]

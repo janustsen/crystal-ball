@@ -1,0 +1,422 @@
+[
+  {
+    "question": "Will my next holiday be memorable?",
+    "facts": {
+      "context_1": "What is your current status on holiday planning? Planned a trip to a new destination",
+      "context_2": "What is your current level of travel preparation? Booked accommodations in advance",
+      "horizon": "3 months"
+    },
+    "result": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\"prediction\":\"Your next holiday will be memorable due to advance booking and a new destination.\",\"reason\":\"Planned to a new destination and accommodations booked in advance indicate preparedness and novelty, increasing likelihood of a memorable experience.\"}"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\"prediction\":\"Your next holiday will be memorable because you've planned a new destination and booked accommodations.\",\"reason\":\"Present facts show planning and booking of a new destination, supporting a memorable experience.\"}"
+      }
+    ]
+  },
+  {
+    "question": "Will I move on from my ex this year?",
+    "facts": {
+      "context_1": "How do you currently feel about your ex? Still feel attached to them daily",
+      "context_2": "How do you currently share personal updates? I’ve stopped sharing personal updates",
+      "context_3": "How do you currently engage with new people? I’ve started seeing new people",
+      "horizon": "this year"
+    },
+    "result": {
+      "kind": "error",
+      "message": "Model unavailable (500)."
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 500,
+        "content": "llama-server chat error: map[code:500 message:Failed to parse input at pos 157: ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅"
+      }
+    ]
+  },
+  {
+    "question": "Will I get a job in technology?",
+    "facts": {
+      "context_1": "What is your current employment situation in technology? Currently working in a tech field",
+      "context_2": "What is your current engagement with technology skills? Currently learning coding",
+      "horizon": "Within 3 months"
+    },
+    "result": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\n  \"category\": \"allow\"\n}"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\"prediction\":\"You will get a job in technology within 3 months.\",\"reason\":\"Currently working in tech and learning coding, due to active engagement and field experience.\"}"
+      },
+      {
+        "stage": "Check internal consistency, not whether the future is knowable. A fore",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast claims a job in technology within 3 months, but the provided facts state only that the person is currently working in a tech field and learning coding. There is no evidence of job-seeking\", \"valid\": false }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\"prediction\":\"You will get a job in technology within 3 months.\",\"reason\":\"Currently working in tech and learning coding, due to active engagement and field experience.\"}"
+      },
+      {
+        "stage": "Check internal consistency, not whether the future is knowable. A fore",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast claims a job in technology within 3 months, but the provided facts state only that the person is currently working in a tech field and learning coding. There is no evidence of job-seeking\", \"valid\": false }"
+      }
+    ]
+  },
+  {
+    "question": "Will I win my chess match?",
+    "facts": {
+      "context_1": "What is your current situation in the match? My opponent plays aggressively",
+      "context_2": "What world event is occurring now? The election results are in",
+      "horizon": "Within 3 months"
+    },
+    "result": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\"prediction\":\"You will win your chess match.\",\"reason\":\"Your opponent plays aggressively, so you must counter; due to the election results being in, focus shifts to strategy, not emotion, supporting decisive play.\"}"
+      },
+      {
+        "stage": "Check internal consistency, not whether the future is knowable. A fore",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast assumes that the election results being in will shift focus to strategy in a chess match, but there is no factual link between a political event and a player's chess strategy. This causal\" , \"valid\": false }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. Return JSON prediction: one ",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90,
+              "pattern": "^(You|Your) .+$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 400
+            }
+          },
+          "required": [
+            "prediction",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\"prediction\":\"You will not win your chess match.\",\"reason\":\"Your opponent plays aggressively, so you face pressure; due to no strategic advantage stated, aggression dominates the outcome.\"}"
+      },
+      {
+        "stage": "Check internal consistency, not whether the future is knowable. A fore",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast claims you will not win your chess match within 3 months, but the provided facts do not establish any strategic disadvantage or outcome based on the opponent's aggression. The reason does\" , \"valid\": false }"
+      }
+    ]
+  }
+]

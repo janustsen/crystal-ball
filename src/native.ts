@@ -1,0 +1,10 @@
+import {Platform,Share} from 'react-native';
+import * as Haptics from 'expo-haptics';
+import * as Notifications from 'expo-notifications';
+import * as Apple from 'expo-apple-authentication';
+import * as Linking from 'expo-linking';
+import {anonymousOwner,supabase} from './cloud';
+import {nativeActions} from './integration-actions';
+export const haptic=(kind:'selection'|'success'='selection')=>{if(Platform.OS!=='web')void (kind==='success'?Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success):Haptics.selectionAsync()).catch(()=>{});};
+const actions=nativeActions({platform:Platform.OS,notifications:{permission:async()=>(await Notifications.requestPermissionsAsync()).status==='granted',schedule:async(title,body,seconds)=>{await Notifications.scheduleNotificationAsync({content:{title,body},trigger:{type:Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,seconds}});}},apple:{available:Apple.isAvailableAsync,enabled:!!supabase&&process.env.EXPO_PUBLIC_APPLE_LINK_ENABLED==='true',owner:anonymousOwner,signIn:async()=>(await Apple.signInAsync({requestedScopes:[Apple.AppleAuthenticationScope.FULL_NAME,Apple.AppleAuthenticationScope.EMAIL]})).identityToken,link:async(token)=>{if(!supabase)throw new Error('Supabase unavailable');const result=await supabase.auth.linkIdentity({provider:'apple',token});if(result.error)throw result.error;return result.data.user?.id;}},share:(message,url)=>Share.share({message,url}),link:(question)=>Linking.createURL('/',{queryParams:{friend:'1',question}})});
+export const {reminder,saveWithApple,friendLink}=actions;

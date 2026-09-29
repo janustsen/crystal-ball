@@ -1,0 +1,21 @@
+import { makePlan, predict } from './engine.ts';
+import { provider } from './provider.ts';
+import type { Facts } from '../src/types.ts';
+export function handler(env:(key:string)=>string|undefined) {
+ const model=provider(env);
+ return async(request:Request):Promise<Response>=>{
+  const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':env('APP_ORIGIN')||'http://localhost:8087','Access-Control-Allow-Headers':'content-type, authorization, apikey','Access-Control-Allow-Methods':'POST, OPTIONS'};
+  if(request.method==='OPTIONS')return new Response(null,{headers});
+  if(request.method!=='POST')return new Response(JSON.stringify({kind:'error',message:'Use POST.'}),{status:405,headers});
+  try {
+   const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
+   const body:unknown=JSON.parse(text);
+   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
+   const raw='facts'in body?body.facts:{};
+   if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
+   const facts=raw as Facts,question=body.question.trim();
+   const result=body.action==='plan'?await makePlan(question,facts,model):await predict(question,facts,'friend'in body&&body.friend===true,model);
+   return new Response(JSON.stringify(result),{headers});
+  } catch(error){return new Response(JSON.stringify({kind:'error',message:error instanceof Error?error.message:'Please try again.'}),{status:400,headers});}
+ };
+}

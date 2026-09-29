@@ -1,0 +1,35 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 8.0,
+  "evidence": [
+    "Method: I read every file in docs/research/*.md and docs/design/ui-rules.md, plus these evidence files: comparison-summary.json, store-prices.json, costar-iap.txt, source-excerpts.md and the scores in blind-review.txt. I also checked that the docs/evidence/safety-* and engine-bakeoff* files exist. I made no edits and ran no commands.",
+    "Visual inspection: I looked at one image, evidence/costar.jpeg. It matches the claims in comparables.md: 4.8 rating, 206K ratings, a featured review dated 08/11/2024, and 'Editors' Choice'. The review's price and repetition complaint is cut off in the image, so it rests on costar-review-excerpt.txt, which I did not open. I did not view the other store images or the docs/evidence screenshots. Everything else in this grade comes from reading files, not images.",
+    "Arithmetic I recomputed by hand, all correct: Co-Star per-question $0.28–$0.60; annual saving 44% (39.99 vs 71.88); $5.99×0.7 = $4.193; free-user subsidy 3.98 free users per paid user, 20.1% and 1.37% break-even paid share; annual net $2.333/month; Groq $0.0104 at 8K/1K tokens; hosted replay table rows (Together 9B 3-card $0.007623 and 10-card $0.008672; Groq 10-card $0.018816); Wilson lower bound ≈84% for 20/20.",
+    "Sourced primary evidence (about 8/10): dated store-listing captures with raw price rows (costar-iap.txt matches store-prices.json); exact quotes from Pew, RevenueCat, TikTok, Together and Groq; a 90-output local model comparison with raw JSON; blinded Claude scoring with the mapping revealed afterwards; five search queries with timestamps; every safety set kept with its author prompt. Gaps: no target-user data at all; every synthetic safety author was Claude; Tarot AI and Oracle Guru prices were never verified; competitor apps were only seen as marketing screens, never installed.",
+    "Specificity (about 8.5/10): exact card caps per topic, a 110-character headline limit, the $0.010 and $0.007 cost gates, pass/fail criteria for the pricing pilot, a numeric safety release gate, pixel-level share safe zones, and specific user-test pass rates (4/5 and 5/5) with time budgets.",
+    "Decision readiness (about 7/10): decisions.md is a real decision table. But the pricing row still lists $39.99/year while the production section rejects the annual offer. The hosted pick is 'Together 9B first', yet pricing.md shows Qwen3.8 Flash is cheaper and has no stated tie-breaker. Qwen3Guard is shortlisted but was never run, even though it runs locally. The death→self-harm misroute is unresolved. Confidence in the commercial wedge is openly 'low'. Several 'Evidence' cells point to source code (src/questions.ts, server/engine.ts) instead of research artifacts.",
+    "Honest measurement (about 9/10): failures are kept, including the 4.5/10 context review, the 8.23 blind score (below 9), first-run safety misses, the repair pilot's invented 'tropical island', and the deep-research pilot that didn't help. Hosted results are clearly marked 'not measured'. p95 at n=30 is labelled descriptive only. The sample confounds (model size plus instruction tuning) are named. Allocated costs are called allocations, not vendor quotes. Small inconsistency: in research-path.md the first probe table still says 'fetch extracts' for Wikipedia, which contradicts the later 'evaluated, not selected'.",
+    "Weighted total: 0.30×8 + 0.25×8.5 + 0.25×7 + 0.20×9 ≈ 8.1, rounded down to 8.0 for the internal contradictions."
+  ],
+  "blockers": [
+    "Settle the annual offer in one place. Either remove $39.99/year from the decisions.md pricing row and the mock paywall, or reprice it or change its allowance to a figure that clears the $0.007 gate, and show the math. The authoritative table currently lists a price that its own production section rejects.",
+    "Run Qwen3Guard-Gen-0.6B locally on the untouched fifth set and on the earlier first-run misses (Spanish euphemism, Danish lifespan cases), scored under the app's own five categories. This needs no key. Report the extra blocks, false blocks, category confusion and latency, then decide whether to adopt it. The death→self-harm misroute needs a tested fix or a stated reason it is acceptable, not just a 'before public release' note.",
+    "Break the Claude-only authoring of safety sets. Add at least one untouched set written by a different model family run locally (e.g., Llama or Gemma through Ollama) or taken from a published multilingual taxonomy. Report first-run numbers without tuning.",
+    "Justify the hosted replay order: say why Together Qwen3.5 9B goes before the cheaper Qwen3.8 Flash, or reorder. Add a pre-written adopt/reject rule covering cost, latency and quality ties.",
+    "Make the decision table cite research artifacts, not implementation files. For each row, name the research evidence file and the specific finding. Code paths can be listed separately as where the decision is implemented.",
+    "Write a go/no-go memo for the wedge. If the five-session test fails its criteria (identical repeated answers called boring, specificity not trusted, sharing declined), state what the product becomes. Right now decisions.md names only a scenario-selection fallback, leaving the core differentiation a single-branch bet.",
+    "Clean up stale wording: the Wikipedia 'fetch extracts' decision in research-path.md, and the 'historical 22.2s pipeline' in decisions.md sitting next to current budgets. Stale statements in authoritative docs hurt readiness."
+  ],
+  "strengths": [
+    "Measurement is unusually honest: failed runs, reviews below the bar and first-run safety misses are kept and labelled, never overwritten by later regression passes.",
+    "The unit-economics chain is fully traceable, from measured local token counts to listed hosted prices to repair, search and hosting allocations, to per-plan gates, including the free-user subsidy. Every figure I recomputed was correct.",
+    "The blinded model review has a written rubric, identities revealed only after scoring, and says outright that the 4B model's 8.23 does not pass the ≥9 gate.",
+    "The retrieval research separates transport success from permission to use (Bing's personal-use-only terms, DuckDuckGo's CAPTCHA, Google News licensing unresolved) and turns relevance failures into a rule the code can apply (the 180-day window, fewer than two relevant leads labelled 'limited').",
+    "The primary sources are verifiable: raw store listing text matches the extracted price JSON and the captured screenshots.",
+    "UI rules are concrete, measurable and separate project guesses from platform standards (the 44pt target is not claimed to be WCAG AA; share safe zones are marked as a proposal). Contrast ratios were computed and recorded.",
+    "The user-test plan has pre-written thresholds for reversing decisions on the daily limit, price understanding and whether ten cards is too much. Its limits are stated: no sessions run, recruiting not authorized."
+  ]
+}
+```

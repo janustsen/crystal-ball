@@ -1,0 +1,1311 @@
+{
+  "ranks": [
+    {
+      "domain": "growth",
+      "budget": 3,
+      "question": "Will my side project reach 100 users?",
+      "ranks": [
+        "current_users",
+        "weekly_growth",
+        "retention",
+        "evidence"
+      ],
+      "seconds": 1.182
+    },
+    {
+      "domain": "growth",
+      "budget": 10,
+      "question": "Will my side project reach 100 users?",
+      "ranks": [
+        "current_users",
+        "weekly_growth",
+        "retention",
+        "evidence"
+      ],
+      "seconds": 1.125
+    },
+    {
+      "domain": "relocation",
+      "budget": 3,
+      "question": "Will I move to another city next year?",
+      "ranks": [
+        "constraint",
+        "work",
+        "lease",
+        "commitment",
+        "evidence",
+        "priority",
+        "confidence",
+        "resources",
+        "time_budget",
+        "deadline",
+        "location"
+      ],
+      "seconds": 1.79
+    },
+    {
+      "domain": "relocation",
+      "budget": 10,
+      "question": "Will I move to another city next year?",
+      "ranks": [
+        "constraint",
+        "commitment",
+        "evidence",
+        "priority",
+        "work",
+        "lease",
+        "location",
+        "time_budget",
+        "resources",
+        "deadline",
+        "confidence"
+      ],
+      "seconds": 1.76
+    },
+    {
+      "domain": "sports",
+      "budget": 3,
+      "question": "Who will win the next World Cup?",
+      "ranks": [
+        "evidence"
+      ],
+      "seconds": 0.718
+    },
+    {
+      "domain": "sports",
+      "budget": 10,
+      "question": "Who will win the next World Cup?",
+      "ranks": [
+        "evidence"
+      ],
+      "seconds": 0.728
+    },
+    {
+      "domain": "learning",
+      "budget": 3,
+      "question": "Will I learn conversational Spanish?",
+      "ranks": [
+        "practice",
+        "time_budget",
+        "support",
+        "resources",
+        "commitment"
+      ],
+      "seconds": 0.981
+    },
+    {
+      "domain": "learning",
+      "budget": 10,
+      "question": "Will I learn conversational Spanish?",
+      "ranks": [
+        "practice",
+        "time_budget",
+        "support",
+        "resources",
+        "commitment",
+        "confidence",
+        "constraint",
+        "priority",
+        "evidence",
+        "level",
+        "deadline"
+      ],
+      "seconds": 2.059
+    }
+  ],
+  "flows": [
+    {
+      "domain": "growth",
+      "budget": 3,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "current_users",
+          "question": "How many people use it today?",
+          "options": [
+            "0",
+            "1\u201320",
+            "21\u2013100",
+            "Other"
+          ]
+        },
+        {
+          "id": "weekly_growth",
+          "question": "How many new users join each week?",
+          "options": [
+            "0\u20132",
+            "3\u201310",
+            "More than 10",
+            "Other"
+          ]
+        },
+        {
+          "id": "retention",
+          "question": "How often do people return?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "growth",
+      "budget": 3,
+      "returning": true,
+      "known": {
+        "current_users": "0"
+      },
+      "cards": [
+        {
+          "id": "weekly_growth",
+          "question": "How many new users join each week?",
+          "options": [
+            "0\u20132",
+            "3\u201310",
+            "More than 10",
+            "Other"
+          ]
+        },
+        {
+          "id": "retention",
+          "question": "How often do people return?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "growth",
+      "budget": 10,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "current_users",
+          "question": "How many people use it today?",
+          "options": [
+            "0",
+            "1\u201320",
+            "21\u2013100",
+            "Other"
+          ]
+        },
+        {
+          "id": "weekly_growth",
+          "question": "How many new users join each week?",
+          "options": [
+            "0\u20132",
+            "3\u201310",
+            "More than 10",
+            "Other"
+          ]
+        },
+        {
+          "id": "retention",
+          "question": "How often do people return?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "deadline",
+          "question": "How firm is your timeframe?",
+          "options": [
+            "Flexible",
+            "Important",
+            "Fixed",
+            "Other"
+          ]
+        },
+        {
+          "id": "resources",
+          "question": "How prepared are you right now?",
+          "options": [
+            "Just starting",
+            "Some preparation",
+            "Ready",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most for this forecast?",
+          "options": [
+            "Timing",
+            "Outcome",
+            "A milestone",
+            "Other"
+          ]
+        },
+        {
+          "id": "commitment",
+          "question": "How settled is your current plan?",
+          "options": [
+            "Exploring",
+            "Mostly decided",
+            "Committed",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "growth",
+      "budget": 10,
+      "returning": true,
+      "known": {},
+      "cards": [
+        {
+          "id": "current_users",
+          "question": "How many people use it today?",
+          "options": [
+            "0",
+            "1\u201320",
+            "21\u2013100",
+            "Other"
+          ]
+        },
+        {
+          "id": "weekly_growth",
+          "question": "How many new users join each week?",
+          "options": [
+            "0\u20132",
+            "3\u201310",
+            "More than 10",
+            "Other"
+          ]
+        },
+        {
+          "id": "retention",
+          "question": "How often do people return?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "deadline",
+          "question": "How firm is your timeframe?",
+          "options": [
+            "Flexible",
+            "Important",
+            "Fixed",
+            "Other"
+          ]
+        },
+        {
+          "id": "resources",
+          "question": "How prepared are you right now?",
+          "options": [
+            "Just starting",
+            "Some preparation",
+            "Ready",
+            "Other"
+          ]
+        },
+        {
+          "id": "change",
+          "question": "What changed since your last forecast?",
+          "options": [
+            "More time",
+            "New information",
+            "New plan",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most for this forecast?",
+          "options": [
+            "Timing",
+            "Outcome",
+            "A milestone",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "relocation",
+      "budget": 3,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "work",
+          "question": "Can your work move with you?",
+          "options": [
+            "Remote",
+            "Need a new job",
+            "Not working",
+            "Other"
+          ]
+        },
+        {
+          "id": "lease",
+          "question": "When does your current lease end?",
+          "options": [
+            "Within 3 months",
+            "Within a year",
+            "No lease",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "relocation",
+      "budget": 3,
+      "returning": true,
+      "known": {
+        "location": "Large city"
+      },
+      "cards": [
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "work",
+          "question": "Can your work move with you?",
+          "options": [
+            "Remote",
+            "Need a new job",
+            "Not working",
+            "Other"
+          ]
+        },
+        {
+          "id": "lease",
+          "question": "When does your current lease end?",
+          "options": [
+            "Within 3 months",
+            "Within a year",
+            "No lease",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "relocation",
+      "budget": 10,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "commitment",
+          "question": "How settled is your current plan?",
+          "options": [
+            "Exploring",
+            "Mostly decided",
+            "Committed",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most for this forecast?",
+          "options": [
+            "Timing",
+            "Outcome",
+            "A milestone",
+            "Other"
+          ]
+        },
+        {
+          "id": "work",
+          "question": "Can your work move with you?",
+          "options": [
+            "Remote",
+            "Need a new job",
+            "Not working",
+            "Other"
+          ]
+        },
+        {
+          "id": "lease",
+          "question": "When does your current lease end?",
+          "options": [
+            "Within 3 months",
+            "Within a year",
+            "No lease",
+            "Other"
+          ]
+        },
+        {
+          "id": "location",
+          "question": "Where do you live now?",
+          "options": [
+            "Large city",
+            "Small town",
+            "Countryside",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "resources",
+          "question": "How prepared are you right now?",
+          "options": [
+            "Just starting",
+            "Some preparation",
+            "Ready",
+            "Other"
+          ]
+        },
+        {
+          "id": "deadline",
+          "question": "How firm is your timeframe?",
+          "options": [
+            "Flexible",
+            "Important",
+            "Fixed",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "relocation",
+      "budget": 10,
+      "returning": true,
+      "known": {},
+      "cards": [
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "commitment",
+          "question": "How settled is your current plan?",
+          "options": [
+            "Exploring",
+            "Mostly decided",
+            "Committed",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most for this forecast?",
+          "options": [
+            "Timing",
+            "Outcome",
+            "A milestone",
+            "Other"
+          ]
+        },
+        {
+          "id": "work",
+          "question": "Can your work move with you?",
+          "options": [
+            "Remote",
+            "Need a new job",
+            "Not working",
+            "Other"
+          ]
+        },
+        {
+          "id": "lease",
+          "question": "When does your current lease end?",
+          "options": [
+            "Within 3 months",
+            "Within a year",
+            "No lease",
+            "Other"
+          ]
+        },
+        {
+          "id": "location",
+          "question": "Where do you live now?",
+          "options": [
+            "Large city",
+            "Small town",
+            "Countryside",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "resources",
+          "question": "How prepared are you right now?",
+          "options": [
+            "Just starting",
+            "Some preparation",
+            "Ready",
+            "Other"
+          ]
+        },
+        {
+          "id": "deadline",
+          "question": "How firm is your timeframe?",
+          "options": [
+            "Flexible",
+            "Important",
+            "Fixed",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "sports",
+      "budget": 3,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "evidence",
+          "question": "What current information is available?",
+          "options": [
+            "Recent results",
+            "Only older results",
+            "None",
+            "Other"
+          ]
+        },
+        {
+          "id": "competition",
+          "question": "Which tournament do you mean?",
+          "options": [
+            "Men\u2019s World Cup",
+            "Women\u2019s World Cup",
+            "Club World Cup",
+            "Other"
+          ]
+        },
+        {
+          "id": "edition",
+          "question": "Which edition are we forecasting?",
+          "options": [
+            "Next edition",
+            "Following edition",
+            "A later edition",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "sports",
+      "budget": 3,
+      "returning": true,
+      "known": {
+        "competition": "Men\u2019s World Cup"
+      },
+      "cards": [
+        {
+          "id": "evidence",
+          "question": "What current information is available?",
+          "options": [
+            "Recent results",
+            "Only older results",
+            "None",
+            "Other"
+          ]
+        },
+        {
+          "id": "edition",
+          "question": "Which edition are we forecasting?",
+          "options": [
+            "Next edition",
+            "Following edition",
+            "A later edition",
+            "Other"
+          ]
+        },
+        {
+          "id": "scope",
+          "question": "Which field of teams should I consider?",
+          "options": [
+            "All entrants",
+            "Current favorites",
+            "Underdogs",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "sports",
+      "budget": 10,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "evidence",
+          "question": "What current information is available?",
+          "options": [
+            "Recent results",
+            "Only older results",
+            "None",
+            "Other"
+          ]
+        },
+        {
+          "id": "competition",
+          "question": "Which tournament do you mean?",
+          "options": [
+            "Men\u2019s World Cup",
+            "Women\u2019s World Cup",
+            "Club World Cup",
+            "Other"
+          ]
+        },
+        {
+          "id": "edition",
+          "question": "Which edition are we forecasting?",
+          "options": [
+            "Next edition",
+            "Following edition",
+            "A later edition",
+            "Other"
+          ]
+        },
+        {
+          "id": "scope",
+          "question": "Which field of teams should I consider?",
+          "options": [
+            "All entrants",
+            "Current favorites",
+            "Underdogs",
+            "Other"
+          ]
+        },
+        {
+          "id": "venue",
+          "question": "Which setting matters?",
+          "options": [
+            "Home region",
+            "Away region",
+            "Any venue",
+            "Other"
+          ]
+        },
+        {
+          "id": "form",
+          "question": "How should recent form weigh in?",
+          "options": [
+            "Strongly",
+            "Moderately",
+            "Lightly",
+            "Other"
+          ]
+        },
+        {
+          "id": "history",
+          "question": "How should historical results weigh in?",
+          "options": [
+            "Strongly",
+            "Moderately",
+            "Lightly",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most?",
+          "options": [
+            "Champion",
+            "Finalist",
+            "Surprise team",
+            "Other"
+          ]
+        },
+        {
+          "id": "format",
+          "question": "Which competition format?",
+          "options": [
+            "Known format",
+            "Changing format",
+            "Not sure",
+            "Other"
+          ]
+        },
+        {
+          "id": "upset",
+          "question": "How should I frame the pick?",
+          "options": [
+            "Best-supported pick",
+            "An underdog pick",
+            "A bold pick",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "sports",
+      "budget": 10,
+      "returning": true,
+      "known": {},
+      "cards": [
+        {
+          "id": "evidence",
+          "question": "What current information is available?",
+          "options": [
+            "Recent results",
+            "Only older results",
+            "None",
+            "Other"
+          ]
+        },
+        {
+          "id": "competition",
+          "question": "Which tournament do you mean?",
+          "options": [
+            "Men\u2019s World Cup",
+            "Women\u2019s World Cup",
+            "Club World Cup",
+            "Other"
+          ]
+        },
+        {
+          "id": "edition",
+          "question": "Which edition are we forecasting?",
+          "options": [
+            "Next edition",
+            "Following edition",
+            "A later edition",
+            "Other"
+          ]
+        },
+        {
+          "id": "scope",
+          "question": "Which field of teams should I consider?",
+          "options": [
+            "All entrants",
+            "Current favorites",
+            "Underdogs",
+            "Other"
+          ]
+        },
+        {
+          "id": "venue",
+          "question": "Which setting matters?",
+          "options": [
+            "Home region",
+            "Away region",
+            "Any venue",
+            "Other"
+          ]
+        },
+        {
+          "id": "form",
+          "question": "How should recent form weigh in?",
+          "options": [
+            "Strongly",
+            "Moderately",
+            "Lightly",
+            "Other"
+          ]
+        },
+        {
+          "id": "history",
+          "question": "How should historical results weigh in?",
+          "options": [
+            "Strongly",
+            "Moderately",
+            "Lightly",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most?",
+          "options": [
+            "Champion",
+            "Finalist",
+            "Surprise team",
+            "Other"
+          ]
+        },
+        {
+          "id": "format",
+          "question": "Which competition format?",
+          "options": [
+            "Known format",
+            "Changing format",
+            "Not sure",
+            "Other"
+          ]
+        },
+        {
+          "id": "change",
+          "question": "What changed since your last forecast?",
+          "options": [
+            "New results",
+            "New teams",
+            "No change",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "learning",
+      "budget": 3,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "practice",
+          "question": "How often do you practice?",
+          "options": [
+            "Daily",
+            "A few times weekly",
+            "Rarely",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "learning",
+      "budget": 3,
+      "returning": true,
+      "known": {
+        "level": "New beginner"
+      },
+      "cards": [
+        {
+          "id": "practice",
+          "question": "How often do you practice?",
+          "options": [
+            "Daily",
+            "A few times weekly",
+            "Rarely",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "learning",
+      "budget": 10,
+      "returning": false,
+      "known": {},
+      "cards": [
+        {
+          "id": "practice",
+          "question": "How often do you practice?",
+          "options": [
+            "Daily",
+            "A few times weekly",
+            "Rarely",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "support",
+          "question": "How do you learn?",
+          "options": [
+            "Tutor",
+            "App",
+            "Friends",
+            "Other"
+          ]
+        },
+        {
+          "id": "resources",
+          "question": "How prepared are you right now?",
+          "options": [
+            "Just starting",
+            "Some preparation",
+            "Ready",
+            "Other"
+          ]
+        },
+        {
+          "id": "commitment",
+          "question": "How settled is your current plan?",
+          "options": [
+            "Exploring",
+            "Mostly decided",
+            "Committed",
+            "Other"
+          ]
+        },
+        {
+          "id": "confidence",
+          "question": "How clear is the current information?",
+          "options": [
+            "Clear",
+            "Mixed",
+            "Very limited",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most for this forecast?",
+          "options": [
+            "Timing",
+            "Outcome",
+            "A milestone",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        },
+        {
+          "id": "level",
+          "question": "What is your Spanish level now?",
+          "options": [
+            "New beginner",
+            "Know the basics",
+            "Intermediate",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "domain": "learning",
+      "budget": 10,
+      "returning": true,
+      "known": {},
+      "cards": [
+        {
+          "id": "practice",
+          "question": "How often do you practice?",
+          "options": [
+            "Daily",
+            "A few times weekly",
+            "Rarely",
+            "Other"
+          ]
+        },
+        {
+          "id": "time_budget",
+          "question": "How much time can you give this weekly?",
+          "options": [
+            "Under 2 hours",
+            "2\u20135 hours",
+            "Over 5 hours",
+            "Other"
+          ]
+        },
+        {
+          "id": "constraint",
+          "question": "What is the biggest obstacle right now?",
+          "options": [
+            "Time",
+            "Budget",
+            "Access",
+            "Other"
+          ]
+        },
+        {
+          "id": "support",
+          "question": "How do you learn?",
+          "options": [
+            "Tutor",
+            "App",
+            "Friends",
+            "Other"
+          ]
+        },
+        {
+          "id": "resources",
+          "question": "How prepared are you right now?",
+          "options": [
+            "Just starting",
+            "Some preparation",
+            "Ready",
+            "Other"
+          ]
+        },
+        {
+          "id": "commitment",
+          "question": "How settled is your current plan?",
+          "options": [
+            "Exploring",
+            "Mostly decided",
+            "Committed",
+            "Other"
+          ]
+        },
+        {
+          "id": "confidence",
+          "question": "How clear is the current information?",
+          "options": [
+            "Clear",
+            "Mixed",
+            "Very limited",
+            "Other"
+          ]
+        },
+        {
+          "id": "priority",
+          "question": "What matters most for this forecast?",
+          "options": [
+            "Timing",
+            "Outcome",
+            "A milestone",
+            "Other"
+          ]
+        },
+        {
+          "id": "evidence",
+          "question": "What recent signal have you noticed?",
+          "options": [
+            "Progress",
+            "No change",
+            "A setback",
+            "Other"
+          ]
+        },
+        {
+          "id": "level",
+          "question": "What is your Spanish level now?",
+          "options": [
+            "New beginner",
+            "Know the basics",
+            "Intermediate",
+            "Other"
+          ]
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "adaptive_branch_pass": true
+}

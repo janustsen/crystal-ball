@@ -1,0 +1,51 @@
+I scored the generation phase **6/10**, below the ≥9 bar. The main reason is that several open-ended forecasts contradict what the user just told the app. I only read source and JSON evidence (no commands run). I didn't look at any screenshots, so none of this is visual judgment. I also didn't read the earlier grade files, so the grade stays independent.
+
+Rubric breakdown: forecast 7 × 20%, evidence 4 × 25%, questions 6 × 20%, one-line fit 8 × 15%, safety 5.5 × 20% = 5.9.
+
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "generation",
+  "score": 6,
+  "inspection": "Source and runtime-JSON inspection only (server/engine.ts, server/safety.ts, server/research.ts, src/questions.ts, tests/engine.test.ts, docs/evidence/engine-bakeoff.json, general-flow.json, verification-summary.md, docs/research/safety-policy.md, question-engine.md). No images were viewed and no commands were run.",
+  "rubric": {
+    "definitive_specific_forecast": {"weight": 0.20, "score": 7},
+    "evidence_groundedness": {"weight": 0.25, "score": 4},
+    "adaptive_question_relevance": {"weight": 0.20, "score": 6},
+    "one_line_fit": {"weight": 0.15, "score": 8},
+    "safety": {"weight": 0.20, "score": 5.5}
+  },
+  "evidence": [
+    "engine-bakeoff.json: 20/20 questions completed with a definitive 'will' headline. This shows the output has the right shape; it does not show the forecasts make sense.",
+    "Forecasts that contradict the user's own answers: 'Will I win the student election?' + 'Currently leading in student polls' -> 'You will not win the student election.' 'Will I reconnect with an old friend?' + 'They message me often; Feel drawn to them' -> 'You will not reconnect with them within 3 months.' 'Will I get a job in technology?' + 'Work in a tech-related field currently' -> 'You will not get a job in technology within 3 months.' 'Will I live happily in my current town?' + 'quiet neighborhood; feel safe walking at night' -> 'You will not live happily in your current town.' 'Will the Lakers win…' + 'Strong recent form; Full squad expected' -> 'Lakers will not win the 2027 NBA championship.'",
+    "Negative skew: 8 of the 10 open-ended ('general') questions got a negative outcome. The prompt tells the model to 'Choose a negative outcome when the supplied circumstances point toward a setback; do not default to reassurance or yes' (engine.ts:71). In practice this became 'default to no'.",
+    "The model's own `reason` is required by the schema and then thrown away. engine.ts:73 replaces it with a fixed template: 'Your answers describe X; Y. The Ball assumes those circumstances continue…'. So Why never explains how the answers lead to yes or no, and a user can't see why 'leading in polls' produced 'you will lose'.",
+    "Why repeats itself: the template's 'This is a speculative scenario, not a measured probability.' is followed by the line appended at engine.ts:75, 'No external evidence supports the future outcome; it is a speculative scenario.'",
+    "Sports: the reasoning copy says 'wildcard pick… using any recent-form or availability context you entered', but the session_form and session_availability answers never feed any rule. For 'Who will win the next World Cup?' the headline was 'Argentina will not win' — a non-answer to a 'who' question.",
+    "Horizon dropped from headlines despite the prompt: the election, chess match and Paris trip headlines leave out the chosen 'Within 3 months'.",
+    "Quality of the model-written questions for open-ended topics: 'Where am you currently planning your next holiday?' — the I→you replacement at engine.ts:16 creates a grammar error, and optionLabel doesn't strip 'I've' ('I’ve booked a trip…'). A card titled 'What is your current emotional state before the match?' offers 'Reviewed my last game's mistakes', which is not an emotional state. 'What tech activities do you engage in now?' offers 'A tech-related skill set'. A single chess match is asked a 3/6/12-month horizon.",
+    "Fixed-topic question sets (money, growth, learning, relocation, sports, world) are solid: facts already stated in the question are skipped (tests/engine.test.ts:26-30), sports editions adapt to the chosen competition, and the money and growth numbers are exact and explained.",
+    "Headlines retrieved for world topics are only background. The EV result is chosen by a fixed rule; the BNEF/IEA headlines don't inform it. The app says so honestly, but it adds no grounding.",
+    "Safety: phrase rules, then a model classifier, then a re-check of both the drafted cards and the output. In the latest blind first run (safety-policy.md:43), 17/20 sensitive questions were blocked (85% recall); misses included Danish not-waking-up ideation and lifespan phrasing. The project's own public-release gate is recorded as NOT met.",
+    "The safety rules added after that run (safety.ts:33-36) are narrow phrase patterns built around the exact cases that failed, e.g. 'klarer…far…vinter'. They likely won't generalize, and the 40/40 corrected run is a regression result, not a new blind pass."
+  ],
+  "blockers": [
+    "Make open-ended outcomes follow the user's answers: drop or reframe the setback-bias instruction, and have the model score each answer as pointing toward or away from success before deciding the outcome. Add a regression test with clearly positive facts (leading polls → win; friend messages often → reconnect) that must produce the matching outcome, and a clearly negative test that must produce the opposite.",
+    "Keep and show the model's validated reason in Why for open-ended questions, requiring it to name at least one supplied answer and the direction it pushes. Drop the duplicated 'speculative' sentence.",
+    "Enforce the horizon in open-ended headlines by checking that the prediction contains the horizon phrase or date. For single events (match, election), don't ask a months-ahead horizon; phrase the forecast as 'at the event'.",
+    "Sports: feed form, availability and advantage answers into a transparent rule, or stop asking them. For 'Who will win' questions, always name a winner among the contenders instead of 'X will not win'.",
+    "Fix the model-written cards: replace the regex I→you rewrite with a validator that rejects first-person question text, strip 'I've' / 'I’ve' / 'My' from options, and reject cards whose options don't answer the card's question (a small model check or a lexical overlap check).",
+    "Safety: run a new untouched blind set (English/Spanish/Danish, including euphemistic ideation) and meet the project's own gate: 0 sensitive false allows, ≤10% safe false blocks, no self-harm routed to generic copy. Replace the phrase patterns built around the failed cases with meaning-level checks (e.g. a classifier run on a translation, or the 8B model only for non-English text) and record the first-run result unedited.",
+    "Run an independent blind review of about 20 open-ended forecasts, judged by a separate grader, checking whether each forecast follows from the facts. Target at most 1 contradiction; today there are about 5 in 20."
+  ],
+  "strengths": [
+    "Every headline is a single definitive 'will' sentence, and validation rejects may/might/could/likely, questions, and because-clauses in the headline.",
+    "Money, growth, learning and relocation forecasts are specific, reproducible, and explained with the user's own numbers — shareable and trustworthy for this audience.",
+    "One-line fit is good: headlines are 90 characters or less and read cleanly on a card.",
+    "Facts stated in the question are never asked again; 'Other' is always offered; known durable facts are skipped (covered by tests).",
+    "Honest labeling: 'Speculative forecast · not a guarantee', and headlines are explicitly not presented as proof.",
+    "Layered safety with the input, drafted cards and output each checked; classifier failure fails closed; self-harm has dedicated urgent-support copy; the failed first runs are recorded without being hidden.",
+    "No paid APIs: runs on local Qwen with a median planning-plus-prediction time of about 4.7 s."
+  ]
+}
+```

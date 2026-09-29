@@ -1,0 +1,45 @@
+```json
+{
+  "role": "independent harsh-product-designer grader",
+  "phase": "generation",
+  "score": 5.5,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 6,
+    "evidence_groundedness_25": 5,
+    "adaptive_question_relevance_20": 4,
+    "one_line_fit_15": 7,
+    "safety_20": 7,
+    "weighted": 5.7,
+    "note": "Rounded down because 6 of the 19 runs in the latest bakeoff produced no forecast at all. Predictive accuracy cannot be measured tonight and was not scored."
+  },
+  "inspection_mode": "Source and JSON evidence only: server/engine.ts, server/safety.ts, server/research.ts, src/questions.ts, docs/evidence/engine-bakeoff.json, general-flow.json, safety-final-first-run.json, docs/research/safety-policy.md and decisions.md. I did not look at any screenshots, so this grade has no visual inspection component.",
+  "evidence": [
+    "engine-bakeoff.json (newest run, 2026-09-29 11:16 to 11:19 UTC) has 19 questions. 13 returned ok. 5 returned 'Model unavailable (500)' after about 17 s (holiday, happy-in-town, tech job, student election, Paris trip). The chess question also returned 500, after 3.4 s. 'Move on from my ex' returned the 'mist is too thick' error. Six of the 11 general-topic questions produced no forecast.",
+    "In the templated topics (money, growth, relocation, learning, sports, EV) the server builds the forecast. predict() narrows choices to one entry, for example `choices=[choices[prepared?0:1]]` for learning and the single-branch relocation and EV rules. The 'oracle' model is then handed a one-item enum, so it chooses nothing. Headlines like '$106,413', '108 users' and 'move to Chicago' are rule outputs. They are specific and transparent, but no model reasoning goes into them.",
+    "Sports: 'Lakers will win the 2027 NBA championship.' and 'Argentina will win the 2030 Men's World Cup.' both come with sources: []. The why text admits it is a 'wildcard pick'. For the World Cup run, answersUsed.team was just 'Argentina', so the question never compared contenders. The session_form and session_availability answers never affect the verdict.",
+    "Research (server/research.ts) pulls Google News RSS headlines only. Queries are hard-coded strings for 5 world buckets. Sports sources are filtered by team name appearing in the title, and in practice returned none. Only the EV run shows sources, and the why text says those headlines 'do not verify this prediction'. So grounding comes almost entirely from what the user entered.",
+    "Model-authored general cards failed on relevance in the bakeoff:\n- Chess match: 'What world event is occurring now? The election results are in'.\n- Paris trip: context_1 and context_2 are the identical card.\n- Student election: 'How many votes have you received so far? Received 3 votes', which asks about the outcome before the vote.\n- Holiday: 'Excited about the upcoming holiday' sits among status options, so the card mixes two dimensions.\n- Ex: options keep the 'I've' / 'I'm' prefix because optionLabel only strips 'I have' and 'I am'.\n- Novel (general-flow.json): the cards ask about daily minutes and writing environment but never how much of the book is done or how much remains, yet the headline says 'You will finish writing your novel this year.'",
+    "General-topic headlines mostly restate the question as yes ('You will finish writing your novel this year.', 'You will finish a marathon next year', 'You will reconnect with your old friend within 3 months.'). The marathon verdict comes from 10 km run this month and 3 days a week of training, which does not support a marathon. The consistency reviewer did not flag it.",
+    "Headline fit: most are under 90 characters and read as one line. Weak ones:\n- 'You will complete a beginner project in coding in 1 year.' (clumsy)\n- 'You will finish a marathon next year' (missing period)\n- 'Lakers will win…' (missing 'The')",
+    "Safety: in the fifth untouched set (safety-final-first-run.json), 20/20 sensitive questions were blocked, 0/20 safe questions were falsely blocked, and 39/40 got the right category. One Danish question about a mother's remaining lifespan was routed to self-harm. The previous blind set failed: 17/20 blocked, with misses on Spanish lifespan, Danish survival and Danish not-waking ideation. safety.ts contains narrow Danish and Spanish regexes that match those earlier misses, which is overfitting risk. Safety screening runs on the question, on the drafted cards, and on the output. A classifier failure fails closed.",
+    "There are 13 tests (engine 9, integrations 4). None asserts semantic relevance of model-authored cards or checks the verdict direction against the facts on real model output."
+  ],
+  "blockers": [
+    "Get the general path working reliably. It needs at least 95% ok (or intended block) across a fresh 20+ question general set on the real local Qwen. Find the root cause of the repeated ~17 s Ollama 500s on the synthesis/review call, whether that's the context/pattern-constrained schema or a timeout, and retain the rerun as new evidence.",
+    "Add a server-side relevance gate for model-authored cards:\n- reject duplicate card questions\n- reject cards whose options don't answer their own question\n- reject topic drift (e.g. chess → world events)\n- reject cards that ask about the outcome itself (e.g. votes received)\n- strip all first-person prefixes\nThen re-run a fresh set and show 0 such defects.",
+    "For completion-type goals (novel, marathon, degree), require one card about remaining work or current progress relative to the goal, and a verdict rule that can say no. Right now the general path almost always restates the question as yes.",
+    "Sports:\n- Make the contender question require a real comparison set (2 or more teams), or forecast against the field.\n- Let the form and availability answers change the pick.\n- Get team-relevant sources, or stop showing an evidence section and say plainly that it is a pick made from the user's own inputs.",
+    "Grounding: make the why text quote each supplied fact with its effect on the verdict ('+ daily writing, − no progress data'), and show a balanced-evidence case where adverse facts flip the verdict on real model runs, not fixtures.",
+    "Safety: run a sixth untouched multilingual set without adding new question-specific regexes first, to test generalization. Fix routing of third-person Danish lifespan questions to death rather than self-harm.",
+    "Headline polish: add a final pass for the missing period, the missing article before team names, and the 'in <skill> in <time>' grammar."
+  ],
+  "strengths": [
+    "The server always produces one definitive 'will' sentence. Hedges (may/might/could/likely), question marks, because-clauses and copied news titles are rejected by validation.",
+    "Money and growth forecasts are exact, reproducible arithmetic with all assumptions shown.",
+    "The app is honest throughout. Every result carries 'Speculative forecast · not a guarantee', says whether any external evidence exists, and labels its rules as uncalibrated assumptions. Failed runs are kept rather than hidden.",
+    "The reason text rejects numbers that the user didn't supply, and a second model call checks consistency.",
+    "Safety has several layers: screening on the question, the drafted cards and the output; a deterministic regex plus a model classifier; failing closed on error; separate self-harm support copy; and first-run failures documented rather than overwritten.",
+    "Everything runs locally on Ollama Qwen3 4B. No paid APIs, no borrowed credentials, and templated-topic latency is about 2 s."
+  ]
+}
+```

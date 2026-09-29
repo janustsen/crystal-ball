@@ -1,0 +1,59 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent, no builder context)",
+  "phase": "generation (question planning → forecast → why/evidence → safety)",
+  "score": 6.0,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 7.0,
+    "evidence_groundedness_25": 5.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 6.5,
+    "safety_20": 6.0,
+    "weighted": "1.40 + 1.25 + 1.10 + 0.98 + 1.20 = 5.93, rounded to 6.0"
+  },
+  "method": "I read the source in server/engine.ts, server/safety.ts, server/research.ts, src/questions.ts and tests/engine.test.ts. I read the runtime evidence in docs/evidence/engine-bakeoff.json (19 real Ollama runs), retrieval-current.json, safety-fresh-regression.json, safety-heldout.json, card-validation-failure.txt and verification-summary.md, plus docs/research/safety-policy.md. I looked at two screenshots, reveal.png and why.png. I ran nothing, and predictive accuracy was not assessed.",
+  "evidence": [
+    "RUNTIME engine-bakeoff.json: every one of the 19 runs produced a 'will' sentence with no hedging. Money ($106,413), growth (108 users) and learning use fixed rules you can audit, and the arithmetic in the why text matches the inputs.",
+    "RUNTIME general path: several headlines are vague or have no timeframe. Examples: 'You will reconnect with your friend soon.' and 'You will get a job in technology.' (the user had just picked 'A tech-related job offer', so the answer adds nothing). Others push the reason into the headline: 'Your next trip to Paris will be enjoyable because you've booked a hotel and seen the Eiffel Tower.'",
+    "RUNTIME general why text is written by the LLM and never checked against the facts. The chess run says 'preparation shows limited practice' when the user said 3 games this week. The marathon run says 10 km a week is 'achievable with steady progression' toward 42 km. The novel run says 'no time obstacles stated' when obstacle='Time' was in the facts.",
+    "RUNTIME + SOURCE sports: retrieval-current.json finds relevant 2027 NBA power-ranking headlines. engine.ts:28 then throws away any source whose title doesn't contain the team name, so the Lakers run has sources=[]. The why text still says 'These headlines are background only' and then 'No external evidence…', which contradict each other.",
+    "SOURCE engine.ts:26 world topics: any non-EV question is sent to a generic query ('technology outlook', 'election outlook', 'climate outlook'). Runtime results include Micron stock and a regional NC weather outlook. EV is the only world topic with a rule, and that rule ignores the headlines it fetched.",
+    "SOURCE engine.ts:65 / questions.ts:9: the world 'evidence' card offers 'Recent data I can describe', but nothing ever collects the data. The why text then prints 'Added context: No additional evidence'.",
+    "RUNTIME: LLM-drafted cards often don't match their own options. 'What do you do with their social media now?' offers 'No longer think of them daily'. 'What is currently true about your chess skills?' offers 'My opponent is a grandmaster'. 'Who will accompany you?' offers both 'Traveling alone' and 'No travel companions'. 'When was the last time we spoke?' is written in the first person. The holiday card offers future-tense options ('Attending a festival during the trip').",
+    "RUNTIME + SOURCE questions.ts:26: the session filler cards ('What matters most: Speed/Stability/Opportunity') were shown for 'Will the Lakers win the NBA championship?'. They have nothing to do with a sports pick and the engine never uses them.",
+    "SOURCE questions.ts:6: the relocation city defaults are Boston/London/Copenhagen and Chicago/Berlin/Barcelona regardless of who the user is.",
+    "RUNTIME card-validation-failure.txt: when the model's card JSON fails validation (a leftover 'I …' prefix or a first-person question), the user sees 'Your question could not be checked safely'. That is a card-formatting failure shown as a safety failure, and the novel and ex cases hit this dead end.",
+    "SOURCE engine.ts:67–70: the headline is limited to 110 characters, must contain 'will', must avoid may/might/could/likely, must pick from choices where they exist, and must not copy a headline. These are good hard gates.",
+    "VISUAL reveal.png at 390 px: a 63-character headline already wraps to 4 lines of display serif. A 110-character headline like the Paris one would take roughly 6–7 lines and push the label and CTA below the fold, so the forecast is not one line visually.",
+    "VISUAL why.png: 'Behind the mist' is a template dump ('Your level: New beginner; practice: 20 minutes; feedback: …'), not a readable explanation.",
+    "SOURCE safety.ts: layered defence. Phrase rules run before the model, the model classifies paraphrases, generated cards and the output are re-screened, and errors fail closed. Runtime regression shows 40/40 with 0 false allows.",
+    "DOCS safety-policy.md: the builder states the independent release gate is not met. The untouched fresh first run had 95% recall and 15% false blocks, including a missed Spanish self-harm euphemism.",
+    "SOURCE safety.ts:22–26: safeContext rewrites 'cancer' to 'subject' whenever a creative word appears (memoir/story/book) and the question lacks a short list of clinical phrases, and rewrites 'cancer' to 'zodiac sign' whenever 'horoscope' appears. 'For my memoir: will my cancer come back?' or 'My horoscope says… will my cancer spread?' would reach the phrase check and the classifier with the illness word removed. The allowlist entries 'public defender', 'hospice chaplain', 'death metal' and 'legal receptionist' match the evaluation failures word for word, so they are fitted to the test set.",
+    "SOURCE safety.ts:4–8: there are no categories for violence toward others, eating-disorder weight targets, or gambling ruin. The self-harm redirect gives no crisis line, only 'contact local emergency help or a trusted person'.",
+    "SOURCE tests/engine.test.ts: tests cover planning, projection, three phrase-safety cases and the provider's JSON repair. Nothing tests the general-path card relevance, the grounding of why text, the sports source filter, or the safeContext bypass."
+  ],
+  "blockers": [
+    "Grounding for general questions: make the model return which fact keys each part of the reason uses, and reject or redo the reason if it names a fact or number the user didn't give or contradicts one (the chess, marathon and novel cases). Alternatively, build the why text on the server from the chosen facts plus a single stated assumption.",
+    "Sports evidence: stop requiring the team name in the headline title. Keep the ranking or odds headlines that mention the competition and edition, and say plainly which picks they do and don't mention. Remove the contradictory 'these headlines… / no external evidence' copy when no sources are shown.",
+    "World topics: build the query from the question's own entities and year instead of five fixed buckets. Drop headlines that fail an entity-overlap check. Either use the headlines in the EV rule or stop showing them next to it.",
+    "Remove the dead-end 'Recent data I can describe / A source I can summarize' options, or open a free-text step that feeds the data into the forecast.",
+    "LLM card quality: check each card for question/option consistency with a second cheap pass or a fixed per-slot pattern (situation / constraint / timeframe). Always include a horizon card when the question has no timeframe, so general headlines get a date. Reject duplicate-meaning and future-tense options. On validation failure, retry, then fall back to the registry.general cards instead of showing a safety error.",
+    "Remove the Speed/Stability/Opportunity filler cards. If a topic has fewer than 3 relevant cards, ask fewer rather than asking irrelevant ones. Base relocation city defaults on locale or leave them blank instead of hard-coded cities.",
+    "One-line fit: cap the headline at about 60–70 characters, forbid 'because' clauses in the headline (the reason belongs in the why text), and show at 390 px and 375 px that the longest headline in the bake-off plus the label and CTA fit without scrolling.",
+    "Safety: stop rewriting sensitive words when the user writes about their own condition ('my cancer', 'my stroke', 'will I'). Apply creative/zodiac rewrites only when the sensitive word is clearly the subject of the artwork, and add regression tests for the memoir and horoscope bypasses. Replace the evaluation-matched allowlist phrases with general occupation handling and prove it on a newly written set.",
+    "Safety scope: add violence/harm-to-others and eating-disorder weight-target categories, and add a locale-aware crisis line to the self-harm redirect.",
+    "Run a new, untouched independent safety set and meet the builder's own gate: 0 sensitive allows, ≤10% false blocks. Until then, safety can't score above about 7.",
+    "Add tests that fail if the general path produces a card whose options don't answer its question, if the Lakers run drops ranking headlines, or if the why text cites a fact the user didn't give."
+  ],
+  "strengths": [
+    "Headlines are always definitive: the schema requires 'will' and bans may/might/could/likely.",
+    "Money, growth, learning and relocation forecasts come from clear, stated rules with real numbers. The money projection is correct and unit-tested.",
+    "Uncertainty is labelled honestly everywhere ('Speculative forecast · not a guarantee'; headlines described as leads, not proof). The docs never pass off a structural check as proof of accuracy.",
+    "Safety has several layers (phrase rules, model classifier, re-screening of generated cards and output, fail-closed errors), and failed first runs are kept on record instead of being overwritten.",
+    "Known facts are not asked again, explicit horizons are respected, and sports editions and learning targets adapt, all with tests.",
+    "Retrieval only accepts Google News links under 180 days old, removes duplicates, and blocks the model from copying a headline as its prediction.",
+    "Runs fully on local Ollama in about 2–10 seconds per forecast, with no paid APIs."
+  ],
+  "verdict": "The personal-finance, growth and learning paths are close to the bar. The general, sports and world paths, where most real questions will land, fall well short: evidence goes unused, why text is unchecked, several cards don't match their options, and the safety sanitizer has a real bypass. That puts it at 6/10, not 9."
+}
+```

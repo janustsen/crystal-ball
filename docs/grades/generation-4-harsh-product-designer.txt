@@ -1,0 +1,55 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "generation",
+  "score": 5,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 6.5,
+    "evidence_groundedness_25": 3.5,
+    "adaptive_question_relevance_20": 5,
+    "one_line_fit_15": 7.5,
+    "safety_20": 6,
+    "weighted": 5.5,
+    "rounded_down_because": "The weighted 5.5 rounds down because the groundedness failures are systematic across the open-ended general path, not edge cases."
+  },
+  "inspection_mode": "Source and runtime-JSON inspection only: server/engine.ts, server/safety.ts, server/research.ts, src/questions.ts, docs/evidence/engine-bakeoff.json, docs/evidence/verification-summary.md, docs/research/safety-policy.md. No images were viewed; this grade covers generation output, not visuals.",
+  "evidence": [
+    "engine-bakeoff.json: 20/20 runs completed. Every headline contains 'will', none hedge, and none exceeds 110 characters. Structural pass only.",
+    "Contradicts user facts: 'Currently leading in student polls' produced 'You will not win the student election.'",
+    "Contradicts user facts: 'They message me often; Feel drawn to them' produced 'You will not reconnect with them within 3 months.'",
+    "Contradicts user facts: 'Live in a quiet neighborhood; Feel safe walking at night' produced 'You will not live happily in your current town.'",
+    "Contradicts user facts: 'Work in a tech-related field currently' produced 'You will not get a job in technology within 3 months.'",
+    "Contradicts user facts: 'Booked a trip to a new destination; shared plans with friends' produced 'Your next holiday will not be memorable.'",
+    "Negativity bias: 9 of the 12 general and sports runs are negative. The prompt in engine.ts:71 says 'Choose a negative outcome when the supplied circumstances point toward a setback', and the model over-applies it.",
+    "engine.ts:73: the model's own `reason` is requested, schema-validated, then thrown away. The why text is replaced with a template ('Your answers describe X; Y. The Ball assumes those circumstances continue…'). The explanation never links facts to verdict, so contradictions like the student election read as nonsense.",
+    "engine.ts:62: every sports reason is the fixed 'wildcard pick' line. The session_form and session_availability answers are collected, then ignored. 'Strong recent form, full squad' still produced 'Lakers will not win', with no stated reason.",
+    "'Who will win the next World Cup?' produced 'Argentina will not win the 2030 Men’s World Cup.' This does not answer 'who'. The team card accepted a single team, which triggers the yes/no pair at engine.ts:61.",
+    "Sources: research.ts pulls Google News RSS headlines only, and only for the sports and world topics. 18 of 20 runs had sources: []. EV was the one run with sources, and its headline came from a hardcoded rule (engine.ts:64-67), not from the evidence. The app is honest about this ('do not verify'), but the result is thin grounding.",
+    "Generated cards, grammar: 'Where am you currently planning your next holiday?'.",
+    "Generated cards, question and options don't match: 'What is your current emotional state' offers 'Reviewed my last game's mistakes'; 'What do you do with their social media now?' offers 'No longer think of them daily'.",
+    "Generated cards, off-topic: 'student activities / study group' for an election question.",
+    "Generated cards, wrong horizon: a 'Within 3 months' horizon card for a chess match whose options say 'today'.",
+    "Generated cards, prefix leak: optionLabel (engine.ts:6) strips only 'I have' and 'I am', so 'I’ve …' options leak into the cards and into the why text.",
+    "Template topics: money asks 9 cards before any payoff. 'Will my side project gain customers?' produced 'reach 8 users', swapping customers for users and using trivial linear arithmetic.",
+    "One-liners are mostly tight and shareable. Weak spots: 'You will complete a beginner project in coding in 1 year.' and 'Lakers will not win…' (missing 'The').",
+    "Safety: the latest untouched set blocked 19/20 sensitive cases with 3/20 safe false blocks. A previous fresh set missed Spanish 'acabar con todo'. safety-policy.md itself says the independent release gate is not met. The design is layered (regex, then LLM classifier on input, on drafted cards and on output) with category-specific redirect copy."
+  ],
+  "blockers": [
+    "Consistency gate: after generation, run a second model call or rubric that checks whether the verdict follows from the facts. Reject and regenerate when strong-positive facts get a negative verdict, or the reverse. Add the five contradiction cases above as regression tests in tests/engine.test.ts.",
+    "Remove or rebalance the 'choose a negative outcome' instruction. Target a verdict split that tracks the facts, not a 75% negative skew.",
+    "Keep and surface the validated model `reason`, or build the why from which specific fact drove the verdict. Stop overwriting it with the echo template at engine.ts:73. The why must connect cause to outcome.",
+    "Sports: 'who will win' must name a winner. Require 2 or more contenders, or add the field. Feed session_form, session_availability and session_advantage into the choice and the reason instead of the fixed 'wildcard' line.",
+    "Card quality gate: validate generated cards for question/option fit and grammar, run a pronoun and prefix rewrite that covers I’ve/I'm/my, and skip the horizon card when the question implies an imminent event (match, exam, today).",
+    "Groundedness: when sources exist, let at least one dated fact actually feed the verdict. When none exist, say plainly that the verdict comes only from the user's answers. Don't let 18 of 20 runs show an empty evidence section with no explanation.",
+    "Shorten the money flow to 4–5 essential cards and default the rest as visible, editable assumptions.",
+    "Safety: pass a new untouched blind set with zero sensitive false allows and at most 10% safe false blocks (the project's own gate). Add non-English self-harm euphemism coverage beyond the regex list."
+  ],
+  "strengths": [
+    "Headlines are always definitive: 'will' is enforced, hedge words are rejected by the validator, length is capped, and there are no because-clauses or questions.",
+    "Deterministic topics (money, growth, relocation, learning) give specific, reproducible numbers or places, and their rules are shown transparently.",
+    "The 'Speculative forecast · not a guarantee' label and the headline disclaimers are consistently honest, with no fake citations.",
+    "Safety runs on the input, the model-drafted cards and the output. Self-harm gets its own crisis redirect, and failed safety evidence is kept rather than overwritten.",
+    "Fully local Qwen and free RSS, with no paid APIs. Median latency is acceptable (2–7 s for most runs, with a 15.9 s outlier)."
+  ]
+}
+```

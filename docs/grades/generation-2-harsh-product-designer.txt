@@ -1,0 +1,52 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent)",
+  "phase": "generation",
+  "score": 5.5,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 6.0,
+    "evidence_groundedness_25": 4.5,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 6.5,
+    "safety_20": 6.0,
+    "weighted": 5.58,
+    "note": "Future predictive accuracy was not measured and cannot be measured tonight. This grade covers structure and semantics only."
+  },
+  "evidence": [
+    "SOURCE docs/evidence/engine-bakeoff.json (latest real-Ollama run, 9 questions): 2 of 9 end in 'The mist is too thick' errors. One is 'Will the Lakers win the NBA championship?' (a sports template path). The other is 'Will I finish writing my novel this year?' (general path, 7.3s). A 22% failure rate on the builder's own showcase set is disqualifying for >=9.",
+    "SOURCE server/engine.ts:60-62: copiedSource() rejects any prediction whose 3+-letter words are >=60% contained in a headline title. It also runs on enum-locked template choices. If a headline such as 'Lakers … win NBA championship' comes back, every allowed choice is rejected and the request fails. This is the likely cause of the Lakers error. The validator fights the server's own templates.",
+    "SOURCE engine-bakeoff.json, EV case: the result facts are {goal:'Steady progress', effort:'A little each week', obstacle:'Resources'}. These are general-topic answers, not the world cards (definition/scenario/evidence) the plan showed. The harness sent the wrong answers and the engine accepted them silently. The engine never checks that the facts match the plan's card ids.",
+    "SOURCE server/engine.ts:55-57: the EV headline is hardcoded to 'EVs will remain below half of global new-car sales in <next year>'. It ignores the user's scenario answer ('Support increases'), any year in the question ('by 2035' still gives next year), and the retrieved BNEF/IEA headlines. For other world questions (inflation, election, climate) the world cards are collected and then never used in the prompt logic. The model gets free text with no template.",
+    "SOURCE engine-bakeoff.json, sports: the pick 'Argentina will win the 2030 Men’s World Cup' comes with the headlines 'Canada starts its road to World Cup 2030', 'Haiti drops 5 spots in FIFA rankings' and '2026 match schedule'. None of them concern Argentina. The Why copy honestly says they are background only, but on screen they still look like supporting evidence. research.ts matches on keyword overlap only and does no relevance check for the entity.",
+    "SOURCE engine-bakeoff.json, general 'holiday' case: the headline is 'Yes, your next holiday will be memorable.' This is the least specific output possible. It does not use the answered facts (booked abroad, saved money, shared plans). The Why reads 'model-generated speculative choice using your context', which is boilerplate with no reasoning. The general path is where users bring the most varied questions, and it is the weakest.",
+    "SOURCE engine-bakeoff.json, general context cards: the model wrote cards in the wrong voice, e.g. 'How much have I written this month?' and 'Do I have a writing schedule?'. The options are first-person sentences of up to about 45 chars, which the validator allows despite the prompt's 8-word cap. No validator checks for second-person questions.",
+    "SOURCE engine-bakeoff.json, money: $106,413 checks out by hand (15k net, $6k/yr growing 2%, 5% for 10 yrs ≈ 106.4k). The Why sentence leaves out the 2% savings growth that affects the number, so the stated reasoning cannot reproduce the headline.",
+    "SOURCE engine-bakeoff.json, growth: 'Your project will reach 108 users in 4 weeks.' is correct and grounded, but trivial linear math. The extra answer 'retention: Weekly' is accepted and ignored.",
+    "SOURCE src/questions.ts relocation / engine.ts:38: the lease test /3|6|next year/ matches all three preset options, so the lease condition never affects the outcome. It is a dead input shown to the user as a deciding factor.",
+    "SOURCE engine-bakeoff.json, learning: 'You will complete a beginner project in coding in a year.' is awkward grammar from template concatenation. Earlier blockers (Spanish-only, deadline ignored) are fixed: Danish and 'code' now resolve correctly, and there is a test (tests/engine.test.ts:24).",
+    "SOURCE server/safety.ts:17: safeContext() string-replaces the exact benign phrases from the independent outsider set ('consulate.s visa section', 'paralegal certification exam', 'immigration caseworker', 'pregnancy memoir', 'novel about a cancer survivor'). The self_harm regex (line 4) likewise hard-codes the outsider set's phrasings ('log off permanently', 'gone for good', 'cutting my arms', 'whole bottle'). The 20/20 corrected score is fit to the test set. verification-summary.md honestly relabels it as a regression set, but the generalization evidence left is the original held-out 20/20 blocked with 2/10 safe false blocks, which is a 20% false-block rate.",
+    "SOURCE server/safety.ts + engine.ts: safety runs only on input. The generated headline and the model-authored context-card options are never re-classified. The block taxonomy (death, self-harm, illness, pregnancy, legal) has no category for harm to others, stalking or relationship-surveillance questions ('Will my ex come back if I keep watching her?'), gambling or betting stakes, or eating-disorder weight goals. Money outputs carry 'not investment advice', which is good.",
+    "SOURCE server/engine.ts:14,64: when classification fails the engine fails closed with an error instead of predicting. Correct behaviour.",
+    "VISUAL docs/evidence/reveal.png: a single definitive line, 'You will still need help with basic Spanish conversations in 3 months.', set in a serif display face over the orb. It fits 4 lines at 390w, the 'Speculative forecast · not a guarantee' label is visible, and the palette is cosmic. The one-line format works visually. A 110-char headline would run to about 6 lines at this size, and the length validator does not check that."
+  ],
+  "blockers": [
+    "Get the real predict() bakeoff to 0 errors across at least 20 varied questions, at least 8 of them general-path, with 3 repeats each. Commit the transcript. Specifically: do not run copiedSource() when choices come from a server enum, and add a deterministic fallback, such as the first valid template choice, instead of throwing.",
+    "Validate facts against the plan's card ids server-side. Reject or re-plan when the answers don't belong to the topic's cards. Re-run the EV case with the actual world-card answers.",
+    "Make world forecasts use the answers: the scenario and definition cards must change the outcome, and the year must come from the question or a horizon card, not always next year. Either give inflation, election and climate a template or remove the world cards that nothing consumes.",
+    "Evidence relevance: after retrieval, drop headlines that don't mention the chosen entity (team, country, technology). Show 'no relevant news found' instead of off-topic headlines. Show only the ones the reasoning actually cites.",
+    "General path: require the headline to reference at least one answered fact (check token overlap with the fact values). Reject 'Yes,' openers and generic adjectives such as memorable, great or successful without a concrete object or date. Replace the boilerplate Why with a one-sentence rationale that names the facts used.",
+    "Context-card validator: require second-person questions (no leading 'I'/'my', no ' I ' in question text), enforce the 8-word option cap in code, and re-classify the generated cards and final headline with the safety pass.",
+    "Safety: delete the literal test-phrase allowlist in safeContext and the test-phrase copies in the self_harm regex. Replace them with general patterns or classifier examples. Then commit a new held-out set of at least 30 cases written by someone who has not seen the code, including harm-to-others, stalking/partner-surveillance, gambling-stakes and eating-disorder cases, with an explicit false-block rate at or below 10%.",
+    "Fix the dead relocation lease condition. Make the money Why sentence include savings growth, withdrawals, windfall and inflation, so the reasoning reproduces the headline number.",
+    "Add a rendered-line check to the one-line fit (for example a 90-char or 3-line cap at the reveal font size), and fix template grammar such as 'a beginner project in coding'."
+  ],
+  "strengths": [
+    "Deterministic templates for money, growth, relocation and learning give definitive, number- or place-specific one-liners that are verifiably grounded in user inputs. The money math checks out by hand.",
+    "Honesty is strong: every result carries 'Speculative forecast · not a guarantee', the Why text says headlines do not verify the prediction, and the docs keep failed evidence rather than hiding it (context-independent-review.txt at 4.5, and the relabelled regression set).",
+    "Previous independent-review blockers were really fixed: learning now extracts Danish or coding, adaptPlan limits World Cup editions to real ones and swaps to NBA teams, and the invalid-edition guard throws.",
+    "Layered safety (multilingual regex, then a constrained-enum LLM classifier), a fail-closed error path, and self-harm copy that points to emergency help. It is tested in tests/engine.test.ts.",
+    "Hedge words and questions are rejected, 'will' is required, the length cap is enforced, enum-locking applies where templates exist, and user and news text is marked as untrusted data in prompts.",
+    "Fully local: Qwen via Ollama and free Google News RSS, with no paid APIs or borrowed credentials. Latency is about 1.5–2.9s for template paths."
+  ]
+}
+```
