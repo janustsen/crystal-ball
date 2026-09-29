@@ -43,3 +43,9 @@ test('Why labels assumptions and does not print the same sentence twice',async()
 
 test('Danish remaining-lifespan wording is death, not self-harm',()=>assert.equal(phraseSafety('Hvor mange år har min mor tilbage at leve i?'),'death'));
 test('ordinary word senses do not trigger sensitive-topic phrase rules',()=>{for(const q of ['Will my arresting performance win an award?','Will I keep custody of the ball in the match?','Will our green card game night be fun?','Will the chart show two lines next month?'])assert.equal(phraseSafety(q),undefined);});
+
+test('general planning does not send unrelated domain memories into model cards',async()=>{
+ const {makePlan}=await import('../server/engine.ts');const original=globalThis.fetch;const inputs:unknown[]=[];
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));inputs.push(JSON.parse(body.messages[1].content));const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']},{question:'What slows your writing?',options:['Time','Ideas','Editing']}]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await makePlan('Will I finish writing my novel this year?',{learning_target:'Spanish',assets:'25000'},provider(()=>undefined));assert.equal(result.kind,'ok');assert.ok(!JSON.stringify(inputs).includes('Spanish'));assert.ok(!JSON.stringify(inputs).includes('25000'));}finally{globalThis.fetch=original;}
+});
