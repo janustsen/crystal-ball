@@ -1,0 +1,101 @@
+[
+  {
+    "question": "Will I finish writing my novel this year?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "All cards are relevant to current context and ask about present behaviors or progress related to writing the novel. Each card collects factual, observable data about writing habits or progress, which are directly tied to the current state of the task",
+      "valid": true
+    },
+    "match": true
+  },
+  {
+    "question": "Will my next holiday be memorable?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "The card 'horizon' asks about the timing of the event, which is not directly relevant to the current context of personal preparations or preferences. It shifts focus to a temporal dimension rather than present context. A card about current context (e",
+      "valid": false
+    },
+    "match": false
+  },
+  {
+    "question": "Will I move on from my ex this year?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "All cards are relevant to current context and do not answer or prove the forecast. Each card addresses present behavior or emotional state related to the ex, which is contextually appropriate. The options are specific to current actions or feelings,未",
+      "valid": true
+    },
+    "match": true
+  },
+  {
+    "question": "Will I live happily in my current town?",
+    "expectedValid": false,
+    "actual": {
+      "issue": "The card 'horizon' asks about the time frame for looking ahead, which is unrelated to the current context of daily life or safety in the town. It does not address present conditions or experiences in the town. This card is out of scope for the 'will我",
+      "valid": false
+    },
+    "match": true
+  },
+  {
+    "question": "Will I get a job in technology?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "The card 'context_2' asks about current work activity, which is relevant to the present context of the person's professional engagement. However, the options (e.g., 'New project launched', 'Team meeting in progress', 'Code review completed') are more",
+      "valid": true
+    },
+    "match": true
+  },
+  {
+    "question": "Will I win the student election?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "The card 'How many votes do you currently have?' is relevant to the current context of the student election, as it pertains to the present state of support. It does not answer the forecast but instead provides factual context about current standing.",
+      "valid": true
+    },
+    "match": true
+  },
+  {
+    "question": "Will I win my chess match?",
+    "expectedValid": false,
+    "actual": {
+      "issue": "The card 'context_2' asks about personal preference, which is relevant to current context. However, the card 'horizon' asks about timing, which is not directly related to the current context of preparation or preference. The card 'context_1' is valid",
+      "valid": true
+    },
+    "match": false
+  },
+  {
+    "question": "Will my next trip to Paris be enjoyable?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "The card 'context_1' asks about current weather in Paris, which is relevant to the present context of the trip. The card 'context_2' asks about current lodging status, also relevant to present context. The card 'horizon' asks about timing of the trip",
+      "valid": true
+    },
+    "match": true
+  },
+  {
+    "question": "Will I reconnect with an old friend?",
+    "expectedValid": false,
+    "actual": {
+      "issue": "The card 'context_2' asks about where an old friend was seen, which is a spatial detail and may not directly relate to reconnection. However, it is contextually relevant to the forecast if the person saw the friend. The card is valid as it collects a",
+      "valid": true
+    },
+    "match": false
+  },
+  {
+    "question": "Will my side project gain customers?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "The card 'horizon' asks about time horizon, which is not relevant to the current context of the side project gaining customers. It does not address present status or client interaction. The card 'context_1' and 'context_2' are relevant as they pique,",
+      "valid": false
+    },
+    "match": false
+  },
+  {
+    "question": "Will I finish a marathon next year?",
+    "expectedValid": true,
+    "actual": {
+      "issue": "All cards are relevant to current context and training behavior, which directly relates to the likelihood of finishing a marathon next year. Each card asks about present actions or conditions (e.g., weekly running distance, shoe condition, training频率",
+      "valid": true
+    },
+    "match": true
+  }
+]

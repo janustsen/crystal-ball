@@ -1,0 +1,40 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 7.5,
+  "evidence": [
+    "Method: I used only read-only tools. 'VISUAL' means I looked at the PNG. 'SOURCE' means I read the code. 'LOGS' means I read the evidence JSON or markdown. I ran nothing and changed no files.",
+    "LOGS (drive.json, 2026-09-29T12:01–12:02Z): the evidence comes from today's build and the actual local model, qwen3:4b-instruct-2507-q4_K_M. The Spanish flow ends at the headline 'You will speak basic Spanish in 6 months.', which the current server/engine.ts template can produce. Last round's blocker about stale screenshots is fixed.",
+    "LOGS (verification-summary.md, drive-extended/states/general JSON): the driven flows cover a lot. They include Ask → 3 cards with Other → reveal → Why, and History surviving a reload. They also cover the daily cap opening the paywall, mock buying and restoring, and an injected HTTP 500 during export that recovers. Safety redirects leave the credit count unchanged. Forgetting a fact can be undone and brings the question back. Offline failure keeps the answers and a retry succeeds. The remaining flows are a ten-card money flow, the 60 s timeout, voice not being available, friend mode, and empty states. End-to-end coverage is strong.",
+    "VISUAL (why.png) + SOURCE (server/engine.ts:67): the flagship Why panel contradicts itself. It says 'You described yourself as new beginner…' and then 'This scenario treats an intermediate starting point…'. The question asks about 'conversational' Spanish, but the headline says 'basic'. The model did not write this: engine.ts hard-codes the sentence. Reviewers have flagged it in design rounds 9 and 10 and it is still there. 'as new beginner' is also ungrammatical.",
+    "VISUAL (general-why.png) + SOURCE (engine.ts:15): the Why text still nearly repeats itself. The reason says 'You write 500 words daily and update progress weekly…', then the assumption says 'Scenario assumption: You update your progress weekly and write 500 words daily…'. The repetition guard only catches exact matches, so reworded repeats get through.",
+    "VISUAL (why.png, general-why.png): opening Why still shows only about 4–5 lines above the tab bar. The view does not scroll the panel into view, which was a blocker last round.",
+    "VISUAL (money-reveal.png, large-reveal.png): the net-worth headline '$6,371 in 5 years' is falsely precise. This was also a blocker last round and is still there. At 200% text, the headline is cut off under the tab bar ('5 years' is half hidden), and the tab labels disappear.",
+    "VISUAL (knowledge.png): the You screen is unchanged from last round. It shows 'Edit Your level' and 'Edit Daily practice' with odd capitals, one full-width Edit button per row, and Forget buttons that are smaller and sit out of line with Edit. The screen looks unfinished.",
+    "VISUAL (share.png): in the preview card, the headline breaks badly: 'months.' sits alone on the second line. The date text is tiny and hard to read, and the bottom ~35% of the card is empty. Last round's blocker is only partly fixed.",
+    "VISUAL (home.png, question-1.png, reveal.png, paywall/blocked/research): the cosmic palette, orb artwork, serif and sans font pairing, and gold primary buttons are cohesive and polished. Header and tab bar now look the same across all screenshots.",
+    "LOGS (accessibility-flow.json): the full-flow scans report violations: [] on every screen, so the radio aria-checked and role-less label defects are fixed. SOURCE (app/index.tsx:67): the options use role radio, aria-checked, accessibilityState, 58pt tap targets and a visible focus ring.",
+    "LOGS (screen-contrast.json): contrast measured against the actual screenshot backgrounds is 9.1:1 for helper text, 10.0:1 for the cyan link and 10.3:1 for the gold label. This clears axe's 'incomplete' result on the gradients.",
+    "SOURCE (app/index.tsx): the recovery copy is good. Every failure or redirect says 'Nothing was charged'. Cancel works on the waiting screens, the long-wait copy appears after 8 s and the timeout is 60 s. Android back is handled, and Reset asks for confirmation.",
+    "LOGS (verification-summary.md, performance-flow.json): in a visible browser, p95 frame time is 18.6 ms during real planning, research and reveal. Controls are ready in 581 ms. Headless results are kept and labelled as a test-harness limit. This is a browser sample, not a native-device claim, and the summary says so.",
+    "READ (SETUP.md, SKILL.md): the native checks still to do on a device are listed honestly. They are VoiceOver, Dynamic Type at 200%, keyboard avoidance, safe area, Android back, and hold-to-speak release and cancel. Also listed are notification permission, 30-day scheduling, RevenueCat sandbox and linking Sign in with Apple. Nothing claims simulator testing, real payments or App Store submission. Only the iOS bundle export is claimed."
+  ],
+  "blockers": [
+    "Rewrite the learning template in server/engine.ts:67 so the assumption uses the user's real level, and never states a threshold that contradicts their answer. Match the question's target: if they asked about 'conversational', don't answer about 'basic'. Fix 'as new beginner' to 'as a new beginner'. Add a regression test that fails when the Why text names a level other than the one chosen.",
+    "Replace the exact-match repetition check at engine.ts:15 with a token-overlap check, or drop the assumption when it mostly restates the reason. Re-capture general-why.png.",
+    "When Why is expanded, scroll the panel into view so the whole explanation, including the labelled Your answers, Assumptions and News sections, can be reached at 390×844. Capture it.",
+    "Round or bucket money headlines (e.g. 'around $6,000') and add a test for it.",
+    "At 200% text, keep the full reveal headline and actions reachable above the tab bar. Show a scrolled capture, and keep tab labels or add an alternative for them.",
+    "Redesign the You rows: sentence-case labels ('Edit level'), Edit and Forget controls of the same size side by side, and no full-width button repeated on every row.",
+    "Fix the share preview: stop 'months.' sitting alone (non-breaking space or balanced wrapping), make the date readable, and fill or tighten the empty bottom third. Re-verify the exported PNG and MP4."
+  ],
+  "strengths": [
+    "The full flow runs through the controls a user would see, with the actual local Qwen model, and the logs are current, timestamped and kept.",
+    "Recovery design is strong: offline, timeout, export failure, undo-forget and safety redirects all keep the user's work and say whether anything was charged.",
+    "The accessibility defects from last round are fixed and verified with zero-violation scans of the whole flow. Contrast is measured against the actual screenshot backgrounds.",
+    "The visual identity is cohesive and memorable, and the evidence set now comes from one consistent build.",
+    "Performance is reported honestly with baselines, and the deferred native checks are clearly separated from what the browser tests prove."
+  ]
+}
+```

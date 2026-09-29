@@ -1,0 +1,62 @@
+**Score: 7.6/10. It does not meet the ≥9 bar.**
+
+The prototype looks polished, recovers well from errors and runs on real local Qwen. It falls short on four things:
+- **Model output quality:** the generated cards and "Why" explanations are poor.
+- **Screen defects:** a few are visible in the current screenshots.
+- **Weak evidence logs:** two of the four current drive logs have no pass/fail checks.
+- **Performance gaps:** some measurements are unexplained or never re-run.
+
+Most of my checking was by looking at the screenshots. Where I only read code or logs, I say so. I couldn't run anything, so the "22 tests pass, exports succeed" claim is taken on trust.
+
+```json
+{
+  "role": "harsh-product-designer grader (independent)",
+  "phase": "app (Expo web 390x844 / 375x667 under firstmate Xcode waiver)",
+  "score": 7.6,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.5,
+    "visual_quality_30": 8.0,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 7.0,
+    "weighted": 7.58
+  },
+  "evidence": [
+    "SOURCE: verification-summary.md's timeline matches the logs. drive.json runAt 12:27:05Z, drive-extended 12:27:39 to 12:28:08, drive-states 12:28:09, general-flow 12:29:26, performance-flow 12:30:03. The mirror check at 12:29:46 falls inside the same sequential run.",
+    "SOURCE: drive.json records real Qwen use (qwen3:4b-instruct-2507-q4_K_M). Planning took 421 ms and prediction 1439 ms; the whole flow took 9.3 s. It also records horizonPreserved, a recoverable share HTTP 500 injection, history persisting after reload, the daily cap opening the paywall, and a pregnancy question being blocked in 74 ms.",
+    "SOURCE: general-flow.json shows a novel-writing question asking no Spanish or money questions, so the memory-leak fix holds in this run. Credits go from 3 to 2. A self-harm question is redirected.",
+    "SOURCE: drive-extended.json and drive-states.json are timestamped screenshot lists with no assertions. The only asserted outcomes are forgetUndoRestored, forgottenFactAskedAgain and the empty-state copy flags. Network error, retry, timeout, voice fallback, reduced motion and friend isolation are shown by screenshot only.",
+    "SOURCE: question-4.png and selected-4.png are not referenced by the current drive.json, which only has 3 cards. They are orphaned captures. failure.png, extended-failure.png, states-failure.png and general-failure.png are historical, as the summary says.",
+    "SOURCE: accessibility-flow.json has no timestamp, so it can't be tied to the round-eight build. accessibility-cards.json is from 12:04Z, before the final UI drive. It reports zero axe violations; the incomplete results (gradient contrast) are handled by screen-contrast.json.",
+    "SOURCE: performance-flow.json (headed browser) shows p95 frame times of 18.6 ms for planning, 18.4 ms for research and 18.6 ms for reveal (599 frames). Cards p95 is 33.3 ms, which is 30 fps. drive.json's cold-load sample has a mean frame time of 59 ms and a max of 133 ms, and no explanation.",
+    "SOURCE: engine-bakeoff.json covers 20 runs on the same model. The summary claims 19/20 completed, total p95 12.84 s.",
+    "VISUAL: home, reveal, why, share, history, paywall, blocked, timeout and network-error are consistent: deep indigo gradient, gold primary CTA, cyan secondary links, a serif display face, and a good orb illustration. The hierarchy is clear and the tab bar has a raised Ask orb.",
+    "VISUAL: exported-card.png at 1080x1920 is clean. The headline is large, there's a date stamp, the gold disclaimer is readable, and no private data appears. It matches the privacy claim.",
+    "VISUAL: general-card-1.png shows model-written options that repeat the question ('How many words do you write daily?' → 'Write 500 words daily') and are out of order (500, 100, 200).",
+    "VISUAL: knowledge.png and forget-undo.png label the conversation-practice fact 'Practice feedback', which is wrong. The toast reads 'Forgot Your level.' with a stray capital. The undo toast covers the fact list.",
+    "VISUAL: research.png says 'Looking for current context' while every observed prediction has sources: [] and a Why that says there is no external evidence. The copy suggests research that doesn't happen.",
+    "VISUAL: at 200% text, large-home.png pushes the main headline below the CTA. It was probably reordered on purpose, but the result is disjointed and the tab labels ('Home Explore') nearly touch. large-reveal.png and large-question.png cut the headline and question off above the tab bar. Scrolling is presumed but not shown.",
+    "VISUAL: retry-reveal.png was captured mid-fade (the headline is dimmed), so it is weak proof of a settled reveal.",
+    "VISUAL: money flow is 10 sequential cards (money-1.png shows '1 of 10'). That's heavy friction for an entertainment app. money-reveal.png shows a falsely precise '$6,371 in 5 years' with no range.",
+    "SOURCE/VISUAL: the Why text in drive.json and general-flow.json is thin. The novel reasoning ('weekly updates + 3 chapters indicate consistent effort') never asks how long the book is. Headlines are all stated with certainty ('You will…'), with only the gold label to soften them."
+  ],
+  "blockers": [
+    "Fix the card-generation quality check. Options must not repeat the question stem and numeric options must be in order. Add a regression test using the novel case, then re-capture general-card-1/2/3.",
+    "Fix the fact label mapping in src/questions.ts ('conversation' shows as 'Practice feedback'). Fix the toast casing in app/index.tsx ('Forgot your level.'). Keep the Undo toast from hiding the row being restored, or move it.",
+    "Make the research copy honest. When there's no retrieval, say 'Reading your answers…' rather than 'Looking for current context'.",
+    "At 200% text, keep headline → CTA order on Home and prove the reveal and question screens scroll to the full headline and actions. Capture the scrolled state, and fix the cramped tab labels (icons only, or wrap the labels).",
+    "Add assertions, not just screenshots, to drive-extended and drive-states: network error charges nothing and retry succeeds, timeout charges nothing, reduced motion skips the animation, friend readings stay isolated, voice falls back to text.",
+    "Re-run accessibility-flow.json and accessibility-cards.json on the final build with timestamps. Delete or clearly mark the orphaned question-4/selected-4 captures.",
+    "Reduce the money flow to about 4 cards, or skip cards already known from memory. Give money predictions a range or rounding instead of '$6,371'.",
+    "Explain or fix the cold-load frame cadence (mean 59 ms, max 133 ms) and the 30 fps cards phase. Re-measure the cards phase with more than 40 frames."
+  ],
+  "strengths": [
+    "Real end-to-end local Qwen inference in the browser drive, with no paid APIs. Failures stop cleanly and never charge a reading, and the screens say so.",
+    "The recovery screens (network error, timeout, blocked, share export failure) are well built. Each has a clear primary action, keeps the user's answers, and says nothing was charged.",
+    "Clear visual identity: the cosmic palette is used consistently across all five tabs and the paywall, and the gold/cyan accents are measured at ≥9:1 contrast on the rendered gradient.",
+    "Privacy is kept on the share card. Only the prediction, date and disclaimer appear; the question, facts and Why stay off it. PNG and MP4 share the same canvas.",
+    "Memory can be edited: forget/undo is asserted, and a forgotten fact is asked again. The cross-topic memory leak was reproduced, fixed and regression-tested.",
+    "Deferred device checks are listed honestly: VoiceOver/Dynamic Type, native share sheet, notification delivery, RevenueCat sandbox, Apple saving. The paywall is clearly marked test mode, and failed evidence is kept, not hidden.",
+    "Browser frame pacing during planning, research and reveal is near 60 fps (p95 about 18.5 ms)."
+  ]
+}
+```

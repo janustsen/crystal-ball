@@ -1,0 +1,46 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 7.4,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_screenshots_30": 8.0,
+    "accessibility_and_recovery_20": 7.0,
+    "performance_15": 7.5
+  },
+  "evidence": [
+    "VISUAL: I looked at home, ask, question-1, other-390, research, reveal, why, share, share-export-failure, share-actions, exported-card, history, knowledge, forget-undo, paywall, blocked, self-harm-redirect, network-error, timeout, money-1/10, money-reveal, large-reveal, large-question, reminder-preview, home-small, general-card-1 and general-why.",
+    "LOG CHECK: drive.json (runAt 12:14:15Z) matches the summary. Real qwen3:4b planning took 383 ms and prediction 1429 ms. The whole flow took 9.1 s. History survived a reload, the daily limit opened the paywall, and the pregnancy question was blocked. general-flow.json (12:16:33Z) shows model-written cards, credits going from 3 to 2, and the self-harm redirect.",
+    "SUMMARY CLAIM NOT BORNE OUT: drive.json records share HTTP 500 with 'recoverable: true', but share-export-failure.png is identical to share.png and shows no error. Source (src/ShareCard.tsx:35) renders the notice after the 'Back to prediction' button, which is below the fold at 390x844. So the user sees no feedback after a failed export, and the 'Making your four-second story…' progress text is off-screen too. The log's 'recoverable' flag is set by the driver, not by anything visible.",
+    "LOG CHECK: drive-extended.json and drive-states.json contain only screen names and timestamps (except forgetUndoRestored, forgottenFactAskedAgain and the empty-state copy flags). They record no engine responses, no money inputs and no assertions. Nothing in the logs explains how the money reveal reached '$6,371 in 5 years' after 10 cards.",
+    "SEMANTIC (drive.json why): 'You described yourself as new beginner… This scenario treats an intermediate starting point, or 20 minutes daily… as enough'. The explanation contradicts the user's own level. The card asked 'How often can you practice conversation?', but the answer is stored and explained as 'Practice feedback / weekly feedback' (knowledge.png shows the wrong label). That mislabel persists in memory.",
+    "SEMANTIC (general-flow.json): the options are in an odd order (500/100/200 words; 3/1/0 chapters). The third card ('How often do you update your progress?') doesn't help the prediction. The Why just restates the answers without reasoning. Both captured readings are affirmative 'You will…' headlines. This matches the defects recorded in generation-review.md; the summary honestly says completion is not accuracy.",
+    "VISUAL: the palette, orb artwork, serif/sans pairing, gold call-to-action and card system are consistent and polished. The exported 1080x1920 card is clean, contains no private data, and keeps '6 months' together.",
+    "VISUAL DEFECTS: Cormorant's old-style numerals make '$6,371' and '5 years' look uneven in money-reveal. The knowledge list gives each fact about 140 px of full-width Edit/Forget buttons, so only 2.5 facts fit on screen, under two stacked display headings. The toast text 'Forgot Your level.' has a capitalization error. The reminder toast shows developer copy ('Native reminder preview… need an iOS or Android build') and covers Remind me/Ask again. The 30-day reminder ignores the 6-month horizon (src/integration-actions.ts:9).",
+    "RECOVERY (VISUAL): network-error and timeout both say 'Nothing was charged', and network-error adds that answers are kept; offline shows Try again / Review answers / Edit question. The blocked screen says no reading was spent. Forget-with-Undo is visible. These are good.",
+    "ACCESSIBILITY: accessibility-flow.json shows 0 axe violations. Color contrast is 'incomplete' on every screen, and there is an unresolved 'aria-prohibited-attr' incomplete on share. The screen-contrast.json measurements are the separate evidence for contrast. At 200% text the tab labels disappear (icon only) and the headline or question runs under the tab bar (large-reveal, large-question). No screenshot proves the options are reachable at 200%. VoiceOver and Dynamic Type are honestly listed as unverified.",
+    "PERFORMANCE: performance-flow.json (11:25Z) shows p95 18.6 ms in every phase, but it was captured before the final share-card and knowledge changes. The current drive.json cold-load rAF shows mean 26.7 ms and max 100 ms (about 37 fps, with a dropped-frame spike), and the summary doesn't mention it. engine-bakeoff: 19/20 completed, total p95 13.61 s under load. The 'up to a minute' research copy is acceptable, but the p95 is long for an entertainment tap.",
+    "NATIVE: reminder, Apple sign-in, sharing, RevenueCat purchases and voice are wired as injectable interfaces (src/integration-actions.ts, src/native.ts) with mock tests claimed. Native capture uses captureRef on the React Native view rather than the web canvas, so 'same canvas' is true for web only; device checks are listed as deferred. No simulator execution is claimed, which is consistent with the Xcode waiver."
+  ],
+  "blockers": [
+    "Move the ShareCard notice (loading, success, failure) above the export buttons or into a visible toast, and disable both buttons while an export runs. Re-capture share-export-failure.png so the error text is visible at 390x844. The driver should assert the notice is visible in the viewport, not just set 'recoverable: true'.",
+    "Fix the fact labeling so the card's meaning is kept ('conversation practice' must not become 'practice feedback'). Stop the Why from contradicting the user's stated level (the 'treats an intermediate starting point' template text). Add a regression that fails on this Spanish case.",
+    "Make drive-extended and drive-states record assertions and engine responses (money answers, the money prediction payload, a check that the offline retry kept its answers, a check that options are reachable at 200%), not only screenshot names.",
+    "Money flow: cut 10 cards to 5 or fewer, or skip known facts, for an entertainment tap. Use lining numerals (a fontVariant or the sans font) for currency and number headlines.",
+    "Replace the developer copy in the web reminder toast with user-facing copy. Base the reminder delay on the prediction horizon, not a fixed 30 days. Keep toasts from covering the primary reveal actions.",
+    "Knowledge list: use compact inline Edit/Forget controls (text buttons or icons with accessible labels) so a screen shows at least 5 facts. Fix the 'Forgot Your level.' casing.",
+    "At 200% text, keep tab accessibility labels and show a captured scrolled state proving the question options and Next are reachable. Resolve or explain the 'aria-prohibited-attr' incomplete on share.",
+    "Re-run performance-flow after the final UI changes, and explain or fix the 100 ms cold-load frame spike in drive.json."
+  ],
+  "strengths": [
+    "Real local Qwen inference drives planning and reveal end to end, with low latency (383 ms plan, 1.4 s predict) and a persisted history that survives a reload.",
+    "A coherent cosmic visual identity: the orb art, typography and gold call-to-action hierarchy are consistent across about 30 screens and on the exported 1080x1920 card.",
+    "Strong recovery messaging: no charge on failure or block, answers kept, and Try again / Review answers / Edit question paths.",
+    "Privacy boundary shown on screen and in the export: only the headline and label go on the card.",
+    "The safety redirects are careful, charge nothing, and offer a constructive next step.",
+    "Honest evidence practice: the summary keeps historical failures, marks tuned safety checks as not blind, and states the native and device gaps plainly.",
+    "Native integrations sit behind testable interfaces, with graceful copy for web and unconfigured paths."
+  ]
+}
+```

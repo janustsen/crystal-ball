@@ -1,0 +1,56 @@
+**Score: 7/10. Crystal Ball does not reach the requested ≥9 bar.**
+
+The web prototype at 390×844 is well built. It runs end to end with the real local Qwen model, recovers from failures cleanly, and the art direction is good. It falls short on three things: what the model actually says, 200% text layout, and evidence that is stale, has no timestamp, or goes unexplained. I only used read-only tools and changed nothing. I checked the summary against the logs and looked at the key screenshots myself; the notes below say which findings come from screenshots and which from source.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 7,
+  "weighted_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.0,
+    "performance_15": 6.5,
+    "weighted_total": 7.1
+  },
+  "evidence": [
+    "drive.json (runAt 12:27:05Z) matches the summary. Real local Qwen planning ran in 421 ms and prediction in 1439 ms. The flow covers reveal, Why, share, a share HTTP 500 fault injection marked recoverable, History persisting after reload, the daily cap opening the paywall, the simulated purchase, and a blocked pregnancy question. The full flow took 9.3 s.",
+    "general-flow.json (12:29:26Z): the novel question produced model-written cards and headline and spent a credit (3 to 2). A self-harm question was blocked with emergency-help copy. The fix for unrelated memory leaking into general planning holds: the cards ask only about writing.",
+    "drive-states.json lists 13 screen captures, but only 4 carry boolean assertions: forget/undo, a forgotten fact being asked again, empty history, empty knowledge. Reminder, restore, voice fallback, keyboard focus, long wait and timeout are screenshot-only, with no logged outcome.",
+    "drive-extended.json records the ten money screens and the money reveal, but not the predict response. The screenshot's '$6,371 in 5 years' cannot be traced to the inputs or checked for plausibility from the logs.",
+    "Visual (reveal.png, why.png): the Spanish headline flatly says 'You will speak conversational Spanish in 6 months.' for a new beginner. The Why panel then says the threshold 'is not a validated learning threshold'. The headline is more confident than the reasoning behind it.",
+    "Visual (research.png): 'Looking for current context' is shown for a personal Spanish goal where sources = []. The copy implies research that did not happen.",
+    "general-flow.json: one card offers 'Update my progress weekly', and the Why treats weekly updates as evidence of consistent effort. Saved facts store the question and answer glued together ('How many words do you write daily? Write 500 words daily').",
+    "Visual (knowledge.png): the conversation fact is labelled 'Practice feedback', but the card asked 'How often can you practice conversation?'. (forget-undo.png): the toast reads 'Forgot Your level.' with an incorrect capital.",
+    "Visual (large-home.png, large-question.png, large-reveal.png, 375×667 at 200% text): the tab labels 'Home Explore' run edge to edge with almost no gap. Headlines are cut off under the tab bar. On large-reveal the disclaimer sits above the orb and the prediction is cut off after 'in 5 years'. Scrolling may reveal the rest, but the first view is weak.",
+    "Visual (network-error.png, timeout.png): both use the same headline, 'The mist is too thick.'. The network error never says the problem is the connection. Both screens correctly say nothing was charged, and network-error offers Try again / Review answers / Edit question.",
+    "Visual (share-export-failure.png): the error toast is inset differently (about 16 px) from the buttons above it (about 24 px). Recovery works, with Back to prediction and Dismiss.",
+    "accessibility-cards.json and screen-contrast.json are stamped 12:04Z, before the 12:27Z drive that followed the final knowledge-row and share-card changes. accessibility-flow.json has no timestamp, so it cannot be tied to the frozen build.",
+    "performance-flow.json: planning, research and reveal hold about 18.5 ms p95 per frame, but the question cards run at 33.3 ms p95 (dropped frames on the main interaction). drive.json records rafCadence mean 59 ms / max 133 ms over 120 frames, and verification-summary.md never mentions or explains it.",
+    "engine-bakeoff.json: 19/20 completed, total p95 12.84 s; the current-town prediction failed closed. The summary reports this honestly.",
+    "Source (app/index.tsx): reduced motion follows both the system setting and the in-app toggle. 'largeText' is an in-app state flag, not system Dynamic Type; the summary correctly lists Dynamic Type and VoiceOver as unverified.",
+    "Visual (exported-card.png): the 1080×1920 card is clean, contains only the prediction, keeps the 'Speculative forecast / Not a guarantee' label, and leaks no private data.",
+    "Honest deferrals: native capture and share sheet, VoiceOver, Dynamic Type, notification delivery, speech recognition, Apple saving and RevenueCat device sandbox are all listed as device checks. The paywall clearly shows 'Test mode · no real payments'."
+  ],
+  "blockers": [
+    "Make headlines match their reasoning. When the Why says a threshold is unvalidated or the user is a beginner, the headline must be hedged or conditional. Add a regression test that rejects unconditional 'You will…' claims when the facts don't support them, and re-capture reveal.png.",
+    "Only show 'Looking for current context' when a search actually runs. Otherwise say something like 'Reading your answers'.",
+    "Log the money predict response (inputs → number → Why) in drive-extended.json and show the $6,371 figure follows from the ten answers.",
+    "Fix general-card quality: stop offering progress-update cadence as a forecast input, and save clean fact labels and values instead of question+answer strings.",
+    "Fix copy defects: 'Practice feedback' → a label matching the conversation question; 'Forgot Your level.' → 'Forgot your level.'; give the network error its own connection-specific headline.",
+    "Fix 200% text layout at 375×667: stop the tab labels crowding (icon-only or wrapped labels at large sizes), keep the reveal headline visible above the tab bar, and don't let the disclaimer push the prediction off screen. Re-capture the large-* screenshots.",
+    "Get question cards to p95 ≤ 20 ms. Explain or re-measure the drive.json rafCadence (mean 59 ms) in the summary instead of leaving it unmentioned.",
+    "Re-run accessibility-cards, accessibility-flow (with a timestamp) and screen-contrast on the frozen build, after the 12:27Z changes.",
+    "Add assertions to drive-states for the reminder, restore, voice-fallback, keyboard-focus, long-wait and timeout screens: focus location, button labels, and credits unchanged.",
+    "Align the share-failure toast margins with the buttons above it."
+  ],
+  "strengths": [
+    "The full flow runs end to end with real local Qwen: ask → adaptive cards (with Other and free text) → research → reveal → Why → share → History, with persistence across reload and a mirror check against local Supabase.",
+    "Recovery is strong: timeout and network errors keep answers and never charge; share failure falls back to the still card; forgetting a fact can be undone, and a forgotten fact gets asked again; sensitive questions are redirected without spending a reading.",
+    "The cosmic palette, serif display type, orb artwork and gold call-to-action are consistent and polished at 390×844 and 375×667; the share card is attractive and private.",
+    "Axe reports zero violations across the covered flows. Contrast was measured on the rendered gradient (9–10:1). Reduced motion respects the system setting.",
+    "The evidence is honest: failed and historical runs are kept, safety numbers carry caveats, native-only checks are listed as deferred, and paid purchases are clearly labelled as simulated."
+  ]
+}
+```

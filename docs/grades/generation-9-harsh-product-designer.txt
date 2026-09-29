@@ -1,0 +1,47 @@
+I scored the generation phase **7/10**, below the 9 you asked for. The verification summary matches its artifacts, and the local Qwen runs complete reliably. The two weakest areas are the follow-up questions the model writes for open-ended questions and the "Why" explanations. The images were viewed directly: I looked at `general-why.png` myself. Everything else comes from reading the source, the JSON logs and the review docs.
+
+```json
+{
+  "role": "harsh-product-designer grader (independent)",
+  "phase": "generation",
+  "score": 7,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 8.0,
+    "evidence_groundedness_25": 6.5,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 7.5,
+    "safety_20": 8.0,
+    "weighted_total": 7.05
+  },
+  "evidence": [
+    "Summary claims checked against artifacts: engine-bakeoff.json has 20 results, all kind:'ok', 11 of them general, all timestamped 2026-09-29T12:44–12:45Z, matching the summary's replay. The generation-review.md per-case notes match the bakeoff outputs. safety-final-first-run.json shows tp 20, fp 0, fn 0, categoryCorrect 39/40, as claimed. The Wilson lower bound of about 84% and the Claude-only authors are disclosed in decisions.md:47. general-flow.json (runAt 12:45:40Z) shows a real plan, then a prediction, a credit decrement, and a self_harm block with the redirect message.",
+    "Source inspection, server/engine.ts:88: every forecast must contain 'will'. It rejects may/might/could/likely, question marks and 'because' in the verdict, and caps length at 90 characters (110 with the time window). A failed answer gets one repair attempt, then the request fails. Money, growth, relocation, learning, sports and EV use server-side formulas or a fixed list of allowed answers.",
+    "Money arithmetic checked by hand: $15k net at 5% for 10 years ≈ $24.4k, plus $6k a year growing 2% saved at 5% ≈ $82.0k, total ≈ $106.4k. This matches the headline '$106,413'. Growth: 100 + 2×4 = 108 is correct.",
+    "General forecasts (engine.ts:100): the model picks the key of one fact the user gave, and the server quotes that fact verbatim before the model's 'Scenario assumption'. This does prevent invented facts. But only one of the 2–3 answers is ever cited, and facts that point the other way are ignored silently. Marathon: worn-out shoes are waved away. Customers: 'First client signed up' is ignored.",
+    "Visual inspection of general-why.png at 390px: the Why panel reads 'Recorded context: How many words do you write daily? Write 500 words daily Scenario assumption: You will write 500 words daily and maintain weekly updates No external evidence…'. It is one run-on block with no sentence breaks. The card question is pasted into the fact text. The headline 'You will finish writing your novel this year' has no final period.",
+    "Missing final period on 3 of 11 general headlines (novel, ex, marathon). Cause: formatForecast returns the raw prediction when it already contains the time window, so no period is added (engine.ts:13).",
+    "Awkward time windows in headlines: 'Your next holiday will be memorable within 3 months.', 'You will live happily in your current town within 3 months.', 'Your next trip to Paris will be enjoyable this week.'",
+    "The 'Scenario assumption' sentences are tautological or invent facts. Ex: 'You will not move on from your ex this year because you still think about them daily' just restates the verdict. Chess invents 'daily' openings practice. Novel (bakeoff run): 'You will update your progress weekly this year' does not explain finishing the book.",
+    "Card relevance defects in the current bakeoff. Old friend: 'What did you do with an old friend today?' and 'Where did you see an old friend today?' assume contact today, and one option is 'They sent a photo'. Technology job: 'Team meeting in progress' and 'Interview scheduled today'. Paris: 'current weather in Paris'. Election: 'votes in the system' assumes voting is under way. Chess: options mix preparation, time available and experience. Town: the safety card offers 'Public transport runs on time'. Novel: every option starts 'Update my progress…'. Growth: asks 'How many weeks ahead?' although the question already says 'in four weeks' (provided:{}).",
+    "Sports: 'Who will win the next World Cup?' is answered by picking from the user's own list, and the Why admits there were no odds or rankings. Honest, but the only 'evidence' is the user's own choice.",
+    "Safety (safety.ts, engine.ts:22/30/101): the check runs three times, on the question, the model-written cards and the final output. It combines phrase rules in English, Danish and Spanish with a model classifier. On self-harm it shows a crisis-support message and does not charge a credit (general-flow.json). The categories are limited to death, self-harm, illness, pregnancy and legal. Eating disorders, violence toward others, gambling or financial ruin, and abuse in relationships have no category."
+  ],
+  "blockers": [
+    "Fix how the Why text is built for general forecasts. Store the user's answer without the card question. Build the text as proper sentences: 'You told the Ball: <answer>.' then 'This assumes: <assumption>.' Always end headlines with a period. Show both on screen as separate lines or bullets, then re-capture general-why.png.",
+    "Make the general forecast use all the answers, not one. Either the model states which answer points the other way and why the verdict still holds, or the server lists every answer the user gave. Reject assumptions that restate the verdict or use 'because <fact>'. Measure with a check that an assumption shares fewer than a set share of words with the headline and the quoted fact.",
+    "Card quality. Reject cards that assume events happened today ('today', 'in progress', 'in the system') unless the question implies them. Enforce one topic per card (for example, a check that all three options answer the same kind of question). Pull time windows like 'in four weeks' out of the question for the growth topic too. Re-run the 11 general cases and have an independent reviewer (not the builder) label each card relevant or not. Target at least 10 of 11 with no mismatched options. generation-review.md still lists 6 or more open card defects.",
+    "Headline wording. When adding the time window makes the sentence unnatural ('memorable within 3 months', 'enjoyable this week'), use 'by <date>' or 'during your trip this week', or ask the model to write the time window into the verdict itself.",
+    "Safety coverage. Add categories or redirects for eating disorders, violence toward others or abuse, and gambling or financial ruin. Tone down or reframe negative verdicts on emotionally vulnerable questions (the ex case gives a flat 'You will not move on'). Get one blind safety set written by a different model family, since all current independent sets were written by Claude.",
+    "Re-run engine-bakeoff and the general-flow drive after these changes, and record fresh timestamps."
+  ],
+  "strengths": [
+    "Every forecast is definitive, with 'will' required and no hedging, and it fails after one repair attempt instead of falling back to weaker text.",
+    "Money, growth and relocation forecasts are transparent and arithmetically correct, and state their assumptions.",
+    "The server quotes the user's facts itself, so the model cannot invent them. Number checks reject numbers the user never gave.",
+    "Honest labelling throughout: 'Speculative forecast · not a guarantee', and headlines are marked as not proving anything. The summary and review docs keep failed runs and do not claim predictive accuracy.",
+    "The safety check runs on the question, the model-written cards and the final output. The first untouched run blocked 20 of 20 sensitive requests with 0 false blocks. Self-harm gets a crisis message and no charge, and the result is not overclaimed (Wilson bound disclosed).",
+    "Fast locally: about 4.6 s median and 7.1 s p95 end to end on a 4B model, with no paid APIs.",
+    "The known memory leak between topics was reproduced, fixed and pinned with a test that failed before the fix."
+  ]
+}
+```

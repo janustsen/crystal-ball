@@ -1,0 +1,74 @@
+[
+  {
+    "runAt": "2026-09-29T12:39:42.840Z"
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "How many words do you write daily?",
+            "options": [
+              "Write 500 words daily",
+              "Write 100 words daily",
+              "Write 200 words daily",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_2",
+            "question": "How many chapters have you completed?",
+            "options": [
+              "3 chapters done",
+              "1 chapter done",
+              "0 chapters done",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_3",
+            "question": "How often do you update your progress?",
+            "options": [
+              "Update my progress weekly",
+              "Update my progress daily",
+              "Update my progress monthly",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "card": 1,
+    "selected": "Write 500 words daily"
+  },
+  {
+    "card": 2,
+    "selected": "3 chapters done"
+  },
+  {
+    "card": 3,
+    "selected": "Update my progress weekly"
+  },
+  {
+    "action": "predict",
+    "response": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    }
+  },
+  {
+    "failure": "TimeoutError: locator.waitFor: Timeout 65000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('share-this-glimpse') to be visible\u001b[22m\n"
+  }
+]

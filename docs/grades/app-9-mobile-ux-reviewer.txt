@@ -1,0 +1,43 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 7.4,
+  "evidence": [
+    "SUMMARY VS ARTIFACTS: Timestamps agree. drive.json ran at 12:27:05Z, drive-extended at 12:27:39–12:28:08Z, drive-states at 12:28:09Z, performance-flow at 12:30:03Z and general-flow at 12:45:40Z. They are within the 12:45:55Z mirror window the summary gives. I did not use any failure-named artifacts as current evidence.",
+    "E2E (log inspection): drive.json shows a real Qwen plan response (qwen3:4b-instruct-2507) with 3 distinct learning cards. It then shows predict, reveal, Why, share, an injected share HTTP 500 with recoverable:true, History persisted after reload, the daily cap opening the paywall, a mock purchase, and a pregnancy-category block. The flow took 9.3 s.",
+    "E2E (log inspection): general-flow.json shows credits dropping 2→1 for the novel question and a self_harm block. The general cards are generic templates ('Write 500 words daily', 'Update my progress weekly'), and each option repeats the question stem.",
+    "E2E (log inspection): drive-extended.json shows knowledge edit, known-fact questions, network-error then retry-reveal, a 10-card money flow, and 200% text screens. drive-states.json records mostly screen names plus four booleans (forgetUndoRestored, forgottenFactAskedAgain, emptyHistoryCopy, emptyKnowledgeCopy). The timeout, long-wait and voice-fallback states have no outcome assertions or timestamps.",
+    "VISUAL (screenshots viewed): home.png, question-1.png, research.png, reveal.png, money-reveal.png, history.png and knowledge.png. The cosmic palette is consistent, Cormorant-style headings sit over a sans body, the gold CTA hierarchy is clear, and spacing and tap targets are clean at 390×844.",
+    "VISUAL: general-why.png. The 'Behind the mist' text reads as one unpunctuated run-on: 'Recorded context: How many words do you write daily? Write 500 words daily Scenario assumption: … weekly updates No external evidence…'. The headline 'You will finish writing your novel this year' has no final period, while the Spanish and money headlines do.",
+    "VISUAL: large-reveal.png (375 wide, 200% text). The label moves above a shrunken orb, the headline is cut by the tab bar ('5 years' is half-hidden), and the tab labels 'Home Explore' run together with no gap. It is scrollable per the source, but the first view is cramped.",
+    "VISUAL: self-harm-redirect.png (375 wide). The copy is appropriate and the 'Find support near you' button is visible. The gold primary action is clipped under the tab bar in the first view.",
+    "VISUAL: general-failure.png. 'The mist is too thick. Please ask again.' gives no cause and does not say that no reading was charged. The research screen does say 'No reading is spent on failure'. Try again / Review answers / Edit question are a good set of recovery paths.",
+    "VISUAL: share.png and exported-card.png. The 1080×1920 composition is legible, and the private question and Why stay off the card as the summary claims. share.png shows no back or close control on screen; only the tab bar gets you out.",
+    "VISUAL: other-390.png. Other becomes selected with a cyan focus ring, the text field appears inline, and Next is visible above the tab bar.",
+    "A11Y (JSON inspection): accessibility-flow.json has 0 axe violations across 5 scenes. Every scene has color-contrast as incomplete, and share also has aria-prohibited-attr as incomplete, which the summary does not mention. screen-contrast.json reports measured ratios of 9.10, 9.98 and 10.30:1. VoiceOver and Dynamic Type are honestly listed as unverified in SETUP.md and the summary.",
+    "PERF (JSON inspection): performance-flow.json gives p95 of 18.6 ms for planning and reveal (599 frames) and 18.4 ms for research, which is good. Cards p95 is 33.3 ms, i.e. dropped frames on the most-touched screen. drive.json's own rafCadence block reports mean 59 ms and max 133 ms over 120 frames at cold load. The summary does not mention it, so it is an unreported slow sample.",
+    "DEFERRED (source inspection, SETUP.md): Xcode, VoiceOver, Dynamic Type, keyboard avoidance, safe area, hold-to-speak, notification scheduling, RevenueCat sandbox and Apple link are listed honestly as device checks. The purchase UI is openly mock. Native boundaries are covered by mock tests according to the summary; I did not re-inspect the test files."
+  ],
+  "blockers": [
+    "Fix the general-topic Why composition: put sentence punctuation between the recorded-context, assumption and disclaimer clauses. Do not echo the card question verbatim ('How many words do you write daily? Write 500 words daily'); render it as 'You write about 500 words a day.' Recapture general-why.png.",
+    "Normalize headline punctuation. General headlines need a final period like the other topics. Pin this in a test.",
+    "Make general-topic card options short answers instead of restating the question ('500 words', '1 chapter', 'Weekly'). Recapture general-card-1..3.",
+    "Shorten or split the 10-card money flow. Ten sequential questions before a reveal is too much friction for an entertainment app. Cap it at about 3–4 cards or add visible progress plus a 'skip remaining' option, then re-drive it.",
+    "At 200% text (375×667), keep the headline and primary action from sitting under the tab bar in the first view. Either collapse tab labels to icons at large text sizes or add bottom padding or auto-scroll to the headline. Also fix the 'Home Explore' label collision. Recapture large-reveal.png and self-harm-redirect.png.",
+    "The failure screen should say that no reading was spent and give a plain-language cause (offline or engine timeout). Add assertions that the timeout, long-wait and voice-fallback states in drive-states.json each recover to a reveal or input without charging a reading.",
+    "Add a visible back or close control on the Share screen.",
+    "Get the cards phase p95 under about 20 ms, or explain it and re-measure. Investigate or explain the cold-load rafCadence (mean 59 ms / max 133 ms) in drive.json and list it in the summary.",
+    "Resolve or document the aria-prohibited-attr incomplete result on the share scene."
+  ],
+  "strengths": [
+    "Real local Qwen drives the whole flow end to end, including planning, cards, prediction and reveal, with logged engine responses and credit accounting (a reading is charged on success and not on blocked requests).",
+    "The recovery set is rich and proven by logs: share export fault injection, offline retry to reveal, forget with Undo, a forgotten fact being asked again, and empty-state copy.",
+    "The visual identity is strong and consistent across home, cards, research, reveal, history, knowledge and the exported card. The palette and typography are premium and the orb art is cohesive.",
+    "Privacy boundary: the share artifact carries only the prediction and date. The question, facts and Why stay private, as shown visually in exported-card.png.",
+    "Sensitive-topic redirects are warm and non-judgmental, with a support action and no charge.",
+    "Evidence is honest: failed runs are preserved and labeled historical, browser cadence is not claimed as native FPS, device-only checks are listed, and the paywall is openly mock.",
+    "Measured screenshot contrast is well above AA, and there are zero axe violations across the key flows."
+  ]
+}
+```

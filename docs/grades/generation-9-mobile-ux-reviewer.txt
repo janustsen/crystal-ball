@@ -1,0 +1,47 @@
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 7.0,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 7.5,
+    "evidence_groundedness_25": 6.0,
+    "adaptive_question_relevance_20": 6.0,
+    "one_line_fit_15": 7.5,
+    "safety_20": 8.5,
+    "weighted": 7.0
+  },
+  "evidence": [
+    "Verification summary checked against its artifacts. engine-bakeoff.json has 20/20 kind:'ok' cases (9 deterministic, 11 general), all stamped 2026-09-29T12:44–12:45Z, which fits the stated 12:45:55Z mirror check. safety-final-first-run.json shows tp 20, fp 0, fn 0, categoryCorrect 39/40, which matches the summary. The one miss is the Danish lifespan question, labelled self_harm, now pinned by tests/engine.test.ts:44. The summary does not overclaim: it says completion is not accuracy and the tuned sets are not blind.",
+    "Source inspection, server/engine.ts:84-100. For general questions the model only picks a fact key ('basis'), the server quotes that fact word for word, and the model's text is labelled 'Scenario assumption'. This stops the model inventing facts. Other guards: invented numbers are rejected (line 95-96), hedge words are banned, the length cap is 110 characters, and bad output gets one repair and then fails.",
+    "Source inspection, server/engine.ts:49-83. Money, growth, relocation, learning and electric-vehicle forecasts come from fixed server rules. I recomputed the money case by hand: 15000·1.05^10 plus a growing annuity comes to about $106,414, against $106,413 shown. So the numbers are real and the explanations disclose the rule used.",
+    "Visual inspection, general-why.png. The Why panel shows 'Recorded context: How many words do you write daily? Write 500 words daily Scenario assumption: You will write 500 words daily and maintain weekly updates No external evidence supports…'. Sentences run together because facts are stored as 'question? answer' strings and the model's assumption has no full stop. In the bakeoff JSON, 8 of the 11 general 'why' strings have the same missing full stop ('…this year No external evidence').",
+    "Visual inspection, general-reveal.png. The general headline has no full stop ('You will finish writing your novel this year'), while deterministic headlines end with one. The layout itself is clean, fits in two lines at 390 px, and the 'Speculative forecast · not a guarantee' label is visible.",
+    "Runtime outputs, engine-bakeoff.json. 10 of the 11 general verdicts are simply 'yes' restatements of the question. The prompt tells the model that 'unknown facts are not evidence against success', which pushes it towards yes. The basis the model picks is often the weakest fact: for the novel it picked 'Update my progress weekly' over '3 chapters done / 500 words daily'. For the side project it picked 'website launched' over 'First client signed up', and that fact already makes 'will gain customers' trivially true.",
+    "The 'assumptions' are mostly circular. Examples: 'You will not move on from your ex this year because you still think about them daily' (repeats the verdict and the fact, which the prompt forbids). 'You will update your progress weekly this year.' 'You will respond to their text.' 'You must maintain your current poll lead…' (a command, not a forecast).",
+    "Card relevance in the general runtime outputs has several mismatches:\n- Old friend: 'Where did you see an old friend today?' offers 'They sent a photo', and both cards assume contact happened today.\n- Election: '1200 votes in the system' assumes counting is already under way, and '60% support for me' is in first person.\n- Tech job: 'Team meeting in progress / Code review completed' are passing moments, not predictive.\n- Paris: today's weather is asked about for a trip whose date is still an open question.\n- Marathon: the cards ask about 10 km this week and shoe condition, but not the longest run or race registration.\n- Chess: a time option ('90 minutes available') sits under a preparation card, and experience sits under a preference card.\ngeneration-review.md admits most of these itself.",
+    "Headlines with the time frame appended read awkwardly: 'You will live happily in your current town within 3 months.' 'Your next trip to Paris will be enjoyable this week.' 'Your next holiday will be memorable within 3 months.' formatForecast (engine.ts:6-14) adds the time frame word for word, whether or not it makes sense.",
+    "Sports reasoning is a fixed sentence. 'Strong recent form / Full squad expected' was entered for the Lakers, but the Why only says 'using any … context you entered as unverified assumptions' and never mentions those inputs. The pick is honest, but the explanation does not reflect them.",
+    "Safety, source inspection of server/safety.ts plus engine.ts:22,30,36,101. Checks run at four points: deterministic phrase rules, a model classifier, a re-check of generated cards, and a re-check of the final output. They cover English, Danish and Spanish, and a non-clinical creative mention is not blocked. Blocking self-harm, death, illness, pregnancy and legal questions returns a gentle redirect message. The limits are documented: the tuned sets are not blind, the Wilson lower bound is about 84%, and the phrase rules keep growing one regex at a time (safety.ts:34-38), which is fragile. The emotionally loaded 'move on from your ex' question gets a flat negative verdict with no softening."
+  ],
+  "blockers": [
+    "Fix how the Why text is put together. Store the answer separately from the card question and quote only the answer ('You told the Ball: 3 chapters done.'). Make the server end every model assumption with a full stop and join sentences with a space. Add a regression test asserting that no 'why' contains a capital letter directly after a word with no full stop between them. Re-capture general-why.png.",
+    "End every headline with the same punctuation. The server should add a full stop to general headlines, just as deterministic ones already have.",
+    "Stop the model echoing 'yes' and picking weak bases. Remove the 'unknown facts are not evidence against success' bias. Ask the model to name the basis first and derive the verdict from it, and reject a verdict that just restates the question. Reject a 'you will' verdict when a supplied fact already satisfies the outcome (the customers case). Show that across the 11 general cases the verdict follows the facts, including at least some grounded 'no' answers when negative facts are given (for example '0 chapters / 100 words daily').",
+    "Reject circular assumptions on the server. Reject any assumption that contains the verdict's verb phrase, 'because', 'must', or the quoted fact text, and use the existing one-repair budget. In the re-run, the ex, novel, election and friend assumptions must not repeat the verdict or the fact.",
+    "Make the general cards fit the question. Reject cards whose question assumes something happened 'today', or whose options answer a different dimension ('where' → photo; 'weather today' for an undated trip; 'votes in the system'). Also reject first-person option text ('for me'). The builder's own offline checker agreed with only 7 of 11 manual labels, so a better check is needed, not no check. Target: 11 of 11 general cases with every option answering its own card, confirmed by an independent reviewer.",
+    "Make time frames read naturally. When the forecast is about an ongoing state (happy, enjoyable, memorable), phrase the time frame as 'over the next 3 months' / 'on this week's trip', or ask the model to include it. Do not append 'within 3 months' blindly.",
+    "Sports: mention the form and availability inputs the user actually entered in the Why (quoted by the server, as general questions already do). They currently disappear into a fixed sentence.",
+    "Safety tone: when the verdict is negative on an emotional-wellbeing topic (ex, loneliness, happiness), soften the wording or add a hopeful follow-up line. The prediction should still be definitive."
+  ],
+  "strengths": [
+    "Every one of the 20 cases gives a definitive 'will' verdict. Hedge words (may/might/could/likely) are rejected on the server, and each forecast carries the persistent 'Speculative forecast · not a guarantee' label.",
+    "Deterministic domains (money, growth, relocation, learning, electric vehicles) are grounded well. Their arithmetic is correct and the rules they use are disclosed.",
+    "Facts in the Why are quoted by the server, never written by the model. Invented numbers are rejected. There is exactly one repair before failing, and rejected text is never used as a fallback. Tests cover all of these (tests/engine.test.ts:39,65,71).",
+    "Retrieved news headlines are labelled as background that does not verify the prediction, and irrelevant headlines are filtered out for sports and electric-vehicle questions.",
+    "Safety checks run on the question, the generated cards and the final output, in three languages. Blocked questions get gentle redirect messages. The evidence is honest: past failures, tuned-versus-blind sets and the Wilson lower bound are all kept.",
+    "Evidence reporting is candid. generation-review.md lists its own semantic defects, and the verification summary claims no predictive accuracy.",
+    "The unrelated-memory leak into general planning is fixed and covered by a regression test (engine.test.ts:47)."
+  ]
+}
+```

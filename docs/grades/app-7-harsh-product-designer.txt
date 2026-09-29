@@ -1,0 +1,62 @@
+**Score: 7.5 / 10.** It doesn't meet the ≥9 bar. The core flow is real and well built. What holds it back is weak model-written questions and explanations, an export error that shows up outside the visible screen, some layout problems, and assertions that are thin compared with what the summary claims.
+
+I only read files, as asked. I ran no commands, so no numbers were reproduced. Plan mode wanted a plan file and ExitPlanMode, but a grading task has neither, so the JSON below is the deliverable.
+
+```json
+{
+  "role": "independent harsh product-designer grader (read-only, no builder context)",
+  "phase": "app",
+  "score": 7.5,
+  "score_breakdown": {
+    "end_to_end_observed_35": 7.5,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 8.0,
+    "weighted": 7.58
+  },
+  "inspection_method": {
+    "visual_inspection": ["home.png", "home-small.png (375x667)", "question-2.png", "known-question-1.png", "research.png", "reveal.png", "why.png", "money-reveal.png", "general-why.png", "large-reveal.png (200%)", "share.png", "share-export-failure.png", "exported-card.png (1080x1920)", "knowledge.png", "forget-undo.png", "paywall.png", "history.png", "explore.png", "blocked.png", "network-error.png", "timeout.png"],
+    "source_inspection": ["verification-summary.md", "drive.json", "drive-extended.json", "drive-states.json", "general-flow.json", "engine-bakeoff.json (grep plus one full case)", "generation-review.md", "performance-flow.json", "accessibility*.json (grep)", "src/ShareCard.tsx (grep)", "scripts/drive.mjs line 17", "verify-crystal-ball/SKILL.md", "grades/generation-7-harsh-product-designer.txt"],
+    "not_run": "No commands were run. Timings, test counts and the mirror result are taken from the artifacts."
+  },
+  "summary_verification": {
+    "sequential_drive_current": "Confirmed. drive.json 12:14:15Z, drive-extended 12:14:45Z, drive-states 12:15:15Z and general-flow 12:16:33Z all come after the final changes and fit the summary's 12:16:53Z mirror time. Real Qwen output (qwen3:4b-instruct-2507) is logged with a 383 ms plan and a 1429 ms predict.",
+    "engine_19_of_20": "Confirmed. The technology-job case returns kind:error. The builder's generation-review.md honestly lists semantic defects in the general cases.",
+    "coverage_claims_vs_assertions": "Partially supported. drive.json and drive-states.json contain real asserted booleans: persisted, dailyCapOpenedPaywall, forgetUndoRestored, forgottenFactAskedAgain and the empty-state copy checks. drive-extended.json (ten money inputs, offline retry, 200% text) is only a list of screen timestamps. Those claims rest on screenshots, not logged assertions.",
+    "export_recovery_claim": "Weaker than the design board says. The driver waits for the 'Animation could not be exported' text, which passes because it only checks the text exists on the page, not that it is on screen. share-export-failure.png looks identical to share.png: no error message is visible at 390x844. A user tapping Export sees nothing happen.",
+    "performance_currency": "performance-flow.json is from 11:25Z, before the final share-card and knowledge-row changes, so it was not re-measured on the final build. The drive.json headless rafCadence (mean 26.7 ms, max 100 ms) is worse than the headed numbers and the summary does not mention it."
+  },
+  "evidence": [
+    "E2E: Home → Ask → 3 real model-planned cards (with an Other answer of '30 minutes') → research → reveal took 9.1 s. The reveal preserves the six-month horizon, credits go from 1 to 0 readings, History survives a reload, the daily cap opens the paywall, a mock pack adds 5 readings, the pregnancy redirect costs nothing, and 375x667 renders.",
+    "E2E: remembered facts are skipped. known-question-1 asks a new 'interruption' card, but the progress label still reads 'Getting to know you · 1 of 3', which suggests the user is starting over.",
+    "E2E semantic: the Spanish Why says 'You described yourself as new beginner… This scenario treats an intermediate starting point, or 20 minutes daily… as enough'. It is grammatically broken (missing 'a') and cites a threshold that does not match the user's own facts.",
+    "E2E semantic: the general-flow novel cards offer self-voiced options in odd orders ('Write 500 / 100 / 200 words daily', 'Update my progress weekly'). They never ask the target length, the headline just repeats the question, and the Why repeats the reason as the assumption.",
+    "E2E semantic: engine-bakeoff shows a duplicated chess card question, 'current weather in Paris' asked as input, and 'What do you do online about your ex?'. The builder's own review lists 9 of 10 general cases with defects.",
+    "Visual: reveal, research, question card, paywall and error screens are cohesive and premium. There is a clear serif hierarchy, the gold primary button is consistent, and the speculative label sits directly under the verdict. The 1080x1920 export is clean and contains no private data.",
+    "Visual: the knowledge screen stacks two large headings ('More about you.' and 'What the Ball knows about you'). Every fact gets a full-width Edit/Forget button pair, so ten facts become a long, heavy scroll.",
+    "Visual: the share preview card has a mostly empty bottom 30% with a faint constellation, and the exported card has the same dead lower third.",
+    "Visual/a11y: at 200% zoom (large-reveal.png) the speculative label jumps above the ball, the headline wraps across 4+ lines and is cut off behind the tab bar, and the tab labels disappear. It stays usable by scrolling, but reading order and composition break.",
+    "Recovery: the network error ('Nothing was charged. Your answers are kept.' with Try again / Review answers / Edit question), the timeout screen, the blocked redirect, Forget with Undo, and the no-charge-on-failure behaviour are all well designed. The forget toast reads 'Forgot Your level.' with a wrong capital 'Y', and the toast covers the list.",
+    "A11y: current accessibility-flow, accessibility and accessibility-cards logs show zero axe violations. Screenshot contrast is measured separately at 9.1–10.3:1. VoiceOver and Dynamic Type are honestly listed as deferred device checks.",
+    "Performance: headed flow p95 is 18.6 ms in every phase, with 600 reveal frames. Cold load to controls is 203 ms and JS is 462 KB. Engine median is 4.92 s and p95 is 13.61 s on the loaded Mac. The research screen honestly says 'up to a minute'."
+  ],
+  "blockers": [
+    "Make export feedback visible. Show the export error (and the success notice) in the viewport as a toast above the tab bar or next to the pressed button, and make the driver assert it is in view, not just present. Re-capture share-export-failure.png showing the message.",
+    "General-path quality: add code checks that reject duplicate card questions, first-person options ('my', 'Update my…'), live-state cards ('current weather', 'today') and a headline that only restates the question. For completion goals (novel, marathon), require a card about the target or remaining scope. Show a defect-free rate of at least 90% on a repeated general eval graded by someone other than the builder.",
+    "Why copy: fix the threshold wording so it references the user's own facts, fix grammar ('a new beginner'), and reject an assumption that just repeats the reason. The Spanish Why shown in the main drive is the first thing a reviewer reads and currently reads as machine-generated.",
+    "Knowledge screen redesign: use one heading, compact fact rows with an inline edit and an overflow or swipe forget action, and put the Undo toast above the tab bar without covering rows. Fix the 'Forgot Your level.' capitalization.",
+    "200% text: keep the label below the headline, keep the verdict fully visible above the fold or use a smaller zoom scale for the verdict, and keep tab labels or accessible names. Assert reading order in drive-extended.",
+    "Share composition: rebalance the 1080x1920 card so the lower third holds something intentional (a question-free tagline or the date band) instead of empty space.",
+    "Replace the screen-timestamp-only logging in drive-extended.json with asserted outcomes: money headline value, retry succeeded with credit unchanged, 200% no horizontal overflow.",
+    "Re-run performance-flow on the final build, and explain or fix the headless 100 ms maximum frame gap in drive.json."
+  ],
+  "strengths": [
+    "A true end-to-end run on local Qwen with no fixtures, logged per engine call with latency. Failures cost nothing and keep the user's answers.",
+    "The core look (orb art, serif verdict, gold call to action, starfield gradient) is distinctive and consistent across 390 and 375 widths.",
+    "Honesty everywhere: a 'Speculative forecast · not a guarantee' label on the reveal and the export, 'Test mode · no real payments' on the paywall, historical failures kept separate from current evidence, and generation-review.md refusing its own 9.",
+    "Recovery design is above average: explicit no-charge copy, Review answers and Edit question paths, a kind sensitive-topic redirect, Forget with Undo, and a forgotten fact correctly asked again.",
+    "Privacy on the share card is enforced: the question, facts and Why are excluded from the 1080x1920 artifact, and friend isolation is covered.",
+    "Native-only integrations (Apple saving, speech, notifications, RevenueCat) are mocked and honestly listed as deferred device checks under the Xcode waiver."
+  ]
+}
+```

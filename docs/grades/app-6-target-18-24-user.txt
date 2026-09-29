@@ -1,0 +1,52 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app",
+  "score": 7.3,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 7.5,
+    "weighted": 7.3
+  },
+  "evidence": [
+    "OBSERVED (drive.json, general-flow.json): Ask → 3 model-written cards → reveal runs against real local Ollama qwen3:4b-instruct-2507. Readings drop by one per reveal (creditsBefore 2 → creditsAfter 1). The self-harm plan returns kind 'blocked' and spends no reading. Cold load to usable controls: 2061 ms.",
+    "OBSERVED semantic defect (drive.json line 121, why.png): the user picked 'New beginner, 30 min daily', but the Why says 'This scenario treats an intermediate starting point, or 20 minutes daily … as enough for basic progress.' That contradicts what the user said. The headline also changes the question: 'Will I be conversational…' becomes 'You will speak basic Spanish'. A 19-year-old will read that as the Ball not listening.",
+    "OBSERVED (general-flow.json line 74): the novel Why just repeats the inputs ('You write 500 words daily … Scenario assumption: You … write 500 words daily'). It never asks or reasons about how long the novel is, so 'You will finish this year' has no real basis. Every Why ends with the same legal-sounding line: 'No external evidence supports the future outcome; it is a speculative scenario.'",
+    "OBSERVED (general-flow-unrelated-memory.json, general-card-unrelated-memory.png): an earlier run leaked earlier memories into the novel questions ('Learning Spanish daily', 'What is your current financial status?') and gave an incoherent Why ('No progress made despite daily writing sessions'). The latest run is clean. That is one clean sample, not a repeated regression result.",
+    "OBSERVED (money-1..10.png, money-reveal.png): the money topic asks 10 cards in a row before any reveal. The 'How many years ahead?' card shows the Home suggestion's '10 years' was not carried through, and the reveal says '5 years'. drive-extended.json keeps only screen names and timestamps for the money, retry and 200% runs, with no engine requests or responses, so those outcomes can't be checked from the logs.",
+    "SELF-ADMITTED (verification-summary.md §11): 'A fresh runtime replay is required after those changes' (supplied-number and horizon validation). No replay of engine-bakeoff.json after that change is cited.",
+    "VISUAL (home.png, ask.png, question-1.png, reveal.png, research.png, blocked.png, timeout.png, paywall.png): consistent cosmic purple, gold and cyan palette. The serif display headings and orb artwork look polished and match what this audience expects. The gold CTA stands out clearly, and the 'Speculative forecast · not a guarantee' label is present on every reveal.",
+    "VISUAL defects: the share preview (share.png) and exported 1080×1920 card (exported-card.png) end on a lone word ('6 / months.'), and the bottom ~35% of the export is empty apart from a faint constellation, so it's weak as a story post. Reveal screens leave the lower third empty. The Why panel is a dense block of text. On the Knowledge screen (knowledge.png), the 'Edit Your level' buttons have random title-case, uneven widths, and don't line up with the 'Forget' buttons.",
+    "VISUAL at 200% text (large-reveal.png, large-question.png): the headline runs under the tab bar ('5 years' cut off) and the question heading is clipped. The speculative label jumps above the orb, and tab labels disappear. It may scroll, but the first view looks broken.",
+    "OBSERVED recovery (network-error.png, timeout.png, blocked.png, drive-states.json): a real offline failure keeps the answers and offers Try again, Review answers and Edit question, with 'Nothing was charged' shown. The 60 s timeout, 8 s waiting copy, forget and Undo, re-asking a forgotten fact, voice fallback, and empty History and You states are all driven.",
+    "ACCESSIBILITY (verification-summary.md, accessibility-cards.json per summary): axe reports zero violations across the five tabs, the paywall and the card flow after the aria-checked and tablist fixes. Gradient text contrast was measured separately (screen-contrast.json). Keyboard focus was captured. Native VoiceOver, Dynamic Type and hold-to-speak are honestly deferred in SETUP.md.",
+    "SOURCE (src/native.ts, src/purchases.ts, tests/integrations.test.ts exists): notifications, Apple sign-in linked to the anonymous user, share and friend link go through a nativeActions adapter that has tests. RevenueCat defaults to 'mock' and needs an explicit env var for sandbox. The paywall visibly says 'Test mode · no real payments'. None of this is claimed to have run on a device.",
+    "PERFORMANCE (performance-flow.json, performance-headed.json): with a visible browser, planning, research and reveal frames average about 16.7 ms, p95 18.6 ms, worst 33.4 ms. The headless baseline (62 ms) is kept and labelled as a harness limit. There is no latency distribution for question-to-reveal inference: the only numbers are single engineLatencyMs readings (536, 1575, 78 ms) and a separate bake-off median of 4.65 s, while the UI allows up to 60 s."
+  ],
+  "blockers": [
+    "Make the Why agree with what the user said. Add a check that rejects a Why whose assumed baseline contradicts the user's selected facts (e.g. 'intermediate' when they picked 'New beginner'), and a check that the headline answers the question's own terms ('conversational', not 'basic'). Rerun the full Spanish, novel and money drives on the live model and keep the responses.",
+    "Rewrite the Why voice for 18–24 users: 2–3 short, warm sentences that name the user's facts and the one assumption that decides the outcome. Move the fixed 'no external evidence' disclaimer into a small footnote instead of ending every reading with it.",
+    "Cut the money flow to at most 4–5 cards, using sensible defaults or remembered values, and carry the horizon the user typed (e.g. '10 years') into the reveal. Show evidence that the reveal horizon matches the question.",
+    "Run the unrelated-memory leakage check at least 10 times on the live model, save the pass/fail table, and replay engine-bakeoff.json after the number and horizon validation change the summary says still needs one.",
+    "Rework the share export composition: balance the headline so it doesn't end on a single word, raise or enlarge the orb and headline block, and fill or crop the empty bottom third. Re-capture the PNG and MP4.",
+    "Fix the reveal and question layouts at 200% text so the headline and speculative label stay in their normal order and fully visible above the tab bar on first view. Keep tab labels or add a visible replacement. Re-capture the screenshots.",
+    "Tidy the Knowledge screen: sentence-case button labels ('Edit level'), and Edit and Forget buttons of equal height, aligned, with a consistent pairing.",
+    "Log retrieval and inference in the extended and states drives: keep the actual request and response bodies and engineLatencyMs for the money, retry and 200% runs, and report question-to-reveal latency as p50/p95 over at least 10 real runs."
+  ],
+  "strengths": [
+    "A real end-to-end flow on local Qwen with no paid APIs or borrowed credentials. Credits, history, knowledge and blocked requests are checked through the UI, not internal setters.",
+    "Consistent, attractive cosmic look with a clear visual hierarchy, and the speculative label is always visible.",
+    "Very good failure and recovery design: no charge on any failure, answers kept, Review/Edit/Retry offered, timeout copy, and Undo on forget.",
+    "Honest paperwork: failed and historical evidence is kept, mocks and deferred native checks are clearly listed, and structural passes are never presented as semantic or accuracy passes.",
+    "Safety redirect is kind, spends no reading, and adds nothing to the knowledge bank.",
+    "Smooth browser frame cadence during real inference, with an unflattering headless baseline kept rather than dropped."
+  ],
+  "notes": {
+    "visual_vs_source": "Screenshots and the exported PNG were inspected visually. native.ts, purchases.ts and the accessibility-attribute counts were read from source only. The MP4 and webm recordings were not viewed (they can't be viewed with read-only tools). axe and contrast results come from the evidence summary and JSON, not re-run.",
+    "authorized_scope": "Expo web at 390×844 instead of iOS Simulator is accepted as authorized. Missing native device checks are not counted against the score beyond noting them.",
+    "limits": "No commands were run. I read only the files cited above and did not open every one of the 157 evidence files."
+  }
+}
+```

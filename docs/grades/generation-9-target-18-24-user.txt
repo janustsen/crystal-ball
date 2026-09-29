@@ -1,0 +1,59 @@
+I rate the generation phase **6.9/10**, below the 9 bar. The rule-based topics (money, growth, relocation, learning, sports, EVs) are solid and the safety checks hold up. The open-ended "general" questions are what fail. The follow-up questions often assume things about the user or mix unrelated options. Nothing tests whether different answers change the verdict: the test replay always picks the first option, and 10 of 11 general verdicts came out positive. The "Why" text is visibly run-on on the reveal screen.
+
+I only read files and ran no commands. Plan mode was on, but this was a read-only grading task, so no plan file was written.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "generation",
+  "score": 6.9,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 7.0,
+    "evidence_groundedness_25": 6.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 8.0,
+    "safety_20": 8.5,
+    "weighted_total": 6.9
+  },
+  "evidence": [
+    "Checked verification-summary.md against engine-bakeoff.json: 20/20 cases completed, all timestamped 2026-09-29T12:44–12:45Z. That confirms the current run is the one cited, not an older capture. Longest single case was 7.11 s, consistent with the stated p95 of 7.05 s. The medians were not recomputed.",
+    "generation-review.md is candid and matches the artifact: it names the same leftover option mismatches and repetitive or circular assumptions I found independently.",
+    "Rule-based answers checked by hand: the money case of $106,413 matches my own compound-growth estimate (about $106.4k). Growth: 100 + 2×4 = 108 is correct. Relocation and learning use visible thresholds and say they are uncalibrated. The EV answer attaches dated IEA/BNEF headlines and says they do not verify the prediction.",
+    "How general answers work (server/engine.ts:84-100): the model must pick one of the user's recorded answers as its 'basis' and the server quotes that answer word for word. Only the separate 'assumption' sentence is written by the model. Numbers in it must come from the user's answers, and a failed output gets one repair attempt, then the request fails.",
+    "The basis the model picks is often the weakest fact. In the replay, the novel case (engine-bakeoff.json) picks 'Update my progress weekly' and assumes 'You will update your progress weekly this year', which says nothing about finishing a novel. The same novel question in general-flow.json picked a different basis, so the explanation changes from run to run.",
+    "Assumptions that just repeat the verdict or add facts. Ex case: 'You will not move on from your ex this year because you still think about them daily' (restates the verdict). Chess: 'continue practicing openings daily' when the user only said 'yesterday' (a new fact).",
+    "What I saw in the screenshots: general-reveal.png shows a 2-line headline with no final period. general-why.png shows the Why as one run-on block: 'Write 500 words daily Scenario assumption: You will write 500 words … updates No external evidence…'. Missing sentence breaks, and the user's first-person answer is quoted inside second-person text. From the code: explainScenario and the Why concatenation in engine.ts join the parts with no punctuation.",
+    "Three of 11 general headlines have no final period ('You will finish a marathon next year', 'You will not move on from your ex this year', and the novel one). formatForecast only adds punctuation when it appends a time phrase.",
+    "Weak or presumptive follow-up questions in the current replay:",
+    "  - Old friend: 'What did you do with an old friend today?' assumes contact happened today, and 'Where did you see…' offers 'They sent a photo'.",
+    "  - Tech job: 'What is your current work activity?' offers 'Team meeting in progress'.",
+    "  - Paris: asks about today's weather for a trip with no date yet.",
+    "  - Student election: '1200 votes in the system' assumes voting is already under way.",
+    "  - Chess: options mix preparation with available time.",
+    "  - Current town: transport options sit inside the safety question.",
+    "  - About 5 of 11 general case sets are clean.",
+    "Awkward or trivially true verdicts. 'You will live happily in your current town within 3 months.' 'Your side project will gain customers' after the user already chose 'First client signed up'.",
+    "Safety, checked against safety-final-first-run.json: 20 of 20 sensitive questions blocked, 0 safe questions wrongly blocked, 39 of 40 categories correct. The one miss is Danish 'Hvor mange år…', filed as self_harm instead of death, but still blocked.",
+    "Safety runs at three points: the question, the model-written follow-up questions, and the final output (engine.ts:22, 30, 36, 101). The phrase rules include multilingual forms. The self-harm message points the user to help.",
+    "The roughly 84% statistical lower bound on safety accuracy and the regression sets tuned on known cases are disclosed. No public safety clearance is claimed."
+  ],
+  "blockers": [
+    "Show that the user's answers actually drive the verdict. Rerun all 11 general cases with at least two contrasting answer sets each (for example 0 chapters written and rarely writing versus 3 chapters and 500 words a day). Record whether the verdict flips. Positive verdicts are currently 10 of 11 and never tested against answers that point the other way.",
+    "Fix how the Why is assembled. Split the stored question from the answer ('You said: \"500 words daily\"'), turn first-person options into second person, and put sentence breaks between recorded context, assumption and disclaimer. Add a test that fails when these parts run together.",
+    "Always end the headline with a period (formatForecast), and add a test for the case where the model already included the time phrase.",
+    "Tighten the rules for general follow-up questions. Reject cards that assume a present event ('today', 'in progress', 'in the system' when nothing has started). Require every option to answer the card's own question, which would catch the photo-under-where and meeting-under-work-activity cards. Weather or other short-lived conditions should need a known date. Reach at least 10 of 11 clean card sets in a fresh replay, graded by someone other than the builder.",
+    "Improve basis choice and the assumption sentence. Reject a basis that has no causal link to the question, such as progress-update frequency for finishing a novel. Reject assumptions that repeat the verdict (contains 'because' or restates the prediction) or add a detail the user never gave ('daily' when they said 'yesterday').",
+    "Reject trivially true or badly timed verdicts. 'Gain customers' is already true once a first client has signed up. Horizons that make no sense ('live happily … within 3 months') should be rephrased or rejected.",
+    "Check that the explanation is stable. Run the same question and answers several times and record whether the basis and assumption stay consistent, or display them in a way that does not change between runs."
+  ],
+  "strengths": [
+    "Answers are definitive and short: every headline is one 'will' sentence of 70 characters or less, hedging words are rejected, and the time frame comes from the server. Each one carries the 'Speculative forecast · not a guarantee' label.",
+    "Rule-based topics (money, growth, relocation, learning, EV) are clear and reproducible. The money math checks out, and assumptions and uncalibrated thresholds are stated openly.",
+    "The factual part of the Why is quoted from the user's own answers rather than written by the model. Invented numbers are rejected, a bad output gets one repair and then fails, and a test checks that invented text never appears.",
+    "Earlier leakage of unrelated memories into general questions (Spanish facts, money amounts) was reproduced, fixed, and covered by a test.",
+    "Safety is checked in layers, results were strong on a set it was not tuned on, and the self-harm message points to help.",
+    "The evidence is honest: past failures are kept and labelled as historical, the builder's own review lists its defects, and nothing claims predictive accuracy.",
+    "Fast locally on Qwen 3 4B: total p95 is about 7 s and prediction p95 about 3 s, with no paid APIs."
+  ]
+}
+```

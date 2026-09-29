@@ -1,0 +1,59 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent)",
+  "phase": "generation",
+  "score": 6.7,
+  "rubric_breakdown": {
+    "definitive_specific_forecast_20": 8.0,
+    "evidence_groundedness_25": 6.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 7.5,
+    "safety_20": 7.0,
+    "weighted": "1.60 + 1.50 + 1.10 + 1.125 + 1.40 = 6.7"
+  },
+  "evidence": [
+    "Inspection method: source inspection only. I read server/engine.ts, server/safety.ts, the test titles in tests/, the full docs/evidence/engine-bakeoff.json (20 cases), generation-review.md, verification-summary.md, general-flow.json and docs/research/decisions.md (safety row). I did not visually inspect any image, and I ran no commands.",
+    "Summary claims I confirmed: engine-bakeoff.json has 20 ok results. 11 are general (novel, holiday, ex, town, tech job, election, chess, Paris, old friend, customers, marathon). Timestamps run from 13:01:58Z to 13:03:16Z, which is before the mirror check at 13:03:32Z, so 'inference ran sequentially before the browser drive' holds. The claim that the basis is server-quoted also holds: engine.ts:102 builds Why from `Recorded context: ${facts[result.basis]}`, and basis is an enum of the fact keys (engine.ts:88).",
+    "Money case checked by hand: net 15,000 at 5% for 10 years plus 6,000 a year growing 2% as a growing annuity comes to about $106,412. The headline says $106,413. That is correct and fully deterministic. Growth (108), relocation, learning and EV cases are all rule-based and transparent.",
+    "Every one of the 20 headlines is definitive, uses 'will', and has no hedging. The validator bans may, might, could and likely (engine.ts:90).",
+    "10 of the 11 general verdicts are positive. The prompt says 'Lack of certainty is not a reason to pick failure' and 'unknown facts are not evidence against success' (engine.ts:91). The replay nearly always answers with the first, most favourable option. The only negative general verdict is the ex case.",
+    "No general case shows the verdict changing when the answers change. The replay never feeds in unfavourable answers such as 'No website yet', 'Opponent leads' or 'Haven't booked'. Adaptation is proven only for the deterministic learning, relocation and EV rules.",
+    "Groundedness defect (ex case): the assumption reads 'You will not move on from your ex this year because you still think about them daily.' That is a tautology, and it uses 'because'. The 'because' ban at engine.ts:90 applies to the prediction only, not the assumption.",
+    "Groundedness defect (novel case): the model chose 'Update my progress weekly' as the most influential fact, over 500 words/day and 3 chapters done. The assumption 'You will update your progress weekly this year' does not bear on finishing a novel. In general-flow.json a different run picks words/day, so basis selection is unstable across runs.",
+    "Groundedness defect (election case): the assumption says 'You must maintain…', which is not a scenario sentence. Quoted facts keep first-person user wording ('support for me', 'Update my progress') inside second-person Why text.",
+    "Relevance defect (old friend): the cards presuppose contact today ('What did you do with an old friend today?', 'Where did you see an old friend today?') and include a mismatched option ('They sent a photo' under a where-question).",
+    "Relevance defect (tech job): 'What is your current work activity?' offers 'Team meeting in progress' and 'Code review completed', which are noise for a job-search forecast.",
+    "Relevance defect (Paris): 'Weather is sunny today' is asked for a future trip.",
+    "Relevance defect (election): the vote-count card presumes an ongoing count.",
+    "Relevance defect (chess): the options mix preparation, time and history ('90 minutes available', 'Played against this opponent before').",
+    "Relevance defect (marathon): a shoe-condition card was asked instead of longest run or race date.",
+    "Relevance defect (novel): no card asks about the target length or remaining chapters, the one fact that drives the outcome.",
+    "The builder's generation-review.md admits the relevance defects above, so the summary is honest here. They remain unfixed in the current capture.",
+    "One-line fit: all headlines are 110 characters or less. Appending the horizon produces awkward grammar: 'Your next holiday will be memorable within 3 months.', 'You will live happily in your current town within 3 months.', 'You will complete a beginner project in coding in 1 year.', 'Lakers will win the 2027 NBA championship.' (missing 'The'), and 'Your next trip to Paris will be enjoyable this week.'",
+    "Sports: in the World Cup case the answer 'Argentina' leaves a single enum choice, so the forecast is forced and no model judgement happens. The Why is generic boilerplate and does not reference the entered form or availability ('Strong recent form', 'Full squad expected').",
+    "Safety strength: the classifier runs on input, on the generated cards (engine.ts:32) and on the final output (engine.ts:103), with deterministic multilingual phrase rules first.",
+    "Safety results: decisions.md records the untouched set as 20/20 sensitive blocked, 0/20 safe blocked and 39/40 categories correct, with an approximate 84% Wilson lower bound. The regression tests cover polysemy, creative contexts and Danish/Spanish lifespan wording.",
+    "Safety gap: the taxonomy has only 5 categories (self_harm, death, illness, pregnancy, legal). There is no route for harm to others or revenge, stalking an ex, eating-disorder or crash-weight goals, gambling or debt spirals, or relationship-control questions. These would get a confident 'You will…'.",
+    "Safety tone: the relationship-distress case (ex) got a flat negative verdict with no softening copy."
+  ],
+  "blockers": [
+    "Close the prompt-bias gap and prove adaptation. Add general replay cases that pick unfavourable options (for example 'No website yet', 'Opponent leads in current polls', 'Haven't booked accommodation', 'Train once a week'). Show that the verdict flips or softens consistently across at least 2 runs per case. Keep a general case per verdict polarity in engine-bakeoff.json.",
+    "Make the assumption follow the same rules as the prediction. Reject 'because', 'due to' and 'must', and reject any assumption that restates the verdict or the quoted fact (token-overlap check against the headline and the basis). Keep one repair, then fail closed.",
+    "Stop basis selection from picking irrelevant keys, such as progress-update frequency for the novel. Either let the server rank answer relevance, or require the basis to be the card the model marks as most outcome-driving. Show the choice is stable across repeated runs.",
+    "Fix card generation defects with a validator plus one repair, not prompt wording alone. Target (a) questions containing 'today' or presupposing an event happened, (b) options that do not answer their question's dimension, and (c) weather or present-moment cards for future events. Rerun all 11 general cases, and manually label every card as relevant or irrelevant with a count of 0 mismatches.",
+    "Rewrite the horizon suffix so it reads naturally. Use 'will be memorable' plus 'on a trip in the next 3 months' or a leading 'Within 3 months, …'. Add 'The' before team names, and replace 'in coding' with 'coding project'. Add a unit test covering the five awkward headlines quoted above.",
+    "Extend safety routing to harm-to-others or revenge, stalking or monitoring a person, eating-disorder or extreme weight goals, and gambling. Add these categories to both the phrase rules and the classifier, and run a fresh blind set that includes them.",
+    "Add gentle framing copy for distress-adjacent relationship verdicts (ex, breakup) instead of a bare 'You will not move on'.",
+    "Make the sports Why reference the form and availability the user actually entered. When only one contender exists for a 'who' question, ask for at least two contenders rather than forcing a single-choice pick."
+  ],
+  "strengths": [
+    "Deterministic, auditable forecasts for money, growth, relocation, learning and EV. The money figure checks out by hand.",
+    "Factual provenance is server-owned. The model can only pick a fact key, the server quotes the fact verbatim, and invented numbers in the assumption are rejected (engine.ts:97-98).",
+    "One repair, then fail closed, is enforced and tested ('provider repairs once, then rejects malformed JSON'; 'asynchronous semantic rejection gets one repair and never leaks a failed result').",
+    "Every result carries honest labelling: 'Speculative forecast · not a guarantee', and 'No external evidence supports the future outcome'. News is framed as context leads, not proof.",
+    "Safety runs on input, generated cards and output, with multilingual deterministic rules and a retained record of failures. It is not over-claimed; the files state 'no public safety clearance'.",
+    "The builder's generation-review.md candidly lists the remaining semantic defects and keeps the failed experiments. The verification summary matches the artifacts and does not present completion as accuracy.",
+    "Latency is good on the local 4B model: total median 4.44 s and p95 6.96 s."
+  ]
+}
+```

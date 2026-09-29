@@ -13,7 +13,7 @@ export function topicFor(question:string):Topic {
  if(/net worth|savings|wealth|money in|worth in/i.test(question))return 'money';
  if(/spanish|learn|fluent|language/i.test(question))return 'learning';
  if(/where.*(?:move|live)|(?:will I|will we|I will|we will).*move (?:to|out|away|abroad|house|cities)|relocat/i.test(question))return 'relocation';
- if(/users|project grow|customers/i.test(question))return 'growth';
+ if(/users|project grow/i.test(question))return 'growth';
  if(/world cup|nba|basketball championship/i.test(question))return 'sports';
  if(/\b(job|career|hired|student|school)\b/i.test(question))return 'general';
  if(/\b(EVs?|electric vehicles|global|inflation|election|economy|climate|technology)\b/i.test(question))return 'world';

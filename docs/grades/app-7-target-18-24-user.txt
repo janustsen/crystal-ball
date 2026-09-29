@@ -1,0 +1,46 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app (Expo web 390x844 / 375x667 under firstmate's Xcode waiver)",
+  "score": 7,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_from_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 6.5,
+    "performance_15": 7.0,
+    "weighted": 7.1
+  },
+  "method": "Read-only. I looked at the screenshots themselves: home, selected-2, research, reveal, why, share, share-export-failure, exported-card (1080x1920), knowledge, forget-undo, history, paywall, blocked, timeout, home-small, general-card-1 and general-reveal. Separately, I read the source of src/ShareCard.tsx and scripts/drive.mjs, and read these JSON/MD files: verification-summary, drive, drive-states, general-flow, generation-review, accessibility-flow, performance-flow. I did not open the MP4/WebM files or review.html in a renderer.",
+  "evidence": [
+    "Checked against the summary: drive.json is timestamped 2026-09-29T12:14:15Z and general-flow.json 12:16:33Z. Both are after the stated final changes and both finish with ok responses. The model is qwen3:4b-instruct-2507-q4_K_M. Engine latencies in this run were plan 383 ms and predict 1429 ms. flowSeconds is 9.1.",
+    "The main flow works as observed. Planning produced three relevant cards. The Other free-text answer ('30 minutes') was carried into the prediction. The reveal, Why, Share and History-after-reload screens all appear in both the log and the screenshots. The daily cap opens the paywall. The mock purchase adds five readings. The sensitive question was blocked with no charge, and blocked.png says 'No reading was spent'.",
+    "Visual inspection: the cosmic palette is consistent and high quality. The orb art, the serif display type with a gold CTA, and the tab bar with a central orb all hold up at 390 and 375. The exported 1080x1920 card is clean and legible, and it contains only the headline, date and disclaimer.",
+    "Visual inspection of timeout.png and research.png: recovery copy is clear ('Nothing was charged', Try again / Edit question, Cancel during research).",
+    "Visual inspection of share-export-failure.png: it is pixel-equivalent to share.png, with no error message visible. Source inspection confirms why. In ShareCard.tsx:35 the notice text renders after the 'Back to prediction' button, which is below the fold at 844. The driver finds the text with Playwright's getByText, which does not require it to be on screen. So the summary's 'recoverable export message' claim is only true for screen readers (the notice is a live region). A sighted user sees nothing happen.",
+    "Semantic quality, from reading the drive.json output: the Why text says 'new beginner… This scenario treats an intermediate starting point, or 20 minutes daily… as enough'. That argues against its own verdict. It also calls the user's weekly conversation practice 'weekly feedback', and knowledge.png relabels that fact as 'Practice feedback'. Every reading adds the assumption 'News headlines are context leads' even though sources is [].",
+    "In generation-review.md the builder admits semantic defects in most of the 10 general cases (duplicate cards, Why text that contradicts the supplied facts, options that presume things about the user). engine-bakeoff reports 19/20 completions; the technology-job case fails closed.",
+    "Visual inspection of general-card-1.png: the options repeat the question's wording ('Write 500 words daily' under 'How many words do you write daily?'), are out of order (500/100/200), and have no low or none choice. general-flow facts store the question and answer concatenated into one string.",
+    "Visual inspection of forget-undo.png: the toast reads 'Forgot Your level.' with a capital Y. It also covers the next knowledge row. Each fact carries a full-width Edit/Forget button pair, which makes the page heavy and repetitive.",
+    "Visual inspection of blocked.png (pregnancy category): the headline 'Let's look toward something gentler' and the button 'Explore a hopeful personal goal' read as condescending for what may be an ordinary fertility question. I can't see the input text in the screenshot, so this judgment is partly inferred.",
+    "Accessibility: accessibility-flow.json shows 0 axe violations across 5 screens. color-contrast is 'incomplete' on every screen, and the share screen is also incomplete on aria-prohibited-attr. The separate screenshot-based contrast measurements (9.1–10.3:1) are credible evidence. Native VoiceOver and Dynamic Type are honestly listed as unverified.",
+    "Performance: performance-flow.json shows p95 18.6 ms for planning, research and reveal. It was captured at 11:25Z, before the final share and knowledge changes. The current drive.json headless rafCadence is mean 26.7 ms, max 100 ms. Engine timing across the replay is median 4.9 s and p95 13.6 s for the whole flow, measured under load. Cold load to controls is 203 ms. All of these are browser observations only.",
+    "Honesty: the summary correctly keeps historical failures separate, and it does not claim predictive accuracy, simulator runs, device tests, or real billing. Deferred device checks are listed: Apple saving, speech, notification delivery, RevenueCat sandbox, native share sheet."
+  ],
+  "blockers": [
+    "Make export failure visible. Put the notice right under the export buttons, or show it as a toast or banner that stays on screen. Then recapture share-export-failure.png at 390x844 so the error is in the viewport, and have the driver assert it is visible with toBeInViewport rather than just finding the text.",
+    "Fix the Why reasoning so it cannot contradict its own verdict. It should never cite a threshold the user does not meet, such as treating an intermediate level as enough when the user said beginner. Keep the user's own wording (conversation practice, not 'feedback'). Only add the 'News headlines' assumption when sources is non-empty. Add a regression check for each of these.",
+    "Reduce the semantic defects in generation-review.md: duplicate cards, options that presume contact or vote counts, and Why text that discounts facts the user supplied. Get a fresh 20-case replay to 20/20, or show that the failed case gives a graceful, useful fallback. Then have someone other than the builder rate the Why text of the 10 general cases.",
+    "Improve general-card options: short answer-only labels, in order, with a low or zero choice. Store facts as short labels, not question+answer strings.",
+    "Rework the sensitive-redirect copy by category. Pregnancy and health questions need neutral wording that does not talk down to the user, and a relevant next step instead of 'something gentler'.",
+    "Polish the knowledge page: lowercase the fact name inside the toast sentence ('Forgot your level.'), keep the toast from covering content, and replace the full-width Edit/Forget pairs with compact row actions.",
+    "Re-run the headed performance capture (performance-flow) on the current build, so the frame data is from after the final UI changes, and explain or fix the 100 ms max frame in the current headless cadence."
+  ],
+  "strengths": [
+    "The whole flow runs on real local Qwen with no paid APIs, fails closed with no charge, and does not use made-up fallbacks.",
+    "A distinctive, consistent cosmic visual system that works at 390 and 375. The share card is attractive, and private answers never appear on it.",
+    "Wide state coverage: timeout, long wait, offline retry, empty states, forget with Undo, mock purchase, reminder preview, voice fallback, and 200% text.",
+    "The evidence is honest: historical failures are kept and labeled, the builder states semantic defects themselves, and deferred native checks are listed.",
+    "Zero axe violations, backed by contrast measured on the rendered gradients. Readings are protected: blocked or failed requests never charge."
+  ]
+}
+```

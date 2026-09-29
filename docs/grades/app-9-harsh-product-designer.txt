@@ -1,0 +1,67 @@
+**Score: 7.5 / 10, below the 9 bar.** The app works end to end on real local Qwen, the dark purple-and-gold look is consistently strong, and the recovery states are good. It falls short because the model's "Why" text for general questions is jammed-together raw text, the 200% text size is poorly handled, a 6-month prediction can be marked "Came true" the day it was made, and two of the four UI logs only list screen names without recording checks.
+
+I only read files; nothing was run or changed. Plan mode was on, but I had no tool to write the plan file or exit plan mode, so the result is below. Everything under "visual" comes from looking at the PNG screenshots. Everything under "source" or "log" comes from reading JSON, Markdown or code.
+
+```json
+{
+  "role": "independent harsh-product-designer grader",
+  "phase": "app (Expo web 390x844 / 375x667 under firstmate's Xcode waiver)",
+  "score": 7.5,
+  "subscores": {
+    "end_to_end_observed_behavior_35": 7.5,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 8.0
+  },
+  "evidence": {
+    "summary_vs_artifacts": [
+      "CONFIRMED (log): drive.json runAt 2026-09-29T12:27:05Z uses qwen3:4b-instruct-2507-q4_K_M. It covers plan, three cards, predict, reveal, Why, share, share HTTP 500 fault injection (recoverable), history persisted after reload, daily cap opening the paywall, mock purchase and a pregnancy block. flowSeconds is 9.3.",
+      "CONFIRMED (log): general-flow.json runAt 12:45:40Z has model-written novel-writing cards with no Spanish or money facts leaking in. Credits go 2 to 1, and the self-harm question is blocked.",
+      "CONFIRMED (log): engine-bakeoff.json has 20 of 20 cases with kind ok, and each case records seconds, planningSeconds and predictionSeconds. I did not recompute the medians and p95s myself; the per-case values are consistent with them.",
+      "CONFIRMED (log): performance-flow.json gives p95 frame intervals of 18.6 ms for planning, 18.4 for research, 18.6 for reveal (599 frames) and 33.3 for cards.",
+      "CONFIRMED (log): accessibility-flow.json has 0 violations on all 5 screens. But it has no timestamp, and the share screen carries an unresolved 'aria-prohibited-attr' incomplete that the summary does not mention.",
+      "PARTIALLY SUPPORTED (log): drive-extended.json and drive-states.json are mostly lists of screen names. Apart from a few booleans (forget/undo restored, forgotten fact asked again, empty-state copy), they record no assertions or values. The ten money inputs, the offline error text, the retry result and the friend-isolation outcome are not recorded, so the money reveal ($6,371) cannot be traced to its inputs.",
+      "UNEXPLAINED (log): drive.json rafCadence reports a 59.2 ms mean and 133 ms max over 120 frames at cold load, roughly 17 fps. The summary does not mention it.",
+      "INCONSISTENT (log/doc): generation-review.md says the Novel case 'quotes weekly progress exactly'. The current general-flow.json Why quotes context_1 (500 words daily) instead."
+    ],
+    "visual_inspection": [
+      "home.png, ask.png, question-1.png: the purple-and-gold palette, serif headlines, orb artwork and centered Ask tab are cohesive and above typical prototype quality.",
+      "reveal.png and exported-card.png: a strong reveal. The 1080x1920 card is legible and well spaced, and the 'not a guarantee' label is visible.",
+      "general-why.png: 'Recorded context: How many words do you write daily? Write 500 words daily Scenario assumption: You will write 500 words daily and maintain weekly updates No external evidence…' Sentences run together without punctuation and it reads like field names. It is the weakest screen in the app.",
+      "general-reveal.png: the headline has no final period while the other headlines do. general-card-1.png: the options are listed 500 / 100 / 200 and repeat the question ('Write 500 words daily').",
+      "large-reveal.png / large-question.png at 200% on 375x667: the tab labels collide ('Home Explore Ask History You' with no spacing), and the headline and question are cut off by the tab bar in the first view.",
+      "history-yes.png: the 6-month Spanish prediction shows 'Came true' on the day it was made.",
+      "forget-undo.png: the toast reads 'Forgot Your level.' with a stray capital. knowledge.png: the fact is labeled 'Practice feedback' but the question asked 'How often can you practice conversation?'. Full-size Edit/Forget button pairs on every row make the screen heavy.",
+      "reminder-preview.png: the toast covers the main Share button, and its copy ('Local notifications need an iOS or Android build') is developer wording shown to users.",
+      "money-1.png to money-10.png: ten sequential questions for an entertainment reading is a lot of friction.",
+      "research.png: gives only 'up to a minute' plus Cancel, with no sense of progress. The observed wait is short, so this is minor.",
+      "blocked.png, timeout.png, share-export-failure.png: calm, on-brand recovery screens that state nothing was charged. A good pattern."
+    ],
+    "source_inspection": [
+      "SETUP.md honestly lists the device checks still to do: VoiceOver, Dynamic Type, keyboard, safe area, hold-to-speak, notifications, Sign in with Apple and RevenueCat sandbox. It has spacing typos ('Type200%', 'and30-day', 'and5/20').",
+      "src/native.ts, src/purchases.ts and VoiceButton.* exist for the native paths. The summary says 24 tests cover the native mocks; I did not re-run them.",
+      "app/index.tsx and src/questions.ts are written as very long single lines, which makes the code hard to review. Not graded against the product."
+    ],
+    "deferred_device_checks_acknowledged": ["VoiceOver", "Dynamic Type", "native speech", "local notification delivery", "Sign in with Apple link", "RevenueCat sandbox", "native share sheet/capture", "native FPS"]
+  },
+  "blockers": [
+    "Make Why read as written sentences for general questions: quote the basis, then the assumption, with punctuation and without repeating the question text. Where the model gives a basis fact, use the one it names. Re-capture general-why.png.",
+    "Fix the 200% layout: tab labels must not collide (shrink them, drop them, or wrap), and the reveal headline must fit or show a clear scroll hint above the tab bar at 375x667. Re-capture the large-* screenshots.",
+    "Block 'Came true' / 'Didn't happen' until the prediction's horizon date has passed (or ask the user to confirm an early outcome). Capture both states.",
+    "Make the drive-extended.json and drive-states.json logs record values and checks: the money inputs, the resulting headline and Why, offline error text, retry outcome, friend-isolation proof, and 200% overflow measurements.",
+    "Fix the copy defects: 'Forgot Your level.' should be 'Forgot your level.'; 'Practice feedback' should be 'Conversation practice'; add the missing headline period; order card options by value and don't repeat the question in them.",
+    "Keep the reminder toast off the main Share button, and reword the web-preview notice in user language.",
+    "Cut the money flow from 10 questions to 5 or fewer before the reveal (default return, inflation and windfall, and offer them as optional tweaks after).",
+    "Explain or fix the cold-load 59 ms mean frame interval in drive.json. Resolve or document the share-screen aria-prohibited-attr incomplete, and add a timestamp to accessibility-flow.json.",
+    "Make generation-review.md match the current general-flow.json output for the Novel case."
+  ],
+  "strengths": [
+    "A real local Qwen 4B runs end to end with no paid APIs, and 20 of 20 engine cases completed with bounded latency (about 4.6 s median total).",
+    "The purple-and-gold palette, serif type, orb and the 1080x1920 export are cohesive. The PNG and MP4 exports and the in-app preview share one canvas, and private answers never appear on the card.",
+    "Recovery is strong: share HTTP 500, timeout, offline retry and sensitive redirects all say whether a reading was spent. Forget has Undo.",
+    "The labeling is honest: 'Speculative forecast · not a guarantee' everywhere, a mock paywall that says it is a test, and no claims of predictive accuracy or public safety clearance.",
+    "Failed runs and harness mistakes are kept and labeled rather than hidden (mirror-stale-snapshot-failure.txt, holiday-repair.md).",
+    "Browser frame intervals during planning, research and reveal hold near 16.7 ms at p95 about 18.5 ms, and reduced-motion and headed comparisons are kept."
+  ]
+}
+```

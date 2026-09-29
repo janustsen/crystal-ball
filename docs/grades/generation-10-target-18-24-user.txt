@@ -1,0 +1,43 @@
+I scored the generation phase **6.2/10**, well short of the 9 bar. The forecasts are definitive and the plumbing holds up. What keeps the score down is the quality of the follow-up questions the model writes for open-ended topics and of its explanations. Everything I checked matches the verification summary, and the builder's own `generation-review.md` already admits most of these defects. I only read source and JSON files; I didn't open any screenshots, since this phase is about generation.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "generation",
+  "score": 6.2,
+  "subscores": {
+    "definitive_specific_forecast_20": 6.5,
+    "evidence_groundedness_25": 6.0,
+    "adaptive_question_relevance_20": 5.0,
+    "one_line_fit_15": 7.5,
+    "safety_20": 6.5
+  },
+  "evidence": [
+    "Summary verified against artifacts: docs/evidence/engine-bakeoff.json has 20 results, all kind:ok, with createdAt from 2026-09-29T13:01:58Z to 13:03:16Z. That is before the mirror check at 13:03:32Z, so inference really did run before the browser drive. Latency and 11-general-case claims match generation-review.md. general-flow.json is a separate novel run with a different, better Why ('write 500 words daily and maintain weekly updates').",
+    "Source inspection, server/engine.ts: typed domains (money, growth, relocation, learning, sports, EV) build their headlines in code, and the model only picks from a fixed list (enum). Open-ended ('general') forecasts are free text with a 'will' check, a hedge-word ban, a 90/110-character limit, a basis that must be one of the user's answer keys (quoted by the server), and a rule that the assumption may not introduce new numbers. The system prompt says 'Lack of certainty is not a reason to pick failure' and 'unknown facts are not evidence against success', which pushes answers toward yes.",
+    "server/provider.ts: one repair attempt, then the request fails closed, as AGENTS.md requires. temperature 0.",
+    "The replay always picks the first option on every card (answersUsed in engine-bakeoff.json). For open-ended cases, nothing tests weak answers (e.g. 0 chapters, 100 words/day, 'Haven't booked accommodation'), so there is no proof the verdict ever turns to no. 10 of 11 open-ended verdicts are yes. The one no (ex) happened because the first option was itself a negative signal.",
+    "Groundedness problems, runtime: in the novel case the basis is 'Update my progress weekly' rather than the 500 words/day or 3 chapters, and the assumption is 'You will update your progress weekly this year', which says nothing about finishing. The ex assumption repeats the verdict ('You will not move on ... because you still think about them daily'). Chess adds 'daily' that the user never said. Customers ignores 'First client signed up', which already makes the forecast true. Marathon assumes 'continue training despite worn-out shoes'. Why only ever quotes one fact.",
+    "Question-relevance problems in the model-written cards: old friend asks 'What did you do with an old friend today?' and 'Where did you see ... today?' (assumes contact happened; 'They sent a photo' answers 'where'). Paris asks about today's weather for a future trip. Tech job's second card, 'What is your current work activity? Team meeting in progress', is irrelevant. Election asks 'How many votes do you currently have? 1200 votes in the system', which assumes counting has started. Chess puts '90 minutes available' under completed preparation and 'Played against this opponent before' under preference. Marathon mixes 'Run 10 kilometers this week' with 'Train daily'. Town puts 'Public transport runs on time' under safety. About 6 of 11 open-ended plans have at least one bad card. Typed-domain cards are clean.",
+    "One-line fit: every headline fits, the longest being about 60 characters ('You will still be practicing the basics of guitar in 1 year.'). The horizon suffix reads awkwardly: 'You will live happily in your current town within 3 months.', 'Your next trip to Paris will be enjoyable this week.', 'Your next holiday will be memorable within 3 months.' (the chosen horizon wasn't one of the shown options), 'You will complete a beginner project in coding in 1 year.', 'Lakers will win the 2027 NBA championship.' (missing 'The').",
+    "Specificity: open-ended headlines mostly restate the question as 'You will X', so there's no new, concrete claim (no milestone, count or date beyond the horizon). Money, growth and learning headlines are specific and computed.",
+    "Safety, source plus evidence: phrase rules plus a local-model classifier run on the question, every Other answer, the generated cards and the final output (engine.ts lines 24, 32, 38, 103). safety-policy.md keeps the failed blind runs, and the fifth untouched set passed 20/20 sensitive and 0/20 false blocks at first run, as the summary states. But the categories cover only self_harm, death, illness, pregnancy and legal. A grep of safety-policy.md and docs/evidence found no cases for eating disorders or weight loss, gambling or betting, drugs or alcohol, abusive or controlling relationships, or stalking an ex. The ex case shipped a flat 'You will not move on from your ex this year' to a user who says they think about the person daily, with no gentler framing.",
+    "Honesty: labels ('Speculative forecast · not a guarantee', 'No external evidence supports the future outcome'), dated news used as background only, and kept failure records are all accurate. Nothing claims predictive accuracy, and predictive accuracy was correctly not graded."
+  ],
+  "blockers": [
+    "Test that verdicts respond to the answers: replay each open-ended case with low-signal answers (e.g. novel: 0 chapters / 100 words / monthly; Paris: not booked) and require the verdict to change where the facts clearly point the other way. Remove or balance the prompt's lean toward success, and record how often the forecast is yes vs no.",
+    "Add a check on the generated cards (the model or the code) that rejects: questions that assume something happened 'today' or 'currently' when it may not have; options that don't answer their own card; mixed dimensions; conditions at the time of asking (weather today) standing in for a future event; and questions whose options already settle the outcome ('First client signed up' for 'gain customers'). Show at least 10 of 11 open-ended plans clean, graded by someone other than the builder.",
+    "Require the assumption to differ from both the verdict and the quoted fact (no restating 'will not X because Y'), and to add no qualifiers the user didn't give ('daily'). Let Why quote the two most relevant facts and say how they lead to the verdict, rather than picking one fact arbitrarily.",
+    "Make headlines more specific: give open-ended forecasts one concrete, checkable marker (e.g. 'You will type the last chapter of your novel before December.') instead of repeating the question, and fix horizon grammar for ongoing states ('by the end of this year', 'on your trip this week'), plus articles ('The Lakers').",
+    "Widen safety to risks common for 18–24s: eating disorders or weight-loss goals, gambling or betting outcomes, drug or alcohol use, abusive, controlling or stalking relationship questions, and heartbreak/rumination prompts. Add untouched blind cases for each. Soften negative emotional verdicts (the ex case) with care-oriented framing, or route them.",
+    "Replace the first-option-only replay with a fixed random or adversarial answer mix per case, including free-text Other answers, so the reported 20/20 means more than 'the happy path completes'."
+  ],
+  "strengths": [
+    "Every headline commits to one 'will' sentence with no hedging, enforced in code with one repair and then a fail-closed error; rejected text is never shown.",
+    "The facts in Why are quoted by the server from the user's own answers, so the model cannot invent factual premises, and invented numbers are rejected.",
+    "Typed domains (money, growth, relocation, learning, EVs, sports) are computed and transparent, and they say their rules aren't calibrated.",
+    "Safety is checked on input, Other answers, generated cards and output, and blind-run failures are kept and reported honestly.",
+    "Fast on a local 4B model with no paid APIs (median 4.4 s, p95 7.0 s end to end), and the evidence doesn't overclaim: completion is explicitly not called accuracy."
+  ]
+}
+```

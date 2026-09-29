@@ -1,0 +1,37 @@
+```json
+{
+  "role": "harsh-product-designer grader (independent, read-only)",
+  "phase": "app",
+  "score": 7.8,
+  "evidence": [
+    "SUMMARY vs ARTIFACTS: the verification-summary.md claims hold up against the files I read. drive.json (runAt 2026-09-29T12:56:07Z) records a real local Qwen run (qwen3:4b-instruct-2507-q4_K_M): Spanish plan in 381 ms, prediction in 1501 ms, a 9.3 s flow, a share HTTP-500 fault marked recoverable, history still there after reload, daily cap opening the paywall, a mock purchase, and a pregnancy question redirected with blocked kind. drive-extended.json shows ten money cards, network-error followed by retry-reveal, and 200% text screens. drive-states.json covers reminder preview, forget/Undo restored, a forgotten fact asked again, voice fallback, keyboard focus, long wait, timeout, and empty-state copy. general-flow.json (13:03Z) shows the novel plan with no Spanish or money leakage, credits going 3→2, and a self_harm redirect. performance-flow.json (13:03:49Z) matches the summary exactly: reveal n=600, p95 18.6 ms, max 20.2 ms; cards p95 18.1 ms.",
+    "SOURCE, not visual: generation-review.md is written by the builder. It admits remaining option mismatches (old friend, current town, chess) and 'weak/tautological future conditions'. That is honest, but it means generation quality is not clean across the suite.",
+    "VISUAL (general-card-1.png): the novel options are listed as 500 / 100 / 200 words daily. They are not in order and each repeats 'Write … daily', which reads like model output rather than designed choices. The third card, 'How often do you update your progress?', has little to do with finishing a novel.",
+    "VISUAL (general-why.png, reveal-small-why.png): the Why panel begins 'Recorded context: How many words do you write daily? Write 500 words daily.' It pastes the question and answer back as system-log text. The mystic voice ('Behind the mist') breaks straight away. At 375 the panel opens below the fold and sits under the tab bar, so the user has to scroll to read the reason they tapped for.",
+    "VISUAL (money-reveal.png, large-reveal.png): 'Your net worth will be $6,371 in 5 years.' Showing an exact-to-the-dollar number from ten tapped cards is false precision. It hurts credibility even for an entertainment app.",
+    "VISUAL (knowledge.png, forget-undo.png): the memory label for the conversation-practice card reads 'Practice feedback', which is wrong. 'Your level' does not say for what (Spanish). The toast shows 'Forgot Your level.' with a capital Y mid-sentence. Every fact carries full-size Edit and Forget buttons, so the list is heavy and repetitive, and only about 2.5 facts fit on screen.",
+    "VISUAL (exported-card.png, share.png): the 1080×1920 card is on-palette and legible, but the bottom ~25% is empty apart from a faint constellation line. The headline breaks as 'Spanish in / 6 months.', and the card has no call to action or app handle. As a viral artifact it reads as unfinished.",
+    "VISUAL (large-reveal.png, 200% at 375): tab labels 'Home Explore Ask History You' run together with almost no gaps, and the headline is clipped behind the tab bar. It is scrollable, but it is not a considered large-text layout.",
+    "VISUAL, positive (home.png, reveal.png, research.png, general-failure.png, other-390.png, share-export-failure.png): palette, serif display type, orb artwork and gold CTA hierarchy are consistent across screens. Loading, failure ('The mist is too thick.' with Try again / Edit question) and export failure all stay on-brand, name a way to recover, and state 'No reading is spent on failure'. The selected state on Other and its inline field are clear.",
+    "ACCESSIBILITY (JSON, source): accessibility-flow.json shows violations: [] for all five checks, but axe's 'incomplete' entries remain for gradient contrast. screen-contrast.json measured on screenshots gives 9.10 to 10.30:1. Native VoiceOver and Dynamic Type are honestly listed as deferred.",
+    "PERFORMANCE (JSON): browser frame cadence is excellent in the headed run. drive.json's cold rafCadence, however, shows mean 20.1 ms and max 116.7 ms, a visible hitch at startup, and a 462 KB JS payload. Engine total p95 is 6.96 s (engine-bakeoff per the summary), which is fine for a 'mist gathering' wait. All of these are browser observations, not native ones, as the summary says."
+  ],
+  "blockers": [
+    "Rewrite Why so it reads as an explanation, not a transcript. Turn the stored answer into prose (e.g. 'You're writing about 500 words a day with three chapters done…'), not the literal question plus answer. Open the panel with an automatic scroll into view so the first lines show above the tab bar at 375×667.",
+    "Enforce option hygiene on the server for generated cards. Sort numeric options in order, strip text repeated from the stem, and reject or repair cards whose options mismatch the question (the current general-suite defects). Add a regression test asserting ordered numeric options.",
+    "Stop exact-dollar money headlines. Round to a band or range (e.g. 'around $6k' or '$5k–$8k'), in line with the 'speculative forecast' framing, and cover it with a test.",
+    "Fix the memory labels and copy: 'Practice feedback' should be something like 'Conversation practice', the learning subject belongs on the fact ('Spanish level'), and the toast casing should read 'Forgot your level.' Make each row lighter (tap to edit, a secondary Forget or swipe) so the list scans.",
+    "Finish the share-card composition. Use the empty lower quarter for an app handle or wordmark and a 'Ask the Ball' line, balance the headline wrap so the time unit isn't orphaned, and bring the date closer to the brand lockup.",
+    "200% text layout: switch the tab bar to icon-only or stack labels so they do not collide, and re-capture large-reveal and large-home to show a deliberate layout.",
+    "Remove the cold-load 116 ms frame hitch (defer orb artwork or animation until after the first frame) and re-capture drive.json's rafCadence.",
+    "Re-run general-flow and capture new screenshots after these fixes. Update generation-review.md so the remaining option mismatches are fixed and verified, not just acknowledged."
+  ],
+  "strengths": [
+    "A real end-to-end run on local Qwen with no paid APIs. Evidence is timestamped, sequential and cross-checked, with a Supabase mirror matching 10 facts and 4 readings, and failed runs are kept and clearly labelled as historical.",
+    "Recovery design is unusually thorough: injected share 500, offline retry, timeout, long-wait, cancel, forget with Undo, forgotten facts asked again, a sensitive redirect with no charge, and a guarantee that no credit is spent on failure.",
+    "The visual system is cohesive and polished at 390×844: cosmic palette, serif display type, orb artwork, gold primary CTA, and on-brand empty, loading and error states.",
+    "Honest limits: speculative labelling on every reveal, private answers kept off the share artifact, native device checks (VoiceOver, notifications, RevenueCat, share sheet) listed as deferred rather than claimed.",
+    "Browser performance is solid: reveal p95 18.6 ms over 600 frames and card transitions p95 18.1 ms."
+  ]
+}
+```

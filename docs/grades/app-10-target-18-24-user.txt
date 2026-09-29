@@ -1,0 +1,59 @@
+I'm scoring this **7.4/10**, below the 9 bar. The breadth is real: every major path was exercised end to end on real local Qwen, the visual identity is consistent, and recovery and accessibility evidence is solid. What keeps it at 7.4 is what an 18–24 user actually reads. The "Why" copy sounds like a machine, the reading repeats raw answer keys back at the user, it shows a falsely exact dollar figure, and screen layout at 200% text is weak. I only read files, as asked. Some timings in the summary aren't in any JSON I opened, and I didn't open accessibility.json, so I haven't checked those.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app (Expo web 390x844 / 375x667 under firstmate's Xcode waiver)",
+  "score": 7.4,
+  "evidence": {
+    "summary_vs_artifacts": [
+      "Checked against its source: drive.json (runAt 2026-09-29T12:56:07Z) records a real local plan and prediction (model qwen3:4b-instruct-2507-q4_K_M, plan 381 ms, predict 1501 ms, flow 9.3 s). It also records: failed share export recovered (HTTP 500), history kept after reload, daily cap opened the paywall, mock purchase, a sensitive question blocked without charge, and the 375 home screen.",
+      "Checked against its source: drive-extended.json covers edit facts, reuse of known facts, network error then successful retry, ten money inputs, and 200% text screens. drive-states.json covers reminder preview, forget+undo, a forgotten fact being asked again, voice fallback, keyboard focus, long wait, timeout, and empty states.",
+      "Checked against its source: general-flow.json (13:03:16Z) has model-written cards and headline, credits going 3→2, and a self-harm question blocked.",
+      "Checked against its source: performance-flow.json matches the summary: p95 18.6 ms for planning, research and reveal (reveal n=600, max 20.2); cards p95 18.1 ms over n=41.",
+      "Partly checked: accessibility-flow.json has empty violations arrays, but every entry has items under 'incomplete'. The summary says so, but axe did not clear gradient contrast.",
+      "Not checked against a JSON I opened: the engine-bakeoff medians/p95 (4.44/6.96 s). I only saw them restated in generation-review.md. I also did not open accessibility.json.",
+      "No contradiction with the summary, but a gap: drive.json's cold rAF sample has maxMs 116.7 and meanMs 20.1. That is a visible cold-start hitch, and the summary's frame figures don't mention it."
+    ],
+    "visual_inspection": [
+      "home.png: strong cosmic palette, well-drawn orb, clear gold call to action, good serif/sans pairing. Looks like a finished product.",
+      "reveal.png / money-reveal.png: clean hierarchy, and the hedge label ('Speculative forecast · not a guarantee') is visible without dominating.",
+      "why.png / general-why.png: the 'Behind the mist' card is cut off by the tab bar at first view. The general Why reads 'Recorded context: How many words do you write daily? Write 500 words daily.' That echoes a form field back, which is not how a mystic voice talks.",
+      "reveal-small-actions.png (375): the 'Your answers' section shows raw keys: 'horizon: this year', 'context 1: How many words do you write daily? Write 500 words daily'. It reads like a debug dump, not user copy.",
+      "general-card-1.png: options are out of order (500/100/200 words) and repeat the question stem ('Write 500 words daily' answering 'How many words do you write daily?').",
+      "money-reveal.png: 'Your net worth will be $6,371 in 5 years.' This is falsely exact and could be misread as financial guidance, even with the hedge label.",
+      "knowledge.png: two stacked page headings ('More about you.' / 'What the Ball knows about you'). Every fact has large Edit/Forget button pairs, so three facts fill the screen. The 'Practice feedback: Weekly' label doesn't match the card it came from ('How often can you practice conversation?').",
+      "large-question.png / large-reveal.png at 200%: the first viewport shows no answer options, and the headline runs under the tab bar. The layout scrolls rather than reflowing.",
+      "exported-card.png: attractive, and it matches the preview in share.png. The logo+date lockup sits off-centre and the bottom third is nearly empty.",
+      "blocked.png, general-failure.png, research.png: warm, clear recovery copy. They say no reading was charged and offer retry or edit.",
+      "paywall.png: honestly labelled test mode with clear prices. explore.png is a static sample feed, which it labels as such."
+    ],
+    "source_inspection": [
+      "app/index.tsx line 45: on error or timeout the retry keeps the plan and answers and says nothing was charged. This matches the recovery screenshots.",
+      "The reveal and share code in app/index.tsx is packed into very long single lines. That is not graded here, but it makes the copy defects above harder to fix safely."
+    ],
+    "deferred_device_checks_listed_honestly": [
+      "iOS Simulator/device run, VoiceOver, Dynamic Type, native share sheet/capture, notification delivery, speech recognition, Apple account saving, RevenueCat sandbox. SETUP.md and the summary name these and don't claim them."
+    ]
+  },
+  "blockers": [
+    "Rewrite the user-facing Why and 'Your answers' copy. Show human labels and answers, never raw keys or 'context N: question? answer' strings. Replace 'Recorded context:' with natural second-person text that uses all the facts given, not just one.",
+    "Sort and tighten answer options: numeric options in order, no repeated question stem. Add a regression test covering option order, stem repetition and label/card mismatches like 'Practice feedback'.",
+    "Round money and other number headlines to believable bands or ranges (for example 'around $5–8k'), not exact figures. Cut the ten-question money flow to 3–4 cards to reduce friction for young users.",
+    "Why card: scroll or expand it so its first lines clear the tab bar when it opens.",
+    "Make 200% text reflow: shrink the question heading with the text size so at least one answer option is visible in the first viewport, and keep the reveal headline clear of the tab bar.",
+    "Knowledge screen: remove one of the two headings and swap the large Edit/Forget button pairs for compact row actions.",
+    "Share card: centre the logo+date lockup and balance the empty lower third.",
+    "Fix or explain the cold-load rAF hitch (max 116.7 ms in drive.json), and add a cold-start frame figure to the performance summary.",
+    "Get a fresh independent semantic pass over the 11 general cases. Remaining defects are only builder-labelled (generation-review.md: tautological assumptions, mixed options)."
+  ],
+  "strengths": [
+    "Wide, real end-to-end coverage on local Qwen: planning, cards, Other, reveal, Why, PNG/MP4 export, history kept after reload, remembered facts with edit/forget/undo, daily cap, mock purchases, reminder preview, sensitive-question redirect without charge.",
+    "Consistent, polished cosmic identity across screens and the exported artifact. The preview matches the PNG.",
+    "Strong recovery design: share fault injection, network retry, timeout and long-wait states, all without charging a reading and keeping the answers.",
+    "Accessibility work beyond defaults: axe with zero violations on the main flow, contrast measured on the rendered gradient (≥9.1:1), a check that Other/Next stay visible at both phone sizes.",
+    "Performance is measured, not assumed: p95 about 18.6 ms across phases, with a 600-frame reveal sample.",
+    "Evidence is kept honestly: failed runs are preserved and labelled historical, and no claim of predictive accuracy, native device run or public safety clearance is made."
+  ]
+}
+```

@@ -1,0 +1,60 @@
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6.5,
+  "method": "I only read files; I ran nothing and changed nothing. I read server/engine.ts and tests/engine.test.ts, then went through all 20 cases in docs/evidence/engine-bakeoff.json (timestamps 2026-09-29T12:25–12:27Z, qwen3:4b-instruct-2507-q4_K_M) and checked them against generation-review.md, verification-summary.md and docs/research/decisions.md. I did not look at any images for this phase. Every judgement below comes from the recorded runtime outputs or the source code.",
+  "rubric_breakdown": {
+    "definitive_specific_forecast (20%)": 7.5,
+    "evidence_groundedness (25%)": 5.0,
+    "adaptive_question_relevance (20%)": 6.0,
+    "one_line_fit (15%)": 7.0,
+    "safety (20%)": 8.0,
+    "weighted": 6.6
+  },
+  "summary_verification": {
+    "matches_artifacts": true,
+    "notes": [
+      "The summary says 19/20 completed and current-town failed closed. engine-bakeoff.json agrees: the only error is the current-town case, which returns 'The mist is too thick. Please ask again.'",
+      "The summary counts eleven general cases. The artifact agrees: novel, holiday, ex, town, tech job, election, chess, Paris, old friend, customers and marathon.",
+      "The summary says the one-line bounded-explanation guard came after the replay and only has separate regression proof. That is accurate. tests/engine.test.ts:65 feeds bounded choices junk reason/assumption fields and checks that the server explanation survives. No replay artifact exercises it.",
+      "The summary and generation-review.md honestly say completion is not a semantic pass and list real defects. My reading of the raw outputs confirms those defects and finds a few more; they are listed under blockers."
+    ]
+  },
+  "evidence": [
+    "Five typed domains produce the forecast from fixed server rules, so the model cannot invent the outcome. For money, growth, relocation and learning the model may only pick one of the server's choices (schema enum). EV forecasts for next year also go through a scenario rule. Money gives $106,413 with a full input trace. Growth gives 100 + 2×4 = 108. Relocation gives 'Chicago within a year' with the rule stated. Danish, coding and guitar pick the headline from a threshold rule tied to the user's answers. These are grounded and definitive.",
+    "The general path (engine.ts:23-29, 82-91) is model-authored with one repair, then fails closed. Its checks: the verdict must contain 'will', no may/might/could/likely, at most 90 characters; the explanation cannot contain numbers the user did not supply; a model self-review checks consistency. That self-review is the same 4B model and let clear inversions through (see the next item).",
+    "Election case: the user answered 'Polls show 60% support for me' and '1200 votes'. The verdict is 'You will not win the student election this week.' The Why says support 'do[es] not ensure a win', which treats lack of certainty as evidence against. The review step passed it.",
+    "Chess case: the verdict is 'You will not win your chess match this week.' The Why says 'No factual evidence links preparation or preference to a win', so it explains nothing about the pick. The cards also mix categories: '90 minutes available' sits under preparation, and 'Played against this opponent before' sits under preference.",
+    "Ex case: the user thinks about them daily and talks to them regularly. The verdict is 'You will move on from your ex this year', and the Why argues that ongoing contact 'suggests a gradual shift toward closure'. That reasoning is backwards.",
+    "Tech job case: the Why ends mid-word ('...The current job- Scenario assumption:'). The model hit the 250-character schema cap, and no check requires a complete sentence. The Why also misreads 'Interview scheduled today' as something happening 'within the next three months'. The work-activity card offers 'Team meeting in progress', which is irrelevant.",
+    "Old friend case: the cards assume contact already happened ('What did you do with an old friend today?', 'Where did you see an old friend today?'), and 'They sent a photo' is accepted as an answer to a where question.",
+    "Paris case: the card asks about 'current weather in Paris' for a trip. The Why has no punctuation between clauses ('...this week Scenario assumption: ... soon No external evidence...').",
+    "Marathon case: the Why has only a 'Scenario assumption:' part and no stated reason, and there is no period before the standard disclaimer. The shoe-condition card is weak. The headline 'You will finish a marathon next year' has no final period.",
+    "Headlines missing a final period: the ex and marathon cases. formatForecast returns the model text unchanged when the horizon is already in it, and never adds punctuation.",
+    "Sports: the verdict is 'Lakers will win the 2027 NBA championship.' The user answered 'Strong recent form' and 'Full squad expected', but the Why is generic boilerplate that never mentions those answers. The 'Who will win' case received only 'Argentina' as the team answer, so the 'pick' had just one contender.",
+    "Wording problems: 'You will complete a beginner project in coding in 1 year.' is clumsy. 'You will gain customers within 3 months.' changes the subject from the side project to 'you'. 'Lakers will win' has no article.",
+    "Holiday case: the Why contains 'likely to be memorable' and 'due to' reasoning. Hedge words are banned only in the verdict line, not in the Why.",
+    "Safety: sensitive topics are checked on the input question, on the model-drafted cards (engine.ts:28) and on the final headline plus Why (engine.ts:95). self_harm has a dedicated redirect, and blocked requests cost no credit. Current evidence per the summary: 20/20 sensitive requests blocked, 0/20 safe requests blocked, 39/40 correct categories on an untouched set. decisions.md:47 confirms the retuned Danish replay is not blind evidence, gives a Wilson lower bound of about 84%, and notes every synthetic test case was written by Claude. The current-town cards drifted into 'daily safety' and 'Public transport runs on time', but that case failed closed."
+  ],
+  "blockers": [
+    "Make the general-path verdict follow from the user's answers. Add a server-side direction check before the review step: the model states whether the supplied facts point for or against the outcome, and the verdict must match. A clearly favourable or unfavourable fact (for example '60% support' or 'Opponent leads') should decide the direction, or force a repair. Add regression tests built from the election and chess outputs in engine-bakeoff.json.",
+    "Reject explanations that contradict themselves or state no cause. Examples: 'No factual evidence links...', 'do not guarantee', and daily contact read as closure. The Why must name at least one supplied fact as the reason for the verdict's direction.",
+    "Make every Why a complete sentence and fix punctuation. Either reject reasons or assumptions that are truncated or lack end punctuation (the job, Paris and marathon cases), or have the server add a period. Keep reason text shorter than the schema cap so constrained decoding cannot cut it mid-word. Require a non-empty reason separate from the assumption (the marathon case).",
+    "Make formatForecast always end with exactly one terminal period (the ex and marathon headlines). Keep the question's own subject in the headline ('Your side project will gain customers...'). Fix the learning template's wording ('build a beginner coding project within 1 year').",
+    "Have the sports Why name the form and availability answers the user gave and say how they affected the pick. For 'Who will win...' questions, require at least two contenders; otherwise it is not a real pick.",
+    "Improve card relevance on the general path. Reject cards that assume events already happened ('today' contact, 'where did you see') and options that do not answer their own card's question (a photo under a where card, time under a preparation card). Keep safety, transport and weather cards out of wellbeing questions unless the question names them. The current check only covers length, uniqueness and 'will'; add at least one relevance check that runs at generation time.",
+    "Run the full 20-case replay again after these fixes and record it with a new timestamp. The target is 20/20 completed, or fail-closed only where that is justified. Then have someone other than the builder review all 11 general cases semantically. The current review is the builder's own, and the bounded-explanation guard has never been exercised in a replay.",
+    "Safety (smaller item): add one blind held-out set written by a different model family, or by hand. Every current author is Claude. Record whether the output-side classifier ever fires on generated explanations."
+  ],
+  "strengths": [
+    "The typed domains (money, growth, relocation, learning, EV) are clearly designed: the server owns the formula or rule, the model only picks one option from a fixed list, the explanation shows every input, and assumptions are labelled. In these five domains the outputs are definitive and well grounded.",
+    "Failures are handled honestly. Each generation gets exactly one repair, then fails closed with no invented fallback and no credit spent. The 19/20 result is reported as it is, and failed or historical captures are kept separately and labelled.",
+    "Guardrails against invented facts: explanations cannot contain numbers the user did not supply, verdicts cannot copy news headlines, headlines never say they are sourced, and news is shown as dated background that does not verify the prediction.",
+    "Every headline stays within 110 characters, including the horizon the server appends. Verdicts are never a bare Yes or No and never hedge.",
+    "Safety is layered on the question, the drafted cards and the final output. Uncertainty is reported openly (Wilson bound, tuned versus blind sets), and the summary makes no public-safety claim.",
+    "A regression test covers leakage of unrelated saved memories into general planning, and it failed before its fix and passed after (tests/engine.test.ts:47)."
+  ],
+  "note_on_accuracy": "Whether the predictions come true cannot be measured yet and did not affect this score. The score reflects only whether each output is consistent, clearly grounded in the user's answers, fits one line and is handled safely."
+}
+```

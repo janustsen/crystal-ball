@@ -1,0 +1,45 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "app",
+  "score": 7.7,
+  "subscores": {
+    "end_to_end_observed_behavior_35": 7.5,
+    "visual_quality_screenshots_30": 8.0,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 8.0
+  },
+  "method": "Read-only. I looked at the PNG screenshots directly, and marked those findings [visual]. Drive logs and JSON are marked [log]. App and source files are marked [source]. I ran nothing, so none of this is my own runtime observation. It rests on the builder's recorded evidence, all timestamped 2026-09-29 around 12:01 to 12:06Z.",
+  "evidence": [
+    "[log] drive.json: an actual local qwen3:4b-instruct-2507-q4_K_M run. Plan took 536 ms, predict 1575 ms, and the whole flow 9.8 s. Three cards, with Other used once (typed '30 minutes'). The reveal kept the 6-month horizon. The credit count dropped 1→0. History survived a reload. Running out of readings opened the paywall. The share export was made to fail with an HTTP 500 and recovered. A pregnancy question was blocked in 78 ms.",
+    "[log] drive.json predict.why contradicts itself. The facts say 'New beginner, 30 minutes, Weekly', yet the text says the scenario 'treats an intermediate starting point, or 20 minutes daily… as enough'. The user meets neither threshold and still gets a positive headline. The question asked about being 'conversational'; the headline quietly softens that to 'basic Spanish'.",
+    "[log] general-flow.json why is circular: 'You write 500 words daily and update progress weekly… Scenario assumption: You update your progress weekly and write 500 words daily'. It restates the inputs and gives no reasoning.",
+    "[visual+log] general-card-unrelated-memory.png and general-flow-unrelated-memory.json (12:04Z): for a novel question, the cards offered 'Learning Spanish daily' and 'Weekly conversation with friend' and asked 'What is your current financial status?'. The resulting why lacks sentence punctuation. The later general-flow.json (12:06Z) has clean cards, but that is a single sample and I can't tell whether memory was present in that run.",
+    "[visual] knowledge.png labels the conversation-frequency answer as 'Practice feedback: Weekly', which is not what the card asked. It also has an awkward 'Edit Your level' capital, and ghost 'Forget' buttons that don't align with the Edit pills.",
+    "[visual] home, question, reveal, research, paywall, network-error and blocked screens use one consistent cosmic palette, EB Garamond-style display type, a strong orb illustration, and a clear gold primary with ghost secondaries. The speculative label is always visible. Paywall test-mode disclosure is prominent.",
+    "[visual] share.png: the in-app preview card is small and dim, the date is barely legible, and the headline wraps to leave 'months.' alone on its own line. The exported 1080×1920 card (exported-card.png) has the same orphan, and its bottom ~30% is empty except a faint constellation line.",
+    "[visual] On blocked.png, network-error.png and history.png the bottom 40–50% is empty. On why.png and general-why.png the explanation is cut off by the tab bar with no hint to scroll.",
+    "[visual] At 375×667, other-375.png keeps the Other input and Next in view. home-small.png fits. On question-1.png, the disabled Next is readable but low emphasis, which is acceptable.",
+    "[log] Five tabs, the paywall and the flow screens all report zero axe violations, but color-contrast is 'incomplete' on every one. screen-contrast.json measures only three token pairs (helper, cyan link, gold label; about 9.1–10.4:1). Not measured: ghost-button borders, Forget, disabled states, the preview card date. The flow-accessibility defects (missing aria-checked, a label on a decorative container) were found and fixed, and the driver now exits nonzero on violations.",
+    "[log] Recovery: an actual offline failure keeps the answers and the retry succeeds ('Nothing was charged. Your answers are kept.'). Also covered: the 8 s waiting copy, a 60 s timeout, a Cancel control, Undo after forgetting a fact, reloaded History, and no credit or memory charge on a block. [visual] network-error.png offers Try again, Review answers and Edit question.",
+    "[log] Performance: in a headed browser, the flow averaged 16.7–17.0 ms per frame with p95 18.6 ms (planning n=60, research n=139, reveal n=600). The worst planning frame was 33.4 ms. Controls were usable after 581 ms headed and 2061 ms cold load in drive.json. The JS bundle is 462 KB. The headless run averaged 62 ms against a blank-page baseline and is reported honestly.",
+    "[source/log] Native boundaries: VoiceButton (web and native), purchases.ts (RevenueCat init and restore), and an Apple linkIdentity flag, all wired to mocks. Only 4 integration tests in tests/integrations.test.ts. SETUP.md honestly lists what still needs a device: VoiceOver, Dynamic Type at 200%, safe-area, keyboard avoidance, hold-to-speak, notification scheduling, and share overlays. The iOS export only proves the bundle builds."
+  ],
+  "blockers": [
+    "Fix the Why text so it cannot contradict or merely restate the user's facts. Every stated threshold must be one the user's facts meet, or the headline must reflect that they don't. Replace 'Scenario assumption: <inputs repeated>' with at least one real reasoning step. Add a semantic check that rejects contradictory thresholds and restated inputs, then re-run engine-bakeoff and the four drives and keep the new logs.",
+    "Keep the headline on the question's exact claim ('conversational', not a softer 'basic'). Or have the reveal openly say it is answering a narrower claim.",
+    "Prove unrelated memory no longer leaks. Run the novel flow several times with the Spanish facts stored and assert that no card options or Why text mention them and no unrelated finance card appears. Record the prior-memory state in the log so general-flow.json shows the fix under the conditions that failed.",
+    "Name remembered facts after the question actually asked ('Conversation practice', not 'Practice feedback'). Fix 'Edit Your level' capitalization and align the Edit and Forget controls on the You screen.",
+    "Balance headline line breaks on the reveal, share preview and exported card so no word is left alone (e.g. 'months.'). Enlarge or brighten the preview card's date. Fill or tighten the empty lower third of the export.",
+    "Fill the empty lower halves of the blocked, error and History screens: collapse the vertical space, or add useful content such as a prompt to ask again, the last question, or suggested gentle topics. Make it visible that the Why panel continues below the tab bar, for example with a fade or by scrolling to the panel when it opens.",
+    "Extend measured contrast to ghost/secondary button text and borders, the Forget button, disabled Next, and the share preview date. Add mock-level tests for voice cancel and release, notification scheduling rejection, and purchase restore failure. Four integration tests is thin for three native boundaries."
+  ],
+  "strengths": [
+    "A real end-to-end loop on local Ollama with fast inference (about 1.6 s to predict). A reading is charged only on success, and persistence is checked through the UI after a reload.",
+    "Recovery is strong: offline retry keeps answers, timeout and cancel are handled, the export failure is injected and recoverable, and forgetting a fact can be undone.",
+    "A cohesive, attractive cosmic identity at 390×844 that also holds at 375×667, with a clear primary action on every screen.",
+    "Candid about limits throughout: speculative labels, a test-mode paywall, honest no-source Why states, earlier failures kept on record, and device checks openly deferred.",
+    "Smooth browser animation, measured headed during actual inference, with the unfavorable headless samples kept rather than dropped."
+  ]
+}
+```

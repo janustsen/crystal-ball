@@ -1,0 +1,2217 @@
+[
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "What will my net worth be in 10 years?",
+    "answersUsed": {
+      "currency": "USD",
+      "assets": "25000",
+      "debt": "10000",
+      "monthly_saving": "500",
+      "return": "5",
+      "saving_growth": "2",
+      "withdrawals": "0",
+      "windfall": "0",
+      "inflation": "No, future money",
+      "years": "10"
+    },
+    "plan": {
+      "topic": "money",
+      "provided": {
+        "years": "10"
+      },
+      "cards": [
+        {
+          "id": "currency",
+          "question": "Which currency should the Ball use?",
+          "options": [
+            "USD",
+            "EUR",
+            "GBP",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "assets",
+          "question": "What are your assets worth today?",
+          "options": [
+            "0",
+            "25000",
+            "100000",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "debt",
+          "question": "How much debt do you have?",
+          "options": [
+            "0",
+            "10000",
+            "50000",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "monthly_saving",
+          "question": "How much do you save each month?",
+          "options": [
+            "100",
+            "500",
+            "1500",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "return",
+          "question": "Which annual growth assumption fits?",
+          "options": [
+            "3",
+            "5",
+            "7",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "saving_growth",
+          "question": "How much will annual savings grow (%)?",
+          "options": [
+            "0",
+            "2",
+            "5",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "withdrawals",
+          "question": "How much will you withdraw each year?",
+          "options": [
+            "0",
+            "1000",
+            "5000",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "windfall",
+          "question": "Any one-off amount to add now?",
+          "options": [
+            "0",
+            "5000",
+            "20000",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "inflation",
+          "question": "Should the number account for inflation?",
+          "options": [
+            "No, future money",
+            "Yes, assume 2%",
+            "Yes, assume 3%",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "db471d66-63d5-40a4-bff2-bb6dc974b8e1",
+        "question": "What will my net worth be in 10 years?",
+        "headline": "Your net worth will be $106,413 in 10 years.",
+        "createdAt": "2026-09-29T12:44:22.117Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Starting assets 25000 minus debt 10000, plus 500 monthly savings, projected for 10 years at your 5% annual growth assumption; annual savings growth 2%, annual withdrawals 0, and initial windfall 0. Inflation treatment: No, future money. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "currency": "USD",
+          "assets": "25000",
+          "debt": "10000",
+          "monthly_saving": "500",
+          "return": "5",
+          "saving_growth": "2",
+          "withdrawals": "0",
+          "windfall": "0",
+          "inflation": "No, future money",
+          "years": "10"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Annual compounding; savings and withdrawals applied at year end. All rates are your assumptions, not investment advice."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 1.9685911249999999,
+    "planningSeconds": 0.34286991699999997,
+    "predictionSeconds": 1.6257255419999999,
+    "modelCalls": [
+      {
+        "seconds": 0.3410835,
+        "input": 251,
+        "output": 6
+      },
+      {
+        "seconds": 0.31442562500000004,
+        "input": 285,
+        "output": 6
+      },
+      {
+        "seconds": 0.955798375,
+        "input": 382,
+        "output": 24
+      },
+      {
+        "seconds": 0.346315333,
+        "input": 325,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1243,
+    "outputTokens": 42
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "How many users will my project have in four weeks?",
+    "answersUsed": {
+      "current_users": "100",
+      "weekly_growth": "2",
+      "growth_weeks": "4"
+    },
+    "plan": {
+      "topic": "growth",
+      "provided": {},
+      "cards": [
+        {
+          "id": "current_users",
+          "question": "How many people use your project today?",
+          "options": [
+            "0",
+            "100",
+            "1000",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "weekly_growth",
+          "question": "How many net new users join each week?",
+          "options": [
+            "2",
+            "10",
+            "50",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "growth_weeks",
+          "question": "How many weeks ahead?",
+          "options": [
+            "4",
+            "12",
+            "26",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "8b3bda69-1d4c-4087-8933-2743079a06ba",
+        "question": "How many users will my project have in four weeks?",
+        "headline": "Your project will reach 108 users in 4 weeks.",
+        "createdAt": "2026-09-29T12:44:23.871Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "100 current users + 2 net new users per week × 4 weeks = 108. Net growth already includes churn. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "current_users": "100",
+          "weekly_growth": "2",
+          "growth_weeks": "4"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Net weekly growth remains constant."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 1.753041958,
+    "planningSeconds": 0.320512958,
+    "predictionSeconds": 1.432529375,
+    "modelCalls": [
+      {
+        "seconds": 0.320335959,
+        "input": 250,
+        "output": 6
+      },
+      {
+        "seconds": 0.3227863750000001,
+        "input": 258,
+        "output": 6
+      },
+      {
+        "seconds": 0.7809154590000003,
+        "input": 328,
+        "output": 19
+      },
+      {
+        "seconds": 0.3283258329999999,
+        "input": 283,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1119,
+    "outputTokens": 37
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Where will I live next year?",
+    "answersUsed": {
+      "location": "Boston",
+      "destination": "Chicago",
+      "work": "Remote",
+      "lease": "Within 6 months",
+      "runway": "6 months"
+    },
+    "plan": {
+      "topic": "relocation",
+      "provided": {},
+      "cards": [
+        {
+          "id": "location",
+          "question": "Where do you live now?",
+          "options": [
+            "Boston",
+            "London",
+            "Copenhagen",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "destination",
+          "question": "Which city are you considering?",
+          "options": [
+            "Chicago",
+            "Berlin",
+            "Barcelona",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "work",
+          "question": "How flexible is your work?",
+          "options": [
+            "Remote",
+            "Need a new job",
+            "Already have an offer",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "lease",
+          "question": "When can you leave your current home?",
+          "options": [
+            "Within 3 months",
+            "Within 6 months",
+            "More than a year",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "runway",
+          "question": "How many months could your savings cover?",
+          "options": [
+            "1 month",
+            "3 months",
+            "6 months",
+            "Other"
+          ],
+          "remember": true
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "5b14c56f-d39c-49d7-bcc9-8d84db240cd9",
+        "question": "Where will I live next year?",
+        "headline": "You will move to Chicago within a year.",
+        "createdAt": "2026-09-29T12:44:25.481Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "This scenario assumes a move when work is remote or an offer exists, savings cover at least 3 months, and the lease permits leaving within a year. Your inputs: Remote; 6 months; Within 6 months. This rule is a transparent scenario assumption, not a calibrated probability. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "location": "Boston",
+          "destination": "Chicago",
+          "work": "Remote",
+          "lease": "Within 6 months",
+          "runway": "6 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Your named cities and work situation remain the relevant options."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 1.6102314580000001,
+    "planningSeconds": 0.3178135419999999,
+    "predictionSeconds": 1.2924188329999997,
+    "modelCalls": [
+      {
+        "seconds": 0.31772587499999966,
+        "input": 246,
+        "output": 6
+      },
+      {
+        "seconds": 0.314493375,
+        "input": 260,
+        "output": 6
+      },
+      {
+        "seconds": 0.6357805420000004,
+        "input": 321,
+        "output": 14
+      },
+      {
+        "seconds": 0.3418022920000003,
+        "input": 306,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1133,
+    "outputTokens": 32
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I learn Danish in six months?",
+    "answersUsed": {
+      "level": "New beginner",
+      "practice": "20 minutes",
+      "conversation": "Weekly",
+      "deadline": "In 6 months",
+      "learning_target": "Danish"
+    },
+    "plan": {
+      "topic": "learning",
+      "provided": {
+        "learning_target": "Danish",
+        "deadline": "In 6 months"
+      },
+      "cards": [
+        {
+          "id": "level",
+          "question": "What is your level now?",
+          "options": [
+            "New beginner",
+            "Know the basics",
+            "Intermediate",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "practice",
+          "question": "How much time can you give it daily?",
+          "options": [
+            "10 minutes",
+            "20 minutes",
+            "45 minutes",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "conversation",
+          "question": "How often can you practice conversation?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ],
+          "remember": true
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "31714a5f-fe6a-40cd-8173-fd54d5fca0ad",
+        "question": "Will I learn Danish in six months?",
+        "headline": "You will speak basic Danish in 6 months.",
+        "createdAt": "2026-09-29T12:44:27.119Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your starting level is new beginner. You allow 20 minutes daily, with weekly conversation practice. This scenario uses 20 minutes daily and weekly conversation practice as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "level": "New beginner",
+          "practice": "20 minutes",
+          "conversation": "Weekly",
+          "deadline": "In 6 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 1.63852225,
+    "planningSeconds": 0.3190370829999993,
+    "predictionSeconds": 1.319485917,
+    "modelCalls": [
+      {
+        "seconds": 0.3187754589999995,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 0.3127809580000003,
+        "input": 264,
+        "output": 6
+      },
+      {
+        "seconds": 0.664529708,
+        "input": 321,
+        "output": 15
+      },
+      {
+        "seconds": 0.34179758300000046,
+        "input": 299,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1131,
+    "outputTokens": 33
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I learn to code in a year?",
+    "answersUsed": {
+      "level": "New beginner",
+      "practice": "45 minutes",
+      "conversation": "Weekly",
+      "deadline": "In 1 year",
+      "learning_target": "coding"
+    },
+    "plan": {
+      "topic": "learning",
+      "provided": {
+        "learning_target": "coding",
+        "deadline": "In 1 year"
+      },
+      "cards": [
+        {
+          "id": "level",
+          "question": "What is your level now?",
+          "options": [
+            "New beginner",
+            "Know the basics",
+            "Intermediate",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "practice",
+          "question": "How much time can you give it daily?",
+          "options": [
+            "10 minutes",
+            "20 minutes",
+            "45 minutes",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "conversation",
+          "question": "How often can someone review your practice?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ],
+          "remember": true
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "a6ebf131-714f-414e-9a82-27278d4a4c43",
+        "question": "Will I learn to code in a year?",
+        "headline": "You will complete a beginner project in coding in 1 year.",
+        "createdAt": "2026-09-29T12:44:28.833Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your starting level is new beginner. You allow 45 minutes daily, with weekly feedback. This scenario uses 20 minutes daily and weekly feedback as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "level": "New beginner",
+          "practice": "45 minutes",
+          "conversation": "Weekly",
+          "deadline": "In 1 year"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 1.7140062499999995,
+    "planningSeconds": 0.317077209,
+    "predictionSeconds": 1.396929915999999,
+    "modelCalls": [
+      {
+        "seconds": 0.31689737499999954,
+        "input": 248,
+        "output": 6
+      },
+      {
+        "seconds": 0.3137320410000002,
+        "input": 265,
+        "output": 6
+      },
+      {
+        "seconds": 0.7457710830000005,
+        "input": 328,
+        "output": 18
+      },
+      {
+        "seconds": 0.33698604199999865,
+        "input": 300,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1141,
+    "outputTokens": 36
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Who will win the next World Cup?",
+    "answersUsed": {
+      "competition": "Men’s World Cup",
+      "edition": "2030",
+      "team": "Argentina"
+    },
+    "plan": {
+      "topic": "sports",
+      "provided": {},
+      "cards": [
+        {
+          "id": "competition",
+          "question": "Which competition do you mean?",
+          "options": [
+            "Men’s World Cup",
+            "Women’s World Cup",
+            "NBA championship",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "edition",
+          "question": "Which edition?",
+          "options": [
+            "2030",
+            "2034",
+            "2038",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "team",
+          "question": "Which contenders should the Ball compare?",
+          "options": [
+            "Argentina, Spain, France",
+            "Brazil, England, Germany",
+            "USA, Portugal, Netherlands",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "52c78584-26c0-41f9-bbef-dcd3cc88b615",
+        "question": "Who will win the next World Cup?",
+        "headline": "Argentina will win the 2030 Men’s World Cup.",
+        "createdAt": "2026-09-29T12:44:31.182Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "This is a wildcard pick among the contenders you supplied, using any recent-form or availability context you entered as unverified assumptions. No verified odds or current ranking model was available. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "competition": "Men’s World Cup",
+          "edition": "2030",
+          "team": "Argentina"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "A playful pick; retrieved headlines do not establish current team strength."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 2.3480649999999987,
+    "planningSeconds": 0.3191143749999992,
+    "predictionSeconds": 2.028951500000001,
+    "modelCalls": [
+      {
+        "seconds": 0.31891379199999936,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 0.3174383330000001,
+        "input": 259,
+        "output": 6
+      },
+      {
+        "seconds": 0.8054395000000004,
+        "input": 325,
+        "output": 19
+      },
+      {
+        "seconds": 0.3333673329999983,
+        "input": 288,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1119,
+    "outputTokens": 37
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will the Lakers win the NBA championship?",
+    "answersUsed": {
+      "edition": "2027",
+      "session_form": "Strong recent form",
+      "session_availability": "Full squad expected",
+      "competition": "NBA championship",
+      "team": "Lakers"
+    },
+    "plan": {
+      "topic": "sports",
+      "provided": {
+        "competition": "NBA championship",
+        "team": "Lakers"
+      },
+      "cards": [
+        {
+          "id": "edition",
+          "question": "Which edition?",
+          "options": [
+            "2027",
+            "2028",
+            "2029",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "session_form",
+          "question": "How has your contender looked recently?",
+          "options": [
+            "Strong recent form",
+            "Mixed recent form",
+            "I have no current form data",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "session_availability",
+          "question": "What do you know about player availability?",
+          "options": [
+            "Full squad expected",
+            "Key players unavailable",
+            "I have no current squad data",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "6a460e5a-4eae-4b27-a264-b64ea62e5bf1",
+        "question": "Will the Lakers win the NBA championship?",
+        "headline": "Lakers will win the 2027 NBA championship.",
+        "createdAt": "2026-09-29T12:44:33.386Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "This is a wildcard pick among the contenders you supplied, using any recent-form or availability context you entered as unverified assumptions. No verified odds or current ranking model was available. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "edition": "2027",
+          "session_form": "Strong recent form",
+          "session_availability": "Full squad expected",
+          "competition": "NBA championship",
+          "team": "Lakers"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "A playful pick; retrieved headlines do not establish current team strength."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 2.204082833,
+    "planningSeconds": 0.3160536659999998,
+    "predictionSeconds": 1.8880298340000008,
+    "modelCalls": [
+      {
+        "seconds": 0.31595975,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 0.3115174590000006,
+        "input": 267,
+        "output": 6
+      },
+      {
+        "seconds": 0.7770807920000007,
+        "input": 366,
+        "output": 18
+      },
+      {
+        "seconds": 0.3417119580000017,
+        "input": 287,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1167,
+    "outputTokens": 36
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will EVs lead global new-car sales next year?",
+    "answersUsed": {
+      "definition": "A clear majority",
+      "scenario": "Current conditions continue",
+      "evidence": "No additional evidence"
+    },
+    "plan": {
+      "topic": "world",
+      "provided": {},
+      "cards": [
+        {
+          "id": "definition",
+          "question": "What counts as success here?",
+          "options": [
+            "A clear majority",
+            "A narrow lead",
+            "A noticeable shift",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "scenario",
+          "question": "Which conditions should the forecast assume?",
+          "options": [
+            "Current conditions continue",
+            "Support increases",
+            "Constraints tighten",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "evidence",
+          "question": "What current information can you add?",
+          "options": [
+            "No additional evidence",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "4f4abd6f-7b80-4683-9eec-be68997544c1",
+        "question": "Will EVs lead global new-car sales next year?",
+        "headline": "EVs will remain below half of global new-car sales in 2027.",
+        "createdAt": "2026-09-29T12:44:35.823Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your success definition is A clear majority, and your scenario is Current conditions continue. This scenario assumes tighter constraints reduce share, otherwise share grows; it does not assume a majority jump within one year. Added context: No additional evidence. This scenario rule is not calibrated or proved by headlines. Dated news headlines below add background; they do not verify this prediction.",
+        "facts": {
+          "definition": "A clear majority",
+          "scenario": "Current conditions continue",
+          "evidence": "No additional evidence"
+        },
+        "sources": [
+          {
+            "title": "BloombergNEF’s Electric Vehicle Outlook 2026: Global EV Sales Set For Another Record-Breaking Year, But Growth in Some Major Markets Slows - BloombergNEF",
+            "url": "https://news.google.com/rss/articles/CBMikgJBVV95cUxNTmdIOEE0U01La2ZDak4zRTJuVVJBYTBEdEM1SlRJU1pPMHRneTd6TXgzekNVRTRXdFlWSW9OejdUN1pkMmR1ZUV1WVFhRThfelNQY1RuVXV2dFhtT1l0M2RzczlDOEJBTi1sLVV6YVZGb1gyUVpOV0xJZENBMU1PVWpmZ3BLampaaTlKYzAyVVV2TW1QWE1Zb3NXNGpKYzlISzlIOVZqRGgwVzA1bEx4bnN1bV85R1lpMUh2dkdOWXBDMGV1QUI5cjdCOUpHYzFXM1U1WS13c0l3b3RlRlpwNXVrMXU3SzAxbmhkMzd0TVVNbmpXbU5paHdLT1BkdzU5UndjSldvRXROOXRtNHhENkNn?oc=5",
+            "date": "Tue, 16 Jun 2026 07:00:00 GMT",
+            "publisher": "BloombergNEF"
+          },
+          {
+            "title": "Trends in electric cars – Global EV Outlook 2026 – Analysis - IEA – International Energy Agency",
+            "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5QTnMzbGN4ajBTWWNPa1VOQU5ZQUtEa3M2NXZPS2JHUEtHeUpYUmZHYVU1dlN0OFBFeVVGWmFjR0pmVi13UTJPWVduN1pWaHdVbVJRb1JWYXNKcjNaZ1RRMk5FSTIyRmJYZExoUkxOTUFwRjNQTFdLTmJuU2h6VTA?oc=5",
+            "date": "Wed, 20 May 2026 08:51:37 GMT",
+            "publisher": "IEA – International Energy Agency"
+          }
+        ],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 2.4368963329999986,
+    "planningSeconds": 0.3199902079999993,
+    "predictionSeconds": 2.1169069999999994,
+    "modelCalls": [
+      {
+        "seconds": 0.31982570899999885,
+        "input": 250,
+        "output": 6
+      },
+      {
+        "seconds": 0.31905766700000093,
+        "input": 262,
+        "output": 6
+      },
+      {
+        "seconds": 1.0189184999999998,
+        "input": 399,
+        "output": 23
+      },
+      {
+        "seconds": 0.34082337499999993,
+        "input": 314,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1225,
+    "outputTokens": 41
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I finish writing my novel this year?",
+    "answersUsed": {
+      "context_1": "How many words do you write daily? Write 500 words daily",
+      "context_2": "How many chapters have you completed? 3 chapters done",
+      "context_3": "How often do you update your progress? Update my progress weekly",
+      "horizon": "this year"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {
+        "horizon": "this year"
+      },
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "How many words do you write daily?",
+          "options": [
+            "Write 500 words daily",
+            "Write 100 words daily",
+            "Write 200 words daily",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "How many chapters have you completed?",
+          "options": [
+            "3 chapters done",
+            "1 chapter done",
+            "0 chapters done",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_3",
+          "question": "How often do you update your progress?",
+          "options": [
+            "Update my progress weekly",
+            "Update my progress daily",
+            "Update my progress monthly",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "fcb7357f-4f98-45fa-9683-db073c469f79",
+        "question": "Will I finish writing my novel this year?",
+        "headline": "You will finish writing your novel this year",
+        "createdAt": "2026-09-29T12:44:42.934Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: How often do you update your progress? Update my progress weekly Scenario assumption: You will update your progress weekly this year No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "How many words do you write daily? Write 500 words daily",
+          "context_2": "How many chapters have you completed? 3 chapters done",
+          "context_3": "How often do you update your progress? Update my progress weekly",
+          "horizon": "this year"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 7.111297749999999,
+    "planningSeconds": 3.8777870419999982,
+    "predictionSeconds": 3.2335117080000018,
+    "modelCalls": [
+      {
+        "seconds": 0.3169118749999998,
+        "input": 248,
+        "output": 6
+      },
+      {
+        "seconds": 3.0976060839999993,
+        "input": 259,
+        "output": 112
+      },
+      {
+        "seconds": 0.4623612920000014,
+        "input": 366,
+        "output": 6
+      },
+      {
+        "seconds": 0.3262870419999999,
+        "input": 292,
+        "output": 6
+      },
+      {
+        "seconds": 1.4620219169999982,
+        "input": 374,
+        "output": 43
+      },
+      {
+        "seconds": 1.1122929999999978,
+        "input": 466,
+        "output": 31
+      },
+      {
+        "seconds": 0.33207704199999716,
+        "input": 273,
+        "output": 6
+      }
+    ],
+    "inputTokens": 2278,
+    "outputTokens": 210
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will my next holiday be memorable?",
+    "answersUsed": {
+      "context_1": "What preparations have you already completed for your next holiday? Booked a beach cabin",
+      "context_2": "What personal preference guides your holiday choice? Prefer quiet locations",
+      "horizon": "3 months"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What preparations have you already completed for your next holiday?",
+          "options": [
+            "Booked a beach cabin",
+            "Packed light clothing",
+            "Reserved a local tour",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What personal preference guides your holiday choice?",
+          "options": [
+            "Prefer quiet locations",
+            "Enjoy cultural activities",
+            "Like outdoor adventures",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "When is the event happening?",
+          "options": [
+            "This week",
+            "Next month",
+            "Later this year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "64dec143-7cca-4694-a5a9-232179e91bb7",
+        "question": "Will my next holiday be memorable?",
+        "headline": "Your next holiday will be memorable within 3 months.",
+        "createdAt": "2026-09-29T12:44:49.988Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What personal preference guides your holiday choice? Prefer quiet locations Scenario assumption: You will continue to prioritize quiet, peaceful environments for your next holiday. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What preparations have you already completed for your next holiday? Booked a beach cabin",
+          "context_2": "What personal preference guides your holiday choice? Prefer quiet locations",
+          "horizon": "3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 7.054140000000003,
+    "planningSeconds": 4.999898958000002,
+    "predictionSeconds": 2.054242083000001,
+    "modelCalls": [
+      {
+        "seconds": 0.31948054100000084,
+        "input": 246,
+        "output": 6
+      },
+      {
+        "seconds": 2.129167707999997,
+        "input": 257,
+        "output": 73
+      },
+      {
+        "seconds": 2.185179749999999,
+        "input": 434,
+        "output": 69
+      },
+      {
+        "seconds": 0.36567820800000117,
+        "input": 320,
+        "output": 6
+      },
+      {
+        "seconds": 0.344044167,
+        "input": 278,
+        "output": 6
+      },
+      {
+        "seconds": 1.357086833999998,
+        "input": 352,
+        "output": 38
+      },
+      {
+        "seconds": 0.3525894159999989,
+        "input": 281,
+        "output": 6
+      }
+    ],
+    "inputTokens": 2168,
+    "outputTokens": 204
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I move on from my ex this year?",
+    "answersUsed": {
+      "context_1": "How do you currently feel about your ex? Still think about them daily",
+      "context_2": "What do you do online about your ex? Share updates with friends",
+      "context_3": "How do you currently communicate with your ex? Talk to them regularly",
+      "horizon": "this year"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {
+        "horizon": "this year"
+      },
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "How do you currently feel about your ex?",
+          "options": [
+            "Still think about them daily",
+            "Avoid thinking about them",
+            "Feel no connection to them",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What do you do online about your ex?",
+          "options": [
+            "Share updates with friends",
+            "Stay silent online",
+            "Post about new interests",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_3",
+          "question": "How do you currently communicate with your ex?",
+          "options": [
+            "Talk to them regularly",
+            "Haven’t spoken in weeks",
+            "Only text when needed",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "6415998e-e244-41aa-b28b-87eda5c8d73f",
+        "question": "Will I move on from my ex this year?",
+        "headline": "You will not move on from your ex this year",
+        "createdAt": "2026-09-29T12:44:55.907Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: How do you currently feel about your ex? Still think about them daily Scenario assumption: You will not move on from your ex this year because you still think about them daily. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "How do you currently feel about your ex? Still think about them daily",
+          "context_2": "What do you do online about your ex? Share updates with friends",
+          "context_3": "How do you currently communicate with your ex? Talk to them regularly",
+          "horizon": "this year"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 5.919237083,
+    "planningSeconds": 3.73693275,
+    "predictionSeconds": 2.1823054580000028,
+    "modelCalls": [
+      {
+        "seconds": 0.32832833299999764,
+        "input": 249,
+        "output": 6
+      },
+      {
+        "seconds": 3.023246374999999,
+        "input": 260,
+        "output": 106
+      },
+      {
+        "seconds": 0.3849577920000011,
+        "input": 360,
+        "output": 6
+      },
+      {
+        "seconds": 0.34164129200000026,
+        "input": 295,
+        "output": 6
+      },
+      {
+        "seconds": 1.491644042,
+        "input": 377,
+        "output": 43
+      },
+      {
+        "seconds": 0.34873662499999775,
+        "input": 287,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1828,
+    "outputTokens": 173
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I live happily in my current town?",
+    "answersUsed": {
+      "context_1": "What is true about your current town's daily life? A stable job here",
+      "context_2": "What is true about daily safety in your town? Feel safe walking at night",
+      "horizon": "Within 3 months"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What is true about your current town's daily life?",
+          "options": [
+            "A stable job here",
+            "Live in a quiet neighborhood",
+            "Local services are reliable",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What is true about daily safety in your town?",
+          "options": [
+            "Feel safe walking at night",
+            "Know neighbors well",
+            "Public transport runs on time",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "How far ahead should the Ball look?",
+          "options": [
+            "Within 3 months",
+            "Within 6 months",
+            "Within a year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "8ab15809-1fd3-4668-a370-fddd9992b4cb",
+        "question": "Will I live happily in my current town?",
+        "headline": "You will live happily in your current town within 3 months.",
+        "createdAt": "2026-09-29T12:45:00.910Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is true about daily safety in your town? Feel safe walking at night Scenario assumption: You will continue to feel safe walking at night in your current town No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is true about your current town's daily life? A stable job here",
+          "context_2": "What is true about daily safety in your town? Feel safe walking at night",
+          "horizon": "Within 3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 5.002675708000003,
+    "planningSeconds": 2.968707666000002,
+    "predictionSeconds": 2.0339700840000003,
+    "modelCalls": [
+      {
+        "seconds": 0.36375966699999845,
+        "input": 248,
+        "output": 6
+      },
+      {
+        "seconds": 2.2368248329999987,
+        "input": 259,
+        "output": 74
+      },
+      {
+        "seconds": 0.3678257500000036,
+        "input": 324,
+        "output": 6
+      },
+      {
+        "seconds": 0.3434440409999952,
+        "input": 285,
+        "output": 6
+      },
+      {
+        "seconds": 1.343994749999998,
+        "input": 359,
+        "output": 37
+      },
+      {
+        "seconds": 0.34626791699999737,
+        "input": 286,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1761,
+    "outputTokens": 135
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I get a job in technology?",
+    "answersUsed": {
+      "context_1": "What is your current job search activity? Interview scheduled today",
+      "context_2": "What is your current work activity? New project launched",
+      "horizon": "Within 3 months"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What is your current job search activity?",
+          "options": [
+            "Interview scheduled today",
+            "Resume sent to 5 firms",
+            "Applied to 3 tech roles",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What is your current work activity?",
+          "options": [
+            "New project launched",
+            "Team meeting in progress",
+            "Code review completed",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "How far ahead should the Ball look?",
+          "options": [
+            "Within 3 months",
+            "Within 6 months",
+            "Within a year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "746e28fa-1610-4c9f-80dc-93a71a9c3bef",
+        "question": "Will I get a job in technology?",
+        "headline": "You will get a job in technology within 3 months.",
+        "createdAt": "2026-09-29T12:45:05.534Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is your current job search activity? Interview scheduled today Scenario assumption: You will continue active job search efforts within the next 3 months No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is your current job search activity? Interview scheduled today",
+          "context_2": "What is your current work activity? New project launched",
+          "horizon": "Within 3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 4.623918416,
+    "planningSeconds": 2.595533582999997,
+    "predictionSeconds": 2.0283853329999983,
+    "modelCalls": [
+      {
+        "seconds": 0.33415699999999926,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 1.8870151669999977,
+        "input": 258,
+        "output": 63
+      },
+      {
+        "seconds": 0.374109375,
+        "input": 312,
+        "output": 6
+      },
+      {
+        "seconds": 0.38101270800000203,
+        "input": 275,
+        "output": 6
+      },
+      {
+        "seconds": 1.2648682919999992,
+        "input": 349,
+        "output": 36
+      },
+      {
+        "seconds": 0.3821364170000015,
+        "input": 281,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1722,
+    "outputTokens": 123
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I win the student election?",
+    "answersUsed": {
+      "context_1": "What is the current poll trend? Polls show 60% support for me",
+      "context_2": "How many votes do you currently have? 1200 votes in the system",
+      "horizon": "This week"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What is the current poll trend?",
+          "options": [
+            "Polls show 60% support for me",
+            "Opponent leads in current polls",
+            "No clear lead in student votes",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "How many votes do you currently have?",
+          "options": [
+            "1200 votes in the system",
+            "800 votes in the system",
+            "500 votes in the system",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "When is the event happening?",
+          "options": [
+            "This week",
+            "Next month",
+            "Later this year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "205a433d-906c-4059-b64a-e88f34aa0f41",
+        "question": "Will I win the student election?",
+        "headline": "You will win the student election this week.",
+        "createdAt": "2026-09-29T12:45:10.738Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is the current poll trend? Polls show 60% support for me Scenario assumption: You must maintain your current poll lead and voter engagement No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is the current poll trend? Polls show 60% support for me",
+          "context_2": "How many votes do you currently have? 1200 votes in the system",
+          "horizon": "This week"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 5.203922874999996,
+    "planningSeconds": 3.4041359169999996,
+    "predictionSeconds": 1.799787083000003,
+    "modelCalls": [
+      {
+        "seconds": 0.34818729200000237,
+        "input": 246,
+        "output": 6
+      },
+      {
+        "seconds": 2.6727226669999946,
+        "input": 257,
+        "output": 91
+      },
+      {
+        "seconds": 0.38296600000000036,
+        "input": 340,
+        "output": 6
+      },
+      {
+        "seconds": 0.3488370830000058,
+        "input": 285,
+        "output": 6
+      },
+      {
+        "seconds": 1.098293666999998,
+        "input": 359,
+        "output": 32
+      },
+      {
+        "seconds": 0.35237162499999974,
+        "input": 281,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1768,
+    "outputTokens": 147
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I win my chess match?",
+    "answersUsed": {
+      "context_1": "What preparation have you already completed? Practiced openings yesterday",
+      "context_2": "What personal preference do you have now? Prefer fast games",
+      "horizon": "This week"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What preparation have you already completed?",
+          "options": [
+            "Practiced openings yesterday",
+            "Studied my opponent's style",
+            "90 minutes available",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What personal preference do you have now?",
+          "options": [
+            "Prefer fast games",
+            "Played against this opponent before",
+            "Like using tactical patterns",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "When is the event happening?",
+          "options": [
+            "This week",
+            "Next month",
+            "Later this year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "57506f7f-b72e-4e7c-8211-7ec796cfea5a",
+        "question": "Will I win my chess match?",
+        "headline": "You will win your chess match this week.",
+        "createdAt": "2026-09-29T12:45:17.450Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What preparation have you already completed? Practiced openings yesterday Scenario assumption: You will continue practicing openings daily this week No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What preparation have you already completed? Practiced openings yesterday",
+          "context_2": "What personal preference do you have now? Prefer fast games",
+          "horizon": "This week"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 6.711783000000003,
+    "planningSeconds": 4.9852961670000004,
+    "predictionSeconds": 1.7264870420000007,
+    "modelCalls": [
+      {
+        "seconds": 0.33779379199999676,
+        "input": 246,
+        "output": 6
+      },
+      {
+        "seconds": 2.0264108330000017,
+        "input": 257,
+        "output": 68
+      },
+      {
+        "seconds": 2.2516571249999977,
+        "input": 429,
+        "output": 70
+      },
+      {
+        "seconds": 0.3691220839999951,
+        "input": 321,
+        "output": 6
+      },
+      {
+        "seconds": 0.34420916700000087,
+        "input": 273,
+        "output": 6
+      },
+      {
+        "seconds": 1.0260426250000019,
+        "input": 347,
+        "output": 30
+      },
+      {
+        "seconds": 0.35599529199999963,
+        "input": 273,
+        "output": 6
+      }
+    ],
+    "inputTokens": 2146,
+    "outputTokens": 192
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I learn guitar in a year?",
+    "answersUsed": {
+      "level": "New beginner",
+      "practice": "10 minutes",
+      "conversation": "Rarely",
+      "learning_target": "guitar",
+      "deadline": "In 1 year"
+    },
+    "plan": {
+      "topic": "learning",
+      "provided": {
+        "learning_target": "guitar",
+        "deadline": "In 1 year"
+      },
+      "cards": [
+        {
+          "id": "level",
+          "question": "What is your level now?",
+          "options": [
+            "New beginner",
+            "Know the basics",
+            "Intermediate",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "practice",
+          "question": "How much time can you give it daily?",
+          "options": [
+            "10 minutes",
+            "20 minutes",
+            "45 minutes",
+            "Other"
+          ],
+          "remember": true
+        },
+        {
+          "id": "conversation",
+          "question": "How often can someone review your practice?",
+          "options": [
+            "Rarely",
+            "Weekly",
+            "Daily",
+            "Other"
+          ],
+          "remember": true
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "27fcf91d-e880-4726-839e-7c2c28820467",
+        "question": "Will I learn guitar in a year?",
+        "headline": "You will still be practicing the basics of guitar in 1 year.",
+        "createdAt": "2026-09-29T12:45:19.308Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your starting level is new beginner. You allow 10 minutes daily, with infrequent feedback. This scenario uses 20 minutes daily and weekly feedback as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "level": "New beginner",
+          "practice": "10 minutes",
+          "conversation": "Rarely",
+          "deadline": "In 1 year"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 1.8584576250000027,
+    "planningSeconds": 0.3360478330000042,
+    "predictionSeconds": 1.5224099579999966,
+    "modelCalls": [
+      {
+        "seconds": 0.3359699580000015,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 0.3366135420000064,
+        "input": 265,
+        "output": 6
+      },
+      {
+        "seconds": 0.8264154579999958,
+        "input": 330,
+        "output": 19
+      },
+      {
+        "seconds": 0.3591272909999971,
+        "input": 302,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1144,
+    "outputTokens": 37
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will my next trip to Paris be enjoyable?",
+    "answersUsed": {
+      "context_1": "What is the current weather in Paris? Weather is sunny today",
+      "context_2": "What is your current lodging status in Paris? A confirmed hotel booking",
+      "horizon": "This week"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What is the current weather in Paris?",
+          "options": [
+            "Weather is sunny today",
+            "Rain falls lightly now",
+            "Clouds cover the sky",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What is your current lodging status in Paris?",
+          "options": [
+            "A confirmed hotel booking",
+            "Haven't booked accommodation",
+            "I'm unsure about lodging",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "When is the event happening?",
+          "options": [
+            "This week",
+            "Next month",
+            "Later this year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "10e27977-dd18-4c89-bc1a-2db8a8b41baf",
+        "question": "Will my next trip to Paris be enjoyable?",
+        "headline": "Your next trip to Paris will be enjoyable this week.",
+        "createdAt": "2026-09-29T12:45:24.127Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is your current lodging status in Paris? A confirmed hotel booking Scenario assumption: You will stay in your confirmed hotel booking this week No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is the current weather in Paris? Weather is sunny today",
+          "context_2": "What is your current lodging status in Paris? A confirmed hotel booking",
+          "horizon": "This week"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 4.818972000000001,
+    "planningSeconds": 2.799604665999999,
+    "predictionSeconds": 2.0193677499999976,
+    "modelCalls": [
+      {
+        "seconds": 0.3458297910000038,
+        "input": 248,
+        "output": 6
+      },
+      {
+        "seconds": 2.0838917500000025,
+        "input": 259,
+        "output": 69
+      },
+      {
+        "seconds": 0.36965337500000167,
+        "input": 318,
+        "output": 6
+      },
+      {
+        "seconds": 0.348151374999994,
+        "input": 278,
+        "output": 6
+      },
+      {
+        "seconds": 1.3189608329999973,
+        "input": 352,
+        "output": 36
+      },
+      {
+        "seconds": 0.35199554100000385,
+        "input": 279,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1734,
+    "outputTokens": 129
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I reconnect with an old friend?",
+    "answersUsed": {
+      "context_1": "What did you do with an old friend today? They texted me today",
+      "context_2": "Where did you see an old friend today? They sent a photo",
+      "horizon": "Within 3 months"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What did you do with an old friend today?",
+          "options": [
+            "They texted me today",
+            "Saw them at a cafe",
+            "We spoke on the phone",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "Where did you see an old friend today?",
+          "options": [
+            "They sent a photo",
+            "Visited their place",
+            "We met at a park",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "How far ahead should the Ball look?",
+          "options": [
+            "Within 3 months",
+            "Within 6 months",
+            "Within a year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "858456e6-4939-4402-aec3-bcbc2abf7378",
+        "question": "Will I reconnect with an old friend?",
+        "headline": "You will reconnect with an old friend within 3 months.",
+        "createdAt": "2026-09-29T12:45:29.931Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What did you do with an old friend today? They texted me today Scenario assumption: You will respond to their text No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What did you do with an old friend today? They texted me today",
+          "context_2": "Where did you see an old friend today? They sent a photo",
+          "horizon": "Within 3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 5.803221625000005,
+    "planningSeconds": 2.8196577919999983,
+    "predictionSeconds": 2.9835639999999986,
+    "modelCalls": [
+      {
+        "seconds": 0.33981837500000256,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 2.1107720410000037,
+        "input": 258,
+        "output": 71
+      },
+      {
+        "seconds": 0.3688264160000108,
+        "input": 320,
+        "output": 6
+      },
+      {
+        "seconds": 0.3529410829999979,
+        "input": 282,
+        "output": 6
+      },
+      {
+        "seconds": 1.1931129999999976,
+        "input": 356,
+        "output": 36
+      },
+      {
+        "seconds": 1.0742521669999987,
+        "input": 441,
+        "output": 28
+      },
+      {
+        "seconds": 0.3629488339999953,
+        "input": 278,
+        "output": 6
+      }
+    ],
+    "inputTokens": 2182,
+    "outputTokens": 159
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will my side project gain customers?",
+    "answersUsed": {
+      "context_1": "What is the current status of your project website? New website launched today",
+      "context_2": "Has a client made contact with your project? First client signed up",
+      "horizon": "Within 3 months"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {},
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "What is the current status of your project website?",
+          "options": [
+            "New website launched today",
+            "No website yet",
+            "Website under review",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "Has a client made contact with your project?",
+          "options": [
+            "First client signed up",
+            "No client contact yet",
+            "Client inquiry received",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "horizon",
+          "question": "How far ahead should the Ball look?",
+          "options": [
+            "Within 3 months",
+            "Within 6 months",
+            "Within a year",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "d4635cac-ada7-4078-8452-9da96a571532",
+        "question": "Will my side project gain customers?",
+        "headline": "Your side project will gain customers within 3 months.",
+        "createdAt": "2026-09-29T12:45:34.445Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is the current status of your project website? New website launched today Scenario assumption: Your project website must remain active and visible to attract new visitors No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is the current status of your project website? New website launched today",
+          "context_2": "Has a client made contact with your project? First client signed up",
+          "horizon": "Within 3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 4.513868084000001,
+    "planningSeconds": 2.612770583999998,
+    "predictionSeconds": 1.9010976660000014,
+    "modelCalls": [
+      {
+        "seconds": 0.34234170799999264,
+        "input": 246,
+        "output": 6
+      },
+      {
+        "seconds": 1.8983200829999987,
+        "input": 257,
+        "output": 63
+      },
+      {
+        "seconds": 0.37190229199999886,
+        "input": 312,
+        "output": 6
+      },
+      {
+        "seconds": 0.34768045900001016,
+        "input": 280,
+        "output": 6
+      },
+      {
+        "seconds": 1.1992617919999902,
+        "input": 354,
+        "output": 36
+      },
+      {
+        "seconds": 0.3539130420000001,
+        "input": 282,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1731,
+    "outputTokens": 123
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "question": "Will I finish a marathon next year?",
+    "answersUsed": {
+      "context_1": "How far do you run this week? Run 10 kilometers this week",
+      "context_2": "What is the condition of your shoes? My shoes are worn out",
+      "context_3": "How often do you train? Train daily",
+      "horizon": "next year"
+    },
+    "plan": {
+      "topic": "general",
+      "provided": {
+        "horizon": "next year"
+      },
+      "cards": [
+        {
+          "id": "context_1",
+          "question": "How far do you run this week?",
+          "options": [
+            "Run 10 kilometers this week",
+            "Run 5 kilometers this week",
+            "Run 2 kilometers this week",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_2",
+          "question": "What is the condition of your shoes?",
+          "options": [
+            "My shoes are worn out",
+            "My shoes are new",
+            "Haven't bought shoes",
+            "Other"
+          ],
+          "remember": false
+        },
+        {
+          "id": "context_3",
+          "question": "How often do you train?",
+          "options": [
+            "Train daily",
+            "Train twice a week",
+            "Train once a week",
+            "Other"
+          ],
+          "remember": false
+        }
+      ]
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "8458a910-52d2-49e6-b103-3a539d3111a1",
+        "question": "Will I finish a marathon next year?",
+        "headline": "You will finish a marathon next year",
+        "createdAt": "2026-09-29T12:45:40.218Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: How often do you train? Train daily Scenario assumption: You will continue training daily despite worn-out shoes No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "How far do you run this week? Run 10 kilometers this week",
+          "context_2": "What is the condition of your shoes? My shoes are worn out",
+          "context_3": "How often do you train? Train daily",
+          "horizon": "next year"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    },
+    "seconds": 5.7731102919999975,
+    "planningSeconds": 3.839651375000001,
+    "predictionSeconds": 1.9334590829999942,
+    "modelCalls": [
+      {
+        "seconds": 0.3438076670000009,
+        "input": 247,
+        "output": 6
+      },
+      {
+        "seconds": 3.066589624999993,
+        "input": 258,
+        "output": 103
+      },
+      {
+        "seconds": 0.4289312079999945,
+        "input": 357,
+        "output": 6
+      },
+      {
+        "seconds": 0.3510514580000017,
+        "input": 289,
+        "output": 6
+      },
+      {
+        "seconds": 1.2240876669999998,
+        "input": 371,
+        "output": 32
+      },
+      {
+        "seconds": 0.3580682910000032,
+        "input": 269,
+        "output": 6
+      }
+    ],
+    "inputTokens": 1791,
+    "outputTokens": 159
+  }
+]

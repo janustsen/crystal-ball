@@ -1,0 +1,67 @@
+```json
+{
+  "role": "independent target-user grader (18-24)",
+  "phase": "app",
+  "score": 7.2,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.0,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 7.0
+  },
+  "method": "Read-only. I looked at the PNG screenshots directly (visual inspection). I read the JSON and markdown evidence and inspected server/engine.ts and src/questions.ts (source inspection). I ran no commands and changed no files. I did not open drive-extended.json, the money-1..10 screenshots, the MP4 or the webm.",
+  "evidence": [
+    "drive.json (runAt 2026-09-29T12:27:05Z): the full flow ran home → ask → 3 cards → research → reveal → Why → share → share HTTP 500 recovered → History kept after reload → daily cap → paywall → mock purchase → pregnancy question blocked at no charge. The flow took 9.3 s. The summary matches this log.",
+    "Source inspection: the summary says the drive used 'real local Qwen planning'. That overstates it. The Spanish/learning, money, growth and relocation cards are hard-coded templates in src/questions.ts, returned through planFor() in server/engine.ts:22. For those topics Qwen only runs the safety check, which is why that plan call took 421 ms. Only the 'general' topic has cards written by the model (engine.ts:27).",
+    "general-flow.json (12:29:26Z): the novel cards were written by the model and one reading was charged (3→2). The cards are weak. One answer option is 'Update my progress weekly', which just repeats its question. The daily-word options are in random order (500/100/200). The Why ignores the strongest input (500 words a day) and simply restates the answers.",
+    "generation-review.md: 19/20 cases completed. Of the 11 general cases, about 6 still have semantic defects:",
+    "  - Ex: closure is inferred without evidence.",
+    "  - Technology job: the Why ends in an incomplete fragment.",
+    "  - Election: 60% support leads to a negative verdict.",
+    "  - Chess: the Why is missing its reasoning.",
+    "  - Old friend: a photo is offered as an answer to a 'where' card.",
+    "  - Marathon: the shoe question is weak.",
+    "  The builder's own review says 'a targeted candidate replay is pending' for the latest guard.",
+    "Visual (reveal.png, why.png, general-reveal.png, money-reveal.png): the dark purple, gold and cyan palette is consistent. The headline type is strong. The 'Speculative forecast · not a guarantee' label shows every time. The ball artwork looks polished and would work for this age group.",
+    "Visual (share.png, exported-card.png): the share preview and the 1080×1920 PNG use the same composition. Neither contains private data. The bottom ~20% of the export is a sparse constellation, a weak spot for an Instagram-story layout.",
+    "Visual (large-reveal.png, large-question.png, friend.png at 200% text): nothing overlaps, but the headline and card question are cut off behind the tab bar ('5 years', 'your…'). The disclaimer moves above the ball. The five tab labels are crammed edge to edge. It works but needs heavy scrolling to reach the content.",
+    "Visual (knowledge.png): the conversation-frequency fact is labelled 'Practice feedback', which does not match the card question 'How often can you practice conversation?'",
+    "Visual (reveal, history, blocked, timeout, network-error): the bottom 35–45% of the screen above the tab bar is empty. The layout feels top-heavy, not designed for the phone.",
+    "Recovery (network-error.png, timeout.png, blocked.png, forget-undo.png): copy is clear and 'nothing was charged' is stated. Retry, review-answers and edit-question paths exist. The Undo toast works (drive-states.json: forgetUndoRestored true, forgottenFactAskedAgain true).",
+    "accessibility-flow.json: 0 axe violations on 5 screens. Colour contrast is 'incomplete' on every screen, and share also has aria-prohibited-attr 'incomplete'. The file has no timestamp, so I could not confirm it is current.",
+    "screen-contrast.json: only three elements are measured (helper 9.10, cyan link 9.98, gold label 10.30). The disabled Next button (question-1.png) and small grey helper text such as 'No reading was spent…' are not measured.",
+    "performance-flow.json (12:30:03Z): planning p95 18.6 ms, research p95 18.4 ms, reveal p95 18.6 ms over 599 frames, all matching the summary. Cards p95 33.3 ms (about 30 fps).",
+    "drive.json rafCadence (not mentioned in the summary): 120 frames with a mean of 59.2 ms and a max of 133 ms, about 17 fps during the cold-load/home check. It is unexplained and contradicts the smooth-flow claim for first impressions.",
+    "Engine: total p50 7.30 s / p95 12.84 s (engine-bakeoff.json, as the summary says). A 13 s tail on a 'glimpse' is long for this audience, though the research screen sets expectations ('up to a minute').",
+    "Deferred device checks are listed honestly in the summary and SETUP.md: Apple account saving, speech recognition, notifications, RevenueCat sandbox, native share sheet, VoiceOver and Dynamic Type. The paywall is clearly marked 'Test mode · no real payments'."
+  ],
+  "blockers": [
+    "Fix the model-written general path, since that is where the app earns its magic:",
+    "  - Get the ~6/11 flagged general cases to a clean semantic review: no incomplete Why fragments, verdicts consistent with the inputs (election), cards that match their answer type (old friend).",
+    "  - Run the pending targeted replay on the current code and record it as current evidence.",
+    "Make the Why use the most informative answers instead of restating them (e.g. the novel Why should reason about 500 words/day against the time left in the year), and sort options on ordered scales.",
+    "Correct the verification summary: say the flagship Spanish, money, growth and relocation cards are templates with Qwen used for safety and wording only, or add a drive of a model-planned general question as the headline end-to-end proof.",
+    "Explain or fix the home/cold-load frame cadence (mean 59 ms, max 133 ms in drive.json), and bring card-phase p95 below 20 ms.",
+    "At 200% text:",
+    "  - Keep the headline and card question visible above the tab bar without scrolling (smaller ball or a scaled headline, and pin the disclaimer under the headline).",
+    "  - Switch to icon-only or two-line tab labels so they stop crowding.",
+    "Balance the vertical layout on reveal, history, blocked and error screens: centre the content or use the empty lower third for actions or history context.",
+    "Give the exported story card's bottom fifth a purpose (a watermark or call to action, or move the headline block lower).",
+    "Rename the 'Practice feedback' knowledge label to match the question ('Conversation practice').",
+    "Timestamp accessibility-flow.json. Resolve the share-screen aria-prohibited-attr 'incomplete'. Extend the rendered-contrast measurement to the disabled Next button, small grey helper and footnote text, and the tab labels."
+  ],
+  "strengths": [
+    "A genuinely broad end-to-end drive:",
+    "  - five tabs, Other input, Why, PNG and MP4 export, share failure injection, History kept after reload",
+    "  - editing and forgetting facts with Undo, ten money inputs, offline retry, timeout, 200% text, a friend reading kept out of your saved facts",
+    "  - a mock paywall with restore, and sensitive questions redirected at no charge",
+    "  All of it is recorded in timestamped logs whose times agree with each other.",
+    "The app fails closed instead of inventing a result. Failures do not spend a reading, and the builder keeps failed evidence in the repo.",
+    "Cohesive, attractive cosmic visual identity with a good hierarchy. The honesty label is always present on the reveal and on shared cards.",
+    "The privacy boundary on shared cards is clear: the question, facts and Why are left out, and the copy says so.",
+    "The safety redirects are calm, respectful and free.",
+    "Smooth browser animation during research and reveal (p95 about 18.5 ms), and reduced-motion handling was exercised.",
+    "No paid APIs; local Ollama/Qwen. The native-only parts are wired behind mocks and listed as deferred device checks."
+  ]
+}
+```

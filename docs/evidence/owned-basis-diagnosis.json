@@ -1,0 +1,370 @@
+[
+  {
+    "question": "Will my next holiday be memorable?",
+    "result": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    },
+    "calls": [
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will my next holiday be memorable?\\nWhat preparations have you already completed for your next holiday? Booked a beach cabin\\nWhat personal preference guides your holiday choice? Prefer quiet locations\\n3 months\"}",
+        "repair": null,
+        "output": "{\"category\":\"allow\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "context_1",
+                "context_2"
+              ]
+            },
+            "assumption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prediction",
+            "basis",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will my next holiday be memorable?\",\"facts\":{\"context_1\":\"What preparations have you already completed for your next holiday? Booked a beach cabin\",\"context_2\":\"What personal preference guides your holiday choice? Prefer quiet locations\",\"horizon\":\"3 months\"},\"choices\":[],\"newsHeadlines\":[],\"today\":\"2026-09-29\"}",
+        "repair": null,
+        "output": "{\"assumption\":\"I will continue to prioritize quiet, peaceful environments for my next holiday.\",\"basis\":\"context_2\",\"prediction\":\"Yes, my next holiday will be memorable\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "context_1",
+                "context_2"
+              ]
+            },
+            "assumption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prediction",
+            "basis",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will my next holiday be memorable?\",\"facts\":{\"context_1\":\"What preparations have you already completed for your next holiday? Booked a beach cabin\",\"context_2\":\"What personal preference guides your holiday choice? Prefer quiet locations\",\"horizon\":\"3 months\"},\"choices\":[],\"newsHeadlines\":[],\"today\":\"2026-09-29\"}",
+        "repair": "Repair the previous output. Validation issue: Use a complete future sentence with will, no more than 90 characters. For a general forecast choose an existing fact key as basis and one complete assumption sentence under 120 characters. Never end mid-sentence or with a dash, comma or colon.. Return only one complete JSON object satisfying the schema and all system constraints.",
+        "output": "{\"assumption\":\"I will continue to choose quiet, peaceful locations for my holiday.\",\"basis\":\"context_2\",\"prediction\":\"Yes, my next holiday will be memorable\"}"
+      }
+    ]
+  },
+  {
+    "question": "Will I move on from my ex this year?",
+    "result": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    },
+    "calls": [
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I move on from my ex this year?\\nHow do you currently feel about your ex? Still think about them daily\\nWhat do you do online about your ex? Share updates with friends\\nHow do you currently communicate with your ex? Talk to them regularly\\nthis year\"}",
+        "repair": null,
+        "output": "{\"category\":\"allow\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "context_1",
+                "context_2",
+                "context_3"
+              ]
+            },
+            "assumption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prediction",
+            "basis",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I move on from my ex this year?\",\"facts\":{\"context_1\":\"How do you currently feel about your ex? Still think about them daily\",\"context_2\":\"What do you do online about your ex? Share updates with friends\",\"context_3\":\"How do you currently communicate with your ex? Talk to them regularly\",\"horizon\":\"this year\"},\"choices\":[],\"newsHeadlines\":[],\"today\":\"2026-09-29\"}",
+        "repair": null,
+        "output": "{\"assumption\":\"I must stop thinking about them daily for this to succeed\",\"basis\":\"context_1\",\"prediction\":\"You will not move on from your ex this year\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I move on from my ex this year?\",\"facts\":{\"context_1\":\"How do you currently feel about your ex? Still think about them daily\",\"context_2\":\"What do you do online about your ex? Share updates with friends\",\"context_3\":\"How do you currently communicate with your ex? Talk to them regularly\",\"horizon\":\"this year\"},\"forecast\":{\"prediction\":\"You will not move on from your ex this year\",\"basis\":\"How do you currently feel about your ex? Still think about them daily\",\"assumption\":\"I must stop thinking about them daily for this to succeed\"}}",
+        "repair": null,
+        "output": "{\"issue\":\"The prediction assumes that stopping daily thoughts about the ex is necessary for moving on, but the facts show ongoing daily thoughts and regular communication, which contradicts the assumption and undermines the validity of the forecast.\",\"valid\":false}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "context_1",
+                "context_2",
+                "context_3"
+              ]
+            },
+            "assumption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prediction",
+            "basis",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I move on from my ex this year?\",\"facts\":{\"context_1\":\"How do you currently feel about your ex? Still think about them daily\",\"context_2\":\"What do you do online about your ex? Share updates with friends\",\"context_3\":\"How do you currently communicate with your ex? Talk to them regularly\",\"horizon\":\"this year\"},\"choices\":[],\"newsHeadlines\":[],\"today\":\"2026-09-29\"}",
+        "repair": "Repair the previous output. Validation issue: The prediction assumes that stopping daily thoughts about the ex is necessary for moving on, but the facts show ongoing daily thoughts and regular communication, which contradicts the assumption and undermines the validity of the forecast.. Return only one complete JSON object satisfying the schema and all system constraints.",
+        "output": "{\"assumption\":\"I must continue thinking about them daily for this to succeed\",\"basis\":\"context_1\",\"prediction\":\"You will not move on from your ex this year\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I move on from my ex this year?\",\"facts\":{\"context_1\":\"How do you currently feel about your ex? Still think about them daily\",\"context_2\":\"What do you do online about your ex? Share updates with friends\",\"context_3\":\"How do you currently communicate with your ex? Talk to them regularly\",\"horizon\":\"this year\"},\"forecast\":{\"prediction\":\"You will not move on from your ex this year\",\"basis\":\"How do you currently feel about your ex? Still think about them daily\",\"assumption\":\"I must continue thinking about them daily for this to succeed\"}}",
+        "repair": null,
+        "output": "{\"issue\":\"The prediction states that you will not move on from your ex this year, based on the fact that you still think about them daily. However, the assumption that continuous daily thoughts are necessary for the prediction to succeed is not supported by evidence and contradicts the possibility of emotional change over time. This creates a logical inconsistency between the basis and the assumption, as emotional growth can occur despite ongoing thoughts. Therefore, the internal consistency of the forecast is flawed.\",\"valid\":false}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I move on from my ex this year?\",\"facts\":{\"context_1\":\"How do you currently feel about your ex? Still think about them daily\",\"context_2\":\"What do you do online about your ex? Share updates with friends\",\"context_3\":\"How do you currently communicate with your ex? Talk to them regularly\",\"horizon\":\"this year\"},\"forecast\":{\"prediction\":\"You will not move on from your ex this year\",\"basis\":\"How do you currently feel about your ex? Still think about them daily\",\"assumption\":\"I must continue thinking about them daily for this to succeed\"}}",
+        "repair": "Repair the previous output. Validation issue: Check field lengths, word limits, required phrasing, and allowed choices.. Return only one complete JSON object satisfying the schema and all system constraints.",
+        "output": "{\"issue\":\"The prediction is based on the assumption that continuous daily thoughts about an ex are necessary to remain attached, but this assumption is not validated by evidence and contradicts the possibility of emotional healing. The basis and assumption create a logical inconsistency, undermining the forecast's validity. Emotional change can occur despite ongoing thoughts, so the claim of not moving on is not reliably supported. Thus, the internal consistency of the forecast is flawed.\",\"valid\":true}"
+      }
+    ]
+  },
+  {
+    "question": "Will I win the student election?",
+    "result": {
+      "kind": "error",
+      "message": "The mist is too thick. Please ask again."
+    },
+    "calls": [
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I win the student election?\\nWhat is the current poll trend? Polls show 60% support for me\\nHow many votes do you currently have? 1200 votes in the system\\nThis week\"}",
+        "repair": null,
+        "output": "{\"category\":\"allow\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "context_1",
+                "context_2"
+              ]
+            },
+            "assumption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prediction",
+            "basis",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I win the student election?\",\"facts\":{\"context_1\":\"What is the current poll trend? Polls show 60% support for me\",\"context_2\":\"How many votes do you currently have? 1200 votes in the system\",\"horizon\":\"This week\"},\"choices\":[],\"newsHeadlines\":[],\"today\":\"2026-09-29\"}",
+        "repair": null,
+        "output": "{\"assumption\":\"My support must remain above 55% for the election to succeed\",\"basis\":\"context_1\",\"prediction\":\"You will win the student election\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "basis": {
+              "type": "string",
+              "enum": [
+                "context_1",
+                "context_2"
+              ]
+            },
+            "assumption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prediction",
+            "basis",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I win the student election?\",\"facts\":{\"context_1\":\"What is the current poll trend? Polls show 60% support for me\",\"context_2\":\"How many votes do you currently have? 1200 votes in the system\",\"horizon\":\"This week\"},\"choices\":[],\"newsHeadlines\":[],\"today\":\"2026-09-29\"}",
+        "repair": "Repair the previous output. Validation issue: Remove numerical claims not present in the supplied facts. Do not invent statistics or calculate new facts.. Return only one complete JSON object satisfying the schema and all system constraints.",
+        "output": "{\"assumption\":\"Continued support must be maintained for the election outcome\",\"basis\":\"context_1\",\"prediction\":\"You will win the student election\"}"
+      },
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "input": "{\"question\":\"Will I win the student election?\",\"facts\":{\"context_1\":\"What is the current poll trend? Polls show 60% support for me\",\"context_2\":\"How many votes do you currently have? 1200 votes in the system\",\"horizon\":\"This week\"},\"forecast\":{\"prediction\":\"You will win the student election this week.\",\"basis\":\"What is the current poll trend? Polls show 60% support for me\",\"assumption\":\"Continued support must be maintained for the election outcome\"}}",
+        "repair": null,
+        "output": "{\"issue\":\"The prediction assumes continued support will be maintained, but there is no evidence that this will happen in the upcoming election. The current poll trend and vote count are positive, but without a clear mechanism or data showing that support will translate into actual votes, the outcome remains uncertain.\",\"valid\":false}"
+      }
+    ]
+  }
+]

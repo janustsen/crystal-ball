@@ -1,0 +1,43 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 7.5,
+  "evidence": [
+    "SOURCE/LOG: verification-summary.md mostly matches the artifacts it cites. drive.json (runAt 2026-09-29T12:56:07Z) records a real qwen3:4b plan (381 ms) and predict (1501 ms) call, a flow of 9.3 s, a share HTTP 500 marked recoverable, History persisting after reload, the daily cap opening the paywall, and a pregnancy question redirected. general-flow.json (13:03:16Z) records novel-writing cards with no Spanish or money facts leaking in, credits going from 3 to 2, and a self-harm question blocked. performance-flow.json (13:03:49Z) matches the summary's 18.6/18.1 ms p95 and 20.2 ms reveal max.",
+    "SOURCE/LOG: drive-states.json is mostly a list of screen names. Only forgetUndoRestored, forgottenFactAskedAgain and the two empty-copy flags are actual assertions. Reminder, restore, voice fallback, keyboard focus, long wait and timeout are backed by screenshots, not asserted outcomes.",
+    "SOURCE/LOG: in drive.json the cold-load rafCadence shows a max of 116.7 ms and a mean of 20.1 ms. That is worse than the later headed performance-flow numbers, and the summary doesn't mention it.",
+    "VISUAL home.png: strong cosmic palette, good serif/sans pairing, a clear gold CTA and a polished orb. The next section ('Something on your mind?') starts right above the tab bar, which is fine. The '1 reading' badge sits next to 'Ask your first question', which is consistent.",
+    "VISUAL reveal.png / money-reveal.png: good hierarchy. The headline is prominent, and the speculative label and Why link are clear. About the bottom 15% of the viewport above the tab bar is empty, so the reveal feels top-heavy.",
+    "VISUAL why.png / general-why.png: the panel expands inline under the tab bar and needs a scroll. The general Why reads mechanically: 'Recorded context: How many words do you write daily? Write 500 words daily.' It restates the question and answer verbatim and cites only one of the three answers.",
+    "VISUAL general-card-1.png: each model option repeats the question stem ('Write 500 words daily' under 'How many words do you write daily?'). The options are 500/100/200, which is not sorted. It is readable but clearly model-shaped, not designed.",
+    "VISUAL reveal / drive.json semantics: a 'New beginner' practicing 30 min/day with weekly conversation gets the unqualified headline 'You will speak conversational Spanish in 6 months.' The disclaimer is present. Still, the entertainment framing and the reasoning disagree, and generation-review.md admits there are remaining semantic defects.",
+    "VISUAL reminder-preview.png: the reminder toast covers the primary 'Share this glimpse' button (its gold edge peeks out above the toast). forget-undo.png: the Undo toast covers the knowledge rows, and the copy reads 'Forgot Your level.' with the capital Y copied from the row label.",
+    "VISUAL knowledge.png: the stored conversation-practice fact is labelled 'Practice feedback: Weekly', which doesn't match the card question it came from ('How often can you practice conversation?').",
+    "VISUAL history-yes.png: a six-month Spanish forecast created on Sep 29, 2026 can be marked 'Came true' the same day. There is no guard or 'too early' affordance. This undermines the 'archive of tomorrow' premise.",
+    "VISUAL large-reveal.png / large-question.png (200% text): the headline and question are clipped behind the tab bar on first view. The header wordmark doesn't scale. Tab labels run together ('Home Explore'). The reveal reorders so the disclaimer sits above the orb. It is usable only by scrolling, and the screenshots don't show any scroll-reachable check.",
+    "VISUAL share.png / exported-card.png: share preview and export match, and no private question or facts are on the card. The bottom third of the 1080×1920 card is empty except for a faint constellation, and the wordmark block looks slightly off-centre. share-export-failure.png shows a clear, recoverable error and a 'Back to prediction' button, but the share screen has no back control until you scroll.",
+    "VISUAL research.png / general-failure.png: good wait and failure states. They include a Cancel button, the 'No reading is spent on failure' reassurance, and Try again / Edit question.",
+    "LOG accessibility-flow.json: zero axe violations. Colour contrast is incomplete everywhere, which screen-contrast.json offsets with measured ratios of at least 9.1:1. The share screen also has 'aria-prohibited-attr' marked incomplete, and nobody has resolved or explained it. Native VoiceOver and Dynamic Type are honestly deferred.",
+    "SOURCE: the money headline is deterministic compound math in server/engine.ts:54, not model output, which is acceptable. SETUP.md lists the deferred device checks honestly (Apple link, speech, notifications, RevenueCat sandbox, VoiceOver, Dynamic Type) and says the mocked purchase and reminder flows are mock or preview states in the UI."
+  ],
+  "blockers": [
+    "Make 200% text layouts usable on first view. Scale or cap the header wordmark consistently, stop tab labels colliding (icon-only or wrapped labels at large sizes), and keep the headline and primary action visible or clearly scrollable. Add a scroll-reachability assertion to the drive.",
+    "Stop toasts covering primary actions. Place the reminder and forget-undo snackbars above the CTA region, or push content up, and re-capture reminder-preview.png and forget-undo.png. Fix the 'Forgot Your level.' casing.",
+    "Match reveal confidence to the inputs. A new beginner at 30 min/day gets an unqualified 'You will speak conversational Spanish in 6 months'. Tone the headline down or qualify it (e.g. 'basic conversations'), or show the threshold gap. Make the general Why read as prose that uses all three answers instead of echoing 'question? answer'.",
+    "Clean up model-authored card options. Strip the stem-echo prefixes and sort numeric options, either server-side or in the cards contract, and re-run general-flow.json to show it.",
+    "Guard History resolution. Don't allow 'Came true' / 'Didn't' before a reasonable point in the horizon, or ask for confirmation, and re-capture history-yes.png and history-no.png.",
+    "Fix the fact-label mapping ('Practice feedback' → 'Conversation practice') and resolve or explain the share screen's aria-prohibited-attr incomplete result.",
+    "Rebalance the reveal and share-card compositions to remove the dead lower space: anchor actions lower, or give the card a footer or CTA text. Also add a visible back or close control at the top of the Share screen.",
+    "Turn drive-states.json into asserted outcomes (reminder scheduled payload via mock, timeout message shown, voice fallback text, keyboard focus order), not just screen names. Explain or fix the 116.7 ms cold-load frame max in drive.json."
+  ],
+  "strengths": [
+    "Coherent, attractive cosmic-mystic visual system: a consistent orb artwork, a gold primary / cyan secondary hierarchy, and good type pairing across every screen.",
+    "Genuinely end-to-end on local Qwen with logged latencies. The whole flow runs in about 9 s, and the planning-memory leak was fixed and regression-pinned.",
+    "Strong recovery design. Share export failure, network retry, cancel during research, timeout, forget with Undo, and sensitive redirect without a charge are all captured.",
+    "Honest boundaries. Every reading is labelled speculative, Why says there is no supporting evidence, mock purchases and reminder previews say so in the UI, and native checks are listed as deferred rather than claimed.",
+    "Privacy on sharing: private answers never reach the card, and the preview, PNG and MP4 are consistent.",
+    "Browser frame cadence is solid in the headed run: p95 about 18.6 ms across planning, research and a 600-frame reveal."
+  ]
+}
+```
