@@ -1,0 +1,37 @@
+I've read all the research docs, the evidence JSON and `scripts/bakeoff.py`, and checked the arithmetic. I didn't read the earlier grades in `docs/grades/`, so this grade is independent. I only inspected source files. There are no images or HTML for this phase.
+
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 7,
+  "evidence": [
+    "Source inspection only. Read: docs/research/{research-path,comparables,pricing,model-bakeoff,ui-skills}.md, docs/research/evidence/{bakeoff,search-probe}.json, scripts/bakeoff.py, docs/design/ui-rules.md. No images or HTML exist for this phase. I did not read prior grades in docs/grades/, so this grade is independent.",
+    "bakeoff.json matches model-bakeoff.md. The median of 1.8625s is correct from the raw seconds, the max headline is 67 characters (the doc says all fit 110), and the $48,000 net-worth answer is correctly flagged: the deposits alone are $116,000. The expected $146,962 reproduces with a 4% effective annual rate compounded monthly (my check gives about $146,964). The 13.1 km half-marathon error is correctly caught (it is 21.1 km).",
+    "scripts/bakeoff.py contains the exact system prompt, model tag, temperature and num_predict, so the local run can be reproduced.",
+    "The pricing math checks out: 5.99×0.7=4.19; 300×0.03=9.00; 4.19−0.90=3.29; the annual plan saves 44% against 12×5.99; packs cost $0.40 and $0.30 per credit; Co–Star questions cost $0.28–$0.60. The 30% store fee is labeled a sensitivity assumption.",
+    "search-probe.json holds only status, time, byte count and a 160-byte prefix of each response. It has no query field, no retrieved-at timestamp, no parsed headline titles or dates, and no Bing terms text. The claims about 'late-September 2026 inflation headlines from Yahoo/Bloomberg/Morningstar' and Bing's noncommercial restriction cannot be verified from the evidence. No script that produced the probe is in scripts/. The Wikipedia sample shows the search suggested 'infection', which undercuts the relevance claim.",
+    "The unit economics assume 8,000 input + 1,000 output tokens per prediction, but the only measured calls used about 136–170 input and 47–86 output tokens. That assumption is never measured or reconciled, and multi-call flow latency (planning + cards + reveal) is not measured either.",
+    "The 'bake-off' covers one local model (Qwen3 4B Q4). Larger local Qwen variants would fit in 24 GiB and cost $0 to test. Leaving them out is a choice, not the API-key constraint.",
+    "The quality scores are the builder's own single-rater judgments with n=1 per case, and the doc says so. The system prompt never forbids hedge words, so the 'likely/may' failures are partly a prompt-design artifact the doc never names."
+  ],
+  "blockers": [
+    "Make the retrieval probe reproducible: commit the probe script, and store the query, a UTC retrieved-at time, and the parsed items (title, source, publish date, URL) for Google News and Wikipedia. Add a relevance judgment per item and the exact Bing terms text quoted with its URL. Replace the claims in research-path.md with references to those stored rows.",
+    "Run at least one more free local candidate (for example qwen3:8b and/or 14b via Ollama) on the same 10 fixtures, with a prompt that bans hedge words. Report per-case scores plus median and p95 latency. The local model decision should be a comparison, not a default.",
+    "Measure one real end-to-end prediction flow locally (plan, 3/6/10 cards, reveal, with retrieval text included). Record actual total tokens and wall-clock time, then redo the $/prediction and cost-at-quota figures in pricing.md from that measurement instead of the unverified 8K/1K budget.",
+    "Rerun the 10 fixtures 3–5 times at the chosen temperature and report the variance in pass/fail per case (hedging, arithmetic, block and redirect). A single run cannot support the 'repair once' mitigation.",
+    "Get a second, independent score of the bake-off outputs against a written per-case pass/fail rubric (hedge-free headline, arithmetic correct, no invented facts, a safe redirect is present), so the numbers are not builder self-grades.",
+    "For ui-rules.md, compute and record WCAG contrast ratios for ivory, secondary text and gold on both ends of the background gradient, so rule 1 is verified rather than asserted.",
+    "In comparables.md, capture a dated screenshot of each comparable's store page, or quote its IAP list exactly, so prices and ratings can be audited. Mark Nebula's inconsistent SKU periods with the exact strings shown."
+  ],
+  "strengths": [
+    "Limitations are unusually honest: hosted inference is explicitly 'not measured' with no key borrowed, store ratings are 'not proof of accuracy', RevenueCat medians are 'observational, not causal', and the scores are labeled self-assessments.",
+    "The failure analysis is concrete and useful. The arithmetic failure leads to deterministic compounding, headline hedging leads to validation with one repair and then a recoverable error, and the missing safety redirects lead to fixed kind redirects. A candid failure paired with a mitigation is what research should produce.",
+    "Transport success is correctly separated from quality and permission. Bing and DuckDuckGo are rejected for terms and CAPTCHA reasons, with no attempt to work around them.",
+    "The grounding contract is decision-ready: sources belong to the server, retrieved text is treated as untrusted data, the model gets no browsing tool, and personal facts, sourced claims and assumptions are kept separate.",
+    "Pricing rules are precise and implementable: what one credit buys, failures cost nothing, the order credits are consumed in, test-mode CTAs, and no fake urgency. The loss scenario is shown rather than hidden.",
+    "The hosted replay plan has explicit adoption gates: zero unsafe outputs, zero invented citations, a rubric average of at least 9/10, and p95 latency over 30 runs, with named adversarial cases.",
+    "ui-rules.md is specific and testable: hex values, point sizes, animation durations, a 110-character headline, a 1080×1920 share layout, and the paywall disclosures."
+  ]
+}
+```

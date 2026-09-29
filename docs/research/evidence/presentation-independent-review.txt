@@ -1,0 +1,55 @@
+```json
+{
+  "evaluator": "independent read-only",
+  "scope": [
+    "docs/research/evidence/sports-presentation-pilot.json",
+    "docs/research/safety-policy.md",
+    "docs/research/evidence/question-policy-correction.json",
+    "docs/research/question-engine.md"
+  ],
+  "sports_routing_presentation": {
+    "score": 8,
+    "out_of": 10,
+    "safe_question_allowed": true,
+    "fake_evidence": false,
+    "clearly_labeled_speculative": true,
+    "definitive_headline_per_brief": true,
+    "evidence": {
+      "trials": 3,
+      "all_trials_complete_contract": true,
+      "headline": "Argentina will win the next men's football World Cup",
+      "label": "Speculative forecast · not a guarantee",
+      "why": "No verified current performance evidence supports this pick. This is a playful guess, not a researched sporting conclusion.",
+      "source_count": 0,
+      "latency_s": [0.724, 0.479, 0.481]
+    },
+    "assessment": "The full contract works. The headline is one committed line with no hedging and no invented rationale. The visible label and the Why text state plainly that this is a guess with no evidence behind it. Zero sources are shown, so the output doesn't look researched. Refusing harmful topics and admitting uncertainty are handled separately, which is the right design. All three runs returned the same output.",
+    "blockers": [],
+    "limitations": [
+      "Only one fixture was tested (next men's World Cup), and the model only produced the headline. Label and Why are fixed server text. So this shows presentation works, not that routing holds up across different sports phrasings.",
+      "The Why text is fixed. If the user answers the sports card 'What current performance information do you have?' with 'Recent results', the text still says no evidence supports the pick. That is technically true because nothing was verified, but it can read as ignoring what the user said. The contract should define the Why text for when the user supplied context.",
+      "This pilot doesn't show the safety screen running before the forecast, the check of model output before reveal, or rendering on exports. The policy states all three, but only the reveal fields have evidence.",
+      "safety-policy.md line 7 describes the repair pilot returning 'Brazil'. The presentation pilot returns 'Argentina'. Both results are fine as separate runs, but the doc should say they came from different runs so a reader doesn't take the difference for a contradiction.",
+      "The runs are identical, which suggests near-deterministic decoding. That is fine for this contract, but it says nothing about how often the model refuses or hedges at production sampling settings."
+    ]
+  },
+  "question_policy_correction": {
+    "learner_level_omission_resolved": true,
+    "learner_level_detail": "The level card is first in every learning scenario where level is unknown (3 and 10 card budgets, first and returning visits). It is correctly skipped when known.level = 'New beginner'.",
+    "ten_card_sports_padding_resolved": true,
+    "sports_padding_detail": "Sports with a budget of 10 now stops at 3 event-context cards (competition, edition, evidence), on both first and returning visits. It asks no personal effort or budget questions.",
+    "earlier_failed_experiments_treated_as": "historical only (not graded as current policy)",
+    "remaining_issues": [
+      "Relocation ordering breaks 'essential facts first'. With a budget of 10, the order is constraint, commitment, evidence, priority, work, lease. The essential work and lease cards come after three generic cards. With a budget of 3, the order is constraint, work, lease. The two orders disagree.",
+      "First-visit relocation never asks where the user lives now or where they want to move. The returning scenario already knows location = 'Large city'. Unless the question text always includes the destination, this is a missing essential fact.",
+      "Growth with a budget of 10 still fills all 10 cards. The last five (time_budget, constraint, deadline, resources, priority, commitment) are generic questions that aren't about growth. The policy allows growth up to 10, but 'cap is not a target' isn't visibly applied here. This is the same padding pattern that was fixed for sports.",
+      "The sports 'teams' card asks 'Which teams are confirmed entrants?' but its options are about field status (Field confirmed / Qualifying in progress / Not sure). The question and its answers don't match.",
+      "The corrected results replay retained 4B rank evidence through a new rule. They are not a fresh live run. 'pass' / 'structural_pass' still only checks structure, so relevance is judged by reading, not by a machine check.",
+      "The app state machine still has to demonstrate 3, 6 and 10 card flows, back-edit truncation, and the low-time-budget branch. The doc acknowledges this."
+    ]
+  },
+  "overall_verdict": "The sports routing and presentation decision can move to the app phase: 8/10 with no blockers. The question-policy correction fixes both named findings (learner level and 10-card sports padding). Before the relocation and growth question flows are accepted, fix the relocation ordering, the missing location/destination question, and the growth padding."
+}
+```
+
+**Summary:** The sports question is allowed and shows no invented evidence. The visible label and Why text make it clear the definitive headline is a guess. I found no blockers: 8/10. The two lost points are for evidence that covers only one fixture and for the fixed Why text, which ignores anything the user says about the teams' form. The corrected question policy fixes both named failures. Relocation ordering, the missing relocation location question, and growth padding are still open.

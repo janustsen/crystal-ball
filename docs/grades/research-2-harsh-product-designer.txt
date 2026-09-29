@@ -1,0 +1,44 @@
+I'm done reading and am returning the grade. The score is 8.0/10, below the ≥9 bar.
+
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 8.0,
+  "subscores": {
+    "sourced_primary_evidence_30": 7.0,
+    "specificity_25": 8.5,
+    "decision_readiness_25": 8.0,
+    "honest_measurement_and_limitations_20": 9.0
+  },
+  "inspection_method": "Source inspection of every .md in docs/research and docs/design/ui-rules.md, plus spot checks of these evidence files: comparison-summary.json, blind-review.txt, blind-mapping.json, store-prices.json, contrast.json, question-pilot.json and nebula-listing.txt. I grepped all *-listing.txt files for prices and review text. I looked at costar.jpeg as an image. I re-did the pricing and token-cost arithmetic by hand. I ran no scripts or commands and did not modify any files. I did not read the earlier grades in docs/grades, so they did not influence this score.",
+  "evidence": [
+    "The model bake-off has retained primary data: 90 raw outputs (3 local Qwen variants × 10 fixtures × 3 repeats) and comparison-summary.json. That file backs the table in model-bakeoff.md: 4B has a median of 1.68s and a p95 of 2.48s, with safety correct in 27/30; 8B has 5.25s / 8.00s and 27/30; 1.7B has 0.95s and 17/30. The 3/6/10-card flow token counts match pricing.md.",
+    "blind-review.txt is a real blinded semantic review. It catches failures the automated checker misses: 8B's 104-vs-108 arithmetic, 8B's wrong date math, and 4B's 'week 10' slip (week 10 gives 92 users, not 100). blind-mapping.json confirms that the preferred candidate B is the 4B model. The reported scores of 8.23 / 7.47 / 5.93 match.",
+    "The pricing arithmetic checks out. $5.99 × 0.7 = $4.19. Annual saves 44% ($39.99 vs $71.88). Packs cost $0.30–$0.40 per credit against Co-Star's $0.28–$0.60 per question. Groq comes to $0.0078/prediction and Together to $0.00161 and $0.00100. The repriced flows are $0.000312 and $0.000836.",
+    "Visual check of costar.jpeg: 4.8 stars and 206K ratings match. The featured review (08/11/2024, titled 'Interestingly accurate') is visibly about accuracy and is cut off at 'more'. comparables.md says this review 'criticizes price and repeats', which the retained screenshot does not support.",
+    "Store prices are not backed by retained raw captures. store-prices.json says the prices were 'read through web lookup', but no listing file contains a single price. In the Co-Star screenshot, 'In-App Purchases: Yes' is collapsed. So the prices that anchor pricing.md cannot be traced to a primary artifact in the repo.",
+    "question-pilot.json covers a single domain (user growth) and shows a fixed ordering. It proves duplicate-removal mechanics only. It does not show adaptive selection or cross-domain behavior. In the 10-card case with known={}, a first-time user is asked 'What changed since your last forecast?', which is exactly the context-inappropriate card that question-engine.md says to avoid.",
+    "The retrieval audit is honest and specific: 5 queries × 2 providers, with URLs and timestamps, and relevance judged per result (for example, World Cup 0/3 outcome-relevant). Bing and DuckDuckGo are rejected for stated reasons. The relevance judgments were made by the builder without blinding, on n=3 per provider.",
+    "user-test.md states outright that no participant sessions have happened. There is no primary evidence from 18–24 users on comprehension, sharing or willingness to pay. The document says so clearly.",
+    "The deep-research comparison is one run on one topic (EV). The ten-case deep benchmark was designed but not executed, and the document labels it that way.",
+    "Hosted inference is correctly limited to a shortlist with retrieved prices and a written replay protocol, including adoption thresholds: zero unsafe outputs, zero invented citations, and a rubric score of ≥9. I accept this under the no-key constraint."
+  ],
+  "blockers": [
+    "Keep a primary copy of every price you cite. Commit the raw IAP section text for Co-Star, The Pattern and Nebula (listing text or an expanded 'In-App Purchases' screenshot) with a capture timestamp, or drop the prices that can't be traced. Right now the pricing anchors in pricing.md have no retained evidence.",
+    "Fix or support the Co-Star review claim. Either keep the review text that criticizes price and repetition, or rewrite the sentence to match what the screenshot shows ('Interestingly accurate', 2024-08-11, cut off). Check every other review summary in comparables.md against its listing capture the same way.",
+    "Make the question-engine evidence decision-grade. Run question-pilot on at least 3 more domains, for example relocation, a sports pick and a skill or learning goal. Include a first-time user with an empty profile and a repeat user with durable facts. Add a lifecycle check so session-only cards ('What changed since your last forecast?') are never offered without a prior forecast. The current pilot passes on a card that shouldn't be there.",
+    "Close the one known model failure that blocks the chosen design. Every candidate overblocks the safe sports question in 3/3 repeats. Run a prompt or fixed-policy change on the 4B model with the same n=3 repetitions and a blind re-score. At minimum, record a decision with its pass/fail result: sports without evidence goes through a deterministic allow path and the forecast is labeled speculative. Without that, the model choice rests on an unresolved failure.",
+    "Make the retrieval relevance judgments less subjective. Have someone other than the builder score the 30 search-expanded results blind, or state the per-provider pass rate against a written relevance rubric. Also state the decision rule the app will apply, for example 'drop a lead unless the title matches the topic and geography'.",
+    "Add some real audience signal without recruiting anyone. Since sessions aren't authorized, gather dated primary public evidence for the 18–24 sharing and pricing hypotheses (for example, retained review excerpts that mention price or sharing, sorted by recency) and label it as proxy evidence. The alternative is to state explicitly that pricing stays a placeholder that doesn't block design. Right now $5.99 is chosen with no user signal, and the document never says whether that blocks design."
+  ],
+  "strengths": [
+    "Measurements are unusually honest. Every number carries its scope: cold start included, loopback only, p95 at n=30 is descriptive, the checker doesn't catch Why-text arithmetic, and search results are not licensed content. Nothing is inflated.",
+    "Failures lead to concrete mitigations. The wrong $48K arithmetic leads to computing numbers deterministically. The repair pilot's invented details lead to schema validation plus source facts rendered by server code. The model mislabeling 2026 as 'not current' leads to server-supplied dates. Repeated question cards lead to a constrained question registry.",
+    "The model decision is backed by a blinded independent review with the candidate mapping revealed afterwards. The latency/quality trade-off in favor of 4B is quantified.",
+    "The unit economics give both a loss scenario ($0.03 per prediction at 300 per month loses money) and a measured-cost case. This means quotas and cost monitoring are required, not assumed away.",
+    "ui-rules.md is specific and testable: a measured contrast table (ivory 17.89:1, text scrim 16.58:1), exact motion timings, loading budgets at 8s and 60s, 200% text scaling, Android back and safe-area behavior, and privacy-by-default for share cards.",
+    "The constraints are respected: no borrowed keys, no purchases, no automation past CAPTCHAs, no recruiting without authorization. Each of these gaps is stated rather than hidden."
+  ]
+}
+```

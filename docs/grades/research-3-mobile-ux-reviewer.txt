@@ -1,0 +1,47 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 7.7,
+  "score_breakdown": {
+    "sourced_primary_evidence_30": 7.0,
+    "specificity_25": 8.0,
+    "decision_readiness_25": 7.5,
+    "honest_measurement_and_limitations_20": 8.5,
+    "weighted": "0.3*7.0 + 0.25*8.0 + 0.25*7.5 + 0.2*8.5 = 7.68"
+  },
+  "inspection_method": "Source inspection of every docs/research/*.md, docs/design/ui-rules.md, contrast.json, store-prices.json, comparison-summary.json, sports-presentation-pilot.json, question-policy-correction.json (partial), followup-independent-review.txt and costar-listing.txt. Visual inspection of one image only: costar-expanded.jpeg. I ran nothing, so no measurement was reproduced. I recomputed the arithmetic by hand.",
+  "evidence": [
+    "model-bakeoff.md and comparison-summary.json agree: 90 local reveals (3 models x 10 fixtures x 3 reps). 4B median 1.68s, p95 2.48s; 8B 5.25s/8.00s; 1.7B 0.95s/1.47s. Safety pass is 27/27/17 of 30. The 3/6/10-card flows are 11.05/14.90/22.19s on 4B. Cold loads and loopback transport are disclosed.",
+    "The blind review scored 4B 8.23, 8B 7.47 and 1.7B 5.93. The docs say plainly that this does not pass the >=9 generation gate.",
+    "The doc names the checker's own blind spot: arithmetic_pass=30 for 8B even though the 8B '104 users' answer is wrong. It says only semantic review catches this.",
+    "Pricing arithmetic checks out: $5.99 x 0.7 = $4.19. Annual saves 44% ($39.99 vs $71.88). Packs cost $0.40 and $0.30 per credit. 8K/1K tokens at $0.17/$0.25 = $0.00161. The 10-card flow at 3890/699 tokens = $0.000836. The pessimistic $0.03 case shows a loss at 300 predictions/month, and the doc says so.",
+    "store-prices.json matches the Co–Star in-app purchase rows I could see in costar-expanded.jpeg ($8.99 Pro-Star, $2.99/5, $4.99/10, $6.99/25). The Nebula periods are correctly marked null.",
+    "VISUAL: costar-expanded.jpeg shows the only featured review as '★★★★★ Interestingly accurate', 08/11/2024, cut off at 'more'. comparables.md says the review dated 2024-08-11 reads 'The paying extra part is too expensive' and mentions repeated answers. That text is not visible in the image. A grep for 'expensive' or 'paying extra' across evidence/ finds nothing, and costar-listing.txt keeps only the review heading. The quote cannot be verified from anything retained.",
+    "research-path.md bases its search decision on a 5-query x 3-provider audit with URLs and timestamps. An independent rescore gave Google News 36/45 and Wikipedia 24/45. Bing and DuckDuckGo were rejected for terms and CAPTCHA reasons, not just because transport worked.",
+    "question-engine.md keeps the failed unconstrained flows and the failed lifecycle pilot, accepts all 5/16 flaws the independent reviewer found, and replays them under a corrected policy (question-policy-correction.json, 16 scenarios). The flows I sampled start with essential facts (current_users, weekly_growth, retention) and skip known facts for returning users.",
+    "sports-presentation-pilot.json has 3 byte-identical rows ('Argentina…', a fixed label, a fixed Why, 0 sources). The label and Why look like server-fixed copy, so the pilot mostly tests that the headline is not a refusal.",
+    "ui-rules.md is specific on mobile: tokens with measured contrast (ivory on ink 17.89:1, ink on gold 12.5:1), >=44pt targets, 16pt body, 24pt inset, 140/600ms motion, reduced motion plus a visible toggle, 8s/60s loading states, keyboard avoidance, Android back and insets, deferred voice permission, text scaling not capped and tested at 200%.",
+    "user-test.md gives time budgets per task and pass thresholds (4/5 unaided, 5/5 understand test mode), and says no sessions have run yet.",
+    "Hosted inference is presented as an unexecuted, clearly labelled shortlist (Groq Qwen3.6 27B, Together Qwen3.5 9B and Qwen3.8 Flash) with a replay protocol and adoption gates. Under the stated key constraint this is acceptable."
+  ],
+  "blockers": [
+    "Co–Star review claim: either keep the full expanded review text (a listing snapshot with the text, or a screenshot after tapping 'more'), or remove the 'too expensive / repeated answers' quote and any design lesson drawn from it. As things stand, the only visible review is a 5-star 'Interestingly accurate'. That is the most serious sourcing defect because it looks like an unsupported quote.",
+    "Keep dated snapshots for every external number the pricing and model decisions depend on: the Groq and Together price rows, RevenueCat's 10.7% vs 2.1% D35 figure, and the Pew 18–29 tarot figure. Today these are live links only. The App Store data got snapshots; these did not.",
+    "Relocation grounding: the only mitigation shown ('bind to supplied context') is not demonstrated, and every retained relocation output invents a location or speaks in first person. Run one small research pilot: a supplied-context-only relocation prompt plus a schema/entity check that rejects destinations the user never gave, 3 repeats, with results retained. Or state that relocation will launch behind a deterministic template.",
+    "Sports presentation pilot: Why and the label are fixed copy, so 3 identical rows tell us little. Add at least 3 varied safe-sports phrasings (different events, a team named by the user, an ambiguous edition) and record whether the headline stays on-topic and non-refusing.",
+    "Small-phone layout budget: define how orb, headline, 'Forecast, not a guarantee' label, card and five-tab bar fit on a 375x667pt (SE-class) viewport at 100% and 200% text. Include what collapses first and whether tab labels use the iOS large-content viewer instead of wrapping. Right now '200% tested' is a rule with no layout decision behind it.",
+    "Tap cost of the card flow: the separate confirm button means about 20 taps for 10 cards. Set this against the 180s ten-card budget and decide auto-advance vs confirm for single-choice cards, keeping confirm for Other/free text. Record the choice as a hypothesis for user testing.",
+    "Share composition: replace 'central safe region' with numbers for the 1080x1920 canvas (e.g., keep top ~250px and bottom ~340px clear for Story/TikTok UI) so the design phase can check against them.",
+    "Define the Why expansion pattern (inline disclosure vs bottom sheet) and its accessibility behavior (focus move, VoiceOver announcement, back/close). Explore and You also need a one-line content spec. Otherwise two of the five tabs have no research basis beyond the brief."
+  ],
+  "strengths": [
+    "Measurement is unusually honest. Failed pilots are kept rather than deleted, the checker's blind spots are named, p95 at n=30 is called descriptive, and cold loads and excluded latency (human time, UI, network) are stated.",
+    "The research makes real decisions from evidence: 4B over 8B and 1.7B on both latency and blind quality, light retrieval over bounded-deep (11.16s vs 3.84s with no gain in grounding), and a constrained question registry over freeform generation after measured repetition failures.",
+    "Safety is separated from uncertainty. Refusing harmful topics is split from labelling speculation, sensitive-topic redirect copy is fixed text with a CTA and no charge, and sports is no longer over-blocked.",
+    "Grounding contract: sources come from the server, retrieved text is treated as untrusted, current date and source dates are passed explicitly, and headlines are labelled 'news headlines', never 'deep research'.",
+    "The mobile UI rules are concrete enough to verify later: measured contrast pairs, target sizes, motion timings, loading thresholds, platform back and safe-area handling, and permission timing.",
+    "Commercial boundaries are clear: test-mode purchases, prices marked as placeholders, stop thresholds and sample-size requirements for a future pricing pilot, and no claim of competitor flows that were never observed."
+  ]
+}
+```

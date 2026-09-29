@@ -1,0 +1,35 @@
+I'm finishing a read-only grade of the research docs, UI rules and key evidence files. I didn't modify anything or run any commands.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 7.4,
+  "evidence": [
+    "Source inspection: docs/research/{research-path,model-bakeoff,question-engine,comparables,pricing,user-test,ui-skills,review-response}.md, docs/design/ui-rules.md, docs/design/contrast.json, evidence/{comparison-summary,blind-review,store-prices,question-pilot,costar-listing,nebula-listing}, scripts/question-pilot.py.",
+    "Visual inspection: evidence/costar.jpeg confirms 4.8 stars, 206K ratings, Editors' Choice and a 08/11/2024 featured review titled 'Interestingly accurate'. The In-App Purchases row reads only 'Yes' and is collapsed. The visible review text is praise and is cut off at 'more'.",
+    "The model numbers in model-bakeoff.md match comparison-summary.json exactly. 4B: median 1.6815s, p95 2.48s, safety 27/30. 3/6/10-card flows took 11.05/14.90/22.19s. blind-review.txt means (A 7.47, B 8.23, C 5.93) match the doc's reported 8B/4B/1.7B scores through blind-mapping.",
+    "The contrast figures in ui-rules.md match contrast.json. The lowest text pair is secondary on violet at 8.36:1, which is well above AA.",
+    "question-pilot.py drives the selector with a hard-coded list of adversarial rankings, not a model, and covers only one domain (user growth). Its asserts genuinely prove bounded length, unique keys, Other on every card and that known facts are skipped. The docs label it honestly as 'eligibility mechanics only'.",
+    "The costar/nebula listing .txt captures contain headings and rating counts but no IAP SKUs or prices. store-prices.json says the prices came from a 'web lookup' that was not preserved as an artifact."
+  ],
+  "blockers": [
+    "Price evidence is not retained as primary evidence. Capture the expanded In-App Purchases section for Co-Star, The Pattern and Nebula as a screenshot plus text, with a timestamp. pricing.md anchors every price recommendation on these numbers, and the saved captures show only 'In-App Purchases: Yes'.",
+    "A review characterization can't be verified. comparables.md says the 2024-08-11 Co-Star review 'criticizes price and repeats', but the only saved visual shows praise and is truncated. Capture the full review text or correct the claim. The same check is needed for The Pattern's 2020-10-15 'failed profile edits' review.",
+    "The question-engine evidence contradicts its own contract. question-pilot.json asks a first-time user with no known facts (budget 10) 'What changed since your last forecast?'. That breaks the session/durable distinction in question-engine.md. Add a first-visit versus repeat-visit eligibility predicate and an assert for it, and cover at least one more domain (for example relocation or sports) so the registry is shown to generalize beyond user growth.",
+    "The ranker was never exercised with the real model. Run one constrained pass where local 4B ranks the registry for the 3 and 10 budgets. Record whether its picks are relevant, not only whether they are eligible. Right now 'model ranking is advisory' has no quality measurement behind it.",
+    "Card-flow burden gets no mobile UX analysis. A 10-card flow is about 22s of model time plus human answer time, yet no per-card latency budget ties back to the 8s 'Still looking' and 60s timeout rules in ui-rules.md. State the per-card and reveal budgets and compare them with the measured per-call p95 (4B: 2.48s). Also state whether 10 cards is tolerable on a phone. The comparables give no evidence on this.",
+    "The safe-sports overblock is the one failure every candidate shares (0/3 clean in the blind review), and it has no concrete mitigation artifact. Supply the planned allow-list rule or prompt change and the fixed kind-redirect copy for death and cancer questions. The blind review flagged the current redirect as 'cold' and as leaking the prompt.",
+    "The comparables review of competitor UX is thin. The store screenshots contain onboarding and paywall-adjacent screens (for example Co-Star's 'You're not sad, just bored' card and compatibility views), but no annotated screen-level UX lessons are drawn from them. Add 3–5 annotated observations per captured image and label them as listing marketing screens, not installed flows."
+  ],
+  "strengths": [
+    "Measurement is unusually honest. The docs name hosted inference as not executed, p95 at n=30 as descriptive only, cold loads and download contention as confounds, and 'arithmetic_pass' as missing the 8B 104-user error.",
+    "Decision readiness is strong. The prototype choice (local 4B, deterministic numbers, schema validation, server-owned sources, fixed safety copy) comes straight from measured failures, and a blind review with the identity mapping revealed afterwards backs it.",
+    "Retrieval research is concrete and properly skeptical. Five-query relevance audit, Bing and DuckDuckGo rejected on terms and CAPTCHA grounds, Google News marked prototype-only, and a date-awareness failure turned into a server-timestamp rule.",
+    "The unconstrained question-engine failure (repeated project_user_growth, cards asking for the predicted outcome) is reported openly as product-breaking. It is not buried.",
+    "The UI rules are specific and testable: hex tokens with computed WCAG ratios, a 44pt minimum touch target, 140/600ms motion, 200% text scaling, Android back and inset handling, voice permission only on intent, and cancellation that leaves no charge.",
+    "The hosted replay plan is well specified: 30 runs, a blind rubric, zero-invented-citation and zero-unsafe gates, and adversarial cases. It is acceptable under the no-key constraint.",
+    "The user-test script has falsifiable acceptance criteria and explicitly declines to make demographic claims from n=5."
+  ]
+}
+```

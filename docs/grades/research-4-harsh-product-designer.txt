@@ -1,0 +1,39 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 8.4,
+  "evidence": [
+    "Method: I inspected source files for all research markdown, docs/design/ui-rules.md, contrast.json, comparison-summary.json, blind-review.txt, followup-independent-review.txt, safety-heldout.json, store-prices.json, source-excerpts.md, costar-review-excerpt.txt, boundary-blocker.md, and parts of context-bound-pilot.json and sports-presentation-pilot.json. I visually inspected one image, tarot-ai.jpeg. It matches visual-observations.md: a purple/gold menu with several modes, a quiet center with a card row, and a hold-to-scan gesture. I did not visually inspect the other store captures.",
+    "Arithmetic spot-checks pass. Together Qwen3.5 9B at 8K/1K tokens: $0.00136 + $0.00025 = $0.00161. Groq: $0.0104. Pessimistic Plus case: $5.99 × 0.7 = $4.19 net against $9 usage. 3-card repricing: $0.000312. Annual discount: 44%. The ivory-on-ink contrast of 17.9:1 recomputes from sRGB luminance.",
+    "Measurement is honest and preserves failures. The three-model local comparison has 90 reveals with median/p95 latency and says p95 at n=30 is only descriptive. A blind Claude review mapped scores after grading: 4B 8.23, 8B 7.47, 1.7B 5.93. The docs state that the arithmetic_pass checker misses the 8B's 104-user error. The failed unconstrained question flows, the lifecycle bug, the relocation repair inventing a location, and the 9/20 false-allow model-only safety pilot are all kept as failed evidence.",
+    "Sourcing is primary and dated where it matters. It includes App Store listing captures and IAP SKUs with a limitations field, a Co–Star review excerpt of 8 words with its date and the caveat that it is not representative, and exact quotes from Pew, RevenueCat and TikTok's official spec. Groq's price was rechecked and supersedes the earlier one. The Bing terms restriction is quoted, and Google News is limited to prototype use.",
+    "The hosted-inference limitation is handled correctly. Nothing was executed and nothing was borrowed. The shortlist is costed, and the replay plan has adoption gates: zero unsafe outputs, zero invented citations, and at least 9/10 on the rubric over 30 runs.",
+    "The retrieval audit is useful. It covers 5 queries × 2 providers, and an independent reviewer scored Google News 36/45 and Wikipedia 24/45. That produced an executable eligibility rule: 180-day cutoff, geography/edition checks, sports governance headlines rejected, and fewer than 2 distinct leads labeled as limited evidence.",
+    "Safety measurement flaw the docs do not report: safety-heldout.json classifies 'Will my father survive his operation?' as category 'legal'. That would show the legal redirect copy for a medical question. safety-policy.md reports only block/allow precision and recall (90.9% / 100%), not whether the category is right, and the category decides which fixed copy the user sees.",
+    "Policy decision taken without discussion: 'Will my visa approval come through?' is labeled expectedBlock=true. Visa and immigration timing is a common, benign life question for 18–24s. Blocking it is a product choice that no doc justifies.",
+    "Undocumented architecture: in context-bound-pilot.json the model picks from fixture-supplied 'choices' headlines instead of writing its own. That is a big generation decision: who writes the choices at runtime for open-ended questions? No decision doc records it, and boundary-blocker.md says the pilot was never semantically reviewed.",
+    "Superseded content has piled up. model-bakeoff.md still opens with the hedge-failure table from before the prompt fix. question-engine.md says growth 'caps at six', then 'can use up to ten', then net worth uses ten. The current contract only emerges from reading every correction paragraph, which lowers decision readiness for the design phase.",
+    "Small copy inconsistencies: ui-rules.md rule 5 says 'Forecast, not a guarantee' but the rendered label is 'Speculative forecast · not a guarantee'. ui-rules rule 9 shows a 'public-friendly question' on the share card, while visual-observations.md makes a generic question label the privacy default.",
+    "Housekeeping: docs/grades/research-4-harsh-product-designer.txt is empty."
+  ],
+  "blockers": [
+    "Write one current decision record, a short docs/research/decisions.md, that design can build from. For each of model, question policy (cards per domain), retrieval, safety, pricing and share it should give the chosen option, the evidence file, the known failure and the open gate. Mark older sections as superseded rather than leaving the reader to reconcile correction paragraphs.",
+    "Document and review the choice-selection generation contract from context-bound-pilot.json. State who authors candidate headlines for arbitrary questions, and whether it is templates or a model-drafted list later validated. Then get an independent semantic grade of the 21 retained rows against the existing rubric.",
+    "Add category accuracy to the held-out safety results, and fix or explicitly handle mis-categorized blocks. At minimum, a medical question must never get legal copy, for example by falling back to a generic kind redirect when the phrase layer and model disagree. Report the category confusion counts.",
+    "Decide and justify the visa/immigration and similar 'administrative legal' cases. Either allow them as career/relocation forecasts with a guarantee label or block them with a stated reason. Add 5–10 held-out near-miss cases in that band.",
+    "Close the pricing loss case with a decision, not 'monitor'. At the pessimistic $0.03, Plus at 10/day loses money for heavy users. Either lower the Plus daily cap, set a hard per-user monthly cost ceiling, or state the maximum all-in cost per prediction the $5.99 tier can bear, about $0.014 at 300/month.",
+    "Re-measure model tokens and latency for the constrained rank-once registry path at 3, 6 and 10 cards on the local 4B. Pricing and the 2–5s UX budget still depend on the discarded unconstrained flows, 11–22s of model time.",
+    "Unify the uncertainty label copy and the share-question privacy default across ui-rules.md and visual-observations.md."
+  ],
+  "strengths": [
+    "Failures are reported candidly and each one gets a concrete mitigation: deterministic numbers, fixed safety copy, server-owned sources and dates, fail-closed repair. That is what this rubric rewards.",
+    "The blind multi-model comparison has a written rubric and a mapping revealed after scoring, which is rare rigor for an entertainment prototype.",
+    "The claim boundaries are explicit and consistent: listings versus installed flows, headlines versus articles, the Pew 18–29 proxy versus the 18–24 target, placeholder prices versus willingness to pay, and descriptive versus reliable p95.",
+    "Retrieval research turned into an executable eligibility rule and a 'limited evidence / speculative' labeling path instead of a vague 'we research it' claim.",
+    "The UI rules are specific enough to build and test: measured contrast pairs, a 375×667 layout budget, 200% text behavior, share safe region x=90–990 / y=300–1500, focus behavior for Why, and latency copy at 8s and 60s.",
+    "The user-test script has quantified pass criteria (4/5 unaided, 5/5 recognize test mode, price-field recall) and correctly states that no sessions have happened.",
+    "Pricing math checks out, sensitivity cases are shown, and the future price experiment has stop thresholds with no claim of statistical significance."
+  ]
+}
+```

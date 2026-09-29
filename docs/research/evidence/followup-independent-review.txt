@@ -1,0 +1,45 @@
+```json
+{
+  "sports_routing": {
+    "pass_count": "0/3",
+    "score_out_of_10": 5,
+    "verdict": "Partly fixed. None of the 3 rows refuses: the 'Cannot predict sports.' input is repaired into an answer, and no row invents supporting facts. All 3 still fail the speculative requirement. Each returns exactly 'Brazil will win the next World Cup' as a certainty, with no speculative or uncertain wording and nothing saying evidence was missing. The rows are identical, so this is a stable template, not three separate judgments.",
+    "relocation_flag": "The relocation rows invent specific facts about the user ('I'll relocate to Austin, Texas', 'tropical island escape'), state them as certain, and use the first person as if the user were speaking. The promotion rows are also overconfident ('You will get promoted'), which is outside this verdict."
+  },
+  "question_ranks": {
+    "verdict": "Partial pass. The harness marks all 16 flows 'pass', which hides these failures.",
+    "material_failures": {
+      "flows": "5/16",
+      "rank_rows": "4/8",
+      "items": [
+        "Sports: the 4B model returned only ['evidence'] at both budgets, so the other cards come from fallback. In both budget-10 flows most cards ask about the user's preferences, not present facts (venue home/away, how much form and history should weigh, 'How should I frame the pick?'). 'priority: Champion/Finalist' and 'edition' repeat what the question already says.",
+        "Learning: 'level' (current Spanish level), the key present fact, is ranked 10 of 11 at budget 10 and missing from the budget-3 ranking. The new-user budget-3 flow never asks it. The budget-3 flows also show 'constraint' where the model ranked 'support'.",
+        "Lifecycle: the relocation and learning budget-10 returning flows match their new-user flows exactly, with no 'change' card. Growth and sports include one."
+      ]
+    },
+    "ok": "No duplicate cards and no card repeating a known fact in any of the 4 returning flows that have known values. Growth is strong. Relocation is acceptable.",
+    "minor": "Budget-10 flows are padded with generic cards: weekly time_budget for relocation, and priority, commitment and 'confidence: How clear is the current information?' elsewhere. The 4 returning budget-10 flows have no known facts, so the duplicate check was never tested at budget 10."
+  },
+  "retrieval": {
+    "rubric": "Each lead scores topic 0–1, geography/time 0–1 and future-outcome use 0–1, with half points allowed. Where the query doesn't ask for geography or time, a current or evergreen lead gets 1 and a clearly historical or out-of-window one gets 0. Background pages get no future-outcome credit.",
+    "google_news": {
+      "total": "36/45",
+      "by_query": {"inflation": 8, "world_cup": 4.5, "sf_october": 8, "language": 8, "ev": 7.5},
+      "issues": "All 3 World Cup leads are about FIFA politics (a FIFA–UEFA dispute and the FIFA presidential election), with nothing on who will win. The Bessent inflation story appears twice (Yahoo Finance and Bloomberg). One SF lead covers September, not October. The EV headline 'Europe's January EV Sales Surge' carries a 27 Sep date, so the date looks wrong or the data stale. The Nomura headline doesn't show it is about inflation."
+    },
+    "wikipedia": {
+      "total": "24/45",
+      "by_query": {"inflation": 5.5, "world_cup": 4.5, "sf_october": 2.5, "language": 5.5, "ev": 6},
+      "issues": "These are mostly background pages with little future-outcome use. The SF October query failed: an armory, a video game and the city's general page. Historical pages (2021–2023 inflation surge, 2010 World Cup) score 0 on time. The best lead is 'Economic impact of the 2026 Iran war' for the inflation outlook."
+    }
+  },
+  "key_limitations": [
+    "Scored on headlines and snippets only; no full articles were checked.",
+    "Google News links are redirect wrappers, so I couldn't confirm the original source or its content.",
+    "Wikipedia 'date' is the last edit time, not how recent the content is.",
+    "One run on 2026-09-29, 3 items per query and generic queries not taken from users' questions, so the sample is small.",
+    "Half-point scores are my judgment; a second grader could land about ±3 per provider.",
+    "Sports and relocation evidence is 3 identical repeats per question, so it doesn't show whether outputs vary."
+  ]
+}
+```

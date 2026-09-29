@@ -1,0 +1,55 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 6.2,
+  "evidence": {
+    "artifacts_read_source": [
+      "docs/design/system.md (35 lines): tokens, type, composition alternatives, motion, component list, per-screen specs, states, first rendered review",
+      "docs/design/ui-rules.md (34 lines): 10 rules, mobile edge states, small-screen/200% text decisions, Why disclosure, share safe region",
+      "docs/design/contrast.json: 10 measured pairs, all text pairs ≥8.36:1, ink on gold 12.5:1"
+    ],
+    "visual_inspection": [
+      "home.png: the observatory thesis comes through. It has a glass orb with orbit ring, gold satellite, cyan mist core, and a floor shadow. Cormorant display type and a gold primary action. At 390×844 the suggestion list is cut off after one item.",
+      "ask.png: clear hierarchy. The input has a visible focus ring. 'Hold to speak' is a full-width secondary button with no mic glyph.",
+      "question-2.png: one card, four options including Other, a separate Next, and 'Getting to know you · 2' with no fake denominator. That matches the rules. But the disabled Next is a muddy brown (gold at reduced opacity over violet). It reads as a broken color, and no disabled token is specified. No capture shows the selected state.",
+      "reveal.png / why.png: headline under the orb, gold speculative label directly adjacent, Why expands inline ('Behind the mist'). Three equal-weight stacked pill buttons and a 'Did it come true?' card right after a fresh reveal. That flattens the payoff moment into a form.",
+      "share.png: the preview card's top is cropped under the app header, so the 9:16 frame is not shown whole. The preview does not show the promised 'friends cannot see private inputs or Why' notice.",
+      "exported-card.png (1080×1920): the brand breaks. The orb is a plain radial-gradient blob with no glass, orbit, or star. Label and branding render in a system sans (Helvetica-like), not DM Sans. There is a large dead band between headline and label. The signature object the thesis depends on is missing from the one artifact that leaves the app.",
+      "history.png: good serif archive treatment and a 'Waiting to unfold' state. The date format 9/29/2026 is not localized per any spec.",
+      "failure.png: this is a Home screen capture, not a failure state. The failure/retry design has no visual evidence.",
+      "question-2, why, ask captures: the Expo dev-menu ⚡ overlay covers the Home tab. The review captures are not clean."
+    ],
+    "missing_visual_evidence": [
+      "No visual review sheet (HTML or contact sheet) in docs/design/",
+      "No captures of Explore, You/Knowledge, Paywall, Research/loading, 8s 'still looking', 60s timeout, safety redirect, empty History, offline, Friend mode, Other-field open, selected option, voice permission-denied, or reduced-motion static orb",
+      "No 375×667, 200% zoom, or keyboard-open captures, although system.md lists them as required checks"
+    ],
+    "rubric_breakdown": {
+      "unified_cosmic_mystic_thesis_25": "7.5: a clear, distinctive 'pocket observatory' thesis with reasoned alternatives (tarot, dashboard). It is carried well in-app and broken in the export.",
+      "visual_polish_25": "6.0: strong Home and Ask. Weak disabled state, flat reveal action stack, a degraded export card, cropped share preview, and dev overlay in the evidence.",
+      "interaction_and_animation_spec_25": "5.0: durations exist (6s/12s/140ms/600ms), but there are no easing curves, no reveal choreography (what moves, in what order, from where), no press/pressed states, no haptic types, no tab-orb transition, no research-orbit motion values, no share-clip animation spec, and no reduced-motion substitute per animation.",
+      "accessibility_and_complete_states_25": "6.5: excellent contrast measurement, 200%-text layout rules, Why focus/announcement behavior, and timeout budgets. But the disabled/focus/error tokens are unmeasured, most states have no visual design, the 'failure' evidence is mislabeled, and Dynamic Type/VoiceOver are deferred with no annotated a11y labels per component."
+    }
+  },
+  "blockers": [
+    "Add a visual review sheet (a local HTML page or composite image) with every screen and state annotated: Home, Explore, Ask, Friend mode, Questions (unselected, selected, Other open, disabled Next), Research (initial, 8s, 60s timeout, cancel), safety redirect, Reveal, Why, Share preview, exported still, History (empty and populated, with yes/no/pending), You/Knowledge (empty, edit, delete-confirm, reset-confirm), and Paywall (test-mode, restore, mock purchase success/failure).",
+    "Replace failure.png with a real failure/retry state that keeps the user's answers. Re-capture everything without the Expo dev overlay.",
+    "Redesign the exported 1080×1920 card to use the same glass orb (orbit, highlight, star, shadow) and DM Sans. Tighten the vertical rhythm, and overlay the safe-region guides in a review variant to prove x=90…990 / y=300…1500.",
+    "Show the whole 9:16 share preview uncropped, with the privacy notice ('friends won't see your answers or Why') and a still/animated toggle.",
+    "Specify disabled, pressed, focused, and selected tokens with measured contrast. Add them to contrast.json, covering disabled Next, focus ring cyan on ink, lavender on #160F30, and selected card border.",
+    "Write a motion spec table covering every animation: property, from→to, duration, easing (e.g. reveal = mist opacity 1→0 over 600ms ease-out, then headline translateY 8→0 plus opacity with a 120ms stagger), haptic type (selection vs success), and the reduced-motion replacement (instant crossfade or none). Include the research orbit, tab-orb press, and share clip length/loop.",
+    "Rework the Reveal action hierarchy. Make Share primary and Why an inline text disclosure. Merge 'Remind me' with the check-back row, and hide 'Did it come true?' until the check-back date.",
+    "Provide 375×667, 200% text, and keyboard-open captures of Ask, Questions, and Reveal that prove the orb shrinks 240→160→96 and nothing gets clamped.",
+    "Annotate accessibility labels, roles, and states per component: orb button name, radio group semantics, tab names, live-region text for research stages, and the Why expanded announcement."
+  ],
+  "strengths": [
+    "A distinct, defensible thesis (glass-orb observatory) with the rejected alternatives written down.",
+    "Honest-UX rules are unusually strong: no fake denominators, counters, urgency, or percentages. A persistent speculative label sits next to every headline, including the export.",
+    "Real measured WCAG contrast pairs, all well above AA/AAA for body text.",
+    "Concrete small-screen budgets (84pt nav, 56pt header, orb 240→160→96 at 200% text) and time budgets for loading (8s/60s).",
+    "The inline Why disclosure avoids a modal focus trap, and its focus/announcement behavior is spelled out.",
+    "The in-app captures show real rendering: good serif/sans pairing, a restrained gold accent, and a readable orb scrim."
+  ]
+}
+```

@@ -1,0 +1,42 @@
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "research",
+  "score": 8.2,
+  "score_basis": {
+    "sourced_primary_evidence_30": 7.0,
+    "specificity_25": 8.5,
+    "decision_readiness_25": 8.5,
+    "honest_measurement_and_limitations_20": 9.5,
+    "weighted": 8.2
+  },
+  "inspection_method": "Source inspection of docs/research/*.md, docs/design/ui-rules.md, contrast.json and the evidence JSON/TXT files (bakeoff/comparison-summary, blind-review, followup-independent-review, presentation-independent-review, question-policy-correction, sports-presentation-pilot, store-prices). Visual inspection of costar-expanded.jpeg only; the other store captures were not opened. I did not read docs/grades/*, so this score is not anchored to earlier grades.",
+  "evidence": [
+    "Visual check of costar-expanded.jpeg matches the comparables and pricing claims: 4.8 from 206K ratings, Pro-Star monthly $8.99, 5/10/25 Questions at $2.99/$4.99/$6.99. The derived $0.28–$0.60 per question in pricing.md checks out ($6.99/25, $2.99/5).",
+    "The Co–Star review visible in that capture is titled 'Interestingly accurate' (08/11/2024) and cut off at 'more'. I could not see the quoted 'The paying extra part is too expensive' line in the visible image. It may be further down the expanded text, but the visible capture does not confirm it.",
+    "Model decision is backed by 90 local reveals (3 models × 10 fixtures × 3 repeats) with median/p95 latency, token counts and a blind semantic review. That review scored 4B 8.23, 8B 7.47 and 1.7B 5.93, and each material failure is listed (8B 104-vs-108 arithmetic, 4B EV infrastructure contradiction, all models overblocking the safe sports question).",
+    "The research keeps its failed evidence visible instead of hiding it: the unconstrained question flow repeated cards and asked users for the outcome being predicted; the first eligibility pilot showed a 'last forecast' card to first-time users; the repair pilot invented a 'tropical island escape'. Each has a named mitigation.",
+    "question-policy-correction.json shows the earlier reviewer findings fixed. Relocation now starts with location → destination → work → lease. Growth caps at 6. Sports stops at 3 event cards. The learning level card comes first. The sports field-status card now matches its options.",
+    "Retrieval: 5 queries × 2 providers saved with timestamps and scored independently (Google News 36/45, Wikipedia 24/45). Bing was rejected on its quoted noncommercial terms, and DuckDuckGo was rejected rather than automated around its CAPTCHA. Google News is explicitly prototype-only pending a licensed source.",
+    "Light vs bounded-deep retrieval was actually run (3.84s vs 11.16s). It found no grounding gain and a model date-judgment failure, which led to a concrete rule that source dates are server-owned.",
+    "Hosted inference is correctly labeled a not-executed shortlist with retrieved prices and a concrete 30-run replay protocol and adoption gate (zero unsafe outputs, zero invented citations, >=9 rubric).",
+    "Pricing reconciles the assumed 8K/1K token budget with measured 3/6/10-card local flows (1,361/321 up to 3,890/699 tokens). It includes a pessimistic loss boundary and pre-registered stop thresholds for a later price pilot.",
+    "ui-rules.md is specific and checkable: hex tokens with computed WCAG ratios, 44 pt targets, animation timings, 8s and 60s loading states, a private-by-default 1080×1920 share card, and a paywall disclosure list."
+  ],
+  "blockers": [
+    "No 18–24 voice exists in the evidence. The only audience data is Pew 18–29 (a proxy) plus one featured review per competitor. Without contacting anyone, code a systematic sample of public App Store reviews (e.g. 30–50 most-recent per comparable, for Co–Star, Nebula and The Pattern) for price complaints, repetition, trust or accuracy and sharing mentions. Report counts and quotes with dates. That replaces anecdote with measured complaint frequencies. Even though it is not demographically filtered, it would be a clearly labeled step up.",
+    "Save the Co–Star review line quoted in comparables.md ('The paying extra part is too expensive') as visible text or a crop in the evidence, or reword the claim. The visible capture shows a positive 'Interestingly accurate' review, not the price complaint.",
+    "Safety routing matters most for this age group (self-harm) and is only claimed, not executed. The paraphrase classifier has run only on 2 blunt fixtures (death, cancer). Run a small labeled boundary set on local 4B: about 20 euphemisms/paraphrases for self-harm, illness, pregnancy and legal requests, plus about 10 safe near-misses such as 'will my plant die' or 'will my team be killed in the finals'. Report false-negative and false-positive counts. The research explicitly defers this to the app phase, but the policy decision rests on it.",
+    "Grounded personal synthesis has no passing evidence. Every personal-case output (relocation, promotion, EV) either invented facts or contradicted the fixture, and the proposed mitigation (context-bound synthesis, server-rendered facts) has never been exercised. Run one executed pilot of that mitigation prompt on the relocation and EV fixtures, with a semantic check, so the chosen engine design has at least one success case rather than only a documented failure.",
+    "Sharing destination and format evidence for this cohort is missing. 1080×1920 is labeled a proposal (honest), but cite the platforms' own published Story/Reels specs as primary sources for the 9:16 choice. This is minor."
+  ],
+  "strengths": [
+    "Exceptionally honest measurement: every number says what it excludes (UI, human time, network), p95 at n=30 is called descriptive, and structural 'pass' is explicitly separated from semantic relevance.",
+    "Independent blinded model review with identities revealed only after scoring. Failed experiments are kept as evidence, not deleted.",
+    "Keeps a safety block separate from a no-evidence speculative answer: safe sports gets a visible speculative label and no fake sources. For a young user, this is the difference between fun and misleading.",
+    "Respects the constraints: no borrowed keys, no purchases, no user contact without authorization, no bypassing CAPTCHAs, paywalls or terms.",
+    "UI rules and paywall rules target exactly the dark patterns young users complain about in this category: hidden billing periods, fake urgency, charging for failed or blocked predictions.",
+    "Decisions are clear and actionable for design: 4B local with constrained outputs, a registry-based question engine ranked once per session, light retrieval as default, and $5.99/$39.99 as explicit test placeholders."
+  ]
+}
+```
