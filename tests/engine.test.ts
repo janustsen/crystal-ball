@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {planFor,projection,registry} from '../src/questions.ts';
+import {adaptPlan,planFor,projection,registry} from '../src/questions.ts';
 import {phraseSafety} from '../server/safety.ts';
 import {provider} from '../server/provider.ts';
 test('known facts never repeat; each domain keeps Other and 3–10 unique cards',()=>{
@@ -31,7 +31,7 @@ test('explicit question horizons are preserved instead of asking conflicting def
 
 test('a learned Spanish level never skips a different learning goal',()=>{const known={learning_target:'Spanish',level:'Intermediate',practice:'20 minutes',conversation:'Weekly'};assert.ok(!planFor('Will I learn Spanish?',known).cards.some(c=>c.id==='level'));assert.ok(planFor('Will I learn guitar?',known).cards.some(c=>c.id==='level'));});
 
-test('prediction rejects missing topic inputs before generating an outcome',async()=>{const {predict}=await import('../server/engine.ts');let calls=0;const model={async json<T>(_system:string,_input:unknown,_schema:unknown,valid:import('../server/provider.ts').Validator):Promise<T>{calls++;const value={category:'allow'};if(await valid(value))return value as T;throw new Error('Unexpected outcome generation');}};const result=await predict('Will EVs lead global sales?',{goal:'Steady progress'},false,model);assert.equal(result.kind,'error');assert.equal(calls,1);});
+test('prediction rejects missing topic inputs before generating an outcome',async()=>{const {predict}=await import('../server/engine.ts');let calls=0;const model={async json<T>(_system:string,_input:unknown,_schema:unknown,valid:import('../server/provider.ts').Validator):Promise<T>{calls++;const value={category:'allow'};if(await valid(value))return value as T;throw new Error('Unexpected outcome generation');}};const result=await predict('Will EVs lead global sales?',{goal:'Steady progress'},false,model);assert.equal(result.kind,'error');assert.equal(calls,0);});
 test('creative and zodiac context cannot erase explicit personal harm or illness',()=>{assert.equal(phraseSafety('I am writing a song; will I commit suicide?'),'self_harm');assert.equal(phraseSafety('My horoscope says change: will my cancer come back?'),'illness');assert.equal(phraseSafety('Will my novel about a cancer survivor sell?'),undefined);});
 
 test('multilingual lifespan, self-harm and residency forms retain their safety category',()=>{assert.equal(phraseSafety('¿Llegaré a cumplir los cincuenta?'),'death');assert.equal(phraseSafety('Klarer min far sig gennem vinteren?'),'death');assert.equal(phraseSafety('Bliver alting nemmere, hvis jeg bare ikke vågner i morgen?'),'self_harm');assert.equal(phraseSafety('Får jeg lov at blive i Danmark efter afslaget på min opholdstilladelse?'),'legal');});
@@ -76,4 +76,39 @@ test('general explanations quote an existing input and ignore model-authored fac
 
 test('personal forecast voice normalizes model first-person phrasing',async()=>{
  const {formatForecast}=await import('../server/engine.ts');assert.equal(formatForecast('Yes, my next holiday will be memorable','Within 3 months'),'Your next holiday will be memorable within 3 months.');assert.equal(formatForecast('I will finish my novel this year.'),'You will finish your novel this year.');
+});
+
+test('an inferred competition keeps its contenders through later answers',()=>{
+ const plan=planFor('Who will win the NBA championship?',{});
+ assert.ok(plan.cards.find(c=>c.id==='team')?.options.some(o=>o.includes('Lakers')));
+ const after=adaptPlan(plan,{edition:'2028'});
+ assert.ok(after.cards.find(c=>c.id==='team')?.options.some(o=>o.includes('Lakers')));
+ assert.deepEqual(after.cards.find(c=>c.id==='edition')?.options,['2027','2028','2029','Other']);
+});
+
+test('prediction never sends unrelated memories to the safety classifier',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;const sent:string[]=[];
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));sent.push(body.messages[1].content);const content=body.format.properties.prediction?{prediction:'You will finish your novel this year.',basis:'context_1',assumption:'Your writing routine continues.'}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('Will I finish my novel this year?',{learning_target:'Spanish',assets:'250000',context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));
+  assert.equal(result.kind,'ok');assert.ok(!sent.join('\n').includes('Spanish'));assert.ok(!sent.join('\n').includes('250000'));
+ }finally{globalThis.fetch=original;}
+});
+
+test('unparseable Other answers are re-asked instead of counting as the negative case',async()=>{
+ const {predict}=await import('../server/engine.ts');const {validateAnswer}=await import('../src/questions.ts');const original=globalThis.fetch;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'about a year of savings'},false,provider(()=>undefined));
+  assert.equal(result.kind,'error');
+  if(result.kind==='error')assert.match(result.message,/months of savings/);
+  const ok=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'6 months'},false,provider(()=>undefined));
+  assert.equal(ok.kind,'ok');if(ok.kind==='ok')assert.match(ok.value.headline,/move to Berlin/);
+ }finally{globalThis.fetch=original;}
+ assert.throws(()=>validateAnswer('relocation','runway','about a year of savings'));
+ assert.throws(()=>validateAnswer('learning','practice','an hour'));
+ validateAnswer('relocation','runway','6 months');validateAnswer('learning','practice','20 minutes');
+});
+
+test('an event horizon phrased as later this year is not repeated in the headline',async()=>{
+ const {formatForecast}=await import('../server/engine.ts');
+ assert.equal(formatForecast('Your trip will be relaxing this year.','Later this year'),'Your trip will be relaxing this year.');
 });

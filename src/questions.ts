@@ -26,6 +26,9 @@ export function planFor(question:string,known:Facts):Plan {
  const context=topic==='sports'?[card('session_form','How has your contender looked recently?',['Strong recent form','Mixed recent form','I have no current form data'],false),card('session_availability','What do you know about player availability?',['Full squad expected','Key players unavailable','I have no current squad data'],false),card('session_advantage','What advantage matters in this event?',['Home advantage','More recovery time','No known advantage'],false)]:topic==='learning'?[card('session_break','Any interruption ahead in your practice?',['No planned break','A short travel break','A busy season ahead'],false),card('session_use','Where will you use this skill next?',['At work','During travel','With friends'],false),card('session_feedback','Is your access to feedback changing?',['No change','More feedback available','Less feedback available'],false)]:[card('session_priority','What matters most in this forecast?',['Speed','Stability','Opportunity'],false),card('session_change','What is different about this situation?',['New opportunity','New constraint','No major change'],false),card('session_confidence','How settled is your current plan?',['Still exploring','Mostly decided','Ready to act'],false)];
  return adaptPlan({topic,provided,cards:[...cards,...context.slice(0,Math.max(0,3-cards.length))].slice(0,10)},provided);
 }
+export function leadingNumber(value:string|undefined,name:string,max:number):number {
+ return numeric((value||'').match(/\d+(?:\.\d+)?/)?.[0],name,0,max);
+}
 export function numeric(value:string|undefined,name:string,min=0,max=1e10):number {
  const n=Number((value||'').replace(/[,$£€]/g,''));
  if(!value?.trim()||!Number.isFinite(n)||n<min||n>max)throw new Error(`Please enter a number for ${name} between ${min} and ${max}.`);
@@ -51,7 +54,7 @@ export function learningTarget(question:string):{target:string;language:boolean}
 }
 export function adaptPlan(plan:Plan,answers:Facts):Plan {
  if(plan.topic!=='sports')return plan;
- const competition=answers.competition;
+ const competition={...plan.provided,...answers}.competition;
  const editions=competition==='Women’s World Cup'?['2027','2031','2035']:competition==='NBA championship'?['2027','2028','2029']:['2030','2034','2038'];
  const teams=competition==='NBA championship'?['Lakers, Celtics, Thunder','Warriors, Nuggets, Bucks','Knicks, Cavaliers, Rockets']:['Argentina, Spain, France','Brazil, England, Germany','USA, Portugal, Netherlands'];
  return {...plan,cards:plan.cards.map(c=>c.id==='edition'?{...c,options:[...editions,'Other']}:c.id==='team'?{...c,options:[...teams,'Other']}:c)};
@@ -78,5 +81,7 @@ export function validateAnswer(topic:Topic,id:string,value:string):void {
   if(id==='years')wholeYears(value);
   if(id==='inflation')inflationRate(value);
  }
+ if(topic==='relocation'&&id==='runway')leadingNumber(value,'months of savings',600);
+ if(topic==='learning'&&id==='practice')leadingNumber(value,'daily practice minutes',1440);
  if(topic==='growth'&&['current_users','weekly_growth','growth_weeks'].includes(id))numeric(value,id,id==='growth_weeks'?1:0,id==='growth_weeks'?520:1e10);
 }

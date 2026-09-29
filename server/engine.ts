@@ -1,7 +1,7 @@
 import type { Facts, Prediction, Result, Plan } from '../src/types.ts';
 import type { ModelProvider } from './provider.ts';
 import { safety, redirects } from './safety.ts';
-import { planFor, projection, numeric, learningTarget, inferFacts, currencies, registry } from '../src/questions.ts';
+import { planFor, projection, numeric, leadingNumber, learningTarget, inferFacts, currencies, registry } from '../src/questions.ts';
 import { research } from './research.ts';
 export function formatForecast(prediction:string,horizon?:string):string {
  prediction=prediction.trim().replace(/^(?:Yes|No),?\s+(?=(?:I|my|you|your)\b)/i,'');
@@ -10,7 +10,7 @@ export function formatForecast(prediction:string,horizon?:string):string {
  if(horizon&&/^\d/.test(horizon))horizon=`within ${horizon}`;
  const words:Record<string,string>={one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',ten:'10',a:'1',an:'1'};
  const normalize=(text:string)=>text.toLowerCase().replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|a|an)\b/g,w=>words[w]);
- const headline=!horizon||normalize(prediction).includes(normalize(horizon).replace(/^(in|within)\s+/,''))?prediction:`${prediction.replace(/[.!]$/,'')} ${horizon.toLowerCase()}.`;
+ const headline=!horizon||normalize(prediction).includes(normalize(horizon).replace(/^(in|within|later)\s+/,''))?prediction:`${prediction.replace(/[.!]$/,'')} ${horizon.toLowerCase()}.`;
  return /[.!?]$/.test(headline)?headline:`${headline}.`;
 }
 export function explainScenario(reason:string,assumption:string):string {
@@ -35,12 +35,12 @@ export async function makePlan(question:string,known:Facts,model:ModelProvider):
 }
 export async function predict(question:string,facts:Facts,friend:boolean,model:ModelProvider):Promise<Result<Prediction>> {
  try {
-  const category=await safety(`${question}\n${Object.values(facts).join('\n')}`,model);
-  if(category)return {kind:'blocked',category,message:category==='self_harm'?redirects.self_harm:'This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead.'};
   const topic=planFor(question,{}).topic;facts={...facts,...inferFacts(question,topic)};
   const required=topic==='general'?['context_1','context_2',...(inferFacts(question,topic).horizon?['context_3']:[]),'horizon']:registry[topic].map(card=>card.id);
   if(required.some(key=>!facts[key]?.trim()))throw new Error('Some context is missing. Please review your answers.');
   facts=Object.fromEntries(Object.entries(facts).filter(([key])=>required.includes(key)||key.startsWith('session_')));
+  const category=await safety(`${question}\n${Object.values(facts).join('\n')}`,model);
+  if(category)return {kind:'blocked',category,message:category==='self_harm'?redirects.self_harm:'This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead.'};
   const publicQuery=topic==='sports'?`${facts.competition} ${facts.edition} results rankings`:topic==='world'?( /\bev|electric vehicles/i.test(question)?'electric vehicle global sales outlook':/inflation|economy/i.test(question)?'global economy inflation outlook':/climate/i.test(question)?'climate outlook':/election/i.test(question)?'election outlook':'technology outlook'):null;
   let sources=publicQuery?await research(publicQuery).catch(()=>[]):[];
   if(topic==='sports')sources=sources.filter(source=>(facts.team||'').split(',').some(team=>source.title.toLowerCase().includes(team.trim().toLowerCase())));
@@ -60,14 +60,14 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
    reasoning=`${facts.current_users} current users + ${facts.weekly_growth} net new users per week × ${facts.growth_weeks} weeks = ${Math.round(amount)}. Net growth already includes churn.`;
    assumptions.push('Net weekly growth remains constant.');
   } else if(topic==='relocation') {
-   const mobile=/remote|offer/i.test(facts.work||''),runway=parseFloat(facts.runway||'0'),lease=/3|6|next year/i.test(facts.lease||'');
+   const mobile=/remote|offer/i.test(facts.work||''),runway=leadingNumber(facts.runway,'months of savings',600),lease=/3|6|next year/i.test(facts.lease||'');
    choices=[mobile&&runway>=3&&lease?`You will move to ${facts.destination} within a year.`:`You will stay in ${facts.location} for the next year.`];
    reasoning=`This scenario assumes a move when work is remote or an offer exists, savings cover at least 3 months, and the lease permits leaving within a year. Your inputs: ${facts.work}; ${facts.runway}; ${facts.lease}. This rule is a transparent scenario assumption, not a calibrated probability.`;
    assumptions.push('Your named cities and work situation remain the relevant options.');
   } else if(topic==='learning') {
    const goal=learningTarget(question),deadline=(facts.deadline||'In 6 months').toLowerCase(),languageGoal=`${/conversational|convers(?:e|ation)/i.test(question)?'conversational':'basic'} ${goal.target}`;
    choices=goal.language?[`You will speak ${languageGoal} ${deadline}.`,`You will still be learning ${languageGoal} ${deadline}.`]:[`You will complete a beginner project in ${goal.target} ${deadline}.`,`You will still be practicing the basics of ${goal.target} ${deadline}.`];
-   const prepared=(/intermediate/i.test(facts.level||'')||(parseFloat(facts.practice||'0')>=20&&/weekly|daily/i.test(facts.conversation||'')))&&facts.session_break!=='A busy season ahead'&&facts.session_feedback!=='Less feedback available';choices=[choices[prepared?0:1]];
+   const prepared=(/intermediate/i.test(facts.level||'')||(leadingNumber(facts.practice,'daily practice minutes',1440)>=20&&/weekly|daily/i.test(facts.conversation||'')))&&facts.session_break!=='A busy season ahead'&&facts.session_feedback!=='Less feedback available';choices=[choices[prepared?0:1]];
    reasoning=`Your starting level is ${facts.level.toLowerCase()}. You allow ${facts.practice.toLowerCase()} daily, with ${/rarely/i.test(facts.conversation)?'infrequent':facts.conversation.toLowerCase()} ${goal.language?'conversation practice':'feedback'}. This scenario ${/intermediate/i.test(facts.level)?'treats your intermediate foundation as enough for progress':'uses 20 minutes daily and weekly '+(goal.language?'conversation practice':'feedback')+' as its threshold for progress'}${facts.session_break==='A busy season ahead'||facts.session_feedback==='Less feedback available'?', with your reported interruption slowing that progress':''}. It assumes continued practice and is not a validated learning threshold.`;
    assumptions.push('Practice continues at the frequency you supplied; a basic conversation is not fluency.');
   } else if(topic==='sports') {
