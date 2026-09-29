@@ -6,7 +6,7 @@ import {provider} from '../server/provider.ts';
 test('known facts never repeat; each domain keeps Other and 3–10 unique cards',()=>{
  for(const [topic,cards] of Object.entries(registry)){
   const questions:Record<string,string>={money:'net worth',learning:'learn Spanish',relocation:'where will I move',growth:'how many users',sports:'World Cup',world:'Will EVs lead global sales',general:'will my dream happen'};
-  for(const n of [0,2,cards.length]){const known:Record<string,string>={...Object.fromEntries(cards.filter(c=>c.remember).slice(0,n).map(c=>[c.id,'known'])),learning_target:'Spanish'};const plan=planFor(questions[topic],known);assert.ok(plan.cards.length>=3&&plan.cards.length<=10);assert.equal(new Set(plan.cards.map(c=>c.id)).size,plan.cards.length);assert.ok(plan.cards.every(c=>c.options.includes('Other')&&(!c.remember||!known[c.id])));}
+  for(const n of [0,2,cards.length]){const known:Record<string,string>={...Object.fromEntries(cards.filter(c=>c.remember).slice(0,n).map(c=>[c.id,c.options[0]])),learning_target:'Spanish'};const plan=planFor(questions[topic],known);assert.ok(plan.cards.length>=3&&plan.cards.length<=10);assert.equal(new Set(plan.cards.map(c=>c.id)).size,plan.cards.length);assert.ok(plan.cards.every(c=>c.options.includes('Other')&&(!c.remember||!known[c.id])));}
  }
  const f={assets:'10000',debt:'0',windfall:'0',monthly_saving:'100',years:'2',return:'0',saving_growth:'0',withdrawals:'0',inflation:'No, future money'};assert.equal(projection(f),12400);assert.throws(()=>projection({...f,years:'many'}));assert.throws(()=>projection({...f,years:'1.5'}));assert.equal(projection({...f,inflation:'5%'}),11247);assert.throws(()=>projection({...f,inflation:'not sure'}));
  assert.equal(phraseSafety('Will my IVF succeed?'),'pregnancy');assert.equal(phraseSafety('Will I hurt myself again?'),'self_harm');assert.equal(phraseSafety('Will my plant die?'),undefined);
@@ -99,7 +99,7 @@ test('unparseable Other answers are re-asked instead of counting as the negative
  globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'about a year of savings'},false,provider(()=>undefined));
   assert.equal(result.kind,'error');
-  if(result.kind==='error')assert.match(result.message,/months of savings/);
+  if(result.kind==='error')assert.match(result.message,/savings runway in months or years/);
   const ok=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'6 months'},false,provider(()=>undefined));
   assert.equal(ok.kind,'ok');if(ok.kind==='ok')assert.match(ok.value.headline,/move to Berlin/);
  }finally{globalThis.fetch=original;}
@@ -111,4 +111,24 @@ test('unparseable Other answers are re-asked instead of counting as the negative
 test('an event horizon phrased as later this year is not repeated in the headline',async()=>{
  const {formatForecast}=await import('../server/engine.ts');
  assert.equal(formatForecast('Your trip will be relaxing this year.','Later this year'),'Your trip will be relaxing this year.');
+});
+
+test('recognized units are converted instead of being read as the card unit',async()=>{
+ const {predict}=await import('../server/engine.ts');const {validateAnswer}=await import('../src/questions.ts');const original=globalThis.fetch;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const learning=await predict('Will I be conversational in Spanish in six months?',{level:'New beginner',practice:'1 hour',conversation:'Weekly',deadline:'In 6 months'},false,provider(()=>undefined));
+  assert.equal(learning.kind,'ok');if(learning.kind==='ok')assert.match(learning.value.headline,/^You will speak conversational Spanish/);
+  const move=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'1 year of savings'},false,provider(()=>undefined));
+  assert.equal(move.kind,'ok');if(move.kind==='ok')assert.match(move.value.headline,/move to Berlin/);
+ }finally{globalThis.fetch=original;}
+ validateAnswer('learning','practice','1 hour');validateAnswer('relocation','runway','1 year');
+ assert.throws(()=>validateAnswer('learning','practice','1 furlong'));
+ assert.throws(()=>validateAnswer('relocation','runway','3 weeks'));
+});
+
+test('a remembered fact that no longer validates is re-asked instead of breaking the forecast',()=>{
+ const plan=planFor('Will I move to Berlin?',{location:'Boston',destination:'Berlin',runway:'about a year'});
+ assert.ok(plan.cards.some(c=>c.id==='runway'));
+ assert.ok(!plan.cards.some(c=>c.id==='location'));
+ assert.ok(!planFor('Will I move to Berlin?',{location:'Boston',destination:'Berlin',runway:'6 months'}).cards.some(c=>c.id==='runway'));
 });

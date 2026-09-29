@@ -19,15 +19,27 @@ export function topicFor(question:string):Topic {
  if(/\b(EVs?|electric vehicles|global|inflation|election|economy|climate|technology)\b/i.test(question))return 'world';
  return 'general';
 }
+export function validateFact(id:string,value:string):void {
+ const topic=(Object.keys(registry) as Topic[]).find(t=>registry[t].some(c=>c.id===id));
+ if(topic)validateAnswer(topic,id,value);
+}
 export function planFor(question:string,known:Facts):Plan {
  const topic=topicFor(question),provided=inferFacts(question,topic);
+ known=Object.fromEntries(Object.entries(known).filter(([id,value])=>{try{validateFact(id,value);return true}catch{return false}}));
  if(topic==='learning'&&known.learning_target!==learningTarget(question).target)known={...known,level:'',practice:'',conversation:''};
  const cards=registry[topic].filter(c=>!provided[c.id]&&(!c.remember || !known[c.id])).map(c=>topic==='learning'&&c.id==='conversation'?{...c,question:learningTarget(question).language?'How often can you practice conversation?':'How often can someone review your practice?'}:c);
  const context=topic==='sports'?[card('session_form','How has your contender looked recently?',['Strong recent form','Mixed recent form','I have no current form data'],false),card('session_availability','What do you know about player availability?',['Full squad expected','Key players unavailable','I have no current squad data'],false),card('session_advantage','What advantage matters in this event?',['Home advantage','More recovery time','No known advantage'],false)]:topic==='learning'?[card('session_break','Any interruption ahead in your practice?',['No planned break','A short travel break','A busy season ahead'],false),card('session_use','Where will you use this skill next?',['At work','During travel','With friends'],false),card('session_feedback','Is your access to feedback changing?',['No change','More feedback available','Less feedback available'],false)]:[card('session_priority','What matters most in this forecast?',['Speed','Stability','Opportunity'],false),card('session_change','What is different about this situation?',['New opportunity','New constraint','No major change'],false),card('session_confidence','How settled is your current plan?',['Still exploring','Mostly decided','Ready to act'],false)];
  return adaptPlan({topic,provided,cards:[...cards,...context.slice(0,Math.max(0,3-cards.length))].slice(0,10)},provided);
 }
-export function leadingNumber(value:string|undefined,name:string,max:number):number {
- return numeric((value||'').match(/\d+(?:\.\d+)?/)?.[0],name,0,max);
+const durations:Record<'minutes'|'months',{factors:Record<string,number>;max:number;hint:string}>={
+ minutes:{factors:{min:1,mins:1,minute:1,minutes:1,hr:60,hrs:60,hour:60,hours:60},max:1440,hint:'minutes or hours, for example 20 minutes or 1 hour'},
+ months:{factors:{mo:1,mos:1,month:1,months:1,year:12,years:12},max:600,hint:'months or years, for example 6 months or 1 year'},
+};
+export function duration(value:string|undefined,name:string,unit:'minutes'|'months'):number {
+ const spec=durations[unit],match=(value||'').trim().toLowerCase().match(/^(\d+(?:\.\d+)?)\s*([a-z]+)?/);
+ const factor=match?.[2]===undefined?1:spec.factors[match[2]];
+ if(!match||!factor)throw new Error(`Please give ${name} in ${spec.hint}.`);
+ return numeric(String(Number(match[1])*factor),name,0,spec.max);
 }
 export function numeric(value:string|undefined,name:string,min=0,max=1e10):number {
  const n=Number((value||'').replace(/[,$£€]/g,''));
@@ -81,7 +93,7 @@ export function validateAnswer(topic:Topic,id:string,value:string):void {
   if(id==='years')wholeYears(value);
   if(id==='inflation')inflationRate(value);
  }
- if(topic==='relocation'&&id==='runway')leadingNumber(value,'months of savings',600);
- if(topic==='learning'&&id==='practice')leadingNumber(value,'daily practice minutes',1440);
+ if(topic==='relocation'&&id==='runway')duration(value,'your savings runway','months');
+ if(topic==='learning'&&id==='practice')duration(value,'your daily practice','minutes');
  if(topic==='growth'&&['current_users','weekly_growth','growth_weeks'].includes(id))numeric(value,id,id==='growth_weeks'?1:0,id==='growth_weeks'?520:1e10);
 }
