@@ -1,0 +1,15 @@
+# Project agent memory
+
+This file is the project's committed home for project-intrinsic agent knowledge: build, test, release, architecture, and sharp-edge notes that should travel with the code.
+
+- Run/setup and native integration boundaries: SETUP.md. Theme and interaction authority: docs/design/ui-rules.md.
+- Server entry points share server/handler.ts; provider secrets stay server-only. Local Node is loopback development tooling, not a public production API.
+- Run npm run check, npm test, and the project verify-crystal-ball skill for UI/service changes. The browser drive uses localhost and an isolated Playwright profile.
+- Preserve failed research/grade evidence; never describe a structural pass as a semantic or predictive-accuracy pass.
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.
