@@ -10,4 +10,4 @@ You for facts; History for earlier readings.
 Edit a fact, reload, verify value; forget it, Undo and verify restoration, forget it again, ask again and verify it returns as a card. Open History and mark an outcome; fresh reveals keep outcome entry hidden. scripts/drive-states.mjs asserts Undo and re-asking.
 
 ## Gotchas
-Friends never teach the owner bank. Web reminder is an explicit preview, not a scheduled native notification.
+Friends never teach the owner bank. Saving an edited fact runs the same validation as its card, so an invalid value (for example a savings runway without months or years) shows an inline message and is not saved. Web reminder is an explicit preview, not a scheduled native notification.
