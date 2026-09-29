@@ -1,0 +1,50 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 7.1,
+  "score_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.0,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_spec_25": 6.5,
+    "accessibility_and_complete_states_25": 7.5
+  },
+  "method": {
+    "source_inspection": ["docs/design/system.md", "docs/design/ui-rules.md", "docs/design/motion.md", "docs/design/contrast.json", "docs/design/review.html (grep of headings, captions, table rows and image/video refs; the 953 KB file was too large to read whole)"],
+    "visual_inspection": ["docs/evidence/home.png", "question-1.png", "research.png", "reveal.png", "why.png", "share.png", "exported-card.png", "paywall.png", "large-reveal.png"],
+    "not_inspected": "review.html was not rendered as a page. flow-recording.webm, exported-story.mp4 and the reveal-frame-0/300/800 stills were not viewed, so I did not observe motion directly and judged it from the spec only."
+  },
+  "evidence": [
+    "Thesis: ui-rules.md and system.md share one 'pocket observatory' idea: ink-violet space, one glass orb, gold marks, and serif display type over sans body. The rejected tarot and dashboard layouts are named with reasons. The captures follow this on every screen I opened.",
+    "Orb (visual): the SVG orb is the strongest asset. It has a specular arc, internal mist, a gold-dotted orbit, cyan inner glow and a ground shadow, and it reads as one crafted object that repeats across Home, Research, Reveal, Share and the tab bar.",
+    "Token sloppiness (source): system.md line 6 writes hex values with spaces in them ('#0B 0620', '#5CE 1E 6', '#F 5C 76B', '#160F 30'), so the design system's own token line can't be copied. ui-rules.md has them correct, which means two docs disagree in form.",
+    "Inconsistent header counter (visual): '1 reading' on Home, '0 readings' on Reveal and Paywall, '3 left' in large-text Reveal. motion.md defines the count's meaning but no copy pattern.",
+    "Alignment inconsistency (visual): research.png centers the title, body and Cancel, but the 'This can take up to a minute…' line is left-aligned full-width.",
+    "Large text (visual) contradicts the spec: ui-rules rule 3 says that at 200% 'labels yield to larger icons'. In large-reveal.png the tab labels still render, and 'Home Explore' run into each other with no separation. The review.html caption claims 'icon tabs retain accessible names', which the capture does not show.",
+    "Large-text reveal order (visual): the gold label is followed by the eyebrow 'Your glimpse ahead', then the orb, then the headline. The label-first placement is intentional (motion.md), but it produces a cluttered top with three differently styled lines stacked.",
+    "Export card (visual): the 1080×1920 card leaves roughly the bottom 30% empty gradient. It has no call to action ('ask yours'), no handle or QR, and no visual hook beyond reusing the orb. For an 18–24 share-driven product it is tasteful but won't stop anyone scrolling.",
+    "Why disclosure (visual): the copy reads 'assumes progress when you are already intermediate… Your level: New…', which contradicts itself in front of the user. There is no design spec for how Why content is structured (facts / assumptions / sources as distinct visual blocks); it renders as one prose card.",
+    "Motion spec (source): motion.md is a clean single authority with durations, easing, reduced-motion equivalents and haptics per interaction, plus a reveal storyboard. However, the payoff moment is deliberately minimal: one 35% mist swell and a text fade. The reveal haptic is 'Selection', the weakest tap, where a success or impact tap would suit the moment. The tap-the-orb-to-summon ritual has no press-to-reveal build-up and no sound. Error, timeout and redirect transitions, History item open, tab-bar orb idle, and Share/export progress have no choreography. motion.md also says 'Live properties are in src/ui.tsx', so the spec defers to the implementation instead of leading it.",
+    "Contrast (source): contrast.json covers 20 pairs, including non-text focus, selected border, placeholder, disabled, and helper text at the brightest gradient stop. All pass comfortably. This is strong.",
+    "States (source + captions): review.html lists 31 captioned states, including empty, offline, timeout, long wait, safety redirect, friend isolation, voice unavailable, keyboard focus, large text and restore. That coverage is unusually thorough for a design phase."
+  ],
+  "blockers": [
+    "Fix the token table in system.md to valid, copyable hex. Make ui-rules.md and system.md agree, or have one reference the other.",
+    "Specify one header counter pattern (e.g. 'N readings left') and one alignment rule for status and helper copy under centered compositions. Recapture the affected screens.",
+    "Make large text match the spec: at 200%, either hide tab labels (icons only, with accessible names) or give each label a guaranteed minimum width with no overlap. Recapture large-home and large-reveal, and correct the review.html caption.",
+    "Design a reveal moment worth sharing, specified in motion.md (not deferred to source): an orb-tap anticipation beat (hold or press build-up), a clearer luminance or particle payoff, a success-class haptic on reveal, optional sound with a mute setting, and reduced-motion equivalents. Include frames in review.html showing the key poses, not browser-scheduled offsets.",
+    "Add choreography for the missing transitions: research → timeout/offline/redirect, History item open, Share export progress, tab-bar orb idle or press. Include reduced-motion equivalents for each.",
+    "Redesign the 9:16 export for the target audience: use the empty lower third for an 'Ask the ball yours' prompt or app mark, and consider a date or topic chip. Keep it free of private facts. Show a still frame and the key poses of the animated clip in the review sheet.",
+    "Give the Why disclosure a visual structure: labeled sub-blocks for 'What you told me', 'What I assumed' and 'Signals I found' with dates. Add a content rule that assumptions must not contradict the user's stated facts, and show one clean capture.",
+    "Add annotations to review.html that tie each capture to the specific spec value it proves (token, spacing, target size), so a reviewer can visually check measurements rather than trust captions."
+  ],
+  "strengths": [
+    "One coherent, memorable idea: a 'pocket observatory' built around a single well-rendered glass orb, used consistently from Home to the share card.",
+    "Restrained, honest product voice: an always-adjacent 'Speculative forecast · not a guarantee' label, no fake counts or urgency, and a clearly labeled test-mode paywall with an equally visible billing period.",
+    "Rigorous accessibility groundwork: measured contrast table including non-text elements, 44/52 pt targets, a non-color selection marker, inline disclosure without a focus trap, no zoom disabling, and a clear list of what is deferred to native device checks.",
+    "Very broad state coverage with real captures (empty, error, timeout, redirect, friend mode, voice fallback, large text), not just the happy path.",
+    "motion.md is a single, tabulated motion authority with a reduced-motion equivalent and haptic column per row, plus an honest note that captures, not prose, are the motion proof.",
+    "Explicit composition trade-offs are documented (tarot vs dashboard vs observatory), along with the reasoning for select-then-Next and a stated usability hypothesis to test it."
+  ]
+}
+```

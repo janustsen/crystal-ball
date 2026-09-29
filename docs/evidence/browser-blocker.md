@@ -1,3 +1,5 @@
+> Historical checkpoint, superseded by firstmate authorization and the successful current drives. See docs/evidence/verification-summary.md and docs/research/decisions.md.
+
 # Browser drive checkpoint — 2026-09-29
 
 App launched on localhost:8087; engine health on127.0.0.1:8787. Owned tool sessions: Expo94827, engine39513. They remain running for the resumed verification. Xcode absent; firstmate authorized Expo web390×844. Home capture at docs/evidence/home.jpeg uses explicit mobile emulation. Original SVG transform-origin warning was fixed; subsequent snapshot no longer shows it.

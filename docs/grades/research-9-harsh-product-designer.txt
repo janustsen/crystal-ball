@@ -1,0 +1,47 @@
+```json
+{
+  "role": "independent harsh product-designer grader",
+  "phase": "research",
+  "score": 7.5,
+  "rubric_breakdown": {
+    "sourced_primary_evidence_30": 8.0,
+    "specificity_25": 8.0,
+    "decision_readiness_25": 6.5,
+    "honest_measurement_and_limitations_20": 8.5,
+    "weighted_total": 7.7,
+    "reported_score_rationale": "Rounded down to 7.5 because of internal inconsistencies across the documents. A decision-maker who does not read code would have to reconcile them alone."
+  },
+  "inspection_method": {
+    "source_inspection": "Read decisions.md, model-bakeoff.md, comparables.md, pricing.md, research-path.md, safety-policy.md, question-engine.md, user-test.md, review-sample.md, review-response.md, visual-observations.md, evidence/source-excerpts.md, evidence/store-prices.json, evidence/comparison-summary.json, evidence/blind-review.txt (first 60 lines), docs/evidence/safety-final-first-run.json (first 60 lines) and docs/design/ui-rules.md.",
+    "visual_inspection": "Looked at one image only, evidence/tarot-ai.jpeg. The 23 ratings, 4.7 score, purple/gold multi-mode menu, bottom card row and hold gesture (a fingerprint 'Hold to scan your finger', not a plain card hold) match visual-observations.md closely. The 'animated star field, streaks, image export' claims in comparables.md cannot be seen in that capture, because the description is truncated. I did not view the other captures.",
+    "arithmetic_recomputed": "Recomputed the pricing math and it all checks out: Together 3-card $0.000312; hosted replay $0.007623 and Groq $0.011746; annual $2.333 monthly-equivalent; paid-share break-evens of 20.1% and 1.37%; annual saving of 44%."
+  },
+  "evidence": [
+    "The local model decision rests on real measurements: 90 reveals across three Qwen variants, median and p95 latency, and 3/6/10-card token and latency runs (comparison-summary.json matches the prose). A blind Claude review with the candidate mapping hidden scored 4B 8.23, 8B 7.47 and 1.7B 5.93, and it names concrete failures such as 8B getting 104 instead of 108 and 4B contradicting the EV constraints.",
+    "The safety evidence is layered and honestly reported. There are five synthetic sets, and the first-run misses are kept alongside the later regressions. The fifth untouched set is confirmed in raw JSON: tp 20, fp 0, fn 0, categories 39/40. The Danish lifespan question misrouted to self-harm is visible in the rows. Guard models such as Qwen3Guard were shortlisted but explicitly not run.",
+    "Pricing is anchored to captured store IAP rows (store-prices.json), with Nebula's missing billing periods admitted. Unit economics carry explicit gates: at most $0.010 per reading for monthly and $0.007 for annual. The docs conclude the annual mock 'must not be activated'.",
+    "The retrieval probe covers four providers, then five queries × three leads with an independent 36/45 versus 24/45 score. Bing was rejected on its quoted terms and DuckDuckGo on its CAPTCHA page. The docs state plainly that Google News has no commercial licence.",
+    "The hosted providers are correctly treated as an unexecuted shortlist, with dated price excerpts and a concrete replay protocol: 30 runs, p95, zero unsafe outputs, zero invented citations, and a score of at least 9.",
+    "The user-test script has measurable acceptance criteria, time budgets and price-recall rules, and the docs admit no sessions have happened.",
+    "ui-rules.md is concrete: measured contrast ratios, a 375×667 layout budget, behaviour at 200% text size, share safe-zone coordinates and focus handling for the Why section."
+  ],
+  "blockers": [
+    "The core product bet is unsupported: 'accountable specificity', where the same inputs always give the same answer, has no evidence that users want it (decisions.md says confidence is low). Recruiting is out of scope, but the research still owes one cheap test of the risk that repeated answers feel boring, such as a blind preference test of consistent answers against a user-chosen scenario that is actually run and graded. Otherwise the phase stays at 'hypothesis documented', not 'decision ready'.",
+    "The production research path has no decision. Research is a headline feature, the only engine in use (Google News) is unlicensed, and the only licensed candidate (Brave, $0.005 per query) makes the annual plan fail for every provider (pricing.md table). The docs need one explicit choice: (a) drop or reprice the annual plan, (b) only search on topics that need it, with a measured share of such topics, or (c) cache or batch queries. Each option needs its economics worked out. As written, public launch is blocked with no preferred path. Brave's $5 monthly credit is also ignored.",
+    "The benchmark size contradicts itself. model-bakeoff.md says 'executed ten-case engine path' at line 64 and a '20-question engine-bakeoff.ts' at line 68, and decisions.md says 20. Pick one and make every reference and threshold match it.",
+    "The latency target has no current measurement behind it. decisions.md requires p95 under 8s for planning and reveal, but the research docs give no current-engine p95. They only say newer browser timings replace the old ones, and the only concrete 10-card flow time is the historical 22.2s. Either state the measured current numbers with n, or label the target as untested.",
+    "The card limits (money 10, learning 4, relocation 5, growth 3, sports 3, world 3, general 3) are stated as authoritative with no rationale in the research docs. question-engine.md only points to an archive, and user-test.md warns that 10 cards may be a burden. Each domain limit needs a one-line reason listing its required inputs.",
+    "The safety category error has no decision. The fifth set misrouted a death question to urgent self-harm support, and the docs call it 'not public-release validation' but never say whether this is acceptable over-routing or needs a fix. Record that decision. Also note that all five safety sets were written by Claude, so author diversity is one model family. Name that as a limitation, or add a set that no LLM wrote.",
+    "Some text is stale or overconfident. comparables.md line 29 still says the review sample had n=0 and gives no complaint counts, while review-sample.md later codes 11 reviews. Line 21 claims 'High confidence: … listed prices' although Nebula's periods and the Tarot AI and Oracle Guru prices are unverified. The Tarot AI 'streaks, star field, export' features are not in the captured image. Fix these to match the evidence.",
+    "The docs are hard to read as a decision record. model-bakeoff.md and pricing.md read as a log of successive additions, with outdated protocols such as 'Next authorized bake-off' next to current gates. The safety table in decisions.md is broken by a blank line, so its fifth-set row will not render as part of the table. Janus needs one clean decision sheet with multiple-choice open decisions: annual plan on or off, research provider, card limits, and how to handle the misrouted death question."
+  ],
+  "strengths": [
+    "Measurement is unusually honest. Failed runs are kept, first-run results are separated from regression results, structural passes are never presented as semantic passes, and the docs repeatedly say that predictive accuracy is not measured.",
+    "The pricing math is reproducible and correct, with explicit gates for turning offers on and off, including a self-imposed ban on the annual plan.",
+    "The docs clearly separate what server code owns (sources, dates, arithmetic, safety copy) from what the model writes, based on observed failures such as invented facts after repair, the model treating 2026 headlines as 'not current', and copied titles.",
+    "The primary sources are good: store listings with capture date and IAP rows, the Pew 2025 survey quote, a RevenueCat excerpt framed as correlation not causation, Metaculus and Manifold on how questions resolve, and quoted terms from Bing and Brave.",
+    "Constraints are respected: no borrowed keys, no hosted calls, and recruiting explicitly deferred, with each gap labelled instead of papered over.",
+    "The UI rules are specific enough to implement and check: contrast ratios, pixel safe zones, focus and announcement behaviour, and timeouts."
+  ]
+}
+```

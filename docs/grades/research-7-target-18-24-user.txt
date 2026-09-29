@@ -1,0 +1,45 @@
+**Score: 8 out of 10, below your bar of 9.** The research is honest and well sourced, but it can't yet say whether people aged 18–24 want this app. Several documents also contradict the decision table.
+
+```json
+{
+  "role": "target-18-24-user",
+  "phase": "research",
+  "score": 8,
+  "weighted_breakdown": {
+    "sourced_primary_evidence_30": 7.8,
+    "specificity_25": 8.5,
+    "decision_readiness_25": 7.3,
+    "honest_measurement_and_limitations_20": 9.0,
+    "weighted_total": 8.09
+  },
+  "inspection_method": {
+    "source_inspection": "Read every markdown file in docs/research/ and docs/design/ui-rules.md, plus the evidence files: source-excerpts.md, comparison-summary.json, blind-review.txt, store-prices.json, review-sample.json, followup-independent-review.txt, context-independent-review.txt and boundary-blocker.md. Also checked the precision and recall fields in docs/evidence/safety-*.json. Did not read earlier grades in docs/grades, to keep this grade independent.",
+    "visual_inspection": "Viewed docs/research/evidence/tarot-ai.jpeg. It confirms 4.7 stars from 23 ratings, a purple and gold palette, and a 'Hold to scan your finger' ritual screen, all as described in comparables.md and visual-observations.md. The listing text describes image export and streaks; those features are not visible in the screenshots. The other store images were not opened, so their annotations were checked against the source text only."
+  },
+  "evidence": [
+    "The numbers are internally consistent. I recomputed them by hand: Groq at 8K input / 1K output = $0.0104; Together Qwen3.5 9B = $0.00161; the repriced 3-card and 10-card flows = $0.000312 and $0.000836; $5.99 × 0.7 = $4.19; the annual plan saves 44%; Co–Star costs $0.28–$0.60 per question. The safety figures (outsider set 11/14 blocked, 84.6% precision; fresh set 19/20 blocked, 86.4% precision, 34/40 categories correct; held-out set 90.9% precision) match the stored JSON.",
+    "Primary sources are dated with exact quotes in source-excerpts.md: Pew ('Nearly a quarter of Americans ages 18 to 29...'), the RevenueCat 10.7% vs 2.1% paywall medians, provider price rows, and the TikTok 9:16 minimum of 540×960. store-prices.json records store prices item by item and states its own limits (Nebula billing periods unknown).",
+    "The model comparison is real and measured: 90 local outputs, three variants, median and p95 latency, and token counts for 3-, 6- and 10-card flows. A blind independent review scored the models 8.23 / 7.47 / 5.93 and records specific failures (wrong 104 vs 108 arithmetic, wrong date math, over-blocking safe sports questions).",
+    "Failed results are kept, not hidden: the 4.5/10 context-pilot review, the lifecycle bug in the first question pilot, 5 of 16 question flows with material failures, a Spanish self-harm euphemism the safety check missed, and zero reviews returned by the Apple RSS feed.",
+    "Retrieval was checked by hand for relevance across 5 queries × 2 providers and scored independently (Google News 36/45, Wikipedia 24/45). Bing was rejected with its terms quoted, and DuckDuckGo was rejected because it returned a CAPTCHA page.",
+    "Hosted models are presented only as a shortlist with no measurements. There is a written replay protocol (30 runs, zero unsafe outputs, zero invented citations, average score of at least 9). This is acceptable given that no API key was authorized.",
+    "The research contains no evidence from 18–24 users. The only age data is Pew's 18–29 group. No reviews were systematically sampled (n=0). Commercial confidence is stated as low."
+  ],
+  "blockers": [
+    "Fix stale documents that contradict decisions.md. safety-policy.md still lists category-specific redirect copy (death/illness, pregnancy, legal), but decisions.md says non-self-harm cases now get neutral copy. question-engine.md's historical section gives learning/relocation/growth caps of 6, but decisions.md sets 4/5/3. Delete the superseded text or put it under a clearly marked archive heading. A non-technical reader currently cannot tell which policy applies.",
+    "Collect target-audience evidence within what's allowed. Recruiting isn't authorized, but the visible reviews on the Apple web listing are reachable (one Co–Star review was already captured). Capture every visible dated review for all five comparable apps. Code each for price, repetition, trust and sharing, and report n, the date range and the method. Label the result as a proxy, not 18–24 evidence. Right now the price and repetition findings rest on one featured review from 2024 and one from 2020.",
+    "Back up the free and paid limits for this age group. The '1 free per day' and '10 per day on Plus' limits have no usage-frequency or comparable-app evidence. 1/day may block the share-driven discovery the brief depends on. Either cite primary sources (competitor free limits, how often people use daily-reading apps) or relabel the limits as hypotheses. If relabelled, add a pass/fail criterion to user-test.md, such as how many participants hit the daily limit before sharing.",
+    "Source the share-card safe zone. The 1080×1920 layout's safe region (x 90–990, y 300–1500) is labelled 'conservative proposed' and has no source. Cite the official safe-zone guidance from Meta/Instagram for Stories and Reels and from TikTok for organic posts, then derive the bounds from it. For 18–24 users, sharing is the growth channel, so this is where the evidence matters most.",
+    "Make a decision on consistent versus fresh answers before design locks. Giving the same answer to the same facts is defended as auditable. For this age group, the risk that it feels boring or broken is the main desirability risk, and it is deferred to a user test that isn't authorized. Add a documented fallback that design can build now: for example, an optimistic / base / constrained scenario choice that shows its assumptions. Include a mock-up or sample output so the choice doesn't wait on a test that may never run.",
+    "Bring latency data into the research decisions. decisions.md sets a p95 target of under 8 seconds for planning and reveal but only links to ../evidence/engine-bakeoff.json. Either copy the measured current-engine median and p95 into the decision table, or explicitly assign the measurement to the generation phase.",
+    "Polish the writing. There are many missing spaces ('The21-row', 'scored4.5/10', 'precision90.9%', 'at or below$0.010', 'age18–29'). These hurt credibility and readability for someone who doesn't read code."
+  ],
+  "strengths": [
+    "Every limitation I checked was stated alongside its claim: structural passes are not treated as semantic passes, fixture results are not treated as the shipped engine, headlines are not treated as article research, and n=30 p95 is called descriptive only.",
+    "Mitigations are concrete: deterministic arithmetic, server-owned sources, one repair then a recoverable error, fixed safety copy, no personal text sent to search, and a cost ceiling of $0.010 per prediction.",
+    "Independent reviews are built into the process: blinded model identities, outsider-written safety cases, and third-party retrieval scoring.",
+    "The user-test script is specific enough to run: timed tasks, unaided-completion criteria, 4/5 recall of the price fields, 5/5 recognition of test mode, and a stop-and-fix rule for any sensitive-topic scare.",
+    "ui-rules.md turns the research into rules design can build: measured contrast ratios, the 375×667 layout budget, behaviour at 200% text size, Why expanding inline with focus kept in place, and a paywall ban on fake urgency."
+  ]
+}
+```

@@ -1,0 +1,51 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 7.4,
+  "rubric": {
+    "unified_cosmic_mystic_thesis": 7.5,
+    "visual_polish": 7.0,
+    "interaction_and_animation_specification": 7.5,
+    "accessibility_and_complete_states": 8.0
+  },
+  "evidence": {
+    "method": "Read docs/design/system.md, ui-rules.md, motion.md and contrast.json as source. Read review.html as source: it is about 955 KB, so I grepped its headings, captions and image refs rather than rendering it. I looked directly at these captures it references: home, question-1, selected-1, research, timeout, reveal, large-reveal, paywall, exported-card. I did not open the webm flow recording or the MP4 story export. I did not check the remaining ~30 captioned captures one by one.",
+    "visual_inspection": [
+      "home.png: The orb is a strong centerpiece, and the ink-violet, cyan and gold palette matches the tokens. But the screen stacks four taglines ('Your future has a little mystery.', 'A little glimpse of what's next.', 'Tap the ball. Ask anything.', 'A confident forecast. A little perspective. Never a guarantee.'). 'little' appears three times, which breaks system.md's own rule to 'avoid repeated diminutives'. The first suggestion row is cut off by the nav.",
+      "question-1.png / selected-1.png: Clean. There is one question, Other, a disabled Next, and a cyan ring plus star marking selection. The three-dot constellation is a nice idea but very small and faint. 'Getting to know you · 1' shows no total in text, so the total is only readable from the dots.",
+      "research.png vs home.png vs timeout.png: The orb looks almost identical in all three states in stills. The spec calls for 45% vs 25% mist and doubled speed, but that difference doesn't show up in a static frame, and the timeout/error state has no orb treatment of its own.",
+      "reveal.png: The best screen. The gold rim and constellation inside the orb give a real 'settled' moment, and the speculative label sits right under the headline. Below that, three full-width buttons of similar weight (Share / Remind / Ask another) read like a form, not a payoff.",
+      "exported-card.png (1080×1920): The share artifact looks unfinished. The bottom ~35% is an empty gradient. The wordmark is a small sans text label with no graphic lockup, and there is no hook or 'ask yours' call to action. For 18–24 users this is the growth surface, and it is the weakest visual.",
+      "large-reveal.png (200%): The serif display scales without limit, so the headline runs about three words per line and is cut off behind the nav. The header readings count swells to gold display size and competes with the content. The tabs keep their accessible names but lose visible labels.",
+      "paywall.png: Honest. Test mode is clearly shown, and price and billing period sit together. The yearly '44% saves' line is factual and not urgency theater."
+    ],
+    "source_inspection": [
+      "The thesis appears consistently in ui-rules.md, system.md and the review.html h1 ('pocket/tiny observatory'). The tarot and dashboard alternatives are rejected in prose only; I did not find visual comps of them.",
+      "motion.md is a real single authority: property, duration, easing, reduced-motion and haptic columns, plus easing formulas and a reveal storyboard with ms offsets. The terms are inconsistent, though. The reveal is described as a 'separate reveal glow' in motion.md, a 'mist swell' in review.html and a 'luminance swell' in system.md.",
+      "Motion gaps: the voice-hold orb animation is explicitly deferred, even though hold-to-speak is a signature interaction. There is no spec for error/timeout orb art, a failure haptic, Other-field reveal, History row/outcome marking, or Knowledge delete/undo.",
+      "contrast.json has 20 measured pairs, all above 4.5 for text and 3 for non-text. Disabled text reaches 7.58:1, so disabled Next relies on its surface to look disabled (visually acceptable in question-1.png).",
+      "ui-rules.md has grown by appending: large-text label ordering and 'motion defers to motion.md' each appear two or three times across files. It reads as accumulated patches, not a clean spec.",
+      "State coverage is thorough. The review sheet has about 40 captioned captures: empty, offline, timeout, long wait, safety redirect, friend isolation, voice unavailable, keyboard focus, and 200% text on home, card and reveal. Native VoiceOver and Dynamic Type are honestly marked as deferred."
+    ]
+  },
+  "blockers": [
+    "Redesign the share artifact. Fill the dead bottom third with deliberate composition: a larger orb, or a constellation/star field that anchors the headline. Add a real wordmark lockup and a non-private hook (e.g. 'Ask the Ball your own question'), keeping the speculative label. Show a second variant (long headline, numeric headline) to prove the layout holds.",
+    "Give each orb phase its own visual that is readable in stills, not just in motion. Idle, researching (denser mist, cyan core or orbit speed trace), error/timeout (dimmed, cooled or clouded glass) and reveal (the existing gold rim and constellation) should each be identifiable from a single frame. Add them side by side to the review sheet.",
+    "Specify the missing interactions in motion.md: the hold-to-speak orb response, the error/timeout transition and haptic, Other-field expansion, History outcome marking, and Knowledge delete with undo. Settle one name for the reveal glow vs mist across all three docs.",
+    "Cap display-type growth at large text: for example, display scales at about 1.4× while body scales fully to 200%. Keep the header readings count at metadata size. Re-capture large-reveal so the headline fits in about 4–5 lines and doesn't collide with the nav.",
+    "Make the reveal's action hierarchy clear. Share stays primary. Remind and Ask another become a quieter secondary row or text actions, so the payoff screen doesn't end in three stacked slabs.",
+    "Home copy: cut to one headline plus one supporting line and remove the repeated 'little'. Show the card total in text ('Card 1 of 3') alongside the constellation, for sighted users who can't parse the dots.",
+    "Give the brand real identity: a display-serif or custom glyph wordmark instead of a DM Sans label with a ✧. Add at least one youth-facing delight moment beyond breathing (e.g. a tactile tap ripple through the mist, or a reveal sound/haptic signature). Right now the thesis is tasteful but reads as a generic purple-gradient orb app to an 18–24 eye.",
+    "Clean up ui-rules.md into single-statement rules with no repeated paragraphs, and add one visual composition-alternatives strip (tarot / dashboard / observatory thumbnails) to review.html."
+  ],
+  "strengths": [
+    "One coherent object carries the brand: the glass orb with orbit, mist and gold rim appears on Home, research, reveal, the tab bar and the share card.",
+    "The reveal's in-glass gold constellation is a memorable, on-thesis payoff.",
+    "The motion table is exceptionally concrete (ms, easing math, reduced-motion equivalents, haptics) and honest about what captures do and don't prove.",
+    "Contrast is measured, not asserted, and every pair passes with wide margin.",
+    "State coverage in the review sheet is close to exhaustive, with real captures and honest deferral of native-only checks.",
+    "Trust design is excellent: the speculative label always sits next to the headline, there is no fake progress or fake popularity, and the paywall is honest test mode with no dark patterns."
+  ]
+}
+```

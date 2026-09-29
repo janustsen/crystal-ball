@@ -1,0 +1,62 @@
+Score: **7.5/10, below the ≥9 bar.** The concept, contrast work and state coverage are strong. It falls short on the four things below.
+
+1. **Broken token table.** The colour values in the main design-system file are corrupted with spaces (e.g. `#0B 0620`).
+2. **Flat reveal.** The payoff moment is only a thin gold rim on the same orb that appears on every other screen.
+3. **Rough spots in the captures.** Text alignment is mixed on the research screen, the share preview's label changes colour, and the exported story leaves its bottom half empty.
+4. **Loose motion spec.** It names easing but gives no curves, uses a questionable haptic, and gaps are left.
+
+I read all five files in `docs/design/` from source. I looked at eight real 390×844 captures directly: home, home-small, question-2, research, reveal, why, share, paywall, plus the exported 1080×1920 card. I read `review.html` only from its source structure (headings, captions, alt text), not rendered, because it is a 953 KB file with the images embedded. I did not play the exported MP4, so any claims about it are unverified.
+
+```json
+{
+  "role": "independent harsh product-design grader",
+  "phase": "design",
+  "score": 7.5,
+  "rubric_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.0,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_spec_25": 7.5,
+    "accessibility_and_complete_states_25": 8.5
+  },
+  "evidence": {
+    "source_inspection": [
+      "system.md, ui-rules.md and review.html all state one consistent thesis: a pocket observatory with one luminous glass orb, ink-violet space, gold marks, and a Cormorant Garamond display face paired with DM Sans. system.md rejects two alternatives (a tarot-deck layout and a dashboard) and says why.",
+      "system.md line 6 has corrupted colour values: '#0B 0620', '#A 77BFF', '#5CE 1E 6', '#F 5C 76B', '#F 7F 1FF', '#160F 30', '#C 4B 8D 8'. This is the file that defines the tokens, and those values can't be copied from it as written. ui-rules.md line 5 has the correct values.",
+      "motion.md is the only motion authority, and the other docs defer to it. Every interaction has a timing and a reduced-motion equivalent, and there is a reveal storyboard (0 / 200 / 250 / 700–800 ms). Gaps: the mist rotation easing is just 'timing easing', 'cubic-out' has no actual curve values, and research→reveal and card selection both use a 'Selection' haptic, where a completion haptic (e.g. success) fits the reveal better. There is no spec for pressed states on choice cards or tabs, the center Ask tab orb, the Notice panel entering or leaving, or how the orb changes between research and reveal besides mist speed.",
+      "contrast.json has 20 measured pairs: text, placeholder, disabled, focus ring, selected border, tabs and the export label. All pass, and the lowest text pair is 6.97:1.",
+      "ui-rules.md spells out 375×667 budgets (84 pt navigation, 56 pt header, 527 pt scrolling area), how the orb shrinks (240 → 160 → 96 pt thumbnail at 200% text), no line clamping, the Why disclosure's focus and announcement behaviour, Android back, safe areas, voice permission denial, and loading budgets at 8 s and 60 s.",
+      "review.html lists about 30 captured states: default/selected/Other questions, research active/longer-wait/timeout/offline, safety redirect, reveal and explanation, share preview and artifact, history empty/populated/came-true/other path, You empty/edit, paywall/restore, friend mode, voice unavailable, keyboard focus, a tenth question, and large text on Home, a question and the reveal. It also shows three reveal frames and honestly notes they are observed frames, not exact keyframes.",
+      "Explore has a capture file (docs/evidence/explore.png) but is not in the review.html state gallery. States not captured at all: a denied check-back notification permission, a share/export failure, and the 'purchased' paywall state inside the review sheet (paywall-purchased.png exists on disk)."
+    ],
+    "visual_inspection": [
+      "home.png: a strong focal orb with glass highlight, orbit ring and cyan core, and a good serif headline. But there are three ways to Ask on one screen (tap the orb, the gold button, the center tab orb), and the helper copy under the button repeats the reassurance line.",
+      "Copy repeats 'little' over and over: 'a little mystery', 'A little glimpse', 'A little perspective', 'A little more wonder', 'Send a little wonder', 'Just a few more?'. The brand voice reads as a verbal tic, not mysticism.",
+      "reveal.png: the only thing that sets the payoff apart is a thin gold rim on the same orb used for home and research. There is no distinct reveal composition. system.md says the 'fortune-telling theater belongs in the mist and reveal', and the static frame doesn't deliver that. The screen then stacks three full-width buttons of similar weight, which crowds the result.",
+      "research.png: the heading and subline are centered, but the 'This can take up to a minute…' helper is left-aligned. Cancel is a small centered pill instead of the 52 pt Action from the spec. The bottom ~40% of the screen is empty.",
+      "share.png compared with exported-card.png: the speculative label is secondary lavender in the preview but gold in the export. The preview card runs under the tab bar, and it shows no safe-region guides even though ui-rules defines them.",
+      "exported-card.png: text sits correctly inside the stated safe region, but from y≈1400 to 1920 the frame is empty gradient. As a 9:16 story it looks unfinished rather than intentionally spacious.",
+      "question-2.png: clean. Radio rings, disabled Next, a back control and 'Getting to know you · 2' all match the spec. The constellation progress marks are tiny (~14 pt) and read as stray sparkles.",
+      "paywall.png: honest test-mode banner and the billing period shown at equal weight with price, which meets the rules. Serif headings and cards look consistent with the rest of the app.",
+      "why.png: the 'Behind the mist' panel is legible, the toggle state changes, and the panel sits on an opaque surface as specified."
+    ]
+  },
+  "blockers": [
+    "Fix the corrupted colour values in system.md line 6 to match ui-rules.md exactly (#0B0620, #2A1458, #A77BFF, #5CE1E6, #F5C76B, #F7F1FF, #160F30, #C4B8D8), or replace them with a single link to ui-rules.md.",
+    "Design a reveal that's clearly different from the idle and research orb, not just a gold rim. For example: a spec'd mist parting, a gold constellation line, or a staged headline in a reveal-only layout. Add a before/after visual comparison to review.html showing idle, research and reveal side by side at the same scale.",
+    "Complete motion.md. Give concrete easing curves (bezier values or spring settings) for 'cubic-out' and the mist. Pick a distinct reveal haptic, such as a success notification. Specify pressed states for choice cards and tabs, the center Ask tab orb (idle, active, pressed), how the Notice panel enters and leaves, and what the orb does in research beyond mist speed. Include the reduced-motion equivalent for each.",
+    "Unify the speculative-label colour between the share preview and the exported artifact. Show safe-region guides on the share preview. Rebalance the lower 420 px of the 9:16 story so it looks designed (for example a faint constellation or horizon line and a small wordmark) rather than empty.",
+    "Fix the alignment and component inconsistencies on the research screen: center all helper copy and use the standard Action component for Cancel. Then check every captured screen against the Action/Choice/Notice anatomy table.",
+    "Cut Home to one primary Ask path plus the orb, removing or demoting the redundant gold button once the orb affordance is labelled. Alternatively, write down why all three entry points are kept and how they rank.",
+    "Revise the copy voice: remove the repeated 'little' tic and write a short voice guide (3–5 sample lines for the oracle voice versus plain UI copy) so the mystic tone is intentional and consistent.",
+    "Add the missing states to review.html: Explore, the purchased paywall state, denied check-back notification permission, and share/export failure. Also show a 375×667 reveal with Why expanded, so the small-screen budget is proven where content is densest."
+  ],
+  "strengths": [
+    "One clear, distinctive concept: an observatory built around one glass orb, carried through the docs, captures and exported artifact, and not a generic gradient dashboard.",
+    "Thorough accessibility groundwork: 20 measured contrast pairs, non-colour selection markers, focus rules, Why disclosure announcements, 200% text behaviour with orb shrink steps, no clamping, and reduced-motion equivalents throughout.",
+    "Broad, honest state coverage with about 30 real captures, including timeout, offline, safety redirect, empty states, friend mode and large text. Native checks still to do on a device are clearly labelled as deferred.",
+    "Ethical paywall and privacy defaults are specified and visible: test-mode banner, billing period shown as prominently as price, no fake urgency, and a share artifact that is private by default with the speculative label kept.",
+    "The motion spec lives in one file with a reveal storyboard and observed reveal frames, and it honestly separates observed frames from exact keyframes.",
+    "The orb art itself (glass highlight, orbit ring with gold satellite, cyan core, floor shadow) is polished and holds up at 1080×1920."
+  ]
+}
+```

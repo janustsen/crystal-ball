@@ -1,0 +1,58 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app (Expo web at 390x844, authorized substitute for iOS Simulator)",
+  "score": 6.5,
+  "subscores": {
+    "end_to_end_observed_behavior_35": 6.5,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 6.0,
+    "performance_15": 7.0
+  },
+  "method_note": "Visual inspection: I opened and looked at home, ask, question-1, research, reveal, why, share, exported-card, history, knowledge, paywall, paywall-purchased, explore, blocked, home-small, network-error, retry-reveal, money-1, money-10, money-reveal, known-question-1, large-reveal, large-question, friend and failure PNGs. I did not play the MP4; its specs come from the builder's ffprobe claim in verification-summary.md. Source inspection: I read scripts/drive.mjs, tests/engine.test.ts, src/native.ts, src/purchases.ts, grep results for a11y props in app/ and src/, src/questions.ts, the verify-crystal-ball SKILL.md and the evidence markdown and JSON files. I ran nothing and modified nothing.",
+  "evidence": [
+    "E2E (drive.json + screenshots): a real local-Ollama flow runs Home → Ask → 4 cards (one Other with '30 minutes') → 'The mist is gathering' → reveal in about 10.6s from 'Look into the future' to reveal, including roughly 700ms screenshot pauses per step. Why, share, still PNG export, History after reload, You/knowledge, mock paywall (0 → 5 left), Explore, IVF redirect and 375x667 Home are all captured.",
+    "E2E (drive-extended.json + screenshots): fact edit, a returning session whose first card skips level/practice/conversation (known-question-1 goes straight to 'When do you want to use it?'), offline error with 'Your answers are kept', a successful retry reveal, a 10-card money flow and large-text screens are captured.",
+    "SEMANTIC DEFECT (visual): the user asks 'Will I be conversational in Spanish in six months?'. The app still asks 'When do you want to use it?' (In 3 months / In 6 months / In a year). The driver picked option-0, and the headline, History, share card and exported PNG all say 'in 3 months'. The money flow does the same: the question says '10 years' and the reveal says '$6,371 in 5 years'. src/questions.ts has no timeframe extraction from the question, so the deadline and horizon cards are asked blindly. A 22-year-old gets an answer to a question they didn't ask, and it's printed on the shareable card.",
+    "Reveal tone (visual): 'You will still need help with basic Spanish conversations in 3 months.' is a deflating headline for an entertainment app.",
+    "Drive rigor (source): drive.json and drive-extended.json only log screen names and timestamps. No reveal text, credit counts, history contents, knowledge values or PNG dimensions are recorded as assertions. The only content checks are waitFor on a few strings. The drive uses getByTestId, but the skill says to drive by accessible names.",
+    "Staleness (source): verification-summary.md itself says 'Source composition is being unified with the still export; rerun both drives before final delivery.' So the evidence may not reflect the current share and export code.",
+    "Native mocks (source): src/native.ts (haptics, notifications, Apple sign-in, friend link) and src/purchases.ts (RevenueCat) have web and mock branches, but tests/engine.test.ts covers only questions, safety and provider. Nothing tests the native adapters with mocks. The brief requires 'wired and tested with mocks'.",
+    "Deferred device checks (docs): verification-summary.md and blast-radius.md honestly list VoiceOver, Dynamic Type, iOS notifications, Apple linking and RevenueCat sandbox as unverified. They do not over-claim.",
+    "Visual defect (exported-card.png): the headline 'You will still need help with basic…' overlaps the orb's drop shadow and bottom edge. There is a large empty band below the text, and the 'Speculative forecast' label is low-contrast lavender on purple.",
+    "Visual defect (network-error.png): the heading 'The mist is too thick.' is repeated word-for-word as the first sentence of the body.",
+    "Visual defect (paywall-purchased.png): the 'Test purchase complete. No payment…' confirmation sits under the floating Ask orb and is partly hidden, so the key purchase feedback is obscured.",
+    "Visual defect (why.png): the visible copy reads 'practice at least20 minutes', with a missing space. It also reads 'The scenario assumes progress when you are already intermediate… Your level: New beginner', which contradicts itself.",
+    "Visual defect (knowledge.png): fact labels are raw internal keys in lowercase ('level', 'practice', 'conversation') rather than human labels.",
+    "Visual layout (blocked.png, network-error.png): the orb is left-aligned while every other screen centers it, which feels unfinished next to the polished home and reveal.",
+    "Visual positives: the cosmic palette is coherent (deep indigo, lavender orb with a teal core, gold primary CTA), the serif display face is used consistently, the home hero is strong, the question cards are clean, and the 'Speculative forecast · not a guarantee' label is present on reveal, share and export.",
+    "A11y (source): there is a web focus-visible outline for button/radio/tab/input, accessibilityRole and accessibilityLabel on the orb and voice button, accessibilityLiveRegion on the error text and a reduced-motion orb prop. The grep found only about 7 a11y attributes across src/, though app/index.tsx has long lines I didn't fully read.",
+    "A11y (visual, large text): at large text, the tab bar labels (Home, Explore, Ask, History, You) do not scale while the content does. large-question shows the Back and 'Getting to know you · 1' header wrapping, and the options are pushed far below the fold. large-reveal loses the speculative label from the first viewport. There is no evidence at 200% zoom; the skill asks for it.",
+    "Recovery (visual): the offline error keeps answers and says 'Nothing was charged', and retry succeeds. The sensitive redirect says 'No reading was spent. Nothing was added to your knowledge bank.' and the credit count stays at 5. The research screen has Cancel and 'up to a minute' copy. All three are good.",
+    "Performance: about 2.6s from the research screenshot to the reveal screenshot on local Qwen, which is responsive. The animated export is claimed at 1080x1920, 25fps, 4.0s via ffprobe. There are no cold-start, bundle-size, frame-rate or memory measurements, and nothing on low-end hardware.",
+    "Hygiene: failure.png is a stale capture from an earlier run (the header reads '5 readings', not the current 'N left' format), left in the evidence folder without explanation."
+  ],
+  "blockers": [
+    "Extract timeframes and amounts from the question text (e.g. 'six months', '10 years') and pre-answer or skip the deadline/horizon/years cards. The reveal headline must match the horizon the user asked about. Add a test asserting that 'in six months' never produces a '3 months' headline, and rerun the Spanish and money drives.",
+    "Rerun drive.mjs and drive-extended.mjs against the current source after the export unification. Record actual reveal text, credit count before and after each step, History entry text after reload, knowledge values after edit/forget, and exported PNG dimensions as assertions in the JSON, not just screen names.",
+    "Add mock-based tests for src/native.ts and src/purchases.ts: reminder permission granted/denied, Apple unavailable/cancel/token-missing/identity-mismatch, friendLink URL containing friend=1, purchase mock vs. sandbox guard, and restore. This is required by the brief.",
+    "Fix the exported card layout so the headline clears the orb and its shadow with real spacing, balance the vertical composition, and raise the contrast of the speculative label on the export.",
+    "Fix the copy bugs: the duplicated 'The mist is too thick.' heading/body, 'least20', the contradictory Why text (intermediate vs. New beginner), and the raw fact keys in You (show 'Your level', 'Daily practice', etc.).",
+    "Move the paywall purchase confirmation to a toast or inline banner above the tab bar, or add bottom padding equal to the floating orb's height, so it is never hidden. Check every scroll view for the same bottom inset problem.",
+    "Center the orb on the blocked and error screens to match the rest of the app.",
+    "Make the tab bar labels respect font scaling (or give them a considered max multiplier). Capture 200% zoom evidence at 375x667, and keep the speculative label visible in the first viewport at large text.",
+    "Run an axe (or equivalent) pass on each captured screen and record the results. Confirm that the radio cards expose radio role and checked state, and that Next/Reveal expose disabled state.",
+    "Capture basic performance numbers: web cold load time to interactive, JS bundle size, and reveal latency over 3 or more runs (median and max) with screenshot pauses excluded.",
+    "Delete or explain the stale failure.png."
+  ],
+  "strengths": [
+    "It is a real local-model flow, with no fixture standing in for the reveal and no paid APIs.",
+    "Honest evidence discipline: failed checks, the stale-export caveat, and unverified VoiceOver, Dynamic Type and native paths are stated plainly, not claimed as passes.",
+    "Strong recovery design: fail-closed provider with one repair attempt (unit-tested), answers retained offline, no credit spent on failure or a safety block, a Cancel option during research, and kind, non-specific sensitive-topic redirect copy.",
+    "Privacy is visible to the user: 'Only your prediction goes on the card', a friend-mode banner, and editable/forgettable facts that are actually skipped on the next session.",
+    "The cosmic mystic visual identity is cohesive and genuinely appealing to the 18–24 audience on the home, question and reveal screens. The typography hierarchy is confident.",
+    "The paywall has clear test-mode disclosure, honest annual-savings math and a Restore option. There is no dark-pattern pressure.",
+    "Local reveal latency of a few seconds is well within tolerance for an entertainment reveal."
+  ]
+}
+```

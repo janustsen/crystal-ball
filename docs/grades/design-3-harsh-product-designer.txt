@@ -1,0 +1,54 @@
+```json
+{
+  "role": "independent harsh product-designer grader",
+  "phase": "design",
+  "score": 7.2,
+  "method": {
+    "source_inspection": ["docs/design/system.md", "docs/design/ui-rules.md", "docs/design/motion.md", "docs/design/contrast.json", "docs/design/review.html (HTML source only, not rendered)"],
+    "visual_inspection": ["home.png", "explore.png", "selected-1.png", "research.png", "network-error.png", "blocked.png", "reveal.png", "why.png", "share.png", "exported-card.png", "history.png", "paywall.png", "large-home.png", "large-reveal.png", "keyboard-focus.png"],
+    "not_inspected": ["exported-story.mp4 and any reveal motion (no video capture of the reveal exists)", "remaining review-sheet PNGs (question-1, money-*, voice-fallback, long-wait, timeout, empty states, history-yes/no, friend, knowledge-edit)"]
+  },
+  "rubric": {
+    "unified_cosmic_mystic_thesis_25": 8.0,
+    "visual_polish_25": 7.0,
+    "interaction_and_animation_spec_25": 6.5,
+    "accessibility_and_complete_states_25": 7.3
+  },
+  "evidence": [
+    "Thesis (source + visual): the 'pocket observatory' thesis appears the same way in system.md, ui-rules.md and review.html. The captures follow it: an ink-to-violet sky, one lavender/cyan glass orb with a gold orbit, Cormorant display type over DM Sans, and gold kept for primary actions. The rejected tarot and dashboard alternatives are written down with reasons.",
+    "Thesis (visual): the tone of the copy is consistent ('The mist is gathering…', 'The mist is too thick.', 'Behind the mist', 'Your little archive of tomorrow'). The theater stays in the orb and the headlines, and actions stay plain, as the spec says.",
+    "Polish (visual): Home, Question, Research, Error and Blocked are clean and well spaced on the 24pt inset. The selected card uses a cyan outline plus a star check, so selection does not rely on colour alone.",
+    "Polish (visual): the same orb asset at the same scale is reused on every screen (Home, Research, Error, Blocked, Reveal, Share). The reveal therefore looks the same as the loading and error screens, and the 'moment' has no visual payoff in stills.",
+    "Polish (visual): large empty lower halves on Research, Error, Blocked and History (roughly 40% of the viewport is empty sky), and the share preview card is cropped by the tab bar with no export action visible.",
+    "Polish (visual): Explore's topic icons (moon, sparkle, diamond) are a mismatched set. system.md promises topic chips on Explore, but the capture shows none.",
+    "Polish (source): system.md has typographic sloppiness ('actions16/20', 'Radius32', 'Insets24', 'packs5/$1.99 and20/$5.99'). review.html uses Georgia/system-ui rather than the product's own type pairing.",
+    "Motion (source): motion.md is a real single source of truth. It lists property, duration, easing, reduced-motion and haptic for each interaction, plus a 0/200/700–800ms reveal storyboard.",
+    "Motion (source): contradictions. ui-rules rule 6 says 'selection response (140 ms)' and 'No flashing', while motion.md says card selection is 'Immediate' and the reveal is 'Orb mist flashes then clears'.",
+    "Motion (source): every tab, card-advance, paywall and share transition is 'Immediate'. Apart from the orb breathing and the reveal, the app has no enter/exit choreography, and the Research→Reveal handoff (orb repositioning, CTA entrance) is not specified.",
+    "Motion (visual): motion.md itself says 'Actual captures/video… are the motion proof', but there is no reveal recording or frame strip in docs/evidence or review.html. The reveal is only described, never shown.",
+    "A11y (source): measured contrast pairs, including focus ring, disabled and placeholder; a 200% text strategy (orb shrinks to 96pt, label moves before headline); a Why disclosure focus and announcement contract; Android back; keyboard avoidance; and a permission-on-first-use rule. This is unusually thorough.",
+    "A11y (visual): keyboard-focus.png shows the question field clipping its own text ('Will I learn Spanish in six mo…' cut off at the bottom border) at large text. This violates the rule 'no fixed-height text cards'.",
+    "A11y (visual): at 200%, large-home and large-reveal tab labels 'Home Explore' almost touch, and large-reveal hides the rest of the headline behind the tab bar with no visible scroll cue.",
+    "States (visual): research, long-wait/timeout (in the listing), network error with preserved answers and 'Nothing was charged', kind redirect with a safe next step, empty history/knowledge, and a test-mode paywall with price and period together. The coverage is strong and honest.",
+    "States (source): the disabled Next, empty Other and voice-listening/permission-denied states are specified, but review.html shows no capture of the disabled Next or the active listening state."
+  ],
+  "blockers": [
+    "Settle the motion contradictions: pick either 140 ms or immediate for selection, and either reword the reveal 'flash' as a luminance swell with a stated peak opacity and no sudden change in brightness, or drop the 'No flashing' clash. ui-rules should then only point to motion.md, not restate timings.",
+    "Show the reveal visually: add a 5–6 frame storyboard strip (0/200/400/600/800ms plus reduced-motion final frame) or an embedded clip to review.html. Also specify the Research→Reveal handoff: orb position and scale change, headline entrance, the label and CTA stagger, and screen enter/exit (at least a short cross-fade) instead of all 'Immediate'.",
+    "Give the reveal a distinct visual payoff: a different orb state (brighter core, mist cleared, gold rim) versus the idle, research and error states, which currently look the same in stills.",
+    "Fix the large-text input clipping in keyboard-focus.png (auto-growing multiline field, or a minimum height with scroll) and re-capture.",
+    "At 200%, stop the tab labels from colliding (icon-only with a large-content viewer, or reduced label set) and add a visible scroll affordance or partial-content cue on large-reveal. Re-capture both.",
+    "Tighten the empty lower half on Research, Error, Blocked and History (anchor the orb lower, or add useful secondary content such as the question being answered or recent readings), and show the share preview's export/share actions within the capture.",
+    "Either design the Explore topic chips system.md promises or remove them from the spec. Unify the Explore icon family into one drawn celestial set.",
+    "Upgrade review.html from a flat caption grid into a real review sheet: per-screen annotations tying each capture to the rule it proves, a token/type specimen rendered in Cormorant/DM Sans, the missing state captures (disabled Next, listening, permission denied, share actions), and a short list of open design decisions.",
+    "Clean up the typographic run-ons in system.md (the missing spaces in the token/price lines)."
+  ],
+  "strengths": [
+    "A clear, well-kept thesis: one memorable object (the glass orb) with plain controls around it, and the rejected alternatives written down.",
+    "Honest treatment of uncertainty and money: the 'Speculative forecast · not a guarantee' label stays next to the forecast in the app, the share card and large-text order; the paywall shows price and period together, test mode, and no fake urgency.",
+    "Unusually complete state coverage with kind copy: research, long-wait, timeout, network error that keeps answers and spends nothing, a sensitive-topic redirect with a safe next step, and empty states that lead somewhere.",
+    "Accessibility is designed, not bolted on: measured contrast data including focus, disabled and placeholder colours; selection that does not depend on colour; the Why disclosure focus contract; a reduced-motion column per interaction; a 200% text strategy; and native checks that could not be done here are named plainly instead of claimed.",
+    "The review sheet is built from real app captures and an actual 1080×1920 export rather than mockups, and it says clearly which native checks are still outstanding."
+  ]
+}
+```

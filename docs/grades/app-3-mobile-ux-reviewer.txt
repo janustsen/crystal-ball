@@ -1,0 +1,57 @@
+The app scores 7.1/10, below the 9 bar. It is broad, honestly documented and has good recovery paths. What holds it back is the quality of the model's answers, a few visual layout problems, large-text support, and state-drive logs that record screen names without checking results.
+
+I read the files only; nothing was modified or run. Visual scores come from viewing the PNG screenshots. The accessibility, mock and performance findings come from reading source files and the evidence logs. I did not watch `flow-recording.webm`, play `exported-story.mp4` or open any HTML.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 7.1,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.5,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 6.5,
+    "performance_15": 7.0,
+    "weighted": 7.08
+  },
+  "evidence": {
+    "visual_inspection": [
+      "home.png / home-small.png: the look is consistent (purple gradient, glass orb, serif headings, gold primary button). At 375x667 the main button stays above the fold.",
+      "question-1.png, general-card-1.png, money-10.png: the question cards use large radio rows and have a disabled Next until you choose. The counter reads 'Getting to know you · 1' with no total. The money flow is 10 cards long. The novel card's options repeat the question ('Writing 30/15/10 minutes daily'), run in descending order, and have no 'none' or 'more than 30' choice.",
+      "reveal.png: the headline 'You will need help speaking Spanish in 6 months.' does not answer 'Will I be conversational?' and reads awkwardly as the payoff. The 'Did it come true?' controls sit under the tab bar at first view.",
+      "why.png / drive.json: the Why text shows template placeholders ('Upcoming interruption: none supplied; feedback change: none supplied; use: not supplied') and lists raw facts. It reads like debug output, not something written for the user.",
+      "share.png / exported-card.png: the export is 1080x1920, contains no private answers and keeps the speculative label. But the bottom ~35% of the card is empty, and the share preview shows no action buttons above the fold.",
+      "knowledge.png: 'Edit Your level' has odd capitalisation. 'Forget' is loose text and doesn't line up with its Edit button. The disabled 'Save with Apple' is low-contrast and its explanation is small.",
+      "large-question.png / large-reveal.png / friend.png: at 200% text the tab labels disappear (icons only), the 'Crystal Ball' header doesn't grow, and a single question heading fills the screen.",
+      "blocked.png, network-error.png, timeout.png, research.png, voice-fallback.png: the recovery screens are clear. They say nothing was charged, keep your answers, and offer Try again / Review answers / Edit question. Loading has a Cancel button and warns it can take up to a minute."
+    ],
+    "source_and_log_inspection": [
+      "drive.json: a real local Qwen (qwen3:4b-instruct-2507-q4_K_M) prediction came back in 2361 ms. Question-to-reveal took 9.51 s, the six-month horizon was kept, history survived a reload, and the credit count dropped 1 to 0. The sensitive question was blocked in 59 ms with no charge.",
+      "drive-states.json only lists screen names plus three booleans (forgotten fact asked again, empty History copy, empty You copy). It has no timings, response bodies or checked values for the timeout, offline, restore or reminder flows, so those depend on screenshots alone.",
+      "app/index.tsx: honours the system reduce-motion setting through AccessibilityInfo plus an in-app switch, and adds a web focus-visible ring. store.tsx holds a 'largeText' app setting, which suggests the 200% test used that toggle rather than system font scaling.",
+      "tests/integrations.test.ts: stubs notifications, Apple link, share and friend links. SETUP.md honestly lists deferred device checks: VoiceOver, Dynamic Type, keyboard avoidance, safe area, Android back, hold-to-speak, notifications, RevenueCat sandbox.",
+      "performance-headed.json: 581 ms cold load until controls work; animation frame times mean 16.67 ms, p95 18.4 ms, over only 120 frames in headed Chrome. The reduced-motion run was slower (mean 22 ms, p95 33.4 ms) than the animated run and matched the blank-page baseline, which shows how noisy this harness is. There is no sustained or low-end measurement.",
+      "verification-summary.md: axe reports zero violations on five tabs and the paywall; gradient contrast is left to separate token checks. Earlier failure captures are kept (failure.png, extended-failure.png, states-failure.png), which is a good sign of honesty."
+    ]
+  },
+  "blockers": [
+    "Headline quality: the reveal headline must answer the question directly, e.g. 'You'll hold a basic Spanish conversation by March — with weekly feedback.' Add a check that rejects headlines that don't answer it, and show several real reveals from different kinds of question.",
+    "Why text: remove the 'none supplied' / 'not supplied' placeholders and the raw fact dump. Write it as 2–3 short sentences in the product's voice, with the assumptions as a short list.",
+    "Question cards: show 'n of N', use evenly spaced options that don't repeat the question (include none/zero and 'more than…'), and cut the 10-card money flow to 5 or fewer, or show a skip or 'good enough' exit.",
+    "Share: fill the empty lower part of the exported card (the question topic, a small constellation, or the app mark lower down) and put the export and share buttons above the fold on the share screen.",
+    "Large text: at 200%, keep the tab labels (or add accessible names plus a label row that wraps), grow the header/app title, and cap or wrap the heading so the answer choices appear without heavy scrolling. Base this on system font scaling, not only the in-app toggle.",
+    "You screen: make 'Forget' a real bordered button of at least 44pt that lines up with Edit, fix the 'Edit Your level' capitalisation, and raise the contrast of the disabled Apple button and its helper text to 4.5:1.",
+    "Evidence: have drive-states record checked values (credit counts before and after, restore result, reminder payload, timeout duration) the way drive.json does. Record the web viewport/scale metadata for each screenshot.",
+    "Performance: record at least 600 frames covering the reveal animation and a scroll of History/Explore with CPU throttled 4x. Explain or fix reduced motion measuring slower than animated.",
+    "Keep the device checks listed as deferred. That list is honest, but it caps confidence until a simulator pass happens."
+  ],
+  "strengths": [
+    "The whole flow runs on the local model (Ask, question cards with Other, reveal, Why, PNG and MP4 export, history after reload, knowledge edit/forget, mock credits, Explore, friend mode, safety redirect) with response bodies and timings recorded.",
+    "Recovery is thorough: offline and timeout screens say nothing was charged and keep answers, loading has Cancel and a long-wait message, the voice fallback is offered, the safety block is kind and free, and empty states have copy.",
+    "The cosmic look is consistent across screens with a distinctive, high-quality orb. The speculative label stays visible on the reveal, the share card and history.",
+    "Privacy holds: exports and friend links carry only the prediction or question, and friend answers stay out of You.",
+    "The docs are honest: native checks are listed as deferred, the paywall says it is mock, failed runs are kept, and nothing claims predictive accuracy.",
+    "Fast local engine response (~2.4 s predict) and a sub-600 ms cold load to working controls."
+  ]
+}
+```

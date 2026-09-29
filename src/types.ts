@@ -1,10 +1,10 @@
 export type Facts = Record<string, string>;
-export type Topic = 'money' | 'learning' | 'relocation' | 'growth' | 'sports' | 'general';
+export type Topic = 'money' | 'learning' | 'relocation' | 'growth' | 'sports' | 'world' | 'general';
 export type Card = { id: string; question: string; options: string[]; remember: boolean };
-export type Plan = { topic: Topic; cards: Card[] };
+export type Plan = { topic: Topic; cards: Card[]; provided: Facts };
 export type Source = { title: string; url: string; date: string; publisher: string };
 export type Prediction = { id: string; question: string; headline: string; createdAt: string; label: string; why: string; facts: Facts; sources: Source[]; assumptions: string[]; friend: boolean; outcome?: 'yes' | 'no' | 'pending' };
 export type SafetyCategory = 'death' | 'self_harm' | 'illness' | 'pregnancy' | 'legal';
 export type Result<T> = { kind: 'ok'; value: T } | { kind: 'blocked'; category: SafetyCategory; message: string } | { kind: 'error'; message: string };
-export type Flow = { stage: 'ask' } | { stage: 'planning'; question: string } | { stage: 'cards'; question: string; plan: Plan; answers: Facts; index: number } | { stage: 'research'; question: string; plan: Plan; answers: Facts } | { stage: 'reveal'; prediction: Prediction } | { stage: 'blocked'; message: string } | { stage: 'error'; message: string; question: string; retry?: {plan: Plan; answers: Facts} };
-export type AccountState = { facts: Facts; history: Prediction[]; credits: number; plus: boolean; usage: { day: string; count: number }; reduceMotion: boolean };
+export type Flow = { stage: 'ask' } | { stage: 'planning'; question: string } | { stage: 'cards'; question: string; plan: Plan; answers: Facts; index: number } | { stage: 'research'; question: string; plan: Plan; answers: Facts } | { stage: 'reveal'; prediction: Prediction } | { stage: 'blocked'; message: string; category: SafetyCategory } | { stage: 'error'; message: string; question: string; retry?: {plan: Plan; answers: Facts} };
+export type AccountState = { facts: Facts; history: Prediction[]; credits: number; plus: boolean; usage: { day: string; count: number }; reduceMotion: boolean; largeText: boolean };

@@ -1,0 +1,76 @@
+The app scores **7/10**, below the bar of 9. The main flow genuinely works on the local Qwen model, but the evidence has gaps and several visible defects show up in the screenshots.
+
+What pulls it down most:
+- **Empty states:** the History and You empty-state screenshots are blank. The code does have empty-state copy, but it was never shown on screen.
+- **Pop-up notices:** in the 200% text screenshots, the notice box cuts sentences off mid-line and covers the main buttons.
+- **Frame rate:** the animation measured at roughly 13 frames per second, and turning on reduced motion barely changed it. Nobody explained why.
+- **Explanation quality:** the one real "Why this prediction?" shown in the evidence contradicts itself.
+
+```json
+{
+  "role": "harsh-product-designer grader (independent)",
+  "phase": "app",
+  "score": 7,
+  "weighted_breakdown": {
+    "end_to_end_observed_behavior_35": 7.5,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 7.0,
+    "performance_15": 6.5,
+    "weighted_total": 7.1
+  },
+  "evidence": {
+    "visual_inspection": [
+      "home.png / home-small.png: the palette hangs together well (ink to violet gradient, gold call-to-action, ice accents). Headings use a serif and body text a sans-serif. The orb artwork looks polished at both 390x844 and 375x667.",
+      "question-1.png, money-1.png, money-10.png: the question cards have large tap targets, a clear radio state and a disabled Next or Reveal button. Progress text only says 'Getting to know you · N' with no total. The dot row shows the total only after cards load.",
+      "reveal.png and reveal-frame-0/300/800.png: the headline fades in over the orb, fits the screen, and the speculative label stays visible. Tone is negative ('You will still need help with basic Spanish…').",
+      "why.png: the one real explanation in the evidence contradicts itself: 'The scenario assumes progress when you are already intermediate, or practice at least 20 minutes daily… Your level: New beginner'. A user can't tell why they got this prediction.",
+      "share.png / exported-card.png: 1080x1920, no private answers, label kept. The composition is thin: about 30% empty space at the top and bottom, and the share screen shows no export button above the fold.",
+      "network-error.png / timeout.png: a clear recovery screen with Try again, Review answers and Edit question, plus the reassurance 'Nothing was charged. Your answers are kept.' retry-reveal.png shows the retry succeeded.",
+      "blocked.png: a gentle redirect saying no reading was spent. It offers one positive next step, which is good.",
+      "history-empty.png and knowledge-empty.png: completely blank screens. No heading and no empty-state copy are visible.",
+      "voice-fallback.png, reminder-preview.png, restore-preview.png at 200%: the notice box clips its text mid-sentence ('Type your…', 'Local…', 'Your local…'). It sits on top of the primary buttons ('Look into the future', 'Ask another'), with 'Dismiss' pressed against the cut-off line.",
+      "large-*.png, timeout.png, history-yes.png: at 200% the tab bar hides every label and shows glyphs only. The brand in the header stays small while the readings count grows, which unbalances the header.",
+      "restore-preview.png: the paywall is open, yet the tab bar lights up History in gold. paywall.png lights up You. The active tab shows wherever the user came from, not where they are.",
+      "knowledge.png: the first control on the You screen is a dead, low-contrast 'Save with Apple' button. 'Forget' is grey plain text with weak tap affordance next to heavy 'Edit' buttons.",
+      "research.png: the gathering copy is solid and a Cancel button is visible."
+    ],
+    "source_inspection": [
+      "app/index.tsx:60-61: empty-state copy exists ('Your first glimpse belongs here.', 'Still a beautiful mystery.'). scripts/drive-states.mjs:13 takes the screenshot straight after clicking the tab without waiting for content, so the blank captures are an evidence defect, not proof of the empty state.",
+      "app/index.tsx:72: the notice box is absolutely positioned at bottom:112 with maxHeight:220 and an inner scroll view. That causes the clipping and overlap seen in the screenshots.",
+      "app/index.tsx:72: tab labels are removed when largeText is on, and the tab colour uses `tab===t` without `!paywall`. That explains the wrong highlight while the paywall is open. The accessibility selected state does check the paywall.",
+      "app/index.tsx:53: the header brand sets allowFontScaling={false}. The 200% mode is an in-app switch, not browser or system font scaling.",
+      "app/index.tsx:69: the Why panel shows internal fact keys through `k.replaceAll('_',' ')` instead of the friendly label map used on the You screen.",
+      "app/index.tsx:33,41: 60-second abort, cancel invalidates stale responses, retry keeps the plan and answers. announceForAccessibility on Why, and live regions on waiting and error copy. System reduce-motion is respected.",
+      "tests/integrations.test.ts: mocked tests cover notification permission and 30-day scheduling, Apple sign-in linking (unavailable, canceled, no token, mismatch), friend links carrying only the flag and question, mock purchases never configuring RevenueCat, and the voice press-release race. This meets the 'wired and tested with mocks' requirement.",
+      "SETUP.md:16-18,24,32: deferred device checks are listed honestly: VoiceOver, Dynamic Type 200%, keyboard avoidance, safe area, Android back, hold-to-speak, notification permission, RevenueCat sandbox, Apple sign-in."
+    ],
+    "logs_and_metrics": [
+      "drive.json: the real local-model plan and prediction response bodies are recorded for the Spanish flow, and the sensitive-question redirect message is captured.",
+      "drive-extended.json and drive-states.json: screen names and timestamps only. No assertions, response bodies or credit and history side effects are recorded, apart from one flag, forgottenFactAskedAgain:true. verification-summary.md says the JSON logs keep response bodies and timings. That is only true of drive.json.",
+      "accessibility.json: axe scanned Home, Explore, History, You, Ask and the paywall with 0 violations, and marked contrast as incomplete. It did not scan the question cards, reveal, Why panel, research, error, blocked or share screens, which are the main flow.",
+      "performance.json: cold load to usable controls in 408 ms (good). Headless animation averaged a 76.8 ms frame (about 13 fps), with 95th percentile 133 ms and max 150 ms. Reduced motion averaged 63 ms with the same 95th percentile. That points to headless throttling or constant main-thread cost, and it was not investigated.",
+      "Model latency seen in the timestamps: retry-reveal about 2.7 s after the error, money reveal about 3.6 s after card 10. engine-bakeoff reports a median of 4.7 s. Good for local Qwen."
+    ]
+  },
+  "blockers": [
+    "Re-capture the History and You empty states after the screen has settled (wait for the heading), and confirm the copy and 'Ask the Ball' button actually render. Blank screenshots are a failed observation.",
+    "Rework the notice box. Either place it inline in the page flow or have it push content up instead of covering buttons, and let it grow in height with 'Dismiss' on its own row. Re-shoot voice-fallback, reminder-preview and restore-preview at 200% with no clipped text and no covered buttons.",
+    "Keep the tab labels at large text (two-line or smaller labels), and let the header brand scale or rebalance the header.",
+    "Stop highlighting a tab visually while the paywall or share screen is open. Use the same `!paywall` / `!share` check the accessibility state already uses.",
+    "Make the explanation coherent. Stop the prediction step from citing assumptions that contradict the user's answers (intermediate vs 'New beginner'). Show friendly fact labels in the Why panel. Capture a fresh why.png that reads as a sensible rationale.",
+    "Extend the axe scan to the question cards (including Other with its text field), research, reveal with Why expanded, error, blocked and share. Record measured contrast for gold and ice captions and disabled buttons on the gradient.",
+    "Record assertions in drive-extended and drive-states: credit count before and after, history count, which facts were skipped, and the retry response body. Or correct verification-summary.md so it doesn't overstate these logs.",
+    "Investigate the frame rate: run in headed Chrome, or explain the throttling. Show that the orb and star-field animation holds 50+ fps, or cut its cost. Reduced motion should visibly lower frame cost.",
+    "Tighten the share screen and export: put the export and share buttons in view without scrolling, and fill the empty top and bottom thirds of the 1080x1920 card (a question-free hook, brand mark or date band).",
+    "Polish the You screen: drop the dead 'Save with Apple' button below the facts on web (or make it a quiet note), and give 'Forget' a real button look with a confirm or undo."
+  ],
+  "strengths": [
+    "A genuine end-to-end loop runs on local Ollama Qwen: plan, adaptive cards (3 and 10), Other with typed input, reveal, Why with a no-sources state, History kept after reload, knowledge edit and forget with re-asking, mock credits and restore, a friend link that stays out of the knowledge bank, and a sensitive redirect with no charge.",
+    "Recovery design is strong: a 60-second timeout, cancel at any stage, wait copy after 8 seconds, no charge on failure, answers kept, and a retry that jumps straight back to reveal.",
+    "A cohesive, attractive mystic look (orb art, serif and sans pairing, gold and ice accents) that holds up at 375x667.",
+    "Native boundaries are properly mocked and tested, and deferred device checks are listed honestly with no simulator, payment or App Store claims.",
+    "The exported card and story share one composition and keep private answers out.",
+    "Fast cold load (408 ms) and quick local inference (3–5 s)."
+  ]
+}
+```

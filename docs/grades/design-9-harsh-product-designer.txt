@@ -1,0 +1,53 @@
+```json
+{
+  "role": "harsh-product-designer grader",
+  "phase": "design",
+  "score": 7.2,
+  "rubric": {
+    "unified_cosmic_mystic_thesis_25": 8.0,
+    "visual_polish_25": 6.8,
+    "interaction_and_animation_spec_25": 6.8,
+    "accessibility_and_complete_states_25": 7.2
+  },
+  "method": {
+    "source_inspection": "Read docs/design/system.md, ui-rules.md, motion.md and contrast.json in full. review.html is about 955 KB, mostly inline font data, so I grepped its headings, paragraphs, figcaptions and image/video references instead of reading it whole.",
+    "visual_inspection": "Looked at these PNGs referenced by review.html: home, question-1, selected-1, ask/keyboard-focus, research, timeout, blocked, reveal, reveal-frame-0, reveal-frame-300, why, share, exported-card, history, paywall, large-home, large-reveal. I did not play the flow video or the exported MP4, and did not view the remaining ~25 captures.",
+    "not_evaluated": "How the implementation behaves, apart from what the captures show. No native device evidence exists, and the docs say so."
+  },
+  "evidence": [
+    "Thesis (source): the 'pocket observatory' idea appears consistently in ui-rules.md, system.md and the review.html h1 'A tiny observatory in your pocket.' It names three rejected compositions (tarot deck, dashboard, observatory chosen) with reasons, and gives color roles (gold = action/settled reveal, cyan = selection/focus/links/research, lavender = glow).",
+    "Thesis (visual): the same glass orb, orbit ring, serif display type and ink-to-violet gradient appear on Home, Research, Timeout, Blocked, Reveal, Share and the export. The palette follows the tokens. The recovery copy keeps the voice without mockery ('The mist is too thick.', 'Let's look toward something gentler.').",
+    "Polish (visual): exported-card.png and the share.png preview break the headline as 'You will speak basic Spanish in 6 / months.' That leaves a one-word last line and splits the number from its unit, breaking ui-rules.md's own rule: 'Keep numbers and time units together.'",
+    "Polish (visual): in the share.png preview, the date under the wordmark renders at roughly 5–6 px and cannot be read. The preview headline is also small compared with the space around it.",
+    "Polish (visual): exported-card.png leaves roughly the bottom 30% (y≈1400–1920) with only a faint constellation. The orb and text sit high, so the 9:16 frame feels empty at the bottom rather than composed.",
+    "Polish (visual): research.png's orb is almost identical to Home's idle orb. motion.md specifies a 'static 15% cyan core and rim' for research, but no cyan rim is visible. In a still, the one moment that should feel mystical doesn't change the object.",
+    "Polish (visual): large-home.png at 200% fills the first viewport with 'A / glimpse / of what's' at about 70 pt. The orb, the product's signature element, is off-screen. The trade-off is documented as deliberate, but the hierarchy comes out upside-down.",
+    "Polish (visual): the question screen's progress constellation is three tiny dots (selected-1.png) and barely reads as a signature element. The 'Your question' label on Ask sits unevenly against the field.",
+    "Motion (source): motion.md is a real authority. It gives durations, easing formulas, reduced-motion fallbacks and haptic intent for 15 interactions, plus a reveal timeline (0/200/250/700/800 ms).",
+    "Motion (visual): in reveal-frame-0.png the text is faded, the gold rim is present and the actions are enabled, which matches the spec. But reveal-frame-300.png already looks identical to the settled state, although the spec says the text fade runs from 200 to 800 ms. The 0.35 glow swell is not visible in any frame. The docs admit these are observed frames, not exact keyframes, so the reveal choreography has no visual proof.",
+    "Motion (source): the reveal is very understated for an entertainment oracle: one 250 ms glow at 35% opacity, a rim and a static constellation. There is no specified signature moment such as the mist parting, the constellation drawing in, or the headline surfacing through the glass. Microphone/listening choreography is deferred and the voice state only swaps a label. Tab and screen transitions are a generic 180 ms fade plus rise.",
+    "Accessibility (source): contrast.json measures 20 pairs, all passing, including disabled text (7.58:1), focus ring on ink (12.6:1), selected border (7.66:1), placeholder and the tabs. Selection uses a star plus outline as well as color. Status chips use text. There are 200% text, reduced-motion, 375×667 and keyboard captures.",
+    "Accessibility gaps (source + visual): several important non-text pairs are unmeasured: the unselected radio ring and card border (#5A4473) against the surface/page, the panel border #3F2D5C on the surface (it looks very low contrast), the history status-chip border, and the cyan focus ring on or next to the gold primary button. keyboard-focus.png only shows focus on the text field, not on a gold Action, a ChoiceCard or a tab.",
+    "States (visual/source): coverage is broad. Default/selected/Other/disabled Next, research, the 8 s longer wait, timeout, offline, the safety redirect and self-harm support, empty/populated/yes/no History, facts empty/edit/Forget with Undo, daily cap, export failure, paywall and restore, friend mode, and voice unavailable are all captured and indexed in review.html."
+  ],
+  "blockers": [
+    "Fix and re-capture the share preview and 1080×1920 export so the headline never splits a number from its unit or leaves a one-word last line (balanced wrapping or a non-breaking space between number and unit). Add a long headline (~110 chars) and a short one to the review sheet.",
+    "Make the share preview date legible (preview metadata no smaller than about 11 pt) and rebalance the export's vertical composition so the bottom third is designed on purpose, not just empty.",
+    "Give Research a visibly different state in a still: the specified cyan rim/core, a denser mist, or both, captured next to idle Home at the same size so the difference is obvious.",
+    "Specify a signature reveal worth sharing: what visibly happens inside the glass (mist clears, constellation draws in point by point with timings, headline surfaces). Keep it under about 1 s with no blocked actions, and give it a reduced-motion equivalent. Then capture proof of the reveal choreography (a frame strip or short clip at controlled timings) showing the glow peak and the text fade in progress, not two frames that look alike.",
+    "Complete non-text contrast in contrast.json for the unselected radio ring, choice/panel borders against the surface and page, the chip border, and the focus ring next to gold. Change any pair under 3:1.",
+    "Add focus-state captures for a gold primary Action, a ChoiceCard, a disclosure and a tab item.",
+    "At 200% text, keep a small orb or wordmark-orb within the first viewport of Home (or cap display type at about 1.5× while body text scales fully), so the brand survives large text without breaking WCAG resize.",
+    "Specify the Voice hold and listening states visually (orb response, the transcript appearing, a denied state) as a design spec, even if device haptics stay deferred. Right now it is a label swap.",
+    "Make the question progress constellation larger or more clearly designed, and fix the alignment of the Ask field label."
+  ],
+  "strengths": [
+    "A clear, well-argued thesis (one glass orb in an observatory) that runs through every captured screen, the export and the copy voice.",
+    "Disciplined color roles and typography, with measured text contrast well above AA everywhere it is measured.",
+    "An honest motion authority: exact values and easing formulas, reduced-motion fallbacks, no fake progress or ceremonial delay, and openly stated evidence limits.",
+    "Unusually complete state coverage: recovery, safety redirect, empty states, Undo, daily cap, export failure, friend isolation and voice fallback are all captured, not just described.",
+    "An ethical commerce design: test mode labeled clearly, billing period as prominent as price, no fake urgency, a truthful Restore.",
+    "Selection never relies on color alone (star plus outline), the speculative label always sits next to the prediction, and private data is kept out of shared artifacts."
+  ]
+}
+```

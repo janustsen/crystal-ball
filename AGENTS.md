@@ -5,6 +5,7 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - Run/setup and native integration boundaries: SETUP.md. Theme and interaction authority: docs/design/ui-rules.md.
 - Server entry points share server/handler.ts; provider secrets stay server-only. Local Node is loopback development tooling, not a public production API.
 - Run npm run check, npm test, and the project verify-crystal-ball skill for UI/service changes. The browser drive uses localhost and an isolated Playwright profile.
+- Model-output and decoder constraints: server/provider.ts and docs/evidence/schema-diagnosis.md. Preserve one repair then fail-closed behavior.
 - Preserve failed research/grade evidence; never describe a structural pass as a semantic or predictive-accuracy pass.
 
 ## Maintaining this file

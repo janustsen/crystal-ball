@@ -1,0 +1,27 @@
+# Observed verification status
+
+The latest primary browser drive uses an isolated Chromium profile at 390 × 844 and real local Ollama calls. `scripts/drive.mjs` verifies Ask, three cards with Other (the question already supplies six months), reveal, Why, both exports, persisted History after reload, knowledge, mock credits, Explore, sensitive redirect with no credit charge, and 375 × 667 Home. `flow-recording.webm` is the actual observed flow. JSON logs retain response bodies and timings; private auth storage stays ignored under `.local`.
+
+The extended drive covers remembered-fact editing, a returning three-card session, actual browser offline failure with answers retained, successful retry, a ten-card money flow, 200% app text/reduced motion, and friend mode. The states drive covers reminder preview, outcome changes, mock restore, forgetting a fact and being asked again, unavailable speech recognition, keyboard focus, eight-second waiting copy, the 60-second timeout, and empty History/You. Each closes its browser context. Consult the corresponding JSON for the latest run outcome; historical failed captures are not current acceptance evidence.
+
+The same 1080 × 1920 canvas composition now feeds PNG and four-second, 25 fps MP4 exports. Neither artifact contains private answers or the private question. Both retain the speculative label. Native destination overlays remain a device check.
+
+The local Supabase RLS check uses two anonymous users, proves ownership read and cross-user read/write rejection, then deletes its test row. `observed-mirror.json` separately compares the drive's own authenticated browser state with its local mirror. This is not a production auth audit.
+
+`engine-bakeoff.json` records the latest actual local engine benchmark. Consult its rows for completion and timing; a previous 20/20 completion was not a semantic pass. Adding the semantic checker produced 19/20 completed results (median 4.65 seconds), rejecting the chess forecast after one repair. Manual inspection still found an invented chapter word count and missing headline horizons, leading to explicit validation of supplied numbers and the horizon phrase. A fresh runtime replay is required after those changes. No benchmark measures future accuracy.
+
+The latest fifth untouched synthetic safety set blocked 20/20 sensitive requests and 0/20 safe requests, with 39/40 categories correct. One Danish lifespan question received self-harm support; all four self-harm requests were correctly routed. Earlier first-run misses remain in the authoritative table in `docs/research/decisions.md`. This meets the numerical synthetic gate, not public-release validation.
+
+The automated axe scan covers all five tabs and paywall. It found and led to fixing a missing tablist role; the latest scan has zero reported violations. Gradient contrast needs the separate measured token-pair checks; axe marks it incomplete. Browser focus/text scaling is not evidence of native VoiceOver or Dynamic Type.
+
+Expo, the engine, local Ollama and local Supabase remain running for review. Firstmate explicitly authorized Expo web instead of iOS Simulator because Xcode is unavailable. Native Apple, notifications, voice and RevenueCat boundaries have executable mocks; actual native SDK/device flows remain listed in SETUP.md. No native simulator, real payment or App Store submission is claimed.
+
+Performance: `performance-headed.json` observes animated rAF mean 16.67 ms and p95 18.4 ms at 390 × 844, with controls available in 581 ms. The headless baseline was also slow on a blank page (62 ms mean), while the headed blank baseline was about 21 ms. Headless samples are retained as a harness limitation, not silently discarded. This is a 120-frame browser sample, not a sustained native-device performance claim.
+
+The latest headed inference-flow sample is `performance-flow.json`: planning n=60, research n=139 and reveal n=600 all had p95 18.6 ms; the largest observed planning frame was 33.4 ms. These are real local inference calls with a visible browser. The separate 600-frame idle/reduced/blank comparison remains in performance-headed.json; do not substitute a favorable subset for the full report.
+
+The primary drive now explicitly verifies depleted allowance routing and recoverable HTTP-500 export failure (injected). The states drive verifies forgetting, Undo restoration, forgetting again and a renewed question. Latest successful drivers close their own browser contexts. The reviewable app remains on Expo session 63464 and engine session 87030; earlier sessions were replaced deliberately after patch/schema changes. Ollama and Supabase remain task-owned local services.
+
+Flow-accessibility correction: the first flow scan recorded two real defects (missing aria-checked and a label on a role-less decorative container); it did not initially fail the driver. Both defects and the test assertion were fixed. accessibility-cards.json now proves checked-state output, zero reported violations and visible Other/Next at 390×844 and 375×667. The full general-flow scan must also pass before it is described as clean. screenshot-based contrast measurement in screen-contrast.json covers muted helper text, cyan disclosure link and gold label separately from axe’s gradient limitation.
+
+iOS JavaScript/asset export completed without Xcode (`npx expo export --platform ios`); this proves bundling only, not simulator or device execution.

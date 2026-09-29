@@ -1,0 +1,72 @@
+I scored the app phase **6.4/10**, below the 9 bar. The core flow does work: real local Qwen, about 1.8 s per prediction, persistence, safety redirects and offline retry are all observed. Four problems keep it from 9:
+
+1. **Canned predictions.** For every topic the drive tests, the server chooses the answer with if-then rules, and the model just echoes it.
+2. **Stale evidence.** The recorded evidence predates the current engine code.
+3. **Blank empty screens.** The empty History and You screenshots show nothing.
+4. **Frame rate.** Animation runs at about 13 frames per second.
+
+I only read files; I did not modify anything or run the app. The 13 fps figure comes from headless Chrome and isn't a native measurement.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app",
+  "score": 6.4,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 6.5,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 6.0,
+    "performance_15": 5.5,
+    "weighted": "0.35*6.5 + 0.30*7.0 + 0.20*6.0 + 0.15*5.5 = 6.4"
+  },
+  "evidence": {
+    "observed_behavior (drive JSON logs)": [
+      "docs/evidence/drive.json: real Ollama run (qwen3:4b-instruct-2507-q4_K_M). Plan 532 ms, predict 1761 ms, whole flow 9.5 s. The credit goes from 1 to 0, History survives a reload (persisted:true), and a pregnancy question is blocked in 89 ms with no charge.",
+      "drive.json 'why' text lacks the 'Upcoming interruption / feedback change / use' clause that server/engine.ts:53 now always adds. So the recorded drive predates the current engine code and is not evidence for the current code.",
+      "drive-states.json only lists screen names. It records no pass/fail assertions for timeout, keyboard focus or empty states, apart from forgottenFactAskedAgain:true."
+    ],
+    "source_inspection": [
+      "server/engine.ts:49-53 (learning), :33-37 (money), :44-47 (relocation), :39-42 (growth), :63-66 (EV): the headline is chosen by a hardcoded if-then rule, and the model receives an enum of one option (engine.ts:68). The Spanish reveal in the primary drive is a rule: beginner + 'Rarely' leads to 'still need help'. Only 'general' questions use the model to produce the prediction.",
+      "engine.ts:53: the 'Why' text is a template that reads the user's answers back ('Your level: New beginner; practice: 30 minutes; feedback: Rarely…'). The template opens with the rule's thresholds before mentioning the user.",
+      "app/index.tsx:60: History has an empty-state branch in code ('Your first glimpse belongs here.'), but the captured screenshot does not show it (see visual inspection).",
+      "SETUP.md:16-32 honestly lists the deferred native checks: VoiceOver, Dynamic Type, keyboard avoidance, safe area, hold-to-speak, notifications, RevenueCat sandbox, Apple link (off behind a flag). verification-summary.md does not overclaim the safety or predictive-accuracy results."
+    ],
+    "visual_inspection (screenshots viewed)": [
+      "home.png, question-1.png, selected-1..3.png, reveal.png: cohesive cosmic palette with good contrast between the serif headlines and the gold primary button. The orb artwork is strong, selection states are clear, and progress is shown with stars. This is shippable quality for 18-24 users.",
+      "history-empty.png and knowledge-empty.png: completely blank. There is no heading, no empty-state copy and no call to action, only the starfield and tab bar.",
+      "voice-fallback.png and reminder-preview.png at 200% text: the toast text is clipped mid-line ('Type your…', 'Local…') and the toast covers the primary button and the 'Ask another' button.",
+      "timeout.png: tells the user to 'Check your connection and try again.' For a 60-second local-model timeout that is wrong and gives the user nothing useful to do.",
+      "long-wait.png at 200%: the Cancel button is pushed below the visible area.",
+      "exported-card.png: the bottom third of the 1080×1920 card is empty and the composition sits high. share.png: the card is cut off by the tab bar.",
+      "knowledge.png: 'How often can you practice conversation?' is stored under the label 'Practice feedback', which does not match the question the user answered. The 'Forget' buttons are plain gray text next to heavy 'Edit' buttons, so they barely read as buttons.",
+      "money-1..10.png: 10 cards in a row for a net-worth question. That is too many for this audience; the ten-step progress bar signals a form, not an oracle.",
+      "large-*.png: at 200% the tab labels disappear (icons only) and the 'Crystal Ball' header shrinks while '3 readings' grows. The type scaling is inconsistent."
+    ],
+    "accessibility_and_performance": [
+      "accessibility.json: axe reports zero violations on 5 tabs plus the paywall. Color contrast is 'incomplete' on 5 screens, and the gradient-pair measurements are referenced but not tied to a pass result here.",
+      "performance.json: cold load 408 ms (drive run: 571 ms). Animation frame time averages 76.8 ms (about 13 fps) with p95 133 ms. Even with reduced motion the average is 63 ms. This is headless Chrome and not a native frame rate, but it is the only frame-rate evidence and it is poor.",
+      "Recovery: network-error.png offers Try again, Review answers and Edit question, and says 'Nothing was charged. Your answers are kept.' That is good. retry-reveal.png exists."
+    ]
+  },
+  "blockers": [
+    "Re-run scripts/drive.mjs plus the extended and states drives against the current engine and commit fresh JSON and screenshots. The current reveal/'why' evidence predates engine.ts.",
+    "Fix or recapture the empty states. history-empty.png and knowledge-empty.png must visibly show the empty-state copy and call to action; if the blank capture is caused by a fade-in, wait for content before capturing. Add assertions (visible text present) to drive-states.json instead of bare screen names.",
+    "Make toasts reflow at 200% text: no clipping, never covering the primary button, and moved above or out of the way of the action area. Keep Cancel on screen in the long-wait state at 200%.",
+    "Timeout copy: say the Ball took too long, keep the 'answers kept / not charged' reassurance, and offer Try again, Review answers and Edit question, like network-error.png does.",
+    "Oracle feel: the showcased topics return one canned sentence picked by thresholds. Either let the model phrase a varied, personal headline within the chosen outcome, or show a model-driven 'general' question as the primary drive. Rewrite 'Why' as two or three warm sentences in the second person instead of a readback of the threshold rules and field values.",
+    "Fix the knowledge label mismatch: 'Practice feedback' should read something like 'Conversation practice', matching the card the user answered. Make 'Forget' a clearly tappable secondary button.",
+    "Cut the money flow from 10 cards to at most 4. Use defaults for inflation, windfall, savings growth and withdrawals, editable later in You.",
+    "Rebalance the exported share card: move the headline and orb down or add a footer/branding band so the bottom third isn't empty. Make sure the in-app share preview isn't cut off by the tab bar.",
+    "Performance: bring the animated frame time to an average of 16.7 ms or less (p95 of 33 ms or less) at 390×844, or show that headless throttling causes the numbers by capturing a headed run. Reduced motion should not still average 63 ms.",
+    "Keep the tab labels at 200% text, or give every icon-only tab an accessibility label and prove it with the scan. Record the contrast measurements for the 5 screens axe marked incomplete."
+  ],
+  "strengths": [
+    "Real end-to-end local pipeline: Ollama Qwen, no paid APIs, fast plan/predict latency (0.5 s and 1.8 s), persistence across reload and a local Supabase row-level-security check.",
+    "Strong core visual identity: the orb, the serif headlines, gold call-to-action and cyan selection read as a polished cosmic brand at 390×844 and 375×667.",
+    "Honest framing throughout: the 'Speculative forecast · not a guarantee' label on the reveal, the card and the MP4, a 'Test mode · no real payments' paywall, and native checks honestly deferred in SETUP.md.",
+    "Good recovery design: network error with three recovery paths and explicit no-charge and answers-kept copy, cancel during research, and a safety redirect that charges nothing and adds nothing to the knowledge bank.",
+    "Privacy-conscious sharing: the exports leave out the private question and answers, and the knowledge bank can be edited or cleared, with a forgotten fact asked again.",
+    "Native integrations (voice, reminders, RevenueCat restore, Apple link) are wired behind mocks, with a visible web fallback."
+  ]
+}
+```

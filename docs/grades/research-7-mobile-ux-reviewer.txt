@@ -1,0 +1,38 @@
+I'm the independent grader. I read every research doc and `ui-rules.md`, spot-checked the evidence against its sources, and redid the arithmetic. Here is the result.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 8.3,
+  "evidence": {
+    "visual_inspection": [
+      "docs/research/evidence/nebula.jpeg: matches the visual-observations.md notes. Preview 1 is the orbit motif, preview 2 shows 'Today's Focus' chips, preview 3 is a compatibility panel over the main screen. The listing's What's New text also claims a '12 million' community, which supports the rule against fake audience counts."
+    ],
+    "source_inspection": [
+      "Arithmetic re-derived and correct: Together 8K/1K = $0.00161; Groq = $0.0104; 10-card reprice = $0.000836; 30% fee on $5.99 = $4.19; annual discount 44%; Co–Star $0.28–$0.60 per question; 375x667 minus 84 minus 56 = 527pt; ivory on ink ≈17.9:1.",
+      "Safety precision and recall are internally consistent: 11/13 = 84.6%, 19/22 = 86.4%. The confusion table sums to 40.",
+      "comparison-summary.json matches the model-bakeoff.md table (4B median 1.68s, p95 2.48s, safety 27/30; 1.7B safety 17/30).",
+      "nebula-iap.txt lists $2.99, $4.99, $7.99, $9.99, $29.99, $39.99 and $49.99 SKUs. store-prices.json leaves out $2.99, the $4.99 Relationship Check-In and the Chat Balance Offer, but comparables.md cites a $2.99–$49.99 range.",
+      "review-sample.json records n=0 for all three apps. It is reported honestly, and no complaint frequencies are invented from it.",
+      "context-independent-review.txt (4.5/10) is accepted in the docs and its failures are kept. Its 20 new boundary cases are explicitly listed as 'not run'."
+    ]
+  },
+  "blockers": [
+    "Safety isn't ready to decide on. safety-policy.md says its own independent gate (zero sensitive false allows, ≤10% false blocks) is unmet: 1 miss and 15% false blocks on the fresh 40, with category accuracy 34/40. The 14-sensitive / 6-safe set in context-independent-review.txt was never run. Run it first-time, record the raw results before any tuning, and show whether it clears the gate. The 'held-out 30, 100% recall' line in safety-policy.md comes from the builder's own set; relabel it so it doesn't read as independent evidence.",
+    "Fix store-prices.json so it matches nebula-iap.txt: add the $2.99 subscription, the $4.99 Relationship Check-In and the $9.99 Chat Balance Offer. Right now the evidence file doesn't support the range quoted in comparables.md.",
+    "Retrieval has no production path. Google News RSS is correctly marked prototype-only, but no licensed or permissively licensed alternative is named with its terms and price. Add one sourced candidate, or state explicitly that retrieval is dropped for launch and the app falls back to context-only.",
+    "The share safe-zone numbers have no source. The y=300–1500 and 420px-bottom figures rest only on a TikTok ad-spec floor. Cite a primary Instagram/Meta Stories safe-zone source, or cut the claim to 'unverified, preview in destination'.",
+    "decisions.md mixes research and implementation. It cites src/questions.ts, server/*.ts and engine-bakeoff.json as evidence, and question-engine.md puts current policy above a heading for superseded 'Historical experiments'. Split the research decisions and their evidence from the implementation claims, and move superseded text into a clearly separate archive section. It is also hard to scan, with glued tokens throughout ('The21-row', 'scored4.5/10', 'at$0.010', 'n30').",
+    "The model quality evidence is below the bar the docs set. The blind review scored 4B at 8.23, and 4B, 8B and 1.7B all overblocked the safe sports question. The fix (repair pilot plus presentation pilot) is n=3 on one question. Rerun the blinded 10-fixture set under the current prompt with the sports fix, and have a reviewer who didn't build it score it."
+  ],
+  "strengths": [
+    "Measurement is unusually honest. Failed pilots are kept (the lifecycle bug, the Spanish hardcoding, the sentinel headline, the n=0 review feed, the deep pilot that didn't pay off). First runs are clearly separated from tuned regression runs, and the docs never claim a structural pass means semantic quality.",
+    "The local model decision is backed by real data: 90 reveals across three Qwen variants, median and p95 latency, token counts, 3/6/10-card flow timings, and a blinded review with the model mapping revealed only afterwards.",
+    "Pricing has an explicit launch gate: ≤$0.010 all-in cost per prediction and a named loss scenario. The 8K/1K token assumption is reconciled against measured 3.9K/0.7K flows, and the hosted options are clearly labeled as a shortlist and replay plan with no key used.",
+    "The UI rules are specific and testable. They give hex tokens with measured contrast ratios, a 44pt minimum target, 200% text behaviour with exact orb sizes, an 8s/60s loading budget, a 527pt viewport budget, focus behaviour for Why, and a private-by-default share preview.",
+    "Retrieval gets a real per-query relevance audit (Google News 36/45, Wikipedia 24/45 from an independent reviewer), Bing is rejected on primary terms evidence, and headlines are explicitly kept separate from verified research.",
+    "The user-test plan has quantified pass criteria (4/5 unaided, 5/5 understand test mode, price-field recall) and time budgets. The absence of any 18–24 participants is stated plainly rather than papered over with proxy data."
+  ]
+}
+```

@@ -1,0 +1,47 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.5,
+  "rubric": {
+    "unified_cosmic_mystic_thesis": 8.5,
+    "visual_polish": 7.0,
+    "interaction_and_animation_specification": 7.5,
+    "accessibility_and_complete_states": 7.0
+  },
+  "method": {
+    "source_inspection": ["docs/design/system.md", "docs/design/ui-rules.md", "docs/design/motion.md", "docs/design/contrast.json", "docs/design/review.html (text, tables, image and video references only; 955 KB file with embedded assets)"],
+    "visual_inspection": ["docs/evidence/home.png", "reveal.png", "why.png", "selected-1.png", "research.png", "timeout.png", "history.png", "paywall.png", "exported-card.png", "large-reveal.png"],
+    "not_inspected": ["flow-recording.webm", "exported-story.mp4", "reveal-frame-0/300/800.png", "the other ~30 state captures indexed in review.html"],
+    "note": "I calculated the non-text contrast ratios below myself using the sRGB luminance formula on the hex tokens in ui-rules.md; they are not taken from contrast.json."
+  },
+  "evidence": [
+    "Thesis: the 'pocket observatory' idea is stated the same way in ui-rules.md:3 and system.md:3. Each color has one job: gold for actions and the settled reveal, cyan for selection, focus, links and research, lavender for glow. The rejected tarot and dashboard layouts are recorded (system.md:9). The captures match the idea: one glass orb with an orbit ring, sparse stars, a Cormorant serif display face and DM Sans for interface text.",
+    "The reveal motif is well chosen. A gold rim and a five-point constellation appear inside the orb (reveal.png), and the exported card repeats the constellation as a closing band (exported-card.png). The fortune-telling language stays in the headings ('The mist is gathering…', 'The mist is too thick.'), while the recovery text is plain ('Nothing was charged').",
+    "Motion: motion.md has one table covering 15 interactions with timing, reduced-motion behavior and haptics. Easing formulas are written out, and there is a reveal timeline in milliseconds. It states plainly that there are no artificial delays or fake progress, and that device haptics and microphone choreography have not been checked.",
+    "Visual, large-reveal.png at 200% text: the headline 'Your net worth will be $6,371 in 5 years' is cut off by the tab bar on the first screen ('5 years' is half hidden). The Share and Why actions are entirely below the fold. The tab bar drops its visible labels and shows icons only. The docs accept this trade-off (ui-rules.md:32–36), but the result as seen is weak.",
+    "Visual, why.png: the Behind the mist panel says 'You described yourself as new beginner…' and then 'This scenario treats an intermediate starting point'. The review sheet shows an explanation that contradicts the user's own answer without calling it out.",
+    "Visual composition: on reveal.png and timeout.png the lower 30–40% of the screen is empty gradient above the tab bar. The exported 9:16 card leaves the headline's last word, 'months.', alone on its own line and has a large empty band between the label and the constellation. The cards and panels are flat rounded rectangles with 1 px lavender borders, so the only distinctive element is the orb.",
+    "Contrast gap: ui-rules.md:28 says contrast.json measures text and non-text pairs, but several component borders are missing. By my calculation: field border #685281 is about 2.7:1 on surface #160F30 and about 2.3:1 on violet. Unselected choice border #5A4473 is about 2.2:1 on surface. Progress line #75608C is about 2.85:1 on violet. Secondary-action border #66537F on #25193F is not measured at all. Input fields and unselected option cards rely on these borders to be seen as controls (WCAG 1.4.11).",
+    "State coverage is broad. review.html's table and gallery include empty and populated History, yes/no outcomes, empty and edit states for Knowledge, forget with Undo, daily cap, offline, 60-second timeout, longer wait, sensitive and self-harm redirects, voice unavailable, keyboard focus, export failure, friend mode and mock restore. Native VoiceOver and Dynamic Type are honestly listed as deferred.",
+    "Documentation drift: system.md:33–34 ('First rendered review') still points graders to three captures, while review.html now indexes more than 40. The component table in system.md duplicates rules held in ui-rules.md and motion.md, which risks the files disagreeing."
+  ],
+  "blockers": [
+    "Fix non-text contrast to at least 3:1 against every background each element sits on (surface, ink, and the violet midpoint): field border, unselected choice border, progress line, secondary-action border and disabled-action border. Add each pair to contrast.json so the claim in ui-rules.md:28 is true.",
+    "Specify and capture a 200% text reveal where the speculative label, the complete headline and the primary Share action all fit before content goes under the navigation. Options: shrink the orb below 96 pt at that size, or cap the display serif and let body text scale. Keep a visible tab label, or document a tested alternative such as a labeled active tab.",
+    "Make the reveal worth the wait for an entertainment product. It currently has a 0.35 glow, one gold rim and an 800 ms text fade. Add one signature orb moment (for example, a mist-clearing radial wipe or the constellation drawing in point by point over roughly 400–600 ms) with exact timings, the easing curve for the glow decline, a static reduced-motion final frame, and frame captures at the actual keyframes. Give the story MP4 more than a 1→1.05 scale (for example, headline reveal timing, a constellation draw-in, and a still first frame that reads well as a thumbnail).",
+    "Improve composition on the sparse screens (reveal, timeout, research, history, exported card). Either anchor the actions lower or pull the content toward the vertical optical center so the bottom third is not empty. Balance the headline's line breaks on the share card (text-wrap balance or an explicit rule) so no single word sits alone on the last line. Give cards and panels at least one mystic surface treatment (inner glow, star-edge detail or glass tint) so the orb is not the only distinctive element.",
+    "In review.html, replace or annotate why.png so the example explanation does not contradict the user's stated fact, and add a design rule that Why text must never contradict the user's own answers.",
+    "Specify exit and back transitions (how screens, overlays and the Why panel leave), the pressed state for choice cards, and the voice-hold state on the orb, even if only as a design target marked 'device unverified'. The press, listening and exit states are part of the core ritual and currently have no written spec.",
+    "Update system.md 'First rendered review' to point at review.html as the index, and remove anything in system.md's component table that duplicates ui-rules.md or motion.md, so each topic has one authority."
+  ],
+  "strengths": [
+    "A clear, consistent cosmic-mystic thesis that shows up in every capture: one glass orb, ink-violet night sky, gold constellation, and a book-like serif paired with a plain sans.",
+    "Color roles are disciplined, and selection is shown with an outline and a star as well as color.",
+    "The motion spec is unusually precise and honest: formulas, a reduced-motion column, haptics, no fake progress, and clear limits on what the evidence proves.",
+    "Very broad coverage of empty, error, recovery, safety and commerce states, with real captures instead of mockups.",
+    "Honest product copy: the speculative label always sits next to the headline, test mode is labeled explicitly, billing period is as prominent as price, and there is no fake urgency.",
+    "The share artifact keeps the private question out, and the documented safe zones are sensible."
+  ]
+}
+```

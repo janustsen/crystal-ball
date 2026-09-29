@@ -1,0 +1,66 @@
+```json
+{
+  "role": "independent harsh-product-designer grader",
+  "phase": "app (Expo web 390x844, authorized substitute for iOS Simulator)",
+  "score": 7.1,
+  "score_breakdown": {
+    "end_to_end_observed_behavior_35": 7.5,
+    "visual_quality_screenshots_30": 7.0,
+    "accessibility_and_recovery_20": 6.5,
+    "performance_15": 7.5,
+    "weighted": "0.35*7.5 + 0.30*7.0 + 0.20*6.5 + 0.15*7.5 = 7.15"
+  },
+  "evidence": {
+    "method_note": "I viewed the PNGs directly and read JSON logs, SETUP.md, the verify skill and app/index.tsx as source. I ran nothing and modified nothing. Anything labelled 'visual' comes from screenshots. Anything labelled 'source' comes from reading code or logs.",
+    "observed_e2e": [
+      "drive.json (log): the full flow ran against real local Ollama qwen3:4b-instruct-2507. Plan took 523 ms, predict 1489 ms, and the whole flow 8.9 s. The one credit went from 1 to 0. History was still there after a reload. The pregnancy question was blocked in 77 ms with no credit charged.",
+      "general-flow.json (log): the model wrote the cards and the headline for a free-form novel question (credits 3 to 2). A self-harm question was routed to the support message.",
+      "network-error.png / timeout.png / retry-reveal.png (visual): these recovery states exist. 'Nothing was charged' is shown, and the network-error screen keeps answers with Try again, Review answers and Edit question.",
+      "SETUP.md (source): it honestly lists the deferred device checks: VoiceOver, Dynamic Type, keyboard avoidance, hold-to-speak, notifications, RevenueCat sandbox and Apple link. The paywall says 'Test mode · no real payments' (paywall.png, visual)."
+    ],
+    "product_quality_of_core_output": [
+      "reveal.png / drive.json (visual and log): the main moment of the app is weak. 'Will I be conversational in Spanish in six months?' gets 'You will need help speaking Spanish in 6 months.' That does not answer the question, it reads as deflating, and it breaks the 'confident forecast' promise on Home.",
+      "drive.json 'why' (log): the text says 'rarely feedback', which is ungrammatical. The card asked about conversation frequency, not feedback. knowledge.png (visual) labels the same fact 'Practice feedback'. So the meaning drifted between the card, the stored fact and the explanation.",
+      "general-flow.json (log): the novel cards are clumsy ('When do you write your novel?' → 'Write consistently every day'). The reason given is a template one-liner that ignores how far along the user is."
+    ],
+    "visual": [
+      "Strong (visual): the cosmic palette is coherent, the serif display font plus sans body pairs well, the orb artwork is high quality, the gold CTA hierarchy is clear, the blocked and error screens have kind copy, and the tab bar with the raised orb Ask button is distinctive.",
+      "exported-card.png (visual): roughly the bottom 35% of the 1080x1920 card is empty gradient. The composition is top-weighted and has no brand mark or call to action at the bottom.",
+      "share.png (visual): in the downscaled preview, the 'Speculative forecast · not a guarantee' line shows uneven colour and weight across letters. It could be a raster artifact, but it looks broken at that size.",
+      "knowledge.png (visual): the 'Forget' buttons are smaller than the 'Edit' buttons and not aligned with them. 'Edit Your level' has the wrong capital letter. Two 'you' headings are stacked, which crowds the page.",
+      "question-*.png / money-*.png (visual): the step label reads 'Getting to know you · 1' with no total. The disabled Next button barely looks disabled.",
+      "history.png (visual): a single row in a mostly empty page. No outcome affordance is visible until you drill in.",
+      "large-question.png / large-reveal.png (visual): at 200% text the tab labels disappear and the headline runs past the fold. Scrolling is plausible but no scrolled capture proves the text is reachable."
+    ],
+    "accessibility": [
+      "accessibility-flow.json (log): axe reports a CRITICAL aria-required-attr violation on option-0 through option-3 (the radios lack aria-checked on web) and a SERIOUS aria-prohibited-attr on div[aria-label='Question 1 of 3']. These are on the core question flow.",
+      "app/index.tsx:67 (source): the code sets accessibilityState={{checked}}, but the observed DOM scan still flags the radios. The progress View has a label but no role.",
+      "verification-summary.md: it says the 'latest scan has zero reported violations', but that covers only tabs and paywall. The flow scan contradicts that overall impression.",
+      "Colour contrast is 'incomplete' in every axe run. It relies on separate token-pair checks (docs/design/contrast.json), which I did not re-verify visually."
+    ],
+    "performance": [
+      "performance-headed.json (log): animated rAF mean 16.67 ms, p95 18.4 ms. Controls were available after 581 ms.",
+      "drive.json (log): the headless rAF mean is 54.5 ms with a 133 ms max. It is disclosed as a harness limit, but it is still the only cadence taken during the real flow.",
+      "The reduced-motion p95 (33.4 ms) is worse than the animated run. It matches the blank baseline, so this is noise, but it shows how thin a 120-frame sample is.",
+      "JS bundle is about 461 KB. There is no sustained or long-session measurement and no native FPS (native is disclosed as deferred)."
+    ]
+  },
+  "blockers": [
+    "Fix the reveal headline contract so it answers the question in a confident, specific, fun way ('You'll be holding simple Spanish conversations by March — slowly, but you'll get there'), not a hedge like 'You will need help…'. Then re-run the real Ollama Spanish drive and save the new reveal.png and exported-card.png.",
+    "Keep the meaning of each fact consistent across the card, knowledge label and why text. The 'conversation' card should never become 'Practice feedback' or 'rarely feedback'. The why text should be grammatical and use the user's own answers. Add an engine test that fails on this drift.",
+    "Fix the critical and serious axe violations in the question flow: make radios emit aria-checked on web (e.g. aria-checked / role props for RN-web) and give the progress indicator a valid role (progressbar with aria-valuenow/max) or drop its label. Re-run the flow scan until it shows zero violations and correct verification-summary.md.",
+    "Rebalance the export card composition. Fill or remove the empty lower third, for example with a brand mark, the question horizon or a subtle footer. Make the in-app share preview render the label cleanly at preview size.",
+    "Polish the You screen: equal-size, aligned Edit and Forget controls, sentence-case labels ('Edit level'), and a single heading.",
+    "Show a total in the question step label ('Question 1 of 3'), make the disabled Next button clearly look disabled, and add scrolled captures proving the 200% text question and reveal are fully reachable.",
+    "Capture a cadence sample during the real reveal animation in headed mode, not only on an idle page, so the performance claim covers the moment that matters."
+  ],
+  "strengths": [
+    "A real local-model end-to-end flow with timings and raw responses kept. No fixtures were substituted, and failed evidence was preserved rather than hidden.",
+    "Excellent recovery design: no charge on failure, answers kept, retry, review and edit paths, a timeout and long-wait copy, and cancel during research.",
+    "The safety redirect is kind, fast, costs no credit and adds nothing to memory. It is observed in the UI, not asserted from internal state.",
+    "Honest limits: test-mode paywall disclosure, speculative label on every reveal and export, deferred native checks listed in SETUP.md, and headless performance limits disclosed.",
+    "A distinctive, coherent visual identity with high-quality orb art and restrained gold/ice accents that fit the mystic brief.",
+    "Broad state coverage: offline, timeout, empty states, friend mode, knowledge edit and forget, the 10-card money flow, 375x667, and 200% text with reduced motion."
+  ]
+}
+```

@@ -1,0 +1,43 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "generation",
+  "score": 5,
+  "score_basis": "Weighted sub-scores: definitive forecast 7.5 (20%), evidence groundedness 5 (25%), adaptive question relevance 4.5 (20%), one-line fit 8.5 (15%), safety 7.5 (20%). That gives about 6.4. I lowered it to 5 because the latest runtime benchmark fails 7 of 20 cases, and 7 of 11 of the open-ended 'general' questions. This covers only structure, grounding and relevance. Predictive accuracy cannot be measured tonight and is not claimed.",
+  "method": "Read-only source inspection of server/engine.ts, server/safety.ts, server/research.ts, server/provider.ts, src/questions.ts and tests/engine.test.ts. Read the runtime JSON in docs/evidence/engine-bakeoff.json and drive.json, plus docs/evidence/verification-summary.md and docs/research/decisions.md. I did not view any images; this grade does not rest on visual inspection. I ran no commands.",
+  "evidence": [
+    "RUNTIME: engine-bakeoff.json (dated 2026-09-29) has 13 ok and 7 errors out of 20. Six errors are 'Model unavailable (500)' after about 17 s. They hit holiday, happy town, tech job, student election, chess and Paris. Each has a general-topic horizon card, so the forecast schema carries a regex `pattern` for the horizon phrase (engine.ts:70). One more ('move on from my ex') ended in 'The mist is too thick' after repair. verification-summary.md:11 says a fresh replay was required after the horizon and number validation changes. This file appears to be that replay, and it regressed from the previously reported 19/20.",
+    "RUNTIME, question relevance: in the chess case, model-drafted card 2 is 'What world event is occurring now?' with options 'The election results are in / The summit concludes tomorrow / A new treaty is signed'. It has nothing to do with the question.",
+    "RUNTIME, question relevance: in the Paris case, context_1 and context_2 are word-for-word the same card. Nothing in engine.ts:14 or the tests rejects duplicate cards.",
+    "RUNTIME, question relevance: the student election case asks 'How many votes have you received so far?' before the vote. That asks for something close to the outcome, which the prompt itself forbids. The holiday card mixes 'Excited about the upcoming holiday' (a feeling) with planning status. The ex case's option 'I’ve stopped sharing personal updates' kept its 'I' prefix, so optionLabel does not handle curly apostrophes.",
+    "RUNTIME, groundedness: the marathon headline 'You will finish a marathon next year' rests on 'Run 10 km this month' and 3 days a week. The semantic checker passed it. Its reason contains 'toward a marathon in next year' and the headline has no final period. A weak supporting fact is being stretched into a strong verdict.",
+    "SOURCE, groundedness: the fixed-topic verdicts come from arbitrary rules: relocation (remote + 3 months' runway + lease), learning (20 min a day + weekly feedback), EV share and sports 'wildcard pick'. The reasons do say these are uncalibrated assumptions, which is honest. RUNTIME: 'New beginner, 20 min/day, weekly' still gives a confident 'speak basic Danish in 6 months'.",
+    "RUNTIME, groundedness: sports returns no sources, because the team filter strips all headlines. The Lakers and Argentina picks are therefore unsupported coin flips. The user's 'Strong recent form' answer is not used in the verdict (engine.ts:61-62).",
+    "SOURCE, groundedness: research is Google News RSS headlines only. Only the sports and world topics query it, and the world query is a fixed topic string, not built from the user's question (engine.ts:27). Personal forecasts never have external evidence. The UI copy says so correctly.",
+    "SOURCE, groundedness, a strength: supplied-number validation (engine.ts:76-77), the headline copy check against source titles (copiedSource), and an LLM consistency reviewer with one repair round all work against invention.",
+    "RUNTIME, definitiveness and one-line fit: every successful headline is a single declarative 'will' sentence of 90 characters or less, with no hedging words. Examples: 'Your net worth will be $106,413 in 10 years.' and 'You will reconnect with your old friend within 3 months.' The one clumsy line is 'complete a beginner project in coding in 1 year'.",
+    "SOURCE, safety: blocking is layered. A deterministic regex runs first (English, Danish, Spanish), then a Qwen classifier. Safety is checked on the question, on the model-drafted cards, on question plus facts, and on the final forecast (engine.ts:9,15,21,82). Self-harm routes to a crisis redirect. RUNTIME drive.json: a pregnancy question was blocked.",
+    "DOCS, safety: in the fifth blind synthetic set, 20/20 sensitive questions were blocked and 0/20 safe ones, with 39/40 categories right. One death question was sent to self-harm support. Every set author was Claude, so there is no author diversity. decisions.md reports a Wilson lower bound of about 84% on recall. Earlier first-run recall was 78.6% and 85%, and later misses were patched in as regex guards. The regexes fit specific phrases and will miss new wordings.",
+    "TESTS: tests/engine.test.ts covers the fixed card registry, money projection, provider repair and phrase safety. No test checks the quality of model-drafted general cards (duplicates, off-topic cards, outcome-seeking cards). No test catches the schema-pattern 500 failure."
+  ],
+  "blockers": [
+    "Fix the 500s on general-topic forecasts. Drop the regex `pattern` from the forecast schema in engine.ts:70 and rely on the existing validator's horizon check (engine.ts:75), or make the model call fail over cleanly. Then rerun the 20-case bakeoff and get 20/20 completed with a median under 10 s. The current 13/20 cannot score above 6.",
+    "Validate model-drafted cards in makePlan (engine.ts:14). Reject duplicate card questions. Reject options that ask for the outcome or a proxy for it (votes, results, scores). Require the question's keyword in each card, or run a quick relevance check. Then do one repair. The chess 'world event' card and the duplicate Paris cards must not reach users.",
+    "Make optionLabel strip curly-apostrophe forms too (I’ve, I’m).",
+    "Tighten groundedness for general forecasts. The reviewer should reject a positive verdict when the supplied facts don't reasonably support it at the horizon (10 km/month → marathon). Alternatively, let the forecast take the adverse direction and say so specifically. Add a reviewer regression fixture of weak-support cases.",
+    "Sports: use the user's form and availability answers to pick between contenders. Stop the team filter from dropping every headline, for example by querying per contender. Otherwise the Lakers and Argentina verdicts are random picks presented as forecasts.",
+    "Build the world-topic query from the user's question terms, not from five fixed topic strings.",
+    "Add a runtime fixture set for the general-card and forecast paths with pass/fail semantic assertions, not just completion: relevance, no duplicates, direction consistent with the facts. Keep the failed runs as evidence.",
+    "Safety: fix the death→self-harm miscategorisation. Get a non-Claude or human-authored held-out set (at least 40 sensitive and 40 safe, including slang common with 18–24-year-olds) and report first-run numbers before claiming 9+."
+  ],
+  "strengths": [
+    "Headlines are definitive single lines of 90 characters or less with no hedging, and the validator enforces this.",
+    "Numeric topics (money, growth) are fully deterministic and transparent. $106,413 and 108 users can both be recomputed from the Why text.",
+    "Honest labeling throughout: 'Speculative forecast · not a guarantee', headlines are described as not verifying the forecast, and rules are called uncalibrated.",
+    "Anti-invention guards: supplied-number check, source-copy check, consistency reviewer, one constrained repair with no rendered fallback.",
+    "Safety checks run at four points in the pipeline, the self-harm redirect names third parties, and failed first-run safety evidence is kept rather than overwritten.",
+    "Fixed-topic question cards are relevant and respect facts already given in the question (horizon extraction, skipping remembered facts), and the tests enforce this.",
+    "Runs locally on Qwen 4B through Ollama with no paid API. Fixed-topic forecasts finish in about 2 s."
+  ]
+}
+```

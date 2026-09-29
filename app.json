@@ -1,1 +1,36 @@
-{"expo":{"name":"Crystal Ball","slug":"crystal-ball","scheme":"crystalball","version":"0.1.0","orientation":"portrait","userInterfaceStyle":"dark","ios":{"bundleIdentifier":"com.janustsen.crystalball","supportsTablet":false,"usesAppleSignIn":true},"plugins":["expo-router","expo-apple-authentication","expo-notifications"],"web":{"bundler":"metro"}}}
+{
+  "expo": {
+    "name": "Crystal Ball",
+    "slug": "crystal-ball",
+    "scheme": "crystalball",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.janustsen.crystalball",
+      "supportsTablet": false,
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Connect to your local Crystal Ball prediction engine during development.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-apple-authentication",
+      "expo-notifications",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Hold to speak a question to the Crystal Ball.",
+          "speechRecognitionPermission": "Turn your spoken question into editable text."
+        }
+      ]
+    ],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

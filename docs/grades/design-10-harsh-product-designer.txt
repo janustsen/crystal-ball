@@ -1,0 +1,60 @@
+```json
+{
+  "role": "independent harsh product designer grader",
+  "phase": "design",
+  "score": 7.8,
+  "rubric": {
+    "unified_cosmic_mystic_thesis_25": 8.5,
+    "visual_polish_25": 7.3,
+    "interaction_and_animation_specification_25": 7.5,
+    "accessibility_and_complete_states_25": 8.0
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (955 KB; checked by grepping headings, figure sources, alt text and table cells, not rendered)"
+    ],
+    "visual_inspection": [
+      "evidence/home.png", "reveal.png", "why.png", "general-why.png", "selected-1.png", "research.png", "timeout.png", "blocked.png", "history.png", "paywall.png", "share.png", "exported-card.png", "large-reveal.png", "large-question.png"
+    ],
+    "not_inspected": "The reveal-frame-0/300/800 stills, flow-recording.webm and exported-story.mp4 were not played. I judged motion only from the written spec."
+  },
+  "evidence": [
+    "Thesis (source): the 'pocket observatory' is stated the same way in ui-rules.md, system.md and motion.md: one glass orb, ink-violet space, gold marks and book-like type. system.md shows three layouts were compared (tarot, dashboard, observatory), with a reason for choosing the observatory.",
+    "Thesis (visual): the thesis holds on every capture I opened. The orb, orbit ring, Cormorant headings and gold primary button repeat consistently, and even the error screens stay on theme ('The mist is too thick.', 'Let's look toward something gentler.'). This is the strongest part of the work.",
+    "Tokens (source): ui-rules.md has one complete token table covering surfaces, borders, the disabled state and the tab bar, plus the type scale, spacing and target sizes. Motion values live only in motion.md, so there is a single source for each.",
+    "Contrast (source): contrast.json lists 20 measured color pairs, including focus ring, selected border, placeholder and disabled text, and all pass. Several pairs that actually appear on screen are missing (see blockers). The 'orb text scrim' background is referenced but never defined as a token.",
+    "Motion (source): motion.md gives exact durations, easing formulas, a reduced-motion version for each interaction, haptics, and a millisecond reveal timeline (0/200/250/700/800 ms). It honestly separates what the browser captures show from what still needs a real device.",
+    "Motion weakness (source): the payoff moment is timid. The reveal is a glow that peaks at 35% opacity after 250 ms plus a 600 ms text fade. That is the only high-emotion beat in an entertainment app, and it is specified like a toast notification. Moving between question cards reuses the generic 180 ms fade with no forward/back direction. The orb has no listening-state animation (deferred). Most interactions have no haptic.",
+    "Polish (visual, exported-card.png): the headline breaks as 'You will speak basic Spanish in 6 / months.', leaving one orphan word on the hero share artifact. The same break shows in the share.png preview. In the in-app preview the date is tiny and barely readable.",
+    "Polish (visual, reveal/why/exported-card): the 'five-point brand constellation' inside the orb reads as a zig-zag line chart, not a constellation. The closing constellation at the bottom of the story is so faint that the lower third looks empty.",
+    "Polish (visual, research.png): Cancel is a small shrink-wrapped secondary button. Every other screen (timeout, blocked, paywall, share) uses full-width actions, so this one looks off.",
+    "Polish (visual, home.png): five text layers stack around one invitation: eyebrow, display headline, 'Tap the ball' caption, button, then a disclaimer line. The disclaimer breaks with 'guarantee.' alone on the second line.",
+    "Why panel (visual, why.png / general-why.png): system.md promises a Why section split into facts, assumptions, dates and links. The captures show one prose block under 'Behind the mist' with no visible labeled sections. The featured text also reads badly: why.png says 'treats an intermediate starting point' right after the user chose 'New beginner', and general-why.png is garbled. Those are model-output problems, but the design review sheet shows them as good examples.",
+    "Large text (visual, large-reveal.png): at 200% the first screen shows only the label, a small orb and half the headline, cut off by the tab bar; no actions are visible. Tab labels disappear, as documented. The main task still works because the page scrolls, but the moment has no composition at this size. large-question.png pushes every answer option below the fold.",
+    "Complete states (source + visual): review.html indexes about 40 real captures. They cover empty, populated and outcome History; empty, edit and Forget-with-Undo on You; timeout, offline, longer wait, safety redirect, self-harm support, daily cap, export failure, voice unavailable, keyboard focus, friend mode, paywall, restore and simulated purchase. That is unusually complete for a design phase."
+  ],
+  "blockers": [
+    "Headline and share line-breaking: prevent orphan last words in the reveal headline, the share preview and the exported 1080×1920 PNG/MP4 (balanced wrap, or a non-breaking space before the final word/unit). Keep number + unit together as ui-rules.md already requires ('6 months'). Re-capture exported-card.png and share.png.",
+    "Redesign the reveal payoff in motion.md: a stronger but still reduced-motion-safe climax. For example, the constellation points light in sequence, the orb brightens before the text appears, and there is a defined static final frame. Give it a timeline with named layers and add it to review.html with the 0/300/800 ms frames.",
+    "Make the brand constellation read as a constellation, not a chart: uneven star sizes, a small glow on each point, no rising-then-falling zig-zag. Increase the contrast of the closing constellation at the bottom of the story, or remove it. Re-capture the reveal and the export.",
+    "Give the Why panel its promised structure: labeled 'What you told us', 'Assumptions' and 'Source leads' subsections, with a date on each lead. Replace the featured why.png and general-why.png with a clean example whose assumptions don't contradict the user's answers. The sheet currently shows broken content as a finished state.",
+    "Design the 200% text reveal and question screens on purpose: define what the first screen must show (label, full headline, primary Share action within one short scroll). Consider a display-size cap for the reveal headline or a smaller orb, and make the answer options start sooner on question cards. Update large-reveal.png and large-question.png.",
+    "Make the research Cancel button full-width like every other screen's actions, or write down why it differs, and re-capture research.png.",
+    "Thin out the Home text stack: drop either the eyebrow or the 'Tap the ball' caption, and fix the disclaimer line break.",
+    "Finish contrast.json for pairs that actually appear on screen: gold and cyan text on the #160F30 surface (test-mode label, Why toggle over panels), ivory on the #25193F secondary action, ivory and the cyan ring on the #25384B selected choice, secondary text on the #160F30 panel, and the dim date on the share preview. Define 'orb text scrim' as a token in ui-rules.md.",
+    "Add card-to-card motion for questions (a forward/back direction cue within the 180 ms budget, instant under reduced motion) and a specified orb listening state for voice hold, even if the device feel stays unverified."
+  ],
+  "strengths": [
+    "A clear, single cosmic-mystic thesis that holds on every surface, including error and safety screens, without turning into generic tarot or dashboard styling.",
+    "One source per concern: ui-rules.md for tokens and accessibility, motion.md for all animation values, system.md for anatomy. No duplicated hex values across the docs.",
+    "Exact motion values with easing formulas, a reduced-motion version for every row, and an honest note that browser captures are not device proof.",
+    "Unusually broad state coverage with real captures: empty/populated/outcome history, forget-with-undo, timeout, offline, safety redirect with support, daily cap, export failure, voice fallback, friend isolation, and a clearly labeled mock paywall.",
+    "Selection and status never rely on color alone (star plus ring, text status chips), the focus ring passes contrast, and targets are 44/52 pt.",
+    "The uncertainty label always sits next to the headline, the share artifact keeps private answers off the card, and the paywall has no fake urgency. The product ethics are built into the visual rules."
+  ]
+}
+```

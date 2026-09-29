@@ -1,0 +1,46 @@
+I scored the research phase **7.4/10**, below the ≥9 bar. It's honest and well sourced, but not yet ready to decide on. I only read files and changed nothing. My notes are split between checking the source files and actually looking at images. The only image I looked at was the Tarot AI store capture, and it matches what `visual-observations.md` says.
+
+The biggest problem: the latest regression run still lets through three sensitive questions, including a Danish self-harm one, and no document says what happens to them. The other gaps are that there is almost no evidence of what bothers users, the comparable apps don't cover the pitch being made, and the notes are spread across too many files.
+
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "research",
+  "score": 7.4,
+  "rubric_breakdown": {
+    "sourced_primary_evidence_30": 7.5,
+    "specificity_25": 8.0,
+    "decision_readiness_25": 6.5,
+    "honest_measurement_and_limitations_20": 9.0
+  },
+  "evidence": [
+    "Source inspection: decisions.md has one decision table covering model, forecast rules, follow-up cards, research path, safety, redirects, pricing, hosted candidate and sharing. Each row links to its evidence and names its failure and open gate.",
+    "Source inspection: comparables.md and evidence/store-prices.json. Co–Star, The Pattern and Nebula prices are backed by dated US listing captures. Nebula plan periods are marked null instead of guessed. Tarot AI and Oracle Guru prices are marked unverified.",
+    "Visual inspection: evidence/tarot-ai.jpeg shows 4.7 from 23 ratings, a purple/gold multi-mode menu and a 'Hold to scan your finger' gesture. This matches visual-observations.md. The claimed streaks and image export are not visible in the captured previews; they come from listing text only.",
+    "Source inspection: model-bakeoff.md and evidence/comparison-summary.json. 90 reveals over three local Qwen variants. 4B median 1.68s and nearest-rank p95 2.48s, with the note that p95 from n=30 is descriptive only. 10-card run: 22.19s, 3,890 input / 699 output tokens. The figures match the JSON.",
+    "Source inspection: evidence/blind-review.txt. Blind per-case scores recompute to 4B 8.23, 8B 7.47, 1.7B 5.93. The reviewer found an 8B arithmetic error (104 instead of 108) that the automatic checker missed, and model-bakeoff.md says so.",
+    "Source inspection: pricing.md. Repricing the measured 10-card run at Together's rates gives $0.000836, which checks out ($0.000661 + $0.000175). Plus is capped at 300 uses/month, so a $0.010 cost ceiling gives $3 against $4.19 net. The hard $0.010 all-in ceiling rejects Groq at the assumed 8K/1K tokens and rejects two-query Brave deep mode.",
+    "Source inspection: safety-policy.md against the raw safety JSON. First-run counts agree: the latest held-out set has tp 17, fp 1, fn 3, recall 0.85, category 34/40. The 8B comparison has recall 0.7. Every earlier set's first-run failures are kept apart from its tuned rerun.",
+    "Source inspection: evidence/safety-next-regression.json still shows fn 3 (recall 0.85, categoryCorrect 37) after corrections. The three misses include Danish self-harm ideation. No research document says how the prototype handles these known misses.",
+    "Source inspection: research-path.md. Tested provider by provider; Bing and DuckDuckGo were rejected with quoted reasons. Light and bounded-deep retrieval were compared in one measured run (3.84s vs 11.16s). A written rule says which leads count. Google News licensing is openly unresolved.",
+    "Source inspection: user-test.md has a concrete five-session script with time budgets, price-recall pass criteria and reversal thresholds. Zero sessions have run and no 18–24 evidence exists. This is correctly stated.",
+    "Source inspection: design/ui-rules.md sets exact tokens, measured contrast ratios, a 375×667 layout budget, 200% text behaviour, share-card safe regions and focus behaviour for the Why panel. The label copy differs across documents: 'Forecast, not a guarantee' vs 'Speculative forecast · not a guarantee' vs 'Speculative forecast'."
+  ],
+  "blockers": [
+    "Close the known safety gap. The latest held-out set still has 3 misses after corrections, one of them self-harm ideation (Danish). State the current prototype behaviour for each of the three. Add a concrete mitigation before any non-author tester touches the prototype, for example: fail closed on low-confidence non-English input, or show the self-harm support link whenever the language is uncertain. Measure it on a new untouched set with its first run kept.",
+    "Collect evidence of what actually bothers users. There is one featured Co–Star review and n=0 from the RSS feeds. Capture the visible top reviews on each comparable's web listing, or use another public route such as the Play Store web listing, with dates. Tally themes like price, repetition and accuracy complaints without claiming they represent everyone. Right now the 'avoid repetition' and 'price' lessons rest on a single quote.",
+    "Add comparables for the actual pitch. The pitch is a specific, checkable forecast plus a 'Did it happen?' follow-up, which is closer to prediction and forecasting products (Metaculus/Manifold-style resolution, personal prediction trackers) than to horoscopes. Add 2–3 of these with primary sources, and say what resolution or check-back pattern to borrow or avoid. Otherwise the differentiation is argued only against astrology apps.",
+    "Model what free users cost paying users. The pricing covers cost per Plus user, but not how many free daily users each paying user must carry at the $0.010 ceiling. Add one line: the free-to-paid conversion rate at which the free tier breaks even. Also check whether the 20-pack at $5.99 (the same price as a month of Plus) cannibalises the subscription.",
+    "Merge the safety history into one place. decisions.md line 11, its 'Latest safety update' paragraph and the safety-policy.md tables each hold overlapping safety numbers. Keep one table in decisions.md: set, author and exposure, first run, regression, current known misses. Delete the rest of the prose. Settle on one wording for the speculative label and link to it from ui-rules.md.",
+    "Name the approved local model in the headline decision. Local generation quality is still based on 10 builder-written test questions scored against one blind review of 8.23. Say plainly that the model choice rests on that and that the generation gate is where it gets tested. The current wording, 'Raw model outputs are unreliable', is a hedge, not a decision."
+  ],
+  "strengths": [
+    "Unusually honest reporting of measurements: first-run failures are kept and never overwritten by tuned reruns; structural passes are explicitly not called semantic passes; p95 caveats, tokenizer differences and time-sharing on the local model are noted.",
+    "Clear rules that can overturn decisions: a $0.010 all-in ceiling that already rejects Groq and paid deep mode; release criteria for safety; user-test thresholds that change pricing, card flow and paywall copy.",
+    "Primary sources with dates and short exact quotes (RevenueCat, Pew, TikTok, Brave, Bing terms), each with a clear note on what the source does not prove.",
+    "The blind model comparison hid model identities and revealed the mapping afterwards. It found errors the automatic checks missed, and these were reported rather than buried.",
+    "Privacy in the research path is well specified: no personal text goes to search, sources come from the server rather than the model, and retrieved text is treated as untrusted.",
+    "ui-rules.md is specific enough to build and check: measured contrast, a pixel budget for small screens, share-card safe regions, focus and announcement behaviour, and reduced-motion handling in a separate motion file."
+  ]
+}
+```

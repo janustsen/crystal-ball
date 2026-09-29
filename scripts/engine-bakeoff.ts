@@ -1,0 +1,19 @@
+import {makePlan,predict} from '../server/engine.ts';
+import {provider} from '../server/provider.ts';
+import {adaptPlan} from '../src/questions.ts';
+import {writeFile} from 'node:fs/promises';
+import type {Facts} from '../src/types.ts';
+async function main(){
+ const realFetch=globalThis.fetch;let calls:{seconds:number;input:number;output:number}[]=[];
+ globalThis.fetch=async(...args)=>{const start=performance.now(),response=await realFetch(...args);if(String(args[0]).includes('/api/chat')){const raw=await response.clone().json();calls.push({seconds:(performance.now()-start)/1000,input:raw.prompt_eval_count||0,output:raw.eval_count||0});}return response;};
+ const cases:[string,Facts][]=[['What will my net worth be in 10 years?',{currency:'USD',assets:'25000',debt:'10000',monthly_saving:'500',years:'10',return:'5',saving_growth:'2',withdrawals:'0',windfall:'0',inflation:'No, future money'}],['How many users will my project have in four weeks?',{current_users:'100',weekly_growth:'2',growth_weeks:'4',retention:'Weekly'}],['Where will I live next year?',{location:'Boston',destination:'Chicago',work:'Remote',lease:'Within 6 months',runway:'6 months'}],['Will I learn Danish in six months?',{level:'New beginner',practice:'20 minutes',conversation:'Weekly',deadline:'In 6 months'}],['Will I learn to code in a year?',{level:'New beginner',practice:'45 minutes',conversation:'Weekly',deadline:'In a year'}],['Who will win the next World Cup?',{competition:'Men’s World Cup',edition:'2030',team:'Argentina'}],['Will the Lakers win the NBA championship?',{competition:'NBA championship',edition:'2027',team:'Lakers'}],['Will EVs lead global new-car sales next year?',{goal:'Steady progress',horizon:'1 year',effort:'A little each week',obstacle:'Resources'}],['Will I finish writing my novel this year?',{goal:'A big breakthrough',horizon:'1 year',effort:'Every day',obstacle:'Time'}],['Will my next holiday be memorable?',{goal:'A new beginning',horizon:'3 months',effort:'A little each week',obstacle:'Resources'}]];
+ cases.push(...(['Will I move on from my ex this year?','Will I live happily in my current town?','Will I get a job in technology?','Will I win the student election?','Will I win my chess match?','Will I learn guitar in a year?','Will my next trip to Paris be enjoyable?','Will I reconnect with an old friend?','Will my side project gain customers?','Will I finish a marathon next year?'].map(q=>[q,{}] as [string,Facts])));
+ const rows=[];const model=provider(k=>process.env[k]);for(const [question,answers] of cases){
+  calls=[];const start=performance.now(),plan=await makePlan(question,{},model),planned=performance.now();
+  const answered=plan.kind==='ok'?{...Object.fromEntries(adaptPlan(plan.value,{...plan.value.provided,...answers}).cards.map(c=>[c.id,plan.value.topic==='general'&&c.id.startsWith('context_')?`${c.question} ${c.options[0]}`:c.options[0]])),...Object.fromEntries(Object.entries(answers).filter(([key])=>plan.value.cards.some(c=>c.id===key)||key in plan.value.provided)),...plan.value.provided}:{};
+  const result=plan.kind==='ok'?await predict(question,answered,false,model):plan;
+  rows.push({model:process.env.OLLAMA_MODEL||'qwen3:4b-instruct-2507-q4_K_M',question,answersUsed:answered,plan:plan.kind==='ok'?adaptPlan(plan.value,answered):plan,result,seconds:(performance.now()-start)/1000,planningSeconds:(planned-start)/1000,predictionSeconds:(performance.now()-planned)/1000,modelCalls:calls,inputTokens:calls.reduce((n,c)=>n+c.input,0),outputTokens:calls.reduce((n,c)=>n+c.output,0)});console.log(question,result.kind);
+ }
+
+ await writeFile(process.env.BAKEOFF_OUTPUT||'docs/evidence/engine-bakeoff.json',JSON.stringify(rows,null,2));console.log(rows.map(r=>({q:r.question,kind:r.result.kind,seconds:r.seconds,cards:r.plan&&'cards'in r.plan?r.plan.cards.length:null})));}
+void main();

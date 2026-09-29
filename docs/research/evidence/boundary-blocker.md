@@ -1,3 +1,5 @@
+> Historical checkpoint, superseded by firstmate authorization and the successful current drives. See docs/evidence/verification-summary.md and docs/research/decisions.md.
+
 # Boundary pilot blocker — 2026-09-29
 
 The repeated schema-output obstacle triggered the worker brief's stop rule. The first invocation aborted on malformed JSON; the second invocation retained malformed JSON as an explicit parse_error. Neither output should be accepted as a prediction. The completed safety slice is retained in safety-boundary-pilot.json: 20 sensitive cases and 10 safe near-misses, 9 sensitive cases classified allow, 0 safe cases classified blocked, plus 1 invalid JSON result. The invalid result must fail closed and is not included in the nine false-allow count. Category distinctions are not yet semantically graded. The context-bound forecast slice finished before the stop signal (21 rows); context-bound-pilot.json retains its outputs. It has not been independently semantically reviewed and is not a generation-gate pass.

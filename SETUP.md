@@ -28,3 +28,5 @@ Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo r
 ## Known prototype boundaries
 
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Seeded Explore is visibly labeled. Apple save and web notification controls explain their native setup requirements. Friend links carry only the question and friend flag, not private answers. No App Store submission, public posting or real payments are part of this build.
+
+Apple wiring now uses Apple.signInAsync followed by Supabase.auth.linkIdentity with the ID token, preserving the anonymous UID. It stays disabled until EXPO_PUBLIC_APPLE_LINK_ENABLED=true and the provider is configured. This is account wiring, not a verified native sign-in claim. The native purchase adapter can initialize RevenueCat and restore sandbox purchases; the current paywall deliberately remains mock.

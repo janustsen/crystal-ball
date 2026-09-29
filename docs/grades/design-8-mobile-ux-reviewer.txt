@@ -1,0 +1,62 @@
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.9,
+  "rubric": {
+    "unified_cosmic_mystic_thesis": 8.7,
+    "visual_polish": 7.2,
+    "interaction_and_animation_specification": 8.2,
+    "accessibility_and_complete_states": 7.6
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (955 KB, single-line HTML; read by grepping its structure, captions and state table. It is not rendered in a browser)"
+    ],
+    "visual_inspection": [
+      "home.png", "selected-1.png", "selected-2.png", "research.png", "reveal.png", "reveal-frame-300.png", "why.png",
+      "share.png", "exported-card.png", "paywall.png", "history.png", "timeout.png", "blocked.png",
+      "large-home.png", "large-reveal.png"
+    ],
+    "not_inspected": "flow-recording.webm, exported-story.mp4, Explore, knowledge/edit/empty, friend, voice-fallback, keyboard-focus, money-*, daily-cap, restore, share-export-failure. For these I have only the captions."
+  },
+  "evidence": [
+    "Thesis: all three docs state the same idea, a 'pocket observatory' with one glass orb as the hero. Theatrical mood stays in the mist and the reveal; controls and copy stay plain. Two alternatives (tarot deck, dashboard) were considered and rejected for stated reasons. The captures carry this through: the same orb art appears on Home, Research, Reveal, Blocked, Timeout, the share card and the raised tab.",
+    "Tokens: ui-rules.md rule 1 sets ink #0B0620 to violet #2A1458, lavender/cyan orb light, gold #F5C76B for emphasis, ivory and secondary text. The gold-for-action and cyan-for-selection/links roles hold in every screen I looked at.",
+    "Contrast: contrast.json lists 20 measured pairs, including non-text (focus ring 12.6:1, selected border 7.66:1), placeholder 6.97:1, disabled 7.58:1 and inactive tabs 10.31:1. Every pair clears its minimum by a wide margin.",
+    "Motion: motion.md is a single authority table covering property, duration, easing, reduced-motion equivalent and haptic. It gives the easing formulas and a reveal storyboard from 0 to 800 ms. Research, idle and reveal each get distinct orb artwork (research: cyan core, mist at 45% opacity, 6 s rotation). It separates the five-point reveal constellation from the question-progress constellation. It bans fake percent-complete indicators.",
+    "Motion evidence (visual): reveal-frame-300.png shows the headline and speculative label fading in together while the CTAs are already in place, as specified. These are observed frames, and the sheet says so rather than calling them keyframes.",
+    "States (visual): I saw captures for research, timeout ('The mist is too thick.' with Try again / Edit question and 'Nothing was charged'), safety redirect, history populated, share preview, exported artifact, paywall with a test-mode banner, 200% Home and 200% Reveal. By caption, the sheet also covers empty history, came true / another path, knowledge edit and empty, friend, voice fallback, keyboard focus, daily cap and export failure.",
+    "Honest-UX rules are explicit and visible in the captures: 'Speculative forecast · not a guarantee' sits directly under the headline, the paywall has a 'Test mode · no real payments' banner, and no fake counts or percentages appear anywhere.",
+    "DEFECT (visual, selected-2.png, 390×844): in the Other state the Next button is cut off beneath the tab bar. This breaks ui-rules 'Mobile edge states', which requires the Other input and its confirm action to stay visible. The Other text field also has no visible label, only its value ('30 minutes'), which breaks rule 7 ('Visible labels for inputs').",
+    "DEFECT (visual, share.png): the speculative label in the scaled-down share preview is roughly 7 px and looks broken. Some glyphs render in gold or bold ('Spec·ulative fore·cast · not a guarantee'), and the wordmark and date are barely readable. The full-size exported-card.png renders correctly, so this is a preview rendering problem. It still undercuts the rule 9 promise that the preview shows what gets shared.",
+    "DEFECT (visual, large-home.png / large-reveal.png): at 200% text the tab icons change to a different set: sparkle for Explore, moon for You, and a pie/clock glyph for History. system.md 'Semantic visual roles' specifies house / compass / clock / person as 'ordinary outline metaphors'. In the same captures the wordmark drops its orb and becomes a ✧ glyph.",
+    "INCONSISTENCY (visual, timeout.png): the header wordmark is plain sans with no orb, unlike every other screen.",
+    "Large-text reveal (visual): the Cormorant display headline scales to about 70 px on a 375 px width and breaks into three- or four-word lines ('Your net / worth will / be $6,371 in / 5 years'). The result sits almost entirely below the fold. The docs set no display-size scaling ceiling or large-text type ramp.",
+    "Spec contradictions (source): system.md says 'Reveal: headline within orb composition' and has the Orb reveal add 'one gentle luminance swell'. ui-rules.md says the headline 'sits below the orb, never over cyan/purple highlights', and motion.md specifies a separate reveal glow that rises to 35% and clears. ui-rules.md and motion.md both have appended patch paragraphs that repeat each other (the viewport ends above the raised orb, stated in both; the large-text label order, also in both).",
+    "Hero copy exemplar (visual): every reveal and share capture uses 'You will need help speaking Spanish in 6 months.', a clumsy, negative-sounding sentence. It weakens the showcase and does not match the direct yes/no pattern in system.md ('You will speak basic Danish in 6 months')."
+  ],
+  "blockers": [
+    "Fix the Other-state layout so that at 390×844 and 375×667 the input and Next are both visible above the tab bar, for example a sticky footer action or scrolling the focused field into view. Give the Other field a visible persistent label (e.g. 'Your answer'). Re-capture selected-2.png at both sizes.",
+    "Fix the share preview so the speculative label and wordmark render legibly without glyph artifacts: at least 12 pt effective size in the preview, or crop/zoom the preview to the safe region. Re-capture share.png.",
+    "Pick one tab icon set and use it at every text size (house / compass / clock / person, or deliberately adopt a cosmic set and update system.md). Keep the orb in the wordmark on all screens, including timeout and error, and in large-text mode. Re-capture large-home, large-reveal and timeout.",
+    "Specify a large-text type ramp: a display-size ceiling or step-down rule (e.g. display grows at most ~1.4× while body grows 2×) so the 200% reveal headline fits in about 2–3 lines. Show the label, headline and first CTA reachable within about 1.5 screens. Re-capture large-reveal.png.",
+    "Resolve the contradictions: remove 'headline within orb composition' and the 'luminance swell' wording from system.md, or align them with ui-rules.md and motion.md. Fold the appended patch paragraphs in ui-rules.md and motion.md into their main sections so each rule is stated exactly once.",
+    "Replace the hero exemplar with an on-pattern positive/direct headline for the reveal, share and exported-card captures, so the visual sheet shows the intended oracle voice.",
+    "Add an annotated capture for each state that currently has only a caption and was not inspected here: the Explore feed and the knowledge Undo notice. Also add a still frame from exported-story.mp4 or the flow recording showing the research→reveal phase change, so motion proof does not depend on prose."
+  ],
+  "strengths": [
+    "A distinctive, well-argued thesis: the single glass orb as the memorable object, with quiet controls around it and alternatives considered and rejected. It holds consistently from Home to the exported share card.",
+    "The motion authority is specific enough to implement: easing formulas, a 0–800 ms storyboard, reduced-motion equivalents for every row, distinct orb artwork for idle, research and reveal, and a clear rule against fake progress.",
+    "Contrast is measured, including non-text elements, disabled, placeholder and focus-ring pairs. It is not just asserted.",
+    "Strong honest-UX guardrails, all visible in the captures: the speculative label sits beside the headline, the paywall is labeled test mode, no fake counters appear, and cancel and timeout state that nothing was charged.",
+    "Recovery and safety states are designed, not left as defaults: the 8 s long-wait message, the 60 s timeout with answers retained, and a kind safety redirect that offers an alternative question.",
+    "Selection uses a ring plus a star glyph, not color alone. Why expands inline, with focus kept on the toggle and nothing trapping focus. The large-text mode moves the speculative label ahead of the headline.",
+    "The review sheet separates what was observed in the browser from what still needs a native device (VoiceOver, Dynamic Type, share sheet, sandbox billing) and does not overclaim."
+  ]
+}
+```

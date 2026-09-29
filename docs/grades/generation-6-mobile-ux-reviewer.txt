@@ -1,0 +1,48 @@
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "generation",
+  "score": 6,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 7.0,
+    "evidence_groundedness_25": 5.0,
+    "adaptive_question_relevance_20": 5.5,
+    "one_line_fit_15": 6.5,
+    "safety_20": 7.0,
+    "weighted_total": 6.1
+  },
+  "evidence": [
+    "SOURCE, server/engine.ts:82-89: the validator requires 'will' in every prediction and rejects may/might/could/likely, question marks and because-clauses. Free-form predictions are capped at 90 chars, and the headline including the horizon at 110. Numbers not supplied by the user are rejected. A second model pass checks consistency, and the output goes through safety again (engine.ts:93).",
+    "SOURCE, server/engine.ts:45-79: money, growth, relocation, learning, sports and EV outcomes use fixed server-side rules or a fixed list of allowed answers, and Why states that each rule is a scenario assumption rather than calibrated. The money and growth calculations are fully traceable (engine-bakeoff.json: $106,413; 100+2×4=108).",
+    "RUNTIME, docs/evidence/engine-bakeoff.json (identical to engine-bakeoff-structured-first.json): 19/20 ok and 1 error ('Will I live happily in my current town?' → 'The mist is too thick'). verification-summary.md:11 says 'A fresh runtime replay is required after those changes.' No replay exists, so the horizon and number fixes have not been observed at runtime.",
+    "RUNTIME defect, headline: 'You will have a memorable holiday in three months within 3 months.' tests/engine.test.ts:41 now covers this case in unit tests only.",
+    "RUNTIME defect, Why: in the ex, marathon and job cases the reason and the assumption are the same sentence ('Calm presence and daily thoughts suggest emotional attachment… This assumes Calm presence and daily thoughts suggest emotional attachment…'). explainScenario only collapses exact matches, and the job case is a near-duplicate that it would not catch.",
+    "RUNTIME groundedness failures in the general route (all passed the consistency reviewer): (1) Paris: the predicted enjoyable trip in 3 months rests on 'Weather is sunny today'. (2) Chess: the reason says 'No factual basis provided…' yet it still predicts 'You will not win your chess match within 3 months'. (3) Marathon: 10 km a week plus worn shoes yields 'You will finish a marathon next year'. (4) Reconnect: the user said the friend texted today, so the forecast is trivial.",
+    "RUNTIME adaptive-question failures (model-drafted general cards): chess card 'How will your current move affect the game?' offers 'My opponent plays aggressively / Play calmly / Make a critical error', which mixes dimensions and asks for future outcomes. 'What is your current mental state?' offers 'My opponent is tired'. 'What is your current status in job hunting?' offers 'A tech degree'. Paris asks about today's weather for a future trip. A single chess match gets a 3-month horizon card. The prompt's 'same single dimension' and 'no future outcomes' rules are not enforced by code (engine.ts:25 checks only length, count, uniqueness and 'will').",
+    "SOURCE and RUNTIME, sports: the session_form and session_availability cards are collected (src/questions.ts:26), but the outcome is a 'wildcard pick' with fixed Why text, and research results are filtered by team names appearing in the title. The Lakers and World Cup runs had 0 sources. The user answers questions that do not change the output.",
+    "RUNTIME, world/EV: two dated BNEF and IEA headlines are attached and correctly labelled 'do not verify this prediction'. This is the only route with external context. Headline-only retrieval with no body excerpts is thin grounding.",
+    "VISUAL, docs/evidence/reveal.png and why.png at 390px: the verdict 'You will need help speaking Spanish in 6 months.' wraps to 3 lines of serif display text. The 110-char budget allows about 5 lines. The screenshot copy ('need help speaking') does not match the current learning choices in engine.ts:63, so the screenshots are stale relative to the code. The header shows '0 readings' after a completed reading.",
+    "SOURCE, safety: deterministic multilingual regex (EN/ES/DA), then a classifier. Safety runs on the question, the drafted cards, every answer including Other, and the final output. Self-harm has distinct urgent copy. docs/research/decisions.md:39: the fifth untouched first run blocked 20/20 sensitive, blocked 0/20 safe and got 39/40 categories right. Earlier first runs scored 78.6% and 95% recall with 15–33% false blocks. Every case author was Claude, and the file reports its own Wilson lower bound of about 84%.",
+    "SOURCE, safety scope: the policy covers only death, self-harm, illness, pregnancy and legal. There are no tests or rules for violence toward others, stalking or obsessive contact, eating disorders or weight targets, gambling or speculative trading, partner infidelity, or real political elections. The world route explicitly builds an 'election outlook' query (engine.ts:38), and questions about other people receive definitive verdicts.",
+    "TESTS, tests/engine.test.ts: covers planning invariants, projection maths, phrase safety, repair-once, horizon formatting and the missing-facts guard. Nothing tests card-dimension coherence, whether reasons are relevant, the sports use of answers, or which outcome categories generation refuses. Future predictive accuracy is not measurable and I have not penalised its absence."
+  ],
+  "blockers": [
+    "Re-run the full 20-question engine benchmark on the current engine.ts, keep the output as a new file, and show zero duplicated horizons, zero identical or near-identical reason/assumption pairs, and zero errors, or document each error as retained evidence.",
+    "Make the general reason and assumption carry real grounding. Reject, in code, a reason that says the facts give no basis while a verdict is still issued. Reject facts about the present day (today's weather) used for a future event. Reject a reason/assumption similarity above a threshold rather than only exact matches, and repair or fall back to a transparent server-owned template.",
+    "Enforce the quality of general cards in code or with a second model check: each option must answer its own card question on one dimension, no options about the opponent or third party under a 'your state' question, and no future-outcome options. Choose the horizon card by event type (a single match or event needs a date or 'this event', not 3/6/12 months). Replay the chess, job, Paris and town cases.",
+    "Sports: either use the form, availability and advantage answers in a disclosed rule that selects the pick and name them in Why, or stop asking those questions. Fix 'Lakers will win' to 'The Lakers will win'.",
+    "Tighten headline fit to one visual block. Cap it so it renders in at most 2 lines at 375–390px in the display font, or scale the type, and re-capture reveal and why screenshots from the current engine (the current PNGs show copy the code no longer produces). Fix 'complete a beginner project in coding' phrasing.",
+    "Expand the safety policy and tests to cover harm to others and stalking, eating disorder and weight, gambling and trading, infidelity and third-party accusations, and real-world elections. Either block them or give them fixed non-definitive handling, and run a fresh untouched first-run set that includes them, ideally with at least one case author that is not Claude.",
+    "Resolve the town-happiness error path so a safe general question never ends in 'mist' after 8 model calls. General-route latency of 8–22 s is also high for a reveal moment."
+  ],
+  "strengths": [
+    "The verdict is always definitive. Code rejects hedging, questions and bare Yes/No, and the model output is not trusted to follow instructions alone.",
+    "Deterministic domains (money, growth, relocation, learning, EV) are transparent and reproducible, and Why names the rule and says it is not calibrated.",
+    "Uncertainty is labelled honestly throughout: 'Speculative forecast · not a guarantee', and headlines are never presented as proof. Failed benchmark and safety runs are preserved, not overwritten.",
+    "Safety screening covers the question, drafted cards, free-text answers and the output. Self-harm routing is separate and urgent. The fifth untouched synthetic set cleared the stated numeric gate.",
+    "Remembered facts are never asked again, the learning target resets per goal, question-supplied horizons and editions are respected, and sports editions adapt to the competition. All of this is unit-tested.",
+    "Numbers the user did not supply are rejected in reason and assumption, which directly targets the invented-statistic failure seen earlier."
+  ],
+  "inspection_notes": "I viewed reveal.png and why.png as images. Everything else I inspected as source or JSON. Read-only: no commands were run and no files were modified. Plan mode was active, but this task only needed a read-only verdict, so I wrote no plan file."
+}
+```

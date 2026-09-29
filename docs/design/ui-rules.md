@@ -1,33 +1,66 @@
 # UI rules for every Crystal Ball change
 
-Thesis: a pocket observatory. Ink-violet space, a luminous glass sphere, gold celestial marks and calm book-like typography. The sphere is the memorable object; surrounding controls stay quiet and readable.
+The thesis is a pocket observatory: one luminous glass orb, ink-violet space, gold celestial marks and book-like typography. Temporary skill sources and popularity evidence are in [ui-skills.md](../research/ui-skills.md); none was installed. These product rules take precedence over generic palettes.
 
-1. Use #0B0620 to #2A1458 background, #A77BFF and #5CE1E6 orb light, #F5C76B for emphasis. Text ivory #F7F1FF, secondary #C4B8D8. No low-opacity body copy.
-2. Display serif / interface sans pairing. Body and inputs >=16, metadata >=12. Text scales and wraps; no fixed-height text cards. 24 pt page inset and 8 pt spacing rhythm.
-3. Bottom destinations: Home, Explore, raised Ask orb, History, You. Each has a text label and >=44 pt target. Respect bottom safe area. Ask supports Back without losing the current card's answer.
-4. One question/card. Always provide Other with an editable field. Confirm with a separate button to avoid accidental advance. Show count and “Getting to know you”; do not fake a fixed denominator in an adaptive flow.
-5. Answer first, why second. Headline <=110 characters; don't hide a paragraph in the ball. A persistent “Forecast, not a guarantee” label contextualizes the oracle voice. Sources and assumptions are visible on expansion.
-6. Animate only orb breath/mist (slow), selection response (140 ms) and reveal (600 ms). Honor system reduced motion and a visible motion toggle. No flashing or forced wait after work finishes.
-7. All tappable icons have accessible names. Visible labels for inputs, selected/disabled states for options, error/live-status announcements. Keyboard can complete the web verification flow. Never disable zoom.
-8. Empty History offers a first question; failed generation retains answers and a retry; safety redirects offer a safe suggested question. Cancellation leaves no fake prediction or spent credit.
-9. Sharing preview is private by default: only forecast and public-friendly question, no facts, full name or user identifier. Show preview before system share/export. 1080×1920 composition with key content within central safe region, still alternative to animation.
-10. Paywall shows actual price/period/cap, close, restore and test-mode status. No fake discounts, audience counts, urgency or claim that a forecast is scientifically proven.
+## Tokens
 
-Temporary sources and popularity evidence: ../research/ui-skills.md. These rules supersede generic remote-skill color or layout recommendations.
+| Token / role | Value |
+|---|---|
+| Ink / page ends | #0B0620 |
+| Violet / page midpoint | #2A1458 |
+| Surface / panel, field, opaque text protection | #160F30 |
+| Secondary action | #25193F; border #66537F |
+| Selected choice | #25384B; cyan outline |
+| Disabled action | #322541; border #766487; secondary text |
+| Tab bar | #100923; border #493460 |
+| Field border / placeholder | #685281 / #A89AB8 |
+| Panel border / list divider | #3F2D5C / #514069 |
+| Choice border / progress line | #5A4473 / #75608C |
+| Ivory / primary text | #F7F1FF |
+| Secondary text | #C4B8D8 |
+| Gold / primary action, settled reveal | #F5C76B |
+| Cyan / focus, links, selection, research | #5CE1E6 |
+| Lavender / glow | #A77BFF |
+| Display / body / metadata | Cormorant Garamond 500 36/40; DM Sans 16/24; DM Sans 13/19 |
+| Space / page inset | 8, 12, 16, 24, 32 pt / 24 pt |
+| Radius / target | Fields and buttons 16, panels 22; actions ≥52, other touch targets ≥44 pt |
 
-## Mobile edge states
+`contrast.json` measures text and non-text pairs using sRGB luminance. Ivory on ink/violet is 17.89/14.17:1; secondary text 10.55/8.36:1; gold 12.50/9.90:1. Text never crosses the bright orb halo. Gold buttons use ink text. Recalculate affected pairs if color or opacity changes. Error copy uses ivory; destructive intent is communicated in words and confirmation, not red alone.
 
-KeyboardAvoidingView keeps the ask/Other input and confirmation action visible; the content remains scrollable. Android back returns to the previous card or closes an overlay before leaving the tab; an active request can be cancelled. Safe-area insets include Android navigation bars as well as iOS home indicators. Voice permission is requested only on the first deliberate microphone action; denial retains typing and suggests OS dictation. Never request location/contacts.
+## Navigation and layout
 
-Text scaling is not disabled or capped: test 200% on the phone viewport; headings wrap and the orb headline can move beneath the orb when necessary. The orb has a dark center scrim for text, so text is never laid directly over cyan/purple highlights. Loading shows the actual current operation immediately, adds “Still looking. You can leave and try again” after 8 seconds, and times out with retry and retained answers at 60 seconds. No fictional source counters. These initial UX thresholds are budgets, not measured end-to-end performance.
+Five fixed destinations: Home, Explore, raised Ask orb, History, You. Standard outline icons mean house, compass, clock and person. Text labels appear at standard size; 200% mode retains these same icons and full accessible names. The wordmark is a compact orb plus serif name. Its graphic size stays fixed; task text scales.
 
-Measured WCAG contrast pairs are in contrast.json (sRGB relative luminance): ivory 17.89:1 on ink, 14.17:1 on violet; secondary 10.55:1 / 8.36:1; gold 12.50:1 / 9.90:1. Ivory on the opaque orb-text scrim #160F30 is 16.58:1. Glow colors are decorative, not text backgrounds. Buttons use ink text on the gold fill. These ratios must be rechecked if tokens or opacity change.
+The content viewport ends above the raised Ask button. Reserve 94 pt plus max(bottom safe-area inset, 12 pt), and use actual platform insets. Padding alone must not let text pass beneath navigation. Content scrolls on small screens; no fixed-height text cards. Android Back closes an overlay or returns through the flow before leaving the tab. Native back/keyboard behavior still needs a device drive.
 
-## Concrete small-screen and disclosure decisions
-At 375×667, reserve bottom 84pt for navigation including inset and top 56pt for heading. The remaining 527pt is a scrollable content viewport, never an absolute-positioned card stack. Orb shrinks from 240 to 160pt before text shrinks. Reveal headline, forecast label, Why, and primary action remain in document order. At 200% text, orb becomes a decorative 96pt thumbnail and all content scrolls; no line clamps. Five fixed tab slots retain one-line labels at standard size, with accessible full names and native large-content-viewer support where available; active screen heading scales. Web has accessible button names and browser zoom. Native accessibility still requires a device check.
+At 200% app text, all task text doubles and wraps without clamps; the decorative orb shrinks to 96 pt. The speculative label precedes the long headline, and Home offers an early Ask action so the task stays discoverable. This deliberately favors full text scaling over a smaller display-font ceiling. VoiceOver, Dynamic Type and native icon-label discovery remain device checks.
 
-Cards use selection then Next: two taps per standard card, at most twenty for ten cards. This favors correcting a choice before committing learned facts; no auto-advance. Hypothesis: ten cards take ≤180s; test against auto-advance only if 2/5 usability participants stumble on Next. Other always requires explicit confirmation. Progress says “Getting to know you” plus card count so an adaptive cap is never promised as a fixed count.
+## Ask and questions
 
-Why expands inline below the prediction, using an accessible expanded state. Focus stays on the toggle; announce “Explanation expanded”; the next reading item is the explanation heading. Back preserves reveal, and toggling again collapses. Avoid a nested modal and its focus trap. Explore contains visibly seeded community-style prompts by topic, without fabricated live user counts. You contains editable remembered facts, privacy/reset, reduced motion, account save, and mock plan access.
+Typed input has a visible label, suggestions and hold-to-speak. Request microphone access only on deliberate use; denied/unavailable voice retains typing. Never request contacts or location.
 
-Share layout: 1080×1920, with critical text inside x=90…990 and y=300…1500. The outer 300px top and 420px bottom hold decoration only, a conservative proposed overlay allowance rather than a universal platform guarantee. Preview must show that friends cannot see private inputs or Why. The exported artifact retains its speculative-forecast label.
+Show one card at a time, Other with a visible editable field, then a separate Next. Selected radio state has a star and outline as well as color. Empty Other disables Next. On web, focus scrolls Other into view; native keyboard insets are configured but unverified. Back restores the prior choice and truncates later dependent answers. Known durable inputs are skipped; every plan still has 3–10 cards.
+
+Progress states the actual card number and returned total. The small progress constellation has one point per card; it is unrelated to the fixed five-point brand constellation in the reveal. Two standard taps per card means up to twenty for ten cards. The ≤180-second ten-card burden target is a hypothesis for user testing, not a measured human result.
+
+## Reveal, recovery and memory
+
+Show one definitive headline, ≤110 characters, below the orb. Keep numbers and time units together. Show “Speculative forecast · not a guarantee” with the answer; sharing may split these words across two lines. Why expands inline with an expanded state, retained toggle focus and announcement, followed by facts, assumptions and dated source leads. Sources never imply proof of the future.
+
+Share is the primary reveal action; Remind me and Ask again are lighter links. Outcome marking appears when reopening a prediction from History, not on the fresh reveal. History uses an orb thumbnail and explicit pending/yes/no status text. Dates use abbreviated month, day and year in the device locale.
+
+You lets people edit and forget facts. Forget offers Undo until navigation; Reset confirms the whole-data deletion. Friend readings never teach the owner's bank. Empty states explain the next action. Failed generation retains answers and spends no reading. Sensitive redirects offer a hopeful alternative and Edit question; self-harm also exposes support. Notice takes layout space and has Dismiss.
+
+## Share and commerce
+
+Export the actual preview composition as 1080×1920 PNG or a four-second MP4. Only headline, date and branding appear; no private question, facts or Why. Critical text stays within x=90–990, y=300–1500. Star field and a closing constellation occupy decorative outer bands. The speculative label uses two large lines to remain readable in the compact preview.
+
+The paywall shows price, billing period, allowance, close, restore and explicit test-mode labels. Mock actions never charge. Annual pricing is retained only for prototype review and is not approved for production activation. No fake urgency, popularity or scientifically proven accuracy.
+
+## Sources, budgets and proof
+
+[WCAG resizing](https://www.w3.org/WAI/WCAG21/Understanding/resize-text) supports 200% text without lost functionality. [WCAG 2.2](https://www.w3.org/TR/wcag/) defines target-size and reflow requirements; 44 pt is our conservative touch target, not a claim about its AA minimum. [Android inset guidance](https://developer.android.com/design/ui/mobile/guides/layout-and-content/edge-to-edge?hl=en) supports keeping text and controls clear of system bars.
+
+Orb sizes, custom bar dimensions and card-time budgets are project hypotheses, not platform prescriptions. The 8-second longer-wait message precedes [NN/g's roughly ten-second attention limit](https://www.nngroup.com/videos/3-response-time-limits-interaction-design/); the 60-second timeout is an engineering recovery limit. No verified universal organic Instagram/TikTok overlay standard was found: safe bands are conservative proposals requiring actual destination previews before release.
+
+[motion.md](motion.md) owns all animation values. [review.html](review.html) indexes actual captures, videos and unresolved device checks. The project verification skill owns the executable drive; historical failures remain evidence, not current acceptance captures.

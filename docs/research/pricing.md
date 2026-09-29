@@ -27,3 +27,25 @@ The completed 4B scripted flow uses 1,361 input / 321 output tokens for 3 cards 
 Repriced at Together Qwen3.5 9B's listed rates as a sizing estimate (tokenizers may differ): $0.000312 / $0.000498 / $0.000836 for those flows. Doubling the largest observed budget for one full retry gives $0.001672; 300 such predictions cost about $0.50 of model inference, before search and hosting. This supports the original order-of-magnitude budget, not a production margin guarantee. The pessimistic $0.03 all-in scenario remains a useful loss boundary. On-device inference is not assumed.
 
 $5.99/$39.99 are competitor-anchored **test placeholders**, not audience-validated willingness to pay. They do not block prototype design because tonight no real purchases occur. Before real pricing: in the five qualitative sessions, if fewer than 4/5 can recall both total charge and billing period, fix the paywall before testing price. For a later randomized opt-in pricing pilot (at least 200 eligible users/arm, budget separately authorized), reject $7.99 if 7-day conversion falls >25% relative without greater net revenue per eligible user; stop both paid variants if refund/charge-confusion exceeds 5% or normal variable cost exceeds $0.03. Small samples are directional; do not claim statistical significance without a power analysis.
+
+Production launch gate for this price: measured all-in variable cost must stay at or below $0.010 per successful prediction, including retrieval, repairs and hosting allocation. At 300 monthly uses that caps cost at $3, below the assumed 30%-fee net $4.19. Above that ceiling, do not activate paid Plus at these terms; keep the local/mock prototype until pricing or supply changes are reviewed. This closes the pessimistic $0.03 loss scenario without pretending it is viable. No customer has bought this prototype offer.
+
+## Free-user subsidy and annual-plan constraint
+
+At the $0.010 ceiling, a max-use monthly subscriber costs $3, leaving $1.193 after a modeled 30% store fee. A free user consuming all 30 daily readings costs $0.30/month. One such subscriber supports only 3.98 such free users: break-even paid share is about 20.1%, before fixed overhead. At 60 paid readings and five free readings per month, the same calculation gives about 1.37% paid share. Neither usage scenario is measured; a daily cap is not expected utilization.
+
+The annual offer is tighter: $39.99 × 70% / 12 = $2.333 monthly-equivalent net. At 300 readings, the $0.010 ceiling loses money even before free users. Therefore the annual mock offer **must not be activated** unless measured all-in average cost is at most $0.007 per reading and cohort contribution (including free users) is positive. Otherwise revise the annual price or allowance before billing. The UI is a test offer, not a claim these economics work.
+
+The 20-pack and monthly Plus both cost $5.99. This is intentional segmentation: a pack expires neither daily nor monthly and suits occasional use; Plus suits repeated use. It may cannibalize subscriptions, which is acceptable only if contribution per eligible user improves. The pricing pilot must measure pack and subscription contribution together, not optimize subscription conversion alone.
+
+## Hosted replay budget including retrieval and repair
+
+These are estimates from the historical 3/6/10-card token counts, one full-budget repair, one $0.005 Brave query and a **planning allocation**, not measured hosting cost, of $0.002. Listed rates are sourced above; provider tokenization and actual app calls must be replayed before billing.
+
+| Provider | 3-card total | 6-card total | 10-card total | Monthly $0.010 gate / annual $0.007 gate |
+|---|---:|---:|---:|---|
+| Together Qwen3.5 9B | $0.007623 | $0.007995 | $0.008672 | Monthly clears estimate; annual fails |
+| Together Qwen3.8 Flash | $0.007425 | $0.007667 | $0.008092 | Monthly clears estimate; annual fails |
+| Groq Qwen3.8 27B | $0.011746 | $0.014371 | $0.018816 | Both fail |
+
+This rules out a paid search on every annual-tier reading at these conservative allocations. It does not justify silently removing research; pricing/supply needs another decision before paid launch.

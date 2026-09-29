@@ -1,0 +1,55 @@
+I scored the research phase **7.6/10**, below the 9 bar. The honesty and the arithmetic are strong. What holds it back is that the mobile-UX decisions aren't fully ready.
+
+- **What I checked:** everything under `docs/research/`, `docs/design/ui-rules.md` and the key evidence files. I recomputed the pricing figures by hand and they all hold up.
+- **What I didn't check:** I read no images or HTML, so every point comes from reading the source. I did not verify the contrast ratios myself.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "research",
+  "score": 7.6,
+  "rubric_breakdown": {
+    "sourced_primary_evidence_30": 8.0,
+    "specificity_25": 8.0,
+    "decision_readiness_25": 6.3,
+    "honest_measurement_and_limitations_20": 9.0
+  },
+  "inspection_mode": "Source inspection only. Read markdown, JSON and TXT under docs/research/ and docs/design/ui-rules.md. Did not visually open the competitor JPEG/PNG captures, docs/evidence screenshots, or docs/design/review.html. Visual claims in visual-observations.md were not re-verified against the images.",
+  "evidence": [
+    "Pricing math verified by hand. Together 9B 8K/1K = $0.00161, Groq 27B = $0.0104, Flash = $0.00100. $5.99×0.7 = $4.193. Subsidy break-even 1.193/0.30 = 3.98 free users → 20.1%; 60/5 scenario → 1.37%. Annual $2.333/month. Hosted replay rows, e.g. 4B 10-card 3890/699 tokens ×2 + $0.007 = $0.008672 for Together and $0.018816 for Groq, match comparison-summary.json.",
+    "model-bakeoff.md median/p95 and flow timings (4B 1.681s / 2.480s; 11.05 / 14.90 / 22.19s) match evidence/comparison-summary.json exactly. Blind-review means 8.23 / 7.47 / 5.93 match blind-review.txt.",
+    "store-prices.json backs the Co–Star, Pattern and Nebula SKU claims and explicitly flags Nebula's missing periods and the unverified Tarot AI / Oracle Guru prices.",
+    "Safety: the fifth-set first run shows recall 1 in safety-final-first-run.json, consistent with the 20/20 claim in decisions.md. Earlier failed first runs (78.6%, 95%, 85% recall) are retained and not overwritten.",
+    "research-path.md cites primary terms: Bing's 'personal, non-commercial' restriction, Google ToS, and Brave pricing and storage-rights pages. It rejects DuckDuckGo instead of working around its CAPTCHA.",
+    "question-engine.md is a 7-line pointer to src/questions.ts. The per-domain caps (money 10, learning 4, relocation 5, growth 3, sports 3, world 3, general 3) come with no research rationale or evidence in docs/research.",
+    "Mobile UX thresholds in ui-rules.md are unsourced: 84pt nav / 56pt header reservation, 240→160→96pt orb, 8s longer-wait copy, 60s timeout, ≤180s for 10 cards, 300px / 420px share dead zones. Some are honestly labelled 'budgets' or 'hypotheses'. None cites Apple HIG layout metrics, Material/Android guidance, or organic Stories/Reels/TikTok safe-zone specs. The only share source is a TikTok ads spec, and the doc correctly says it is not proof of organic overlays.",
+    "Android back and navigation-inset rules are stated without any Android or Material primary source. Apple HIG is cited only for tab bars.",
+    "ui-skills.md uses install and star counts as evidence. It correctly disclaims that popularity is not quality, but that makes it weak primary UX evidence."
+  ],
+  "blockers": [
+    "Put the rationale for the adaptive card caps into research, not code. For each domain, give which inputs are required and why, with an evidence or explicit-assumption link. Include a mobile burden estimate: taps and seconds per card, using the 'two taps per card, ≤20 for ten' rule. Right now a core UX decision is owned by src/questions.ts.",
+    "Source or clearly downgrade every mobile layout and timing number. Cite Apple HIG (tab bar height, safe areas, Dynamic Type sizes), Material 3 / Android (predictive back, gesture-nav insets), and WCAG 2.2 target-size and reflow criteria for the 44pt / 200% rules. For the share safe zones, cite official Instagram Stories and TikTok organic UI safe-zone guidance, or state that none exists and name the measurement plan: a preview on each destination.",
+    "Give a latency-perception basis for the 8s and 60s thresholds and the 180s ten-card budget. Use a primary HCI source such as Nielsen's response-time limits, or record a measured local browser-flow distribution with n and p95. Otherwise these gates cannot be falsified.",
+    "Consolidate into one current-state research brief. comparables.md, model-bakeoff.md, research-path.md and review-response.md contain layered 'supersedes', 'historical' and 'now dropped' paragraphs, e.g. RSS n=0 followed by the 11-review sample. A decider has to reconcile them across files. Move the history into archive/ and leave each topic doc as its current decision, evidence and open gate.",
+    "Run Qwen3Guard-Gen-0.6B on the retained safety sets. It is local, Apache-2.0 and needs no key, so the 'not tested, efficacy unknown' status is avoidable rather than a limit imposed by constraints. Report incremental blocks, false blocks and latency.",
+    "Add uncertainty to the safety numbers. 20/20 sensitive with n=20 has a 95% lower bound of about 83% recall. State it so '100%' is not read as a clearance. Also note that the fifth author saw a list of prior questions to exclude, which biases the new set away from known failure modes.",
+    "Resolve the annual-plan contradiction in the decision table. The recommended $39.99/year fails the doc's own $0.007 gate on every hosted estimate. Either list it as rejected or pending, or propose a concrete alternative (price or allowance) that passes on the estimates.",
+    "Tie decisions.md's evidence column to research artifacts, not only implementation files (server/*.ts, src/questions.ts). Research-phase decision readiness should not depend on reading code, especially since the product owner does not read code."
+  ],
+  "strengths": [
+    "Measurements are exceptionally honest. Failed first runs, regressions, malformed-JSON aborts and a 4.5/10 independent review are all kept as evidence. Structural passes are never described as semantic passes.",
+    "Pricing and cost arithmetic is correct and traceable to dated primary price pages, with explicit loss boundaries and a clear activation gate ($0.010/reading monthly, $0.007/reading annual).",
+    "The hosted-inference constraint is handled as required: a shortlist and replay plan, clearly labelled not executed, with a concrete adoption bar (zero unsafe outputs, zero invented citations, ≥9 rubric, 30-run p50/p95).",
+    "The retrieval research is concrete: 5 queries × 3 leads with manual relevance scoring, an independent 36/45 vs 24/45 score, licensing blockers named, and an executable eligibility rule (180-day recency, ≥2 distinct outcome-relevant leads).",
+    "user-test.md is decision-ready: task-level time budgets, pass thresholds (4/5 and 5/5), reversal triggers for the daily limit and price copy, and an explicit ban on treating stated intent or n=5 as demand evidence.",
+    "Competitor evidence is primary and dated (store listings, IAP rows, the full visible review set with coding), and it is scoped honestly: listing screenshots are not installed flows, and 11 reviews are not a representative sample.",
+    "ui-rules.md turns research into specific, testable mobile rules: 375×667 budget, 200% text behaviour, the focus rule when Why expands, share privacy preview, and measured WCAG ratios."
+  ]
+}
+```
+
+The most important fixes for reaching 9:
+- **Card caps:** move the reasoning for how many cards each question type asks into the research docs. Today it lives only in the code.
+- **Unsourced numbers:** cite Apple, Android and WCAG guidance and official social-platform safe zones for the layout and timing numbers, or label them clearly as unmeasured.
+- **Scattered docs:** merge the layered "historical / superseded" notes so each topic file states only the current decision, its evidence and what's still open.
+- **Untested safety model:** Qwen3Guard can run locally with no key, so leaving it untested isn't forced by the constraints.

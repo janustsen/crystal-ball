@@ -1,0 +1,43 @@
+**Score: 8.5/10, below your bar of 9.** Nothing I found is inflated or false. Every calculation I re-checked reproduces, and failures are kept on record. What holds it back is that there's no direct evidence from 18–24 users about whether they want this app, would share it, or would pay for it. A few docs also contradict each other or have gaps a reader has to work around. I only read the markdown and JSON files. I did not open any screenshots or `review.html`, so none of this is a visual assessment.
+
+```json
+{
+  "role": "independent target 18-24 user grader",
+  "phase": "research",
+  "score": 8.5,
+  "inspection_mode": "Source inspection only: markdown and JSON under docs/research/, docs/design/ui-rules.md, docs/evidence/safety-* file listing, docs/grades/research-8 for blocker continuity. No images or review.html were visually inspected; no commands run.",
+  "rubric_breakdown": {
+    "sourced_primary_evidence_30": 7.5,
+    "specificity_25": 9.0,
+    "decision_readiness_25": 8.5,
+    "honest_measurement_and_limitations_20": 9.0,
+    "weighted": 8.43
+  },
+  "evidence": [
+    "store-prices.json matches pricing.md: Co–Star $2.99/5 to $6.99/25 gives the stated $0.28–$0.60 per question; The Pattern $14.99/$83.99; Nebula SKUs recorded with periods marked null instead of guessed.",
+    "Pricing arithmetic reproduces: $5.99 × 0.7 = $4.193 net; annual $39.99 × 0.7 / 12 = $2.333; free-user break-even 1.193 / 0.30 = 3.98, so 20.1% paid share; Together 3-card hosted total (1361/321 tokens, doubled for one repair, + $0.005 search + $0.002 hosting) = $0.00762; Groq 10-card = $0.0188.",
+    "comparison-summary.json matches the model-bakeoff.md table exactly (4B median 1.68s, p95 2.48s, safety 27/30; 1.7B safety 17/30; 8B 3/6/10-card flows 27.7/40.3/55.9s).",
+    "Safety: all five author/case/first-run/regression file families are retained separately in docs/evidence. First-run misses (Spanish euphemism, Danish ideation, overblocked screenplay/chaplain/public-defender) are kept, not overwritten. The fifth untouched set (20/20 sensitive blocked, 0/20 safe blocked, 39/40 categories correct) is now in the decision table with its one self-harm misroute.",
+    "review-sample.md responds to the prior round's blocker: 11 deduplicated visible reviews with codes (P6 R2 T7 S0), a date range, and explicit non-representativeness.",
+    "Pew 18–29 proxy is backed by a verbatim excerpt in source-excerpts.md and labelled as an adjacent age band.",
+    "Hosted inference is correctly reported as a shortlist with no measurements, plus a concrete replay plan (30 runs, p95, zero-unsafe/zero-invented-citation adoption bar). This is acceptable under the no-key constraint.",
+    "Retrieval: Bing rejected on quoted reuse terms, DuckDuckGo rejected for its CAPTCHA page, Google News limited to the prototype pending a commercial license. The bounded-deep pilot (11.16s vs 3.84s, no evidential gain) was run and the idea dropped."
+  ],
+  "blockers": [
+    "No 18–24 evidence on desirability, sharing or price. The core wedge ('accountable specificity'; consistent rather than random answers) is untested, and decisions.md itself admits repeated answers may read as 'boring'. Without authority to recruit, the sharing claim still needs at least one sourced, recent primary source on 18–24 (or Gen Z) sharing of playful or astrology content, e.g. a Pew social media survey or official platform research. Currently S = 0 and the share loop rests entirely on hypothesis.",
+    "Share safe zone (top 300px, bottom 420px) is still unsourced. Cite the platform's official Stories/Reels safe-zone guidance (Meta, TikTok) with a retained excerpt, or keep it plainly labeled as a proposal together with a test that checks it against real overlays. This was already flagged in research-8.",
+    "comparables.md contradicts itself: line 29 says review-sample.json is n=0 and that 'Pew remains the only demographic evidence', while line 40 and review-sample.md say n=11. Reconcile it in place so a reader doesn't see two different evidence bases.",
+    "decisions.md safety table is broken: a blank line before the 'Fifth Claude' row splits it into a headerless fragment, so the result of record may not render as part of the table.",
+    "The latency gate (<8s p95 for planning and for reveal) and the current 20-question engine bake-off have no measured numbers in the research docs, only 'raw timings supersede'. State the latest observed median/p95 and completion count, labeled structural rather than semantic, so the gate can be judged here.",
+    "Stale checkpoint material (boundary-blocker.md, review-response.md rounds 1–4 with superseded counts such as the '30 held-out' safety cases) sits beside current decisions. Move it to archive/ like question-engine-history.md, leaving decisions.md as the single current authority."
+  ],
+  "strengths": [
+    "Exceptionally honest: first-run failures, the 4.5/10 context-pilot review, invented specificity from the repair pilot, and the failed RSS sample are all kept and labeled.",
+    "Decision-ready economics: monthly $0.010 and annual $0.007 all-in cost ceilings, the annual plan explicitly blocked, a free-user subsidy calculation, and pack/Plus cannibalization named.",
+    "Concrete reversal criteria: 2/5 finding identical answers boring triggers a switch to scenario selection; 2/5 hitting the limit triggers a 3-reading onboarding allowance; ≥4/5 must state every price field correctly.",
+    "Structural passes are never presented as semantic or predictive-accuracy passes; the generation gate is kept separate.",
+    "ui-rules.md is specific and testable: contrast ratios, the 375×667 layout budget, behavior at 200% text, and the Why disclosure's focus behavior.",
+    "Privacy boundary for 18–24 users is explicit: no personal text is sent to search, sharing is private by default, and no contacts or location are requested."
+  ]
+}
+```

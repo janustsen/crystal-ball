@@ -1,0 +1,72 @@
+```json
+{
+  "role": "harsh-product-designer grader",
+  "phase": "design",
+  "score": 7.4,
+  "score_breakdown": {
+    "unified_cosmic_mystic_thesis": 8.5,
+    "visual_polish": 6.8,
+    "interaction_and_animation_specification": 7.2,
+    "accessibility_and_complete_states": 7.3
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (structure, headings, figcaptions, and image/video references only; the file is 955 KB, and inline data was not rendered)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png",
+      "reveal.png",
+      "why.png",
+      "selected-1.png",
+      "research.png",
+      "timeout.png",
+      "history.png",
+      "paywall.png",
+      "exported-card.png",
+      "large-reveal.png"
+    ],
+    "not_inspected": "The review.html page was not rendered in a browser. flow-recording.webm, exported-story.mp4 and the reveal-frame-* captures were not viewed. So the motion score rests on the written spec plus still frames, not on watching the motion."
+  },
+  "evidence": [
+    "Thesis: 'a pocket observatory' / 'tiny observatory' is stated once and carried through. There is one glass orb with orbit, mist and gold constellation, an ink-violet gradient, Cormorant display type with DM Sans for the interface, and gold for emphasis and actions. The captures match the prose: Home, Research, Reveal and Timeout all reuse the same orb composition.",
+    "system.md records the composition choice (tarot deck vs dashboard vs observatory) with reasons, and review.html shows the three options side by side.",
+    "The reveal screenshot shows the orb changing from idle: a gold rim plus a gold constellation inside the glass. It is a real reveal state, not just a new label.",
+    "Research (research.png) and idle (home.png) look almost the same as still images. motion.md says research is 'distinct phase artwork' (mist opacity 45% vs 25%, double speed), but at a glance the still frames don't show that difference.",
+    "Copy breaks its own rule. system.md says 'Avoid repeated diminutives', yet Home has 'Your future has a little mystery' directly above 'A little glimpse of what's next', History says 'Your little archive of tomorrow', and the reveal button says 'Share this glimpse'.",
+    "Reveal (reveal.png): three full-width, 52 pt buttons stacked with nearly equal visual weight (Share, Remind, Ask another), and the third is cut off by the tab bar at 390×844. The two secondary outlined buttons are heavy. The composition goes from orb-led to a stack of generic buttons.",
+    "Exported 9:16 card (exported-card.png): the safe-region reasoning holds up, but visually the bottom ~35% is empty gradient and the brand is a small gold text line. It reads as unfinished rather than as a 'shareable glimpse'. There's no decorative use of the reserved top and bottom bands (star field, orbit lines) even though ui-rules explicitly allows decoration there.",
+    "History (history.png): one row with a 'Waiting to unfold' text status, then a large empty void. The state isn't marked by an icon or chip, and the date format '9/29/2026' doesn't match the card's 'Sep 29, 2026'. From this capture, History looks like a bare list, not part of the observatory.",
+    "The header reading count ('0 readings') uses the same gold as primary actions and emphasis. At zero it reads as a highlight rather than a neutral or depleted state, and it doesn't point toward Plans.",
+    "Paywall (paywall.png): the test-mode notice is clear, price and period are equally sized, and the 44% claim is arithmetic that checks out. 'Just a few more?' as the packs heading is slightly coaxing, but acceptable.",
+    "Motion: motion.md is one table covering property, duration, easing, reduced-motion behavior and haptics, with easing formulas and a reveal storyboard. That's good. But the facts are spread and partly repeated across three documents: the orb-states table in system.md, the reveal paragraph in review.html ('one gentle mist swell to 35%') vs motion.md ('a separate reveal glow'), and three add-on paragraphs at the end of motion.md. The press scale is kept under reduced motion ('Same direct press feedback'), which is arguably fine, but the choice isn't explained. Haptics are specified only for card selection and reveal success, not for the primary orb press or errors. There's no motion spec for tab-bar center-orb press, Notice, share preview → export, or reminder confirmation. Voice listening motion is explicitly deferred.",
+    "Accessibility: contrast.json measures 20 pairs, including non-text focus and selection borders, and all pass comfortably. Selection uses ring plus star, not color alone. The Why disclosure has focus behavior and an announcement defined. Timings are 8 s longer-wait / 60 s timeout, and it's honest about which numbers are guesses (hypothesis vs measured). This is well above average.",
+    "Large text (large-reveal.png): at 200% the label-before-headline rule is followed, but tab labels disappear, the orb shrinks to a thumbnail, and the headline fills the whole viewport with the last line cut off at the nav edge. It works through scrolling, but it hasn't been designed as a composition. Why/Share aren't discoverable without scrolling, and the screen has no visible scroll cue.",
+    "Token authority is split. Core colors live as prose in ui-rules rule 1. Surface, scrim, disabled, placeholder and tab-bar colors (#160F30, #322541, #25384B, #100923, #A89AB8) exist only inside contrast.json with no names. system.md says 'do not duplicate hex literals here' and points to src/ui.tsx, so the design phase has no single token table.",
+    "State coverage in review.html is broad: default/selected/Other, research, long wait, timeout, offline, safety redirect, empty/populated/yes/no History, knowledge edit/empty, friend, voice unavailable, keyboard focus, 200% text. Missing captures: disabled-Next, Voice listening (held), Notice / mock-purchase confirmation, purchase or restore failure, share-export failure, Explore offline or empty, and the reminder-set confirmation."
+  ],
+  "blockers": [
+    "Make research visibly different from idle in a still frame: stronger or denser mist, a cyan inner glow, or orbit particles. Add a side-by-side idle / research / reveal orb strip to review.html so the 'distinct phase artwork' claim can be checked by eye.",
+    "Redesign the Reveal action area. Keep Share as the only full-width primary. Turn 'Remind me to check back' and 'Ask another question' into a lighter secondary row or text actions so the orb and headline stay dominant at 390×844 with no clipped button.",
+    "Finish the 1080×1920 share artifact. Use the reserved top and bottom bands for decoration (star field, orbit arc, constellation), bring the wordmark up to a real brand mark, and rebalance the empty lower third. Keep critical text inside the safe region.",
+    "Give History a designed treatment: status glyph or chip for pending / came true / another path, consistent date format, a small orb or constellation motif per entry, and a check-back affordance visible in the list.",
+    "Fix the copy against your own rule. Remove repeated 'little' (Home eyebrow plus headline, History title) and do one voice pass across all screens.",
+    "Consolidate tokens into one named table in the design docs (ink, violet, surface, scrim, disabled, placeholder, tab-bar, gold, cyan, lavender, ivory, secondary), each with its contrast pairs. Give the reading counter a neutral token and a defined zero/depleted state that points to Plans.",
+    "Put all motion in motion.md with no leftover paragraphs. Reconcile the review.html 'mist swell' wording with the 'separate reveal glow'. Add rows for tab-bar orb press, Notice, share preview → export status, reminder confirmation, and error entry, each with haptics (or an explicit 'none, because…'). State why the press scale is kept under reduced motion.",
+    "Design the 200% reveal as a composition, not just an overflow: headline size cap or step-down, a visible scroll affordance, and an early Why/Share anchor. Document how the tab-bar icons alone meet the label requirement.",
+    "Add the missing state captures to review.html: disabled Next, Voice listening (held), Notice / mock-purchase success, purchase or restore failure, share-export failure, Explore offline, reminder set."
+  ],
+  "strengths": [
+    "A clear, one-object thesis (the glass orb as observatory) that is actually built and repeated across the flow, not a generic purple gradient app.",
+    "Good type pairing. The Cormorant display headlines on ink-violet are the strongest visual element and look premium.",
+    "The reveal constellation plus gold rim is a real and memorable payoff state.",
+    "Unusually honest about uncertainty and money: a persistent 'Speculative forecast · not a guarantee' label (also on the export), explicit test-mode paywall, 'Nothing was charged' recovery, and no fake progress or counters.",
+    "Measured contrast for text and non-text elements, with every pair above the threshold. Selection doesn't rely on color alone. The Why disclosure has defined focus and announcement behavior.",
+    "Broad, real-capture state coverage (recovery, safety, empty, friend, large text, keyboard focus). Hypotheses are labeled as hypotheses rather than passed off as platform rules.",
+    "The composition choice was reasoned and shown to reviewers rather than assumed."
+  ]
+}
+```

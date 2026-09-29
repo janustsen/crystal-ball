@@ -1,0 +1,58 @@
+Visual review finished. Returning the grade.
+
+```json
+{
+  "role": "mobile-ux-reviewer (independent grader)",
+  "phase": "design",
+  "score": 7.0,
+  "rubric_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.5,
+    "visual_polish_25": 6.5,
+    "interaction_and_animation_specification_25": 6.0,
+    "accessibility_and_complete_states_25": 7.0
+  },
+  "method": {
+    "source_inspection": ["docs/design/system.md", "docs/design/ui-rules.md", "docs/design/motion.md", "docs/design/contrast.json", "docs/design/review.html (HTML source only, not rendered)"],
+    "visual_inspection": ["docs/evidence/home.png", "ask.png", "explore.png", "question-1.png", "selected-1.png", "research.png", "network-error.png", "blocked.png", "reveal.png", "why.png", "share.png", "exported-card.png", "history.png", "paywall.png", "large-home.png", "large-reveal.png"],
+    "not_inspected": "Remaining review-sheet images (friend, knowledge-edit, timeout, long-wait, money-*, history-yes/no, keyboard-focus, voice-fallback), exported-story.mp4 (video not viewable). No commands run, so the motion claims were not observed."
+  },
+  "evidence": [
+    "Thesis: 'pocket observatory' is stated the same way in ui-rules.md:3, system.md:3 and review.html. The captures follow it: an ink-to-violet sky, a lavender and cyan glass orb with a gold orbit ring, a Cormorant/DM Sans pairing, and gold used only for the primary action. system.md:9 records rejected alternatives (tarot deck, dashboard) with reasons.",
+    "Visual (home.png): a strong hero. The orb is the memorable object and the controls stay quiet. But Home has two competing entry points (a tappable orb labelled 'Tap the ball' plus a gold 'Ask your first question' button). The suggestion list is cut off by the tab bar, and the '1 left' badge has no context.",
+    "Visual (research.png): the caption 'This can take up to a minute. No reading is spent on failure.' is left-aligned while the heading, body and Cancel button are centered. This is a visible alignment defect. The operation copy is generic ('Looking for current context…'), not the specific current operation that system.md:24 promises.",
+    "Visual (blocked.png): the helper text sits about 4pt under the gold button, which breaks the 8pt rhythm in ui-rules.md:6. Spacing on the error screen (network-error.png) is inconsistent in the same way. The two screens use different header and body alignment.",
+    "Visual (explore.png): the category title, sample prediction and heading are all Cormorant at similar sizes, so the hierarchy is flat. The glyphs are decorative and add little. 'Try this question' is small cyan text without a visible target boundary.",
+    "Visual (share.png vs exported-card.png): the 9:16 preview is cropped by the tab bar, so the user never sees the whole artifact before sharing. This undercuts ui-rules.md:9, 'Show preview before system share/export'. The exported still leaves roughly the bottom 40% empty, with no call to action or brand lockup there. The speculative label is gold in the app but white on the export. The date appears as US-only '9/29/2026'.",
+    "Visual (large-reveal.png, large-home.png): at 200% the tab labels collide ('Home Explore Ask History You' run together). This directly contradicts ui-rules.md:27, which says tab labels keep one-line labels at standard size. The spec says the orb becomes a 96pt thumbnail; the capture shows about 60pt. The speculative label wraps above 'Your glimpse ahead', so the order is label → eyebrow → orb → headline, which reads awkwardly. In both captures the header and tab bar take about 35% of the 667pt viewport, leaving roughly 3 lines of headline visible.",
+    "Visual (paywall.png): honest test-mode labelling, and each price is shown next to its billing period, which is good. There is no close/X control, only '‹ Back', and Restore is not visible in the first viewport. Monthly gets the gold primary button and annual the secondary style, so the 'equally prominent' claim in system.md:27 applies to period vs price, not to the plans. That is acceptable, but it is not stated.",
+    "Visual (ask.png): the multiline input has no visible label, only the page heading. ui-rules.md:11 requires 'Visible labels for inputs'. 'Hold to speak' has no microphone glyph and no pressed or listening visual in the review sheet.",
+    "Source (motion.md vs ui-rules.md): the contradictions are unresolved. ui-rules.md:10 says selection response is 140 ms and reveal is 600 ms, while motion.md:10 makes card selection 'Immediate' and motion.md:12 uses 700 ms mist plus a 600 ms fade starting at 200 ms. ui-rules says 'No flashing', while motion.md:12 says 'Orb mist flashes then clears'. motion.md claims to be the authority, but ui-rules still carries conflicting numbers.",
+    "Source (motion.md): the signature interaction, tapping the orb, has only a press scale. There is no choreography for the transition from Home orb to Ask or to questions. All tab, card and paywall changes are 'Immediate', with no enter or exit transitions. Easing is named only as 'timing ease-in-out' with no curve values. motion.md:11 mentions a 'constellation progress' indicator, but no design exists for it: question-1.png shows a single cyan dot. Haptics are defined only for selection and reveal, not for the primary orb press.",
+    "Source (contrast.json): ratios are measured for ivory, secondary and gold on the base surfaces. Pairs actually used in the captures are missing: cyan link text (#5CE1E6) on the violet gradient ('Why this prediction?', 'Try this question'), active gold tab on #100923, the speculative label over the export gradient, and helper text over mid-gradient purple (#2A1458 region, lighter than violet). The pairs listed for focus ring and selected border are non-text contrast (3:1), but they are not identified as such.",
+    "Source (review.html): the sheet is a flat grid of 32 screenshots with one-line captions. It has no annotations tying screens to rules, no token or swatch panel, no frames for the rejected compositions (tarot deck, dashboard), no motion storyboard frames, and no state matrix (screen × loading/empty/error/offline/large text/reduced motion). It is evidence, not a design review sheet.",
+    "Source (system.md): the prose is compressed to the point of typos ('actions16/20', 'radius32', 'Free1/day', 'and390×844'). Components are listed by name only, with no anatomy or states (default/pressed/focused/disabled/selected) per component."
+  ],
+  "blockers": [
+    "Reconcile the motion contract into one table. Remove the timings from ui-rules.md:6 or make them match motion.md. Rename the mist 'flash' to a non-flashing luminance ramp with a peak-brightness cap. Give every row numeric easing (for example cubic-bezier values or spring stiffness/damping).",
+    "Specify the signature choreography: the orb-tap transition from Home to Ask or to questions, the Ask → question → research → reveal screen transitions (enter/exit, duration, easing, reduced-motion fallback), and a haptic on the orb press. Show it in the review sheet as a keyframe strip (0 / 200 / 700 ms).",
+    "Design the constellation progress indicator that motion.md:11 references (it should work for adaptive 3–10 cards without a fixed denominator), or delete the reference. Capture the selected, disabled-Next and Other-typed states side by side.",
+    "Fix the 200% text layout: tab labels must follow ui-rules.md:27 (standard-size one-line labels or icon-only with the large-content viewer). Compact the header at large text. Make the orb 96pt as specified. Order the elements as label → headline, with the eyebrow either removed or placed before the label. Re-capture large-home, large-question and large-reveal.",
+    "Fix the visual defects: the research caption alignment, the 8pt spacing under buttons (blocked and error screens), the Explore type hierarchy (sans or smaller for category titles or sample predictions), and a visible target or affordance for 'Try this question'.",
+    "Share: make the whole 9:16 preview visible above the tab bar (scale it to fit, or hide tabs in the share flow). Use the bottom 420px safe decoration zone on the export deliberately (a brand lockup or subtle constellation rather than empty space). Use the same color for the speculative label in app and export. Use a locale-aware date.",
+    "Home: choose one primary entry. Either the orb is the button, with a smaller secondary text action, or the gold button is justified in the spec. Explain or relabel '1 left' (for example '1 reading left today').",
+    "Ask: add a visible input label and give 'Hold to speak' a mic glyph plus a designed listening state, captured in the review sheet.",
+    "Paywall: add an explicit close control, and keep Restore visible or specify where it sits. State in the spec that the monthly-primary styling is intentional.",
+    "Extend contrast.json to every text-on-surface pair used in the captures: cyan links on the gradient midpoint, active tab gold on the tab bar, helper text on the lightest gradient stop, and the export label. Mark the non-text 3:1 pairs separately.",
+    "Rebuild review.html as an annotated review sheet. It needs a token/type/spacing panel, a component anatomy and state grid, the rejected alternatives as thumbnails, a state matrix, and callouts on each capture pointing to the rule it satisfies. Janus needs a decision view, not a gallery.",
+    "Clean up the typos in system.md and add per-component state definitions (default/pressed/focused/disabled/selected/error)."
+  ],
+  "strengths": [
+    "The thesis is coherent and distinctive. The glass orb with its orbit ring and internal mist is a genuinely memorable anchor, and it carries consistently from Home through research, error, blocked, reveal and the exported still.",
+    "Restraint. Gold is reserved for the primary action, reading surfaces are opaque, and the oracle theater sits in the orb while the controls stay plain. The 'Speculative forecast · not a guarantee' label sits next to the headline on reveal, share and export.",
+    "The failure and edge states are honest and designed: error with 'Nothing was charged. Your answers are kept.', a kind safety redirect with a safe alternative question, long-wait copy at 8s, a 60s timeout, empty History and Knowledge states, a test-mode paywall, and a friend-mode banner.",
+    "Accessibility intent is concrete: 44/52pt targets, no zoom disable, inline Why with a defined focus and announcement behaviour, reduced-motion fallbacks on every motion row, keyboard focus capture, and measured primary contrast ratios.",
+    "Deferred native checks (Dynamic Type, VoiceOver, Apple auth, billing) are clearly separated from what was observed in the browser. Nothing is overclaimed.",
+    "The question flow is well reasoned: one card at a time, Other always available, an explicit Next with its rationale, no fake denominator, and the Next button visibly disabled until an answer is chosen."
+  ]
+}
+```

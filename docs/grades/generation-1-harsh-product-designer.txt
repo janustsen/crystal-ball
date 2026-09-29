@@ -1,0 +1,53 @@
+```json
+{
+  "role": "harsh-product-designer",
+  "phase": "generation",
+  "score": 4.8,
+  "score_breakdown": {
+    "definitive_specific_forecast_20": 5.0,
+    "evidence_groundedness_25": 3.0,
+    "adaptive_question_relevance_20": 4.5,
+    "one_line_fit_15": 6.0,
+    "safety_20": 6.5,
+    "weighted_total": 4.85
+  },
+  "inspection_method": {
+    "source": "server/engine.ts, server/research.ts, server/safety.ts, server/provider.ts, server/handler.ts, src/questions.ts, tests/engine.test.ts",
+    "runtime_evidence": "docs/evidence/engine-bakeoff.json (10 real local-Qwen runs, 2026-09-29 09:41, which postdates the drive), safety-heldout.json, safety-outsider-baseline.json, safety-outsider-corrected.json, drive-extended.json, verification-summary.md",
+    "visual": "I viewed only docs/evidence/retry-reveal.png. Its headline 'You will need a year to hold a basic Spanish conversation.' is not one of the current learning enum choices in engine.ts:37, so the browser screenshots come from an older engine and are not evidence for current generation. Future predictive accuracy was not assessed and cannot be assessed tonight."
+  },
+  "evidence": [
+    "SEVERE: The general-topic headline repeats a news title word for word. In the bakeoff, 'Will I finish writing my novel this year?' produced the headline 'I Finished Writing Another Book! 📖🎉 But Will Anyone Even Read It? 🫠 - Substack', which is sources[0].title. 'Will my next holiday be memorable?' produced the Points Guy headline cut off at 110 chars ('...in 2026-27 - The 20'). The validator in engine.ts:47 only checks length and hedge words; it never rejects copied source text. That is 2 of 3 general-topic runs failing.",
+    "SEVERE: The generated general-topic cards ask the user to predict the outcome, which the prompt in engine.ts:12 forbids. Example: EV card 'What percentage of global new-car sales is expected for EVs…' with options 'EVs will account for over 50%…'. The user's guess then comes back as the forecast ('EVs will lead global new-car sales next year'), even though the attached source says EVs are 25% of sales. The headline contradicts the evidence shown under it.",
+    "Card options are cut mid-word at the 60-char schema limit and shipped to users: 'in 2', 'compared to the previous', 'intention for the '. Nothing rejects or rewrites them.",
+    "Sports: the app asks 'Which team is your pick?' and the headline is chosen from '<your pick> will / will not win'. Both runs returned the user's own pick. The Ball is echoing the user, not forecasting. The ESPN/FOX odds headlines it retrieves (e.g. 'Spain Favored To Repeat') are ignored when the user picks Argentina.",
+    "News matching is title-only keyword overlap (research.ts:11-12), and in the bakeoff most retrieved items are off-topic. Growth got a Burning Man review and AAA July 4 travel. Relocation got Def Leppard, Jimmy Kimmel and ad spending. Danish learning got a Danish furniture store fire. These are shown as 'dated news headlines' that 'add context'. The disclaimer is honest, but showing irrelevant sources hurts credibility.",
+    "Several collected answers never affect the output. Growth asks about retention, but engine.ts:29 is linear current + weekly × weeks and ignores it. Relocation asks about work, lease and runway, then lets the model pick freely between two fixed sentences. Learning level and practice time feed the model with no rule, so the model decides by feel. Money is the only rigorous domain (a checked projection function).",
+    "Money math quirk: debt is netted from assets and then compounds at the investment return (questions.ts:32-35). That misstates results for anyone carrying high-interest debt. Minor, but it is the one domain claiming to be numerically grounded.",
+    "Topic routing is a single regex (questions.ts:11-17). 'move' sends 'Will the stock move up?' to relocation cards ('Where do you live now? Boston/London/Copenhagen'). 'learn' sends 'Will I learn if my ex still cares?' to language/skill cards.",
+    "Safety numbers are overfitted. safeContext() in safety.ts:17 hard-codes the exact safe phrases from both the held-out set ('novel about a cancer survivor', 'pregnancy memoir', 'legal receptionist', 'death metal', 'battery die') and the outsider set ('consulate.s visa section', 'paralegal certification exam', 'immigration caseworker'). The 20/20 and 14/0/0/6 results measure memorization. verification-summary.md admits the outsider set is now a regression set, but no fresh held-out set exists. The uncorrected outsider baseline had 3 false allows (recall 0.79).",
+    "Safety regexes over-block ordinary questions. 'terminal' blocks 'Will my flight from terminal 3 be on time?' as illness. 'stroke' blocks swim-stroke and 'stroke of luck'. 'sentenc\\w*' blocks 'Will my sentence structure improve?' as legal. 'judge' blocks talent shows and 'prison' blocks TV-show questions. The documented held-out set also has 2/10 safe false blocks.",
+    "Safety categories are missing. Nothing covers harm to others, eating-disorder framing, or abuse/relationship-danger outcomes; only the model classifier's general judgment stands between those and a confident 'You will…' forecast.",
+    "Tests: engine.test.ts covers card counts and dedup, projection, 3 safety phrases, JSON repair and sports adaptation. No test covers headline quality: headline ≠ source title, no truncation, no user-guess echo, general cards don't ask for the outcome."
+  ],
+  "blockers": [
+    "Reject any headline that matches or substantially overlaps a source title (normalize, then token-overlap threshold). Require the headline to start with the question's subject ('You'/'Your'/named entity). Repair once, then fall back to an honest error, never the news title.",
+    "Enforce the 'never ask the user to predict the outcome' rule on generated general cards with a validator (reject options phrased as 'X will…' or carrying the outcome metric), and stop cutting options mid-word: tighten the prompt to ≤40 chars and reject over-length options instead of slicing them.",
+    "Sports: stop making the headline the user's pick. Ask about the user's allegiance only as flavor. The forecast must choose a team from the competition and ground it in the retrieved odds/rankings headlines, citing which headline informed it.",
+    "Make answers matter: put retention into the growth formula (or drop the card). Pick relocation/learning outcomes with a transparent rule (runway/offer/lease → move; practice minutes × days vs a CEFR-A2 hour threshold → conversation). Show the rule in the Why sheet.",
+    "Filter sources by relevance: require a match on a topic entity (language, city, team, product), not generic terms. Drop sources for personal domains where news cannot inform the outcome (learning, personal growth) rather than showing Def Leppard or a furniture-store fire.",
+    "Stop checking the entity and outcome directions against sources: if a retrieved headline states a contradicting figure (EVs at 25%), the general-topic forecast must not assert the opposite without a stated reason.",
+    "Safety: remove the test-phrase whitelist from safeContext. Replace it with generic context rules (creative work, job titles, objects/plants/devices). Narrow over-broad terms (terminal, stroke, sentence, judge, prison) to outcome phrasings. Add harm-to-others and eating-disorder categories. Report results on a new, untouched held-out set of 40+ cases, including slang and non-English, with ≤1 miss and ≤2 false blocks.",
+    "Add regression tests on the bakeoff failures: novel/holiday headline ≠ source title, no truncated options, EV cards don't elicit the outcome, 'Will the stock move up?' is not routed to relocation, 'Will my flight from terminal 3 be on time?' is allowed.",
+    "Re-run both browser drives on the current engine so the screenshots match what the code generates today, then re-run the bakeoff and keep the failing transcripts as evidence."
+  ],
+  "strengths": [
+    "The money forecast is a real deterministic projection with input bounds and a test ($106,413 from explicit inputs). The model can only pick from an enum there, so it cannot invent the number.",
+    "Enum-constrained headlines in structured domains, the hedge-word ban and the 110-char cap produce clean, definitive one-liners when the template path runs.",
+    "Honest framing: 'Speculative forecast · not a guarantee'; the Why text says headlines 'do not verify the prediction', and there is a separate message when no news was found. This matches the project rule against overclaiming.",
+    "Safety fails closed: a classifier error returns an error rather than a forecast. Safety re-checks the answers at predict time, not just the question. Self-harm gets distinct crisis-directing copy, and non-English (ES/DA) coverage exists.",
+    "Known facts are remembered and not asked again (tested). Every card offers 'Other'. The handler validates input size and shape at the trust boundary. Provider keys stay server-side, the default is local Ollama Qwen, and there are no paid APIs.",
+    "The evidence discipline is good: the outsider safety baseline failures were kept rather than overwritten, and the summary separates regression results from generalization claims."
+  ]
+}
+```

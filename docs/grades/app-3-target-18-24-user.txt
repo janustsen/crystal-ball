@@ -1,0 +1,73 @@
+The app scores **6.5/10**, short of the 9 bar. The main reasons:
+
+1. **The prediction doesn't follow from the answers.** With the best possible novel-writing answers (30 minutes daily, every day, no distractions), it predicted "You will not finish writing your novel this year." An earlier run with the same answers said "You will finish."
+2. **The model has no real choice on the main flows.** For the Spanish, money, moving and growth questions, `server/engine.ts` works out one answer with fixed rules and gives the model only that option to "choose".
+3. **"Why this prediction?" reads like a debug dump.** It shows raw field lists such as "Upcoming interruption: none supplied". On open questions the model's own explanation is thrown away and replaced by a template.
+
+Visual quality is strong. Error recovery and the handling of sensitive questions are well done.
+
+I only read files: no commands were run and nothing was modified. I also couldn't write the plan file, because no write tool was available in this session.
+
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "app (Expo web at 390x844, local Ollama qwen3:4b-instruct-2507-q4_K_M)",
+  "score": 6.5,
+  "rubric_breakdown": {
+    "end_to_end_observed_behavior_35": 5.5,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 7.5,
+    "performance_15": 6.5,
+    "weighted": 6.6
+  },
+  "evidence": {
+    "visual_inspection (screenshots viewed)": [
+      "home.png, ask.png, question-1.png, research.png: the space-mystic palette is consistent and polished. Glassy orb, serif display type, gold primary button, starfield. Reads as a real consumer app.",
+      "reveal.png: the headline 'You will need help speaking Spanish in 6 months.' is a flat, slightly deflating result for a 20-year-old, with no emotional payoff. The 'Did it come true? Yes / Not quite / Not yet' panel appears on a forecast created seconds earlier and is cut off by the tab bar.",
+      "why.png / general-why.png: the 'Behind the mist' card runs under the floating centre Ask orb, which covers words mid-sentence. The copy is a slot dump ('Your level: New beginner; practice: 30 minutes; feedback: Rarely; t…'), not an explanation.",
+      "general-why.png: identical text appears twice ('This is a speculative scenario… it is a speculative scenario'). Answers are pasted mid-sentence with capitals ('describe Writing 30 minutes daily').",
+      "money-reveal.png: 'Your net worth will be $6,371 in 5 years.' The Home suggestion says '10 years'. The false-precision number is a plain compound-interest result; the image doesn't show whether the 5-year horizon was chosen on a card.",
+      "money-1..10.png: ten sequential cards for one question (currency, inflation…). This reads like a spreadsheet form, and 18–24-year-olds would drop off.",
+      "exported-card.png (1080x1920): clean and private, but the bottom ~35% is empty. There is no question context, so a friend can't tell what was asked, and no hook or call to action back to the app. It works as a card but doesn't give anyone a reason to share it.",
+      "share.png: the preview is clipped behind the tab bar.",
+      "blocked.png / general-flow.json self_harm message: a kind redirect, 'No reading was spent' is stated, and the self-harm copy points to emergency help. Good.",
+      "network-error.png, timeout.png: clear recovery with Try again / Review answers / Edit question, and 'Nothing was charged. Your answers are kept.' Strong.",
+      "large-reveal.png (200% text): the headline fills the screen, the label moves to the top, tab labels disappear and the orb shrinks. Usable, but nothing below the headline shows without scrolling.",
+      "home-small.png (375x667): fits, and the main button stays visible.",
+      "keyboard-focus.png: shows only the textarea's focus ring. It does not show tab-order traversal through the option cards.",
+      "paywall.png: the test-mode disclosure is explicit; the annual-saving claim (44%) matches $39.99 vs 12×$5.99."
+    ],
+    "source_and_log_inspection": [
+      "server/engine.ts:50-54: the learning result is chosen by a fixed rule (intermediate OR ≥20 min + weekly/daily feedback), and choices is cut to one string before the model call. The model's schema is an enum of one, so on the main Spanish flow the 'real local model reveal' is a formality. The same one-answer pattern applies to money, growth and relocation.",
+      "server/engine.ts:73: for general questions the model's own `reason` is discarded and replaced by a template that does not explain why the result is yes or no.",
+      "general-flow.json vs general-driver-first-run.json: the same question and the same best-case answers produced 'You will finish' and then 'You will not finish'. The why text on the second run supports the opposite conclusion. The label `modelAuthoredCardsAndHeadline: true` is a structural pass, not a semantic one.",
+      "general cards: context_1 'How much time daily' and context_2 'How often' overlap, and the options repeat the question text ('Writing 30 minutes daily').",
+      "drive.json: plan 468 ms, predict 2361 ms, full flow 9.5 s. Credits observed going 1→0 through the UI; horizonPreserved true.",
+      "drive-extended.json / drive-states.json: screen names and booleans only, with no response bodies, timings or assertion values. The summary claims more than these logs show.",
+      "drive.json rafCadence: headless mean 34.5 ms, max 133 ms. performance-headed.json: 16.7 ms mean / 18.4 ms p95 animated, cold load 581 ms, JS 461 KB. Browser only; the headed reduced-motion mean of 22 ms is worse than the animated one, which is unexplained.",
+      "verification-summary.md: honestly lists the deferred native checks (Apple sign-in, notifications, voice, RevenueCat, VoiceOver, Dynamic Type) and native share overlays. Axe scan reports zero violations; gradient contrast measured separately.",
+      "Credits: the first reading takes the user to 0 readings (reveal.png), so the first session hits the paywall right away. Harsh for this audience, and the only thing Home says about it is '1 reading'."
+    ]
+  },
+  "blockers": [
+    "Make the prediction follow from the answers. Either let the model choose among both outcomes and show its reason, or keep the rules and write the why so it states the deciding factor ('Because you practise rarely with no conversation partner…'). Best-case inputs must not give a negative outcome without a stated reason. Add a check that the same inputs give the same result, or that a changed result is explained.",
+    "Rewrite the why text as 2–3 plain sentences a user would read. Remove the slot dumps ('none supplied', 'not supplied'), the repeated disclaimer and the mid-sentence capitals.",
+    "Fix the layout at the bottom of screens: pad scroll content for the tab bar and the floating Ask orb, so the why card, the 'Did it come true?' panel and the share preview are never covered.",
+    "Hide 'Did it come true?' until the forecast horizon or reminder date has passed, or turn it into a 'check back on…' preview.",
+    "Cut the money flow from 10 cards to 4 or fewer with sensible defaults, and keep the time horizon from the suggestion or question (10 years) unless the user changes it.",
+    "Make headlines feel like a reading for this audience: vivid and specific to the answers, with at least one line of story beyond yes/no, while keeping the speculative label.",
+    "Share card: add the question in short form (or a safe paraphrase) and a small app mark or call to action, and fill the empty lower third.",
+    "Make the extended and states drive logs record observed values (credit before/after, timings, response bodies, which assertion passed) so the verification summary's claims can be checked.",
+    "Keyboard: capture evidence of tab and arrow traversal through the radio option cards and the Next button, not just a focused textarea.",
+    "Explain or fix the headless frame-rate result (34 ms mean, 133 ms max) and the reduced-motion mean being worse than the animated one. Otherwise performance is shown only for a headed, idle page."
+  ],
+  "strengths": [
+    "A distinctive, consistent space-mystic visual system with good typography and orb art. It looks shippable on the main screens.",
+    "Error recovery: offline, timeout and cancel states keep answers and state that nothing was charged, with retry, review and edit paths all observed.",
+    "Safety redirects are kind, charge nothing, add nothing to the knowledge bank, and point to emergency help on self-harm.",
+    "Privacy: exports leave out answers and the question; the knowledge bank has edit and forget, and a forgotten fact is asked for again (observed).",
+    "The disclosures are honest: every surface shows the speculative label, the paywall is clearly marked as test mode, and native checks and the safety first-run miss (19/20 sensitive blocks, 3/20 false blocks on the first untouched run) are listed openly rather than hidden.",
+    "Runs entirely on local Ollama with no paid APIs; real engine latency (~2.4 s predict, 9.5 s full flow) is recorded; cold load is ~0.6 s."
+  ]
+}
+```

@@ -4,10 +4,11 @@ import type {AccountState,Prediction,Facts} from './types';
 import {mirror} from './cloud';
 let writes:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
-const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false});
+const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false});
 const Context=createContext<{state:AccountState;ready:boolean;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction)=>void;remaining:number;reset:()=>void}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false);
+ useEffect(()=>{const timer=setInterval(()=>setState(s=>{const day=new Date().toISOString().slice(0,10);return s.usage.day===day?s:{...s,usage:{day,count:0}}}),60000);return()=>clearInterval(timer)},[]);
  useEffect(()=>{AsyncStorage.getItem(key).then(raw=>{if(raw){const s=JSON.parse(raw);if(s&&s.facts&&Array.isArray(s.history)&&Number.isFinite(s.credits))setState({...initial(),...s});}}).catch(()=>{}).finally(()=>setReady(true));},[]);
  useEffect(()=>{if(ready){const snapshot=state;writes=writes.catch(()=>{}).then(async()=>{await AsyncStorage.setItem(key,JSON.stringify(snapshot));try{await mirror(snapshot)}catch{/* Local state remains authoritative; retry on the next change. */}});}},[state,ready]);
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;

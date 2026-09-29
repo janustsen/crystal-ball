@@ -1,0 +1,54 @@
+I scored the design phase **7.0/10**, below the 9 bar. The cosmic-mystic look holds together, but the motion spec is too thin and too inconsistent to build from. The exported share image has a visible text collision. At 200% text, a reveal headline appears before its uncertainty label. I read the five files in `docs/design/` as source and looked at 15 of the evidence captures as images. I changed nothing and ran nothing.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "design",
+  "score": 7.0,
+  "rubric_breakdown": {
+    "unified_cosmic_mystic_thesis": 8.0,
+    "visual_polish": 7.0,
+    "interaction_and_animation_specification": 5.5,
+    "accessibility_and_complete_states": 7.5
+  },
+  "method": "Source inspection: docs/design/system.md, ui-rules.md, motion.md, contrast.json, review.html. Visual inspection of captures linked from review.html: home, explore, question-1, selected-1, research, network-error, blocked, reveal, why, share, exported-card, paywall, history, large-home, large-reveal. Not visually inspected: ask, selected-2, knowledge, knowledge-edit, friend, money-10, money-reveal, large-question, paywall-purchased. Their status comes only from captions and prose. The review sheet was read as HTML source, not rendered.",
+  "evidence": [
+    "Thesis (source): ui-rules.md and system.md share one 'pocket observatory' idea: a glass orb, ink-violet sky, gold celestial marks, and serif-plus-sans type. system.md compares three layouts (tarot deck, dashboard, observatory) and gives a reason for the choice. Tokens, radii, spacing and touch-target minimums are all specified.",
+    "Thesis (visual): home.png, research.png, reveal.png and share.png all use the same SVG orb, orbit ring, star field and serif display type. The identity looks consistent and owned, not like a stock gradient.",
+    "Visual defect (visual): in exported-card.png, the first headline line ('You will still need help with basic') is drawn over the orb's pedestal shadow and the bottom of the orb. This is the one image users share outside the app.",
+    "Visual defect (visual): exported-card.png leaves about 250px of empty space between the headline and the speculative label, then an empty bottom third. The composition looks unbalanced.",
+    "Visual inconsistency (visual): network-error.png and blocked.png put a small orb at the top left with left-aligned text. Home, research and reveal centre the orb. This error/redirect layout is not described anywhere in system.md.",
+    "Copy defect (visual): network-error.png shows 'The mist is too thick.' as the heading and again as the first sentence of the body.",
+    "Copy defect (visual): reveal.png, why.png and large-reveal.png use the eyebrow 'Your glimpse of tomorrow' over forecasts that are 3 months or 5 years out. The eyebrow text is fixed and does not follow the forecast.",
+    "Accessibility (visual): at 200% text, large-reveal.png shows the headline filling the screen with the 'Speculative forecast · not a guarantee' label below the fold. ui-rules.md §5 and motion.md say this label is never staggered after an already-readable claim, and at large text it is. Separately, large-home.png pushes the orb, the ball-tap entry point and the primary CTA completely off the first screen.",
+    "Selection affordance (visual): in question-1.png and selected-1.png the radio marks are about 6px circles. The selected state is mostly a cyan border and fill tint, with a tiny filled dot.",
+    "Motion spec contradictions (source): system.md says the orb breathes over 6s with opacity and scale, and a second mist layer drifts the opposite way over 12s. motion.md specifies scale only, 3.2s per half (6.4s), and has no mist-drift row. system.md says haptics fire on selection and reveal; motion.md defers the reveal haptic.",
+    "Motion spec gaps (source): motion.md does not specify the Home orb tap → Ask transition, Ask → Questions → Research → Reveal handoffs, the Why expand/collapse animation, the paywall or overlay presentation, the pressed state of the raised tab orb, or the Other field appearing. 'Tab/card navigation: immediate' removes all continuity. The reveal is a single 600ms opacity fade of the whole group, which is weak as the signature moment of an entertainment oracle.",
+    "Reduced motion (source): reduced-motion behaviour is specified per row, which is good, but no reduced-motion capture of the reveal or research screens exists. large-home.png only claims reduced motion in its caption.",
+    "States (visual): research, network error, blocked redirect, test-mode paywall and history are all shown. history.png shows one item as 'Waiting to unfold' but no way to record a yes/no outcome. The resolved yes/no states that system.md requires are not shown.",
+    "Sensitive redirect (visual): blocked.png says the question 'deserves care and reliable support' but gives no link or resource for that support. It only offers a gentler prediction topic.",
+    "Contrast (source): contrast.json lists 16 pairs, all at 6:1 or higher, including placeholder, disabled, focus ring and selected border. No numbers are given for the gold-on-transparent labels over the orb glow or the cyan 'Try this question' links over the gradient. The document says glow is decorative, but the reveal label sits close to the glow.",
+    "Review sheet (source): review.html is an honest board of real captures that separates what was observed from what still needs a device check. It has no annotations, no before/after comparisons, no token swatches and no motion storyboard, so reviewers have to infer design intent from captions. Captions are missing spaces ('minimum3', 'Actual1080×1920', 'Private-by-default9:16'), and the same missing-space problem appears throughout system.md and motion.md ('actions16/20', 'scale0.97')."
+  ],
+  "blockers": [
+    "Fix the exported share card layout. Give the headline a guaranteed gap below the orb and its shadow (for example, scale the orb to about 440px or move the headline block to start at y ≥ 1080). Pull the speculative label up next to the headline. Re-export and re-capture exported-card.png and the MP4 frames.",
+    "At large text, keep the uncertainty label in the first viewport with the headline. Either render the label above or inline with the headline at large scale, or cap the reveal headline at a type ramp that fits both. Re-capture large-reveal.png showing both on one screen, and large-home.png showing a reachable orb or primary Ask action on the first screen.",
+    "Write one authoritative motion spec. Remove the contradictions between system.md and motion.md (breath period, opacity vs scale, mist drift, reveal haptic). Add rows for: Home orb tap → Ask (shared-element or orb-brighten), card-to-card transition with direction, research → reveal handoff, Why expand/collapse, overlay/paywall presentation, and the raised tab orb press. Give durations, easing curves and reduced-motion fallbacks for each.",
+    "Specify and show a stronger signature reveal: a staged mist-clear inside the orb, then headline plus label together, with the reduced-motion equivalent. Deliver it as a frame storyboard or short capture, not prose alone.",
+    "Unify the error and redirect composition with the centred observatory layout, or document why these screens are intentionally different. Remove the duplicated 'The mist is too thick.' sentence.",
+    "Make the reveal eyebrow follow the forecast horizon ('Your glimpse of the next 3 months') or make it neutral.",
+    "Enlarge the radio affordance to at least 20px with a visible ring and fill, so selection does not depend mostly on border colour.",
+    "Complete the History states. Capture the check-back yes/no recording control, resolved-yes and resolved-no items, and the empty History state.",
+    "For the sensitive-topic redirect, add a visible 'Get support' route (local helpline or resources link) alongside the gentler-question action, and capture it.",
+    "Upgrade review.html into an annotated review sheet: token swatches with contrast values, callouts on each capture tied to the rule it proves, a reveal storyboard, and small-screen/large-text/reduced-motion pairs side by side. Fix the missing-space typos across the review sheet and design documents."
+  ],
+  "strengths": [
+    "A single memorable object (the orb) anchors every major screen. Actions and explanations stay plain, so the mystical tone does not reduce legibility.",
+    "Honest information design: no fake progress percentage, no fabricated community counts, a test-mode paywall with billing period next to the price, and 'nothing was charged / answers kept' on failure.",
+    "Solid accessibility base: a measured contrast table, 44/52pt target minimums, zoom never disabled, Why as an inline disclosure with defined focus and announcement behaviour, keyboard-avoiding layout, and Android back behaviour specified.",
+    "Concrete small-screen budget (84pt navigation, 56pt heading, orb 240→160→96pt) and defined share safe bounds.",
+    "Deliberate interaction choices: select-then-Next with its rationale and a usability hypothesis to test, a question count that promises no fixed total, and Back that cuts off dependent answers.",
+    "The review sheet uses real captures and clearly separates observed evidence from deferred native-device checks."
+  ]
+}
+```

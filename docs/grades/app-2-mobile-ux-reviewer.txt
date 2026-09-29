@@ -1,0 +1,58 @@
+I scored the app phase **6/10**, below the requested 9. The Spanish, money and error-recovery flows work end to end. Four problems hold it back:
+
+- **Empty History is a blank screen.** It has no heading, message or button.
+- **Animation runs at about 15 fps** in the browser measurement.
+- **At 200% text size, pop-up messages are cut off** and cover the main button.
+- **In the flows shown, a fixed code rule picks the answer, not the model.** For the Spanish and money questions the model only copies back the result the code chose.
+
+I only read files and ran nothing. "Visual" below means I looked at the screenshots; "source" means I read the code.
+
+```json
+{
+  "role": "mobile-ux-reviewer",
+  "phase": "app",
+  "score": 6,
+  "rubric_breakdown": {
+    "end_to_end_observed_behavior_35": 6.5,
+    "visual_quality_screenshots_30": 7.5,
+    "accessibility_and_recovery_20": 5,
+    "performance_15": 5
+  },
+  "evidence": [
+    "[observed log] docs/evidence/drive.json: Spanish flow run in a 390x844 browser. Plan took 532 ms and the prediction 1761 ms using qwen3:4b-instruct-2507-q4_K_M. The whole flow took 9.5 s. The history entry survived a reload, the stated timeframe was kept, the sensitive question was blocked, and the reading count went from 1 to 0.",
+    "[source] server/engine.ts:11 and :49-53: learning, money, growth, relocation, sports and EV-world questions get fixed question cards from src/questions.ts. The outcome is decided by a code rule (the 'prepared' check at :52) and then forced as the model's only allowed answer (enum at :68). So the 'real local model reveal' in the main drive is the model repeating an answer the code already chose. Only topic=general questions use the model to write cards and pick the prediction, and the main drive never exercises that path.",
+    "[observed log + visual why.png] The 'Why' text is a developer string with the facts pasted in: 'The scenario assumes progress when you are already intermediate, or practice at least 20 minutes daily with weekly feedback. Your level: New beginner; practice: 30 minutes; feedback: Rarely ... not a validated learning threshold.' It reads like internal notes, not mystic, user-facing copy.",
+    "[visual knowledge.png vs drive.json] The card asked 'How often can you practice conversation?', but the You tab labels the stored answer 'Practice feedback: Rarely'. The label does not match the question.",
+    "[visual history-empty.png] Empty History is a completely blank starfield with no heading, message or call to action. verification-summary.md claims empty History/You states were covered; this screenshot contradicts that for History.",
+    "[visual reminder-preview.png, voice-fallback.png] At 200% text size, pop-up messages are cut off mid-line ('Type your' / 'Local'). 'Dismiss' overlaps the clipped text, and the pop-up covers the primary 'Look into the future' button.",
+    "[visual large-reveal.png, large-question.png] At 200%, the headline and the question title run past the tab bar with no visible scroll affordance. The 'Crystal Ball' brand text does not scale while other text does, and tab labels disappear, leaving only icons.",
+    "[visual timeout.png vs network-error.png] The 60-second local-model timeout says 'Check your connection', which misdiagnoses a slow local model. It also drops the 'Review answers' action that the network-error screen offers.",
+    "[visual blocked.png + drive.json] A pregnancy question gets a gentle redirect that says 'reliable support', but gives no resource or link. It confirms no reading was spent. A self-harm redirect exists in source; its screen was not observed.",
+    "[observed metric] drive.json rafCadence: mean frame time 64.3 ms, max 150 ms over 120 frames, which is about 15 fps. The orb and starfield animation is janky. Nothing on file shows it was fixed or profiled. Cold load to usable controls was 571 ms; JavaScript bundle about 460 KB.",
+    "[observed] accessibility.json: the automated axe scan reports 0 violations across five tabs plus the paywall. Gradient contrast is marked incomplete and deferred to separate token checks. None of this is VoiceOver or Dynamic Type evidence, and the summary says so.",
+    "[visual reveal.png, exported-card.png, share.png] The reveal hierarchy is strong: serif headline, speculative label always visible, gold primary button. The exported 1080x1920 card contains no private answers. The bottom 30% of the exported card is empty gradient, so it reads bottom-light.",
+    "[visual paywall.png] The paywall clearly says test mode and no real payments, with honest renewal copy. The 44% saving is arithmetically correct (39.99 vs 71.88).",
+    "[source/docs] SETUP.md lists deferred native checks honestly (Xcode missing; RevenueCat sandbox, Apple sign-in linking, notifications, voice). src/purchases.ts and the Apple link are wired behind flags with mocks. No simulator, real payment or store submission is claimed."
+  ],
+  "blockers": [
+    "Build a designed empty History state (heading, one-line explanation, 'Ask your first question' button) and an equivalent empty You state; capture both in drive-states.",
+    "Fix pop-up messages at 200% text: let text wrap or scroll, put Dismiss on its own row, and anchor the pop-up so it never covers the primary button. Re-capture reminder-preview and voice-fallback.",
+    "At 200% text, make the reveal and question screens scroll to the button, scale the brand text, and keep tab labels or supply accessible names. Show the headline and buttons all reachable in a large-text capture.",
+    "Measure and fix animation performance: pause or cheapen the starfield and orb animation (e.g. transform/opacity only, fewer star nodes, or a static image under reduced motion). Record rAF cadence at ~16.7 ms mean / under 33 ms p95 on the 390x844 run.",
+    "Rewrite the Why copy for users (e.g. 'Beginners who rarely practise conversation usually need more than 6 months…') instead of pasting facts into a developer template. Fix the 'Practice feedback' label so it matches the question asked.",
+    "Separate timeout copy from offline copy ('The Ball took too long — try again') and offer 'Review answers' on the timeout screen, as the network-error screen does.",
+    "Run the main drive (or a second observed drive) on at least one topic=general open question where the model actually writes the cards and chooses the prediction. Label template/rule-chosen predictions as such in the evidence, so the claim of a real-model end-to-end run is not overstated.",
+    "Add a support link to sensitive redirects (medical, pregnancy, self-harm) and capture the self-harm redirect screen.",
+    "Fill the bottom third of the exported card (e.g. question-free tagline or app mark) so it doesn't look unfinished on a story canvas."
+  ],
+  "strengths": [
+    "A cohesive cosmic look: good serif/sans pairing, a bright custom orb, and a gold primary button with a clear hierarchy on Home, Ask, the question cards and the reveal.",
+    "Fast, honest main loop: ~9.5 s from question to reveal; the Spanish flow's local-model calls completed; the timeframe was kept; the speculative label is always visible.",
+    "Recovery is designed well: going offline keeps your answers; Try again, Review answers and Edit question are offered; failures cost no reading, and this was observed.",
+    "Privacy works as described: private answers stay off exports, friend mode keeps answers out of You, and remembered facts are skipped or asked again after forgetting (observed).",
+    "Remembered facts can be edited and forgotten on the You screen, and edits carry into later questions.",
+    "Mock boundaries are honest: the paywall says test mode, the Apple button says it needs the configured iOS app, the reminder is marked as a native preview, and SETUP.md lists what is deferred to a device.",
+    "Failed evidence is preserved (failure.png, states-failure.png, schema-failure JSON) rather than overwritten."
+  ]
+}
+```

@@ -1,0 +1,74 @@
+```json
+{
+  "role": "independent target-18-24-user grader",
+  "phase": "design",
+  "score": 7.4,
+  "score_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.2,
+    "visual_polish_25": 7.2,
+    "interaction_and_animation_specification_25": 6.6,
+    "accessibility_and_complete_states_25": 7.6
+  },
+  "method": {
+    "source_inspection": [
+      "docs/design/system.md",
+      "docs/design/ui-rules.md",
+      "docs/design/motion.md",
+      "docs/design/contrast.json",
+      "docs/design/review.html (HTML source only; not rendered in a browser)"
+    ],
+    "visual_inspection": [
+      "docs/evidence/home.png",
+      "question-1.png",
+      "selected-1.png",
+      "research.png",
+      "reveal.png",
+      "why.png",
+      "share.png",
+      "exported-card.png",
+      "paywall.png",
+      "blocked.png",
+      "large-home.png",
+      "large-reveal.png"
+    ],
+    "existence_only": "I checked by glob that the other 30+ images referenced in review.html exist, but did not view them. I did not view exported-story.mp4, so I have not verified the motion."
+  },
+  "evidence": [
+    "Thesis (from source): 'pocket observatory' is stated the same way in ui-rules.md and system.md. The docs describe one signature object (a glass orb with orbit ring and inner mist) and reject tarot-deck and dashboard layouts with reasons. The palette tokens are named and applied consistently.",
+    "Thesis (from the images): the orb, ink-to-violet sky, gold primary action and Cormorant/DM Sans pairing appear on every screen I viewed. Copy fits the tone and stays honest: 'The mist is gathering…', 'Behind the mist', 'Let's look toward something gentler.', 'Send a little wonder.'",
+    "Visual: the home orb is attractive. It has a specular arc, cyan core, gold orbit dot and a ground shadow, and reads as a considered illustration, not a stock gradient.",
+    "Visual weakness: the orb looks identical on home, research, reveal, blocked and share. Nothing in the stills separates 'researching', 'revealed' and 'redirected', so the emotional peak of the product is not shown visually.",
+    "Visual weakness: exported-card.png, the 1080×1920 share artifact, leaves the bottom ~40% empty. It has a plain US-format date '9/29/2026', a small white label and no hook or call to action. Beside TikTok/IG-story norms for 18–24 users it looks unfinished, not collectible.",
+    "Visual weakness: on the reveal, the headline wraps to 4 lines with a widow ('in 6 / months.'). The gold 13pt 'Speculative forecast' label and the cyan 'Why this prediction?' link are small and sit in large empty space. The header chip '1 left' / '0 left' has no noun and does not explain itself.",
+    "Visual weakness (large-reveal.png, large-home.png): at 200% text the tab labels 'Home' and 'Explore' touch with no gap. The tab bar takes about 120pt of the 667pt viewport. On reveal, 'Your glimpse ahead' crowds under the two-line label, and the headline is cut mid-sentence at the fold with no scroll affordance.",
+    "Motion (from source): motion.md is a real table covering property, duration/easing, reduced-motion behaviour and haptics, plus a reveal storyboard with ms timestamps. This is good discipline.",
+    "Motion contradictions: ui-rules.md rule 6 says selection response is 140 ms, but motion.md says card selection is 'Immediate'. ui-rules also says 'No flashing', while motion.md says the reveal has 'mist flashes then clears'. ui-rules claims motion is defined only in motion.md but still states timings itself.",
+    "Motion gaps: 'constellation progress preserves sequence' is named, but question-1.png shows only a single cyan sparkle, with no constellation spec or frames. What happens after the Home orb press after the scale feedback is unspecified. The voice-hold state has no orb response ('direct state'). Every screen, tab, paywall and share transition is 'Immediate replace', so the app has no spatial language. The storyboard has no rendered frames, and 'Actual captures/video… are the motion proof', but no reveal frame sequence is in the review sheet.",
+    "Accessibility: contrast.json measures 16 pairs, all ≥6:1, including disabled, placeholder, focus ring and inactive tabs. The specs cover visible focus, 44pt targets, no zoom disabling, keeping the label before the headline in large-text mode, inline Why with focus retained and an announcement, and an Other+Next pattern with no auto-advance. States: review.html links captures for empty history/knowledge, long-wait, timeout, network error, blocked redirect, voice fallback, friend mode, mock purchase and restore.",
+    "Accessibility gaps: contrast.json omits text pairs that actually appear. These are cyan 'Why this prediction?' link text on the gradient mid-tone, the gold active tab label on the tab bar, and gold label text on the lightest point of the gradient. Screen-reader labels for the orb button and the '1 left' chip are not written out as strings. The 200% capture shows the label-collision defect above.",
+    "Review sheet (review.html source): a single 3-column grid of 31 captures with one-line captions. It has no token swatches, type specimen, per-screen state rows, annotations or callouts on the images, embedded MP4 or reveal frame strip, and no before/after for the large-text layout. Captions like 'Deterministic projection, then constrained model rendering' are engineering notes, not design review.",
+    "Doc polish: system.md has missing spaces throughout ('actions16/20', 'captions13/18', 'radius32', 'Free1/day', 'packs5/$1.99 and20/$5.99', 'Actual390×844'). This lowers confidence that the docs were reviewed as artifacts."
+  ],
+  "blockers": [
+    "Give the orb distinct, specified and captured visual states: idle, pressed, listening (voice), researching (faster mist plus a stronger glow), reveal peak and settled, and redirect (calmer, desaturated). Add a still for each to the review sheet so the product's peak moment is visible without running the app.",
+    "Add a 5–6 frame reveal filmstrip (0/200/400/700/800 ms plus the reduced-motion frame) to review.html, and embed or link exported-story.mp4 inline.",
+    "Resolve the motion contradictions. Delete the timings in ui-rules rule 6 and defer to motion.md. Pick either 'Immediate' or 140 ms for selection. Rename 'mist flashes' to a non-flashing luminance swell with a stated peak-brightness and frequency limit.",
+    "Specify the missing choreography: what the Home orb press leads to (orb-to-Ask transition, or a documented reason for none), the constellation progress glyph (a star per answered card, with a drawn spec and capture), a minimal forward/back directional cue for card advance, and the voice-hold orb response. Each needs a reduced-motion equivalent.",
+    "Redesign the share artifact for 18–24 sharing. Fill the lower safe band with a brand line or 'ask your own' prompt inside y≤1500, use a human-friendly date format, raise the speculative label's size and weight so it survives compression, and show one variant with the optional question included.",
+    "Fix large-text failures shown in large-reveal.png and large-home.png. Add a minimum gap between tab labels (or icon-only tabs with a large-content viewer at ≥200%). Cap the tab bar height at large sizes. Separate the speculative label from the 'Your glimpse ahead' eyebrow. Show a visible scroll cue when the headline crosses the fold.",
+    "Reveal polish: balance headline wrapping to avoid widows (for example, a text-wrap-balance equivalent or tuned width), bring 'Why this prediction?' up to 16pt body size with a clear affordance, and give the header chip a noun ('1 reading left').",
+    "Complete contrast.json with every text pair actually used. That means cyan link text, the gold active tab label and gold/secondary text on the lightest gradient stop, measured at the worst point of the gradient rather than the token endpoint.",
+    "Write out the accessible names and announcement strings for the orb button, the credit chip, the selected/disabled card states and research status changes, so the design phase has concrete VoiceOver copy for implementation to match.",
+    "Make review.html an annotated board: token/type specimen at the top, one row per screen with its states side by side, a callout on each capture for the design decision being proven, and a short 'known defects' list. Fix the spacing typos in system.md."
+  ],
+  "strengths": [
+    "Clear, defended thesis. The observatory is chosen over tarot and dashboard layouts, with one memorable object and quiet surrounding controls.",
+    "The orb illustration is attractive and built as native-compatible SVG with no 3D dependency.",
+    "Honesty is designed in: a persistent speculative label, no fake progress or popularity, an explicit test-mode paywall with period shown next to price, and 'no reading spent' copy on failure and redirect.",
+    "Unusually complete state coverage, backed by real captures rather than mockups: empty, long-wait, timeout, network error, blocked, voice fallback, friend mode, mock purchase and restore.",
+    "Measured contrast data with strong ratios. Focus ring, disabled and placeholder pairs are explicitly checked.",
+    "Sound interaction decisions: Other with explicit confirm, no auto-advance with a stated usability hypothesis, inline Why without a focus trap, reduced-motion toggle plus system setting, and label-first ordering in large-text mode.",
+    "Motion authority table includes reduced-motion and haptic columns plus a timed storyboard, a better base than most design phases."
+  ]
+}
+```

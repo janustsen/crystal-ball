@@ -1,0 +1,57 @@
+```json
+{
+  "role": "independent harsh product-design grader",
+  "phase": "design",
+  "score": 7.2,
+  "evidence": {
+    "inspected_by_source": [
+      "docs/design/system.md: observatory thesis, rejected tarot and dashboard alternatives, component list, per-screen specs, component anatomy and states table, voice and headline patterns",
+      "docs/design/ui-rules.md: 10 rules, small-screen and 200% text decisions, Why disclosure behaviour, share safe region x=90…990 / y=300…1500, and sources kept separate from project hypotheses",
+      "docs/design/motion.md: table covering 10 interactions with property, duration/easing, reduced-motion equivalent and haptic; reveal storyboard; easing formulas; a second table of 7 more interactions",
+      "docs/design/contrast.json: 20 measured pairs covering text, non-text, focus ring, placeholder, disabled, and tab states. All pass (lowest text 6.97:1, lowest non-text 6.04:1)",
+      "docs/design/review.html is 955 KB, so only its text structure was read by grep, not viewed rendered. Sections: visual grammar, composition choice, reveal frames at 0/300/800 ms, full flow, story export, a state coverage table with observed vs deferred columns, observed anatomy"
+    ],
+    "inspected_visually": [
+      "home.png, home-small.png (375×667): a strong orb centrepiece, calm serif/sans pairing, gold primary. At 390×844 the first suggestion row is cut off by the tab bar",
+      "question-2.png: one card, radio rings, disabled Next, 3-point progress constellation, 'Getting to know you · 2 of 3'. Clean",
+      "research.png: legible. The research orb is barely distinguishable from the idle orb in a still, despite the spec's cyan core and rim",
+      "reveal.png, why.png: gold rim and constellation make the reveal feel distinct. The label sits directly under the headline. Why opens inline",
+      "share.png: 9:16 preview with a privacy statement. In the scaled preview the wordmark and speculative label appear to render with mixed gold/ivory glyphs (e.g. 'Crysta Ball')",
+      "exported-card.png (1080×1920): polished and on-brand. Label and headline sit in the safe region, and the decorative constellation is in the bottom margin",
+      "paywall.png: test-mode banner, month and year are equally prominent, no fake urgency",
+      "history.png: status chip with icon and text, miniature orb. The empty lower 60% of the screen is dead space",
+      "blocked.png: kind redirect, safe alternative, 'No reading was spent'",
+      "failure.png: NOT a failure state. It shows the Ask screen from an older build, with a ✧ text wordmark and different tab icons (solid house, sparkle, moon for You) that contradict system.md 'Semantic visual roles'"
+    ]
+  },
+  "blockers": [
+    "The evidence set is internally inconsistent: failure.png is a stale Ask capture from a superseded visual language (different wordmark and tab icons) and is not a failure state. Recapture failure, timeout (60 s) and offline states in the current build and show them in review.html. Until then the error and timeout states are claimed but not visually proven.",
+    "The hero artifact uses the weakest copy. 'You will need help speaking Spanish in 6 months.' is an awkward, backhanded negative that does not answer 'Will I be conversational?' and breaks the spec's own 'direct and kind' rule. Show a reveal (and share card) with an on-voice headline, plus one positive and one negative example side by side.",
+    "The design authority is patched rather than unified. ui-rules.md and motion.md carry appended addenda that restate the same rules three or more times (the viewport ending above the raised orb, label-before-headline at large text, the two constellations). Consolidate into one spec per concern with no repetition, and fold the orphan decisions into their tables.",
+    "The token spec is incomplete. ui-rules lists 7 colours, but surfaces and states actually in use (#160F30 scrim/field, #322541 disabled, #25384B selected, #100923 tab bar, #A89AB8 placeholder) exist only in contrast.json. Publish a complete named token table: surface, elevated, field, border, selected, disabled, focus, glow opacities.",
+    "Disabled and secondary buttons are visually near-identical. In the Ask capture, the disabled 'Look into the future' reads like the secondary 'Hold to speak'. Specify and render a clearly distinct disabled treatment beyond a muted fill, still at contrast ≥4.5 for the label.",
+    "The research phase artwork is not distinct in practice. The still research orb reads the same as idle; the difference relies on motion speed. Make the cyan core and rim visibly different in a still frame, or add a research-specific mark, so the phase change survives reduced motion.",
+    "The signature reveal lacks choreography for its signature element. The gold constellation just appears at 0 ms. Specify its draw-in timing with a reduced-motion final frame, or justify the instant appearance. The reveal also fires a 'Success' haptic even for negative verdicts; define a haptic for the verdict tone.",
+    "Scaled share preview rendering: confirm and fix the apparent mixed-colour glyphs in the in-app preview's wordmark and speculative label. The preview must match the export exactly.",
+    "Home has three competing entry points to one destination (the orb, the gold button, the raised Ask tab), and the first suggestion is cropped by the tab bar at 390×844. Either demote the gold button or end the first fold cleanly on a whole suggestion row.",
+    "Add visually reviewed captures for empty History, empty Knowledge and 200% text on Reveal and Questions to review.html. The docs claim these; the sheet should show them."
+  ],
+  "strengths": [
+    "A clear, owned thesis ('a pocket observatory', with one glass orb as the memorable object) applied consistently across the current captures, with rejected alternatives recorded and reasoned",
+    "The exported 1080×1920 story card is genuinely polished and brand-true, and respects its stated safe region",
+    "An unusually rigorous motion table: every interaction has property, duration, easing formula, reduced-motion equivalent and haptic, and there is an explicit no-fake-progress policy",
+    "Contrast is measured, not asserted, including non-text focus and selection indicators, and selection never relies on colour alone",
+    "Honest trust design: the speculative label is persistent and adjacent to the headline, there are no fabricated counters or urgency, the paywall is truthful about test mode, and 'no reading spent' appears on cancel and redirect",
+    "Scope is correctly split between observed browser evidence and deferred native checks (VoiceOver, Dynamic Type, share-sheet overlays), without overclaiming",
+    "Project hypotheses (orb sizes, 8 s / 60 s budgets, share safe zones) are explicitly separated from WCAG and platform sources"
+  ],
+  "rubric_breakdown": {
+    "unified_cosmic_mystic_thesis_25": 8.0,
+    "visual_polish_25": 6.8,
+    "interaction_and_animation_spec_25": 7.3,
+    "accessibility_and_complete_states_25": 6.9
+  }
+}
+```
+
+Grade is 7.2/10, below the 9 bar. The docs are strong. The score is held down by stale or mislabeled evidence (failure.png), off-voice hero copy, sprawling appended specs, and an incomplete token table. I read only files and ran nothing. I couldn't write a plan file or call ExitPlanMode because neither tool is available in this session.

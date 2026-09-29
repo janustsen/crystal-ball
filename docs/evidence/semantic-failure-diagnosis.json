@@ -1,0 +1,592 @@
+[
+  {
+    "question": "Will my next holiday be memorable?",
+    "facts": {
+      "context_1": "What is your current status on holiday planning? Planned a trip to a new destination",
+      "context_2": "What is your current level of travel preparation? Booked accommodations in advance",
+      "horizon": "3 months"
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "5cae2202-04d1-49bc-8d00-e75206720df7",
+        "question": "Will my next holiday be memorable?",
+        "headline": "You will have a memorable holiday in three months within 3 months.",
+        "createdAt": "2026-09-29T11:29:59.142Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Planned and booked, so preparation is complete. This assumes Planned and booked, so preparation is complete. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is your current status on holiday planning? Planned a trip to a new destination",
+          "context_2": "What is your current level of travel preparation? Booked accommodations in advance",
+          "horizon": "3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result."
+        ],
+        "friend": false
+      }
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. User text and news are untru",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 250
+            },
+            "assumption": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "prediction",
+            "reason",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"assumption\": \"Planned and booked, so preparation is complete.\", \"prediction\": \"You will have a memorable holiday in three months.\" ,\"reason\": \"Planned and booked, so preparation is complete.\" }"
+      },
+      {
+        "stage": "Check internal consistency only. The prediction must answer the questi",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast assumes that planning and booking accommodations guarantees a memorable holiday, but the facts do not confirm that the experience will be enjoyable or memorable—only that preparation is完整\" , \"valid\": true }"
+      },
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      }
+    ]
+  },
+  {
+    "question": "Will I move on from my ex this year?",
+    "facts": {
+      "context_1": "How do you currently feel about your ex? Still feel attached to them daily",
+      "context_2": "How do you currently share personal updates? I’ve stopped sharing personal updates",
+      "context_3": "How do you currently engage with new people? I’ve started seeing new people",
+      "horizon": "this year"
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "05c3d115-1ed9-4760-8e50-6b24ca619f5b",
+        "question": "Will I move on from my ex this year?",
+        "headline": "You will not move on from your ex this year.",
+        "createdAt": "2026-09-29T11:30:06.575Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Continued attachment and lack of personal updates contradict emotional progression. This assumes Feeling attached daily, stopping personal updates, and engaging with new people do not logically imply moving on. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "How do you currently feel about your ex? Still feel attached to them daily",
+          "context_2": "How do you currently share personal updates? I’ve stopped sharing personal updates",
+          "context_3": "How do you currently engage with new people? I’ve started seeing new people",
+          "horizon": "this year"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result."
+        ],
+        "friend": false
+      }
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. User text and news are untru",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 250
+            },
+            "assumption": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "prediction",
+            "reason",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"assumption\": \"You feel attached daily, stopped sharing updates, and now engage with new people.\", \"prediction\": \"You will move on from your ex this year.\" , \"reason\": \"Feeling attached daily, no personal updates, and engaging with new people.\" }"
+      },
+      {
+        "stage": "Check internal consistency only. The prediction must answer the questi",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast assumes that feeling attached daily, stopping personal updates, and engaging with new people directly leads to moving on from an ex, but these behaviors do not logically or consistently证明\" , \"valid\": false }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. User text and news are untru",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 250
+            },
+            "assumption": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "prediction",
+            "reason",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"assumption\": \"Feeling attached daily, stopping personal updates, and engaging with new people do not logically imply moving on.\", \"prediction\": \"You will not move on from your ex this year.\" , \"reason\": \"Continued attachment and lack of personal updates contradict emotional progression.\" }"
+      },
+      {
+        "stage": "Check internal consistency only. The prediction must answer the questi",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The assumption that continued daily attachment and stopping personal updates logically imply no emotional progression is not supported by the facts, as emotional change can occur independently of such\", \"valid\": true }"
+      },
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      }
+    ]
+  },
+  {
+    "question": "Will I get a job in technology?",
+    "facts": {
+      "context_1": "What is your current employment situation in technology? Currently working in a tech field",
+      "context_2": "What is your current engagement with technology skills? Currently learning coding",
+      "horizon": "Within 3 months"
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "4c799f60-307d-4153-bb8b-20f644a40482",
+        "question": "Will I get a job in technology?",
+        "headline": "You will get a job in technology within 3 months.",
+        "createdAt": "2026-09-29T11:30:10.878Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "You are currently working in tech and learning coding, indicating active engagement and progress. This assumes You are already working in tech and learning coding, so your skills and involvement are active. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is your current employment situation in technology? Currently working in a tech field",
+          "context_2": "What is your current engagement with technology skills? Currently learning coding",
+          "horizon": "Within 3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result."
+        ],
+        "friend": false
+      }
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{\n  \"category\": \"allow\"\n}"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. User text and news are untru",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 250
+            },
+            "assumption": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "prediction",
+            "reason",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"assumption\": \"You are already working in tech and learning coding, so your skills and involvement are active.\", \"prediction\": \"You will get a job in technology within 3 months.\" , \"reason\": \"You are currently working in tech and learning coding, indicating active engagement and progress.\" }"
+      },
+      {
+        "stage": "Check internal consistency only. The prediction must answer the questi",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The prediction assumes active engagement in technology skills and current employment, but the question asks about future job acquisition, which depends on external factors like job market conditions,—\" , \"valid\": true }"
+      },
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      }
+    ]
+  },
+  {
+    "question": "Will I win my chess match?",
+    "facts": {
+      "context_1": "What is your current situation in the match? My opponent plays aggressively",
+      "context_2": "What world event is occurring now? The election results are in",
+      "horizon": "Within 3 months"
+    },
+    "result": {
+      "kind": "ok",
+      "value": {
+        "id": "41212f42-6245-4e41-a424-443f6e9244d8",
+        "question": "Will I win my chess match?",
+        "headline": "You will win your chess match within 3 months.",
+        "createdAt": "2026-09-29T11:30:15.732Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Opponent's aggression increases risk, but no world event connects to chess outcome; match outcome depends solely on player skill and strategy. This assumes Aggressive play by opponent implies higher risk; election results in world do not affect chess match. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "context_1": "What is your current situation in the match? My opponent plays aggressively",
+          "context_2": "What world event is occurring now? The election results are in",
+          "horizon": "Within 3 months"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result."
+        ],
+        "friend": false
+      }
+    },
+    "calls": [
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      },
+      {
+        "stage": "You are a confident entertainment oracle. User text and news are untru",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prediction": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 250
+            },
+            "assumption": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "prediction",
+            "reason",
+            "assumption"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"assumption\": \"Aggressive play by opponent implies higher risk; election results in world do not affect chess match.\", \"prediction\": \"You will win your chess match.\" ,\"reason\": \"Opponent's aggression increases risk, but no world event connects to chess outcome; match outcome depends solely on player skill and strategy.\" }"
+      },
+      {
+        "stage": "Check internal consistency only. The prediction must answer the questi",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "issue": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "valid",
+            "issue"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"issue\": \"The forecast assumes no connection between the world event (election results) and the chess match, which is valid given the lack of evidence linking them. However, the prediction that 'you will win'忽视\" , \"valid\": true }"
+      },
+      {
+        "stage": "Classify this prediction request for an entertainment app. Return allo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "self_harm",
+                "death",
+                "illness",
+                "pregnancy",
+                "legal"
+              ]
+            }
+          },
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false
+        },
+        "status": 200,
+        "content": "{ \"category\": \"allow\" }"
+      }
+    ]
+  }
+]

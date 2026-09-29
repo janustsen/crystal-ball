@@ -1,0 +1,90 @@
+[
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "How much time do you spend writing each day?",
+            "options": [
+              "Writing 30 minutes daily",
+              "Writing 15 minutes daily",
+              "Writing 10 minutes daily",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_2",
+            "question": "How often do you write?",
+            "options": [
+              "Write every day",
+              "Write 3 days a week",
+              "Write only on weekends",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_3",
+            "question": "What is your current writing environment like?",
+            "options": [
+              "No distractions",
+              "Minor distractions",
+              "Major distractions",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "card": 1,
+    "selected": "Writing 30 minutes daily"
+  },
+  {
+    "card": 2,
+    "selected": "Write every day"
+  },
+  {
+    "card": 3,
+    "selected": "No distractions"
+  },
+  {
+    "action": "predict",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "7a98420c-a09b-48d6-9553-66958db7d8b8",
+        "question": "Will I finish writing my novel this year?",
+        "headline": "You will finish writing your novel this year.",
+        "createdAt": "2026-09-29T10:47:37.200Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "The local model selected this scenario from your supplied context: this year; How much time do you spend writing each day? Writing 30 minutes daily; How often do you write? Write every day; What is your current writing environment like? No distractions. Its choice is not a measured probability; it assumes these present circumstances continue. No additional personal facts were verified. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "horizon": "this year",
+          "context_1": "How much time do you spend writing each day? Writing 30 minutes daily",
+          "context_2": "How often do you write? Write every day",
+          "context_3": "What is your current writing environment like? No distractions"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "News headlines are context leads, not proof of a future result."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "failure": "Error: General reveal credit mismatch"
+  }
+]

@@ -1,0 +1,53 @@
+The design phase scores **8/10**, below the 9 bar. The direction is clear and the accessibility and states work is strong. What holds it back is a contradiction in the motion spec, a weak share card, generic branding, copy that differs between spec and screens, and docs that repeat themselves.
+
+```json
+{
+  "role": "independent harsh product designer grader",
+  "phase": "design",
+  "score": 8.0,
+  "rubric": {
+    "unified_cosmic_mystic_thesis_25": 8.5,
+    "visual_polish_25": 7.5,
+    "interaction_and_animation_spec_25": 8.0,
+    "accessibility_and_complete_states_25": 8.0
+  },
+  "inspection_method": {
+    "visual": "Looked at the actual images: docs/evidence/home.png, reveal.png, question-1.png, research.png, why.png, timeout.png, paywall.png, exported-card.png (1080x1920), large-home.png, large-reveal.png.",
+    "source_only": "Read the text of docs/design/system.md, ui-rules.md, motion.md and contrast.json. review.html (955 KB) was searched for its headings, captions, tables and image references but not opened in a browser, so its layout and the embedded palette/type samples were not seen.",
+    "not_inspected": "reveal-frame-0/300/800.png, flow-recording.webm, exported-story.mp4. The reveal motion was judged from its written spec and the finished reveal.png, not from watching it play."
+  },
+  "evidence": [
+    "Thesis: 'pocket observatory' (ui-rules.md:3) plus the observatory choice over tarot-deck and dashboard layouts (system.md:9) makes one clear direction. The screenshots follow it: one glass orb with an orbit line and inner mist, an ink-to-violet gradient with sparse stars, a Cormorant display serif over a DM Sans interface font, gold for actions and cyan for selection and links. The same look runs through Home, Research, Reveal, Timeout and Paywall.",
+    "The orb changes by phase: idle, research (15% cyan core, doubled mist speed) and reveal (gold rim plus constellation), per motion.md:28. The screenshots show these as visibly different, not just a label change.",
+    "Motion: motion.md is the single timing reference, with properties, durations, easing formulas, a reduced-motion version and haptics for each interaction, plus a reveal storyboard. It explicitly refuses fake progress and forced waits.",
+    "Contrast: contrast.json has 20 measured pairs, including disabled text (7.58), placeholder (6.97), focus ring (12.6, non-text) and the brightest gradient stop. Selection uses a ring and a star, not color alone. Targets are 44 pt minimum and main buttons 52 pt.",
+    "State coverage in the screenshots: empty, populated, came-true and wrong History; empty and edit Knowledge; timeout; offline; safety redirect; self-harm support link; voice fallback; keyboard focus; friend mode; mock purchase and restore; 200% text on Home, a question card and Reveal; 375x667 layouts.",
+    "Contradiction: motion.md:20 calls for a 'five-point gold constellation' on reveal, but motion.md:22 says 'one connected point per available card'. question-1.png shows '1 of 3', yet the reveal.png orb and the exported card both show roughly 5 points.",
+    "Copy differs from the spec: system.md:18 says Home reads 'A little glimpse of what's next.' home.png shows 'A glimpse of what's next.' and large-home.png shows 'A little glimpse of what's'.",
+    "exported-card.png: roughly the bottom 40% of the 1080x1920 frame is empty gradient with a faint, arbitrary line of dots. The wordmark is plain gold sans text. For the main artifact meant to spread the app, it looks unfinished.",
+    "Brand mark is '✧ Crystal Ball' in plain DM Sans bold on every screen. Tab icons (house, sparkle, clock, moon) are stock glyphs, and a moon for 'You' says nothing about what that tab is.",
+    "In large-home.png at 200% text, the page order is tagline, then the Ask button, then the headline, and the orb disappears. The order is defended in the docs, but the page looks broken rather than designed.",
+    "The reveal headline 'You will need help speaking Spanish in 6 months.' answers 'Will I be conversational in Spanish in six months?' awkwardly. The oracle voice guidance (system.md:52) is only one example sentence and does not cover how an answer should respond to a yes/no question.",
+    "The docs have grown by appending: ui-rules.md and motion.md repeat the same points (viewport above the raised orb, label entering with the headline, 180 ms entrance) in several places. There is no named token table: surface colors #160F30, #100923, #322541 and #25384B appear only in contrast.json, and system.md points to src/ui.tsx for tokens, which makes the design spec depend on the code."
+  ],
+  "blockers": [
+    "Resolve the constellation rule. Either the reveal constellation is always 5 points as a brand motif, or it has one point per answered card; pick one and update motion.md:20/22, reveal.png and exported-card.png to match.",
+    "Redesign the share card: use the empty lower area, or give it a real wordmark block with a date or horizon strip and a proper closing motif. Show the still and a mid-animation frame side by side on the review sheet with the safe area outlined.",
+    "Create a real brand wordmark (a small orb glyph plus the serif name, or similar) and use it in the header, the share card and the app icon. Add a note justifying each tab icon, especially replacing the moon for 'You' with something meaning 'self'.",
+    "Design the 200% Home screen: keep a small orb or a sparkle mark, put the headline before the action or say why not, and show a large-text screenshot of Questions with the Other field open and one of Paywall.",
+    "Add a single token table to system.md covering every color, surface, radius, spacing, type-scale and elevation value with its role, and make contrast.json use those token names only.",
+    "Make the Home headline copy match between system.md and the screenshots. Add a voice guide with 4–6 headline patterns showing how to answer yes/no, number and timeline questions, with do/don't pairs.",
+    "Put missing states on the review sheet: a reduced-motion reveal final frame, share export failure, paywall purchase failure or cancellation, Explore empty or offline, and Knowledge fact deletion with Undo showing.",
+    "Merge ui-rules.md and motion.md into single, non-repeating sections. Each rule should be stated once."
+  ],
+  "strengths": [
+    "A clear central idea, one luminous orb with quiet surroundings, carried consistently through every screenshot I viewed.",
+    "The reveal composition works: a large serif headline, the speculative label right below it, and 'Why' expanding in place below that. Honest and on theme.",
+    "Error copy keeps the metaphor without hiding the facts: 'The mist is too thick. The Ball took too long. Nothing was charged.'",
+    "The motion spec is exact: formulas, durations, reduced-motion versions and haptics, and no fake progress bars.",
+    "Contrast is measured, not asserted. It covers non-text elements and the worst gradient stop.",
+    "The paywall is honest: test mode is clearly marked, prices show their billing period, and there is no fake urgency.",
+    "It admits what is only browser-tested (VoiceOver, Dynamic Type, share overlays) instead of claiming native accessibility passes."
+  ]
+}
+```
