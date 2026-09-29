@@ -49,3 +49,15 @@ test('general planning does not send unrelated domain memories into model cards'
  globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));inputs.push(JSON.parse(body.messages[1].content));const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']},{question:'What slows your writing?',options:['Time','Ideas','Editing']}]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await makePlan('Will I finish writing my novel this year?',{learning_target:'Spanish',assets:'25000'},provider(()=>undefined));assert.equal(result.kind,'ok');assert.ok(!JSON.stringify(inputs).includes('Spanish'));assert.ok(!JSON.stringify(inputs).includes('25000'));}finally{globalThis.fetch=original;}
 });
+
+test('duplicate model cards earn a repair instead of repeating the same question',async()=>{
+ const {makePlan}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.cards){drafts++;content={cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:drafts===1?'How much have you written?':'How often do you write?',options:['Daily','Weekly','Rarely']},{question:'What slows your writing?',options:['Time','Ideas','Editing']}]};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await makePlan('Will I finish writing my novel this year?',{},provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);}finally{globalThis.fetch=original;}
+});
+test('learning explanation preserves the chosen baseline and conversational target',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('Will I be conversational in Spanish in six months?',{level:'New beginner',practice:'30 minutes',conversation:'Weekly',deadline:'In 6 months'},false,provider(()=>undefined));assert.equal(result.kind,'ok');if(result.kind==='ok'){assert.match(result.value.headline,/conversational Spanish/);assert.match(result.value.why,/new beginner/);assert.doesNotMatch(result.value.why,/intermediate/);assert.match(result.value.why,/conversation practice/);assert.ok(!result.value.assumptions.some(a=>a.includes('News headlines')));}}finally{globalThis.fetch=original;}
+ assert.equal(planFor('Will my side project gain customers?',{}).topic,'general');
+});
