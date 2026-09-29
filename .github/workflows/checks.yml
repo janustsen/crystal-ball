@@ -1,8 +1,7 @@
 name: Prototype checks
-on:
-  pull_request:
-  push:
-    branches-ignore: [main, master]
+# Manual-only: the account's GitHub Actions billing is paused, so verification
+# runs locally through the verify-crystal-ball skill on the exact head.
+on: workflow_dispatch
 jobs:
   verify:
     runs-on: ubuntu-latest
