@@ -14,7 +14,8 @@ export function ShareCard({prediction,onClose,onNotice}:{prediction:Prediction;o
  useEffect(()=>{if(Platform.OS==='web')void stillImage().then(setPreview).catch(()=>setNotice('Preview could not load. Please reopen this card.'))},[prediction.id]);
  async function stillImage():Promise<string>{
   if(Platform.OS!=='web'){const uri=await captureRef(ref,{format:'png',quality:1,width:1080,height:1920});return 'data:image/png;base64,'+await new File(uri).base64();}
-  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d');if(!ctx)throw new Error();
+  // Keep export pixels on the CPU to avoid a synchronous GPU readback.
+  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error();
   const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,colors.violet);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
   for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
@@ -26,7 +27,11 @@ export function ShareCard({prediction,onClose,onNotice}:{prediction:Prediction;o
   let y=1080;for(const line of lines){ctx.fillText(line,540,y);y+=font*1.25;}y-=font*1.25;
   ctx.font=`42px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;const labelY=Math.min(y+100,1370);ctx.fillText('Speculative forecast',540,labelY);ctx.fillText('Not a guarantee',540,labelY+72);ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',540,1590);
   ctx.font=`36px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.muted;ctx.fillText('A glimpse, not a promise',540,1650);
-  return canvas.toDataURL('image/png');
+  // Encode asynchronously so opening Share does not block the animation frame.
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>{
+   if(!blob){reject(new Error('Could not encode story'));return;}
+   const reader=new FileReader();reader.onload=()=>resolve(reader.result as string);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob);
+  },'image/png'));
  }
  async function animated(){setNotice('Making your four-second story…');try{
   const image=await stillImage();const response=await fetch(`${engineUrl}/share`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image}),signal:AbortSignal.timeout(60000)});if(!response.ok)throw new Error();const data=await response.arrayBuffer();
