@@ -1,6 +1,6 @@
 # Hosted inference decision — 2026-09-30
 
-Recommendation for the captain: **A — evaluate Together / Qwen3.5-9B first**, keeping the current local model as the baseline. This retains the [existing research recommendation](../research/decisions.md). DeepInfra is the cheaper comparison candidate. This is a proposed evaluation choice, not an enabled provider or a quality pass. No accounts, keys or paid calls were made.
+Recommendation for the captain: **A — evaluate Together / Qwen3.5-9B first**, keeping the current local model as the baseline. This retains the [existing research recommendation](../research/decisions.md). DeepInfra is the cheaper comparison candidate. This is a proposed evaluation choice, not an enabled provider or a quality pass. The original comparison used no accounts, keys or paid calls. The captain subsequently authorized a capped evaluation of A and B; see the pending benchmark below.
 
 | Choice | Provider / model | Quality fit (hypothesis) | Latency (unmeasured) | USD / million input, output | Estimated reading |
 |---|---|---|---|---|---|
@@ -13,6 +13,22 @@ Prices: [DeepInfra](https://deepinfra.com/pricing), [Together](https://www.toget
 Estimates assume a full reading uses **8,000 input + 1,000 output tokens total** across planning and prediction, no caching or tools. Formula: `(8000 × input price + 1000 × output price) / 1,000,000`. These are planning assumptions, not measured token counts. Allow roughly 2–3× for repair (the repair prompt repeats context), plus separately billed reasoning, hosting, database and any search costs. Ten thousand baseline readings: A $16.10 / B $9.50 / C $35.00. Retries can make an unsuccessful reading cost money too.
 
 The [previous local comparison](../evidence/model-comparison.md) completed only 10/20 cases for both Qwen3.5 9B and Qwen3 4B with an experimental reviewer; 9B was slower (23.90s vs 5.22s median, with contention). The reviewer was subsequently removed. These failures remain evidence: larger Qwen has not earned a quality upgrade. Use the current engine and held-out cases for the hosted replay. The cost assumption above matches the original [pricing budget](../research/pricing.md), not a new measured token count.
+
+## Captain's cost ceiling and daily omen
+
+The approved ceiling is **under $0.01 per free reading**. Daily omen is a separate tiny personalized call, approximately **$0.0002 per active user/day**, generated only when that user opens the app that day. This replaces the earlier “only if free” condition; it does not authorize accounts or spending.
+
+Cost rank below uses the cited rates, the same 8,000-input/1,000-output reading assumption, and an **800-input/80-output omen**. The 3× reading scenario is a repair/reasoning stress estimate, not a guaranteed bound.
+
+| Cost rank | Choice | Reading baseline | Reading at 3× | Remaining below $0.01 at 3× | Omen baseline | Budget assessment |
+|---|---|---|---|---|---|---|
+| 1 | B · DeepInfra Qwen3.5-9B | $0.00095 | $0.00285 | $0.00715 | $0.000092 | Strongest estimated headroom; omen fits |
+| 2 | A · Together Qwen3.5-9B | $0.00161 | $0.00483 | $0.00517 | $0.000156 | Reading and single-call omen fit; retained first evaluation recommendation |
+| 3 | C · Gemini 3.1 Flash-Lite | $0.00350 | $0.01050 | **-$0.00050** | $0.000320 | Baseline reading fits; stress case exceeds ceiling and omen exceeds target |
+
+Recommendation remains **A for the first measured evaluation**, with **B the cost leader** to compare alongside it. Both have room under the reading ceiling; local 9B failures mean price alone cannot justify deployment. C needs a smaller measured token budget before it is a viable free-reading/omen choice. The captain still selects the provider.
+
+An omen retry can break the tiny daily target: at 3×, A costs $0.000468 and B $0.000276. The retention implementation therefore needs an explicit per-user/day generation lock, cached result, token budget and failure behavior; opening twice must not trigger two calls. A failed generation still incurs cost. Do not silently apply the reading's repair budget to an omen or claim these estimates enforce a spending limit. The current adapter caps each output at 1,200 tokens; it does **not** enforce the smaller omen budget or the per-reading dollar ceiling. Those require measured usage, server-side budget enforcement and approved provider configuration before launch. Keep the original one-repair/fail-closed reading contract.
 
 ## Implemented boundary
 
@@ -28,3 +44,11 @@ Candidate base URLs: DeepInfra `https://api.deepinfra.com/v1/openai`, Together `
 2. Run held-out safety/semantic cases and real whole-flow timing for each candidate. Record first-pass validity, repair rate, semantic grading, p50/p95 latency, tokens and actual cost. Preserve failures. Do not substitute structural success for predictive accuracy.
 3. Deploy an authenticated, rate-limited engine with server-side quotas and abuse controls. The loopback Node tool is **not** a public API, and local credits are not billing enforcement. Add cancellation/budget handling before serving public traffic.
 4. Publish the selected vendor and retention in the privacy policy; finish the App Store checklist. Keep Ollama default until explicitly approved.
+
+## Authorized measured comparison — pending credentials
+
+The captain chose DeepInfra and Together, both `Qwen/Qwen3.5-9B`, with **at most $1/provider** (about $2 total). `scripts/hosted-bakeoff.ts` reads only the designated external `~/.config/crystal-ball/hosted.env` key entries at run time; keys never enter source, reports or command arguments. The file was present but both entries were empty at preparation time. No paid calls have run yet.
+
+The prepared comparison runs local Qwen as baseline, four fixed-context semantic regressions (holiday, technology job, old-friend reconnection, moving on), four whole reading flows, and three sensitive-topic redirects. It preserves each run’s raw engine results, latency and provider usage counts in a timestamped evidence file. Usage-derived dollars are not billing invoices, and completed JSON is not a semantic pass; review every forecast/card before naming a winner.
+
+Offline check: `npx tsx scripts/hosted-bakeoff.ts --check`. Authorized live run: `npx tsx scripts/hosted-bakeoff.ts`. It reserves a conservative byte-based input budget plus template allowance and the 1,200-token output cap before each request, persists reservations across reruns, refuses concurrent runs, caps each provider at 80 requests and stops before the $1 reservation limit. HTTP/transport failures stop that provider’s remaining calls. Do not delete its `.local/hosted-budget.json` ledger to rerun. The committed default remains Ollama.

@@ -15,3 +15,9 @@ Implementation was checked in the isolated `fm/cb-launch` worktree on 2026-09-30
 Concurrent Metro instances initially mixed public environment variables in the shared temporary cache. A checkout-local `TMPDIR` fixed the observed bundle; its engine URLs then contained only 8796. The verification skill now documents isolated cache/ports. Verification dependencies FFmpeg, Playwright recording FFmpeg and PGlite were installed under ignored `.local`, not globally.
 
 Before no-mistakes shipping: rebase onto the redesign once https://github.com/janustsen/crystal-ball/pull/2 merges, resolve any UI changes and rerun the merge gate on the exact resulting head. This document records the local implementation handoff, not a green PR or public-launch approval. The worker does not push or merge during this handoff.
+
+## Captain steering follow-up
+
+The decision documents now rank providers against under $0.01/free reading and approximately $0.0002/active-day omen; replace the 18+ suggestion with the approved 13+ audience / 12+ storefront target (with Apple's newer 13+ rating noted); and track teen/social/school privacy requirements and the shared optional-birthday profile contract. These are integration acceptance requirements, not a claim that the other lanes' features exist here.
+
+The captain authorized up to $1 each for DeepInfra and Together. The benchmark CLI's offline `--check` passes budget rejection cases and typecheck passes. The external credential file existed but both keys were unpopulated; no hosted call occurred. Live comparison is pending usable keys. An attempted local browser preview of the updated decision HTML timed out despite HTTP 200 from the local server; the document's decision text and inline script were checked directly. App runtime code was unchanged in this follow-up. The document server and owned browser session were stopped.
