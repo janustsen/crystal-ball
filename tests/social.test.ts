@@ -5,6 +5,7 @@ import {phraseSafety as clientSafety} from '../src/safety-policy';
 import {phraseSafety as engineSafety} from '../server/safety';
 import {moderateSocialLine,socialHandler} from '../server/social';
 import type {ModelProvider} from '../server/provider';
+import {provider} from '../server/provider';
 
 test('sample stars are safe inspiration and never claim to be people',()=>{
  assert.equal(sampleStars.length,6);
@@ -27,6 +28,37 @@ test('social service requires server configuration and authenticated identity be
  assert.equal((await socialHandler(()=>undefined,model)(request())).status,503);
  assert.equal((await socialHandler(key=>key==='SUPABASE_URL'?'http://127.0.0.1:55329':key==='SUPABASE_SERVICE_ROLE_KEY'?'local-only':undefined,model)(request())).status,401);
  assert.equal(called,false);
+});
+
+test('Friend reading repairs an oversized Why with the precise field limit',async t=>{
+ const forecastRequests:Record<string,any>[]=[];
+ t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
+  const url=String(input);let body:unknown;
+  if(url.endsWith('/auth/v1/user'))body={id:'00000000-0000-0000-0000-000000000001'};
+  else if(url.includes('/social_profiles?'))body=[{age_band:'unknown'}];
+  else if(url.endsWith('/rpc/authorize_friend_reading'))body={sun_sign:'leo',themes:[],teen_viewer:true};
+  else if(url.endsWith('/api/chat')){
+   const request=JSON.parse(String(init?.body)),system=request.messages[0].content;
+   let output:unknown;
+   if(system.startsWith('Classify this prediction'))output={category:'allow'};
+   else if(system.startsWith('You moderate published text'))output={safe:true};
+   else {
+    forecastRequests.push(request);
+    const repair=request.messages.at(-1).content.toLowerCase();
+    // Recorded failure: the model repeats its 189-character Why when only
+    // given the provider's generic "check field lengths" repair instruction.
+    const precise=repair.includes('why')&&repair.includes('160');
+    output={headline:'Your friend will explore a creative goal this year.',why:precise?'A Leo-inspired creative nudge, based only on a sun sign. No goal details are known.':'A'.repeat(189)};
+   }
+   body={message:{content:JSON.stringify(output)}};
+  }else throw new Error(`Unexpected test URL: ${url}`);
+  return new Response(JSON.stringify(body),{headers:{'Content-Type':'application/json'}});
+ });
+ const env=(key:string)=>({SUPABASE_URL:'http://supabase.local',SUPABASE_SERVICE_ROLE_KEY:'test-only',OLLAMA_URL:'http://model.local'}[key]);
+ const response=await socialHandler(env,provider(env))(new Request('http://localhost/social',{method:'POST',headers:{Authorization:'Bearer test-only'},body:JSON.stringify({action:'friend',question:'Will this friend make progress on a creative goal this year?',circle:'00000000-0000-0000-0000-000000000010',member:'00000000-0000-0000-0000-000000000002'})}));
+ assert.equal(response.status,200,await response.clone().text());
+ assert.equal(forecastRequests.length,2,'exactly one repair');
+ const result=await response.json();assert.ok(result.why.length<=160);
 });
 
 test('incoming private seal text is filtered before display',()=>{
