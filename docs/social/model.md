@@ -41,3 +41,5 @@ The profile integration reads the account's `sunSign` and `ageBand` fields, owne
 For UI verification, `SOCIAL_DB_SERVE=1 bash scripts/verify-social-db.sh` leaves that same isolated cluster running behind `scripts/social-dev-transport.mjs`. The transport simulates Auth/PostgREST on loopback only, while SQL, RLS, app code and Ollama are real. It is verification tooling, never a production fallback. No Docker, hosted accounts or paid services are needed.
 
 Anonymous-account reports are not proof of distinct humans. Hosted rate limits, anti-abuse controls, verified subscription entitlements and native delivery remain deployment boundaries. No real billing is enabled by this feature.
+
+Detailed executable boundary proof and remaining integration risks: [blast radius evidence](../evidence/social-blast-radius.md). Browser privacy journey: [social drive](../evidence/social-drive.json). Real-model sample moderation: [model sample](../evidence/social-model.json).

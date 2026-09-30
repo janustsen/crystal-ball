@@ -1,0 +1,11 @@
+{
+  "symptom": "Consented Plus Friend reading showed The mist is too thick for an unknown-age requester",
+  "surface": "same browser question replayed by curl against the real local engine, Ollama and isolated PostgreSQL",
+  "boundary": "Auth/PostgREST simulated; adult recipient fixture",
+  "before": {"http": 400, "milliseconds": 8961, "headlineCharacters": 74, "whyCharacters": [189,189], "whyLimit": 160},
+  "cause": "Friend schema omitted length constraints; boolean validator supplied no field-specific repair feedback, so the single repair repeated the invalid Why",
+  "fix": "Explicit schema lengths and precise validation feedback; complete-sentence Why required; existing one-repair then fail-closed provider preserved",
+  "regression": "Friend reading repairs an oversized Why with the precise field limit: red HTTP 400, green HTTP 200 with exactly two forecast attempts",
+  "after": {"http": 200, "milliseconds": 5847, "why": "Leos shine brightest when they channel energy into vivid, original ideas and bold self-expression."},
+  "limit": "Successful sample is structural evidence, not predictive or moderation accuracy"
+}
