@@ -7,3 +7,10 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
  if(!result||!['ok','blocked','error'].includes(result.kind))throw new Error('The mist is too thick. Please try again.');
  return result;
 }
+
+export async function requestOmen(facts:Facts):Promise<string>{
+ const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts}),signal:AbortSignal.timeout(60000)});
+ const result=await response.json();
+ if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
+ return result.value.text;
+}

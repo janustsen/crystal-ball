@@ -9,13 +9,9 @@ const omen=await page.eval(()=>document.querySelector('[data-testid="daily-omen"
 const credits=await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent);
 await page.click('[data-testid="tab-history"]');
 await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>/Came true|Took another path|Waiting to unfold|Did it come true/.test(e.textContent)).click());
-await page.fill('[data-testid="check-in-date"]','2026-02-30');
+const due=await page.eval(()=>document.querySelector('[data-testid="forecast-due-date"]').textContent);
+assert(/^Due date · \d{4}-\d{2}-\d{2}$/.test(due),'Due date missing');
 await page.click('[data-testid="remind-me-to-check-back"]');
-assert(await page.eval(()=>document.body.innerText.includes('Choose a future check-in date')),'invalid date accepted');
-await page.click('[data-testid="dismiss-notice"]');
-const future=new Date();future.setFullYear(future.getFullYear()+1);
-const date=`${future.getFullYear()}-${String(future.getMonth()+1).padStart(2,'0')}-${String(future.getDate()).padStart(2,'0')}`;
-await page.fill('[data-testid="check-in-date"]',date);await page.click('[data-testid="remind-me-to-check-back"]');
 assert(await page.eval(()=>document.body.innerText.includes('Native reminder preview')),'web fallback missing');
 await page.click('[data-testid="dismiss-notice"]');
 for(const [outcome,label] of [['no','Took another path'],['pending','Waiting to unfold'],['yes','Came true']]){
@@ -34,7 +30,7 @@ assert(await page.eval(()=>document.querySelector('[data-testid="view-plans"]').
 await page.click('[data-testid="tab-history"]');
 assert(await page.eval(()=>document.body.innerText.includes('Came true')),'verdict lost on reload');
 await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.includes('Came true')).click());
-assert(await page.eval(()=>document.querySelector('[data-testid="check-in-date"]').value)===date,'date lost on reload');
+assert(await page.eval(()=>document.querySelector('[data-testid="forecast-due-date"]').textContent)===due,'Due date changed on reload');
 assert(await page.eval(()=>document.querySelector('[data-testid="check-in-yes"]').textContent.includes('✓')),'selected verdict lost');
-console.log('PASS: omen, unchanged credits, invalid date, web reminder, all verdicts, reload persistence, control bounds');
+console.log('PASS: personal omen, unchanged credits, Due date, web reminder, all verdicts, reload persistence, control bounds');
 JS

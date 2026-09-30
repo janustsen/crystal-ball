@@ -1,30 +1,32 @@
 # Retention implementation and verification
 
-Adds an offline curated daily omen on Home, a date-based check-in reminder linked to its reading, and an iOS Daily Omen widget. The existing yes/no/pending verdict remains per reading, visible in History and selected on reopening. No accuracy score or reading allowance change.
+Applies the captain's September 30 decisions: ball-set Due date controls Check-in; the Daily omen is personal and astrology-flavored, generated only while Home is open, once per local profile/day; no accuracy score. Home and the iOS widget share the cached omen. No reading allowance change.
 
 ## Data and blast radius
 
-`Prediction.checkInOn` is an optional local calendar date (YYYY-MM-DD). Existing stored readings need no migration. The engine still returns the same prediction payload; no provider schema changes. `cloud.ts` mirrors the full prediction JSON, so check-in date and existing verdict travel with that payload without a SQL column change. AccountState and daily-credit logic are untouched. Omen cache uses a separate AsyncStorage key and never invokes the engine or savePrediction.
+- `Prediction.dueDate?: string` is the reading-flow lane's YYYY-MM-DD contract. Existing forecasts fall back to creation date plus 30 days. There is no editable `checkInOn` field or headline-duration parser. History and notification scheduling consume the same date helper. Cloud mirroring already stores the complete forecast JSON; no SQL migration is needed.
+- Omen input uses the existing `Facts` map, including `facts.sun_sign` when onboarding supplies it. A skipped Sun sign stays unknown; the generator cannot invent one. The producer of this key is an integration boundary with the launch lane, not another onboarding implementation here.
+- `action: "omen"` reuses handler input limits and the configured provider. Its 160-token cap is opt-in; existing local-provider calls retain 600 tokens and existing hosted calls remain uncapped by this change. One short generation request per day retains the shared provider's one-repair-then-fail-closed rule. Default local Qwen costs no service money; hosted provider pricing/ranking belongs to launch, not a claimed cost measurement here.
+- The private cache is separate from AccountState's reading balance. It durably claims the local day before inference, coalesces simultaneous calls in the app, and keeps failures cached. Reset clears it and invalidates in-flight results so old private omens cannot repopulate it. Like the existing reading allowance, this is device-local anonymous-profile state; it does not enforce a cross-device server quota.
 
-The safety fact: old readings remain usable and scheduling carries the right reading identity without spending credits. `tests/retention.test.ts` executes the real date helpers and reminder action: legacy reading fallback, month-end clamping, invalid date rejection, stable local-day omen, midnight rollover, date/reading-id forwarding, and web no-schedule behavior pass. Native scheduling itself is a boundary mock, not device proof.
+The safety facts are executable in `tests/retention.test.ts`: legacy Due date fallback, supplied Due date precedence, invalid date rejection, native reading-id/date forwarding, web no-schedule boundary, one generation per day, cached failure/reload behavior, concurrent calls, reset during generation, shared handler validation, rejected invented Sun signs and clipped output, and unchanged provider defaults. Native OS calls and HTTP provider payloads are boundary mocks in those tests, not device proof.
 
-Date defaults recognize explicit durations in the headline; other forecasts retain the existing 30-day fallback. The date is editable before scheduling rather than guessing dates for named events. Notification content asks “Did it come true?” and carries the reading id; a response opens that saved reading. Web only previews the reminder and saves the chosen check-in date.
+## Observed model behavior
 
-## Checks so far
+`omen-initial-failure.txt` and `retention-model-probe.txt` preserve actual failures. The initial model output invented Pisces without a supplied Sun sign and clipped a sentence at the schema limit. A later probe still clipped after repair. The validator rejects both cases; a shorter 8–14-word instruction addresses the observed length failure. `retention-model-short-probe.txt` records the complete Spanish-specific sentence from the real local model after that prompt change.
 
-- `npm run check`: pass.
-- `npm test`: 34 tests, 33 pass, 1 existing ffmpeg-dependent skip.
-- `npx expo export --platform web --output-dir .local/retention-web`: pass.
-- `npx expo export --platform ios --output-dir .local/retention-ios`: pass.
-- `npx expo prebuild --platform ios --no-install`: pass. Generated DailyOmen Swift widget, small/medium families, app group entitlement and extension target observed.
-- `scripts/drive-retention.sh`: pass through chrome-devtools-axi, against the real web app with a real local-Qwen reading. See `retention-drive.txt`. Covers unchanged credit balance, daily omen reload, invalid dates, reminder preview, all verdicts, selected state, date/verdict persistence and control bounds.
-- Project verify-crystal-ball primary controls driven through chrome-devtools-axi on isolated ports 8094/8794: all five tabs; Spanish question with Other/30 minutes; real model reveal (“You will speak conversational Spanish in 6 months.”); Why and no-source state; History/reload; knowledge edit/forget; sensitive IVF redirect without charging; mock five-pack and Restore; share PNG 1080×1920. Animated export fails visibly with the still-card fallback because local ffmpeg is absent. This is not predictive-accuracy evidence.
-- 375×667 with reduced motion and 200% app text: found verdict-row overflow (right edge 397.8px); fixed by stacking choices. Rerun right edge 330px for every check-in control, all five tab labels visible. `retention-large-check-in.png` shows the result; `retention-home.png` shows the omen at normal text size.
-- Browser isolation: default ports belong to another lane, so this drive uses copied local server entry in ignored `.local`, APP_ORIGIN localhost:8094, engine 8794, and a worktree-local TMPDIR for Metro. A shared Metro cache initially supplied another lane's engine URL; isolating TMPDIR resolved it. No other lane's processes were stopped.
-- Formal full verify-crystal-ball merge gate still belongs on the final merge head after the pending redesign lands; this is the implementation handoff's targeted and primary-flow proof.
+`retention-personal-model.json` records a real local call using Libra, Spanish and practice facts. `retention-skipped-sign-model.json` records a complete no-sign omen. These are output observations, not predictive-accuracy evidence. No made-up omen is substituted when inference fails; Home shows an unavailable state until the next day.
 
-## Native limits and follow-up
+## Verification
 
-Uses the official `expo-widgets` config plugin and `@expo/ui` SwiftUI views, with a static gradient ball. [Expo widget documentation](https://docs.expo.dev/versions/latest/sdk/widgets/) requires a development build; Expo Go/web/Android keep Home's omen. No native orb internals changed.
+- Typecheck and tests: 38 total, 37 pass, one existing ffmpeg-dependent skip.
+- Web and iOS Expo exports pass; iOS prebuild generates DailyOmen's Swift widget, small/medium families, app group entitlement and extension target. Device compilation/rendering remains unverified.
+- `scripts/drive-retention.sh` drives chrome-devtools-axi against the real app. `retention-drive.txt` covers the cached omen, unchanged credit count, Due date display, web notification preview, all verdicts, selected state and reload persistence. After that reload, `retention-cache-network.txt` records no fetch requests: the personal omen came from its daily cache.
+- Primary verify-crystal-ball controls were driven on isolated 8094/8794 ports: all five tabs; real local-Qwen Spanish reading and Why; History/reload; knowledge edit/forget; sensitive redirect without charging; mock five-pack and Restore; 1080×1920 share PNG. Animated export reached its visible still-card fallback because ffmpeg is absent.
+- The initial 375×667/200% text drive found verdict-row overflow; stacked choices fixed it. Current screenshots cover the personal omen and large-text Check-in. The merge gate must be repeated on the rebased final head after the redesign lands.
 
-A year of local-midnight timeline entries is refreshed when Home opens; beyond that window the widget requires opening Home again. OS scheduling can delay widget refresh. Time-zone changes are reflected when Home refreshes its timeline when Home next refreshes. Xcode signing/build, physical widget rendering, notification permissions/delivery, and cold/warm notification-tap navigation are unverified on device and must be driven after Xcode setup. No account, paid service, or credential is added.
+## Widget and native limits
+
+Uses the official [Expo widget config plugin](https://docs.expo.dev/versions/latest/sdk/widgets/) and SwiftUI views, with a static gradient ball. It receives today's cached text and a next-midnight “open the app” entry. No future omens are pre-generated and no model request comes from the widget. Reset removes personal text. Expo Go/web/Android keep Home's omen. OS scheduling may delay midnight refresh.
+
+Xcode signing/build, physical widget rendering, notification permission/delivery, and cold/warm notification-tap navigation remain unverified until Xcode setup. No account, paid service or credential was added. This lane's browser/server processes are isolated from other workers; Metro uses a worktree-local TMPDIR to prevent shared-cache engine URL collisions.

@@ -9,7 +9,8 @@ export type NativePorts = {
 export function nativeActions(ports:NativePorts){return {
  async reminder(headline:string,readingId?:string,on?:string){
   const date=on?checkInDate(on):null;
-  if(on&&(!date||date.getTime()<=Date.now()))return 'Choose a future check-in date (YYYY-MM-DD).';
+  if(on&&!date)return 'The Due date is unavailable. You can still check in from History.';
+  if(date&&date.getTime()<=Date.now())return 'This forecast is ready for a Check-in. Open it from History.';
   const when=date?date.toLocaleDateString():'30 days';
   if(ports.platform==='web')return `Native reminder preview: check back ${when}. Local notifications need an iOS or Android build.`;
   try{if(!await ports.notifications.permission())return 'Notifications are off. You can still check back from History.';

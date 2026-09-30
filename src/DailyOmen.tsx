@@ -1,17 +1,23 @@
 import React,{useEffect,useState} from 'react';
 import {AppState,View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {dailyOmen} from './retention';
+import {loadDailyOmen,type Omen} from './daily-omen';
+import {localDay} from './retention';
+import {requestOmen} from './api';
+import {useStore} from './store';
 import {styles,Txt,colors} from './ui';
 import {updateOmenWidget} from './omen-widget';
 
 export function DailyOmen(){
- const [omen,setOmen]=useState(()=>dailyOmen());
+ const {state}=useStore(),[omen,setOmen]=useState<Omen|null>(null);
  useEffect(()=>{
-  const refresh=()=>{const next=dailyOmen();setOmen(current=>current.day===next.day?current:next);void AsyncStorage.setItem('crystal-ball-omen-v1',JSON.stringify(next)).catch(()=>{});updateOmenWidget();};
-  void AsyncStorage.getItem('crystal-ball-omen-v1').then(raw=>{if(raw){const cached=JSON.parse(raw),today=dailyOmen();if(cached.day===today.day&&cached.text===today.text)setOmen(cached)}}).catch(()=>{});
+  let mounted=true;
+  const refresh=()=>{
+   if(AppState.currentState==='background'||AppState.currentState==='inactive')return;
+   void loadDailyOmen(AsyncStorage,state.facts,requestOmen).then(next=>{if(mounted){setOmen(next);updateOmenWidget(next)}}).catch(()=>{if(mounted)setOmen({day:localDay(),text:null})});
+  };
   refresh();const timer=setInterval(refresh,60000),listener=AppState.addEventListener('change',state=>{if(state==='active')refresh()});
-  return()=>{clearInterval(timer);listener.remove()};
- },[]);
- return <View testID="daily-omen" style={styles.panel}><Txt style={[styles.caption,{color:colors.gold}]}>Today’s omen · free</Txt><Txt display style={{fontSize:26,lineHeight:31,marginTop:8}}>{omen.text}</Txt></View>;
+  return()=>{mounted=false;clearInterval(timer);listener.remove()};
+ },[state.facts]);
+ return <View testID="daily-omen" style={styles.panel}><Txt style={[styles.caption,{color:colors.gold}]}>Today’s omen · free</Txt><Txt accessibilityLiveRegion="polite" display style={{fontSize:26,lineHeight:31,marginTop:8}}>{omen?(omen.text??'The stars are quiet today. Come back tomorrow.'):'A little starlight is finding you…'}</Txt></View>;
 }
