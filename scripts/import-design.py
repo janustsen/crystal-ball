@@ -16,8 +16,7 @@ for key, name in fonts:
 orb = svg_attrs(re.search(r'<div class="orb hero".*?</svg></div></a>',home,re.S)[0].removesuffix('</a>'))
 orb = re.sub(r' style="--s: 240px"','',orb,count=1)
 css = re.findall(r'<style>(.*?)</style>',home,re.S)[1]
-shader = re.search(r'const FS = `(.*?)`;',home,re.S)[1]
-pathlib.Path('src/designArt.ts').write_text('// Extracted from the authorized Crystal Ball.html reference by scripts/import-design.py.\n'+ '\n'.join('export const '+k+' = '+json.dumps(v)+';' for k,v in [('orbMarkup',orb),('designCss',css),('mistShader',shader)])+'\n')
+pathlib.Path('src/designArt.ts').write_text('// Extracted from the authorized Crystal Ball.html reference by scripts/import-design.py.\n'+ '\n'.join('export const '+k+' = '+json.dumps(v)+';' for k,v in [('orbMarkup',orb),('designCss',css)])+'\n')
 # The same glass, smoke, reflections and brass stand for native and exported images.
 optics=re.search(r'<svg class="optics".*?</svg>',orb,re.S)[0]
 stand=re.search(r'<svg class="stand".*?</svg>',orb,re.S)[0]
