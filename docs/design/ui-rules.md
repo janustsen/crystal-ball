@@ -20,7 +20,7 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 ## Navigation and the 17 states
 
-Home, Explore, raised Ask orb, History and You are the five destinations. The tab orb uses exactly the Home orb artwork. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back follows the same flow. Native keyboard/safe-area behavior still needs a device drive.
+Home, Explore, raised Ask orb, History and You are the five destinations. The tab orb uses exactly the Home orb artwork. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes sharing or plans first; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
 1. Home: orb, one italic instruction, two suggested questions.
 2. Approach: larger orb and “Come closer…” before voice.

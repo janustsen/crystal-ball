@@ -15,7 +15,7 @@ The server reads server-only variables from its shell, not Expo's public env loa
 
 ## Native development, deferred until Xcode exists
 
-Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, hold-to-speak release/cancel, notification permission and30-day scheduling. These checks are separate from the browser pass.
+Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, notification permission and30-day scheduling. These checks are separate from the browser pass.
 
 ## Accounts Janus must create before hosted use
 
