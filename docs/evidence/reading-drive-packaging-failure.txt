@@ -1,0 +1,42 @@
+page:
+  title: Crystal Ball
+  url: "http://localhost:8092"
+  refs: 1
+snapshot:
+uid=g1:1_0 RootWebArea "Crystal Ball" url="http://localhost:8092/"
+help[1]:
+  Use `chrome-devtools-axi eval <expr>` for JS expressions. For multi-statement code, pass a function: `eval "() => { ...; return result }"`
+
+emulated:
+  viewport: "390x844x1,mobile,touch"
+
+node:internal/errors:999
+  const err = new Error(message);
+              ^
+
+Error: Command failed: chrome-devtools-axi run
+    at genericNodeError (node:internal/errors:999:15)
+    at wrappedFn (node:internal/errors:544:14)
+    at checkExecSyncError (node:child_process:943:11)
+    at execFileSync (node:child_process:979:15)
+    at cli (file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/scripts/drive-reading-flow.mjs:8:13)
+    at run (file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/scripts/drive-reading-flow.mjs:12:29)
+    at file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/scripts/drive-reading-flow.mjs:16:2
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    'error: "Error: Element not found: [data-testid=\\"onboarding-birthday\\"]"\n' +
+      'code: UNKNOWN\n',
+    ''
+  ],
+  pid: 811,
+  stdout: 'error: "Error: Element not found: [data-testid=\\"onboarding-birthday\\"]"\n' +
+    'code: UNKNOWN\n',
+  stderr: ''
+}
+
+Node.js v26.10.0

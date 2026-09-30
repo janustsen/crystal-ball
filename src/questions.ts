@@ -1,3 +1,4 @@
+import {validBirthday} from './profile.ts';
 import type { Card, Facts, Plan, Topic } from './types.ts';
 const card=(id:string,question:string,options:string[],remember=true):Card=>({id,question,options:[...options,'Other'],remember});
 export const registry: Record<Topic,Card[]> = {
@@ -20,6 +21,7 @@ export function topicFor(question:string):Topic {
  return 'general';
 }
 export function validateFact(id:string,value:string):void {
+ if(id==='birthday'&&!validBirthday(value))throw new Error('Use a valid birthday: YYYY-MM-DD.');
  const topic=(Object.keys(registry) as Topic[]).find(t=>registry[t].some(c=>c.id===id));
  if(topic)validateAnswer(topic,id,value);
 }
@@ -83,7 +85,7 @@ export function inferFacts(question:string,topic:Topic):Facts {
  if(topic==='sports'){const edition=q.match(/\b20\d{2}\b/)?.[0];if(edition)provided.edition=edition;if(/nba/.test(q))provided.competition='NBA championship';else if(/women.*world cup/.test(q))provided.competition='Women’s World Cup';else if(/men.*world cup/.test(q))provided.competition='Men’s World Cup';const team=question.match(/\b(Lakers|Celtics|Thunder|Argentina|Spain|Brazil|France)\b/i)?.[0];if(team)provided.team=team[0].toUpperCase()+team.slice(1).toLowerCase();}
  return provided;
 }
-export const factLabels:Record<string,string>={learning_target:'Learning goal',level:'Your level',practice:'Daily practice',conversation:'Practice feedback',currency:'Currency',assets:'Current assets',debt:'Current debt',monthly_saving:'Monthly savings',return:'Annual growth assumption',saving_growth:'Annual savings increase',withdrawals:'Annual withdrawals',location:'Current city',destination:'Possible next city',work:'Work flexibility',lease:'Lease timing',runway:'Savings runway',current_users:'Current users',weekly_growth:'Net weekly growth'};
+export const factLabels:Record<string,string>={birthday:'Birthday',current_focus:'Current focus',learning_target:'Learning goal',level:'Your level',practice:'Daily practice',conversation:'Practice feedback',currency:'Currency',assets:'Current assets',debt:'Current debt',monthly_saving:'Monthly savings',return:'Annual growth assumption',saving_growth:'Annual savings increase',withdrawals:'Annual withdrawals',location:'Current city',destination:'Possible next city',work:'Work flexibility',lease:'Lease timing',runway:'Savings runway',current_users:'Current users',weekly_growth:'Net weekly growth'};
 export const currencies=['USD','EUR','GBP','DKK','SEK','NOK','JPY','CAD','AUD','CHF','INR'];
 export function validateAnswer(topic:Topic,id:string,value:string):void {
  if(topic==='money'){

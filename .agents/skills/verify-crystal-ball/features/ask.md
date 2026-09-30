@@ -1,7 +1,7 @@
 # Ask
 
 ## Sub-features
-Typed and suggested questions; voice fallback; 3–10 cards with Other; known-fact skip; definitive reveal; Why; safety and timeout.
+Typed and suggested questions; voice fallback; 1–2 adaptive cards with Other; known-fact skip; definitive reveal with Due date; short/Plus Why; first-name Person reading with teen safeguards; safety and timeout.
 
 ## How to get to it (user POV)
 Home orb or raised Ask tab; see [Sky and Circles](social.md) for suggested-question entry. Home whispers are decorative and never block the orb.

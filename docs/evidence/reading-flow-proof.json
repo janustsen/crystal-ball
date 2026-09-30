@@ -1,0 +1,86 @@
+{
+  "date": "2026-09-30",
+  "branch": "fm/cb-reading-flow",
+  "whatChanged": [
+    "Engine returns one or two follow-up cards. Complete typed inputs still produce the existing numeric scenario; otherwise targeted cards lead to a qualitative forecast, without invented numeric defaults.",
+    "Video export, local server rendering endpoint, ffmpeg runtime requirement and its integration test are removed. Actual export remains a local 1080x1920 PNG.",
+    "Two-step skippable onboarding feeds You. Shared profile fields are birthday, lowercase sunSign, nullable ageBand, and optional birthTime, birthPlace, moonSign, risingSign.",
+    "Every new forecast has dueDate (YYYY-MM-DD). Free Why includes an astrological line and real answer-based reasoning; mock Plus exposes deeper explanation, inputs, assumptions and source leads.",
+    "Person readings take a first name, notify nobody, and apply stricter output screening to teen and unknown-age users. Under-13 onboarding blocks before cloud identity creation."
+  ],
+  "blastRadius": {
+    "criticalFacts": [
+      {
+        "fact": "Reducing cards does not feed missing values into numeric calculations: the engine chooses the typed branch only when no more than two typed inputs remain; incomplete scenarios use qualitative generation.",
+        "proofLevel": "real code and real local engine",
+        "proof": [
+          "tests/reading-flow.test.ts",
+          "scripts/verify-short-forecast.ts",
+          "reading-short-forecast.json"
+        ],
+        "observed": "One-card money forecast returned a qualitative direction; one-card Spanish reading retained six months. Typed 100 + 2*4 scenario still returns 108 in executable tests."
+      },
+      {
+        "fact": "The UI traverses the returned card length, and optional new forecast fields do not invalidate older history records.",
+        "proofLevel": "live app, including two explicit pre-change storage fixtures",
+        "proof": [
+          "scripts/drive-reading-flow.mjs",
+          "scripts/drive-reading-extras.mjs",
+          "src/types.ts",
+          "src/store.tsx",
+          "scripts/verify-profile-migration.mjs",
+          "reading-profile-migration.json"
+        ],
+        "observed": "Adult and teen real-model readings, reload/reopening, unchanged credit on failed generation, and successful retry passed. Two seeded legacy-storage fixtures (with and without an invalid birthday) preserved history, credits and unrelated facts; their old reveal/Why opened without dueDate."
+      },
+      {
+        "fact": "Profile age and sign fields survive actual storage/reload, skipped age uses null, and under-13 onboarding does not retain the submitted birthday or complete onboarding.",
+        "proofLevel": "live app",
+        "proof": [
+          "reading-flow-drive.json",
+          "reading-flow-extras.json",
+          "tests/reading-flow.test.ts"
+        ],
+        "observed": "Adult Gemini and teen Capricorn profiles; nullable skipped profile; persisted under-13 block; real local ephemeris returned Capricorn Moon and Virgo rising for the synthetic Copenhagen birth fixture."
+      }
+    ],
+    "cleared": [
+      "One-repair-then-error provider behavior remains covered by the existing tests.",
+      "Unrelated typed memories remain excluded from general plans and forecasts; the Why basis excludes birthday/current-focus placeholders in favor of reading answers.",
+      "An actual PNG download has 1080x1920 dimensions and was visually inspected: only headline, date, brand and speculative label, no birth profile or private answers.",
+      "No production caller remains for the deleted animated export. Historical research/grade evidence and captures are retained."
+    ],
+    "risksAndLimits": [
+      "Semantic model reliability and predictive accuracy are not proved by these structural checks or the small live sample. Teen output screening remains a fallible local-model classifier, not a public safety clearance.",
+      "Due date is optional on legacy history. Retention owns scheduling and must handle legacy records without it.",
+      "Plus entitlement is the existing local mock. Production server-side entitlement enforcement is not implemented here.",
+      "City search uses a no-key Open-Meteo/GeoNames non-commercial prototype endpoint. Production requires a licensed or self-hosted lookup. Birthday and birth time stay on device for chart calculation.",
+      "Birthday-only Sun sign uses conventional date boundaries; complete time/place are used for the Moon/rising ephemeris calculation.",
+      "Native share sheet, keyboard, voice, haptics and on-device ephemeris execution remain unverified because Xcode/device setup is unavailable. iOS bundle export passes.",
+      "The local Supabase mirror was not configured in these isolated browser profiles. Cloud identity non-creation for blocked onboarding is also supported by the explicit mirror gate in src/store.tsx; live RLS was not rerun."
+    ]
+  },
+  "validation": {
+    "automated": "npm run check and npm test: 39 tests pass, 0 fail, 0 skipped",
+    "browser": "Both isolated Playwright drivers passed against this checkout on ports 8092 and 8792 with real local Ollama Qwen3 4B inference; no fixture substituted for generation.",
+    "ios": "npx expo export --platform ios --output-dir .local/ios-export passed",
+    "screens": [
+      "reading-onboarding-facts.png",
+      "reading-birth-chart.png",
+      "reading-short-why.png",
+      "reading-deeper-why.png",
+      "reading-teen-person-forecast.png",
+      "reading-under13-blocked.png",
+      "reading-large-home.png",
+      "reading-exported-card.png"
+    ],
+    "retainedFailures": [
+      "reading-chrome-bridge-failure.txt",
+      "reading-drive-packaging-failure.txt",
+      "reading-drive-first-live.json",
+      "reading-short-forecast-before-horizon-fix.json"
+    ],
+    "beforeMerge": "Rebase onto origin/main after https://github.com/janustsen/crystal-ball/pull/2 lands, then rerun verify-crystal-ball on the exact merge head through the firstmate no-mistakes gate. This worker does not merge.",
+    "legacyStorage": "VERIFY_URL=http://localhost:8092 node scripts/verify-profile-migration.mjs: both legacy fixtures passed; explicitly separate from real generation evidence."
+  }
+}

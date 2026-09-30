@@ -48,3 +48,11 @@ Check-in scheduling uses a valid forecast `dueDate` (YYYY-MM-DD) at local noon, 
 Device widget rendering and notification delivery/tap navigation remain unverified until Xcode setup is complete. Evidence and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
 
 For concurrent local verification, use the engine-port settings in [Local development](#local-development). Keep `EXPO_PUBLIC_ENGINE_URL` unset so browser calls retain the same-origin bridge.
+
+## Reading profile and birth chart
+
+The profile is local-first: optional `birthday` (ISO date), lowercase `sunSign`, `ageBand` (`teen`, `adult`, or null), and optional `birthTime`, `birthPlace`, `moonSign`, `risingSign`. Null age uses teen safeguards. Onboarding blocks under-13 birthdays before cloud identity creation. Person readings accept one first name, send no notifications, and pass the output safety classifier with stricter teen/unknown rules.
+
+Moon/rising use the pinned `circular-natal-horoscope-js` ephemeris on device. Its published `module` entry points at absent source, so Metro imports the shipped `dist/index` bundle. City lookup is a separate, no-key prototype boundary using [Open-Meteo / GeoNames](https://open-meteo.com/en/docs/geocoding-api); only the city query is sent. The hosted free endpoint is non-commercial: production needs a licensed or self-hosted lookup before activation. No paid account or credentials are configured.
+
+New forecasts include `dueDate` as `YYYY-MM-DD`; it is optional only for older saved forecasts. Retention owns scheduling the Check-in. `astrology` and the short `why` remain visible to free users; `deeperWhy` plus inputs/assumptions/sources are shown to mock Plus. This is client gating in the existing local mock subscription model, not production entitlement enforcement.

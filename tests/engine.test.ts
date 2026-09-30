@@ -46,13 +46,13 @@ test('ordinary word senses do not trigger sensitive-topic phrase rules',()=>{for
 
 test('general planning does not send unrelated domain memories into model cards',async()=>{
  const {makePlan}=await import('../server/engine.ts');const original=globalThis.fetch;const inputs:unknown[]=[];
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));inputs.push(JSON.parse(body.messages[1].content));const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']},{question:'What slows your writing?',options:['Time','Ideas','Editing']}]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));inputs.push(JSON.parse(body.messages[1].content));const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await makePlan('Will I finish writing my novel this year?',{learning_target:'Spanish',assets:'25000'},provider(()=>undefined));assert.equal(result.kind,'ok');assert.ok(!JSON.stringify(inputs).includes('Spanish'));assert.ok(!JSON.stringify(inputs).includes('25000'));}finally{globalThis.fetch=original;}
 });
 
 test('duplicate model cards earn a repair instead of repeating the same question',async()=>{
  const {makePlan}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.cards){drafts++;content={cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:drafts===1?'How much have you written?':'How often do you write?',options:['Daily','Weekly','Rarely']},{question:'What slows your writing?',options:['Time','Ideas','Editing']}]};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.cards){drafts++;content={cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:drafts===1?'How much have you written?':'How often do you write?',options:['Daily','Weekly','Rarely']}]};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await makePlan('Will I finish writing my novel this year?',{},provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);}finally{globalThis.fetch=original;}
 });
 test('learning explanation preserves the chosen baseline and conversational target',async()=>{
