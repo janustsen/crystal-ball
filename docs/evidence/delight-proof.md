@@ -1,0 +1,13 @@
+# Delight verification
+
+Golden edition is presentation derived from the server-generated reading UUID, shared by reveal and both share renderers. It does not change the forecast, confidence, label, price, credit count or engine request. The first 32 random UUID bits modulo 10 select gold (the finite-range bias is below one in a billion). History and JSON mirrors retain the existing ID; no prediction schema or database migration is needed.
+
+`tests/delight.test.ts` runs the real selector over 10,000 distinct UUID prefixes: exactly 1,000 gold, unchanged after JSON round trips; non-UUID legacy IDs remain ordinary. This is the executable blast-radius proof for deterministic presentation. Native and web share rendering both call this same selector.
+
+`ambientSound` is an optional account preference; absent means false, and the store initial state sets false. The existing local hydration merges initial defaults with saved state. `cloud.ts` mirrors facts and prediction payloads only, so the preference cannot alter the Supabase schema. The preference survives local reload and remains device-local. Sound uses original generated PCM assets, with the generator committed. Native audio config sets `playsInSilentMode:false`, disables background playback, and does not add recording permissions. Device silent-switch and haptic feel remain unverified because Xcode/device setup is unavailable.
+
+Initial checks: `npm run check` passed. `npm test`: 31 passed, 0 failed, 1 skipped. `npx expo export --platform ios --output-dir .local/ios-export` passed. Browser verification uses owned ports 8093/8793 because other lanes own the default ports; the local test copy of the engine differs only in port and import location. It uses the real local Ollama Qwen model on 11435. No shared service was stopped.
+
+The initial real-engine browser drive reached follow-up cards, reveal, Why and a 1080×1920 PNG export. It failed waiting for the MP4 download: the local engine returns HTTP 400, and `command -v ffmpeg` finds no executable. The Playwright recording dependency was also absent; that separate binary was installed under `.local/playwright`, which enabled the browser recording but does not provide the engine's libx264 encoder. Failure transcript and screenshots are retained. Full verification has NOT passed. Ambient sound off/on and persistence across reload were observed through the real browser controls; no new browser errors were reported.
+
+Pending: rebase after the redesign lands, replace its Home “Or try” block with the fog overlay, pause ambient audio during its listening state, adapt share typography, run all verification drives and exercise the golden visual/export fixture. These changes are not ready for pipeline handoff.
