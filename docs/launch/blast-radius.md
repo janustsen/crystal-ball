@@ -11,3 +11,7 @@ Backup safety depends on two facts: ownership remains scoped to `auth.uid()`, an
 Remaining risks: migration must precede the new `onConflict:user_id,id` client; multi-device concurrent fact/outcome edits remain last-write wins; offline failed reset is not guaranteed remote deletion; linked account deletion/revocation is not implemented. Apple remains disabled by default. The loopback development server still lacks production auth and quotas. No public launch is claimed.
 
 Reproduce: `npm run check && npm test`; install PGlite under `.local/pg-proof` as described at the top of the database script, then `node scripts/verify-backup-db.mjs`. Run the project's verification skill on the final merge head; use `PORT`, `APP_ORIGIN`, `APP_URL` and `ENGINE_URL` for an isolated lane's local ports.
+
+## Codex development boundary
+
+The common validator was extracted without changing `ModelProvider.json`; Ollama, hosted HTTP and Node-only Codex all execute it. `tests/codex-provider.test.ts` launches a fake executable through the real subprocess boundary and proves model arguments stay separate, prompts use stdin, API-key environment overrides are absent, invalid output receives one repair, and temporary files are removed. It also proves the deployed factory and production mode reject Codex. The real subscription-backed CLI and browser drive separately establish actual inference works. No Codex import reaches the Supabase edge entry point. The existing Ollama verification remains required after integration; Codex results supplement it.

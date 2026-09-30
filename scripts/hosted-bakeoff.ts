@@ -46,7 +46,8 @@ if(process.argv.includes('--check')){
  }
  console.log('Offline budget checks pass; no credentials read or network calls made.');return;
 }
-throw new Error('Paid provider comparison is parked; obtain renewed captain authorization before enabling this runner.');
+const requireRenewedAuthorization = (): void => { throw new Error('Paid provider comparison is parked; obtain renewed captain authorization before enabling this runner.'); };
+requireRenewedAuthorization();
 await mkdir('.local',{recursive:true});await mkdir('docs/evidence/launch',{recursive:true});
 const lock=await open('.local/hosted-bakeoff.lock','wx');
 const realFetch=globalThis.fetch;

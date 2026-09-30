@@ -50,3 +50,7 @@ Keep screenshots and transcripts in docs/evidence/. Record actual engine output/
 
 ## Cleanup
 Drivers create and close isolated temporary Chrome contexts. Do not stop another checkout's servers. If leaving the preview up for review, report owned sessions/PIDs and pending cleanup. Browser storage files containing anonymous auth stay under ignored .local. No public posting, real payments or data resets in another profile.
+
+## Optional Codex development check
+
+After the required Ollama drive, the Node loopback server can be restarted with `MODEL_PROVIDER=codex CODEX_MODEL=gpt-6-luna` for subscription-backed development inference. Health must report `codex`. Run the current design browser drivers and copy their evidence into a separate directory before restoring the baseline evidence. `npx tsx scripts/measure-codex.ts` measures three sequential actual HTTP readings against `ENGINE_URL` and records timings and output in `docs/evidence/codex/latency.json`. This consumes ChatGPT subscription usage. Never use this provider in a deployed server or substitute it for the default Ollama gate. Native Apple verification is still separate.
