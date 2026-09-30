@@ -1,31 +1,43 @@
 # Social boundary
 
-Tonight’s Sky is public, Circles are private, and every publication is deliberate.
-No change to the reading engine, saved predictions, credit accounting, or knowledge bank.
+Tonight’s Sky is public. Circles and sealed forecasts are private. Publishing always needs an explicit approval.
 
 ```mermaid
 flowchart LR
-  Reading[Private reading on this device] -->|successful consultation: day only| Members[Opted-in circle memberships]
-  Preview[Choose approved anonymous wording] -->|explicit Publish| Sky[Today's stars: prompt ID only]
-  Sky --> Public[Anonymous stars and resonance counts]
-  Invite[Single-use invite: expires in seven days] -->|explicit Join| Members
-  Members --> Checkins[Circle sees consultation day; no question]
-  Reading -->|friend reading, preview and seal| Sealed[Headline only; expires in seven days]
-  Sealed -->|private link + recipient taps orb| Recipient[One recipient; speculative label]
+  Reading[Private Reading] --> Rewrite[Local model removes identifying details]
+  Rewrite --> Filter[AI safety filter: fail closed]
+  Filter --> Draft[Server-owned draft: expires in 15 minutes]
+  Draft -->|asker approves wording| Sky[Today's anonymous Star]
+  Sky --> Report[Report or block]
+  Report --> Hide[3 distinct reports hide the Star]
+  Reading --> Activity[Circle sees day + theme + sun sign]
+  Invite[Single-use link: 7 days] -->|explicit Join| Circle[Private Circle: up to 20]
+  Circle --> Consent[Adult friend opts in; default off]
+  Consent --> Friend[Plus Friend reading: sign and shared themes only]
+  Friend --> Notice[Friend hears someone asked; no question or identity]
+  Reading --> SealFilter[AI safety filter]
+  SealFilter -->|sender approves| Seal[Headline-only sealed card]
+  Seal -->|recipient taps ball| Open[One recipient; for fun]
 ```
 
-| Stored shape | Access and invariant |
+| Data | Access and invariant |
 | --- | --- |
-| `sky_stars(id, user_id, prompt, day)` | Owner can remove. One per owner/day. Public RPC returns ID, approved prompt, resonance count and own reaction only; never user ID. Raw question text cannot be stored. |
-| `sky_resonances(star_id, user_id)` | One per viewer/star; counts via public RPC. |
-| `circles(id, owner_id)` | Only members see the group. Maximum eight members. No names or free-text bios. |
-| `circle_members(circle_id, user_id, joined_at, consulted_on)` | Joining consents to sharing future consultation days. No historical backfill. Leaving removes that visibility. |
-| `circle_invites(token, circle_id, expires_at)` | Owner creates one-use invitations; joining locks the invitation and circle to prevent replay/overfilling. Link possession alone never joins. |
-| `circle_reactions(circle_id, target_id, user_id, day)` | Members can send one star per person/day; no text. |
-| `sealed_forecasts(id, sender_id, recipient_id, token, headline, expires_at, opened_at)` | Sender can revoke. Recipient claims atomically by tapping; sender cannot claim own link. Only headline is sent, never question, facts or Why. Unopened text is not queryable by recipients. |
+| `social_profiles` | Own profile only. Lowercase sun sign; teen/adult/unknown. Friend consent can only be enabled for adults. `school_id` is nullable; no school UI. Plus is server-owned, with an explicit loopback-only mock entitlement boundary for the prototype. |
+| `social_drafts` | Trusted moderation service writes only; clients cannot insert or edit. Contains rewritten wording, theme and owner, never the original question. A draft is scoped to star/seal, its owner and a 15-minute lifetime. |
+| `sky_stars`, `sky_resonances` | One Star per person/UTC day. Public RPC exposes wording, theme, resonance counts and own flags; no author ID. Withdrawing or replacing a Star does not erase reports. |
+| `star_reports`, `social_blocks` | One report per account/Star; three accounts auto-hide. Block resolves a public Star's author server-side, keeping identity out of the public response. Blocking applies both directions to social visibility and Friend reading authorization. |
+| `circles`, `circle_members`, `circle_invites`, `circle_reactions` | Up to 20 members, all by single-use 7-day invitation. Joining consents to sharing future consultation day/theme and sun sign. No question or forecast. Fixed star reactions only. Leaving removes access. The creator can close the Circle. |
+| `friend_notices` | Recipient alone sees that someone asked, and the day; no asker or question stored. Friend consent, membership, blocking and Plus are checked at generation time. |
+| `sealed_forecasts` | Moderated headline only; never question, answers or Why. Sender can revoke. Recipient claims by tapping; row lock allows only one claimant. Free: one per UTC calendar week, including revoked cards. Plus: unlimited. Expires in 7 days. |
 
-All tables have RLS. Narrow RPCs authenticate via `auth.uid()`; definer functions use an empty search path and explicit schema names. Public/anon execution is revoked. Direct client writes cannot evade membership, time or allowlist checks. Sky uses approved wording rather than trying to remove names from arbitrary text. Sensitive-topic phrase redirects are reused before social publication and when rendering sealed content; no raw text from strangers is rendered in the sky.
+All tables have RLS. Security-definer functions pin an empty search path, explicitly qualify schemas, and revoke public/anon execution. Service-only moderation receipts prevent clients bypassing the AI filter. Public words are rewritten and approved, never the raw question. Every newly published user line passes the local model safety filter; deterministic sensitive-topic rules are shared with the reading engine. Seeds are controlled app content, `synthetic: true`, visibly labeled “Sample stars” and excluded from real counts.
 
-Seeds exist only in app data with `synthetic: true`, labeled “Sample stars” and excluded from real counts. Offline browsing still works; publishing, invites and seals require the configured local Supabase. No simulated friendship success or local-only link pretending to work for another person.
+The profile integration reads the account's `sunSign` and `ageBand` fields, owned by the reading-flow worker. Missing age uses teen safeguards. Social code does not collect birthdays, birth time, place or location.
 
-Verification must include two authenticated users plus an outsider: anonymous field projection, cross-user RLS rejection, invite replay/expiry, membership revocation, recipient claim races, sealed payload privacy, and reloading persisted state. Native link delivery remains a device check.
+## Proof and limits
+
+`bash scripts/verify-social-db.sh` creates and removes its own PostgreSQL cluster, loads the actual migrations, and runs roles and policies as separate users. It tests draft ownership, direct-write rejection, anonymous projection, invite replay/expiry, Circle capacity, leaving, consent defaults/teen constraints, friend notice privacy, reports, blocks, weekly seals, and concurrent recipient claims. The auth schema is a minimal Supabase stub: this proves PostgreSQL RLS, not Supabase Auth or PostgREST interoperability.
+
+For UI verification, `SOCIAL_DB_SERVE=1 bash scripts/verify-social-db.sh` leaves that same isolated cluster running behind `scripts/social-dev-transport.mjs`. The transport simulates Auth/PostgREST on loopback only, while SQL, RLS, app code and Ollama are real. It is verification tooling, never a production fallback. No Docker, hosted accounts or paid services are needed.
+
+Anonymous-account reports are not proof of distinct humans. Hosted rate limits, anti-abuse controls, verified subscription entitlements and native delivery remain deployment boundaries. No real billing is enabled by this feature.

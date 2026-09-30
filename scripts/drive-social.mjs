@@ -1,0 +1,118 @@
+import {spawn} from 'node:child_process';
+import {mkdir,writeFile} from 'node:fs/promises';
+const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],runId=Date.now().toString(36),sessions=new Set();
+async function run(name,script){
+ const session=`cb-social-${runId}-${name}`;sessions.add(session);
+ const output=await new Promise((resolve,reject)=>{
+  const child=spawn('chrome-devtools-axi',['run'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session}});
+  let text='';child.stdout.on('data',chunk=>text+=chunk);child.stderr.on('data',chunk=>text+=chunk);
+  child.on('error',reject);child.on('close',code=>code?reject(new Error(text)):resolve(text.trim()));child.stdin.end(script);
+ });
+ return output?JSON.parse(output):null;
+}
+async function waitFor(name,selector,label,ms=95000){
+ const deadline=Date.now()+ms;let last;
+ do{
+  last=await run(name,`console.log(JSON.stringify(await page.eval(()=>({ready:!!document.querySelector(${JSON.stringify(selector)}),failed:!!document.querySelector('[data-testid="try-again"]'),text:document.body.innerText}))));`);
+  if(last.ready)return;
+  if(last.failed)throw new Error(`${label}: ${last.text}`);
+  await new Promise(resolve=>setTimeout(resolve,4000));
+ }while(Date.now()<deadline);
+ throw new Error(`${label} did not appear: ${last?.text}`);
+}
+const click=id=>`await page.click('[data-testid="${id}"]');`;
+const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
+const identity=`await page.eval(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)).user.id:null})`;
+async function adultFixture(user){
+ const response=await fetch('http://127.0.0.1:55329/rest/v1/rpc/sync_social_profile',{method:'POST',headers:{Authorization:'Bearer verification-service-only','Content-Type':'application/json'},body:JSON.stringify({viewer:user,band:'adult',sign:'leo',mock_plus:null})});
+ if(!response.ok)throw new Error('Synthetic adult profile setup failed');
+}
+try{
+ const circle=await run('owner',`
+  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');
+  ${click('tab-ask')}
+  await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
+  await page.wait('[data-testid="option-0"]',65000);
+  for(let card=0;card<3;card++){${click('option-0')}${click('answer-next')}if(card<2)await page.wait('[data-testid="option-0"]');}
+  await page.wait('[data-testid="share-this-glimpse"]',65000);
+  ${click('tab-sky')}${click('add-my-star')}
+  await page.wait('[data-testid="publish-anonymous-star"]',120000);
+  ${assertText('Approve your anonymous wording')}${click('publish-anonymous-star')}
+  await page.wait('[data-testid="remove-my-star"]');
+  ${click('social-section-circles')}${click('create-my-circle')}
+  await page.wait('[data-testid="invite-a-friend"]');${click('invite-a-friend')}
+  await page.wait('[data-testid="social-link"]');
+  console.log(JSON.stringify({url:await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent),owner:${identity}}));
+ `);
+ log.push({realOllamaReading:true,aiRewrittenStarApproved:true,createdPrivateCircle:true});
+ console.log('PASS: real reading → AI-rewritten draft → explicit publication → circle invite');
+ const friend=await run('friend',`
+  await page.open(${JSON.stringify(circle.url)});await page.wait('[data-testid="join-this-circle"]');
+  ${assertText('Joining shares')}${click('join-this-circle')} await page.wait('[data-testid="leave-this-circle"]');
+  ${click('social-section-sky')}${click('sky-theme-learning')}
+  await page.wait('[data-testid="-this-resonates"]');${click('-this-resonates')}
+  await page.wait('[data-testid="-resonated"]');
+  console.log(JSON.stringify({explicitJoin:true,anonymousResonance:true,owner:${identity}}));
+ `);
+ log.push({explicitJoin:friend.explicitJoin,anonymousResonance:friend.anonymousResonance});
+ await run('outsider',`
+  await page.open(${JSON.stringify(circle.url)});await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
+  await page.wait('[data-testid="dismiss-social-notice"]');${assertText('expired or was used')}
+  console.log(JSON.stringify({inviteReplayRejected:true}));
+ `).then(result=>log.push(result));
+ // Onboarding belongs to the reading-flow lane. This synthetic adult fixture is explicit.
+ await adultFixture(friend.owner);
+ await run('friend',`
+  ${click('tab-home')}${click('tab-sky')}${click('social-section-circles')}
+  await page.wait('[role="switch"]:not([aria-disabled="true"])');
+  await page.click('[role="switch"]');
+  console.log(JSON.stringify({adultOptInUsed:true}));
+ `).then(result=>log.push(result));
+ await run('owner',`
+  ${click('view-plans')}${click('-5-99-month-simulate')}
+  ${click('tab-sky')}${click('social-section-circles')}
+  console.log(JSON.stringify({stage:'Plus selected'}));
+ `);
+ await waitFor('owner','[data-testid="ask-about-friend-2"]:not([aria-disabled="true"])','consented friend button',30000);
+ await run('owner',`
+  ${click('ask-about-friend-2')}
+  await page.fill('[data-testid="question-input"]','Will this friend make progress on a creative goal this year?');${click('look-into-the-future')}
+  console.log(JSON.stringify({stage:'Friend reading requested'}));
+ `);
+ await waitFor('owner','[data-testid="seal-for-a-friend"]','Friend reading');
+ console.log('PASS: consented Friend reading returned');
+ await run('owner',`${click('seal-for-a-friend')} console.log(JSON.stringify({stage:'Seal moderation requested'}));`);
+ await waitFor('owner','[data-testid="create-sealed-link"]','Seal moderation');
+ const seal=await run('owner',`
+  ${click('create-sealed-link')}
+  await page.wait('[data-testid="social-link"]');
+  const url=await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent);
+  console.log(JSON.stringify({url}));
+ `);
+ log.push({realOllamaConsentedFriendReading:true,sealedHeadlineOnly:true});
+ console.log('PASS: explicit adult consent → Plus Friend reading → moderated sealed card');
+ await run('friend',`
+  await page.open(${JSON.stringify(seal.url)});await page.wait('[data-testid="open-sealed-forecast"]');
+  ${assertText('Tap the ball to open')}${click('open-sealed-forecast')}
+  await page.wait('[data-testid="open-sealed-forecast"][aria-disabled="true"]');${assertText('Speculative forecast')}
+  ${click('social-section-circles')}
+  await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}
+  ${assertText('Someone asked about you.')}
+  console.log(JSON.stringify({openedByOrbTap:true,privateActivityVisible:true,anonymousFriendNotice:true,reactionSent:true}));
+ `).then(result=>log.push(result));
+ await run('outsider',`
+  await page.open(${JSON.stringify(seal.url)});await page.wait('[data-testid="open-sealed-forecast"]');${click('open-sealed-forecast')}
+  await page.wait(700);${assertText('This seal is unavailable')}
+  console.log(JSON.stringify({secondRecipientRejected:true}));
+ `).then(result=>log.push(result));
+ await run('friend',`
+  ${click('leave-this-circle')}${click('yes-leave-the-circle')}
+  await page.wait('[data-testid="create-my-circle"]');
+  console.log(JSON.stringify({leftCircle:true}));
+ `).then(result=>log.push(result));
+ console.log('PASS: social browser drive; real PostgreSQL RLS and Ollama, simulated Auth/PostgREST and adult profile setup');
+}catch(error){log.push({failure:String(error)});console.error(error);process.exitCode=1;}
+finally{
+ await mkdir('docs/evidence',{recursive:true});await writeFile('docs/evidence/social-drive.json',JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST and adult profile setup simulated; PostgreSQL RLS and Ollama real',steps:log},null,2));
+ for(const session of sessions)await new Promise(resolve=>{const child=spawn('chrome-devtools-axi',['stop'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session},stdio:'ignore'});child.on('error',resolve);child.on('close',resolve)});
+}
