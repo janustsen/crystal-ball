@@ -30,6 +30,6 @@ try{
  const excerpt={traceEvents:trace.traceEvents.filter(e=>names.has(e.name)||e.cat==='blink.user_timing').map(e=>({...e,args:e.ph==='M'?e.args:{}}))};
  writeFileSync(out+'/timing-trace.json.gz',gzipSync(JSON.stringify(excerpt)));
  writeFileSync(out+'/trace-provenance.json',JSON.stringify({rawPath:raw,sha256:createHash('sha256').update(rawBytes).digest('hex'),note:'Published excerpt keeps timing events and marks, omits network and profiler payloads.'},null,2)+'\n');
- const failures=samples.filter(s=>s.fps<58||s.p95>20||s.max>50||s.longTasks.length);if(failures.length)throw new Error('Frame budget failed: '+failures.map(s=>s.label).join(', '));
- console.log('All animation samples passed the 60fps target and 50ms long-frame budget.');
+ const failures=samples.filter(s=>s.fps<58||!(s.shaderFps>=58)||s.p95>20||s.max>50||s.longTasks.length);if(failures.length)throw new Error('Frame budget failed: '+failures.map(s=>s.label).join(', '));
+ console.log('All animation samples passed the 60fps callback and fog draw targets and 50ms long-frame budget.');
 }finally{if(tracing)try{cli('perf-stop','--file',raw)}catch{};cli('stop')}
