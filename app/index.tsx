@@ -41,6 +41,7 @@ export default function App(){
   }catch{if(id===generation.current)setFlow({stage:'error',question,message:abort.signal.aborted?'The Ball took too long. Nothing was charged. Please try again.':'The mist is too thick. Check your connection and try again.'})}finally{clearTimeout(timeout)}
  }
  async function reveal(plan:Plan,answers:Facts,q:string){
+  if(!ready)return;if(remaining<=0){setPaywall(true);return;}
   lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
   try{const result=await request<Prediction>('predict',q,{...(friend?{}:state.facts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},friend,abort.signal);if(id!==generation.current)return;
