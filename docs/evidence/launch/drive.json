@@ -1,0 +1,226 @@
+[
+  {
+    "runAt": "2026-09-30T21:58:10.478Z"
+  },
+  {
+    "coldLoadToControlsMs": 9664
+  },
+  {
+    "rafCadence": {
+      "frames": 120,
+      "meanMs": 24.589999999999993,
+      "maxMs": 484.2999999999993,
+      "jsResourceBytes": 466413
+    }
+  },
+  {
+    "screen": "home",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:23.917Z"
+  },
+  {
+    "screen": "ask",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:24.750Z"
+  },
+  {
+    "engineAction": "plan",
+    "engineLatencyMs": 629,
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "learning",
+        "provided": {
+          "learning_target": "Spanish",
+          "deadline": "In 6 months"
+        },
+        "cards": [
+          {
+            "id": "level",
+            "question": "What is your level now?",
+            "options": [
+              "New beginner",
+              "Know the basics",
+              "Intermediate",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "practice",
+            "question": "How much time can you give it daily?",
+            "options": [
+              "10 minutes",
+              "20 minutes",
+              "45 minutes",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "conversation",
+            "question": "How often can you practice conversation?",
+            "options": [
+              "Rarely",
+              "Weekly",
+              "Daily",
+              "Other"
+            ],
+            "remember": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "question-1",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:26.317Z"
+  },
+  {
+    "screen": "selected-1",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:27.102Z"
+  },
+  {
+    "screen": "question-2",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:27.882Z"
+  },
+  {
+    "screen": "selected-2",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:28.680Z"
+  },
+  {
+    "screen": "question-3",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:29.448Z"
+  },
+  {
+    "screen": "selected-3",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:30.215Z"
+  },
+  {
+    "screen": "research",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:31.029Z"
+  },
+  {
+    "engineAction": "predict",
+    "engineLatencyMs": 3285,
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "8dd4ca6e-3c79-4e80-be76-f7847fc4e1ae",
+        "question": "Will I be conversational in Spanish in six months?",
+        "headline": "You will speak conversational Spanish in 6 months.",
+        "createdAt": "2026-09-30T21:58:33.554Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your starting level is new beginner. You allow 30 minutes daily, with weekly conversation practice. This scenario uses 20 minutes daily and weekly conversation practice as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "deadline": "In 6 months",
+          "level": "New beginner",
+          "practice": "30 minutes",
+          "conversation": "Weekly"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "flowSeconds": 10.073
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "revealText": "Your glimpse aheadYou will speak conversational Spanish in 6 months.Speculative forecast · not a guaranteeWhy this prediction? ⌄Share this glimpseRemind meAsk again",
+    "creditAfter": "0 readings",
+    "horizonPreserved": true
+  },
+  {
+    "screen": "reveal",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:35.607Z"
+  },
+  {
+    "screen": "why",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:36.406Z"
+  },
+  {
+    "screen": "share",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:37.251Z"
+  },
+  {
+    "screen": "share-export-failure",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:38.949Z"
+  },
+  {
+    "faultInjection": "share HTTP 500",
+    "recoverable": true
+  },
+  {
+    "screen": "history",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:39.734Z"
+  },
+  {
+    "historyAfterReload": "Sep 30, 2026\n◷ Waiting to unfold\nYou will speak conversational Spanish in 6 months.\nWill I be conversational in Spanish in six months?",
+    "persisted": true
+  },
+  {
+    "screen": "daily-cap",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:41.097Z"
+  },
+  {
+    "dailyCapOpenedPaywall": true
+  },
+  {
+    "screen": "knowledge",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:41.881Z"
+  },
+  {
+    "screen": "paywall",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:42.648Z"
+  },
+  {
+    "screen": "paywall-purchased",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:43.412Z"
+  },
+  {
+    "screen": "explore",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:44.156Z"
+  },
+  {
+    "engineAction": "plan",
+    "engineLatencyMs": 11,
+    "response": {
+      "kind": "blocked",
+      "category": "pregnancy",
+      "message": "This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead."
+    }
+  },
+  {
+    "screen": "blocked",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:45.189Z"
+  },
+  {
+    "screen": "home-small",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:58:45.966Z"
+  }
+]

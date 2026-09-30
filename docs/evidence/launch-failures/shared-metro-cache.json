@@ -1,0 +1,169 @@
+[
+  {
+    "runAt": "2026-09-30T21:55:11.866Z"
+  },
+  {
+    "coldLoadToControlsMs": 1326
+  },
+  {
+    "rafCadence": {
+      "frames": 120,
+      "meanMs": 28.119999999999997,
+      "maxMs": 833.2999999999997,
+      "jsResourceBytes": 466130
+    }
+  },
+  {
+    "screen": "home",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:17.349Z"
+  },
+  {
+    "screen": "ask",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:18.198Z"
+  },
+  {
+    "engineAction": "plan",
+    "engineLatencyMs": 666,
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "learning",
+        "provided": {
+          "learning_target": "Spanish",
+          "deadline": "In 6 months"
+        },
+        "cards": [
+          {
+            "id": "level",
+            "question": "What is your level now?",
+            "options": [
+              "New beginner",
+              "Know the basics",
+              "Intermediate",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "practice",
+            "question": "How much time can you give it daily?",
+            "options": [
+              "10 minutes",
+              "20 minutes",
+              "45 minutes",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "conversation",
+            "question": "How often can you practice conversation?",
+            "options": [
+              "Rarely",
+              "Weekly",
+              "Daily",
+              "Other"
+            ],
+            "remember": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "question-1",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:19.751Z"
+  },
+  {
+    "screen": "selected-1",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:20.522Z"
+  },
+  {
+    "screen": "question-2",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:21.273Z"
+  },
+  {
+    "screen": "selected-2",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:22.059Z"
+  },
+  {
+    "screen": "question-3",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:22.808Z"
+  },
+  {
+    "screen": "selected-3",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:23.555Z"
+  },
+  {
+    "screen": "research",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:24.313Z"
+  },
+  {
+    "engineAction": "predict",
+    "engineLatencyMs": 3112,
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "06055f64-d968-46cb-9b18-5c6d7389797c",
+        "question": "Will I be conversational in Spanish in six months?",
+        "headline": "You will speak conversational Spanish in 6 months.",
+        "createdAt": "2026-09-30T21:55:26.680Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your starting level is new beginner. You allow 30 minutes daily, with weekly conversation practice. This scenario uses 20 minutes daily and weekly conversation practice as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "deadline": "In 6 months",
+          "level": "New beginner",
+          "practice": "30 minutes",
+          "conversation": "Weekly"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "flowSeconds": 9.801
+  },
+  {
+    "model": "qwen3:4b-instruct-2507-q4_K_M",
+    "revealText": "Your glimpse aheadYou will speak conversational Spanish in 6 months.Speculative forecast · not a guaranteeWhy this prediction? ⌄Share this glimpseRemind meAsk again",
+    "creditAfter": "0 readings",
+    "horizonPreserved": true
+  },
+  {
+    "screen": "reveal",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:28.752Z"
+  },
+  {
+    "screen": "why",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:29.518Z"
+  },
+  {
+    "screen": "share",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:55:30.368Z"
+  },
+  {
+    "failure": "TimeoutError: page.waitForEvent: Timeout 65000ms exceeded while waiting for event \"download\"\n=========================== logs ===========================\nwaiting for event \"download\"\n============================================================"
+  },
+  {
+    "screen": "failure",
+    "url": "http://localhost:8096/",
+    "at": "2026-09-30T21:56:36.530Z"
+  }
+]
