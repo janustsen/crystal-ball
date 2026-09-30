@@ -11,3 +11,5 @@ Open a sample prompt, create friend link, inspect friend mode. Export story card
 
 ## Gotchas
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.
+
+Only the 1080×1920 still PNG is exported. Animated/video export and the ffmpeg server route have been removed.

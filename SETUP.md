@@ -32,3 +32,11 @@ Remote HTTP origins cannot access browser speech recognition. The Ask flow offer
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Seeded Explore is visibly labeled. Apple save and web notification controls explain their native setup requirements. Friend links carry only the question and friend flag, not private answers. No App Store submission, public posting or real payments are part of this build.
 
 Apple wiring now uses Apple.signInAsync followed by Supabase.auth.linkIdentity with the ID token, preserving the anonymous UID. It stays disabled until EXPO_PUBLIC_APPLE_LINK_ENABLED=true and the provider is configured. This is account wiring, not a verified native sign-in claim. The native purchase adapter can initialize RevenueCat and restore sandbox purchases; the current paywall deliberately remains mock.
+
+## Reading profile and birth chart
+
+The profile is local-first: optional `birthday` (ISO date), lowercase `sunSign`, `ageBand` (`teen`, `adult`, or null), and optional `birthTime`, `birthPlace`, `moonSign`, `risingSign`. Null age uses teen safeguards. Onboarding blocks under-13 birthdays before cloud identity creation. Person readings accept one first name, send no notifications, and pass the output safety classifier with stricter teen/unknown rules.
+
+Moon/rising use the pinned `circular-natal-horoscope-js` ephemeris on device. Its published `module` entry points at absent source, so Metro imports the shipped `dist/index` bundle. City lookup is a separate, no-key prototype boundary using [Open-Meteo / GeoNames](https://open-meteo.com/en/docs/geocoding-api); only the city query is sent. The hosted free endpoint is non-commercial: production needs a licensed or self-hosted lookup before activation. No paid account or credentials are configured.
+
+New forecasts include `dueDate` as `YYYY-MM-DD`; it is optional only for older saved forecasts. Retention owns scheduling the Check-in. `astrology` and the short `why` remain visible to free users; `deeperWhy` plus inputs/assumptions/sources are shown to mock Plus. This is client gating in the existing local mock subscription model, not production entitlement enforcement.

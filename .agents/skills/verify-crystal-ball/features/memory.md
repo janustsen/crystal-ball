@@ -11,3 +11,5 @@ Edit a fact, reload, verify value; forget it, Undo and verify restoration, forge
 
 ## Gotchas
 Friends never teach the owner bank. Saving an edited fact runs the same validation as its card, so an invalid value (for example a savings runway without months or years) shows an inline message and is not saved. Web reminder is an explicit preview, not a scheduled native notification.
+
+Birthday and current focus onboarding is skippable. You supports editing/forgetting birthday and optional birth time/city for local Moon/rising. Unknown ages use teen-safe defaults; under-13 onboarding is blocked. Top-level birthday/sunSign/ageBand are shared profile fields. Forget everything clears these and reading memories, preserving plan/credit accounting.
