@@ -27,3 +27,12 @@ test('hosted config and upstream errors do not leak credentials or silently fall
  const original=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;return new Response('secret',{status:429})};
  try{env.HOSTED_MODEL_URL='https://example.invalid';await assert.rejects(provider(k=>env[k]).json('',{},schema,()=>true),/^Error: Model unavailable \(429\)\.$/);assert.equal(calls,1)}finally{globalThis.fetch=original}
 });
+test('hosted API rejects absent or outdated consent before any model call',async()=>{
+ const {handler}=await import('../server/handler.ts');
+ const env:Record<string,string>={MODEL_PROVIDER:'hosted',HOSTED_MODEL_DISCLOSURE:'Candidate AI'};
+ const serve=handler(k=>env[k]);
+ for(const aiConsent of [undefined,'Other AI']){
+  const response=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'plan',question:'Will I learn Spanish?',facts:{},aiConsent})}));
+  assert.equal(response.status,400);assert.match((await response.json()).message,/allow sharing/);
+ }
+});

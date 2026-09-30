@@ -15,6 +15,7 @@ export function handler(env:(key:string)=>string|undefined) {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
    const body:unknown=JSON.parse(text);
    if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
+   if(env('MODEL_PROVIDER')==='hosted'&&(!env('HOSTED_MODEL_DISCLOSURE')||!('aiConsent' in body)||body.aiConsent!==env('HOSTED_MODEL_DISCLOSURE')))throw new Error('Please allow sharing with the named AI provider before asking.');
    const raw='facts'in body?body.facts:{};
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
    const facts=raw as Facts,question=body.question.trim();
