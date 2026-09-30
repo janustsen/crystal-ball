@@ -6,7 +6,7 @@ import * as Sharing from 'expo-sharing';
 import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
 import {engineUrl} from './api';
-import {orbArtwork} from './orbArtwork';
+import {Asset} from 'expo-asset';
 import {friendLink,reminder} from './native';
 import type {Prediction} from './types';
 export function ShareCard({prediction,onClose,onNotice}:{prediction:Prediction;onClose:()=>void;onNotice:(message:string)=>void}){
@@ -18,7 +18,7 @@ export function ShareCard({prediction,onClose,onNotice}:{prediction:Prediction;o
   const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,colors.violet);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
   for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
-  const orb=new Image();orb.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(orbArtwork);await orb.decode();ctx.drawImage(orb,270,280,540,608);
+  const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();ctx.drawImage(orb,270,280,540,608);
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;
   const headline=prediction.headline.replace(/(\d+)\s+(months?|years?|weeks?|days?)/gi,'$1\u00a0$2');
   const wrap=(text:string)=>{const lines:string[]=[];let line='';for(const word of text.split(' ')){if(ctx.measureText((line+' '+word).trim()).width<=820){line=(line+' '+word).trim();continue;}if(line){lines.push(line);line='';}for(const letter of word){if(ctx.measureText(line+letter).width>820){lines.push(line);line='';}line+=letter;}}if(line)lines.push(line);return lines;};

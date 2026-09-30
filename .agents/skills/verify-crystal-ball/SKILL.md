@@ -24,6 +24,11 @@ Home orb / Ask tab opens the approach animation then voice. Choose Type instead 
 
 The old `drive.mjs`, `drive-extended.mjs`, `drive-states.mjs` and `drive-general.mjs` document the superseded card/Next design; they are historical, not the current gate. The replacement drivers cover their user-facing invariants with the new navigation. The feature map under features/ owns current coverage.
 
+## Motion audit
+After the functional drives finish, run `node scripts/drive-motion.mjs` on its own. It uses a fresh named chrome-devtools-axi profile, captures perf-start/perf-stop traces at 390×844, counts actual WebGL draws and display frames through each interaction, and closes only its own browser. Do not run other browser drives or bundle builds concurrently with the timing sample. The trace covers idle hero/Ask fog, approach, listening, typing, all three questions, thinking/reveal, sharing, tabs and 45 seconds of ambient sky. Targets: >=58fps, p95 <=20ms, no sampled frame >50ms and no long main-thread tasks. Keep failed measurements with their cause; do not replace them with an unexplained pass.
+
+Inspect the image and watch both spheres: fog must deform without a rotating plate, reset or reverse; wisps escape and dissipate under a warm glow. Confirm sky visitors are above the room but behind the ball. Run `node scripts/check-motion-accessibility.mjs`. Toggle Reduce motion and confirm the canvas stops drawing and CSS animations stop; repeat with the OS preference and verify both orbs remain visible at large text. Native `Animated` uses its native driver, but an iOS bundle is not evidence of device frame rate. If no simulator/device is available, report that remaining boundary explicitly.
+
 ## Evidence and boundaries
 Keep screenshots/transcripts under docs/evidence/design-2026-09-30/. Preserve prior failures before rerunning a failing driver. Inspect the actual PNG, including 1080×1920 dimensions and absence of private question, facts and Why. Real Ollama is mandatory; do not substitute fixture predictions. These checks prove behavior and structure, not predictive accuracy.
 
