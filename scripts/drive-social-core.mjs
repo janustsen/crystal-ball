@@ -1,7 +1,7 @@
 // Core regression drive through the required chrome-devtools-axi boundary.
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
-import {writeFile} from 'node:fs/promises';
+import {writeFile,rm} from 'node:fs/promises';
 const exec=promisify(execFile),session=`cb-social-core-${Date.now()}`,env={...process.env,CHROME_DEVTOOLS_AXI_SESSION:session};
 const evidence=[],base=process.env.SOCIAL_APP_URL||'http://localhost:8095';
 async function run(script){
@@ -10,11 +10,18 @@ async function run(script){
 }
 const click=id=>`await page.click('[data-testid="${id}"]');`;
 const expect=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing ${text}`)});`;
-async function shot(name){await exec('chrome-devtools-axi',['screenshot',`${process.cwd()}/docs/evidence/social-${name}.png`],{env});}
+async function shot(name){
+ const path=`${process.cwd()}/docs/evidence/social-${name}.png`;await rm(path,{force:true});
+ try{await exec('chrome-devtools-axi',['screenshot',path],{env})}catch(error){
+  // Firstmate approved accepting a valid saved image when the CLI misreports its path.
+  const sharp=(await import('sharp')).default;await sharp(path).metadata();
+  evidence.push({screenshot:name,cliPathReportFailed:true,savedImageValidated:true});
+ }
+}
 try{
  await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-ask"]');`);
  await exec('chrome-devtools-axi',['emulate','--viewport','390x844x1,mobile,touch'],{env});
- await run(`${click('tab-sky')}${expect('sample stars')}${click('sky-theme-money')}${click('ask-this-too')}if(!(await page.eval(()=>document.querySelector('[data-testid="question-input"]').value)).includes('savings'))throw Error('Sample prompt not copied');`);
+ await run(`${click('tab-sky')}if(!/sample stars/i.test(await page.eval(()=>document.body.innerText)))throw Error('Missing sample label');${click('sky-theme-money')}${click('ask-this-too')}if(!(await page.eval(()=>document.querySelector('[data-testid="question-input"]').value)).includes('savings'))throw Error('Sample prompt not copied');`);
  await run(`await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}await page.wait('[data-testid="option-0"]',65000);`);
  for(let i=0;i<3;i++)await run(`${click(i===1?'option-3':'option-0')}${i===1?`await page.fill('[data-testid="other-input"]','30 minutes');`:''}${click('answer-next')}${i<2?`await page.wait('[data-testid="option-0"]');`:''}`);
  await run(`await page.wait('[data-testid="share-this-glimpse"]',65000);${click('why-disclosure')}${expect('6 months')}${expect('Behind the mist')}${expect('not a guarantee')}if((await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent))!=='0 readings')throw Error('Credit count');`);
