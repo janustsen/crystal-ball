@@ -1,0 +1,173 @@
+[
+  {
+    "at": "2026-09-30T10:06:17.000Z",
+    "base": "http://localhost:8087",
+    "health": {
+      "app": "crystal-ball",
+      "provider": "ollama"
+    }
+  },
+  {
+    "screen": "01-home"
+  },
+  {
+    "accessibility": "home",
+    "violations": []
+  },
+  {
+    "screen": "02-approach"
+  },
+  {
+    "screen": "03-listening-fallback"
+  },
+  {
+    "screen": "04-typing"
+  },
+  {
+    "accessibility": "typing",
+    "violations": []
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "learning",
+        "provided": {
+          "learning_target": "Spanish",
+          "deadline": "In 6 months"
+        },
+        "cards": [
+          {
+            "id": "level",
+            "question": "What is your level now?",
+            "options": [
+              "New beginner",
+              "Know the basics",
+              "Intermediate",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "practice",
+            "question": "How much time can you give it daily?",
+            "options": [
+              "10 minutes",
+              "20 minutes",
+              "45 minutes",
+              "Other"
+            ],
+            "remember": true
+          },
+          {
+            "id": "conversation",
+            "question": "How often can you practice conversation?",
+            "options": [
+              "Rarely",
+              "Weekly",
+              "Daily",
+              "Other"
+            ],
+            "remember": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "05-question-one"
+  },
+  {
+    "accessibility": "borderless question",
+    "violations": []
+  },
+  {
+    "screen": "06-question-two"
+  },
+  {
+    "accessibility": "own answer",
+    "violations": []
+  },
+  {
+    "screen": "07-question-three"
+  },
+  {
+    "screen": "08-thinking"
+  },
+  {
+    "action": "predict",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "eb4b9361-4bc0-4a11-bf04-992418daed63",
+        "question": "Will I be conversational in Spanish in six months?",
+        "headline": "You will speak conversational Spanish in 6 months.",
+        "createdAt": "2026-09-30T10:06:37.141Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Your starting level is new beginner. You allow 30 minutes daily, with weekly conversation practice. This scenario uses 20 minutes daily and weekly conversation practice as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "deadline": "In 6 months",
+          "level": "New beginner",
+          "practice": "30 minutes",
+          "conversation": "Weekly"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee.",
+          "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "screen": "09-reveal-why"
+  },
+  {
+    "accessibility": "reveal",
+    "violations": []
+  },
+  {
+    "screen": "10-share"
+  },
+  {
+    "screen": "11-story-card"
+  },
+  {
+    "exportFailureRecovery": true
+  },
+  {
+    "screen": "16-history"
+  },
+  {
+    "screen": "17-you"
+  },
+  {
+    "screen": "14-plans"
+  },
+  {
+    "accessibility": "plans",
+    "violations": [
+      {
+        "id": "aria-required-attr",
+        "impact": "critical",
+        "nodes": [
+          [
+            ".r-1cm85bq.r-1wzrnnt.r-1pcd2l5:nth-child(3)"
+          ],
+          [
+            ".r-1cm85bq.r-1wzrnnt.r-1pcd2l5:nth-child(4)"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "failure": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  -  1\n+ Received  + 64\n\n- Array []\n+ Array [\n+   Object {\n+     \"description\": \"Ensure elements with ARIA roles have all required ARIA attributes\",\n+     \"help\": \"Required ARIA attributes must be provided\",\n+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/aria-required-attr?application=playwright\",\n+     \"id\": \"aria-required-attr\",\n+     \"impact\": \"critical\",\n+     \"nodes\": Array [\n+       Object {\n+         \"all\": Array [],\n+         \"any\": Array [\n+           Object {\n+             \"data\": Array [\n+               \"aria-checked\",\n+             ],\n+             \"id\": \"aria-required-attr\",\n+             \"impact\": \"critical\",\n+             \"message\": \"Required ARIA attribute not present: aria-checked\",\n+             \"relatedNodes\": Array [],\n+           },\n+         ],\n+         \"failureSummary\": \"Fix any of the following:\n+   Required ARIA attribute not present: aria-checked\",\n+         \"html\": \"<div role=\\\"radio\\\" tabindex=\\\"0\\\" class=\\\"css-g5y9jx r-1loqt21 r-1otgn73 r-1cm85bq r-1q9bdsx r-rs99b7 r-1wzrnnt r-1pcd2l5\\\" style=\\\"border-color: rgb(224, 164, 88); flex-direction: row; justify-content: space-between;\\\">\",\n+         \"impact\": \"critical\",\n+         \"none\": Array [],\n+         \"target\": Array [\n+           \".r-1cm85bq.r-1wzrnnt.r-1pcd2l5:nth-child(3)\",\n+         ],\n+       },\n+       Object {\n+         \"all\": Array [],\n+         \"any\": Array [\n+           Object {\n+             \"data\": Array [\n+               \"aria-checked\",\n+             ],\n+             \"id\": \"aria-required-attr\",\n+             \"impact\": \"critical\",\n+             \"message\": \"Required ARIA attribute not present: aria-checked\",\n+             \"relatedNodes\": Array [],\n+           },\n+         ],\n+         \"failureSummary\": \"Fix any of the following:\n+   Required ARIA attribute not present: aria-checked\",\n+         \"html\": \"<div role=\\\"radio\\\" tabindex=\\\"0\\\" class=\\\"css-g5y9jx r-1loqt21 r-1otgn73 r-1cm85bq r-1q9bdsx r-rs99b7 r-1wzrnnt r-1pcd2l5\\\" style=\\\"border-color: rgb(97, 76, 52); flex-direction: row; justify-content: space-between;\\\">\",\n+         \"impact\": \"critical\",\n+         \"none\": Array [],\n+         \"target\": Array [\n+           \".r-1cm85bq.r-1wzrnnt.r-1pcd2l5:nth-child(4)\",\n+         ],\n+       },\n+     ],\n+     \"tags\": Array [\n+       \"cat.aria\",\n+       \"wcag2a\",\n+       \"wcag412\",\n+       \"EN-301-549\",\n+       \"EN-9.4.1.2\",\n+       \"RGAAv4\",\n+       \"RGAA-7.1.1\",\n+     ],\n+   },\n+ ]",
+    "errors": []
+  },
+  {
+    "screen": "failure"
+  }
+]
