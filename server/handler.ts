@@ -1,10 +1,10 @@
-import { makePlan, predict } from './engine.ts';
 import {personalOmen} from './omen.ts';
-import { provider } from './provider.ts';
+import { makePlan, predict } from './engine.ts';
+import { provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
-export function handler(env:(key:string)=>string|undefined) {
- const model=provider(env),omenModel=provider(env,160);
+export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
+ const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160);
  const social=socialHandler(env,model);
  return async(request:Request):Promise<Response>=>{
   if(new URL(request.url).pathname.endsWith('/social'))return social(request);
