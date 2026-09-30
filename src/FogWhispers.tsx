@@ -17,5 +17,5 @@ export function FogWhispers({questions,reduce}:{questions:readonly string[];redu
   }
   whisper();return()=>{stopped=true;opacity.stopAnimation();};
  },[reduce,questions.length,opacity]);
- return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',left:12,right:12,top:'32%',alignItems:'center'}}><Animated.View style={{opacity,maxWidth:210}}><Txt display style={{fontSize:21,lineHeight:26,textAlign:'center',color:colors.ivory,textShadowColor:colors.ink,textShadowRadius:8}}>{questions[index]}</Txt></Animated.View></View>;
+ return <View pointerEvents="none" aria-hidden accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',left:12,right:12,top:'32%',alignItems:'center'}}><Animated.View style={{opacity,maxWidth:210}}><Txt display allowFontScaling={false} style={{fontSize:21,lineHeight:26,textAlign:'center',color:colors.ivory,textShadowColor:colors.ink,textShadowRadius:8}}>{questions[index]}</Txt></Animated.View></View>;
 }

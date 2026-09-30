@@ -35,6 +35,8 @@ export function useDelight({enabled,thinking,revealId,listening=false}:{enabled:
   if(!revealId||seen.current===revealId)return;
   seen.current=revealId;
   if(foreground)haptic('success');
-  if(audible)void chime.seekTo(0).then(()=>chime.play()).catch(()=>{});
+  let canceled=false;
+  if(audible)void chime.seekTo(0).then(()=>{if(!canceled)chime.play();}).catch(()=>{});
+  return()=>{canceled=true;};
  },[revealId,audible,foreground,chime]);
 }
