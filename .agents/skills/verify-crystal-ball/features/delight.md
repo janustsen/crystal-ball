@@ -1,0 +1,5 @@
+# Orb delight
+
+On Home, example questions form inside the fog; tapping their position must still open Ask. Reduce motion freezes the whisper. On You, Ambient sound defaults off; enable it, reload, confirm it persists, then disable it. Verify backgrounding and voice capture pause sound. Device silent-switch behavior, soft touch haptics, thinking pulses and reveal impact require an iOS device; the iOS export only checks bundle compatibility.
+
+Golden styling derives from the saved UUID and must survive History/reload/share without changing the speculative disclaimer. `tests/delight.test.ts` checks the selection ratio and serialized stability. For deterministic visual coverage use `CHROME_DEVTOOLS_AXI_SESSION=cb-delight chrome-devtools-axi run < scripts/drive-delight.js` against owned localhost:8093; this explicitly seeds a reading in that isolated profile and does not count as real-model verification. Capture the gold reveal and PNG preview at phone size. The real-model drive remains required separately.

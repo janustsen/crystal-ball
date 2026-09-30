@@ -1,0 +1,34 @@
+// Run with CHROME_DEVTOOLS_AXI_SESSION=cb-delight chrome-devtools-axi run < scripts/drive-delight.js
+// Isolated profile only. Explicit persisted-reading fixture tests presentation, not prediction quality.
+await page.open('http://localhost:8093');
+await page.wait('[data-testid=tab-you]');
+await page.click('[data-testid=tab-you]');
+console.log('sound default',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
+await page.click('[aria-label="Ambient sound"]');
+await page.wait(300);
+console.log('sound saved',await page.eval(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).ambientSound));
+await page.open('http://localhost:8093');
+await page.wait('[data-testid=tab-you]');
+await page.click('[data-testid=tab-you]');
+console.log('sound reloaded',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
+await page.click('[aria-label="Ambient sound"]');
+if(!await page.eval(()=>document.querySelector('[aria-label="Reduce motion"]').checked))await page.click('[aria-label="Reduce motion"]');
+await page.wait(300);
+await page.eval(()=>{
+ const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));
+ state.history=[{id:'0000000a-abcd-4000-8000-000000000000',question:'Will I finish my draft?',headline:'You will finish your first draft within 6 months.',createdAt:'2026-09-30T12:00:00Z',label:'Speculative forecast · not a guarantee',why:'A speculative scenario based on your plans.',facts:{},sources:[],assumptions:[],friend:false}];
+ localStorage.setItem('crystal-ball-v1',JSON.stringify(state));
+});
+await page.open('http://localhost:8093');
+await page.wait('[data-testid=tab-history]');
+await page.click('[data-testid=tab-history]');
+await page.eval(()=>Array.from(document.querySelectorAll('[role=button]')).find(e=>e.textContent.includes('You will finish your first draft')).click());
+await page.wait('[data-testid=golden-label]');
+const gold=await page.eval(()=>({label:document.querySelector('[data-testid=golden-label]').textContent,glow:!!document.querySelector('[data-testid=golden-glow]'),uncertainty:document.body.textContent.includes('Speculative forecast')}));
+if(!gold.glow||!gold.uncertainty||!gold.label.includes('same uncertainty'))throw new Error('Golden reveal contract failed');
+console.log('gold fixture',JSON.stringify(gold));
+await page.click('[data-testid=share-this-glimpse]');
+await page.wait('img[alt="Your exported prediction card"]');
+const share=await page.eval(()=>{const img=document.querySelector('img[alt="Your exported prediction card"]');return {width:img.naturalWidth,height:img.naturalHeight};});
+if(share.width!==1080||share.height!==1920)throw new Error('Wrong golden share dimensions');
+console.log('gold share',JSON.stringify(share));
