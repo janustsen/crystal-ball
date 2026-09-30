@@ -16,6 +16,9 @@ export function BackupPanel(){
    await backup(async()=>{
     if(!supabase)throw new Error('Backup is not configured.');
     const owner=await anonymousOwner();
+    const session=await supabase.auth.getSession();
+    if(session.error)throw session.error;
+    if(mode==='save'&&session.data.session?.user.identities?.some(identity=>identity.provider==='apple'))return;
     const nonce=Crypto.randomUUID();
     const credential=await Apple.signInAsync({requestedScopes:[],nonce:await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,nonce)});
     if(!credential.identityToken)throw new Error('Apple returned no identity token.');
