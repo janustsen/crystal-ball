@@ -34,3 +34,11 @@ Remote HTTP origins cannot access browser speech recognition. The Ask flow offer
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Seeded Explore is visibly labeled. Apple save and web notification controls explain their native setup requirements. Friend links carry only the question and friend flag, not private answers. No App Store submission, public posting or real payments are part of this build.
 
 Apple wiring now uses Apple.signInAsync followed by Supabase.auth.linkIdentity with the ID token, preserving the anonymous UID. It stays disabled until EXPO_PUBLIC_APPLE_LINK_ENABLED=true and the provider is configured. This is account wiring, not a verified native sign-in claim. The native purchase adapter can initialize RevenueCat and restore sandbox purchases; the current paywall deliberately remains mock.
+
+### Daily omen widget and check-ins
+
+The daily omen is curated offline, keyed by local calendar day, and cached separately from reading credits. The iOS `DailyOmen` widget uses the `expo-widgets` config plugin in app.json; `npx expo prebuild --platform ios --no-install` generates its extension and app-group entitlement. A development build is required (not Expo Go). Open Home before adding the widget; Home refreshes a year of daily timeline entries. After a year without reopening Home, reopen it to renew the timeline. Web and Android show the omen on Home without a native widget.
+
+Check-in dates are editable on the reading (YYYY-MM-DD). Recognized forecast durations supply the default; otherwise it remains 30 days. Remind me requests native notification permission and schedules a notification carrying that reading's id. Web shows an explicit preview. Verdicts remain on the individual reading in History, with no accuracy score.
+
+Device widget rendering and notification delivery/tap navigation remain unverified until Xcode setup is complete. Local checks and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
