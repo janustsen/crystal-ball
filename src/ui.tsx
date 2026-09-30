@@ -5,6 +5,7 @@ import {tabArtwork} from './designArt';
 import {OrbVisual} from './OrbVisual';
 import {Enter} from './Enter';
 import {motion,type MotionKind} from './motion';
+import {haptic} from './native';
 import {useStore} from './store';
 export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C284',gold:'#E0A458',ivory:'#F1E9DC',muted:'#B9AB97',surface:'#1C1510'};
 export const fonts={display:'IMFellEnglish',italic:'IMFellEnglishItalic',body:'HankenGrotesk'};
@@ -15,7 +16,7 @@ export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;r
  const {state}=useStore();if(state.largeText)size=Math.min(size,96);
  const press=useRef(new Animated.Value(1)).current;
  const art=<Animated.View style={{width:size,height:size*1.125,transform:[{scale:press}]}}><OrbVisual size={size} phase={phase} reduce={reduce}/></Animated.View>;
- return onPress?<Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Ask the crystal ball" onPressIn={()=>Platform.OS!=='web'&&Animated.timing(press,{toValue:.97,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start()} onPressOut={()=>Platform.OS!=='web'&&Animated.timing(press,{toValue:1,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start()} onPress={onPress}>{art}</Pressable>:<View accessible={false} importantForAccessibility="no-hide-descendants">{art}</View>;
+ return onPress?<Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Ask the crystal ball" onPressIn={()=>{haptic('touch');Platform.OS!=='web'&&Animated.timing(press,{toValue:.97,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start();}} onPressOut={()=>Platform.OS!=='web'&&Animated.timing(press,{toValue:1,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start()} onPress={onPress}>{art}</Pressable>:<View accessible={false} importantForAccessibility="no-hide-descendants">{art}</View>;
 }
 export function Constellation({count,current}:{count:number;current:number}){const points=Array.from({length:count},(_,i)=>({x:14+i*28,y:i%2?18:10}));const line=points.map(p=>`${p.x},${p.y}`).join(' ');return <SvgXml width={count*28} height={30} xml={`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count*28} 30"><polyline points="${line}" stroke="#75608C" stroke-width="1" fill="none"/>${points.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===current?4:3}" fill="${i===current?colors.ice:i<current?colors.gold:'#75608C'}"/>`).join('')}</svg>`}/>}
 export function Screen({children,reduce=false,variant=0,zoom=false,kind="screen"}:React.PropsWithChildren<{reduce?:boolean;variant?:number;zoom?:boolean;kind?:MotionKind}>){return <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" contentContainerStyle={{padding:24,paddingTop:14,paddingBottom:36,flexGrow:1}}><Enter reduce={reduce} variant={variant} zoom={zoom} kind={kind} fill>{children}</Enter></ScrollView>}

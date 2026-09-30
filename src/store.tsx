@@ -4,7 +4,7 @@ import type {AccountState,Prediction,Facts} from './types';
 import {mirror} from './cloud';
 let writes:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
-const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false});
+const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
 const Context=createContext<{state:AccountState;ready:boolean;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction)=>void;remaining:number;reset:()=>void}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false);
