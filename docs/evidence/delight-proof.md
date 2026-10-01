@@ -33,3 +33,5 @@ The first isolated audit failed on typing (183.3 ms) and Share (250 ms); its tra
 The second run also timed out in `perf-stop`, so it has no completed new trace or passing audit outcome. Its samples and complete failure transcript are in `delight-redesign/motion/`. The trace files in that directory are explicitly the first run, as identified by their provenance; they are not evidence of a successful second capture. All second-run averages exceed 58 fps, but the maximum-frame requirement is still unsatisfied. No threshold was relaxed. Under the repeated-obstacle rule, this is escalated to Firstmate before no-mistakes begins.
 
 The final removal of the invisible Classic overlay passed typecheck; the preceding full test suite and iOS export predate that last conditional rendering change. Exact-head verification and no-mistakes remain outstanding.
+
+Firstmate accepted the host-load motion exception on 2026-10-01 (steering message 005): 50.1 ms versus 50 ms with approximately 14 workers on the host. The recorded measurements and trace timeout remain failures, not a clean timing pass. This exception must be included in the PR; validation proceeds through no-mistakes.
