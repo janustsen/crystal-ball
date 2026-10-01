@@ -157,4 +157,36 @@ insert into public.circle_members(circle_id,user_id) select :'full_circle',md5('
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
 select proof.reject(format('select public.join_circle(%L)',:'full_invite'),'P0001');
+reset role;
+delete from public.social_blocks;
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.create_circle() as reaction_circle \gset
+select public.invite_to_circle(:'reaction_circle') as reaction_invite \gset
+select public.circle_checkin('work');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.join_circle(:'reaction_invite');
+select public.circle_checkin('learning');
+select public.react_in_circle(:'reaction_circle','00000000-0000-0000-0000-000000000001');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.react_in_circle(:'reaction_circle','00000000-0000-0000-0000-000000000002');
+select public.invite_to_circle(:'reaction_circle') as reaction_invite \gset
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+select public.join_circle(:'reaction_invite');
+select public.circle_checkin('growth');
+select public.react_in_circle(:'reaction_circle','00000000-0000-0000-0000-000000000001');
+select public.react_in_circle(:'reaction_circle','00000000-0000-0000-0000-000000000002');
+select public.react_in_circle(:'reaction_circle','00000000-0000-0000-0000-000000000003');
+select proof.assert((select count(*)=5 from public.circle_reactions where circle_id=:'reaction_circle'),'unblocked member sees all reactions');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.block_person(member=>'00000000-0000-0000-0000-000000000002');
+select proof.assert((select count(*)=2 and bool_and(user_id<>'00000000-0000-0000-0000-000000000002' and target_id<>'00000000-0000-0000-0000-000000000002') from public.circle_reactions where circle_id=:'reaction_circle'),'blocker sees neither blocked sender nor target');
+select proof.reject(format('select public.react_in_circle(%L,%L)',:'reaction_circle','00000000-0000-0000-0000-000000000002'),'P0001');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select proof.assert((select count(*)=2 and bool_and(user_id<>'00000000-0000-0000-0000-000000000001' and target_id<>'00000000-0000-0000-0000-000000000001') from public.circle_reactions where circle_id=:'reaction_circle'),'blocked viewer sees neither blocker sender nor target');
+select proof.reject(format('select public.react_in_circle(%L,%L)',:'reaction_circle','00000000-0000-0000-0000-000000000001'),'P0001');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+select proof.assert((select count(*)=5 from public.circle_reactions where circle_id=:'reaction_circle'),'blocking preserves unrelated viewer reactions');
+select public.leave_circle(:'reaction_circle');
+select proof.assert((select count(*)=0 from public.circle_reactions where circle_id=:'reaction_circle'),'former member cannot read reactions');
 \echo 'PASS: SQL privacy invariants'

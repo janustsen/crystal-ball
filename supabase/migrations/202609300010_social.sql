@@ -120,7 +120,6 @@ create policy own_stars on public.sky_stars for select to authenticated using (u
 create policy own_resonance on public.sky_resonances for select to authenticated using (user_id=(select auth.uid()));
 create policy member_circles on public.circles for select to authenticated using (social_private.member(id));
 create policy member_list on public.circle_members for select to authenticated using (social_private.member(circle_id));
-create policy member_reactions on public.circle_reactions for select to authenticated using (social_private.member(circle_id));
 create policy sender_seals on public.sealed_forecasts for select to authenticated using (sender_id=(select auth.uid()));
 grant select on public.sky_stars to authenticated;
 grant select on public.sealed_forecasts to authenticated;
@@ -133,6 +132,7 @@ create function social_private.blocked(person uuid) returns boolean
 $$;
 revoke all on function social_private.blocked(uuid) from public,anon;
 grant execute on function social_private.blocked(uuid) to authenticated;
+create policy member_reactions on public.circle_reactions for select to authenticated using (social_private.member(circle_id) and not social_private.blocked(user_id) and not social_private.blocked(target_id));
 drop policy member_list on public.circle_members;
 create policy member_list on public.circle_members for select to authenticated using(social_private.member(circle_id) and not social_private.blocked(user_id));
 create function public.tonights_sky() returns table(id uuid,theme text,wording text,resonances bigint,resonated boolean,mine boolean)
