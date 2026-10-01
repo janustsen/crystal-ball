@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
+import ts from 'typescript';
 
 const git = (...args) => execFileSync('git', args, {encoding: 'utf8'});
 const testFile = path => /(^|\/)(__tests__|tests?)\/|\.(test|spec)\.[cm]?[jt]sx?$/.test(path);
@@ -9,20 +10,51 @@ const disabled = text => /\.\s*(?:skip|only|todo)\b|\b(?:xit|xdescribe|xtest)\s*
 
 // ponytail: hunk-local assertion counts catch removals, not semantic weakening
 // or arbitrary aliases. Human review still owns assertion quality.
-function inspect(diff) {
+function codeOnly(text, path) {
+  const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+  let result = '', end = 0;
+  function visit(node) {
+    if (node.kind === ts.SyntaxKind.JSDocComment) return;
+    const children = node.getChildren(source);
+    if (children.length) children.forEach(visit);
+    else {
+      const start = node.getStart(source);
+      result += text.slice(end, start).replace(/[^\r\n]/g, ' ') + text.slice(start, node.end);
+      end = node.end;
+    }
+  }
+  visit(source);
+  return result;
+}
+
+function inspect(diff, path = 'test.ts') {
   const findings = [];
   for (const hunk of diff.split(/^@@ .* @@.*$/m).slice(1)) {
-    const lines = hunk.split('\n');
-    const added = lines.filter(line => line.startsWith('+')).map(line => line.slice(1)).join('\n');
-    const removed = lines.filter(line => line.startsWith('-')).map(line => line.slice(1)).join('\n');
-    if (assertions(removed) > assertions(added)) findings.push('assertions removed without replacement');
-    if (disabled(added)) findings.push('test disable/focus added');
+    const lines = hunk.split('\n').filter(line => /^[ +-]/.test(line));
+    const before = codeOnly(lines.filter(line => line[0] !== '+').map(line => line.slice(1)).join('\n'), path).split('\n');
+    const after = codeOnly(lines.filter(line => line[0] !== '-').map(line => line.slice(1)).join('\n'), path).split('\n');
+    let oldLine = 0, newLine = 0, removed = '', added = '';
+    function flush() {
+      if (assertions(removed) > assertions(added)) findings.push('assertions removed without replacement');
+      if (disabled(added)) findings.push('test disable/focus added');
+      removed = added = '';
+    }
+    for (const line of lines) {
+      const oldCode = line[0] === '+' ? '' : before[oldLine++];
+      const newCode = line[0] === '-' ? '' : after[newLine++];
+      if (line[0] === ' ' && oldCode === newCode) flush();
+      else {
+        removed += oldCode + '\n';
+        added += newCode + '\n';
+      }
+    }
+    flush();
   }
-  return findings;
+  return [...new Set(findings)];
 }
 
 if (process.argv[2] === '--self-test') {
-  const diff = (before, after) => `@@ -1 +1 @@\n-${before}\n+${after}\n`;
+  const diff = (before, after) => `@@ -1 +1 @@\n${before.split('\n').map(line => '-' + line).join('\n')}\n${after.split('\n').map(line => '+' + line).join('\n')}\n`;
   assert.deepEqual(inspect(diff('assert.equal(a, b); assert.ok(c);', 'assert.ok(c);')), ['assertions removed without replacement']);
   assert.deepEqual(inspect(diff('assert.equal(a, b);', 'assert.equal(a, c);')), []);
   assert.deepEqual(inspect(diff('', 'assert.ok(true);')), []);
@@ -30,6 +62,19 @@ if (process.argv[2] === '--self-test') {
     assert.deepEqual(inspect(diff('', added)), ['test disable/focus added']);
   }
   assert.deepEqual(inspect(diff('', 'test("x", {skip: false}, fn)')), []);
+  const test = 'test("x", () => assert.equal(a, b));';
+  for (const after of ['//' + test, '/*' + test + '*/', '/*\n' + test + '\n*/', '/**\n' + test + '\n*/']) {
+    assert.deepEqual(inspect(diff(test, after)), ['assertions removed without replacement']);
+  }
+  const context = ['test("x", () => {', ...Array(12).fill('  work();'), '  assert.ok(true);', '});'];
+  assert.deepEqual(inspect('@@ -1,15 +1,17 @@\n+/*\n' + context.map(line => ' ' + line).join('\n') + '\n+*/\n'), ['assertions removed without replacement']);
+  assert.deepEqual(inspect(diff('// assert.ok(true);', '// updated comment')), []);
+  assert.deepEqual(inspect(diff('', '/* test.skip("x", fn); */')), []);
+  assert.deepEqual(inspect(diff('/*\ntest.skip("x", fn);\n*/', 'test.skip("x", fn);')), ['test disable/focus added']);
+  assert.deepEqual(inspect(diff(test, 'const url = "https://example.com"; ' + test)), []);
+  assert.deepEqual(inspect(diff(test, 'const pattern = /[/*]/; ' + test)), []);
+  assert.deepEqual(inspect(diff(test, 'const value = `/* ${assert.ok(true)} */`; ' + test)), []);
+  assert.deepEqual(inspect('@@ -1,3 +1,3 @@\n-assert.ok(a);\n+work();\n unchanged();\n-work();\n+assert.ok(b);\n'), ['assertions removed without replacement']);
   assert.equal(testFile('tests/name with spaces.ts'), true);
   assert.equal(testFile('src/example.spec.tsx'), true);
   assert.equal(testFile('src/api.ts'), false);
@@ -42,7 +87,7 @@ if (process.argv[2] === '--self-test') {
   const deleted = new Set(git('diff', '--no-renames', '--diff-filter=D', '--name-only', '-z', ancestor, 'HEAD').split('\0'));
   const findings = changed.flatMap(path => deleted.has(path)
     ? [`${path}: test file deleted`]
-    : inspect(git('diff', '--no-ext-diff', '--no-textconv', '--no-renames', '--unified=0', ancestor, 'HEAD', '--', path)).map(finding => `${path}: ${finding}`));
+    : inspect(git('diff', '--no-ext-diff', '--no-textconv', '--no-renames', '--unified=2147483647', ancestor, 'HEAD', '--', path), path).map(finding => `${path}: ${finding}`));
   if (findings.length) {
     console.error(findings.join('\n'));
     // Only the current head's trailer approves this exact aggregate change.
