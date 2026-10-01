@@ -6,6 +6,7 @@ import {updateOmenWidget} from './omen-widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
 import {mirror,restoreBackup,supabase} from './cloud';
+import {trackBackupDeletion} from './backup';
 let writes:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
@@ -31,7 +32,7 @@ export function Store({children}:React.PropsWithChildren){
   finally{locked.current=false;setBackupBusy(false)}
  }
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,backup,backupBusy,update:fn=>{if(!locked.current)setState(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);setState(s=>({...s,facts:{},history:[]}))},savePrediction:(prediction)=>setState(s=>{
+ return <Context.Provider value={{state,ready,backup,backupBusy,update:fn=>{if(!locked.current)setState(s=>trackBackupDeletion(s,fn(s)))},remaining:Math.max(0,daily-used)+state.credits,reset:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);setState(s=>trackBackupDeletion(s,{...s,facts:{},history:[],backupOverwrite:true}))},savePrediction:(prediction)=>setState(s=>{
   if(locked.current)return s;
   if(s.history.some(p=>p.id===prediction.id))return s;
   const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;

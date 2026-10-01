@@ -60,7 +60,7 @@ try{
  const report:{at:string;budgetUSDPerProvider:number;rows:unknown[]}={at:new Date().toISOString(),budgetUSDPerProvider:1,rows:[]};
  for(const candidate of candidates){
   const hosted=candidate.name!=='ollama';let halted=false;
-  const config:Record<string,string>=hosted?{MODEL_PROVIDER:'hosted',HOSTED_MODEL_URL:candidate.url,HOSTED_MODEL_NAME:'Qwen/Qwen3.5-9B',HOSTED_MODEL_KEY:keys[candidate.key],HOSTED_MODEL_FORMAT:'json_schema'}:{MODEL_PROVIDER:'ollama',OLLAMA_URL:candidate.url,OLLAMA_MODEL:'qwen3:4b-instruct-2507-q4_K_M'};
+  const config:Record<string,string>=hosted?{MODEL_PROVIDER:'hosted',HOSTED_MODEL_URL:candidate.url,HOSTED_MODEL_NAME:'Qwen/Qwen3.5-9B',HOSTED_MODEL_KEY:keys[candidate.key]}:{MODEL_PROVIDER:'ollama',OLLAMA_URL:candidate.url,OLLAMA_MODEL:'qwen3:4b-instruct-2507-q4_K_M'};
   const model=provider(k=>config[k]);
   for(const item of cases){
    if(halted)break;

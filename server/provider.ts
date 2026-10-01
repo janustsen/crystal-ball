@@ -25,17 +25,15 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number):M
  return validatedProvider(async(messages,schema)=>{
     let endpoint = `${env('OLLAMA_URL') || 'http://127.0.0.1:11435'}/api/chat`;
     const key = env('HOSTED_MODEL_KEY'), model = env('HOSTED_MODEL_NAME');
-    const format = env('HOSTED_MODEL_FORMAT') || 'json_schema';
     if (hosted) {
       if (!key || !model || !env('HOSTED_MODEL_URL')) throw new Error('Hosted model is not configured.');
       const url = new URL(env('HOSTED_MODEL_URL')!);
       if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw new Error('Hosted model requires a clean HTTPS base URL.');
-      if (!['json_schema', 'json_object'].includes(format)) throw new Error('Unknown hosted output format.');
       endpoint = `${url.href.replace(/\/$/, '')}/chat/completions`;
     }
     const body = hosted ? {
       model, messages, temperature: 0, max_tokens: maxTokens ?? 1200, stream: false,
-      response_format: format === 'json_schema' ? {type: 'json_schema', json_schema: {name: 'result', strict: true, schema}} : {type: 'json_object'},
+      response_format: {type: 'json_schema', json_schema: {name: 'result', strict: true, schema}},
     } : {model: env('OLLAMA_MODEL') || 'qwen3:4b-instruct-2507-q4_K_M', messages, stream: false, think: false, format: schema, options: {temperature: 0, num_predict: maxTokens ?? 600}};
     const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: JSON.stringify(body), signal: AbortSignal.timeout(45000)});
     if (!response.ok) throw new Error(`Model unavailable (${response.status}).`);

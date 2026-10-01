@@ -17,6 +17,7 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  const {data,error}=await client.auth.getSession();if(error)throw error;
  if(!data.session||data.session.user.is_anonymous)return state;
  const user_id=data.session.user.id;
+ if(state.backupOverwrite){await mirror(state,client);return {...state,backupOverwrite:false}}
  const facts=await client.from('knowledge').select('facts').eq('user_id',user_id).maybeSingle();
  if(facts.error)throw facts.error;
  // Page through the archive instead of silently stopping at Supabase's row limit.
@@ -35,6 +36,6 @@ export async function mirror(state:AccountState,client:SupabaseClient|null=supab
  if(!client)return;
  const user_id=await anonymousOwner(client);if(!user_id)return;
  const saved=await client.from('knowledge').upsert({user_id,facts:state.facts,updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
+ if(state.backupOverwrite||!state.history.length){const result=await client.from('predictions').delete().eq('user_id',user_id);if(result.error)throw result.error;}
  if(state.history.length){const result=await client.from('predictions').upsert(state.history.map(p=>({id:p.id,user_id,payload:p,created_at:p.createdAt})),{onConflict:'user_id,id'});if(result.error)throw result.error;}
- else {const result=await client.from('predictions').delete().eq('user_id',user_id);if(result.error)throw result.error;}
 }

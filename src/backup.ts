@@ -16,3 +16,10 @@ export function mergeBackup(local: AccountState, remote: Backup): AccountState {
   .sort((a,b) => Date.parse(b.createdAt)-Date.parse(a.createdAt));
  return {...local,facts:{...remote.facts,...local.facts},history};
 }
+
+export function trackBackupDeletion(previous: AccountState, next: AccountState): AccountState {
+ const retained = new Set(next.history.map(reading => reading.id));
+ const deleted = Object.keys(previous.facts).some(key => !(key in next.facts)) ||
+  previous.history.some(reading => !retained.has(reading.id));
+ return previous.backupOverwrite || deleted ? {...next,backupOverwrite:true} : next;
+}

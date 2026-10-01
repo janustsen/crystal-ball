@@ -4,8 +4,8 @@ import {provider} from '../server/provider.ts';
 const schema={type:'object',properties:{ok:{type:'boolean'}},required:['ok'],additionalProperties:false};
 test('both transports repair once and fail closed, without changing the engine contract',async()=>{
  const original=globalThis.fetch;
- try {for(const hosted of [false,true])for(const format of ['json_schema','json_object']) {
-  const config:Record<string,string>=hosted?{MODEL_PROVIDER:'hosted',HOSTED_MODEL_URL:'https://example.invalid/v1/',HOSTED_MODEL_NAME:'candidate',HOSTED_MODEL_KEY:'test-only',HOSTED_MODEL_FORMAT:format}:{};
+ try {for(const hosted of [false,true]) {
+  const config:Record<string,string>=hosted?{MODEL_PROVIDER:'hosted',HOSTED_MODEL_URL:'https://example.invalid/v1/',HOSTED_MODEL_NAME:'candidate',HOSTED_MODEL_KEY:'test-only'}:{};
   const calls:{url:string;body:any;headers:any}[]=[];
   let outputs=['{"ok":false}','{"ok":true}'];
   globalThis.fetch=async(url,init)=>{calls.push({url:String(url),body:JSON.parse(String(init?.body)),headers:init?.headers});const content=outputs.shift();return Response.json(hosted?{choices:[{message:{content}}]}:{message:{content}})};
@@ -14,7 +14,7 @@ test('both transports repair once and fail closed, without changing the engine c
   assert.equal(calls.length,2);assert.match(calls[1].body.messages.at(-1).content,/ok must be true/);
   assert.equal(calls[0].url,hosted?'https://example.invalid/v1/chat/completions':'http://127.0.0.1:11435/api/chat');
   assert.equal(calls[0].headers.Authorization,hosted?'Bearer test-only':undefined);
-  if(hosted)assert.equal(calls[0].body.response_format.type,format);
+  if(hosted)assert.deepEqual(calls[0].body.response_format,{type:'json_schema',json_schema:{name:'result',strict:true,schema}});
   outputs=['bad','bad'];calls.length=0;
   await assert.rejects(model.json('Oracle',{},schema,()=>false),/mist/);assert.equal(calls.length,2);
  }}finally{globalThis.fetch=original}
