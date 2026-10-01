@@ -4,7 +4,7 @@ import {accountSocialProfile,isSkyPrompt,readingIdentity,safeSealedHeadline,samp
 import {phraseSafety as clientSafety} from '../src/safety-policy';
 import {phraseSafety as engineSafety} from '../server/safety';
 import {moderateSocialLine,socialHandler} from '../server/social';
-import type {ModelProvider} from '../server/provider';
+import type {JsonSchema,ModelProvider} from '../server/provider';
 import {provider} from '../server/provider';
 
 test('sample stars are safe inspiration and never claim to be people',()=>{
@@ -103,7 +103,7 @@ test('shared draft moderation always emits teen audience and refuses unsafe publ
   if(url.endsWith('/social_drafts')){saved++;return Response.json([{id:'draft',...JSON.parse(String(init?.body))}]);}
   throw new Error(`Unexpected test URL: ${url}`);
  });
- const model:ModelProvider={async json<T>(_system,input,schema){
+ const model:ModelProvider={async json<T>(_system:string,input:unknown,schema:JsonSchema){
   const properties=schema.properties as Record<string,unknown>;
   if('safe' in properties){audiences.push((input as {teenAudience:boolean}).teenAudience);return {safe:allow} as T;}
   if('wording' in properties)return {wording:'Will a deeper connection develop?',theme:'love'} as T;
