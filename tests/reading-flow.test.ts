@@ -5,7 +5,7 @@ import {provider} from '../server/provider.ts';
 import {validateFact} from '../src/questions.ts';
 import {ageGroup,birthdayProfile,sunSign} from '../src/profile.ts';
 import {birthChart} from '../src/birth-chart.ts';
-import {forecastDueDate} from '../server/due-date.ts';
+import {forecastDueDate} from '../src/due-date.ts';
 import {handler} from '../server/handler.ts';
 
 test('one and two card model plans reach a forecast; missing timeframe reserves one card',async()=>{
@@ -67,7 +67,7 @@ test('Due dates preserve horizons and clamp calendar months instead of overflowi
  assert.equal(forecastDueDate('this year',now),'2026-12-31');
  assert.equal(forecastDueDate('by 2028',now),'2028-12-31');
  assert.equal(forecastDueDate('within 3 weeks',now),'2026-02-21');
- assert.equal(forecastDueDate('',now),'2026-05-01');
+ assert.throws(()=>forecastDueDate('',now),/timeframe/);
 });
 
 test('HTTP boundary rejects under-13 readings and full names before model calls',async()=>{
