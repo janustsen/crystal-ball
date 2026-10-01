@@ -50,7 +50,7 @@ After accepting the exception, the synthetic hosted-consent build passed typing 
 
 ## Backup policy for the PR
 
-Use one device at a time. Uploads replace the Apple archive (last device wins). Startup never merges cloud data; explicit Restore confirms that it replaces this device’s readings and remembered answers. The backup supports moving to a new phone, not concurrent multi-device sync.
+Use the [authoritative backup usage and replacement contract](../../README.md) when describing the PR.
 
 ## Greptile follow-up repair
 
