@@ -41,7 +41,7 @@ export default function App(){
   if(!question.trim()||!ready)return;if(remaining<=0){setPaywall(true);return;}
   const id=++generation.current;controller.current?.abort();const abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);
   setFlow({stage:'planning',question});setNotice('');
-  try{const result=await request<Plan>('plan',question,friend?{}:personalFacts,friend,abort.signal,readingContext);if(id!==generation.current)return;
+  try{const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext);if(id!==generation.current)return;
    if(result.kind==='ok'){setFlow({stage:'cards',question,plan:result.value,answers:{},index:0});setChoice('');setOther('')}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question,message:result.message});
   }catch{if(id===generation.current)setFlow({stage:'error',question,message:abort.signal.aborted?'The Ball took too long. Nothing was charged. Please try again.':'The mist is too thick. Check your connection and try again.'})}finally{clearTimeout(timeout)}
@@ -50,8 +50,8 @@ export default function App(){
   if(!ready)return;if(remaining<=0){setPaywall(true);return;}
   lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
-  try{const result=await request<Prediction>('predict',q,{...(friend?{}:personalFacts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},friend,abort.signal,readingContext);if(id!==generation.current)return;
-   if(result.kind==='ok'){savePrediction(result.value);if(!friend)update(s=>({...s,facts:{...s.facts,...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}}));setReviewing(false);setFlow({stage:'reveal',prediction:result.value});setWhy(false);haptic('success');}
+  try{const result=await request<Prediction>('predict',q,{...(friend||personMode?{}:personalFacts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},friend,abort.signal,readingContext);if(id!==generation.current)return;
+   if(result.kind==='ok'){savePrediction(result.value);if(!friend&&!personMode)update(s=>({...s,facts:{...s.facts,...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}}));setReviewing(false);setFlow({stage:'reveal',prediction:result.value});setWhy(false);haptic('success');}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});
   }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:abort.signal.aborted?'The Ball took too long. Nothing was charged. Your answers are kept.':'The mist is too thick. Nothing was charged. Your answers are kept.',retry:{plan,answers}})}finally{clearTimeout(timeout)}
  }
