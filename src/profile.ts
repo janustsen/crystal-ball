@@ -47,8 +47,12 @@ export function restoreProfile(state:AccountState):AccountState {
  return {...state,...profile,...(birthday?{birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign}:{}),facts,onboardingDone:profile.ageConfirmed&&(state.onboardingDone??Boolean(state.history.length||Object.keys(facts).length))};
 }
 export function personQuestionIssue(question:string,name?:string):string|undefined {
- if(!name)return;
+ if(name===undefined)return;
  if(!validPersonName(name))return 'Use a first name only.';
  const subjectText=name.toLowerCase()==='will'?question.replace(/^\s*will\s+/i,''):question;
- if(!new RegExp(`(^|[^\\p{L}])${name}(?=$|[^\\p{L}])`,'iu').test(subjectText))return `Include ${name} in your question, or change the first name to match.`;
+ // Keep Unicode case pairs, but not multi-letter expansions or Turkish dotless i.
+ const fold=(text:string)=>Array.from(text,c=>(c==='ı'||Array.from(c.toUpperCase()).length>1?c:c.toUpperCase()).toLowerCase());
+ const subject=fold(subjectText),letters=fold(name);
+ const matches=subject.some((_,i)=>!/\p{L}/u.test(subject[i-1]||'')&&letters.every((letter,j)=>letter===subject[i+j])&&!/\p{L}/u.test(subject[i+letters.length]||''));
+ if(!matches)return `Include ${name} in your question, or change the first name to match.`;
 }
