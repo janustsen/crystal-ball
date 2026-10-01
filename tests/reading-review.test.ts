@@ -86,3 +86,19 @@ test('repeated Person names are accepted in cards and options while modal will i
   }
  }finally{globalThis.fetch=original;}
 });
+
+test('short financial forecasts allow the supplied timeframe but reject invented amounts',async()=>{
+ const original=globalThis.fetch;let attempts=0,verdict='Your net worth will grow significantly in 10 years.';
+ globalThis.fetch=async(_url,init)=>{
+  const body=JSON.parse(String(init?.body));
+  const content=body.format.properties.prediction?{prediction:++attempts%2?'You will have a net worth of $1.5 million in 10 years.':verdict,basis:'context_1',assumption:'You maintain your current spending and investment habits.'}:{category:'allow'};
+  return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
+ };
+ try{
+  const run=()=>predict('What will my net worth be in 10 years?',{context_1:'What is your current net worth? $500,000 now',horizon:'in 10 years'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
+  const good=await run();assert.equal(good.kind,'ok',JSON.stringify(good));assert.equal(attempts,2);
+  if(good.kind==='ok')assert.equal(good.value.headline,verdict);
+  verdict='Your net worth will reach $900,000 in 10 years.';
+  assert.equal((await run()).kind,'error');assert.equal(attempts,4);
+ }finally{globalThis.fetch=original;}
+});

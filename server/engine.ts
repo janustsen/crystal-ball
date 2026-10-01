@@ -127,7 +127,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
     if(!validForecast(x))return {valid:false,feedback:'Use a complete future sentence with will, no more than 90 characters. For a general forecast choose an existing fact key as basis and one complete assumption sentence under 120 characters. Never end mid-sentence or with a dash, comma or colon.'};
     if(context.personName&&!([`${context.personName} `,`${context.personName}'s `,`${context.personName}’s `].some(prefix=>x.prediction.toLowerCase().startsWith(prefix.toLowerCase()))))return {valid:false,feedback:'Start the forecast with the supplied personName, not You or Your.'};
     if(choices.length)return true;
-    if((subject==='money'||subject==='growth')&&/[0-9$€£]/.test(x.prediction))return {valid:false,feedback:'Required calculation inputs are missing. Give a qualitative direction only, without a numeric amount or count. The server appends the timeframe.'};
+    if((subject==='money'||subject==='growth')&&/[0-9$€£]/.test(x.prediction.toLowerCase().replace(horizon.toLowerCase(),'')))return {valid:false,feedback:'Required calculation inputs are missing. Give a qualitative direction only, without a numeric amount or count. The server appends the timeframe.'};
     const headline=formatForecast(x.prediction,horizon,context.personName);
     if(headline.length>110)return {valid:false,feedback:'Shorten the verdict to fit 110 characters including the supplied horizon.'};
     const suppliedNumbers=new Set(Object.values(facts).join(' ').match(/\d+(?:\.\d+)?/g)||[]);
