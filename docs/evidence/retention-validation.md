@@ -4,12 +4,16 @@ Applies the captain's September 30 decisions: ball-set Due date controls Check-i
 
 ## Data and blast radius
 
-- `Prediction.dueDate?: string` is the reading-flow lane's YYYY-MM-DD contract. Existing forecasts fall back to creation date plus 30 days. There is no editable `checkInOn` field or headline-duration parser. History and notification scheduling consume the same date helper. Cloud mirroring already stores the complete forecast JSON; no SQL migration is needed.
+- `Prediction.dueDate?: string` is the reading-flow lane's YYYY-MM-DD contract. Ball-set dates arrive with the cb-reading-flow PR; until then, forecasts without a supplied date fall back to creation date plus 30 days. There is no editable `checkInOn` field or headline-duration parser. History and notification scheduling consume the same date helper. Cloud mirroring already stores the complete forecast JSON; no SQL migration is needed.
 - Omen input uses the existing `Facts` map, including `facts.sun_sign` when onboarding supplies it. A skipped Sun sign stays unknown; the generator cannot invent one. The producer of this key is an integration boundary with the launch lane, not another onboarding implementation here.
 - `action: "omen"` reuses handler input limits and the configured provider. Its 160-token cap is opt-in; existing local-provider calls retain 600 tokens and existing hosted calls remain uncapped by this change. One short generation request per day retains the shared provider's one-repair-then-fail-closed rule. Default local Qwen costs no service money; hosted provider pricing/ranking belongs to launch, not a claimed cost measurement here.
 - The private cache is separate from AccountState's reading balance. It durably claims the local day before inference, coalesces simultaneous calls in the app, and keeps failures cached. Forget everything erases its text while keeping the daily generation claim and invalidates in-flight results so old private omens cannot repopulate it. Like the existing reading allowance, this is device-local anonymous-profile state; it does not enforce a cross-device server quota.
 
 The safety facts are executable in `tests/retention.test.ts`: legacy Due date fallback, supplied Due date precedence, invalid date rejection, native reading-id/date forwarding, web no-schedule boundary, one generation per day, cached failure/reload behavior, concurrent calls, reset during generation, shared handler validation, rejected invented Sun signs and clipped output, and unchanged provider defaults. Native OS calls and HTTP provider payloads are boundary mocks in those tests, not device proof.
+
+## Automatic check-ins
+
+Successful forecast creation now attempts scheduling with existing notification permission only. Reveal and share Remind me actions still request permission. Tests in `tests/check-in.test.ts` exercise granted/denied permission, manual opt-in, date/id forwarding, web behavior, and scheduling failures through the shared reminder action; native delivery remains unverified.
 
 ## Observed model behavior
 

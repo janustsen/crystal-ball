@@ -1,19 +1,19 @@
 import {checkInDate} from './retention';
 export type NativePorts = {
  platform:string;
- notifications:{permission:()=>Promise<boolean>;schedule:(title:string,body:string,seconds:number,readingId?:string)=>Promise<void>};
+ notifications:{permission:(request:boolean)=>Promise<boolean>;schedule:(title:string,body:string,seconds:number,readingId?:string)=>Promise<void>};
  apple:{available:()=>Promise<boolean>;enabled:boolean;owner:()=>Promise<string|null>;signIn:()=>Promise<string|null>;link:(token:string)=>Promise<string|undefined>};
  share:(message:string,url:string)=>Promise<unknown>;
  link:(question:string)=>string;
 };
 export function nativeActions(ports:NativePorts){return {
- async reminder(headline:string,readingId?:string,on?:string){
+ async reminder(headline:string,readingId?:string,on?:string,requestPermission=true){
   const date=on?checkInDate(on):null;
   if(on&&!date)return 'The Due date is unavailable. You can still check in from History.';
   if(date&&date.getTime()<=Date.now())return 'This forecast is ready for a Check-in. Open it from History.';
   const when=date?date.toLocaleDateString():'30 days';
   if(ports.platform==='web')return `Native reminder preview: check back ${when}. Local notifications need an iOS or Android build.`;
-  try{if(!await ports.notifications.permission())return 'Notifications are off. You can still check back from History.';
+  try{if(!await ports.notifications.permission(requestPermission))return 'Notifications are off. You can still check back from History.';
    await ports.notifications.schedule('Did it come true?',headline,date?Math.ceil((date.getTime()-Date.now())/1000):30*86400,readingId);
    return `Check-back reminder set for ${when}.`;
   }catch{return 'The reminder could not be scheduled. You can still check back from History.';}
