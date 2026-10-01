@@ -5,6 +5,8 @@ rules={'price':r'price|expensive|cost|money|pay|subscription|charge|refund|billi
 result=[]
 for name,id in [('costar','1264782561'),('nebula','1459969523'),('pattern','1071085727')]:
  url=f'https://itunes.apple.com/us/rss/customerreviews/page=1/id={id}/sortby=mostrecent/json'
+ # Fixed HTTPS Apple origin with IDs from the literal list above; no user-controlled URL.
+ # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
  with urllib.request.urlopen(url,timeout=30) as response: data=json.load(response)
  rows=[]
  for entry in data['feed'].get('entry',[]):

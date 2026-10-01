@@ -24,6 +24,8 @@ for domain,base in registries.items():
  for budget in [3,10]:
   body={'model':'qwen3:4b-instruct-2507-q4_K_M','stream':False,'think':False,'format':'json','options':{'temperature':.2,'num_predict':180},'messages':[{'role':'system','content':'Rank the supplied fact IDs by relevance to the question. Return JSON with ranked_ids array. Select facts about present context, never ask the user to predict their future. Use only provided IDs. Session change is not available to first-time users.'},{'role':'user','content':json.dumps({'question':questions[domain],'budget':budget,'facts':[{'id':k,'question':q} for k,q,o in registry if k!='change']})}]}
   start=time.monotonic()
+  # Fixed loopback-only Ollama endpoint; request data cannot change the URL and local HTTP is intentional.
+  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected, python.lang.security.audit.insecure-transport.urllib.insecure-request-object.insecure-request-object
   with urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11435/api/chat',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'}),timeout=60) as r:raw=json.load(r)
   ranks=json.loads(raw['message']['content']).get('ranked_ids',[])
   rank_evidence.append({'domain':domain,'budget':budget,'question':questions[domain],'ranks':ranks,'seconds':round(time.monotonic()-start,3)})

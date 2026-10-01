@@ -8,6 +8,8 @@ PROMPT='''You are a playful forecasting oracle, not a source of future facts. Re
 def chat(system,data):
  body={'model':MODEL,'stream':False,'think':False,'format':'json','options':{'temperature':0.2,'num_predict':400,'num_ctx':4096},'messages':[{'role':'system','content':system},{'role':'user','content':json.dumps(data)}]}
  t=time.monotonic()
+ # Fixed loopback-only Ollama endpoint; request data cannot change the URL and local HTTP is intentional.
+ # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected, python.lang.security.audit.insecure-transport.urllib.insecure-request-object.insecure-request-object
  with urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11435/api/chat',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'}),timeout=120) as response:r=json.load(response)
  return {'answer':json.loads(r['message']['content']),'seconds':round(time.monotonic()-t,3),'input_tokens':r.get('prompt_eval_count',0),'output_tokens':r.get('eval_count',0)}
 def bad(a):return len(a.get('prediction',''))>110 or bool(re.search(r'\b(maybe|may|might|likely|could|if)\b',a.get('prediction',''),re.I))
