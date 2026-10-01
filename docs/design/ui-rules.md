@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home has no explanatory headline or primary button competing with the orb. Reusable art and smoke shader are extracted with `scripts/import-design.py`; fonts and licenses live in assets/fonts/.
+The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home has no explanatory headline or primary button competing with the orb. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
