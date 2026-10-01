@@ -43,7 +43,7 @@ Home generates one personal astrology-flavored omen per local anonymous profile/
 
 The iOS `DailyOmen` widget uses the `expo-widgets` config plugin in app.json; `npx expo prebuild --platform ios --no-install` generates its extension and app-group entitlement. A development build is required (not Expo Go). Open Home before adding the widget. It displays the same personal omen, then switches to “Open the Ball for today’s omen” at the next local midnight; the widget never triggers model calls. Web and Android show the omen on Home without a native widget.
 
-Check-in scheduling uses a valid forecast `dueDate` (YYYY-MM-DD) at local noon, falling back to creation date plus 30 days when the date is absent or invalid. The current engine does not produce `dueDate`; ball-set dates depend on the cb-reading-flow PR. Retention consumes that contract without generating dates. See [README](README.md) for automatic scheduling, permission and outcome controls.
+Check-in scheduling uses a valid forecast `dueDate` (YYYY-MM-DD) at local noon, falling back to creation date plus 30 days when the date is absent or invalid. The engine produces ball-set `dueDate` values for new forecasts; retention consumes them without generating dates. See [README](README.md) for automatic scheduling, permission and outcome controls.
 
 Device widget rendering and notification delivery/tap navigation remain unverified until Xcode setup is complete. Evidence and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
 

@@ -23,7 +23,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    if(viewerBirthday!==undefined&&(typeof viewerBirthday!=='string'||!validBirthday(viewerBirthday)))throw new Error('Please check your birthday.');
    const ageConfirmed='ageConfirmed'in body?body.ageConfirmed:undefined;
    if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
-   readingAge(viewerBirthday,ageConfirmed);
+   if(body.action!=='omen')readingAge(viewerBirthday,ageConfirmed);
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
    const context={viewerBirthday,ageConfirmed,personName};
    const facts=raw as Facts,question=body.question.trim();
