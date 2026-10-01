@@ -1,10 +1,11 @@
+import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 const url=process.env.VERIFY_URL||'http://localhost:8087',results=[];
 await mkdir('.local',{recursive:true});
 for(const invalidBirthday of [false,true]){
  const profile=await mkdtemp(`${process.cwd()}/.local/reading-migration-`);
- const context=await chromium.launchPersistentContext(profile,{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844}});
+ const context=await chromium.launchPersistentContext(profile,{httpCredentials,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844}});
  try{
   const page=await context.newPage();
   // A pre-change storage fixture, not a substitute for real engine verification.

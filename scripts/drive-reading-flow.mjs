@@ -1,13 +1,14 @@
+import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 import sharp from 'sharp';
 const url=process.env.VERIFY_URL||'http://localhost:8087';
 await mkdir('.local',{recursive:true});await mkdir('docs/evidence',{recursive:true});
 const profile=await mkdtemp(`${process.cwd()}/.local/reading-browser-`);
-const context=await chromium.launchPersistentContext(profile,{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,acceptDownloads:true});
+const context=await chromium.launchPersistentContext(profile,{httpCredentials,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,acceptDownloads:true});
 const page=await context.newPage(),log=[],errors=[];
 page.on('pageerror',error=>errors.push(error.message));
-page.on('response',async response=>{if(response.request().method()==='POST'&&response.url().includes(':8792'))try{log.push({request:response.request().postDataJSON(),response:await response.json()})}catch{}});
+page.on('response',async response=>{if(response.request().method()==='POST'&&response.url().startsWith(process.env.VERIFY_ENGINE_URL||`${url}/engine`))try{log.push({request:response.request().postDataJSON(),response:await response.json()})}catch{}});
 const shot=async name=>{await page.waitForTimeout(1000);await page.screenshot({path:`docs/evidence/reading-${name}.png`});};
 async function answerCards(){
  let count=0;await page.getByTestId('option-0').waitFor({timeout:65000});

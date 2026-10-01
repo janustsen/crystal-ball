@@ -5,7 +5,6 @@ import {captureRef} from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
-import {engineUrl,previewHeaders} from './api';
 import {Asset} from 'expo-asset';
 import {suggestedCheckIn} from './retention';
 import {friendLink,reminder} from './native';
