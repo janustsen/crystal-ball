@@ -18,3 +18,7 @@ At 2026-10-01 06:11 UTC the host reported `load averages: 75.43 94.96 60.35` wit
 A quiet validation window is needed to distinguish scheduling noise from a real regression before claiming the full verification skill green. Preserve the complete failed measurements and trace in `social-motion/`. Do not waive the gate or describe the timing run as passed.
 
 The audit exited 1 with `Frame budget failed: orb-approach-listening, thinking-to-reveal, share`. The 45-second ambient sample passed at 60.0 fps / 16.8 ms maximum. Full timing excerpt and trace provenance were saved; the owned audit browser closed.
+
+## Approved host-contention exception
+
+On 2026-10-01 Firstmate accepted this host-load exception: the iMac was running about 12 workers at load 75–95 on 8 CPUs, this branch changed no animation internals, and the redesign established the same host-graphics/contention exception. Both the passing Sky/ambient measurements and failed approach/reveal/share measurements must appear in the PR. This accepts the delivery boundary; it does not turn the failed timing measurement into a pass. Re-measure on a real iPhone later.

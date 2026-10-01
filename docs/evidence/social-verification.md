@@ -16,3 +16,5 @@ Known integration work before final delivery: The redesign at https://github.com
 The screenshot CLI sometimes exits nonzero after saving a valid file. The harness validates the newly saved image; it does not suppress a missing/broken image. This is a reporting workaround authorized by Firstmate, not a tool change. Failed-drive evidence is retained.
 
 Final rebase gate status: functional social/core drives and authenticated bridge checks passed on redesign main `5c9e5d9`. The strict serial motion audit did not meet its budget during heavy host load; see [motion boundary](social-motion-boundary.md). No-mistakes has not been started pending that validation boundary.
+
+Firstmate subsequently approved the host-contention exception (2026-10-01): retain both timing results in the PR and re-measure on a real iPhone later. No-mistakes is authorized to proceed with that documented exception. The functional, privacy and authenticated-bridge checks remain passes; the strict desktop timing measurement remains a failure under contention.
