@@ -2,6 +2,8 @@
 
 A mystical, astrology-flavoured oracle: you ask the ball a question and it reveals one speculative forecast.
 
+This glossary includes planned product concepts; see [accepted reading-flow scope](docs/evidence/review-decisions.md#reading-flow-acceptance-and-pr-handoff--2026-10-01) for what this branch delivers and defers.
+
 ## Language
 
 **Reading**:
@@ -55,7 +57,7 @@ A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 
 A short, fully personal omen shown on Home once a day, separate from the daily free Reading.
 
 **Teen**:
-A user aged 13 to 17, known from the onboarding birthday, which is also the age gate (under 13 is blocked). Teens get stricter defaults, and Forecasts about another person are never cruel or humiliating for them. Adults (18+) get the unfiltered oracle, labelled for fun.
+A user aged 13 to 17, known from the onboarding birthday, which is also the age gate (under 13 is blocked). Teens get stricter defaults, and Forecasts about another person are never cruel or humiliating for them. Adult (18+) tone is labelled for fun; the [safety policy](docs/research/safety-policy.md) still applies.
 
 **Person reading**:
 A Reading about another person named by first name only (for example a crush). The named person is never notified and the ball knows nothing about them, unless they are an opted-in Circle member, in which case it is a Friend reading.
