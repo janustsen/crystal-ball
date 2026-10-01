@@ -19,7 +19,9 @@ function codeOnly(text, path) {
     if (children.length) children.forEach(visit);
     else {
       const start = node.getStart(source);
-      result += text.slice(end, start).replace(/[^\r\n]/g, ' ') + text.slice(start, node.end);
+      const token = text.slice(start, node.end);
+      result += text.slice(end, start).replace(/[^\r\n]/g, ' ')
+        + (ts.isLiteralExpression(node) || ts.isTemplateLiteralToken(node) ? token.replace(/[^\r\n]+/g, ' 0 ') : token);
       end = node.end;
     }
   }
@@ -66,6 +68,19 @@ if (process.argv[2] === '--self-test') {
   for (const after of ['//' + test, '/*' + test + '*/', '/*\n' + test + '\n*/', '/**\n' + test + '\n*/']) {
     assert.deepEqual(inspect(diff(test, after)), ['assertions removed without replacement']);
   }
+  for (const literal of [JSON.stringify(test), "'" + test + "'", '`' + test + '`', '/' + test + '/', '`head ${value} ' + test + '`', '`' + test + '${value} tail`', '`head ${value} ' + test + '${value} tail`']) {
+    assert.deepEqual(inspect(diff(test, literal + ';')), ['assertions removed without replacement']);
+  }
+  for (const literal of ['"test.skip(\\"x\\", fn)"', "'test.only(x, fn)'", '`test.todo(x)`', '/test.skip(x)/', '`head ${value} xit(x) ${value} tail`']) {
+    assert.deepEqual(inspect(diff('', literal + ';')), []);
+  }
+  assert.deepEqual(inspect(diff('assert.ok(a);', '`head ${assert.ok(b)} tail`;')), []);
+  assert.deepEqual(inspect(diff('assert.ok(a); assert.ok(b);', '`head ${assert.ok(a)} middle ${assert.ok(b)} tail`;')), []);
+  assert.deepEqual(inspect(diff('`head ${assert.ok(a)} tail`;', '`head ${value} tail`;')), ['assertions removed without replacement']);
+  assert.deepEqual(inspect(diff('', '`head ${test.skip("x", fn)} tail`;')), ['test disable/focus added']);
+  assert.deepEqual(inspect(diff('', 'test("x", {skip: "reason"}, fn);')), ['test disable/focus added']);
+  assert.deepEqual(inspect(diff(test, '<div>' + test + '</div>;'), 'test.tsx'), ['assertions removed without replacement']);
+  assert.deepEqual(inspect(diff('assert.ok(a);', '<div>{assert.ok(a)}</div>;'), 'test.tsx'), []);
   const context = ['test("x", () => {', ...Array(12).fill('  work();'), '  assert.ok(true);', '});'];
   assert.deepEqual(inspect('@@ -1,15 +1,17 @@\n+/*\n' + context.map(line => ' ' + line).join('\n') + '\n+*/\n'), ['assertions removed without replacement']);
   assert.deepEqual(inspect(diff('// assert.ok(true);', '// updated comment')), []);
