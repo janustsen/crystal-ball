@@ -11,14 +11,14 @@ export function nativeActions(ports:NativePorts){
  function serialize(operation:()=>Promise<void>){const work=writes.then(operation);writes=work.catch(()=>{});return work;}
  return {
  forgetCheckIns(){generation++;return ports.platform==='web'?Promise.resolve():serialize(()=>ports.notifications.clear());},
- async reminder(headline:string,readingId?:string,on?:string,requestPermission=true){
+ async reminder(_headline:string,readingId?:string,on?:string,requestPermission=true){
   const version=generation,date=on?checkInDate(on):null;
   if(on&&!date)return 'The Due date is unavailable. You can still check in from History.';
   if(date&&date.getTime()<=Date.now())return 'This forecast is ready for a Check-in. Open it from History.';
   const when=date?date.toLocaleDateString():'30 days';
   if(ports.platform==='web')return `Native reminder preview: check back ${when}. Local notifications need an iOS or Android build.`;
   try{if(!await ports.notifications.permission(requestPermission))return 'Notifications are off. You can still check back from History.';
-   await serialize(async()=>{if(version!==generation)throw new Error('Reading forgotten');await ports.notifications.schedule('Did it come true?',headline,date?Math.ceil((date.getTime()-Date.now())/1000):30*86400,readingId);});
+   await serialize(async()=>{if(version!==generation)throw new Error('Reading forgotten');await ports.notifications.schedule('Did it come true?','The ball has a question for you.',date?Math.ceil((date.getTime()-Date.now())/1000):30*86400,readingId);});
    return `Check-back reminder set for ${when}.`;
   }catch{return 'The reminder could not be scheduled. You can still check back from History.';}
  },

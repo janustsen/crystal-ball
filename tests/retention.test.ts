@@ -120,3 +120,22 @@ test('forget serializes overlapping cache reads and writes without exposing old 
   assert.equal(calls,phase==='generated write'?1:0,phase);
  }
 });
+
+test('durable omen erasure rejects failed writes and completes only after retry is stored',async()=>{
+ const {forgetOmen}=await import('../src/daily-omen');
+ let value=JSON.stringify({day:localDay(),text:'Private personal omen.'}),fail=true;
+ let release!:()=>void,entered!:()=>void,done=false;
+ const gate=new Promise<void>(resolve=>{release=resolve}),started=new Promise<void>(resolve=>{entered=resolve});
+ const storage={getItem:async()=>value,setItem:async(_key:string,next:string)=>{
+  if(fail)throw new Error('Storage unavailable');
+  entered();await gate;value=next;
+ }};
+ await assert.rejects(forgetOmen(storage),/Storage unavailable/);
+ assert.equal(JSON.parse(value).text,'Private personal omen.');
+ fail=false;
+ const retry=forgetOmen(storage).then(()=>{done=true});
+ await started;assert.equal(done,false);assert.equal(JSON.parse(value).text,'Private personal omen.');
+ release();await retry;assert.equal(done,true);assert.equal(JSON.parse(value).text,null);
+ const cached=await loadDailyOmen(storage,{},async()=>{throw new Error('Must preserve daily claim')});
+ assert.equal(cached.text,null);
+});

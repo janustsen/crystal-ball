@@ -45,3 +45,11 @@ All 17 motion samples passed the original frame budget (59.2–60.3fps, maximum 
 The chrome-devtools-axi retention drive twice lost its selected page. Firstmate authorized an isolated Playwright profile for the remaining live controls and screenshots. No shared browser state was changed.
 
 The isolated Playwright retention drive passed: real personal omen, all three verdicts, Due date, reminder web fallback, unchanged credits, reload persistence and viewport bounds. See retention-rebase/retention-drive.txt, personal-omen.png and check-in.png. Driver setup failures (missing initial action and an omitted aria-busy=false attribute) are preserved alongside the successful evidence.
+
+## Greptile privacy follow-up
+
+Check-in bodies are now generic for both automatic and manual scheduling; the forecast stays behind its reading ID. Regression tests inspect the scheduled payload and ensure it contains no headline.
+
+Reset now awaits the serialized durable omen write before clearing the widget or account's visible private state. Both web and native confirmation paths handle rejection with a retryable notice. A real browser profile, advanced one day to generate a fresh real omen, was driven through an injected storage-write failure and successful retry. The failure retains data and displays the notice; retry clears private text durably, survives reload, and preserves the day claim, usage and credits. See retention-privacy-regression.txt and retention-reset-storage-failure.png.
+
+Blast radius: reset's return type is now Promise<void>; both confirmation callers await it through the same UI helper. Existing concurrent reset/generation regressions still pass, and the new storage regression proves pending/rejected writes cannot report completed erasure. Typecheck and 49 tests pass; one existing ffmpeg test is skipped. Native lock-screen presentation remains device-unverified.

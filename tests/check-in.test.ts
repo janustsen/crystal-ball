@@ -14,7 +14,7 @@ test('automatic check-ins use existing permission; manual reminders can request 
  const before=Date.now();
  assert.match(await actions.reminder('A future glimpse','saved-reading',date,false),/reminder set/);
  assert.deepEqual(requests,[false]);
- assert.deepEqual(scheduled[0].slice(0,2),['Did it come true?','A future glimpse']);
+ assert.deepEqual(scheduled[0].slice(0,2),['Did it come true?','The ball has a question for you.']);
  assert.equal(scheduled[0][3],'saved-reading');
  assert.ok(Math.abs(Number(scheduled[0][2])-(checkInDate(date)!.getTime()-before)/1000)<2);
  granted=false;
@@ -23,6 +23,7 @@ test('automatic check-ins use existing permission; manual reminders can request 
  granted=true;
  await actions.reminder('A future glimpse','saved-reading',date);
  assert.deepEqual(requests,[false,false,true]);assert.equal(scheduled.length,2);
+ for(const payload of scheduled){assert.equal(payload[1],'The ball has a question for you.');assert.ok(!JSON.stringify(payload).includes('A future glimpse'));}
  ports.platform='web';
  await actions.reminder('A future glimpse','saved-reading',date,false);
  assert.equal(requests.length,3);assert.equal(scheduled.length,2);
