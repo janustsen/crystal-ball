@@ -27,7 +27,7 @@ test('legacy history, facts, ageBand and friend entry cannot confer age or mirro
  const adult=restoreProfile({...blank(),facts:{birthday:'1990-01-01',level:'Intermediate'}});assert.equal(canRead(adult),true);assert.equal(adult.facts.birthday,undefined);
  const child=restoreProfile({...blank(),birthday:'2020-01-01',ageConfirmed:true,onboardingDone:true});assert.equal(canRead(child),false);assert.equal(child.onboardingBlocked,true);
  const friendEntry={...blank(),...birthdayProfile(undefined,true),onboardingDone:true};
- assert.equal(canRead(friendEntry),true);assert.equal(canRead({...friendEntry,history:[{id:'first-reading'} as AccountState['history'][number]]}),true);
+ assert.equal(canRead(friendEntry),true);const savedFriend={...friendEntry,history:[{id:'first-reading'} as AccountState['history'][number]]};assert.equal(canRead(savedFriend),true);
  assert.throws(()=>readingAge('2020-01-01',true),/13/);
 });
 

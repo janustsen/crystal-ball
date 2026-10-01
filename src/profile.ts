@@ -49,5 +49,6 @@ export function restoreProfile(state:AccountState):AccountState {
 export function personQuestionIssue(question:string,name?:string):string|undefined {
  if(!name)return;
  if(!validPersonName(name))return 'Use a first name only.';
- if(!new RegExp(`(^|[^\\p{L}])${name}(?=$|[^\\p{L}])`,'iu').test(question))return `Include ${name} in your question, or change the first name to match.`;
+ const subjectText=name.toLowerCase()==='will'?question.replace(/^\s*will\s+/i,''):question;
+ if(!new RegExp(`(^|[^\\p{L}])${name}(?=$|[^\\p{L}])`,'iu').test(subjectText))return `Include ${name} in your question, or change the first name to match.`;
 }
