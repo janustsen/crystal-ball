@@ -1,5 +1,6 @@
 // Core regression drive through the required chrome-devtools-axi boundary.
 import {execFile} from 'node:child_process';
+import {openAuthenticatedPreview} from './preview-auth.mjs';
 import {promisify} from 'node:util';
 import {writeFile,rm} from 'node:fs/promises';
 const exec=promisify(execFile),session=`cb-social-core-${Date.now()}`,env={...process.env,CHROME_DEVTOOLS_AXI_SESSION:session};
@@ -19,6 +20,7 @@ async function shot(name){
  }
 }
 try{
+ openAuthenticatedPreview(base,env);
  await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-ask"]');`);
  await exec('chrome-devtools-axi',['emulate','--viewport','390x844x1,mobile,touch'],{env});
  await run(`${click('tab-sky')}if(!/sample stars/i.test(await page.eval(()=>document.body.innerText)))throw Error('Missing sample label');${click('sky-theme-money')}${click('ask-this-too')}if(!(await page.eval(()=>document.querySelector('[data-testid="question-input"]').value)).includes('savings'))throw Error('Sample prompt not copied');`);

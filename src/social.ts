@@ -1,5 +1,5 @@
 import {anonymousOwner,supabase} from './cloud';
-import {engineUrl} from './api';
+import {engineUrl,previewHeaders} from './api';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
 import type {Prediction,FriendTarget} from './types';
 
@@ -26,7 +26,7 @@ async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal)
  const {db}=await client(),session=await db.auth.getSession();
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),120000);
  try{
-  const response=await fetch(`${engineUrl}/social`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.data.session?.access_token}`},body:JSON.stringify(body),signal:signal??controller.signal});
+  const response=await fetch(`${engineUrl}/social`,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,Authorization:`Bearer ${session.data.session?.access_token}`},body:JSON.stringify(body),signal:signal??controller.signal});
   const result=await response.json();if(!response.ok)throw new Error(result.message||socialUnavailable);return result;
  }finally{clearTimeout(timeout)}
 }

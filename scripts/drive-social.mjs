@@ -1,8 +1,10 @@
 import {spawn} from 'node:child_process';
+import {openAuthenticatedPreview} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],runId=Date.now().toString(36),sessions=new Set();
 async function run(name,script){
- const session=`cb-social-${runId}-${name}`;sessions.add(session);
+ const session=`cb-social-${runId}-${name}`,fresh=!sessions.has(session);sessions.add(session);
+ if(fresh)openAuthenticatedPreview(base,{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session});
  const output=await new Promise((resolve,reject)=>{
   const child=spawn('chrome-devtools-axi',['run'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session}});
   let text='';child.stdout.on('data',chunk=>text+=chunk);child.stderr.on('data',chunk=>text+=chunk);
