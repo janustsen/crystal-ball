@@ -1,13 +1,12 @@
 import {anonymousOwner,supabase} from './cloud';
 import {engineUrl} from './api';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
-import type {Prediction} from './types';
+import type {Prediction,FriendTarget} from './types';
 
 export type Circle = {id:string;owner_id:string};
 export type CircleMember = {circle_id:string;user_id:string;joined_at:string;consulted_on:string|null;theme:SkyPrompt|null;sun_sign:string|null;can_ask:boolean};
 export type CircleReaction = {circle_id:string;target_id:string;user_id:string;day:string};
-export type SentSeal = {id:string;headline:string;token:string;opened_at:string|null;expires_at:string};
-export type FriendTarget={circle:string;member:string};
+export type SentSeal = {id:string;headline:string;token:string;opened_at:string|null};
 export type SocialDraft={id:string;wording:string;theme:SkyPrompt};
 export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean}|null;notices:number};
 
@@ -37,9 +36,9 @@ export const friendForecast=(question:string,target:FriendTarget,signal:AbortSig
 export async function loadSocial():Promise<SocialSnapshot>{
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);
  const [sky,own,circles,members,reactions,seals,profile,notices]=await Promise.all([
-  db.rpc('tonights_sky'),db.from('sky_stars').select('id').eq('day',day).eq('withdrawn',false),db.from('circles').select('id,owner_id'),
+  db.rpc('tonights_sky'),db.from('sky_stars').select('id').eq('day',day),db.from('circles').select('id,owner_id'),
   db.rpc('circle_people'),db.from('circle_reactions').select('circle_id,target_id,user_id,day').eq('day',day),
-  db.from('sealed_forecasts').select('id,headline,token,opened_at,expires_at').eq('revoked',false).gt('expires_at',new Date().toISOString()),
+  db.from('sealed_forecasts').select('id,headline,token,opened_at').eq('revoked',false),
   db.from('social_profiles').select('age_band,friends_can_ask'),db.from('friend_notices').select('id').eq('seen',false),
  ]);
  for(const result of [sky,own,circles,members,reactions,seals,profile,notices])if(result.error)throw new Error(socialUnavailable);

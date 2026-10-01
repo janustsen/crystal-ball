@@ -5,7 +5,6 @@ create table public.social_profiles (
  sun_sign text check (sun_sign in ('aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces')),
  friends_can_ask boolean not null default false,
  plus boolean not null default false,
- school_id text,
  check (not friends_can_ask or age_band='adult')
 );
 create table public.social_drafts (
@@ -79,7 +78,6 @@ create table public.sealed_forecasts (
  recipient_id uuid references auth.users(id) on delete cascade,
  token uuid not null unique default gen_random_uuid(),
  headline text not null check (length(headline) between 1 and 160),
- expires_at timestamptz not null default now() + interval '7 days',
  opened_at timestamptz,
  created_at timestamptz not null default now(),
  revoked boolean not null default false,
@@ -151,9 +149,8 @@ create function public.publish_star(approved_draft uuid) returns uuid
   if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
   select * into draft from public.social_drafts where id=approved_draft and user_id=auth.uid() and kind='star' and expires_at>now();
   if draft.id is null then raise exception 'Approve a fresh anonymous draft first'; end if;
-  -- Once reported, replacing a star does not erase its reports.
   insert into public.sky_stars(user_id,theme,wording,draft_id) values(auth.uid(),draft.theme,draft.wording,draft.id)
-   on conflict(user_id,day) do update set theme=excluded.theme,wording=excluded.wording,draft_id=excluded.draft_id,withdrawn=false returning id into result;
+   returning id into result;
   return result;
  end;
 $$;
@@ -170,7 +167,6 @@ create function public.create_circle() returns uuid
  declare result uuid;
  begin
   if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
-  if (select count(*) from public.circle_members where user_id=auth.uid())>=5 then raise exception 'You can join up to five circles'; end if;
   insert into public.circles(owner_id) values(auth.uid()) returning id into result;
   insert into public.circle_members(circle_id,user_id) values(result,auth.uid());
   return result;
@@ -181,7 +177,6 @@ create function public.invite_to_circle(target uuid) returns uuid
  declare result uuid;
  begin
   if not exists(select 1 from public.circles where id=target and owner_id=auth.uid()) then raise exception 'Only the circle creator can invite'; end if;
-  delete from public.circle_invites where circle_id=target;
   insert into public.circle_invites(circle_id) values(target) returning token into result;
   return result;
  end;
@@ -197,7 +192,6 @@ create function public.join_circle(invite uuid) returns uuid
   if social_private.member(target) then raise exception 'You already belong to this circle'; end if;
   if exists(select 1 from public.circle_members where circle_id=target and social_private.blocked(user_id)) then raise exception 'This invitation is unavailable'; end if;
   if (select count(*) from public.circle_members where circle_id=target)>=20 then raise exception 'This circle is full'; end if;
-  if (select count(*) from public.circle_members where user_id=auth.uid())>=5 then raise exception 'You can join up to five circles'; end if;
   insert into public.circle_members(circle_id,user_id) values(target,auth.uid());
   delete from public.circle_invites where token=invite;
   return target;
@@ -242,7 +236,7 @@ create function public.open_forecast(seal uuid) returns text
  declare card public.sealed_forecasts;
  begin
   if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
-  select * into card from public.sealed_forecasts where token=seal and expires_at>now() and not revoked for update;
+  select * into card from public.sealed_forecasts where token=seal and not revoked for update;
   if card.id is null or social_private.blocked(card.sender_id) or card.sender_id=auth.uid() or (card.recipient_id is not null and card.recipient_id<>auth.uid()) then raise exception 'This seal is unavailable'; end if;
   update public.sealed_forecasts set recipient_id=auth.uid(),opened_at=coalesce(opened_at,now()) where id=card.id;
   return card.headline;

@@ -13,7 +13,7 @@ flowchart LR
   Reading --> Activity[Circle sees day + theme + sun sign]
   Invite[Single-use link: 7 days] -->|explicit Join| Circle[Private Circle: up to 20]
   Circle --> Consent[Adult friend opts in; default off]
-  Consent --> Friend[Plus Friend reading: sign and shared themes only]
+  Consent --> Friend[Plus Friend reading: first name, sign and shared themes only]
   Friend --> Notice[Friend hears someone asked; no question or identity]
   Reading --> SealFilter[AI safety filter]
   SealFilter -->|sender approves| Seal[Headline-only sealed card]
@@ -22,17 +22,17 @@ flowchart LR
 
 | Data | Access and invariant |
 | --- | --- |
-| `social_profiles` | Own profile only. Lowercase sun sign; teen/adult/unknown. Friend consent can only be enabled for adults. `school_id` is nullable; no school UI. Plus is server-owned, with an explicit loopback-only mock entitlement boundary for the prototype. |
+| `social_profiles` | Own profile only. Lowercase sun sign; teen/adult/unknown. Friend consent can only be enabled for adults. Plus is server-owned, with an explicit loopback-only mock entitlement boundary for the prototype. |
 | `social_drafts` | Trusted moderation service writes only; clients cannot insert or edit. Contains rewritten wording, theme and owner, never the original question. A draft is scoped to star/seal, its owner and a 15-minute lifetime. |
-| `sky_stars`, `sky_resonances` | One Star per person/UTC day. Public RPC exposes wording, theme, resonance counts and own flags; no author ID. Withdrawing or replacing a Star does not erase reports. |
+| `sky_stars`, `sky_resonances` | One Star per person/UTC day. Public RPC exposes wording, theme, resonance counts and own flags; no author ID. A second publication that day is refused, including after withdrawal; existing wording, resonance and reports stay attached to the original Star. |
 | `star_reports`, `social_blocks` | One report per account/Star; three accounts auto-hide. Block resolves a public Star's author server-side, keeping identity out of the public response. Blocking applies both directions to social visibility and Friend reading authorization. |
 | `circles`, `circle_members`, `circle_invites`, `circle_reactions` | Up to 20 members, all by single-use 7-day invitation. Joining consents to sharing future consultation day/theme and sun sign. No question or forecast. Fixed star reactions only. Leaving removes access. The creator can close the Circle. |
 | `friend_notices` | Recipient alone sees that someone asked, and the day; no asker or question stored. Friend consent, membership, blocking and Plus are checked at generation time. |
-| `sealed_forecasts` | Moderated headline only; never question, answers or Why. Sender can revoke. Recipient claims by tapping; row lock allows only one claimant. Free: one per UTC calendar week, including revoked cards. Plus: unlimited. Expires in 7 days. |
+| `sealed_forecasts` | Moderated headline only; never question, answers or Why. Sender can revoke. Recipient claims by tapping; row lock allows only one claimant. Free: one per UTC calendar week, including revoked cards. Plus: unlimited. Cards do not expire; only invitations expire after seven days. |
 
 All tables have RLS. Security-definer functions pin an empty search path, explicitly qualify schemas, and revoke public/anon execution. Service-only moderation receipts prevent clients bypassing the AI filter. Public words are rewritten and approved, never the raw question. Every newly published user line passes the local model safety filter; deterministic sensitive-topic rules are shared with the reading engine. Seeds are controlled app content, `synthetic: true`, visibly labeled “Sample stars” and excluded from real counts.
 
-The profile integration reads the account's `sunSign` and `ageBand` fields, owned by the reading-flow worker. Missing age uses teen safeguards. Social code does not collect birthdays, birth time, place or location.
+The profile integration reads the account's `sunSign` and `ageBand` fields, owned by the reading-flow worker. The account owns `birthday`; it is not shared or used to override a null `ageBand`. Missing age uses teen safeguards. Both shared draft kinds use teen-audience moderation because the audience can include teens, regardless of sender age. Social code does not collect birthdays, birth time, place or location.
 
 ## Proof and limits
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {isSkyPrompt,safeSealedHeadline,sampleStars,skyPrompts} from '../src/social-policy';
+import {accountSocialProfile,isSkyPrompt,readingIdentity,safeSealedHeadline,sampleStars,skyPrompts,validFirstName} from '../src/social-policy';
 import {phraseSafety as clientSafety} from '../src/safety-policy';
 import {phraseSafety as engineSafety} from '../server/safety';
 import {moderateSocialLine,socialHandler} from '../server/social';
@@ -55,10 +55,11 @@ test('Friend reading repairs an oversized Why with the precise field limit',asyn
   return new Response(JSON.stringify(body),{headers:{'Content-Type':'application/json'}});
  });
  const env=(key:string)=>({SUPABASE_URL:'http://supabase.local',SUPABASE_SERVICE_ROLE_KEY:'test-only',OLLAMA_URL:'http://model.local'}[key]);
- const response=await socialHandler(env,provider(env))(new Request('http://localhost/social',{method:'POST',headers:{Authorization:'Bearer test-only'},body:JSON.stringify({action:'friend',question:'Will this friend make progress on a creative goal this year?',circle:'00000000-0000-0000-0000-000000000010',member:'00000000-0000-0000-0000-000000000002'})}));
+ const response=await socialHandler(env,provider(env))(new Request('http://localhost/social',{method:'POST',headers:{Authorization:'Bearer test-only'},body:JSON.stringify({action:'friend',firstName:'Alex',question:'Will this friend make progress on a creative goal this year?',circle:'00000000-0000-0000-0000-000000000010',member:'00000000-0000-0000-0000-000000000002'})}));
  assert.equal(response.status,200,await response.clone().text());
  assert.equal(forecastRequests.length,2,'exactly one repair');
  const result=await response.json();assert.ok(result.why.length<=160);
+ assert.deepEqual(readingIdentity(JSON.parse(JSON.stringify(result))),{friend:true,friendTarget:{circle:'00000000-0000-0000-0000-000000000010',member:'00000000-0000-0000-0000-000000000002',firstName:'Alex'}});
 });
 
 test('incoming private seal text is filtered before display',()=>{
@@ -70,4 +71,71 @@ test('moving phrase policy to the shared module preserves the actual engine func
  assert.equal(engineSafety,clientSafety);
  assert.equal(engineSafety('Will my IVF succeed?'),'pregnancy');
  assert.equal(engineSafety('Will I publish a novel about cancer?'),undefined);
+});
+
+test('account profile uses contract fields without promoting an unknown birthday',()=>{
+ assert.deepEqual(accountSocialProfile({plus:false}),{sunSign:null,ageBand:null,plus:false});
+ assert.deepEqual(accountSocialProfile({plus:true,birthday:'1990-01-01',ageBand:null,sunSign:'leo'}),{sunSign:'leo',ageBand:null,plus:true});
+ assert.deepEqual(accountSocialProfile({plus:false,birthday:'1990-01-01',ageBand:'adult',sunSign:'aries'}),{sunSign:'aries',ageBand:'adult',plus:false});
+});
+
+test('reading identity preserves friends through history and clears unrelated targets',()=>{
+ const friendTarget={circle:'circle',member:'member',firstName:'Alex'};
+ const restored=readingIdentity(JSON.parse(JSON.stringify({friend:true,friendTarget})));
+ assert.deepEqual(restored,{friend:true,friendTarget});
+ assert.deepEqual(readingIdentity(restored),restored);
+ assert.deepEqual(readingIdentity({friend:true}),{friend:true,friendTarget:undefined});
+ assert.deepEqual(readingIdentity({friend:false,friendTarget}),{friend:false,friendTarget:undefined});
+});
+
+test('Circle name entry accepts first names and rejects free questions',()=>{
+ for(const name of ['Alex','Élodie','Anne-Marie','D’Arcy','李'])assert.equal(validFirstName(name),true,name);
+ for(const name of ['',null,'Alex Smith','Does Alex love me?','@alex','x'.repeat(41)])assert.equal(validFirstName(name),false,String(name));
+});
+
+test('shared draft moderation always emits teen audience and refuses unsafe publication',async t=>{
+ let age='adult',allow=false,saved=0;
+ const audiences:boolean[]=[];
+ t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
+  const url=String(input);
+  if(url.endsWith('/auth/v1/user'))return Response.json({id:'viewer'});
+  if(url.includes('/social_profiles?'))return Response.json([{age_band:age}]);
+  if(url.endsWith('/social_drafts')){saved++;return Response.json([{id:'draft',...JSON.parse(String(init?.body))}]);}
+  throw new Error(`Unexpected test URL: ${url}`);
+ });
+ const model:ModelProvider={async json<T>(_system,input,schema){
+  const properties=schema.properties as Record<string,unknown>;
+  if('safe' in properties){audiences.push((input as {teenAudience:boolean}).teenAudience);return {safe:allow} as T;}
+  if('wording' in properties)return {wording:'Will a deeper connection develop?',theme:'love'} as T;
+  return {category:'allow'} as T;
+ }};
+ const env=(key:string)=>({SUPABASE_URL:'http://supabase.local',SUPABASE_SERVICE_ROLE_KEY:'test-only'}[key]);
+ for(age of ['adult','teen','unknown'])for(const kind of ['star','seal']){
+  const request=()=>new Request('http://localhost/social',{method:'POST',headers:{Authorization:'Bearer test-only'},body:JSON.stringify({action:'draft',kind,text:'Alex secretly loves you.'})});
+  allow=false;const before=saved;
+  assert.equal((await socialHandler(env,model)(request())).status,400);
+  assert.equal(saved,before,'a rejected line must not create a publication receipt');
+  allow=true;
+  assert.equal((await socialHandler(env,model)(request())).status,200);
+  assert.equal(saved,before+1);
+ }
+ assert.deepEqual(audiences,Array(12).fill(true));
+});
+
+test('Circle requests reject missing or non-name identity before generation',async t=>{
+ let modelCalls=0,authorized=0;
+ t.mock.method(globalThis,'fetch',async(input:unknown)=>{
+  const url=String(input);
+  if(url.endsWith('/auth/v1/user'))return Response.json({id:'viewer'});
+  if(url.includes('/social_profiles?'))return Response.json([{age_band:'unknown'}]);
+  if(url.endsWith('/rpc/authorize_friend_reading')){authorized++;return Response.json({});}
+  throw new Error(`Unexpected test URL: ${url}`);
+ });
+ const model:ModelProvider={async json(){modelCalls++;throw new Error('must not generate')}};
+ const env=(key:string)=>({SUPABASE_URL:'http://supabase.local',SUPABASE_SERVICE_ROLE_KEY:'test-only'}[key]);
+ for(const firstName of [undefined,'Alex Smith','Does Alex love me?']){
+  const response=await socialHandler(env,model)(new Request('http://localhost/social',{method:'POST',headers:{Authorization:'Bearer test-only'},body:JSON.stringify({action:'friend',firstName,question:'What lies ahead for Alex?',circle:'circle',member:'member'})}));
+  assert.equal(response.status,400);
+ }
+ assert.equal(modelCalls,0);assert.equal(authorized,0);
 });

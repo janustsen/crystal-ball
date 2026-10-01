@@ -7,7 +7,7 @@ import {promisify} from 'node:util';
 const exec=promisify(execFile),sessions=new Map();
 const quote=value=>value===null?'null':`'${String(value).replaceAll("'","''")}'`;
 const functions={tonights_sky:[],publish_star:['approved_draft'],resonate:['star'],create_circle:[],invite_to_circle:['target'],join_circle:['invite'],leave_circle:['target'],circle_checkin:['activity_theme'],react_in_circle:['target_circle','target_member'],seal_forecast:['approved_draft'],open_forecast:['seal'],circle_people:[],report_star:['star'],block_person:['star','member'],set_friend_consent:['allowed'],authorize_friend_reading:['viewer','target_circle','target_member'],dismiss_friend_notices:[],revoke_forecast:['card'],withdraw_star:['star'],sync_social_profile:['viewer','band','sign','mock_plus']};
-const columns={circles:'id,owner_id',circle_members:'circle_id,user_id,joined_at,consulted_on,theme',circle_reactions:'circle_id,target_id,user_id,day',sealed_forecasts:'id,headline,token,opened_at,expires_at',sky_stars:'id,theme,wording,day',social_profiles:'user_id,age_band,sun_sign,friends_can_ask,plus',friend_notices:'id,day,seen',social_drafts:'id,user_id,kind,wording,theme'};
+const columns={circles:'id,owner_id',circle_members:'circle_id,user_id,joined_at,consulted_on,theme',circle_reactions:'circle_id,target_id,user_id,day',sealed_forecasts:'id,headline,token,opened_at',sky_stars:'id,theme,wording,day',social_profiles:'user_id,age_band,sun_sign,friends_can_ask,plus',friend_notices:'id,day,seen',social_drafts:'id,user_id,kind,wording,theme'};
 
 async function sql(statement,uid){
  const auth=uid==='service'?'set local role service_role;':uid?`set local role authenticated; select set_config('request.jwt.claim.sub',${quote(uid)},true);`:'';

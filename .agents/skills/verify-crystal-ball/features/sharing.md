@@ -4,10 +4,10 @@
 Private 9:16 export; Person-reading entry from Circles.
 
 ## How to get to it (user POV)
-Sky → Circles → Read about someone, or Share this glimpse on a reveal.
+Sky → Circles → Ask about an opted-in friend → first name, or Share this glimpse on a reveal.
 
 ## Driving it with chrome-devtools-axi
-Open Read about someone in Circles, or create a friend link from Share; inspect friend mode. Export story card and inspect downloaded file dimensions and contents. Open the full story preview. Export MP4 when ffmpeg exists; otherwise verify the recoverable error without claiming video success. The primary driver injects HTTP 500 for one export and verifies recoverable error copy; that is a fault-injection check, not a claimed live outage.
+Choose an opted-in friend in Circles and enter their first name, or create a friend link from Share; inspect friend mode. Export story card and inspect downloaded file dimensions and contents. Open the full story preview. Export MP4 when ffmpeg exists; otherwise verify the recoverable error without claiming video success. The primary driver injects HTTP 500 for one export and verifies recoverable error copy; that is a fault-injection check, not a claimed live outage.
 
 ## Gotchas
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.

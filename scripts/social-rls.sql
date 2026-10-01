@@ -37,8 +37,8 @@ select proof.reject('select public.publish_star(''10000000-0000-0000-0000-000000
 select proof.reject('insert into public.social_drafts(user_id,kind,wording,theme) values(auth.uid(),''star'',''Bypass AI filter'',''love'')','42501');
 select proof.reject('insert into public.sky_stars(user_id,theme,wording,draft_id) values(auth.uid(),''work'',''Private text'',''10000000-0000-0000-0000-000000000001'')','42501');
 select proof.assert((select count(*)=1 from public.sky_stars),'one private star');
-select public.publish_star('10000000-0000-0000-0000-000000000001');
-select proof.assert((select count(*)=1 from public.sky_stars),'daily publication is idempotent');
+select proof.reject('select public.publish_star(''10000000-0000-0000-0000-000000000001'')','23505');
+select proof.assert((select count(*)=1 from public.sky_stars),'second daily publication is refused');
 select proof.assert((select consulted_on is null from public.circle_members),'no historical check-in backfill');
 select public.circle_checkin('work');
 select proof.reject(format('select public.open_forecast(%L)',:'seal'),'P0001');
@@ -55,6 +55,12 @@ select proof.assert((select array_agg(k order by k)=array['id','mine','resonance
 select public.resonate(:'star');
 select public.resonate(:'star');
 select proof.assert((select resonances=1 from public.tonights_sky() where id=:'star'),'resonance is idempotent');
+reset role;
+insert into public.social_drafts(id,user_id,kind,wording,theme) values ('10000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000001','star','Will I find a deeper connection?','love');
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select proof.reject('select public.publish_star(''10000000-0000-0000-0000-000000000002'')','23505');
+select proof.assert((select wording='Will a new skill bring a new opportunity?' and theme='learning' and resonances=1 from public.tonights_sky() where id=:'star'),'refused replacement preserves wording, theme and resonance');
 
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select public.join_circle(:'invite');
@@ -77,17 +83,22 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.invite_to_circle(:'circle') as expired_invite \gset
 select proof.reject('select public.seal_forecast(''20000000-0000-0000-0000-000000000001'')','P0001');
 reset role; update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated;
-select public.seal_forecast('20000000-0000-0000-0000-000000000001') as expired_seal \gset
+select public.seal_forecast('20000000-0000-0000-0000-000000000001') as aged_seal \gset
 reset role;
 update public.circle_invites set expires_at=now()-interval '1 second' where token=:'expired_invite';
-update public.sealed_forecasts set expires_at=now()-interval '1 second' where token=:'expired_seal';
+with aged as (delete from public.sealed_forecasts where token=:'aged_seal' returning *)
+insert into public.sealed_forecasts select (jsonb_populate_record(null::public.sealed_forecasts,to_jsonb(aged)||jsonb_build_object('created_at',now()-interval '8 days','expires_at',now()-interval '1 day'))).* from aged;
 update public.sky_stars set day=(now() at time zone 'UTC')::date-1;
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select proof.assert((select count(*)=0 from public.tonights_sky()),'yesterday is not tonight');
 select proof.reject(format('select public.resonate(%L)',:'star'),'P0001');
 select proof.reject(format('select public.join_circle(%L)',:'expired_invite'),'P0001');
-select proof.reject(format('select public.open_forecast(%L)',:'expired_seal'),'P0001');
+select proof.assert(public.open_forecast(:'aged_seal')='Your next chapter will bring a new skill.','unopened seal remains claimable after seven days');
+reset role;
+update public.sealed_forecasts set opened_at=now()-interval '8 days' where token=:'aged_seal';
+set role authenticated;
+select proof.assert(public.open_forecast(:'aged_seal')='Your next chapter will bring a new skill.','claimed seal remains readable after seven days');
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.revoke_forecast(id) from public.sealed_forecasts where token=:'seal';
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
@@ -147,7 +158,7 @@ set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select proof.reject('select public.seal_forecast(''20000000-0000-0000-0000-000000000001'')','P0001');
 select public.withdraw_star(:'reported_star');
-select public.publish_star('10000000-0000-0000-0000-000000000001');
+select proof.reject('select public.publish_star(''10000000-0000-0000-0000-000000000001'')','23505');
 select proof.assert((select count(*)=0 from public.tonights_sky()),'withdraw/republish cannot reset reports');
 select public.create_circle() as full_circle \gset
 select public.invite_to_circle(:'full_circle') as full_invite \gset
@@ -189,4 +200,32 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
 select proof.assert((select count(*)=5 from public.circle_reactions where circle_id=:'reaction_circle'),'blocking preserves unrelated viewer reactions');
 select public.leave_circle(:'reaction_circle');
 select proof.assert((select count(*)=0 from public.circle_reactions where circle_id=:'reaction_circle'),'former member cannot read reactions');
+reset role;
+set role service_role;
+select public.sync_social_profile('00000000-0000-0000-0000-000000000004','adult','leo',null);
+reset role; set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
+select public.set_friend_consent(true);
+reset role; set role service_role;
+select public.sync_social_profile('00000000-0000-0000-0000-000000000004',null,'leo',null);
+reset role; set role authenticated;
+select proof.assert((select age_band='unknown' and not friends_can_ask from public.social_profiles),'null age forces existing consent off');
+select proof.reject('select public.set_friend_consent(true)','P0001');
+do $$ begin for i in 1..6 loop perform public.create_circle(); end loop; end $$;
+select proof.assert((select count(*)=6 from public.circles),'creator can own more than five circles');
+select id as many_circle from public.circles limit 1 \gset
+select public.invite_to_circle(:'many_circle') as first_invite \gset
+select public.invite_to_circle(:'many_circle') as second_invite \gset
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+select public.join_circle(:'first_invite');
+select proof.reject(format('select public.join_circle(%L)',:'first_invite'),'P0001');
+select public.leave_circle(:'many_circle');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.join_circle(:'second_invite');
+select proof.assert((select count(*)=2 from public.circle_members where circle_id=:'many_circle'),'independent invitations both remain consumable');
+select public.create_circle() as extra_circle \gset
+select public.invite_to_circle(:'extra_circle') as extra_invite \gset
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
+select public.join_circle(:'extra_invite');
+select proof.assert((select count(*)=7 from public.circle_members where user_id=auth.uid()),'member can join beyond five circles');
 \echo 'PASS: SQL privacy invariants'

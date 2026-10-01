@@ -1,3 +1,4 @@
+import type {AccountState,Prediction} from './types';
 import {phraseSafety} from './safety-policy';
 import {topicFor} from './questions';
 
@@ -15,7 +16,7 @@ export type SkyStar = {id:string;theme:SkyPrompt;wording:string;resonances:numbe
 export const sampleStars:SkyStar[]=Object.entries(skyPrompts).map(([theme,prompt])=>({id:`sample-${theme}`,theme:theme as SkyPrompt,wording:prompt.question,resonances:0,resonated:false,mine:false,synthetic:true}));
 export const sunSigns=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'] as const;
 export type SocialProfile={sunSign:string|null;ageBand:'teen'|'adult'|null;plus:boolean};
-export function accountSocialProfile(account:{plus:boolean;sunSign?:string|null;ageBand?:'teen'|'adult'|null}):SocialProfile {
+export function accountSocialProfile(account:Pick<AccountState,'plus'|'sunSign'|'ageBand'|'birthday'>):SocialProfile {
  return {sunSign:account.sunSign??null,ageBand:account.ageBand??null,plus:account.plus};
 }
 export function activityTheme(question:string):SkyPrompt {
@@ -35,3 +36,10 @@ export function safeSealedHeadline(value:unknown):value is string {
  return !/(https?:|www\.|@|\+?\d[\d\s().-]{7,}\d|\b(?:fuck\w*|shit\w*|bitch\w*|nigg\w*|fagg\w*|rape\w*)\b)/i.test(value.normalize('NFKC'));
 }
 export const socialUnavailable='The shared sky is offline. Sample stars are still here.';
+
+export function validFirstName(value:unknown):value is string {
+ return typeof value==='string'&&value.length<=40&&/^[\p{L}\p{M}]+(?:['’-][\p{L}\p{M}]+)*$/u.test(value);
+}
+export function readingIdentity(reading:Pick<Prediction,'friend'|'friendTarget'>){
+ return {friend:reading.friend,friendTarget:reading.friend?reading.friendTarget:undefined};
+}

@@ -73,14 +73,29 @@ try{
   ${click('tab-sky')}${click('social-section-circles')}
   console.log(JSON.stringify({stage:'Plus selected'}));
  `);
+ const ownerFacts=await run('owner',`console.log(JSON.stringify(await page.eval(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).facts)));`);
  await waitFor('owner','[data-testid="ask-about-friend-2"]:not([aria-disabled="true"])','consented friend button',30000);
  await run('owner',`
-  ${click('ask-about-friend-2')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
+  ${click('ask-about-friend-2')}await page.fill('[aria-label="Friend’s first name"]','Alex');${click('ask-about-this-friend')}await page.wait('[data-testid="question-input"]');
   await page.fill('[data-testid="question-input"]','Will this friend make progress on a creative goal this year?');${click('look-into-the-future')}
   console.log(JSON.stringify({stage:'Friend reading requested'}));
  `);
  await waitFor('owner','[data-testid="seal-for-a-friend"]','Friend reading');
  console.log('PASS: consented Friend reading returned');
+ for(const fromHistory of [false,true]){
+  await run('owner',`
+   ${fromHistory?`${click('close-flow')}${click('tab-history')}await page.eval(()=>{const button=[...document.querySelectorAll('[role="button"]')].find(b=>b.textContent.includes('creative goal'));if(!button)throw Error('Missing archived Friend reading');button.click()});`:''}
+   await page.eval(()=>{const button=[...document.querySelectorAll('[role="button"]')].find(b=>b.textContent==='Edit question');if(!button)throw Error('Missing Edit question');button.click()});
+   ${assertText('For a friend')}
+   ${click('look-into-the-future')}
+   console.log(JSON.stringify({stage:'Friend edit requested'}));
+  `);
+  await waitFor('owner','[data-testid="seal-for-a-friend"]','edited Friend reading');
+  const saved=await run('owner',`console.log(JSON.stringify(await page.eval(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {facts:state.facts,reading:state.history[0]}})));`);
+  if(JSON.stringify(saved.facts)!==JSON.stringify(ownerFacts)||!saved.reading.friend||saved.reading.friendTarget?.member!==friend.owner||saved.reading.friendTarget?.firstName!=='Alex')throw new Error('Friend edit lost identity or changed owner memory');
+ }
+ log.push({friendEditPreservesIdentityAndMemory:true,historyEditPreservesIdentityAndMemory:true});
+
  await run('owner',`${click('seal-for-a-friend')} console.log(JSON.stringify({stage:'Seal moderation requested'}));`);
  await waitFor('owner','[data-testid="create-sealed-link"]','Seal moderation');
  const seal=await run('owner',`
