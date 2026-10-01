@@ -5,7 +5,7 @@ import {forgetOmen} from './daily-omen';
 import {updateOmenWidget} from './omen-widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
-import {mirror,restoreBackup} from './cloud';
+import {mirror,restoreBackup,supabase} from './cloud';
 let writes:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
@@ -18,8 +18,16 @@ export function Store({children}:React.PropsWithChildren){
  useEffect(()=>{if(ready&&!locked.current){const snapshot=state;writes=writes.catch(()=>{}).then(async()=>{await AsyncStorage.setItem(key,JSON.stringify(snapshot));if(cloudReady.current)try{await mirror(snapshot)}catch{/* Keep local changes; retry on the next change. */}});}},[state,ready]);
  async function backup(authenticate:()=>Promise<void>){
   if(locked.current)throw new Error('Backup is already running.');
+  const wasCloudReady=cloudReady.current;
   locked.current=true;setBackupBusy(true);cloudReady.current=false;
-  try{await writes.catch(()=>{});await authenticate();const merged=await restoreBackup(current.current);await AsyncStorage.setItem(key,JSON.stringify(merged));setState(merged);await mirror(merged);cloudReady.current=true;}
+  try{await writes.catch(()=>{});
+   const before=await supabase?.auth.getSession();
+   if(before?.error)throw before.error;
+   try{await authenticate()}catch(error){
+    try{const after=await supabase?.auth.getSession();cloudReady.current=wasCloudReady&&!after?.error&&before?.data.session?.user.id===after?.data.session?.user.id}catch{}
+    throw error;
+   }
+   const merged=await restoreBackup(current.current);await AsyncStorage.setItem(key,JSON.stringify(merged));setState(merged);await mirror(merged);cloudReady.current=true;}
   finally{locked.current=false;setBackupBusy(false)}
  }
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
