@@ -15,7 +15,7 @@ The ball is a small atmosphere behind glass. Movement behaves like fog finding a
 
 `src/motion.ts` owns entrance durations and the shared settling curve: cubic-bezier(.2,.75,.2,1). It decelerates without overshoot: glass has weight, fog has softness. Native uses the same curve through the native driver; web uses compositor transforms and opacity. Ambient light has a smooth sinusoidal rhythm. Constant fog advection uses continuous time rather than easing to a stop.
 
-Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, time reversal, or countdown. The web renderer survives mood changes and runs each display frame. Native seamless tile endpoints contain the same pixels; differently sized layers and nonmatching periods conceal any combined pose. Escaping native wisps wrap only while fully transparent. Sky discoveries also reset only while invisible. Reduced motion shows a still, readable composition and hides sky visitors. Changing that preference must stop motion immediately.
+Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, time reversal, or countdown. The web renderer survives mood changes; [motion lifecycle](motion.md) defines its display cadence and pause behavior. Native seamless tile endpoints contain the same pixels; differently sized layers and nonmatching periods conceal any combined pose. Escaping native wisps wrap only while fully transparent. Sky discoveries also reset only while invisible. Reduced motion shows a still, readable composition and hides sky visitors. Changing that preference must stop motion immediately.
 
 ## Reference lessons (bounded review, 2026-09-30)
 

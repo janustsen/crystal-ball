@@ -10,7 +10,7 @@ Run from this checkout. `npm install`, then `npm run server` (127.0.0.1:8787) an
 ## Doctor
 `node --input-type=module -e "import {previewFetch} from './scripts/preview-auth.mjs'; console.log(await previewFetch('http://localhost:8087/engine/health').then(r=>r.json()))"` must identify crystal-ball and ollama. Unauthenticated engine requests must return 401. Run `npm run check` and `npm test`. The browser defaults to the same-origin Metro bridge; leave EXPO_PUBLIC_ENGINE_URL unset. This lets the private Tailscale preview use the iMac engine rather than the MacBook's loopback. Keep the development server on the trusted private network.
 
-Authenticate the browser with username `preview` and the ignored `.local/preview-secret` password; never print credentials or put them in evidence. The drivers read this file automatically (or use EXPO_PUBLIC_PREVIEW_SECRET for an isolated launched preview).
+Authenticate the browser using [the preview credentials documented in SETUP.md](../../../SETUP.md#local-development); never print credentials or put them in evidence. The drivers read the credential file automatically (or use EXPO_PUBLIC_PREVIEW_SECRET to match an already launched preview).
 
 Use `CHROME_DEVTOOLS_AXI_SESSION=crystal-ball chrome-devtools-axi open http://localhost:8087 --full`, then `emulate --viewport "390x844x1,mobile,touch"`. For remote-preview work also open http://janus-mac.tail8d2280.ts.net:8087. Use only the named profile. Snapshot IDs can be unreliable; firstmate explicitly authorized DOM eval and isolated Playwright drivers. Screenshot commands can report no path even when the file was written; inspect the named file before treating that as a failed capture.
 

@@ -2,7 +2,7 @@
 
 The 17-screen Crystal Ball.html export replaces A4. The app now uses its glass/brass orb, warm smoke, fonts, icons and screen compositions with real engine data. Home and Ask use the same artwork. The old A4 prototype was preserved under ignored `.local/concepts-a4-retired.html` and removed from the public preview.
 
-The live preview is http://janus-mac.tail8d2280.ts.net:8087. The Expo development bridge lets the MacBook use the iMac's loopback engine. There is no public production deployment.
+See [local development setup](../../../SETUP.md#local-development) for the current private preview URL, bridge and authentication requirements. There is no public production deployment.
 
 ## Visual evidence
 
