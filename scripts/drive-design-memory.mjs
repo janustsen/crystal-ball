@@ -1,10 +1,11 @@
+import {httpCredentials,previewFetch as fetch} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {writeFile} from 'node:fs/promises';
 const base='http://localhost:8087';
 if((await fetch(`${base}/engine/health`).then(r=>r.json())).provider!=='ollama')throw new Error('Local Ollama required');
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
-const context=await browser.newContext({viewport:{width:375,height:667}}),page=await context.newPage(),log=[];
+const context=await browser.newContext({httpCredentials,viewport:{width:375,height:667}}),page=await context.newPage(),log=[];
 const file='docs/evidence/design-2026-09-30/memory-and-boundaries.json';
 const close=()=>page.getByTestId('close-flow').click();
 const dismiss=async()=>{if(await page.getByTestId('dismiss-notice').count())await page.getByTestId('dismiss-notice').click()};

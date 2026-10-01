@@ -5,7 +5,7 @@ import {captureRef} from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
-import {engineUrl} from './api';
+import {engineUrl,previewHeaders} from './api';
 import {Asset} from 'expo-asset';
 import {friendLink,reminder} from './native';
 import {selectedStyle,skinColors} from './delight';
@@ -41,7 +41,7 @@ export function ShareCard({prediction,onClose,onNotice}:{prediction:Prediction;o
   },'image/png'));
  }
  async function animated(){setNotice('Making your four-second story…');try{
-  const image=await stillImage();const response=await fetch(`${engineUrl}/share`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image}),signal:AbortSignal.timeout(60000)});if(!response.ok)throw new Error();const data=await response.arrayBuffer();
+  const image=await stillImage();const response=await fetch(`${engineUrl}/share`,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({image}),signal:AbortSignal.timeout(60000)});if(!response.ok)throw new Error();const data=await response.arrayBuffer();
   if(Platform.OS==='web'){const url=URL.createObjectURL(new Blob([data],{type:'video/mp4'}));const a=document.createElement('a');a.href=url;a.download='crystal-ball-story.mp4';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}else{const file=new File(Paths.cache,'crystal-ball-story.mp4');file.write(new Uint8Array(data));await Sharing.shareAsync(file.uri,{mimeType:'video/mp4'})}
   setNotice('Your animated story is ready. Private answers are excluded.');
  }catch{setNotice('Animation could not be exported. Try again, or export the still card.')}}

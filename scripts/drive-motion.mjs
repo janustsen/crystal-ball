@@ -1,3 +1,4 @@
+import {openAuthenticatedPreview,previewSecret} from './preview-auth.mjs';
 // Real Chrome trace + frame/draw counters. No model fixtures; own isolated profile.
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
@@ -6,12 +7,13 @@ import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 const out=process.env.MOTION_EVIDENCE||'docs/evidence/motion-2026-09-30';mkdirSync(out,{recursive:true});mkdirSync('.local',{recursive:true});
 const env={...process.env,CHROME_DEVTOOLS_AXI_SESSION:process.env.CHROME_DEVTOOLS_AXI_SESSION||`crystal-ball-motion-${process.pid}`};
-const cli=(...args)=>execFileSync('chrome-devtools-axi',args,{env,encoding:'utf8',maxBuffer:4e6,timeout:90000});
+const cli=(...args)=>{try{return execFileSync('chrome-devtools-axi',args,{env,encoding:'utf8',maxBuffer:4e6,timeout:90000})}catch(error){throw new Error(String(error.message).split(previewSecret).join('[redacted]'))}};
 const evaluate=code=>{const text=cli('eval',code),line=text.split('\n').find(l=>l.startsWith('result: '));if(!line)throw new Error(text);const value=JSON.parse(line.slice(8));return typeof value==='string'?JSON.parse(value):value};
 const sample=(name,id=null,duration=2200,until=null)=>{const r=evaluate(`async()=>await motionAudit.sample(${JSON.stringify(name)},${JSON.stringify(id)},${duration},${JSON.stringify(until)})`);console.log(name,r.fps.toFixed(1),'fps; max',r.max.toFixed(1),'ms');return r};
 const shot=name=>{const path=resolve(out,name+'.png');try{cli('screenshot',path)}catch(error){if(!existsSync(path))throw error}};
 const raw=resolve(`.local/motion-audit-${Date.now()}.json`);let tracing=false;
 try{
+ openAuthenticatedPreview(process.env.PREVIEW_URL||'http://localhost:8087',env);
  cli('open',process.env.PREVIEW_URL||'http://localhost:8087');cli('emulate','--viewport','390x844x1,mobile,touch');
  evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
  shot('fog-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));

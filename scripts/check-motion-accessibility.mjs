@@ -1,7 +1,8 @@
+import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {writeFile,mkdir} from 'node:fs/promises';
-const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
-const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'}),log=[];
+const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:false});
+const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844},reducedMotion:'reduce'}),log=[];
 await page.addInitScript(()=>{window.drawCount=0;const original=WebGLRenderingContext.prototype.drawArrays;WebGLRenderingContext.prototype.drawArrays=function(...args){window.drawCount++;return original.apply(this,args)}});
 async function still(label){await page.waitForTimeout(300);const before=await page.evaluate(()=>window.drawCount);await page.waitForTimeout(500);const after=await page.evaluate(()=>({draws:window.drawCount,animations:document.getAnimations().filter(a=>a.playState==='running').length,reduced:document.querySelector('[data-testid=app-shell]').getAttribute('data-reduced')}));expect(after.draws).toBe(before);expect(after.animations).toBe(0);expect(after.reduced).toBe('true');log.push({label,...after})}
 try{
