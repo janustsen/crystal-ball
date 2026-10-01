@@ -12,7 +12,7 @@ Research captured 2026-09-29, US storefront. This is a desk review of primary li
 
 ## Onboarding and retention proposal
 
-Launch anonymously straight into Home. One line explains “Speculative forecast · not a guarantee” Tap the orb, enter a question, answer 3–10 relevant cards, watch real research status, reveal one short forecast. No birth-time form unless it is relevant (astrology is not our engine). Request notification permission only when the user sets a check-back. Offer Apple sign-in to preserve history after value is delivered. No contact upload.
+Launch anonymously straight into Home. One line explains “Speculative forecast · not a guarantee” Tap the orb, enter a question, answer 3–10 relevant cards, watch real research status, reveal one short forecast. No birth-time form unless it is relevant. Request notification permission only when the user sets a check-back. Offer Apple sign-in to preserve history after value is delivered. No contact upload.
 
 The commercial wedge is accountable specificity: a date/number/pick, visible assumptions and source dates, and a later “Did it happen?” response. Avoid ominous mortality/illness statements and false claims of supernatural certainty. Sharing is opt-in and omits private answers. The current social surface follows the [social boundary](../social/model.md).
 

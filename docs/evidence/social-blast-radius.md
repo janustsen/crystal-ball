@@ -22,7 +22,7 @@ Remaining integration risks:
 - `src/social-policy.ts:26` reads the reading-flow lane's optional `sunSign` and `ageBand`; missing values are teen-safe. Adult consent was verified with an explicitly labeled profile fixture, not unmerged onboarding UI.
 - `server/social.ts:38` allows mock Plus only with an explicit flag and loopback Supabase URL. Real subscriptions require trusted server entitlements; no paid account was configured.
 - Three reports mean three anonymous accounts, not three distinct humans. Deployment needs anti-abuse/rate limits.
-- The current generic “Read about someone” entry delegates to the existing friend-mode reading flow. The reading-flow lane owns the first-name Person-reading refinement.
+- For the current Friend-reading entry and sharing flow, see [usage](../../README.md). Generic Person readings remain owned by the reading-flow lane.
 - Native link delivery, sharing, haptics and device behavior remain unverified. iOS bundle export passed; browser claim/share paths were driven.
 
 Before merge, rebase onto the redesign and reading-flow changes, verify profile integration and run the project verification skill on that exact head. Re-run the SQL proof if the migration changes. The upcoming redesign remains a required integration step, not a verified property of this pre-redesign commit.
@@ -31,4 +31,4 @@ Core verification subsequently passed (`social-core-drive.json`): real Spanish r
 
 After the redesign rebase, social requests use `src/api.ts`'s same-origin engine URL. Metro explicitly allows `/engine/social` and forwards the bearer header; its engine port remains 8787 by default, with the task's isolated port selectable via `ENGINE_PORT`. `node scripts/prove-social-bridge.mjs` executes the real Metro and engine: authenticated profile sync returns 200; missing identity 401; wrong-port origin 403; wrong method 405. The outer Expo CORS layer rejected an initial non-local origin probe with 500 before our middleware; the retained bridge evidence names that distinction. No provider secret enters the web bundle.
 
-The redesigned reveal supports reviewing current-session answers. Direct Friend readings clear that prior-answer reference so the action cannot reopen a previous personal reading's cards. The existing prediction/store wire shape stays unchanged.
+The redesigned reveal supports reviewing current-session answers. Direct Friend readings clear that prior-answer reference so the action cannot reopen a previous personal reading's cards. See `src/types.ts` for the current prediction and account wire shapes.

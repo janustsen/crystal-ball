@@ -10,10 +10,10 @@ async function run(name,script){
  });
  return output?JSON.parse(output):null;
 }
-async function waitFor(name,selector,label,ms=95000){
+async function waitFor(name,selector,label,ms=95000,expectedText=''){
  const deadline=Date.now()+ms;let last;
  do{
-  last=await run(name,`console.log(JSON.stringify(await page.eval(()=>({ready:!!document.querySelector(${JSON.stringify(selector)}),failed:!!document.querySelector('[data-testid="try-again"]'),text:document.body.innerText}))));`);
+  last=await run(name,`console.log(JSON.stringify(await page.eval(()=>({ready:!!document.querySelector(${JSON.stringify(selector)})&&document.body.innerText.includes(${JSON.stringify(expectedText)}),failed:!!document.querySelector('[data-testid="try-again"]'),text:document.body.innerText}))));`);
   if(last.ready)return;
   if(last.failed)throw new Error(`${label}: ${last.text}`);
   await new Promise(resolve=>setTimeout(resolve,4000));
@@ -109,7 +109,10 @@ try{
  await run('friend',`
   await page.open(${JSON.stringify(seal.url)});await page.wait('[data-testid="open-sealed-forecast"]');
   ${assertText('Tap the ball to open')}${click('open-sealed-forecast')}
-  await page.wait('[data-testid="open-sealed-forecast"][aria-disabled="true"]');${assertText('Speculative forecast')}
+ `);
+ await waitFor('friend','[data-testid="open-sealed-forecast"][aria-disabled="true"]','Opened headline',30000,'Speculative forecast');
+ await run('friend',`
+  ${assertText('Speculative forecast')}
   ${click('social-section-circles')}
   await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}
   ${assertText('Someone asked about you.')}
@@ -117,7 +120,10 @@ try{
  `).then(result=>log.push(result));
  await run('outsider',`
   await page.open(${JSON.stringify(seal.url)});await page.wait('[data-testid="open-sealed-forecast"]');${click('open-sealed-forecast')}
-  await page.wait(700);${assertText('This seal is unavailable')}
+ `);
+ await waitFor('outsider','[data-testid="open-sealed-forecast"]','Rejected second recipient',30000,'This seal is unavailable');
+ await run('outsider',`
+  ${assertText('This seal is unavailable')}
   console.log(JSON.stringify({secondRecipientRejected:true}));
  `).then(result=>log.push(result));
  await run('friend',`
