@@ -28,12 +28,12 @@ export default function App(){
  useDelight({enabled:!!state.ambientSound,listening:flow.stage==='approach'||flow.stage==='listening',thinking:flow.stage==='planning'||flow.stage==='research',revealId:flow.stage==='reveal'&&!reviewing?flow.prediction.id:undefined});
  const lastReading=useRef<{plan:Plan;answers:Facts;question:string}|null>(null);
  useEffect(()=>{setLongWait(false);const timer=setTimeout(()=>setLongWait(true),8000);return()=>clearTimeout(timer)},[flow.stage]);
- const controller=useRef<AbortController|null>(null),generation=useRef(0),reduce=state.reduceMotion||systemReduce;
+ const controller=useRef<AbortController|null>(null),generation=useRef(0),predicting=useRef(false),reduce=state.reduceMotion||systemReduce;
  useEffect(()=>{if(Platform.OS!=='web')return;const css=document.createElement('style');css.textContent='[role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #5CE1E6!important;outline-offset:3px}';document.head.appendChild(css);return()=>css.remove()},[]);
  useEffect(()=>{AccessibilityInfo.isReduceMotionEnabled().then(setSystemReduce);const listener=AccessibilityInfo.addEventListener('reduceMotionChanged',setSystemReduce);return()=>listener.remove()},[]);
  useEffect(()=>{if(params.question){setQuestion(params.question.slice(0,500));setFriend(params.friend==='1');setTab('Ask')}},[params.question,params.friend]);
  useEffect(()=>()=>controller.current?.abort(),[]);
- function cancel(){generation.current++;controller.current?.abort();setFlow({stage:'ask'});setChoice('');setOther('');setNotice('');}
+ function cancel(){predicting.current=false;generation.current++;controller.current?.abort();setFlow({stage:'ask'});setChoice('');setOther('');setNotice('');}
  useEffect(()=>{const listener=BackHandler.addEventListener('hardwareBackPress',()=>{if(share){setShare(false);return true}if(paywall){setPaywall(false);return true}if(tab==='Ask'&&flow.stage!=='ask'){cancel();return true}if(tab!=='Home'){setTab('Home');return true}return false});return()=>listener.remove()},[tab,flow.stage,share,paywall]);
  function openAsk(value=''){cancel();setFlow({stage:value?'ask':'approach'});setQuestion(value);setTab('Ask');setWhy(false);setShare(false);setFriend(false)}
  async function begin(){
@@ -46,13 +46,13 @@ export default function App(){
   }catch{if(id===generation.current)setFlow({stage:'error',question,message:abort.signal.aborted?'The Ball took too long. Nothing was charged. Please try again.':'The mist is too thick. Check your connection and try again.'})}finally{clearTimeout(timeout)}
  }
  async function reveal(plan:Plan,answers:Facts,q:string){
-  if(!ready)return;if(remaining<=0){setPaywall(true);return;}
-  lastReading.current={plan,answers,question:q};
+  if(!ready||predicting.current)return;if(remaining<=0){setPaywall(true);return;}
+  predicting.current=true;lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
   try{const result=await request<Prediction>('predict',q,{...(friend?{}:state.facts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},friend,abort.signal);if(id!==generation.current)return;
    if(result.kind==='ok'){const reading=assignEdition(result.value,state.plus);savePrediction(reading);if(!friend)update(s=>({...s,facts:{...s.facts,...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}}));setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});
-  }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:abort.signal.aborted?'The Ball took too long. Nothing was charged. Your answers are kept.':'The mist is too thick. Nothing was charged. Your answers are kept.',retry:{plan,answers}})}finally{clearTimeout(timeout)}
+  }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:abort.signal.aborted?'The Ball took too long. Nothing was charged. Your answers are kept.':'The mist is too thick. Nothing was charged. Your answers are kept.',retry:{plan,answers}})}finally{clearTimeout(timeout);if(id===generation.current)predicting.current=false}
  }
  function next(selected?:string){if(flow.stage!=='cards')return;const value=selected??(choice==='Other'?other.trim():choice);if(!value)return;try{validateAnswer(flow.plan.topic,flow.plan.cards[flow.index].id,value)}catch(error){setNotice(error instanceof Error?error.message:'Please check this answer.');return;}const answers={...Object.fromEntries(flow.plan.cards.slice(0,flow.index).filter(c=>flow.answers[c.id]).map(c=>[c.id,flow.answers[c.id]])),[flow.plan.cards[flow.index].id]:value};haptic();if(flow.index+1===flow.plan.cards.length){if(selected)setChoice(selected);void reveal(flow.plan,answers,flow.question);return;}setFlow({...flow,plan:adaptPlan(flow.plan,answers),answers,index:flow.index+1});setChoice('');setOther('')}
  function back(){if(flow.stage!=='cards'||flow.index===0){cancel();return;}const index=flow.index-1,previous=flow.plan.cards[index],answer=flow.answers[previous.id];const answers=Object.fromEntries(flow.plan.cards.slice(0,index).filter(c=>flow.answers[c.id]).map(c=>[c.id,flow.answers[c.id]]));setFlow({...flow,index,answers});setChoice(previous.options.includes(answer)?answer:'Other');setOther(previous.options.includes(answer)?'':answer)}

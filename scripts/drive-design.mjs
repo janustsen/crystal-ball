@@ -1,3 +1,4 @@
+import {httpCredentials,previewFetch as fetch} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -6,7 +7,7 @@ const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const health=await fetch(`${base}/engine/health`).then(r=>r.json());
 if(health.app!=='crystal-ball'||health.provider!=='ollama')throw new Error('Expected the real local Ollama engine');
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
-const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true,acceptDownloads:true});
+const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true,acceptDownloads:true});
 const page=await context.newPage(),evidence='docs/evidence/design-2026-09-30',log=[{at:new Date().toISOString(),base,health}],errors=[];
 await mkdir(evidence,{recursive:true});
 page.on('pageerror',e=>errors.push(e.message));

@@ -1,3 +1,4 @@
+import {previewFetch as fetch} from './preview-auth.mjs';
 // Runs the actual Metro middleware through HTTP, including remote-origin boundaries.
 import assert from 'node:assert/strict';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
