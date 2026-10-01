@@ -9,8 +9,8 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
  return result;
 }
 
-export async function requestOmen(facts:Facts):Promise<string>{
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts}),signal:AbortSignal.timeout(60000)});
+export async function requestOmen(facts:Facts,aiConsent=''):Promise<string>{
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
  return result.value.text;

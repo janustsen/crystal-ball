@@ -9,6 +9,7 @@ test('authenticated clients reach the configured engine port through every previ
  const upstream=createServer(async(req,res)=>{
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   const body=Buffer.concat(chunks).toString();
+  if(body&&JSON.parse(body).question==='Today’s personal omen')assert.equal(JSON.parse(body).aiConsent,'Candidate AI');
   res.writeHead(200,{'content-type':'application/json'});
   res.end(JSON.stringify({kind:'ok',value:{text:'Your personal omen'},path:req.url,body:body?JSON.parse(body):null}));
  });
@@ -28,7 +29,7 @@ test('authenticated clients reach the configured engine port through every previ
    const headers=new Headers(init?.headers);headers.set('origin',base);
    return originalFetch(input,{...init,headers});
   };
-  assert.equal(await requestOmen({}),'Your personal omen');
+  assert.equal(await requestOmen({},'Candidate AI'),'Your personal omen');
   for(const action of ['plan','predict'] as const){
    assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
   }
