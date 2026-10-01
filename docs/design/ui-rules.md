@@ -36,7 +36,7 @@ Home, Explore, raised Ask orb, History and You are the five destinations. The ta
 14. Plans: yearly/monthly selection, packs and Restore. All purchases explicitly say test/simulate; no real money moves.
 15. Explore: illustrated collections and labeled example readings.
 16. History: date, question, real saved headline and outcome.
-17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound and style controls, and Forget everything. See [usage](../../README.md) for sound preferences and Plus styles. Forget everything removes readings/facts while preserving plan and credit accounting.
+17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound and style controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
 
 ## Behavioral invariants
 
