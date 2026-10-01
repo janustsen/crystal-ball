@@ -1,4 +1,5 @@
 import type {Prediction} from './types';
+import type {Omen} from './daily-omen';
 
 export function localDay(date = new Date()):string {
  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
@@ -15,4 +16,8 @@ export function suggestedCheckIn(p:Prediction):string {
 
 export function checkInLabel(p:Prediction,today=localDay()):string {
  return p.outcome==='yes'?'✓ Came true':p.outcome==='no'?'Took another path':p.outcome==='pending'?'◷ Waiting':suggestedCheckIn(p)<=today?'Did it come true?':'◷ Waiting';
+}
+
+export function currentOmen(omen:Omen|null,today=localDay()):Omen|null {
+ return omen?.day===today?omen:null;
 }

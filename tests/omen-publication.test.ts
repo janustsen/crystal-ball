@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {forgetOmen,invalidateOmen,loadDailyOmen,omenKey,type Omen} from '../src/daily-omen.ts';
-import {localDay} from '../src/retention.ts';
+import {currentOmen,localDay} from '../src/retention.ts';
 
 test('omen completion publishes after its Home consumer detaches, unless reset invalidates it',async()=>{
  for(const reset of [false,true]){
@@ -86,4 +86,34 @@ test('midnight completion hides expired text without spending the new day quota'
    assert.equal(calls,phase==='generation'?2:1);
   }
  }
+});
+
+test('Home drops an expired displayed omen while the next day load is pending',async()=>{
+ invalidateOmen();
+ let now=new Date(2026,8,30,12),calls=0;
+ const values=new Map<string,string>(),published:(Omen|null)[]=[];
+ const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value);}};
+ const publish=(omen:Omen|null)=>{published.push(omen);};
+ let displayed:Omen|null=await loadDailyOmen(storage,{},async()=>{calls++;return 'Yesterday’s personal text.';},()=>now,publish);
+ const old=displayed;
+ assert.equal(currentOmen(displayed,localDay(now)),displayed);
+ now=new Date(2026,9,1,8);
+ assert.equal(currentOmen(displayed,localDay(now)),null);
+ displayed=currentOmen(displayed,localDay(now));
+ let release!:(text:string)=>void,started!:()=>void;
+ const waiting=new Promise<void>(resolve=>{started=resolve;});
+ const loading=loadDailyOmen(storage,{},()=>{calls++;started();return new Promise(resolve=>{release=resolve;});},()=>now,publish);
+ await waiting;
+ assert.equal(displayed,null);
+ assert.equal(currentOmen(old,localDay(now)),null);
+ assert.equal(currentOmen({day:'2026-10-02',text:'Future text'},localDay(now)),null);
+ assert.equal(currentOmen(null,localDay(now)),null);
+ release('Today’s personal text.');
+ displayed=currentOmen(await loading,localDay(now));
+ assert.deepEqual(displayed,{day:localDay(now),text:'Today’s personal text.'});
+ assert.deepEqual(published.at(-1),displayed);
+ await loadDailyOmen(storage,{},async()=>{calls++;return 'Duplicate';},()=>now,publish);
+ assert.equal(calls,2);
+ const quiet={day:localDay(now),text:null};
+ assert.equal(currentOmen(quiet,localDay(now)),quiet);
 });

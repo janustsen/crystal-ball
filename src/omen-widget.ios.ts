@@ -1,7 +1,9 @@
 import Constants from 'expo-constants';
+import {currentOmen} from './retention';
 import type {Omen} from './daily-omen';
 let updated='';
 export function updateOmenWidget(omen:Omen|null){
+ omen=currentOmen(omen);
  const key=JSON.stringify([omen,new Date().getTimezoneOffset()]);
  if(Constants.appOwnership==='expo'||updated===key)return;
  try{

@@ -1,5 +1,5 @@
 import type {Facts} from './types';
-import {localDay} from './retention';
+import {currentOmen,localDay} from './retention';
 import {updateOmenWidget} from './omen-widget';
 
 export type Omen = {day:string;text:string|null};
@@ -40,9 +40,9 @@ export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null
   });
   return version===generation?omen:{day,text:null};
  })().then(omen=>{
-  const today=localDay(now()),fresh=omen.day===today;
-  if(version===generation)publish(fresh?omen:null);
-  return fresh?omen:{day:today,text:null};
+  const today=localDay(now()),fresh=currentOmen(omen,today);
+  if(version===generation)publish(fresh);
+  return fresh??{day:today,text:null};
  });
  pending=work;
  void work.finally(()=>{if(pending===work)pending=undefined}).catch(()=>{});
