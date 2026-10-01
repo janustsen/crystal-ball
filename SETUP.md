@@ -17,7 +17,7 @@ The server reads server-only variables from its shell, not Expo's public env loa
 
 ## Native development, deferred until Xcode exists
 
-Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, notification permission and30-day scheduling. These checks are separate from the browser pass.
+Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, the [dated check-in flow](README.md) and notification permission. These checks are separate from the browser pass.
 
 ## Accounts Janus must create before hosted use
 
@@ -34,3 +34,15 @@ Remote HTTP origins cannot access browser speech recognition. The Ask flow offer
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Seeded Explore is visibly labeled. Apple save and web notification controls explain their native setup requirements. Friend links carry only the question and friend flag, not private answers. No App Store submission, public posting or real payments are part of this build.
 
 Apple wiring now uses Apple.signInAsync followed by Supabase.auth.linkIdentity with the ID token, preserving the anonymous UID. It stays disabled until EXPO_PUBLIC_APPLE_LINK_ENABLED=true and the provider is configured. This is account wiring, not a verified native sign-in claim. The native purchase adapter can initialize RevenueCat and restore sandbox purchases; the current paywall deliberately remains mock.
+
+### Daily omen widget and check-ins
+
+Home generates one personal astrology-flavored omen per local anonymous profile/day, using remembered facts and `facts.sun_sign` when onboarding supplies it. The existing engine accepts `action: "omen"`; the model output is capped at 160 tokens. Local Ollama remains the default (no service spend). The shared provider keeps one constrained repair on invalid output, then fails closed. No reading credit is spent. One generation request is claimed durably before inference; failures remain unavailable for that day rather than retrying on each visit. This is the prototype's device-local quota, not a cross-device server quota. The daily generation claim survives Forget everything; see [README](README.md) for reset behavior and failure notices.
+
+The iOS `DailyOmen` widget uses the `expo-widgets` config plugin in app.json; `npx expo prebuild --platform ios --no-install` generates its extension and app-group entitlement. A development build is required (not Expo Go). Open Home before adding the widget. It displays the same personal omen, then switches to “Open the Ball for today’s omen” at the next local midnight; the widget never triggers model calls. Web and Android show the omen on Home without a native widget.
+
+Check-in scheduling uses a valid forecast `dueDate` (YYYY-MM-DD) at local noon, falling back to creation date plus 30 days when the date is absent or invalid. The current engine does not produce `dueDate`; ball-set dates depend on the cb-reading-flow PR. Retention consumes that contract without generating dates. See [README](README.md) for automatic scheduling, permission and outcome controls.
+
+Device widget rendering and notification delivery/tap navigation remain unverified until Xcode setup is complete. Evidence and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
+
+For concurrent local verification, set `CRYSTAL_BALL_ENGINE_PORT` on both the engine and Metro to select a task-owned loopback engine port; it defaults to 8787. Keep `EXPO_PUBLIC_ENGINE_URL` unset so browser calls retain the same-origin bridge.

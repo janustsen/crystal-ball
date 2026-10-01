@@ -1,0 +1,48 @@
+idle-both-orbs 60.1 fps; max 16.8 ms
+orb-approach-listening 60.0 fps; max 16.8 ms
+listening 60.3 fps; max 16.8 ms
+typing 60.2 fps; max 16.8 ms
+planning-to-question-one 59.7 fps; max 33.3 ms
+question-two 60.1 fps; max 16.8 ms
+question-three 60.1 fps; max 16.8 ms
+thinking-to-reveal 60.0 fps; max 33.4 ms
+share 59.2 fps; max 33.4 ms
+return-reveal 59.7 fps; max 28.5 ms
+return-home 60.2 fps; max 16.8 ms
+explore-tab 60.2 fps; max 16.8 ms
+history-tab 59.8 fps; max 24.0 ms
+you-tab 60.0 fps; max 16.8 ms
+ask-tab 60.0 fps; max 16.8 ms
+close-flow 60.1 fps; max 16.8 ms
+ambient-sky 60.0 fps; max 33.4 ms
+node:internal/errors:999
+  const err = new Error(message);
+              ^
+
+Error: Command failed: chrome-devtools-axi perf-stop --file /Users/janustsen/.treehouse/crystal-ball-6fc41b/4/crystal-ball/.local/motion-audit-1790835006235.json
+    at genericNodeError (node:internal/errors:999:15)
+    at wrappedFn (node:internal/errors:544:14)
+    at checkExecSyncError (node:child_process:943:11)
+    at execFileSync (node:child_process:979:15)
+    at cli (file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/4/crystal-ball/scripts/drive-motion.mjs:9:22)
+    at file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/4/crystal-ball/scripts/drive-motion.mjs:27:41
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    'error: "{\\"error\\":\\"MCP error -32001: Request timed out\\"}"\n' +
+      'code: TIMEOUT\n' +
+      'help[1]: Run `chrome-devtools-axi snapshot` to see current page state\n',
+    ''
+  ],
+  pid: 34039,
+  stdout: 'error: "{\\"error\\":\\"MCP error -32001: Request timed out\\"}"\n' +
+    'code: TIMEOUT\n' +
+    'help[1]: Run `chrome-devtools-axi snapshot` to see current page state\n',
+  stderr: ''
+}
+
+Node.js v26.10.0

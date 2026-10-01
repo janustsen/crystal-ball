@@ -36,7 +36,25 @@
           "enableBackgroundPlayback": false
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "DailyOmen",
+              "displayName": "Daily omen",
+              "description": "A little wonder from the Crystal Ball, every day.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     ],
     "web": {
       "bundler": "metro"

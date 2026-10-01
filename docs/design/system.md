@@ -21,7 +21,7 @@ No sign-up gate. Explore prompts prefill Ask without spending a credit. Knowledg
 Paywall: Free 1/day; Plus $5.99/month or $39.99/year (10/day), packs 5/$1.99 and 20/$5.99. Billing period must remain clear alongside price, with no fake urgency. Simulated purchases take no money; Restore must tell the truth about mock state.
 
 ## States and verification
-Every network operation has loading, timeout, retry and cancel; facts load before Ask becomes available. Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items until Xcode/accounts exist. Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
+Reading generation has loading, timeout, retry and cancel; facts load before Ask becomes available. Daily omen availability follows the [daily generation policy](../../SETUP.md#daily-omen-widget-and-check-ins). Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items until Xcode/accounts exist. Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
 
 ## Rendered review and component states
 

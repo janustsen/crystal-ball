@@ -4,6 +4,49 @@ import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {randomBytes} from 'node:crypto';
 const bridge=createRequire(import.meta.url)('../server/preview.cjs');
+test('authenticated clients reach the configured engine port through every preview route',async()=>{
+ const secret=randomBytes(32).toString('hex');
+ const upstream=createServer(async(req,res)=>{
+  const chunks=[];for await(const chunk of req)chunks.push(chunk);
+  const body=Buffer.concat(chunks).toString();
+  res.writeHead(200,{'content-type':'application/json'});
+  res.end(JSON.stringify({kind:'ok',value:{text:'Your personal omen'},path:req.url,body:body?JSON.parse(body):null}));
+ });
+ const server=createServer(bridge((_req:any,res:any)=>res.end('private client bundle'),secret));
+ const keys=['CRYSTAL_BALL_ENGINE_PORT','EXPO_PUBLIC_ENGINE_URL','EXPO_PUBLIC_PREVIEW_SECRET'] as const;
+ const previous=keys.map(key=>process.env[key]);
+ const originalFetch=globalThis.fetch;
+ try{
+  await new Promise<void>(resolve=>upstream.listen(0,'127.0.0.1',resolve));
+  process.env.CRYSTAL_BALL_ENGINE_PORT=String((upstream.address() as {port:number}).port);
+  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
+  process.env.EXPO_PUBLIC_ENGINE_URL=base+'/engine';
+  process.env.EXPO_PUBLIC_PREVIEW_SECRET=secret;
+  const {requestOmen,request}=await import('../src/api');
+  globalThis.fetch=(input,init)=>{
+   const headers=new Headers(init?.headers);headers.set('origin',base);
+   return originalFetch(input,{...init,headers});
+  };
+  assert.equal(await requestOmen({}),'Your personal omen');
+  for(const action of ['plan','predict'] as const){
+   assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
+  }
+  for(const [path,target] of [['/engine','/'],['/engine/share','/share'],['/engine/health','/health']]){
+   const init={method:path.endsWith('health')?'GET':'POST',headers:{origin:base,'x-preview-token':secret},...(path.endsWith('health')?{}:{body:JSON.stringify({action:'omen'})})};
+   const response=await originalFetch(base+path,init);
+   assert.equal(response.status,200);
+   const result=await response.json();assert.equal(result.path,target);
+   assert.deepEqual(result.body,path.endsWith('health')?null:{action:'omen'});
+   assert.equal((await originalFetch(base+path,{...init,headers:{origin:base}})).status,401);
+   assert.equal((await originalFetch(base+path,{...init,headers:{origin:'https://other.invalid','x-preview-token':secret}})).status,403);
+  }
+ }finally{
+  globalThis.fetch=originalFetch;
+  keys.forEach((key,index)=>{if(previous[index]===undefined)delete process.env[key];else process.env[key]=previous[index]});
+  await Promise.all([server,upstream].map(server=>new Promise<void>(resolve=>server.close(()=>resolve()))));
+ }
+});
 test('preview refuses unauthenticated engine calls and protects the injected-key bundle',async()=>{
  const secret=randomBytes(32).toString('hex');
  const server=createServer(bridge((_req:any,res:any)=>res.end('private client bundle'),secret));

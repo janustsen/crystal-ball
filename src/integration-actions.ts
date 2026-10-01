@@ -1,12 +1,27 @@
+import {checkInDate} from './retention';
 export type NativePorts = {
  platform:string;
- notifications:{permission:()=>Promise<boolean>;schedule:(title:string,body:string,seconds:number)=>Promise<void>};
+ notifications:{clear:()=>Promise<void>;permission:(request:boolean)=>Promise<boolean>;schedule:(title:string,body:string,seconds:number,readingId?:string)=>Promise<void>};
  apple:{available:()=>Promise<boolean>;enabled:boolean;owner:()=>Promise<string|null>;signIn:()=>Promise<string|null>;link:(token:string)=>Promise<string|undefined>};
  share:(message:string,url:string)=>Promise<unknown>;
  link:(question:string)=>string;
 };
-export function nativeActions(ports:NativePorts){return {
- async reminder(headline:string){if(ports.platform==='web')return 'Native reminder preview: check back in 30 days. Local notifications need an iOS or Android build.';try{if(!await ports.notifications.permission())return 'Notifications are off. You can still check back from History.';await ports.notifications.schedule('Did the Ball get it right?',headline,30*86400);return 'Check-back reminder set for 30 days.';}catch{return 'The reminder could not be scheduled. You can still check back from History.';}},
+export function nativeActions(ports:NativePorts){
+ let generation=0,writes:Promise<void>=Promise.resolve();
+ function serialize(operation:()=>Promise<void>){const work=writes.then(operation);writes=work.catch(()=>{});return work;}
+ return {
+ forgetCheckIns(){generation++;return ports.platform==='web'?Promise.resolve():serialize(()=>ports.notifications.clear());},
+ async reminder(_headline:string,readingId?:string,on?:string,requestPermission=true){
+  const version=generation,date=on?checkInDate(on):null;
+  if(on&&!date)return 'The Due date is unavailable. You can still check in from History.';
+  if(date&&date.getTime()<=Date.now())return 'This forecast is ready for a Check-in. Open it from History.';
+  const when=date?date.toLocaleDateString():'30 days';
+  if(ports.platform==='web')return `Native reminder preview: check back ${when}. Local notifications need an iOS or Android build.`;
+  try{if(!await ports.notifications.permission(requestPermission))return 'Notifications are off. You can still check back from History.';
+   await serialize(async()=>{if(version!==generation)throw new Error('Reading forgotten');await ports.notifications.schedule('Did it come true?','The ball has a question for you.',date?Math.ceil((date.getTime()-Date.now())/1000):30*86400,readingId);});
+   return `Check-back reminder set for ${when}.`;
+  }catch{return 'The reminder could not be scheduled. You can still check back from History.';}
+ },
  async saveWithApple(){if(ports.platform!=='ios'||!await ports.apple.available())return 'Sign in with Apple needs the configured iOS app. Your readings are saved on this device.';if(!ports.apple.enabled)return 'Apple account saving is not configured yet. Your readings remain on this device.';try{const owner=await ports.apple.owner(),token=await ports.apple.signIn();if(!token)return 'Apple did not return an identity token. Your local readings are safe.';if(await ports.apple.link(token)!==owner)throw new Error('Identity mismatch');return 'Saved with Apple. Your anonymous history stays with you.';}catch{return 'Apple saving was canceled or unavailable. Your local readings remain safe.';}},
  async friendLink(question:string){const url=ports.link(question);await ports.share(`Ask the Crystal Ball for yourself: ${url}`,url);return url;},
 };}
