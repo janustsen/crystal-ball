@@ -9,7 +9,7 @@ An astrology-flavoured Expo / React Native oracle prototype: ask a question, ans
 
 [Run and account setup](SETUP.md) · [Research decisions](docs/research/decisions.md) · [Current design](docs/design/ui-rules.md) · [Art and motion evidence](docs/evidence/art-pass-2026-10-01/README.md)
 
-On first opening, enter your birthday and current focus or choose Skip for now. You can edit or forget these in You, and add birth time and city for Moon and rising signs. The app is for ages 13+; skipping your birthday keeps teen-safe defaults.
+On first opening, enter your birthday and current focus or choose Skip for now. You can edit or forget these in You, and add birth time and city for Moon and rising signs. The app is for ages 13+; skipping your birthday requires choosing “I’m 13 or older” before a reading and keeps teen-safe defaults without a Sun sign. Choosing “I’m under 13” blocks readings, including after reload. Existing profiles and friend links use the same age gate.
 
 Tap the orb to move closer and start listening, or choose Type instead. For a Person reading, choose Ask about someone and enter a first name; nobody is notified. Answer each follow-up by tapping an option; In my own words lets you type an answer. Reveal a forecast with its Due date, expand Why for an astrological line and reasoning, then share its still story card or revisit it in History. Mock Plus opens the deeper Why, inputs and sources. See [accepted scope](docs/evidence/review-decisions.md#reading-flow-acceptance-and-pr-handoff--2026-10-01) for deferred Check-in scheduling and social features.
 

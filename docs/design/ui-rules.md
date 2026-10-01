@@ -50,4 +50,4 @@ The project verify-crystal-ball skill owns the executable gate. Current evidence
 
 ## Short, personal readings
 
-A skippable birthday and current-focus onboarding feeds You. The engine selects one or two follow-ups; numeric questions without sufficient facts use a qualitative forecast. New forecasts show their due date. Free Why includes a brief astrology line and grounded reasoning; Plus reveals deeper inputs and sources. Person readings use first names and remain explicitly for fun. Under 13 is blocked; missing birthday uses teen-safe defaults.
+See [usage](../../README.md) for onboarding, age confirmation, Person readings, Due date and Why disclosure, and the [question policy](../research/question-engine.md) for card selection and qualitative forecasts.

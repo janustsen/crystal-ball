@@ -7,7 +7,7 @@ export function birthChart(birthday:string,time:string,latitude:number,longitude
  return {moonSign:String(chart.CelestialBodies.moon.Sign.label).toLowerCase(),risingSign:String(chart.Ascendant.Sign.label).toLowerCase()};
 }
 export type BirthPlace={name:string;latitude:number;longitude:number};
-// Prototype-only city lookup. Birthday and birth time never leave the device.
+// Prototype-only city lookup sends only the city query, not birthday or birth time.
 export async function findBirthPlaces(name:string,signal:AbortSignal):Promise<BirthPlace[]>{
  const response=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`,{signal});
  if(!response.ok)throw new Error('City search is unavailable. Try again later.');
