@@ -1,3 +1,4 @@
+import {forecastDueDate} from './due-date.ts';
 import {validBirthday} from './profile.ts';
 import type { Card, Facts, Plan, Topic } from './types.ts';
 const card=(id:string,question:string,options:string[],remember=true):Card=>({id,question,options:[...options,'Other'],remember});
@@ -88,6 +89,7 @@ export function inferFacts(question:string,topic:Topic):Facts {
 export const factLabels:Record<string,string>={birthday:'Birthday',current_focus:'Current focus',learning_target:'Learning goal',level:'Your level',practice:'Daily practice',conversation:'Practice feedback',currency:'Currency',assets:'Current assets',debt:'Current debt',monthly_saving:'Monthly savings',return:'Annual growth assumption',saving_growth:'Annual savings increase',withdrawals:'Annual withdrawals',location:'Current city',destination:'Possible next city',work:'Work flexibility',lease:'Lease timing',runway:'Savings runway',current_users:'Current users',weekly_growth:'Net weekly growth'};
 export const currencies=['USD','EUR','GBP','DKK','SEK','NOK','JPY','CAD','AUD','CHF','INR'];
 export function validateAnswer(topic:Topic,id:string,value:string):void {
+ if(id==='horizon'||id==='deadline')forecastDueDate(value);
  if(topic==='money'){
   if(id==='currency'&&!currencies.includes(value.toUpperCase()))throw new Error(`Use a currency code: ${currencies.join(', ')}.`);
   if(['assets','debt','monthly_saving','withdrawals','windfall'].includes(id))numeric(value,id);
