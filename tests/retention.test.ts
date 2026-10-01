@@ -89,3 +89,34 @@ test('forgetting personal data erases omen text without granting a second reques
  const result=await loadDailyOmen(storage,{},async()=>{throw new Error('Must not generate twice today')});
  assert.equal(result.text,null);assert.equal(JSON.parse(values.get(omenKey)!).text,null);
 });
+
+test('forget serializes overlapping cache reads and writes without exposing old text',async()=>{
+ const {forgetOmen}=await import('../src/daily-omen');
+ for(const phase of ['cache read','erase','generated write'] as const){
+  invalidateOmen();
+  let value=phase==='generated write'?null:JSON.stringify({day:localDay(),text:'Private old omen'});
+  let release!:()=>void,entered!:()=>void;
+  const blocked=new Promise<void>(resolve=>{release=resolve});
+  const started=new Promise<void>(resolve=>{entered=resolve});
+  let paused=false,calls=0;
+  const storage={
+   getItem:async()=>{const snapshot=value;if(!paused&&phase==='cache read'){paused=true;entered();await blocked;}return snapshot;},
+   setItem:async(_key:string,next:string)=>{
+    if(!paused&&((phase==='erase'&&JSON.parse(next).text===null)||(phase==='generated write'&&JSON.parse(next).text!==null))){paused=true;entered();await blocked;}
+    value=next;
+   },
+  };
+  const generate=async()=>{calls++;return 'Private old omen'};
+  const first=phase==='erase'?undefined:loadDailyOmen(storage,{},generate);
+  if(first)await started;
+  const erasing=forgetOmen(storage);
+  if(!first)await started;
+  const returningHome=loadDailyOmen(storage,{},generate);
+  release();
+  await erasing;
+  if(first)assert.equal((await first).text,null,phase);
+  assert.equal((await returningHome).text,null,phase);
+  assert.equal(JSON.parse(value!).text,null,phase);
+  assert.equal(calls,phase==='generated write'?1:0,phase);
+ }
+});
