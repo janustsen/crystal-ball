@@ -1,7 +1,8 @@
 import {chromium,expect} from '@playwright/test';
+import {httpCredentials} from './preview-auth.mjs';
 import {writeFile} from 'node:fs/promises';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
-const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 const results=[];
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
