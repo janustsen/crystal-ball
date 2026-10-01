@@ -1,15 +1,17 @@
 # Crystal Ball
 
-An Expo / React Native oracle prototype: ask a question, answer a few relevant cards, and reveal one confident, explicitly speculative forecast with a transparent Why.
+An astrology-flavoured Expo / React Native oracle prototype: ask a question, answer one or two relevant cards, and reveal one confident, explicitly speculative forecast with a Why and Due date.
 
 - Cosmic glass orb, five tabs, local knowledge/history, editable facts, safe-topic redirects.
 - Local Qwen through Ollama; deterministic numeric scenarios and constrained generation.
 - Optional Apple backup to Supabase with RLS; mock RevenueCat pricing; native notification wiring.
-- Private 9:16 still and animated MP4 exports; friend links; Tonight’s Sky and private Circles.
+- Private 9:16 still story cards; friend links; Tonight’s Sky and private Circles.
 
 [Run and account setup](SETUP.md) · [Research decisions](docs/research/decisions.md) · [Current design](docs/design/ui-rules.md) · [Art and motion evidence](docs/evidence/art-pass-2026-10-01/README.md)
 
-Tap the orb to move closer and start listening, or choose Type instead. Answer each follow-up by tapping an option; In my own words lets you type an answer. Reveal a forecast, expand Why, then share its story card or revisit it in History.
+On first opening, enter your birthday and current focus or choose Skip for now. You can edit or forget these in You, and add birth time and city for Moon and rising signs. The app is for ages 13+; skipping your birthday keeps teen-safe defaults.
+
+Tap the orb to move closer and start listening, or choose Type instead. For a Person reading, choose Ask about someone and enter a first name; nobody is notified. Answer each follow-up by tapping an option; In my own words lets you type an answer. Reveal a forecast with its Due date, expand Why for an astrological line and reasoning, then share its still story card or revisit it in History. Mock Plus opens the deeper Why, inputs and sources. See [accepted scope](docs/evidence/review-decisions.md#reading-flow-acceptance-and-pr-handoff--2026-10-01) for deferred Check-in scheduling and social features.
 
 Home example questions fade inside the fog as decorative whispers; tapping them opens the orb, not a prefilled question. Choose Ask this too in Sky to prefill a question instead. Reduce motion keeps one whisper still.
 

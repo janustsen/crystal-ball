@@ -28,7 +28,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
 5–7. Follow-ups: shrinking orb above a borderless question; centered, staggered and left-aligned answer arrangements. Each real question uses the next arrangement. Standard answers advance immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
 8. Thinking: smoke, status, longer-wait message and Cancel; no credit is spent yet.
-9. Reveal: actual engine headline and speculative label; Why expands actual facts, assumptions and dated source leads. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
+9. Reveal: actual engine headline and speculative label; see [Short, personal readings](#short-personal-readings) for Due date and Why disclosure. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
 10. Share: compact actual export preview and image/friend/reminder actions.
 11. Story: full 9:16 preview and 1080×1920 PNG export.
 12. Error: retry, retained answers where available, and edit. No fabricated successful output.
