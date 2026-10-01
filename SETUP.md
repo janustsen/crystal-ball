@@ -17,7 +17,7 @@ The server reads server-only variables from its shell, not Expo's public env loa
 
 ## Native development, deferred until Xcode exists
 
-Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, notification permission and30-day scheduling. These checks are separate from the browser pass.
+Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, the [dated check-in flow](README.md) and notification permission. These checks are separate from the browser pass.
 
 ## Accounts Janus must create before hosted use
 
@@ -41,7 +41,7 @@ Home generates one personal astrology-flavored omen per local anonymous profile/
 
 The iOS `DailyOmen` widget uses the `expo-widgets` config plugin in app.json; `npx expo prebuild --platform ios --no-install` generates its extension and app-group entitlement. A development build is required (not Expo Go). Open Home before adding the widget. It displays the same personal omen, then switches to “Open the Ball for today’s omen” at the next local midnight; the widget never triggers model calls. Web and Android show the omen on Home without a native widget.
 
-Remind me schedules the Check-in on the forecast's ball-set `dueDate` (YYYY-MM-DD), with the original creation-date-plus-30-days fallback for older forecasts. The reading-flow lane owns generation of `dueDate`; retention consumes it. The date is shown on the reveal and cannot be edited. Notification taps open the saved forecast; web shows an explicit preview. Verdicts remain on individual forecasts in History, with no accuracy score.
+Check-in scheduling uses a valid forecast `dueDate` (YYYY-MM-DD) at local noon, falling back to creation date plus 30 days when the date is absent or invalid. The current engine does not produce `dueDate`; ball-set dates depend on the cb-reading-flow PR. Retention consumes that contract without generating dates. See [README](README.md) for automatic scheduling, permission and outcome controls.
 
 Device widget rendering and notification delivery/tap navigation remain unverified until Xcode setup is complete. Evidence and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
 
