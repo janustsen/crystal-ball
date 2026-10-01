@@ -1,4 +1,6 @@
 import React,{createContext,useContext,useEffect,useState} from 'react';
+import {Alert} from 'react-native';
+import {forgetCheckIns} from './native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
 import {forgetOmen} from './daily-omen';
@@ -14,7 +16,7 @@ export function Store({children}:React.PropsWithChildren){
  useEffect(()=>{AsyncStorage.getItem(key).then(raw=>{if(raw){const s=JSON.parse(raw);if(s&&s.facts&&Array.isArray(s.history)&&Number.isFinite(s.credits))setState({...initial(),...s});}}).catch(()=>{}).finally(()=>setReady(true));},[]);
  useEffect(()=>{if(ready){const snapshot=state;writes=writes.catch(()=>{}).then(async()=>{await AsyncStorage.setItem(key,JSON.stringify(snapshot));try{await mirror(snapshot)}catch{/* Local state remains authoritative; retry on the next change. */}});}},[state,ready]);
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,update:setState,remaining:Math.max(0,daily-used)+state.credits,reset:()=>{void forgetOmen(AsyncStorage);updateOmenWidget(null);setState(s=>({...s,facts:{},history:[]}))},savePrediction:(prediction)=>setState(s=>{
+ return <Context.Provider value={{state,ready,update:setState,remaining:Math.max(0,daily-used)+state.credits,reset:()=>{void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));void forgetOmen(AsyncStorage);updateOmenWidget(null);setState(s=>({...s,facts:{},history:[]}))},savePrediction:(prediction)=>setState(s=>{
   if(s.history.some(p=>p.id===prediction.id))return s;
   const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;
   return {...s,history:[prediction,...s.history],usage:{day,count:count+1},credits:count>=allowance?Math.max(0,s.credits-1):s.credits};

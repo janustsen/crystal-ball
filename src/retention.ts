@@ -12,3 +12,7 @@ export function suggestedCheckIn(p:Prediction):string {
  if(p.dueDate&&checkInDate(p.dueDate))return p.dueDate;
  const date=new Date(p.createdAt);date.setDate(date.getDate()+30);return localDay(date);
 }
+
+export function checkInLabel(p:Prediction,today=localDay()):string {
+ return p.outcome==='yes'?'✓ Came true':p.outcome==='no'?'Took another path':p.outcome==='pending'?'◷ Waiting':suggestedCheckIn(p)<=today?'Did it come true?':'◷ Waiting';
+}

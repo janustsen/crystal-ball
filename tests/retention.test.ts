@@ -14,7 +14,7 @@ test('ball Due date wins; legacy forecasts keep 30 days without a migration',()=
 });
 test('real reminder action passes the reading id and date to native scheduling; web and bad dates never schedule',async()=>{
  const scheduled:unknown[][]=[];
- const ports:NativePorts={platform:'ios',notifications:{permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},apple:{available:async()=>false,enabled:false,owner:async()=>null,signIn:async()=>null,link:async()=>undefined},share:async()=>{},link:()=>''};
+ const ports:NativePorts={platform:'ios',notifications:{clear:async()=>{},permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},apple:{available:async()=>false,enabled:false,owner:async()=>null,signIn:async()=>null,link:async()=>undefined},share:async()=>{},link:()=>''};
  const on=localDay(new Date(Date.now()+86400000*5));
  const before=Date.now();
  assert.match(await nativeActions(ports).reminder(reading.headline,reading.id,on),/reminder set/);
