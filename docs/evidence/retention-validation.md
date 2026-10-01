@@ -19,14 +19,25 @@ The safety facts are executable in `tests/retention.test.ts`: legacy Due date fa
 
 ## Verification
 
-- Typecheck and tests: 38 total, 37 pass, one existing ffmpeg-dependent skip.
+- Typecheck and tests: 39 total, 38 pass, one existing ffmpeg-dependent skip.
 - Web and iOS Expo exports pass; iOS prebuild generates DailyOmen's Swift widget, small/medium families, app group entitlement and extension target. Device compilation/rendering remains unverified.
 - `scripts/drive-retention.sh` drives chrome-devtools-axi against the real app. `retention-drive.txt` covers the cached omen, unchanged credit count, Due date display, web notification preview, all verdicts, selected state and reload persistence. After that reload, `retention-cache-network.txt` records no fetch requests: the personal omen came from its daily cache.
 - Primary verify-crystal-ball controls were driven on isolated 8094/8794 ports: all five tabs; real local-Qwen Spanish reading and Why; History/reload; knowledge edit/forget; sensitive redirect without charging; mock five-pack and Restore; 1080×1920 share PNG. Animated export reached its visible still-card fallback because ffmpeg is absent.
-- The initial 375×667/200% text drive found verdict-row overflow; stacked choices fixed it. Current screenshots cover the personal omen and large-text Check-in. The merge gate must be repeated on the rebased final head after the redesign lands.
+- The initial 375×667/200% text drive found verdict-row overflow; stacked choices fixed it. Current screenshots cover the personal omen and large-text Check-in. Rebased onto the merged redesign at 5c9e5d9; the current warm-theme evidence is in retention-rebase/.
 
 ## Widget and native limits
 
 Uses the official [Expo widget config plugin](https://docs.expo.dev/versions/latest/sdk/widgets/) and SwiftUI views, with a static gradient ball. It receives today's cached text and a next-midnight “open the app” entry. No future omens are pre-generated and no model request comes from the widget. Forget everything removes personal text without resetting plan, credits or the omen quota. Expo Go/web/Android keep Home's omen. OS scheduling may delay midnight refresh.
 
 Xcode signing/build, physical widget rendering, notification permission/delivery, and cold/warm notification-tap navigation remain unverified until Xcode setup. No account, paid service or credential was added. This lane's browser/server processes are isolated from other workers; Metro uses a worktree-local TMPDIR to prevent shared-cache engine URL collisions.
+
+
+## Rebased design verification
+
+The current design, memory and recovery drivers passed against real local Qwen on 8094/8794. Transcripts and screenshots are in [retention-rebase](retention-rebase/). The same-origin bridge check passed after server readiness; its earlier startup race was retained locally. Typecheck, 38 passing tests (one ffmpeg skip), both platform exports and iOS prebuild passed after integration.
+
+All 17 motion samples passed the original frame budget (59.2–60.3fps, maximum 33.4ms). The driver's perf-stop summary timed out after saving the complete 243MB raw trace. Recovery parsed that JSON, verified every start/end mark and enforced the unchanged frame assertions; the timing-only excerpt and SHA-256 provenance are in [retention-rebase-motion](retention-rebase-motion/). This is recovered trace evidence, not a clean driver exit. OS/in-app reduced motion, resume and large-text checks passed.
+
+The chrome-devtools-axi retention drive twice lost its selected page. Firstmate authorized an isolated Playwright profile for the remaining live controls and screenshots. No shared browser state was changed.
+
+The isolated Playwright retention drive passed: real personal omen, all three verdicts, Due date, reminder web fallback, unchanged credits, reload persistence and viewport bounds. See retention-rebase/retention-drive.txt, personal-omen.png and check-in.png. Driver setup failures (missing initial action and an omitted aria-busy=false attribute) are preserved alongside the successful evidence.

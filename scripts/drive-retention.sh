@@ -7,7 +7,7 @@ const assert=(condition,message)=>{if(!condition)throw new Error(message)};
 const close=async()=>{while(await page.eval(()=>!!document.querySelector('[data-testid="close-flow"]')))await page.click('[data-testid="close-flow"]')};
 await close();
 await page.click('[data-testid="tab-home"]');
-await page.wait('[data-testid="daily-omen"][aria-busy="false"]',65000);
+await page.wait('[data-testid="daily-omen"]:not([aria-busy="true"])',65000);
 const omen=await page.eval(()=>document.querySelector('[data-testid="daily-omen"]').textContent);
 const credits=await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent);
 await close();await page.click('[data-testid="tab-history"]');
@@ -27,7 +27,7 @@ const bounds=await page.eval(()=>Array.from(document.querySelectorAll('[data-tes
 assert(bounds.every(b=>b.left>=0&&b.right<=b.width),'check-in overflow');
 console.log('check-in bounds',JSON.stringify(bounds));
 await page.open(await page.eval(()=>location.href));
-await page.wait('[data-testid="daily-omen"][aria-busy="false"]',65000);
+await page.wait('[data-testid="daily-omen"]:not([aria-busy="true"])',65000);
 assert(await page.eval(()=>document.querySelector('[data-testid="daily-omen"]').textContent)===omen,'omen changed on reload');
 assert(await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent)===credits,'retention spent a credit');
 await close();await page.click('[data-testid="tab-history"]');
