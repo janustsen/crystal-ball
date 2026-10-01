@@ -8,14 +8,14 @@ This checkout is an Expo React Native prototype. It runs anonymously, using loca
 2. Start Ollama with task-local models and a dedicated port: `OLLAMA_MODELS="$PWD/.local/models" OLLAMA_HOST=127.0.0.1:11435 OLLAMA_NO_CLOUD=1 ollama serve`. In another shell: `OLLAMA_HOST=127.0.0.1:11435 ollama pull qwen3:4b-instruct-2507-q4_K_M`.
 3. Install Supabase CLI, then `supabase start` from this checkout. Project id crystal-ball-prototype uses55321API,55322Postgres,55323Studio. Docker is required. Anonymous auth is enabled; migrations install per-user row-level policies. `supabase status -o env` displays this local project's keys. Never use another project's key.
 4. Copy `.env.example` to `.env.local`. Populate only EXPO_PUBLIC_SUPABASE_ANON_KEY from the local output. This public local anon key is not a service-role key. The app remains local-first if cloud mirroring is unavailable; it retries on the next state change.
-5. `npm run server`, then `npm run web`. Open http://localhost:8087. Engine health: http://127.0.0.1:8787/health. Animated MP4 exports additionally require `ffmpeg` on PATH; still PNG export remains available if it is missing.
-6. `npm run check && npm test`. Browser drive: `node scripts/drive.mjs` uses installed Chrome and an isolated temporary profile, localhost only. See `.agents/skills/verify-crystal-ball/SKILL.md`.
+5. `npm run server`, then `npm run web -- --host lan`. Open http://localhost:8087 or this iMac’s private Tailscale URL http://janus-mac.tail8d2280.ts.net:8087. Leave EXPO_PUBLIC_ENGINE_URL unset for web: Metro forwards same-origin `/engine` requests to the loopback engine, including `/engine/share` and `/engine/health`. A native simulator still defaults to http://127.0.0.1:8787. The bridge is development-only; keep this preview on the trusted private network. Animated MP4 exports additionally require `ffmpeg` on PATH; still PNG export remains available if it is missing.
+6. `npm run check && npm test`. Follow the [verification skill](.agents/skills/verify-crystal-ball/SKILL.md) for the current browser drives, remote bridge check and evidence requirements.
 
 The server reads server-only variables from its shell, not Expo's public env loader. Keep MODEL_PROVIDER=ollama. No paid inference occurs by default. Local addresses work in an iOS simulator; a physical phone needs a trusted LAN-accessible development server and matching EXPO_PUBLIC_ENGINE_URL/Supabase URLs. Do not expose the unauthenticated local Node adapter publicly.
 
 ## Native development, deferred until Xcode exists
 
-Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, hold-to-speak release/cancel, notification permission and30-day scheduling. These checks are separate from the browser pass.
+Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, notification permission and30-day scheduling. These checks are separate from the browser pass.
 
 ## Accounts Janus must create before hosted use
 
@@ -26,6 +26,8 @@ Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo r
 - **Research:** Google News RSS is prototype-only, not a licensed commercial research service. Replace it with an authorized provider before production. Retrieved headlines are only leads; Why says so.
 
 ## Known prototype boundaries
+
+Remote HTTP origins cannot access browser speech recognition. The Ask flow offers typing when voice is unavailable; localhost or an HTTPS origin plus microphone permission is needed for real browser recording. The current iMac has no ffmpeg, so MP4 export reports a recoverable error; PNG export works. Supabase is optional and not running here: local history and memory work, cloud mirroring does not.
 
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Seeded Explore is visibly labeled. Apple save and web notification controls explain their native setup requirements. Friend links carry only the question and friend flag, not private answers. No App Store submission, public posting or real payments are part of this build.
 

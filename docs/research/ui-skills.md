@@ -10,4 +10,4 @@ Captured 2026-09-29. No skill installed. Read the available Frontend Design skil
 
 Also consult [Apple tab-bar guidance](https://developer.apple.com/design/human-interface-guidelines/tab-bars): navigation remains predictable across screens. The brief explicitly asks for a raised center action, so it opens Ask, rather than pretending to be a fifth content library.
 
-Native output stays React Native. Avoid a DOM-only demo that would require rebuilding for iOS. Voice uses an OS speech recognizer with typed fallback; haptics accompany selection/reveal, never replace visual feedback. A simple SVG orb with layered gradients and slowly rotating mist is enough; no 3D engine or large Lottie asset required.
+Native output stays React Native. Avoid a DOM-only demo that would require rebuilding for iOS. Voice uses an OS speech recognizer with typed fallback; haptics accompany selection/reveal, never replace visual feedback. See [motion](../design/motion.md) for the current orb rendering and web/native boundary.

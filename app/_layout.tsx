@@ -1,6 +1,14 @@
+import {Platform} from 'react-native';
 import {Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
-import {useFonts,CormorantGaramond_500Medium} from '@expo-google-fonts/cormorant-garamond';
-import {DMSans_400Regular,DMSans_500Medium,DMSans_700Bold} from '@expo-google-fonts/dm-sans';
+import {useFonts} from 'expo-font';
 import {Store} from '../src/store';
-export default function Layout(){const [loaded,error]=useFonts({CormorantGaramond_500Medium,DMSans_400Regular,DMSans_500Medium,DMSans_700Bold});if(!loaded&&!error)return null;return <Store><StatusBar style="light"/><Stack screenOptions={{headerShown:false,contentStyle:{backgroundColor:'#0B0620'}}}/></Store>}
+export default function Layout(){
+ const [loaded,error]=useFonts(Platform.OS==='web'?{
+  IMFellEnglish:require('../assets/fonts/IMFellEnglish.woff2'),IMFellEnglishItalic:require('../assets/fonts/IMFellEnglishItalic.woff2'),HankenGrotesk:require('../assets/fonts/HankenGrotesk.woff2')
+ }:{
+  IMFellEnglish:require('../assets/fonts/IMFellEnglish.ttf'),IMFellEnglishItalic:require('../assets/fonts/IMFellEnglishItalic.ttf'),HankenGrotesk:require('../assets/fonts/HankenGrotesk.ttf')
+ });
+ if(!loaded&&!error)return null;
+ return <Store><StatusBar style="light"/><Stack screenOptions={{headerShown:false,contentStyle:{backgroundColor:'#120E0B'}}}/></Store>;
+}
