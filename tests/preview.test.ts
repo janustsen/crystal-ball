@@ -62,6 +62,8 @@ test('preview refuses unauthenticated engine calls and protects the injected-key
   assert.equal((await fetch(base+'/engine/health',{headers:{'x-preview-token':secret}})).status,401);
   const authenticated=await fetch(base+'/index.bundle',{headers:{authorization:'Basic '+Buffer.from(`preview:${secret}`).toString('base64')}});
   assert.equal(authenticated.status,200);assert.equal(await authenticated.text(),'private client bundle');
+  assert.equal((await fetch(base+'/engine',{headers:{'x-preview-token':secret,origin:base}})).status,405);
+  assert.equal((await fetch(base+'/engine',{method:'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'},body:'{}'})).status,403);
   for(const path of ['/engine','/engine/share','/engine/social','/engine/health']){
    assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'POST':'GET',headers:{'x-preview-token':secret,origin:base}})).status,405);
    assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'GET':'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'}})).status,403);

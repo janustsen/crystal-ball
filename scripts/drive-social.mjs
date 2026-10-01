@@ -26,6 +26,7 @@ const click=id=>`await page.click('[data-testid="${id}"]');`;
 const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
 const identity=`await page.eval(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)).user.id:null})`;
 async function adultFixture(user){
+ // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- local verification against 127.0.0.1
  const response=await fetch('http://127.0.0.1:55329/rest/v1/rpc/sync_social_profile',{method:'POST',headers:{Authorization:'Bearer verification-service-only','Content-Type':'application/json'},body:JSON.stringify({viewer:user,band:'adult',sign:'leo',mock_plus:null})});
  if(!response.ok)throw new Error('Synthetic adult profile setup failed');
 }
