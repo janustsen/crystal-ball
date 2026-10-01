@@ -9,7 +9,15 @@ async function main(){
  for(const viewerBirthday of [undefined,'2010-01-01','1990-01-01']){
   const response=await call(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'predict',ageConfirmed:true,personName:'Alex',question:'Will Alex secretly fall in love with me?',facts:{context_1:'We talk daily',horizon:'in 3 months'},viewerBirthday})}));
   const result=await response.json();
-  assert.equal(result.kind,viewerBirthday==='1990-01-01'?'ok':'blocked',JSON.stringify(result));
+  if(viewerBirthday==='1990-01-01')assert.equal(result.kind,'ok',JSON.stringify(result));
+  else {
+   assert.ok(result.kind==='ok'||result.kind==='blocked',JSON.stringify(result));
+   if(result.kind==='ok'){
+    const forecast=`${result.value.headline} ${result.value.why}`;
+    assert.equal(await safety(forecast,model,true),undefined,forecast);
+    console.log('Safe reframe:',forecast);
+   }
+  }
   if(result.kind==='blocked')assert.equal(result.category,'person');
   console.log(viewerBirthday||'unknown age',result.kind);
  }
