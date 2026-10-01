@@ -21,7 +21,7 @@ test('real Supabase query builder restores a fresh device before upload; current
  broken=true;await assert.rejects(restoreBackup(empty,client),/unreadable reading/);
 });
 
-test('offline forgetting persists through restart and replaces the archive before restoring',async()=>{
+test('offline forgetting persists through restart and reconciles before restoring',async()=>{
  for(const mode of ['fact','everything','already-empty','everything-then-reading']){
   let online=true,failDelete=false;
   let archive={facts:{practice:'daily',level:'beginner'},history:[reading]};
@@ -34,6 +34,7 @@ test('offline forgetting persists through restart and replaces the archive befor
     archive.history=[];return new Response(null,{status:204});
    }
    if(method==='POST'){
+    if(failDelete)return new Response('unavailable',{status:503});
     const body=JSON.parse(String(init?.body));
     if(url.pathname.endsWith('knowledge'))archive.facts=body.facts;
     else archive.history=body.map((row:any)=>row.payload);
@@ -106,10 +107,10 @@ test('automatic writes persist acknowledgements and queued writes never replay t
   const first=write();
   const queued=first.then(()=>{archive.push(another);state={...state,largeText:true};return write()});
   await queued;
-  assert.equal(deletes,1);assert.ok(archive.some(p=>p.id===another.id));
+  assert.equal(deletes,all?1:0);assert.ok(archive.some(p=>p.id===another.id));
   assert.equal(pendingBackupDeletion(JSON.parse(disk)),false);
   const restored=await restoreBackup(JSON.parse(disk),client);
-  assert.equal(deletes,1);assert.ok(restored.history.some(p=>p.id===another.id));
+  assert.equal(deletes,all?1:0);assert.ok(restored.history.some(p=>p.id===another.id));
  }
 });
 
@@ -127,4 +128,48 @@ test('a deletion during upload stays pending, and upload failures never acknowle
  assert.equal(pendingBackupDeletion(JSON.parse(disk)),true);
  await assert.rejects(persistBackup(()=>state,fn=>{state=fn(state)},async s=>{disk=JSON.stringify(s)},async()=>{throw new Error('offline')}));
  assert.equal(state.backupAcknowledged,1);assert.equal(pendingBackupDeletion(JSON.parse(disk)),true);
+});
+
+test('two devices preserve unrelated readings and facts when an offline device deletes one item',async()=>{
+ for(const item of ['fact','reading']){
+  let online=true;
+  let facts:Record<string,string>={practice:'daily'},history=[reading];
+  const deletedIds:string[][]=[];
+  const client=createClient('https://backup.invalid','test-key',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async(input,init)=>{
+   if(!online)throw new Error('offline');
+   const url=new URL(String(input)),method=init?.method??'GET';
+   if(method==='DELETE'){
+    assert.equal(url.searchParams.get('user_id'),'eq.apple-owner');
+    const filter=url.searchParams.get('id');assert.ok(filter,'individual deletion must specify reading IDs');
+    const ids=filter.slice(4,-1).split(',');deletedIds.push(ids);
+    history=history.filter(p=>!ids.includes(p.id));return new Response(null,{status:204});
+   }
+   if(method==='POST'){
+    const body=JSON.parse(String(init?.body));
+    if(url.pathname.endsWith('knowledge'))facts=body.facts;
+    else history=[...new Map([...history,...body.map((row:any)=>row.payload)].map(p=>[p.id,p])).values()];
+    return new Response(null,{status:204});
+   }
+   return Response.json(url.pathname.endsWith('knowledge')?[{facts}]:history.map(payload=>({payload})));
+  }}});
+  client.auth.getSession=async()=>({data:{session:{user:{id:'apple-owner',is_anonymous:false},access_token:'test-token'} as Session},error:null});
+  const a=await restoreBackup(empty,client),b=await restoreBackup(empty,client);
+  const newReading={...reading,id:'22345678-1234-1234-1234-123456789abc'};
+  await mirror({...b,facts:{...b.facts,level:'advanced'},history:[...b.history,newReading]},client);
+  online=false;
+  let state=trackBackupDeletion(a,item==='fact'?{...a,facts:{}}:{...a,history:[]}),disk='';
+  const save=async(s:AccountState)=>{disk=JSON.stringify(s)};
+  await assert.rejects(persistBackup(()=>state,fn=>{state=fn(state)},save,s=>mirror(s,client)));
+  state=JSON.parse(disk);online=true;
+  await persistBackup(()=>state,fn=>{state=fn(state)},save,s=>mirror(s,client));
+  assert.ok(history.some(p=>p.id===newReading.id));assert.equal(facts.level,'advanced');
+  assert.equal(history.some(p=>p.id===reading.id),item==='fact');
+  assert.equal(facts.practice,item==='fact'?undefined:'daily');
+  assert.deepEqual(deletedIds,item==='fact'?[]:[[reading.id]]);
+  const restarted=await restoreBackup(JSON.parse(disk),client);
+  assert.ok(restarted.history.some(p=>p.id===newReading.id));
+  assert.equal(restarted.history.some(p=>p.id===reading.id),item==='fact');
+  assert.equal(restarted.facts.practice,item==='fact'?undefined:'daily');
+  assert.equal(restarted.facts.level,'advanced');
+ }
 });

@@ -38,3 +38,15 @@ test('receipts acknowledge only their owner and revision; local-only forgetting 
  const unowned={...local,backupOwner:undefined};
  assert.equal(pendingBackupDeletion(trackBackupDeletion(unowned,{...unowned,facts:{},history:[]},true)),false);
 });
+
+test('item tombstones survive restart, respect Undo, and acknowledge only uploaded revisions',()=>{
+ const first=trackBackupDeletion(local,{...local,facts:{}});
+ assert.deepEqual(first.backupDeletions?.facts,{practice:1});
+ assert.deepEqual(first.backupDeletions?.history,{});
+ const second=trackBackupDeletion(JSON.parse(JSON.stringify(first)),{...first,history:[]});
+ const acknowledged=acknowledgeBackup(second,{owner:'apple-owner',revision:1});
+ assert.deepEqual(acknowledged.backupDeletions?.facts,{});
+ assert.deepEqual(acknowledged.backupDeletions?.history,{[reading.id]:2});
+ const undone=trackBackupDeletion(first,{...first,facts:local.facts});
+ assert.deepEqual(undone.backupDeletions?.facts,{});
+});

@@ -22,17 +22,30 @@ export function pendingBackupDeletion(state: AccountState): boolean {
 }
 export function trackBackupDeletion(previous: AccountState, next: AccountState, forgetAll = false): AccountState {
  const retained = new Set(next.history.map(reading => reading.id));
- const deleted = forgetAll || Object.keys(previous.facts).some(key => !(key in next.facts)) ||
-  previous.history.some(reading => !retained.has(reading.id));
+ const facts = Object.keys(previous.facts).filter(key => !(key in next.facts));
+ const history = previous.history.filter(reading => !retained.has(reading.id)).map(reading => reading.id);
+ const revision = (previous.backupRevision ?? 0) + ((forgetAll || facts.length || history.length) && previous.backupOwner ? 1 : 0);
+ const deletions = {facts:{...previous.backupDeletions?.facts},history:{...previous.backupDeletions?.history},all:previous.backupDeletions?.all};
+ if(previous.backupOwner){
+  for(const key of facts)deletions.facts[key]=revision;
+  for(const id of history)deletions.history[id]=revision;
+  if(forgetAll)deletions.all=revision;
+ }
+ for(const key of Object.keys(next.facts))delete deletions.facts[key];
+ for(const id of retained)delete deletions.history[id];
  return {...next,backupOwner:previous.backupOwner,backupAcknowledged:previous.backupAcknowledged,
-  backupRevision:(previous.backupRevision ?? 0) + (deleted && previous.backupOwner ? 1 : 0)};
+  backupRevision:revision,backupDeletions:deletions};
 }
+
 export type BackupReceipt = {owner: string; revision: number};
 export function acknowledgeBackup(state: AccountState, receipt: BackupReceipt): AccountState {
  if(state.backupOwner && state.backupOwner !== receipt.owner)return state;
  const acknowledged = Math.max(state.backupAcknowledged ?? 0, receipt.revision);
  return state.backupOwner === receipt.owner && (state.backupAcknowledged ?? 0) === acknowledged ? state :
-  {...state,backupOwner:receipt.owner,backupAcknowledged:acknowledged};
+  {...state,backupOwner:receipt.owner,backupAcknowledged:acknowledged,backupDeletions:{
+   facts:Object.fromEntries(Object.entries(state.backupDeletions?.facts??{}).filter(([,revision])=>revision>acknowledged)),
+   history:Object.fromEntries(Object.entries(state.backupDeletions?.history??{}).filter(([,revision])=>revision>acknowledged)),
+   all:(state.backupDeletions?.all??0)>acknowledged?state.backupDeletions?.all:undefined}};
 }
 export async function persistBackup(read:()=>AccountState, change:(fn:(state:AccountState)=>AccountState)=>void,
  save:(state:AccountState)=>Promise<void>, upload?: (state:AccountState)=>Promise<BackupReceipt|null>) {

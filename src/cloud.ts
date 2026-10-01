@@ -19,7 +19,7 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  if(!user_id)return state;
  if(pendingBackupDeletion(state)){
   if(state.backupOwner!==user_id)throw new Error('Pending deletions belong to another backup account.');
-  const receipt=await mirror(state,client);return receipt?acknowledgeBackup(state,receipt):state;
+  const receipt=await mirror(state,client);if(receipt)state=acknowledgeBackup(state,receipt);
  }
  if(!data.session||data.session.user.is_anonymous)return {...state,backupOwner:user_id};
  const facts=await client.from('knowledge').select('facts').eq('user_id',user_id).maybeSingle();
@@ -40,8 +40,20 @@ export async function mirror(state:AccountState,client:SupabaseClient|null=supab
  if(!client)return null;
  const user_id=await anonymousOwner(client);if(!user_id)return null;
  if((state.backupOwner&&state.backupOwner!==user_id)||(pendingBackupDeletion(state)&&state.backupOwner!==user_id))throw new Error('Backup account changed. Restore before uploading.');
- const saved=await client.from('knowledge').upsert({user_id,facts:state.facts,updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
- if(pendingBackupDeletion(state)){const result=await client.from('predictions').delete().eq('user_id',user_id);if(result.error)throw result.error;}
+ const acknowledged=state.backupAcknowledged??0;
+ const clearAll=(state.backupDeletions?.all??0)>acknowledged;
+ const remote=await client.from('knowledge').select('facts').eq('user_id',user_id).maybeSingle();
+ if(remote.error)throw remote.error;
+ if(!validFacts(remote.data?.facts??{}))throw new Error('Backup contains unreadable facts.');
+ const facts={...(clearAll?{}:remote.data?.facts??{})};
+ for(const [key,revision] of Object.entries(state.backupDeletions?.facts??{}))if(revision>acknowledged)delete facts[key];
+ const saved=await client.from('knowledge').upsert({user_id,facts:{...facts,...state.facts},updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
+ const deleted=Object.entries(state.backupDeletions?.history??{}).filter(([,revision])=>revision>acknowledged).map(([id])=>id);
+ if(clearAll||deleted.length){
+  let query=client.from('predictions').delete().eq('user_id',user_id);
+  if(!clearAll)query=query.in('id',deleted);
+  const result=await query;if(result.error)throw result.error;
+ }
  if(state.history.length){const result=await client.from('predictions').upsert(state.history.map(p=>({id:p.id,user_id,payload:p,created_at:p.createdAt})),{onConflict:'user_id,id'});if(result.error)throw result.error;}
  return {owner:user_id,revision:state.backupRevision??0};
 }
