@@ -18,8 +18,6 @@ if __name__ != '__main__': cases_for_import = cases
 for question,context,expected in (cases if __name__ == "__main__" else []):
  body={'model':'qwen3:4b-instruct-2507-q4_K_M','stream':False,'format':'json','options':{'temperature':0.2,'num_predict':350},'messages':[{'role':'system','content':system},{'role':'user','content':json.dumps({'question':question,'evidence':context})}]}
  start=time.monotonic()
- # Fixed loopback-only Ollama endpoint; request data cannot change the URL and local HTTP is intentional.
- # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected, python.lang.security.audit.insecure-transport.urllib.insecure-request-object.insecure-request-object
  with urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11435/api/chat',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'}),timeout=120) as r: raw=json.load(r)
  answer=json.loads(raw['message']['content'])
  row=dict(question=question,evidence=context,expected=expected,answer=answer,seconds=round(time.monotonic()-start,3),input_tokens=raw.get('prompt_eval_count'),output_tokens=raw.get('eval_count'),length=len(answer.get('prediction','')),cost_usd=0)

@@ -7,7 +7,11 @@ no_ci: true
 commands:
   test: |
     failed=0
-    semgrep scan --config p/default --error --metrics=off . || failed=1
+    if scan_base=$(git merge-base origin/main HEAD); then
+      semgrep scan --config p/default --baseline-commit "$scan_base" --error --metrics=off . || failed=1
+    else
+      failed=1
+    fi
     gitleaks git --log-opts=origin/main..HEAD --redact || failed=1
     node scripts/check-test-tampering.mjs origin/main || failed=1
     exit "$failed"

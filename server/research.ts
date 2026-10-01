@@ -6,8 +6,6 @@ export async function research(question:string):Promise<Source[]> {
  if(!response.ok)return [];
  const xml=await response.text(),seen=new Set<string>(),now=Date.now();
  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].flatMap(([,item])=>{
-  // Only literal title/link/pubDate/source tags reach this local helper; question and XML never form the regex.
-  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
   const get=(tag:string)=>unescape(item.match(new RegExp(`<${tag}(?: [^>]*)?>([\\s\\S]*?)<\\/${tag}>`))?.[1]?.replace(/^<!\[CDATA\[|\]\]>$/g,'')||'');
   const title=get('title'),url=get('link'),date=get('pubDate'),publisher=get('source'),key=title.split(' - ')[0].toLowerCase();
   const age=now-Date.parse(date),terms=(question.toLowerCase().match(/[a-z]{2,}/g)||[]).filter(t=>!['will','what','when','where','who','how','the','my','be','in','next','this','year','years','me','have','more','than','do','to','of','a','an'].includes(t));

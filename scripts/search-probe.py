@@ -5,8 +5,6 @@ rows=[]
 for name,url in urls.items():
  start=time.monotonic()
  try:
-  # URL comes only from the literal HTTPS endpoint dictionary above.
-  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
   with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'CrystalBallPrototype/0.1 (local research)'}),timeout=15) as response:body=response.read().decode();status=response.status
   row=dict(name=name,status=status,seconds=round(time.monotonic()-start,2),bytes=len(body),captcha='anomaly' in body)
   if name in ['bing','google_news']:

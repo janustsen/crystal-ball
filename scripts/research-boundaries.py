@@ -5,8 +5,6 @@ OUT=pathlib.Path('docs/research/evidence')
 def ask(system,user,schema):
  body={'model':'qwen3:4b-instruct-2507-q4_K_M','stream':False,'think':False,'format':schema,'options':{'temperature':0,'num_predict':150},'messages':[{'role':'system','content':system},{'role':'user','content':user}]}
  start=time.monotonic()
- # Fixed loopback-only Ollama endpoint; request data cannot change the URL and local HTTP is intentional.
- # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected, python.lang.security.audit.insecure-transport.urllib.insecure-request-object.insecure-request-object
  with urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11435/api/chat',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'}),timeout=90) as response: raw=json.load(response)
  
  try: parsed=json.loads(raw['message']['content'])
