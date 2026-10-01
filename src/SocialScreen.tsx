@@ -4,7 +4,7 @@ import * as Linking from 'expo-linking';
 import {Action,colors,Orb,styles,Txt} from './ui';
 import {useStore} from './store';
 import type {Prediction,FriendTarget} from './types';
-import {sampleStars,skyPrompts,socialUnavailable,validFirstName,type SkyPrompt} from './social-policy';
+import {accountSocialProfile,sampleStars,skyPrompts,socialUnavailable,validFirstName,type SkyPrompt} from './social-policy';
 import {blockMember,blockStarAuthor,createCircle,dismissFriendNotices,inviteToCircle,joinCircle,leaveCircle,loadSocial,openForecast,prepareSocialDraft,publishStar,reactInCircle,removeStar,reportStar,resonate,revokeSeal,sealForecast,setFriendConsent,type SocialDraft,type SocialSnapshot} from './social';
 
 function LinkCard({url,onClose}:{url:string;onClose:()=>void}){
@@ -29,16 +29,17 @@ function SealedCard({token,reduce}:{token:string;reduce:boolean}){
 
 export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce}:{onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
  const {state}=useStore();
+ const profile=accountSocialProfile(state);
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
  const [section,setSection]=useState<'sky'|'circles'>(invite?'circles':'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
  const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{
   let active=true;
-  async function refresh(){try{const snapshot=await loadSocial();if(active){setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
+  async function refresh(){try{const snapshot=await loadSocial(profile);if(active){setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   return()=>{active=false;clearInterval(timer)};
- },[version]);
+ },[version,profile.plus,profile.ageBand,profile.sunSign]);
  async function act(operation:()=>Promise<unknown>,message=''){
   if(busy)return;setBusy(true);setNotice('');
   try{await operation();setVersion(v=>v+1);setNotice(message)}catch(error){setNotice(error instanceof Error?error.message:'The sky could not be reached. Try again.')}finally{setBusy(false)}

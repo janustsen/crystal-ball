@@ -33,7 +33,8 @@ async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal)
 export const syncSocialProfile=(profile:SocialProfile)=>socialRequest({action:'profile',...profile});
 export const prepareSocialDraft=(kind:'star'|'seal',text:string)=>socialRequest<SocialDraft>({action:'draft',kind,text});
 export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal)=>socialRequest<Prediction>({action:'friend',question,...target},signal);
-export async function loadSocial():Promise<SocialSnapshot>{
+export async function loadSocial(account:SocialProfile):Promise<SocialSnapshot>{
+ await syncSocialProfile(account);
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);
  const [sky,own,circles,members,reactions,seals,profile,notices]=await Promise.all([
   db.rpc('tonights_sky'),db.from('sky_stars').select('id').eq('day',day),db.from('circles').select('id,owner_id'),

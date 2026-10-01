@@ -25,11 +25,7 @@ async function waitFor(name,selector,label,ms=95000,expectedText=''){
 const click=id=>`await page.click('[data-testid="${id}"]');`;
 const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
 const identity=`await page.eval(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)).user.id:null})`;
-async function adultFixture(user){
- // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- local verification against 127.0.0.1
- const response=await fetch('http://127.0.0.1:55329/rest/v1/rpc/sync_social_profile',{method:'POST',headers:{Authorization:'Bearer verification-service-only','Content-Type':'application/json'},body:JSON.stringify({viewer:user,band:'adult',sign:'leo',mock_plus:null})});
- if(!response.ok)throw new Error('Synthetic adult profile setup failed');
-}
+
 try{
  const circle=await run('owner',`
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');
@@ -68,8 +64,9 @@ try{
   console.log(JSON.stringify({inviteReplayRejected:true,declinedInvitationConsumed:true}));
  `).then(result=>log.push(result));
  // Onboarding belongs to the reading-flow lane. This synthetic adult fixture is explicit.
- await adultFixture(friend.owner);
  await run('friend',`
+  await page.eval(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));state.ageBand='adult';state.sunSign='leo';localStorage.setItem('crystal-ball-v1',JSON.stringify(state))});
+  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-home"]');
   ${click('tab-home')}${click('tab-sky')}${click('social-section-circles')}
   await page.wait('[role="switch"]:not([aria-disabled="true"])');
   await page.click('[role="switch"]');
