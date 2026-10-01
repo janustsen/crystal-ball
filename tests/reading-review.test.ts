@@ -81,7 +81,7 @@ test('repeated Person names are accepted in cards and options while modal will i
    {question:'Will Will practice with Will’s tutor?',options},
    {question,options:["Will will practice with Will's tutor",...options.slice(1)]},
   ]){
-   card=invalid;const before=attempts;
+   card=invalid;const before:number=attempts;
    assert.equal((await plan()).kind,'error');assert.equal(attempts-before,2);
   }
  }finally{globalThis.fetch=original;}
