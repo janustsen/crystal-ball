@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import {execFileSync} from 'node:child_process';
+import {execFileSync, spawnSync} from 'node:child_process';
+import {mkdtempSync, mkdirSync, writeFileSync, rmSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import ts from 'typescript';
 
 const git = (...args) => execFileSync('git', args, {encoding: 'utf8'});
@@ -16,6 +20,10 @@ function inspectSource(text, path) {
   };
   const name = node => ts.isComputedPropertyName(node) ? name(node.expression) : node.text;
   const disabling = node => /^(skip|only|todo)$/.test(name(node));
+  const testAPI = node => {
+    while (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) node = node.expression;
+    return ts.isIdentifier(node) && /^(test|it|describe|suite|t)$/.test(node.text);
+  };
   function visit(node) {
     if (ts.isCallExpression(node)) {
       let target = node.expression;
@@ -27,8 +35,8 @@ function inspectSource(text, path) {
       }
       if (ts.isIdentifier(node.expression) && /^(xit|xdescribe|xtest)$/.test(node.expression.text)) mark(disabled, node.expression);
     }
-    if (ts.isPropertyAccessExpression(node) && disabling(node.name)) mark(disabled, node);
-    if (ts.isElementAccessExpression(node) && disabling(node.argumentExpression)) mark(disabled, node);
+    if (ts.isPropertyAccessExpression(node) && testAPI(node.expression) && disabling(node.name)) mark(disabled, node);
+    if (ts.isElementAccessExpression(node) && testAPI(node.expression) && disabling(node.argumentExpression)) mark(disabled, node);
     if (ts.isPropertyAssignment(node) && disabling(node.name) && node.initializer.kind !== ts.SyntaxKind.FalseKeyword) mark(disabled, node);
     if (ts.isShorthandPropertyAssignment(node) && disabling(node.name)) mark(disabled, node);
     ts.forEachChild(node, visit);
@@ -105,12 +113,35 @@ if (process.argv[2] === '--self-test') {
   assert.equal(testFile('tests/name with spaces.ts'), true);
   assert.equal(testFile('src/example.spec.tsx'), true);
   assert.equal(testFile('src/api.ts'), false);
+  assert.deepEqual(inspect(diff('', 'const value = config.skip;')), []);
+  assert.deepEqual(inspect(diff('', 'const value = config["only"];')), []);
+  assert.deepEqual(inspect(diff('', 'const disabled = test.skip;')), ['test disable/focus added']);
+  const fixture = mkdtempSync(join(tmpdir(), 'test-tampering-'));
+  const fixtureGit = (...args) => execFileSync('git', args, {cwd: fixture, encoding: 'utf8'}).trim();
+  try {
+    fixtureGit('init', '-q');
+    fixtureGit('config', 'user.name', 'Test fixture');
+    fixtureGit('config', 'user.email', 'fixture@example.invalid');
+    fixtureGit('commit', '--allow-empty', '-qm', 'base');
+    const base = fixtureGit('rev-parse', 'HEAD');
+    mkdirSync(join(fixture, 'tests'));
+    for (const [source, expected] of [['test.only("x", fn);', 1], ['test.skip("x", fn);', 1], ['test("x", fn);', 0]]) {
+      writeFileSync(join(fixture, 'tests/new.test.ts'), source + '\n');
+      fixtureGit('add', '.');
+      fixtureGit('commit', '-qm', 'new test');
+      const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), base], {cwd: fixture, encoding: 'utf8'});
+      assert.equal(result.status, expected, result.stdout + result.stderr);
+      if (expected) assert.match(result.stderr, /test disable\/focus added/);
+    }
+  } finally {
+    rmSync(fixture, {recursive: true, force: true});
+  }
   console.log('test-tampering self-check passed');
 } else {
   const base = process.argv[2] || 'origin/main';
   // Resolve the merge base first so missing refs/history fail closed.
   const ancestor = git('merge-base', base, 'HEAD').trim();
-  const changed = git('diff', '--no-renames', '--diff-filter=DM', '--name-only', '-z', ancestor, 'HEAD').split('\0').filter(testFile);
+  const changed = git('diff', '--no-renames', '--diff-filter=ADM', '--name-only', '-z', ancestor, 'HEAD').split('\0').filter(testFile);
   const deleted = new Set(git('diff', '--no-renames', '--diff-filter=D', '--name-only', '-z', ancestor, 'HEAD').split('\0'));
   const findings = changed.flatMap(path => deleted.has(path)
     ? [`${path}: test file deleted`]
