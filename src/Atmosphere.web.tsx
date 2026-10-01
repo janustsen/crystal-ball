@@ -32,7 +32,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
    if(!current.reduce)time+=dt;
    dirty=false;
    const target=moods[current.mood]||moods.calm;
-   m=m.map((v,i)=>v+(target[i]-v)*(1-Math.exp(-dt*3)));
+   m=current.reduce?[...target]:m.map((v,i)=>v+(target[i]-v)*(1-Math.exp(-dt*3)));
    const rect=cv!.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2)*.75;
    const factor=Math.min(ratio,1100/Math.max(rect.width,rect.height)),w=Math.max(1,Math.round(rect.width*factor)),h=Math.max(1,Math.round(rect.height*factor));
    if(cv!.width!==w||cv!.height!==h){cv!.width=w;cv!.height=h}

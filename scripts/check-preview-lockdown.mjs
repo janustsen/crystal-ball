@@ -14,7 +14,7 @@ assert.equal((await previewFetch(base+'/engine/health').then(r=>r.json())).provi
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:false});
 try{
  const page=await browser.newPage({httpCredentials,reducedMotion:'reduce',viewport:{width:390,height:844}});page.setDefaultTimeout(15000);
- await page.addInitScript(()=>{window.rafCalls=0;const raf=window.requestAnimationFrame;window.requestAnimationFrame=cb=>raf.call(window,t=>{window.rafCalls++;cb(t)})});
+ await page.addInitScript(()=>{const uniform=WebGLRenderingContext.prototype.uniform4f;WebGLRenderingContext.prototype.uniform4f=function(location,...values){window.lastMood=values;return uniform.call(this,location,...values)};window.rafCalls=0;const raf=window.requestAnimationFrame;window.requestAnimationFrame=cb=>raf.call(window,t=>{window.rafCalls++;cb(t)})});
  await page.goto(base);await page.getByTestId('tab-you').waitFor();
  async function callbacks(label,paused){await page.waitForTimeout(600);const before=await page.evaluate(()=>window.rafCalls);await page.waitForTimeout(600);const count=await page.evaluate(()=>window.rafCalls)-before;if(paused)expect(count,label).toBe(0);else expect(count,label).toBeGreaterThan(10);console.log(label,count,'callbacks / 600ms')}
  await callbacks('OS reduced motion',true);
@@ -25,8 +25,8 @@ try{
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Hidden page',true);
  await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Visible page resumed',false);
  await page.emulateMedia({reducedMotion:'reduce'});
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();
- await page.getByTestId('option-0').waitFor({timeout:65000});await page.getByTestId('option-0').click();await page.waitForTimeout(100);await page.getByTestId('option-0').click();await page.waitForTimeout(100);
+ await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').waitFor();await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([2.2,1.15,.6,1]);await callbacks('Reduced listening mood',true);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();
+ await page.getByTestId('option-0').waitFor({timeout:65000});await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([1.1,.9,.5,1]);await page.getByTestId('option-0').click();await page.waitForTimeout(100);await page.getByTestId('option-0').click();await page.waitForTimeout(100);
  let predictions=0;await page.route('**/engine',async route=>{if(route.request().postDataJSON()?.action==='predict'){predictions++;await route.abort()}else await route.continue()});
  await page.getByTestId('option-0').evaluate(node=>{node.click();node.click()});await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(1);
  await page.getByRole('button',{name:'Try again',exact:true}).click();await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(2);

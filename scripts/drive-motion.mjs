@@ -1,4 +1,4 @@
-import {authenticatedPreviewUrl,previewSecret} from './preview-auth.mjs';
+import {openAuthenticatedPreview,previewSecret} from './preview-auth.mjs';
 // Real Chrome trace + frame/draw counters. No model fixtures; own isolated profile.
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
@@ -13,7 +13,7 @@ const sample=(name,id=null,duration=2200,until=null)=>{const r=evaluate(`async()
 const shot=name=>{const path=resolve(out,name+'.png');try{cli('screenshot',path)}catch(error){if(!existsSync(path))throw error}};
 const raw=resolve(`.local/motion-audit-${Date.now()}.json`);let tracing=false;
 try{
- cli('open',authenticatedPreviewUrl(process.env.PREVIEW_URL||'http://localhost:8087'));
+ openAuthenticatedPreview(process.env.PREVIEW_URL||'http://localhost:8087',env);
  cli('open',process.env.PREVIEW_URL||'http://localhost:8087');cli('emulate','--viewport','390x844x1,mobile,touch');
  evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
  shot('fog-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
