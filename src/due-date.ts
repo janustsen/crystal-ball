@@ -6,7 +6,7 @@ export function forecastDueDate(horizon:string,now=new Date()):string {
  const year=text.match(/^(?:by|in) (20\d{2}|2100)$/);
  if(interval){
   const amount=Number(interval[1]),unit=interval[2];
-  if(amount<=0||!Number.isFinite(amount)||((unit.startsWith('month')||unit.startsWith('year'))&&!Number.isInteger(amount)))throw new Error('Use a positive timeframe with whole months or years.');
+  if(amount<=0||!Number.isInteger(amount))throw new Error('Use a positive timeframe with whole days, weeks, months or years.');
   if(unit.startsWith('day')||unit.startsWith('week'))date.setUTCDate(date.getUTCDate()+amount*(unit.startsWith('week')?7:1));
   else{const day=date.getUTCDate();date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()+amount*(unit.startsWith('year')?12:1));const end=new Date(Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,0)).getUTCDate();date.setUTCDate(Math.min(day,end));}
  }else if(text==='tomorrow')date.setUTCDate(date.getUTCDate()+1);

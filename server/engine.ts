@@ -1,4 +1,4 @@
-import {ageGroup,astrologyLine} from '../src/profile.ts';
+import {ageGroup,astrologyLine,personQuestionIssue} from '../src/profile.ts';
 import {forecastDueDate} from '../src/due-date.ts';
 import type { Facts, Prediction, Result, Plan, ReadingContext } from '../src/types.ts';
 import type { ModelProvider } from './provider.ts';
@@ -35,6 +35,7 @@ function planningContext(question:string,known:Facts):Facts {
 const withoutPersonName=(text:string,name?:string)=>name?text.replaceAll(name,'person'):text;
 const optionLabel=(text:string)=>text.replace(/^I (?:have |am )?/,'').replace(/^./,c=>c.toUpperCase());
 export async function makePlan(question:string,known:Facts,model:ModelProvider,context:ReadingContext={}):Promise<Result<Plan>> {
+ const issue=personQuestionIssue(question,context.personName);if(issue)return {kind:'error',message:issue};
  try {
   if(ageGroup(context.viewerBirthday)==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
   const category=await safety(question,model);
@@ -53,6 +54,7 @@ export async function makePlan(question:string,known:Facts,model:ModelProvider,c
  } catch {return {kind:'error',message:'The mist is too thick. The question or follow-up cards could not be validated. Please try again.'};}
 }
 export async function predict(question:string,facts:Facts,friend:boolean,model:ModelProvider,context:ReadingContext={}):Promise<Result<Prediction>> {
+ const issue=personQuestionIssue(question,context.personName);if(issue)return {kind:'error',message:issue};
  try {
   if(ageGroup(context.viewerBirthday)==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
   const teenSafe=ageGroup(context.viewerBirthday)!=='adult';

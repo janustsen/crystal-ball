@@ -1,5 +1,17 @@
 # Review decisions and binding constraints
 
+## Captain age decision and review handoff — 2026-10-01
+
+Birthday Skip requires one “I’m 13 or older” confirmation, including friend-link entry and legacy no-birthday profiles. Declining blocks access and survives reload. Confirmed skippers retain no birthday or Sun sign and use teen-safe defaults. A supplied under-13 birthday overrides confirmation. Focus remains skippable.
+
+`canRead` gates the app, reading saves and cloud mirroring. `restoreProfile` no longer treats old history or remembered facts as proof of age. Successful onboarding sets confirmation and completion before a friend reading can start, so its first save is eligible for mirroring without reload. The API checks age on both actions before model calls; the flag is an explicit self-attestation, not verified identity. Birthday removal requires confirmation again. Reset may clear the previously eligible owner's cloud data, then returns to onboarding.
+
+Fractional day/week horizons are rejected alongside fractional months/years at the shared resolver. Person readings ask for clarification when the supplied first name is absent from the question; they neither infer names nor rewrite the question. This lexical consistency check is not semantic identity verification.
+
+Blast-radius regression: `tests/age-confirmation.test.ts` executes profile restoration, the shared app/mirror eligibility predicate, both HTTP actions, date resolution, and planning/prediction subject checks. The browser driver `scripts/verify-age-confirmation.mjs` covers Skip/decline/persistence/friend entry using explicit model fixtures. Run the existing live drivers in the owning validation stage; configured Supabase replication and native storage/accessibility/sharing remain integration limits, not claimed passes. Preserve failed evidence. Delight, sound, styles, Golden assignment and global sensitive-topic redirects retain their existing paths.
+
+Focused review verification passed: `./node_modules/.bin/tsx --test tests/age-confirmation.test.ts tests/reading-review.test.ts tests/reading-flow.test.ts` — 21 tests, 21 passed, 0 failed. Model responses in these tests are fixtures. The updated browser drivers, full typecheck/test gates, live Qwen and configured Supabase/native checks were not run in this review phase.
+
 ## Reading-flow acceptance and PR handoff — 2026-10-01
 
 Firstmate resolved R3/R4/R5 and their review-N duplicates with these binding decisions. Include them in the reading-flow PR description:

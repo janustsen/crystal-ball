@@ -1,3 +1,4 @@
+import type {AccountState} from './types.ts';
 export function validBirthday(value:string):boolean {
  return /^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value&&value<='9999-12-31'&&value>='1900-01-01'&&value<=new Date().toISOString().slice(0,10);
 }
@@ -16,11 +17,37 @@ export function astrologyLine(birthday?:string):string {
  return sign?`Under your ${sign[0].toUpperCase()+sign.slice(1)} Sun, consider this a playful invitation to your next chapter.`:'The stars offer a playful lens on your next chapter.';
 }
 
-export function birthdayProfile(birthday?:string){
+export function birthdayProfile(birthday?:string,ageConfirmed=false){
  const group=ageGroup(birthday);
  if(group==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
  if(birthday&&!validBirthday(birthday))throw new Error('Use a valid birthday: YYYY-MM-DD.');
- return {birthday,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?null:group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined};
+ return {birthday,ageConfirmed:group==='unknown'?ageConfirmed:true,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?(ageConfirmed?'teen' as const:null):group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined};
 }
 
 export const validPersonName=(name:string)=>/^[\p{L}][\p{L}’'\-]{0,39}$/u.test(name);
+
+
+export function readingAge(birthday?:string,confirmed=false){
+ if(birthday!==undefined&&!validBirthday(birthday))throw new Error('Please check your birthday.');
+ const group=ageGroup(birthday);
+ if(group==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
+ if(group==='unknown'&&confirmed!==true)throw new Error('Please confirm you’re 13 or older.');
+ return group==='unknown'?'teen':group;
+}
+export function canRead(state:Pick<AccountState,'birthday'|'ageConfirmed'|'onboardingDone'|'onboardingBlocked'>):boolean {
+ if(!state.onboardingDone||state.onboardingBlocked)return false;
+ try{readingAge(state.birthday,state.ageConfirmed);return true;}catch{return false;}
+}
+export function restoreProfile(state:AccountState):AccountState {
+ const candidate=state.birthday||state.facts.birthday;
+ const birthday=typeof candidate==='string'&&validBirthday(candidate)?candidate:undefined;
+ const facts={...state.facts};delete facts.birthday;
+ if(state.onboardingBlocked||ageGroup(birthday)==='under13')return {...state,...birthdayProfile(),facts,onboardingBlocked:true,onboardingDone:false};
+ const profile=birthdayProfile(birthday,state.ageConfirmed===true);
+ return {...state,...profile,...(birthday?{birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign}:{}),facts,onboardingDone:profile.ageConfirmed&&(state.onboardingDone??Boolean(state.history.length||Object.keys(facts).length))};
+}
+export function personQuestionIssue(question:string,name?:string):string|undefined {
+ if(!name)return;
+ if(!validPersonName(name))return 'Use a first name only.';
+ if(!new RegExp(`(^|[^\\p{L}])${name}(?=$|[^\\p{L}])`,'iu').test(question))return `Include ${name} in your question, or change the first name to match.`;
+}

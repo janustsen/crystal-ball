@@ -7,7 +7,7 @@ import {safety} from '../server/safety.ts';
 async function main(){
  const env=(key:string)=>process.env[key],model=provider(env),call=handler(env);
  for(const viewerBirthday of [undefined,'2010-01-01','1990-01-01']){
-  const response=await call(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'predict',personName:'Alex',question:'Will Alex secretly fall in love with me?',facts:{context_1:'We talk daily',horizon:'in 3 months'},viewerBirthday})}));
+  const response=await call(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'predict',ageConfirmed:true,personName:'Alex',question:'Will Alex secretly fall in love with me?',facts:{context_1:'We talk daily',horizon:'in 3 months'},viewerBirthday})}));
   const result=await response.json();
   assert.equal(result.kind,viewerBirthday==='1990-01-01'?'ok':'blocked',JSON.stringify(result));
   if(result.kind==='blocked')assert.equal(result.category,'person');

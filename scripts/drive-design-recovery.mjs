@@ -8,7 +8,7 @@ context.setDefaultTimeout(30000);
 const endpoint=process.env.VERIFY_ENGINE_URL||`${base}/engine`;
 const shot=async name=>page.screenshot({path:`docs/evidence/design-2026-09-30/${name}.png`});
 try{
- expect((await fetch(`${endpoint}/health`).then(r=>r.json())).provider).toBe('ollama');await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('tab-ask').waitFor();
+ expect((await fetch(`${endpoint}/health`).then(r=>r.json())).provider).toBe('ollama');await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await page.evaluate(()=>{window.__voice={starts:0,stops:0};window.SpeechRecognition=class {start(){window.__voice.starts++}stop(){window.__voice.stops++}}});
  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').waitFor();expect(await page.evaluate(()=>window.__voice.starts)).toBe(1);await page.getByTestId('type-instead').click();expect(await page.evaluate(()=>window.__voice.stops)).toBe(1);log.push({voiceUnmountStopsRecording:true,boundary:'SpeechRecognition constructor mocked; real component lifecycle'});
  await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');

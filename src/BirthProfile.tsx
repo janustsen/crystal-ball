@@ -20,7 +20,7 @@ export function BirthProfile(){
  return <View style={styles.panel}>
   <Txt display style={styles.title}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign} Sun`:'Your Sun sign is a mystery'}</Txt>
-  <Txt style={styles.caption}>{state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
+  <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
   {state.birthday?<Txt style={styles.caption}>Birthday · {state.birthday}</Txt>:null}
   <Action label={editing?'Close birthday':'Edit birthday'} quiet onPress={()=>{setBirthday(state.birthday||'');setEditing(!editing)}}/>
   {editing?<><TextInput accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} style={styles.input} maxLength={10}/><Action label="Save birthday" onPress={saveBirthday}/>{state.birthday?<Action label="Forget birthday" quiet onPress={()=>{update(s=>({...s,...birthdayProfile()}));setEditing(false)}}/>:null}</>:null}

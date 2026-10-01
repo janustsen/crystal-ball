@@ -19,6 +19,7 @@ try{
  cli('open',redact(process.env.PREVIEW_URL||'http://localhost:8087'));cli('emulate','--viewport','390x844x1,mobile,touch');
  evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
  evaluate('()=>{document.querySelector("[data-testid=skip-for-now]")?.click();return true}');
+ evaluate('()=>{document.querySelector("[data-testid=confirm-age]")?.click();return true}');
  shot('fog-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
  cli('perf-start','--no-reload','--no-auto-stop','--file',raw);tracing=true;
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');

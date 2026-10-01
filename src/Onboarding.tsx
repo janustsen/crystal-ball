@@ -5,13 +5,24 @@ import {ageGroup,sunSign} from './profile';
 import {validateFact} from './questions';
 import type {Facts} from './types';
 
-export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Facts)=>void;onBlock:()=>void;blocked?:boolean}){
- const [step,setStep]=useState(0),[birthday,setBirthday]=useState(''),[focus,setFocus]=useState(''),[error,setError]=useState('');
+export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Facts,ageConfirmed?:boolean)=>void;onBlock:()=>void;blocked?:boolean}){
+ const [step,setStep]=useState(0),[birthday,setBirthday]=useState(''),[focus,setFocus]=useState(''),[error,setError]=useState(''),[confirming,setConfirming]=useState(false);
  function next(){
   try{if(blocked&&!birthday.trim())throw new Error('Enter a birthday to correct your age.');if(birthday.trim())validateFact('birthday',birthday.trim());}catch(e){setError(e instanceof Error?e.message:'Check your birthday.');return;}
   if(ageGroup(birthday.trim())==='under13'){onBlock();setError('Crystal Ball is for ages 13 and up.');return;}
+  if(!birthday.trim()){setConfirming(true);return;}
   setError('');setStep(1);
  }
+ function skip(){
+  if(blocked)return;
+  if(birthday.trim()){
+   try{validateFact('birthday',birthday.trim());}catch(e){setError(e instanceof Error?e.message:'Check your birthday.');return;}
+   if(ageGroup(birthday.trim())==='under13'){onBlock();return;}
+  }
+  if(step===1&&birthday.trim()){onFinish({birthday:birthday.trim()});return;}
+  setConfirming(true);
+ }
+ if(confirming&&!blocked)return <><Txt display>Are you 13 or older?</Txt><Txt style={styles.caption}>No birthday needed. Teen-safe defaults apply.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
  return <>
   {blocked?<Txt accessibilityRole="alert">Crystal Ball is for ages 13 and up.</Txt>:null}
   <Txt style={styles.caption}>A little about you · {step+1} of 2</Txt>
@@ -28,6 +39,6 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
    <Action label="Meet the Ball" onPress={()=>onFinish({...birthday.trim()?{birthday:birthday.trim()}:{},...focus?{current_focus:focus}:{}})}/>
    <Action label="Back" quiet onPress={()=>setStep(0)}/>
   </>}
-  <Action label="Skip for now" quiet disabled={blocked} onPress={()=>onFinish({})}/>
+  <Action label="Skip for now" quiet disabled={blocked} onPress={skip}/>
  </>;
 }

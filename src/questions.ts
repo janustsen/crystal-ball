@@ -90,6 +90,7 @@ export const factLabels:Record<string,string>={birthday:'Birthday',current_focus
 export const currencies=['USD','EUR','GBP','DKK','SEK','NOK','JPY','CAD','AUD','CHF','INR'];
 export function validateAnswer(topic:Topic,id:string,value:string):void {
  if(id==='horizon'||id==='deadline')forecastDueDate(value);
+ if(id==='growth_weeks')forecastDueDate(`in ${value} weeks`);
  if(topic==='money'){
   if(id==='currency'&&!currencies.includes(value.toUpperCase()))throw new Error(`Use a currency code: ${currencies.join(', ')}.`);
   if(['assets','debt','monthly_saving','withdrawals','windfall'].includes(id))numeric(value,id);

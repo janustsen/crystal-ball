@@ -3,7 +3,7 @@ import {Alert} from 'react-native';
 import {forgetCheckIns} from './native';
 import {forgetOmen} from './daily-omen';
 import {updateOmenWidget} from './omen-widget';
-import {birthdayProfile,ageGroup,validBirthday} from './profile';
+import {restoreProfile,canRead} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
 import {mirror,restoreBackup,supabase} from './cloud';
@@ -22,14 +22,14 @@ export function Store({children}:React.PropsWithChildren){
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);
   void (async()=>{
    let loaded=initial();const raw=await AsyncStorage.getItem(key);
-   if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');const candidate=s.birthday||s.facts.birthday;const birthday=typeof candidate==='string'&&validBirthday(candidate)?candidate:undefined;const facts={...s.facts};delete facts.birthday;const restored={...initial(),...s,facts,onboardingDone:s.onboardingDone??Boolean(s.history.length||Object.keys(facts).length)};if(ageGroup(birthday)==='under13')loaded={...initial(),onboardingBlocked:true};else loaded={...restored,birthday,sunSign:birthdayProfile(birthday).sunSign,ageBand:birthdayProfile(birthday).ageBand}}
+   if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');loaded=restoreProfile({...initial(),...s})}
    if(active){change(()=>loaded);locked.current=false;setReady(true)}
   })().catch(()=>{if(active)setHydrationError('Could not open your saved readings. Your archive has not been changed.')}).finally(()=>clearTimeout(timer));
   return()=>{active=false;clearTimeout(timer)};
  },[hydrationAttempt]);
  useEffect(()=>{if(ready&&!locked.current){writes=writes.catch(()=>{}).then(async()=>{
   const snapshot=current.current;await AsyncStorage.setItem(key,JSON.stringify(snapshot));
-  if(!locked.current&&snapshot.backupOwner&&snapshot.onboardingDone&&!snapshot.onboardingBlocked)await mirror(snapshot);
+  if(!locked.current&&snapshot.backupOwner&&canRead(snapshot))await mirror(snapshot);
  }).catch(()=>{});}},[state,ready]);
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
   if(locked.current||!ready)throw new Error('Please wait for your archive.');
@@ -51,7 +51,7 @@ export function Store({children}:React.PropsWithChildren){
 
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
  return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);change(s=>({...initial(),backupOwner:s.backupOwner,plus:s.plus,credits:s.credits,usage:s.usage}))},savePrediction:(prediction)=>change(s=>{
-  if(locked.current)return s;
+  if(locked.current||!canRead(s))return s;
   if(s.history.some(p=>p.id===prediction.id))return s;
   const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;
   return {...s,history:[prediction,...s.history],usage:{day,count:count+1},credits:count>=allowance?Math.max(0,s.credits-1):s.credits};

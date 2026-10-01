@@ -1,4 +1,4 @@
-import {ageGroup,validBirthday,validPersonName} from '../src/profile.ts';
+import {readingAge,validBirthday,validPersonName} from '../src/profile.ts';
 import {personalOmen} from './omen.ts';
 import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
@@ -21,9 +21,11 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
    const viewerBirthday='viewerBirthday'in body?body.viewerBirthday:undefined,personName='personName'in body?body.personName:undefined;
    if(viewerBirthday!==undefined&&(typeof viewerBirthday!=='string'||!validBirthday(viewerBirthday)))throw new Error('Please check your birthday.');
-   if(ageGroup(viewerBirthday)==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
+   const ageConfirmed='ageConfirmed'in body?body.ageConfirmed:undefined;
+   if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
+   readingAge(viewerBirthday,ageConfirmed);
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
-   const context={viewerBirthday,personName};
+   const context={viewerBirthday,ageConfirmed,personName};
    const facts=raw as Facts,question=body.question.trim();
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:body.action==='plan'?await makePlan(question,facts,model,context):await predict(question,facts,'friend'in body&&body.friend===true,model,context);
    return new Response(JSON.stringify(result),{headers});
