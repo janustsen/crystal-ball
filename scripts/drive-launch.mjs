@@ -5,7 +5,7 @@ const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,
 const results=[];
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
- await expect(page.getByText(/For entertainment\. A little perspective/)).toBeVisible();
+ await expect(page.getByText(/For entertainment\. Never a guarantee/)).toBeVisible();
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
  results.push('Home has entertainment disclosure and no sign-in prompt');
  await page.getByTestId('tab-you').click();
@@ -21,16 +21,22 @@ try{
  await expect(page.getByRole('tab',{name:'You',exact:true})).toBeVisible();
  results.push('Backup copy wraps at 375px and 200% text; navigation remains visible');
  await page.getByTestId('tab-ask').click();
- await expect(page.getByText('For entertainment, not professional advice.')).toBeVisible();
+ await page.getByTestId('type-instead').click();
+ await expect(page.getByText('For entertainment. Questions and answers go to your prediction engine.')).toBeVisible();
  if(process.env.CHECK_AI_CONSENT==='1'){
   await page.getByTestId('question-input').fill('Will I learn Spanish?');
-  const ask=page.getByRole('button',{name:'Look into the future',exact:true});
+  const ask=page.getByTestId('look-into-the-future');
   await expect(ask).toBeDisabled();
   await page.getByRole('switch',{name:'Allow AI processing'}).click();
   await expect(ask).toBeEnabled();
+  await page.getByRole('button',{name:'Speak instead',exact:true}).click();
+  const voiceAsk=page.getByRole('button',{name:'That’s my question',exact:true});
+  await expect(voiceAsk).toBeEnabled();
   await page.getByRole('switch',{name:'Allow AI processing'}).click();
+  await expect(voiceAsk).toBeDisabled();
+  await page.getByTestId('type-instead').click();
   await expect(ask).toBeDisabled();
-  results.push('Named AI consent explicitly enables reading and revoking it disables reading; no model call made');
+  results.push('Named AI consent enables typing/voice reading and revoking disables both; no model call made');
  }
  await writeFile('docs/evidence/launch-ui.json',JSON.stringify({at:new Date().toISOString(),results},null,2));
  console.log(results);
