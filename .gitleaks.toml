@@ -1,0 +1,13 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+# Verified against git show 910a608:src/api.ts; this is a SHA-256 digest.
+description = "Exact source digest in the verification manifest"
+condition = "AND"
+paths = ['''^docs/evidence/verified-source\.json$''']
+regexTarget = "secret"
+regexes = ['''^a1a306c88c5196e81d0cc8ddd186efad1743de24021e0ef332f5aeb65d988158$''']

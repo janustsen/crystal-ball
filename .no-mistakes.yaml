@@ -1,3 +1,20 @@
 # GitHub Actions are off until the October billing reset.
 # The merge gate is verify-crystal-ball on the exact head.
 no_ci: true
+
+# Run every security check even when an earlier one fails. Findings wait for
+# the owner; agents must not weaken the checks or supply approval trailers.
+commands:
+  prepare: npm ci
+  test: |
+    failed=0
+    if scan_base=$(git merge-base origin/main HEAD); then
+      semgrep scan --config p/default --baseline-commit "$scan_base" --error --metrics=off . || failed=1
+    else
+      failed=1
+    fi
+    gitleaks git --log-opts=origin/main..HEAD --redact || failed=1
+    node scripts/check-test-tampering.mjs origin/main || failed=1
+    exit "$failed"
+auto_fix:
+  test: 0
