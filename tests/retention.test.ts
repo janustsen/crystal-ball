@@ -81,3 +81,11 @@ test('omen token cap leaves existing provider defaults unchanged',async()=>{
   assert.equal('max_tokens'in bodies[2],false);assert.equal(bodies[3].max_tokens,160);
  }finally{globalThis.fetch=original;}
 });
+test('forgetting personal data erases omen text without granting a second request that day',async()=>{
+ const {forgetOmen}=await import('../src/daily-omen');
+ const values=new Map<string,string>([[omenKey,JSON.stringify({day:localDay(),text:'Private personal omen.'})]]);
+ const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value)}};
+ await forgetOmen(storage);
+ const result=await loadDailyOmen(storage,{},async()=>{throw new Error('Must not generate twice today')});
+ assert.equal(result.text,null);assert.equal(JSON.parse(values.get(omenKey)!).text,null);
+});

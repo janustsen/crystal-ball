@@ -7,6 +7,7 @@ import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
 import {engineUrl,previewHeaders} from './api';
 import {Asset} from 'expo-asset';
+import {suggestedCheckIn} from './retention';
 import {friendLink,reminder} from './native';
 import {selectedStyle,skinColors} from './delight';
 import {useStore} from './store';
@@ -53,6 +54,6 @@ export function ShareCard({prediction,onClose,onNotice}:{prediction:Prediction;o
   {label:'Story image',detail:'9:16 still, 1080 × 1920',id:'export-story-card',run:share},
   {label:'Story video',detail:'4 seconds: the smoke clears, then the words',id:'export-animated-story',run:animated},
   {label:'Private friend link',detail:'Private to this friend reading.',id:'share-friend-link',run:async()=>{try{setNotice(`Friend link: ${await friendLink('What will my life look like next year?')}`)}catch{setNotice('Sharing was canceled. No link was sent.')}}},
-  {label:'Remind me to check back',detail:'Did it come true?',id:'share-reminder',run:async()=>setNotice(await reminder(prediction.headline))}
+  {label:'Remind me to check back',detail:'Did it come true?',id:'share-reminder',run:async()=>setNotice(await reminder(prediction.headline,prediction.id,suggestedCheckIn(prediction)))}
  ].map(item=><Pressable key={item.id} testID={item.id} accessibilityRole="button" accessibilityLabel={item.label} onPress={item.run} style={{paddingVertical:16,borderBottomWidth:1,borderColor:'#614C34'}}><Txt>{item.label} ↗</Txt><Txt style={styles.caption}>{item.detail}</Txt></Pressable>)}</View><Txt style={[styles.caption,{marginTop:24}]}>Only the prediction and its speculative label are shared. Never your question, answers or reasoning.</Txt><Action label="Back to prediction" quiet onPress={onClose}/></>;
 }
