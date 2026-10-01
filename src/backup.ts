@@ -17,9 +17,30 @@ export function mergeBackup(local: AccountState, remote: Backup): AccountState {
  return {...local,facts:{...remote.facts,...local.facts},history};
 }
 
-export function trackBackupDeletion(previous: AccountState, next: AccountState): AccountState {
+export function pendingBackupDeletion(state: AccountState): boolean {
+ return (state.backupRevision ?? 0) > (state.backupAcknowledged ?? 0);
+}
+export function trackBackupDeletion(previous: AccountState, next: AccountState, forgetAll = false): AccountState {
  const retained = new Set(next.history.map(reading => reading.id));
- const deleted = Object.keys(previous.facts).some(key => !(key in next.facts)) ||
+ const deleted = forgetAll || Object.keys(previous.facts).some(key => !(key in next.facts)) ||
   previous.history.some(reading => !retained.has(reading.id));
- return previous.backupOverwrite || deleted ? {...next,backupOverwrite:true} : next;
+ return {...next,backupOwner:previous.backupOwner,backupAcknowledged:previous.backupAcknowledged,
+  backupRevision:(previous.backupRevision ?? 0) + (deleted && previous.backupOwner ? 1 : 0)};
+}
+export type BackupReceipt = {owner: string; revision: number};
+export function acknowledgeBackup(state: AccountState, receipt: BackupReceipt): AccountState {
+ if(state.backupOwner && state.backupOwner !== receipt.owner)return state;
+ const acknowledged = Math.max(state.backupAcknowledged ?? 0, receipt.revision);
+ return state.backupOwner === receipt.owner && (state.backupAcknowledged ?? 0) === acknowledged ? state :
+  {...state,backupOwner:receipt.owner,backupAcknowledged:acknowledged};
+}
+export async function persistBackup(read:()=>AccountState, change:(fn:(state:AccountState)=>AccountState)=>void,
+ save:(state:AccountState)=>Promise<void>, upload?: (state:AccountState)=>Promise<BackupReceipt|null>) {
+ const snapshot=read();
+ await save(snapshot);
+ if(!upload)return;
+ const receipt=await upload(snapshot);
+ if(!receipt)return;
+ change(state=>acknowledgeBackup(state,receipt));
+ await save(read());
 }

@@ -6,17 +6,19 @@ import {updateOmenWidget} from './omen-widget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
 import {mirror,restoreBackup,supabase} from './cloud';
-import {trackBackupDeletion} from './backup';
+import {trackBackupDeletion,persistBackup,acknowledgeBackup} from './backup';
 let writes:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction)=>void;remaining:number;reset:()=>Promise<void>;backup:(authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction)=>void;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
- const locked=useRef(false),cloudReady=useRef(false),current=useRef(state);current.current=state;
- useEffect(()=>{const timer=setInterval(()=>setState(s=>{const day=new Date().toISOString().slice(0,10);return s.usage.day===day?s:{...s,usage:{day,count:0}}}),60000);return()=>clearInterval(timer)},[]);
- useEffect(()=>{void (async()=>{let loaded=initial();try{const raw=await AsyncStorage.getItem(key);if(raw){const s=JSON.parse(raw);if(s&&s.facts&&Array.isArray(s.history)&&Number.isFinite(s.credits))loaded={...loaded,...s};}try{loaded=await restoreBackup(loaded);cloudReady.current=true}catch{/* Do not overwrite an unread backup after an offline launch. */}setState(loaded)}finally{setReady(true)}})().catch(()=>{});},[]);
- useEffect(()=>{if(ready&&!locked.current){const snapshot=state;writes=writes.catch(()=>{}).then(async()=>{await AsyncStorage.setItem(key,JSON.stringify(snapshot));if(cloudReady.current)try{await mirror(snapshot)}catch{/* Keep local changes; retry on the next change. */}});}},[state,ready]);
+ const locked=useRef(false),cloudReady=useRef(false),current=useRef(state);
+ const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
+ useEffect(()=>{const timer=setInterval(()=>change(s=>{const day=new Date().toISOString().slice(0,10);return s.usage.day===day?s:{...s,usage:{day,count:0}}}),60000);return()=>clearInterval(timer)},[]);
+ useEffect(()=>{void (async()=>{let loaded=initial();try{const raw=await AsyncStorage.getItem(key);if(raw){const s=JSON.parse(raw);if(s&&s.facts&&Array.isArray(s.history)&&Number.isFinite(s.credits))loaded={...loaded,...s};}try{loaded=await restoreBackup(loaded);cloudReady.current=true}catch{/* Do not overwrite an unread backup after an offline launch. */}change(()=>loaded)}finally{setReady(true)}})().catch(()=>{});},[]);
+ useEffect(()=>{if(ready&&!locked.current){writes=writes.catch(()=>{}).then(()=>persistBackup(()=>current.current,change,
+  snapshot=>AsyncStorage.setItem(key,JSON.stringify(snapshot)),cloudReady.current?mirror:undefined)).catch(()=>{});}},[state,ready]);
  async function backup(authenticate:()=>Promise<void>){
   if(locked.current)throw new Error('Backup is already running.');
   const wasCloudReady=cloudReady.current;
@@ -28,11 +30,11 @@ export function Store({children}:React.PropsWithChildren){
     try{const after=await supabase?.auth.getSession();cloudReady.current=wasCloudReady&&!after?.error&&before?.data.session?.user.id===after?.data.session?.user.id}catch{}
     throw error;
    }
-   const merged=await restoreBackup(current.current);await AsyncStorage.setItem(key,JSON.stringify(merged));setState(merged);await mirror(merged);cloudReady.current=true;}
+   const merged=await restoreBackup(current.current);await AsyncStorage.setItem(key,JSON.stringify(merged));change(()=>merged);const receipt=await mirror(merged);if(receipt){change(s=>acknowledgeBackup(s,receipt));await AsyncStorage.setItem(key,JSON.stringify(current.current))}cloudReady.current=true;}
   finally{locked.current=false;setBackupBusy(false)}
  }
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,backup,backupBusy,update:fn=>{if(!locked.current)setState(s=>trackBackupDeletion(s,fn(s)))},remaining:Math.max(0,daily-used)+state.credits,reset:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);setState(s=>trackBackupDeletion(s,{...s,facts:{},history:[],backupOverwrite:true}))},savePrediction:(prediction)=>setState(s=>{
+ return <Context.Provider value={{state,ready,backup,backupBusy,update:fn=>{if(!locked.current)change(s=>trackBackupDeletion(s,fn(s)))},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>trackBackupDeletion(s,initial(),true))},forgetAll:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);change(s=>trackBackupDeletion(s,{...s,facts:{},history:[]},true))},savePrediction:(prediction)=>change(s=>{
   if(locked.current)return s;
   if(s.history.some(p=>p.id===prediction.id))return s;
   const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;

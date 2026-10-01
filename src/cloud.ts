@@ -1,7 +1,7 @@
 import {createClient,type SupabaseClient} from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState} from './types';
-import {mergeBackup,validFacts,validPrediction} from './backup';
+import {mergeBackup,validFacts,validPrediction,pendingBackupDeletion,acknowledgeBackup} from './backup';
 const url=process.env.EXPO_PUBLIC_SUPABASE_URL,key=process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 export const supabase=url&&key?createClient(url,key,{auth:{storage:AsyncStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null;
 export async function anonymousOwner(client:SupabaseClient|null=supabase){
@@ -15,9 +15,13 @@ export async function anonymousOwner(client:SupabaseClient|null=supabase){
 export async function restoreBackup(state:AccountState,client:SupabaseClient|null=supabase){
  if(!client)return state;
  const {data,error}=await client.auth.getSession();if(error)throw error;
- if(!data.session||data.session.user.is_anonymous)return state;
- const user_id=data.session.user.id;
- if(state.backupOverwrite){await mirror(state,client);return {...state,backupOverwrite:false}}
+ const user_id=data.session?.user.id ?? await anonymousOwner(client);
+ if(!user_id)return state;
+ if(pendingBackupDeletion(state)){
+  if(state.backupOwner!==user_id)throw new Error('Pending deletions belong to another backup account.');
+  const receipt=await mirror(state,client);return receipt?acknowledgeBackup(state,receipt):state;
+ }
+ if(!data.session||data.session.user.is_anonymous)return {...state,backupOwner:user_id};
  const facts=await client.from('knowledge').select('facts').eq('user_id',user_id).maybeSingle();
  if(facts.error)throw facts.error;
  // Page through the archive instead of silently stopping at Supabase's row limit.
@@ -30,12 +34,14 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  }
  const remembered=facts.data?.facts??{};
  if(!validFacts(remembered))throw new Error('Backup contains unreadable facts.');
- return mergeBackup(state,{facts:remembered,history});
+ return {...mergeBackup(state,{facts:remembered,history}),backupOwner:user_id};
 }
 export async function mirror(state:AccountState,client:SupabaseClient|null=supabase){
- if(!client)return;
- const user_id=await anonymousOwner(client);if(!user_id)return;
+ if(!client)return null;
+ const user_id=await anonymousOwner(client);if(!user_id)return null;
+ if((state.backupOwner&&state.backupOwner!==user_id)||(pendingBackupDeletion(state)&&state.backupOwner!==user_id))throw new Error('Backup account changed. Restore before uploading.');
  const saved=await client.from('knowledge').upsert({user_id,facts:state.facts,updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
- if(state.backupOverwrite||!state.history.length){const result=await client.from('predictions').delete().eq('user_id',user_id);if(result.error)throw result.error;}
+ if(pendingBackupDeletion(state)){const result=await client.from('predictions').delete().eq('user_id',user_id);if(result.error)throw result.error;}
  if(state.history.length){const result=await client.from('predictions').upsert(state.history.map(p=>({id:p.id,user_id,payload:p,created_at:p.createdAt})),{onConflict:'user_id,id'});if(result.error)throw result.error;}
+ return {owner:user_id,revision:state.backupRevision??0};
 }
