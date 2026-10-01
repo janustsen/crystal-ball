@@ -27,7 +27,7 @@ function SealedCard({token,reduce}:{token:string;reduce:boolean}){
  return <View style={styles.panel}><Txt display style={styles.title}>{headline?'A glimpse for you.':'Someone sealed a glimpse for you.'}</Txt><Pressable testID="open-sealed-forecast" accessibilityRole="button" accessibilityLabel="Open sealed forecast" disabled={busy||!!headline} onPress={()=>void open()} style={{alignItems:'center',minHeight:52}}><Orb size={170} reduce={reduce} phase={headline?'reveal':'idle'}/></Pressable>{headline?<><Txt display>{headline}</Txt><Txt style={[styles.caption,{marginTop:12,color:colors.gold}]}>Speculative forecast · not a guarantee</Txt></>:<Txt style={styles.caption}>{busy?'Opening…':'Tap the ball to open. Only you can claim this card.'}</Txt>}{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}</View>;
 }
 
-export function Social({onAsk,onPlus,invite,seal,reduce}:{onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;seal?:string;reduce:boolean}){
+export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce}:{onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
  const {state}=useStore();
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
  const [section,setSection]=useState<'sky'|'circles'>(invite?'circles':'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
@@ -67,7 +67,7 @@ export function Social({onAsk,onPlus,invite,seal,reduce}:{onAsk:(question:string
    {ownStar?<Action label="Remove my star" quiet disabled={busy} onPress={()=>void act(()=>removeStar(ownStar),'Your star was removed.')}/>:null}
   </>:<>
    <Txt display>Your little circle.</Txt><Txt style={[styles.caption,{marginTop:12}]}>Friends by invitation. Their day, theme and sun sign. Never their question or forecast.</Txt>
-   {joining&&invite?<View style={styles.panel}><Txt>A place in someone’s circle</Txt><Txt style={styles.caption}>Joining shares your future consultation days, themes and sun sign with up to 20 members. Leave whenever you like.</Txt><Action label="Join this circle" disabled={busy} onPress={()=>void act(async()=>{await joinCircle(invite);setJoining(false)},'You joined the circle.')}/><Action label="Decline invitation" quiet onPress={()=>setJoining(false)}/></View>:null}
+   {joining&&invite?<View style={styles.panel}><Txt>A place in someone’s circle</Txt><Txt style={styles.caption}>Joining shares your future consultation days, themes and sun sign with up to 20 members. Leave whenever you like.</Txt><Action label="Join this circle" disabled={busy} onPress={()=>void act(async()=>{await joinCircle(invite);setJoining(false);onInviteHandled()},'You joined the circle.')}/><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></View>:null}
    {!data?.circles.length?<View style={styles.panel}><Txt>A small sky of your own.</Txt><Txt style={styles.caption}>Create a circle, then invite someone you trust. Only the day, theme and sun sign are shared.</Txt><Action label="Create my circle" disabled={busy} onPress={()=>void act(()=>createCircle(),'Circle created. Invite your first friend.')}/></View>:null}
    {data?.circles.map((circle,index)=>{
     const owner=circle.owner_id===data.owner,members=data.members.filter(member=>member.circle_id===circle.id);

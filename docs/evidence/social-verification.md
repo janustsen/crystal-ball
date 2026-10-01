@@ -18,3 +18,11 @@ The screenshot CLI sometimes exits nonzero after saving a valid file. The harnes
 Final rebase gate status: functional social/core drives and authenticated bridge checks passed on redesign main `5c9e5d9`. The strict serial motion audit did not meet its budget during heavy host load; see [motion boundary](social-motion-boundary.md). No-mistakes has not been started pending that validation boundary.
 
 Firstmate subsequently approved the host-contention exception (2026-10-01): retain both timing results in the PR and re-measure on a real iPhone later. No-mistakes is authorized to proceed with that documented exception. The functional, privacy and authenticated-bridge checks remain passes; the strict desktop timing measurement remains a failure under contention.
+
+## Authorized Greptile repair round — 2026-10-01
+
+Both confirmed regressions were reproduced before repair: retained-ID resonance succeeded after a block, and a joined invitation reappeared after tab navigation. The fixes now reject resonance/report writes in both block directions, exclude existing blocked influence from public totals, and clear joined/declined invitation routes. The focused invitation drive passed both tab remount and reload cases.
+
+After repair: TypeScript passed; full suite 43 passed / 1 optional skipped; real PostgreSQL privacy/concurrency driver passed; full social and core journeys passed in isolated Playwright Chrome with real Ollama and PostgreSQL, simulated Auth/PostgREST/entitlement fixtures. The iOS bundle exported successfully; no native device claim. Actual story PNG was 1080×1920 and inspected for privacy; Sky/Circles screenshots at 375×667 with large text and reduced motion were inspected. [Journey evidence and screenshots](social-greptile/) and [before/after regressions](social-greptile-regressions.json) are retained separately from earlier failures.
+
+Firstmate authorized isolated Playwright after chrome-devtools-axi timed out. No shared browser profile or service was modified. Existing failed motion timings and the previously approved host-contention exception remain unchanged; real-device timing is still a follow-up.

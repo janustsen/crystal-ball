@@ -43,3 +43,11 @@ For UI verification, `SOCIAL_DB_SERVE=1 bash scripts/verify-social-db.sh` leaves
 Anonymous-account reports are not proof of distinct humans. Hosted rate limits, anti-abuse controls, verified subscription entitlements and native delivery remain deployment boundaries. No real billing is enabled by this feature.
 
 Detailed executable boundary proof and remaining integration risks: [blast radius evidence](../evidence/social-blast-radius.md). Browser privacy journey: [social drive](../evidence/social-drive.json). Real-model sample moderation: [model sample](../evidence/social-model.json).
+
+## Accepted v1 social semantics
+
+The requester enters a local nickname for a selected Circle member. It is not a verified identity: consent, sign, activity themes and the anonymous notice stay bound to the selected member ID. “Someone asked about you” records an authorized attempt, including one later cancelled or refused; it does not promise that a forecast was delivered.
+
+Age is client-declared in v1, not independently verified. Onboarding and its birthday gate belong to the reading-flow feature. Missing age remains teen-safe, friend consent stays off unless the profile is adult, and shared drafts always use teen-audience moderation.
+
+Blocking prevents either account from resonating with or reporting the other's Stars, even with a retained Star ID. Existing reactions and reports stay stored for audit but do not affect public totals across that block. A handled invitation is removed from the route after join or decline so navigation and reload cannot replay the prompt.

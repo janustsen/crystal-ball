@@ -49,6 +49,8 @@ try{
  const friend=await run('friend',`
   await page.open(${JSON.stringify(circle.url)});await page.wait('[data-testid="join-this-circle"]');
   ${assertText('Joining shares')}${click('join-this-circle')} await page.wait('[data-testid="leave-this-circle"]');
+  ${click('tab-home')}${click('tab-sky')}
+  if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after joining');
   ${click('social-section-sky')}${click('sky-theme-learning')}
   await page.wait('[data-testid="-this-resonates"]');${click('-this-resonates')}
   await page.wait('[data-testid="-resonated"]');
@@ -58,7 +60,9 @@ try{
  await run('outsider',`
   await page.open(${JSON.stringify(circle.url)});await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
   await page.wait('[data-testid="dismiss-social-notice"]');${assertText('expired or was used')}
-  console.log(JSON.stringify({inviteReplayRejected:true}));
+  ${click('dismiss-social-notice')}${click('decline-invitation')}${click('tab-home')}${click('tab-sky')}
+  if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after declining');
+  console.log(JSON.stringify({inviteReplayRejected:true,declinedInvitationConsumed:true}));
  `).then(result=>log.push(result));
  // Onboarding belongs to the reading-flow lane. This synthetic adult fixture is explicit.
  await adultFixture(friend.owner);

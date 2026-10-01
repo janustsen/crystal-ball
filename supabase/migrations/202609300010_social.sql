@@ -137,9 +137,11 @@ create function public.tonights_sky() returns table(id uuid,theme text,wording t
  language sql stable security definer set search_path = '' as $$
  select s.id,s.theme,s.wording,count(r.user_id),coalesce(bool_or(r.user_id=auth.uid()),false),s.user_id=auth.uid()
  from public.sky_stars s left join public.sky_resonances r on r.star_id=s.id
+ and not exists(select 1 from public.social_blocks b where (b.user_id=s.user_id and b.blocked_id=r.user_id) or (b.blocked_id=s.user_id and b.user_id=r.user_id))
  where auth.uid() is not null and s.day=(now() at time zone 'UTC')::date
  and not s.withdrawn and not social_private.blocked(s.user_id)
- and (select count(*) from public.star_reports where star_id=s.id)<3
+ and (select count(*) from public.star_reports reports where star_id=s.id
+ and not exists(select 1 from public.social_blocks b where (b.user_id=s.user_id and b.blocked_id=reports.user_id) or (b.blocked_id=s.user_id and b.user_id=reports.user_id)))<3
  group by s.id order by s.id limit 200;
 $$;
 create function public.publish_star(approved_draft uuid) returns uuid
@@ -158,7 +160,7 @@ create function public.resonate(star uuid) returns void
  language plpgsql security definer set search_path = '' as $$
  begin
   if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
-  if not exists(select 1 from public.sky_stars where id=star and day=(now() at time zone 'UTC')::date) then raise exception 'This star has faded'; end if;
+  if not exists(select 1 from public.sky_stars where id=star and day=(now() at time zone 'UTC')::date and not social_private.blocked(user_id)) then raise exception 'This star has faded'; end if;
   insert into public.sky_resonances values(star,auth.uid()) on conflict do nothing;
  end;
 $$;
@@ -250,6 +252,7 @@ create function public.report_star(star uuid) returns void
  language plpgsql security definer set search_path = '' as $$
  begin
   if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
+  if not exists(select 1 from public.sky_stars where id=star and not social_private.blocked(user_id)) then raise exception 'This star is unavailable'; end if;
   insert into public.star_reports values(star,auth.uid()) on conflict do nothing;
  end;
 $$;

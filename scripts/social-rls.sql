@@ -228,4 +228,36 @@ select public.invite_to_circle(:'extra_circle') as extra_invite \gset
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
 select public.join_circle(:'extra_invite');
 select proof.assert((select count(*)=7 from public.circle_members where user_id=auth.uid()),'member can join beyond five circles');
+-- Retained Star IDs must not bypass either direction of a block.
+reset role;
+-- Reset the withdrawn fixture used by the earlier immutable-publication check.
+update public.sky_stars set withdrawn=false where id=:'reported_star';
+delete from public.social_blocks;
+delete from public.sky_resonances;
+delete from public.star_reports;
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.resonate(:'reported_star');
+select public.report_star(:'reported_star');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+select public.report_star(:'reported_star');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
+select public.report_star(:'reported_star');
+select proof.assert((select count(*)=0 from public.tonights_sky() where id=:'reported_star'),'three reports hide before blocking');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.block_person(star=>:'reported_star');
+select proof.reject(format('select public.resonate(%L)',:'reported_star'),'P0001');
+select proof.reject(format('select public.report_star(%L)',:'reported_star'),'P0001');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+select proof.assert((select resonances=0 from public.tonights_sky() where id=:'reported_star'),'blocked prior resonance and report no longer affect public counts');
+reset role;
+delete from public.social_blocks;
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.block_person(member=>'00000000-0000-0000-0000-000000000002');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select proof.reject(format('select public.resonate(%L)',:'reported_star'),'P0001');
+select proof.reject(format('select public.report_star(%L)',:'reported_star'),'P0001');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
+select proof.assert((select resonances=0 from public.tonights_sky() where id=:'reported_star'),'author blocking viewer also excludes prior influence');
 \echo 'PASS: SQL privacy invariants'
