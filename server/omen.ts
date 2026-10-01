@@ -11,7 +11,8 @@ export async function personalOmen(facts:Facts,model:ModelProvider):Promise<stri
    if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string')return false;
    const text=value.text.trim();
    if(text.length<10||text.length>140||/[\r\n]/.test(text)||!/[.!?]$/.test(text))return {valid:false,feedback:'Rewrite much shorter: 8 to 14 words total, ending with punctuation. Do not truncate a word.'};
-   const named=signs.filter(sign=>new RegExp(`\\b${sign}\\b`,'i').test(text));
+   const words=text.toLowerCase().split(/\W+/);
+   const named=signs.filter(sign=>words.includes(sign));
    if(named.some(sign=>sign!==sunSign)||(sunSign&&!named.includes(sunSign)))return {valid:false,feedback:sunSign?`Address ${sunSign} by name, without naming other Sun signs.`:'No Sun sign was supplied. Do not name any Sun sign.'};
    return true;
   }
