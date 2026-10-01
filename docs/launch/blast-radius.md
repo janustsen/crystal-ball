@@ -15,3 +15,11 @@ Reproduce: `npm run check && npm test`; install PGlite under `.local/pg-proof` a
 ## Codex development boundary
 
 The common validator was extracted without changing `ModelProvider.json`; Ollama, hosted HTTP and Node-only Codex all execute it. `tests/codex-provider.test.ts` launches a fake executable through the real subprocess boundary and proves model arguments stay separate, prompts use stdin, API-key environment overrides are absent, invalid output receives one repair, and temporary files are removed. It also proves the deployed factory and production mode reject Codex. The real subscription-backed CLI and browser drive separately establish actual inference works. No Codex import reaches the Supabase edge entry point. The existing Ollama verification remains required after integration; Codex results supplement it.
+
+## Greptile restore repair (2026-10-01)
+
+The missing-archive guard runs at `restoreBackup`, before the store can persist a replacement. A saved empty archive still has a knowledge row and remains restorable. `tests/cloud.test.ts` drives the real Supabase query consumer with synthetic HTTP responses: missing archive failed before the repair (`Missing expected rejection`) and now rejects without writes; intentionally empty archive restores successfully.
+
+Restore now reuses an existing Apple-linked session, just as Save does. It no longer opens a second Apple sign-in that could switch accounts before a failing archive read. `node scripts/verify-apple-restore.mjs` drives the real BackupPanel and Store in React, replacing only native/auth/storage boundaries. Before the repair, auth changed to account B while backupOwner remained A. Afterward the failed read preserves account A and local bytes, and a subsequent setting change successfully uploads to A. This is executable boundary proof, not native-device Apple verification. Fresh-phone sign-in remains on the existing unauthenticated path; one device/account at a time remains the supported archive policy.
+
+The authorized follow-ups are deletion-query URL growth with long histories and propagation of client cancellation into model transports. Neither is claimed fixed here.

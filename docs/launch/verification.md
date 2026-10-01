@@ -51,3 +51,9 @@ After accepting the exception, the synthetic hosted-consent build passed typing 
 ## Backup policy for the PR
 
 Use one device at a time. Uploads replace the Apple archive (last device wins). Startup never merges cloud data; explicit Restore confirms that it replaces this device’s readings and remembered answers. The backup supports moving to a new phone, not concurrent multi-device sync.
+
+## Greptile follow-up repair
+
+Two regressions were reproduced before their fix: a missing Apple archive could replace local data with an empty result, and reauthentication during Restore could switch accounts before a failed read. Restore now rejects an absent archive and reuses the existing Apple-linked session. A deliberately saved empty archive is still valid. `tests/cloud.test.ts` and `node scripts/verify-apple-restore.mjs` prove these behaviors; the latter drives the real panel/store with mocked native boundaries, not a configured Apple device.
+
+Deferred by Firstmate: replace history-sized deletion URLs with bounded reconciliation, and propagate reading cancellation through the server/model transport. These remain launch follow-ups. Real Apple developer configuration and device verification remain uncompleted.

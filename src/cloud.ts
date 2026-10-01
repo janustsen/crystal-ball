@@ -19,6 +19,7 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  const user_id=data.session.user.id;
  const facts=await client.from('knowledge').select('facts').eq('user_id',user_id).maybeSingle();
  if(facts.error)throw facts.error;
+ if(!facts.data)throw new Error('No saved Apple backup was found.');
  // Page through the archive instead of silently stopping at Supabase's row limit.
  const history=[];
  for(let offset=0;;offset+=500){
