@@ -59,3 +59,30 @@ test('Person names survive planning and forecasts without disabling keyword rest
   }
  }finally{globalThis.fetch=original;}
 });
+
+
+test('repeated Person names are accepted in cards and options while modal will is rejected',async()=>{
+ const original=globalThis.fetch;
+ const question="How often does Will practice with Will's tutor?";
+ const options=["Will practices with Will's tutor daily","Will practices with Will’s tutor weekly",'No regular practice'];
+ let card={question,options},attempts=0;
+ globalThis.fetch=async(_url,init)=>{
+  const body=JSON.parse(String(init?.body));
+  if(body.format.properties.cards)attempts++;
+  const content=body.format.properties.cards?{cards:[card]}:{category:'allow'};
+  return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
+ };
+ try{
+  const plan=()=>makePlan('Will Will learn Spanish in six months?',{},provider(()=>undefined),{personName:'Will'});
+  const good=await plan();assert.equal(good.kind,'ok',JSON.stringify(good));assert.equal(attempts,1);
+  if(good.kind==='ok'){assert.equal(good.value.cards[0].question,question);assert.deepEqual(good.value.cards[0].options,[...options,'Other']);}
+  for(const invalid of [
+   {question:"How often will Will practice with Will's tutor?",options},
+   {question:'Will Will practice with Will’s tutor?',options},
+   {question,options:["Will will practice with Will's tutor",...options.slice(1)]},
+  ]){
+   card=invalid;const before=attempts;
+   assert.equal((await plan()).kind,'error');assert.equal(attempts-before,2);
+  }
+ }finally{globalThis.fetch=original;}
+});
