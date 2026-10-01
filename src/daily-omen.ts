@@ -20,9 +20,9 @@ export async function forgetOmen(storage:{getItem:(key:string)=>Promise<string|n
   if(raw){const cached=JSON.parse(raw);await storage.setItem(omenKey,JSON.stringify({day:cached.day,text:null}));}
  });
 }
-export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null>;setItem:(key:string,value:string)=>Promise<void>},facts:Facts,generate:(facts:Facts)=>Promise<string>,now=new Date(),publish:(omen:Omen)=>void=updateOmenWidget):Promise<Omen>{
+export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null>;setItem:(key:string,value:string)=>Promise<void>},facts:Facts,generate:(facts:Facts)=>Promise<string>,now:()=>Date=()=>new Date(),publish:(omen:Omen|null)=>void=updateOmenWidget):Promise<Omen>{
  if(pending)return pending;
- const day=localDay(now),version=generation;
+ const day=localDay(now()),version=generation;
  const work=(async()=>{
   const omen:Omen={day,text:null};
   const cached=await serialize(async()=>{
@@ -39,7 +39,11 @@ export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null
    if(version===generation)await storage.setItem(omenKey,JSON.stringify(omen));
   });
   return version===generation?omen:{day,text:null};
- })().then(omen=>{if(version===generation)publish(omen);return omen;});
+ })().then(omen=>{
+  const today=localDay(now()),fresh=omen.day===today;
+  if(version===generation)publish(fresh?omen:null);
+  return fresh?omen:{day:today,text:null};
+ });
  pending=work;
  void work.finally(()=>{if(pending===work)pending=undefined}).catch(()=>{});
  return work;

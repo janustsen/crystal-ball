@@ -33,13 +33,13 @@ test('personal omen claims each local day before generation, caches failures and
  const facts={sun_sign:'Libra',learning_target:'Spanish'};
  const generate=async(input:Record<string,string>)=>{calls++;assert.deepEqual(input,facts);assert.equal(JSON.parse(values.get(omenKey)!).text,null);return 'Libra, let a new Spanish word be your little constellation today.'};
  const today=new Date(2026,8,30,10);
- const [first,second]=await Promise.all([loadDailyOmen(storage,facts,generate,today),loadDailyOmen(storage,facts,generate,today)]);
+ const [first,second]=await Promise.all([loadDailyOmen(storage,facts,generate,()=>today),loadDailyOmen(storage,facts,generate,()=>today)]);
  assert.deepEqual(first,second);assert.equal(calls,1);
- assert.deepEqual(await loadDailyOmen(storage,{},async()=>{throw new Error('must not regenerate')},today),first);
+ assert.deepEqual(await loadDailyOmen(storage,{},async()=>{throw new Error('must not regenerate')},()=>today),first);
  const tomorrow=new Date(2026,9,1);
- const failed=await loadDailyOmen(storage,facts,async()=>{calls++;throw new Error('offline')},tomorrow);assert.equal(failed.text,null);
- await loadDailyOmen(storage,facts,generate,tomorrow);assert.equal(calls,2);
- invalidateOmen();await loadDailyOmen(storage,facts,generate,tomorrow);assert.equal(calls,2,'reload retains the claimed day');
+ const failed=await loadDailyOmen(storage,facts,async()=>{calls++;throw new Error('offline')},()=>tomorrow);assert.equal(failed.text,null);
+ await loadDailyOmen(storage,facts,generate,()=>tomorrow);assert.equal(calls,2);
+ invalidateOmen();await loadDailyOmen(storage,facts,generate,()=>tomorrow);assert.equal(calls,2,'reload retains the claimed day');
 });
 test('reset during generation prevents a private omen from being saved after reset',async()=>{
  invalidateOmen();const values=new Map<string,string>();let finish!:(text:string)=>void;
