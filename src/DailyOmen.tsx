@@ -6,7 +6,6 @@ import {localDay} from './retention';
 import {requestOmen} from './api';
 import {useStore} from './store';
 import {styles,Txt,colors} from './ui';
-import {updateOmenWidget} from './omen-widget';
 
 export function DailyOmen(){
  const {state}=useStore(),[omen,setOmen]=useState<Omen|null>(null);
@@ -14,7 +13,7 @@ export function DailyOmen(){
   let mounted=true;
   const refresh=()=>{
    if(AppState.currentState==='background'||AppState.currentState==='inactive')return;
-   void loadDailyOmen(AsyncStorage,state.facts,requestOmen).then(next=>{if(mounted){setOmen(next);updateOmenWidget(next)}}).catch(()=>{if(mounted)setOmen({day:localDay(),text:null})});
+   void loadDailyOmen(AsyncStorage,state.facts,requestOmen).then(next=>{if(mounted)setOmen(next)}).catch(()=>{if(mounted)setOmen({day:localDay(),text:null})});
   };
   refresh();const timer=setInterval(refresh,60000),listener=AppState.addEventListener('change',state=>{if(state==='active')refresh()});
   return()=>{mounted=false;clearInterval(timer);listener.remove()};
