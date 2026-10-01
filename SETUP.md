@@ -11,6 +11,8 @@ This checkout is an Expo React Native prototype. It runs anonymously, using loca
 5. `npm run server`, then `npm run web -- --host lan`. Open http://localhost:8087 or this iMac’s private Tailscale URL http://janus-mac.tail8d2280.ts.net:8087. Leave EXPO_PUBLIC_ENGINE_URL unset for web: Metro forwards same-origin `/engine` requests to the loopback engine, including `/engine/share` and `/engine/health`. A native simulator still defaults to http://127.0.0.1:8787. The bridge is development-only; keep this preview on the trusted private network. Animated MP4 exports additionally require `ffmpeg` on PATH; still PNG export remains available if it is missing.
 6. `npm run check && npm test`. Follow the [verification skill](.agents/skills/verify-crystal-ball/SKILL.md) for the current browser drives, remote bridge check and evidence requirements.
 
+Local no-mistakes reviews also require `semgrep` and `gitleaks` on PATH, installed project dependencies, and an up-to-date `origin/main` ref with enough history to resolve its merge base with HEAD. See [the gate configuration](.no-mistakes.yaml) for the security checks and owner-disposition policy; `npm test` alone does not run these gates.
+
 The server reads server-only variables from its shell, not Expo's public env loader. Keep MODEL_PROVIDER=ollama. No paid inference occurs by default. Local addresses work in an iOS simulator; a physical phone needs a trusted LAN-accessible development server and matching EXPO_PUBLIC_ENGINE_URL/Supabase URLs. Do not expose the unauthenticated local Node adapter publicly.
 
 ## Native development, deferred until Xcode exists
