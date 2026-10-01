@@ -29,6 +29,7 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  }
  const remembered=facts.data?.facts??{};
  if(!validFacts(remembered))throw new Error('Backup contains unreadable facts.');
+ history.sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
  return {...state,facts:remembered,history,backupOwner:user_id};
 }
 export async function mirror(state:AccountState,client:SupabaseClient|null=supabase){

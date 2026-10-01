@@ -25,21 +25,38 @@ const bundle=await build({stdin:{contents:`
   c.uploads++;c.archive=structuredClone({facts:state.facts,history:state.history});
  }
  `:`export default {
-  getItem:async()=>{const c=window.control;if(c.delay)await new Promise(resolve=>{c.release=resolve});return c.disk},
-  setItem:async(key,value)=>{window.control.disk=value}
+  getItem:async()=>{const c=window.control;if(c.failLocal)throw Error('Storage unavailable');const raw=c.disk;if(c.delay)await new Promise(resolve=>{c.release=resolve});return raw},
+  setItem:async(key,value)=>{window.control.saves++;window.control.disk=value}
  };` }));
 }}]});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 try{
- for(const scenario of ['hydration','fact','everything','fresh','failed-restore','cancel']){
+ for(const scenario of ['read-error','decode-error','invalid-archive','timeout','hydration','fact','everything','fresh','failed-restore','cancel']){
   const page=await browser.newPage();
   try{
    await page.setContent('<div id="root"></div>');
    await page.evaluate(scenario=>{
     const initial={facts:{practice:'daily'},history:[{id:'reading-1'}],credits:5,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false,backupOwner:'apple-owner'};
-    window.control={disk:scenario==='fresh'?null:JSON.stringify(initial),archive:{facts:initial.facts,history:initial.history},online:true,delay:scenario==='hydration',reads:0,uploads:0,auth:0};
+    window.control={disk:scenario==='fresh'?null:JSON.stringify(initial),archive:{facts:initial.facts,history:initial.history},online:true,delay:scenario==='hydration'||scenario==='timeout',failLocal:scenario==='read-error',saves:0,reads:0,uploads:0,auth:0,validDisk:JSON.stringify({...initial,credits:17})};
+    if(scenario==='decode-error')window.control.disk='{';
+    if(scenario==='invalid-archive')window.control.disk='{}';
    },scenario);
    await page.addScriptTag({content:bundle.outputFiles[0].text});
+   if(['read-error','decode-error','invalid-archive','timeout'].includes(scenario)){
+    const original=await page.evaluate(()=>window.control.disk);
+    await page.waitForFunction(()=>!!window.store?.hydrationError,{},{timeout:15000});
+    const failed=await page.evaluate(async()=>{
+     window.store.forgetAll();window.store.update(s=>({...s,credits:999}));
+     try{await window.store.backup('restore',async()=>{window.control.auth++})}catch{}
+     return {ready:window.store.ready,disk:window.control.disk,uploads:window.control.uploads,saves:window.control.saves,auth:window.control.auth};
+    });
+    assert.deepEqual(failed,{ready:false,disk:original,uploads:0,saves:0,auth:0});
+    await page.evaluate(()=>{const c=window.control;c.disk=c.validDisk;c.delay=false;c.failLocal=false;window.store.retryHydration()});
+    await page.waitForFunction(()=>window.store?.ready);
+    if(scenario==='timeout')await page.evaluate(async()=>{window.control.release();await new Promise(resolve=>setTimeout(resolve,0))});
+    assert.equal(await page.evaluate(()=>window.store.state.credits),17);
+    assert.equal(await page.evaluate(()=>window.store.hydrationError),null);
+   }
    if(scenario==='hydration'){
     await page.waitForFunction(()=>!!window.control.release);
     const blocked=await page.evaluate(async()=>{

@@ -54,3 +54,19 @@ test('automatic uploads cannot write an unselected account',async()=>{
  await assert.rejects(mirror({...empty,backupOwner:'other-owner'},client),/account changed/);
  assert.equal(remote.writes,0);
 });
+
+test('restore sorts dates across all pages while fetching in stable ID order',async()=>{
+ const readings=Array.from({length:501},(_,i)=>({...reading,id:`${i.toString(16).padStart(8,'0')}-1234-1234-1234-123456789abc`,createdAt:new Date(Date.UTC(2026,0,1)+i*60000).toISOString()}));
+ const offsets:number[]=[];
+ const client=createClient('https://backup.invalid','test-key',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async(input)=>{
+  const url=new URL(String(input));
+  if(url.pathname.endsWith('knowledge'))return Response.json([{facts:{}}]);
+  assert.equal(url.searchParams.get('order'),'id.asc');
+  const offset=Number(url.searchParams.get('offset')),limit=Number(url.searchParams.get('limit'));offsets.push(offset);
+  return Response.json(readings.slice(offset,offset+limit).map(payload=>({payload})));
+ }}});
+ client.auth.getSession=async()=>({data:{session:{user:{id:'apple-owner',is_anonymous:false},access_token:'test-token'} as Session},error:null});
+ const restored=await restoreBackup(empty,client);
+ assert.deepEqual(offsets,[0,500]);
+ assert.deepEqual(restored.history.map(p=>p.id),readings.toReversed().map(p=>p.id));
+});
