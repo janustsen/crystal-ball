@@ -14,7 +14,8 @@ console.log('sound reloaded',await page.eval(()=>document.querySelector('[aria-l
 await page.click('[aria-label="Ambient sound"]');
 if(await page.eval(()=>!!document.querySelector('[data-testid=ball-style-gold]')))throw new Error('Free user can access Plus styles');
 await page.click('[data-testid=ball-card-styles-plus]');
-await page.click('[data-testid="-5-99-month-simulate"]');
+await page.click('[data-testid=continue-with-plus-simulate]');
+await page.click('[data-testid=close-flow]');
 await page.click('[data-testid=tab-you]');
 await page.click('[data-testid=ball-style-gold]');
 await page.click('[data-testid=card-style-obsidian]');
@@ -42,6 +43,8 @@ await page.wait('img[alt="Your exported prediction card"]');
 const share=await page.eval(()=>{const img=document.querySelector('img[alt="Your exported prediction card"]');return {width:img.naturalWidth,height:img.naturalHeight};});
 if(share.width!==1080||share.height!==1920)throw new Error('Wrong golden share dimensions');
 console.log('gold share',JSON.stringify(share));
+await page.click('[data-testid=close-flow]');
+await page.click('[data-testid=close-flow]');
 await page.click('[data-testid=tab-you]');
 await page.click('[data-testid=ball-style-obsidian]');
 await page.click('[data-testid=card-style-obsidian]');

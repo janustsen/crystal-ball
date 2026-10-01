@@ -6,4 +6,4 @@ Golden styling is assigned from the server UUID at 1/50 for Free or 1/10 for Plu
 
 Free accounts see a Plus styles entry. Simulate Plus, select Gold/Obsidian ball and card styles in You, reload, and check the chosen appearance persists. Downgrades must render Classic without rerolling saved golden editions.
 
-The style drive expects a Free account in the isolated profile; reset test data via You before rerunning it after its mock Plus purchase. Its synthetic history is only for the rare gold visual branch.
+The style drive expects a Free account in the isolated profile; use a fresh named profile before rerunning it after its mock Plus purchase (Forget everything intentionally preserves the plan). Its synthetic history is only for the rare gold visual branch.

@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {Animated,Easing,Platform,View} from 'react-native';
 import {Txt,colors} from './ui';
+import {motion} from './motion';
 
 export function FogWhispers({questions,reduce}:{questions:readonly string[];reduce:boolean}){
  const [index,setIndex]=useState(0),opacity=useRef(new Animated.Value(.65)).current;
@@ -11,7 +12,7 @@ export function FogWhispers({questions,reduce}:{questions:readonly string[];redu
    opacity.setValue(0);
    Animated.sequence([
     Animated.timing(opacity,{toValue:.7,duration:1800,easing:Easing.inOut(Easing.sin),useNativeDriver:Platform.OS!=='web'}),
-    Animated.delay(2600),
+    Animated.delay(motion.glow-3600),
     Animated.timing(opacity,{toValue:0,duration:1800,useNativeDriver:Platform.OS!=='web'}),
    ]).start(({finished})=>{if(finished&&!stopped){setIndex(i=>(i+1)%questions.length);whisper();}});
   }

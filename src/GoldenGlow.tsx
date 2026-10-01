@@ -1,13 +1,6 @@
-import {useEffect,useRef} from 'react';
-import {Animated,Easing,Platform} from 'react-native';
+import {View} from 'react-native';
+import {Enter} from './Enter';
 import {colors} from './ui';
-export function GoldenGlow({reduce}:{reduce:boolean}){
- const glow=useRef(new Animated.Value(1)).current;
- useEffect(()=>{
-  if(reduce){glow.setValue(1);return;}
-  glow.setValue(0);
-  const animation=Animated.timing(glow,{toValue:1,duration:1000,easing:Easing.out(Easing.cubic),useNativeDriver:Platform.OS!=='web'});
-  animation.start();return()=>animation.stop();
- },[reduce,glow]);
- return <Animated.View testID="golden-glow" pointerEvents="none" style={{position:'absolute',width:190,height:190,top:8,borderRadius:95,borderWidth:2,borderColor:colors.gold,backgroundColor:'#E0A45822',opacity:glow,transform:[{scale:glow.interpolate({inputRange:[0,1],outputRange:[.8,1.12]})}]}}/>;
+export function GoldenGlow({reduce,size}:{reduce:boolean;size:number}){
+ return <View pointerEvents="none" style={{position:'absolute',width:size*1.06,top:-size*.03}}><Enter kind="reveal" reduce={reduce}><View testID="golden-glow" style={{width:size*1.06,height:size*1.06,borderRadius:size,borderWidth:2,borderColor:colors.gold,backgroundColor:'#E0A45822'}}/></Enter></View>;
 }
