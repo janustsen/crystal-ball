@@ -1,0 +1,100 @@
+[
+  {
+    "request": {
+      "action": "plan",
+      "question": "Will Alex and I become friends this year?",
+      "facts": {
+        "birthday": "2010-01-01"
+      },
+      "friend": false,
+      "viewerBirthday": "2010-01-01",
+      "personName": "Alex"
+    },
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "What do Alex and you have in common?",
+            "options": [
+              "We share the same birthday",
+              "We have no shared interests",
+              "We met at school",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "action": "predict",
+      "question": "Will Alex and I become friends this year?",
+      "facts": {
+        "birthday": "2010-01-01",
+        "horizon": "this year",
+        "context_1": "What do Alex and you have in common? We share the same birthday"
+      },
+      "friend": false,
+      "viewerBirthday": "2010-01-01",
+      "personName": "Alex"
+    },
+    "response": {
+      "kind": "error",
+      "message": "Verification: connection interrupted. Your answers are kept."
+    }
+  },
+  {
+    "request": {
+      "action": "predict",
+      "question": "Will Alex and I become friends this year?",
+      "facts": {
+        "birthday": "2010-01-01",
+        "horizon": "this year",
+        "context_1": "What do Alex and you have in common? We share the same birthday"
+      },
+      "friend": false,
+      "viewerBirthday": "2010-01-01",
+      "personName": "Alex"
+    },
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "e931ec41-0d27-4870-814f-1b6399cf20d2",
+        "question": "Will Alex and I become friends this year?",
+        "headline": "You will become friends this year.",
+        "dueDate": "2026-12-31",
+        "astrology": "Under your Capricorn Sun, consider this a playful invitation to your next chapter.",
+        "personName": "Alex",
+        "createdAt": "2026-10-01T06:09:13.786Z",
+        "label": "For fun · speculative forecast",
+        "why": "Recorded context: What do Alex and you have in common? We share the same birthday.\n\nScenario assumption: You continue to share activities and interests with Alex.",
+        "deeperWhy": "Recorded context: What do Alex and you have in common? We share the same birthday.\n\nScenario assumption: You continue to share activities and interests with Alex. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "birthday": "2010-01-01",
+          "horizon": "this year",
+          "context_1": "What do Alex and you have in common? We share the same birthday"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "liveTeenCards": 1,
+    "text": "☾\n✧ · ˚ · ✦\n×\n0 readings\nA glimpse, not a promise\nYou will become friends this year.\nFor fun · speculative forecast\nBy Dec 31, 2026\nHide the why ⌃\nBehind the mist\nUnder your Capricorn Sun, consider this a playful invitation to your next chapter.\nRecorded context: What do Alex and you have in common? We share the same birthday.\n\nScenario assumption: You continue to share activities and interests with Alex.\nGo deeper with Plus\nShare this glimpse\nRemind me\nAsk again\nEdit question\nReview answers"
+  },
+  {
+    "failure": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText(/Speech recognition is unavailable/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByText(/Speech recognition is unavailable/) with timeout 5000ms\n  - waiting for getByText(/Speech recognition is unavailable/)\n"
+  }
+]

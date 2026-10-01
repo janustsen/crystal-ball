@@ -1,0 +1,49 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toBeVisible() failed
+
+Locator: getByText(/Speech recognition is unavailable/)
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText(/Speech recognition is unavailable/) with timeout 5000ms
+  - waiting for getByText(/Speech recognition is unavailable/)
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBeVisible (/Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/scripts/drive-reading-extras.mjs:18:258 {
+  matcherResult: {
+    message: 'expect(locator).toBeVisible() failed\n' +
+      '\n' +
+      'Locator: getByText(/Speech recognition is unavailable/)\n' +
+      'Expected: visible\n' +
+      'Timeout: 5000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      '  - Expect "toBeVisible" getByText(/Speech recognition is unavailable/) with timeout 5000ms\n' +
+      '  - waiting for getByText(/Speech recognition is unavailable/)\n',
+    pass: false,
+    actual: undefined,
+    name: 'toBeVisible',
+    expected: 'visible',
+    log: [
+      '  - Expect "toBeVisible" getByText(/Speech recognition is unavailable/) with timeout 5000ms',
+      '  - waiting for getByText(/Speech recognition is unavailable/)'
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- button "Close": ×\n' +
+      '- text: Speak your question.\n' +
+      '- button "Start listening"\n' +
+      '- button "Type instead"\n' +
+      '- text: Voice is unavailable here. Type your question instead.\n' +
+      '- button "Dismiss"'
+  }
+}
+
+Node.js v26.10.0
