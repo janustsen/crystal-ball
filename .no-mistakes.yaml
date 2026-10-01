@@ -5,6 +5,7 @@ no_ci: true
 # Run every security check even when an earlier one fails. Findings wait for
 # the owner; agents must not weaken the checks or supply approval trailers.
 commands:
+  prepare: npm ci
   test: |
     failed=0
     if scan_base=$(git merge-base origin/main HEAD); then
