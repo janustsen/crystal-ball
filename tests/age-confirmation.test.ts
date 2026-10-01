@@ -87,3 +87,17 @@ test('Person mismatch asks for clarification before planning or forecasting',asy
   assert.equal(calls,0);
  }finally{globalThis.fetch=original;}
 });
+
+test('Person named Will does not match the opening modal verb',async()=>{
+ const model={json:async()=>{throw Error('Mismatch must stop before model access');}} as ReturnType<typeof provider>;
+ for(const question of ['Will Jordan learn Spanish in six months?','will Alex finish the draft?']){
+  assert.match(personQuestionIssue(question,'Will')!,/Include Will/);
+  for(const result of [await makePlan(question,{},model,{personName:'Will'}),await predict(question,{},false,model,{personName:'Will'})]){
+   assert.equal(result.kind,'error');if(result.kind==='error')assert.match(result.message,/Include Will/);
+  }
+ }
+ for(const question of ['Will Will learn Spanish in six months?',"Will Will’s practice help?","Will’s Spanish improves this year?"]){
+  assert.equal(personQuestionIssue(question,'Will'),undefined);
+ }
+ assert.equal(personQuestionIssue('Will Jordan learn Spanish?','Jordan'),undefined);
+});
