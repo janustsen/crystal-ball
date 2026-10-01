@@ -29,7 +29,7 @@ Fresh first-run category confusion (expected → actual; includes allowed questi
 | self_harm | self_harm | 3 |
 
 
-Current non-self-harm copy is neutral: “This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead.” Self-harm retains urgent support and a Find support near you link. Actual copy is owned by server/safety.ts and server/engine.ts. Historical category-specific copy is archived, not used.
+Current non-self-harm copy is neutral: “This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead.” Self-harm retains urgent support and a Find support near you link. Actual copy is owned by src/safety-policy.ts and server/engine.ts. Historical category-specific copy is archived, not used.
 
 ## Subsequent blind evaluation, 2026-09-29
 

@@ -1,6 +1,6 @@
 # Social boundary proof
 
-The change adds `/social` beside the existing engine API, reads optional profile fields, and moves deterministic sensitive-topic handling into a client-safe module. Existing reading request/response and persisted account formats are unchanged. Social state lives in new RLS tables; no migration rewrites existing account or reading rows.
+The change adds `/social` beside the existing engine API, reads optional profile fields, and moves deterministic sensitive-topic handling into a client-safe module. Ordinary reading requests are unchanged. The optional reading-identity and account-profile extensions are defined in `src/types.ts`; older records remain readable. Social state lives in new RLS tables; no migration rewrites existing account or reading rows.
 
 The key safety fact is that authenticated clients cannot publish arbitrary text or enumerate question authors: only the trusted service creates moderation receipts, and the public RPC returns an explicit anonymous projection. `bash scripts/verify-social-db.sh` runs the actual migration and function bodies as distinct PostgreSQL roles. It rejects direct draft/star writes, foreign receipts, table enumeration, expired/replayed invites and unauthorized seals. It asserts the complete projection key set, report persistence, adult consent, Plus authorization and weekly quota. Two concurrent recipients race; exactly one succeeds.
 

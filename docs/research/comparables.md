@@ -14,7 +14,7 @@ Research captured 2026-09-29, US storefront. This is a desk review of primary li
 
 Launch anonymously straight into Home. One line explains “Speculative forecast · not a guarantee” Tap the orb, enter a question, answer 3–10 relevant cards, watch real research status, reveal one short forecast. No birth-time form unless it is relevant (astrology is not our engine). Request notification permission only when the user sets a check-back. Offer Apple sign-in to preserve history after value is delivered. No contact upload.
 
-The commercial wedge is accountable specificity: a date/number/pick, visible assumptions and source dates, and a later “Did it happen?” response. Avoid ominous mortality/illness statements and false claims of supernatural certainty. Sharing is opt-in and omits private answers. Explore begins with explicitly labeled editorial examples, never fake live user counts.
+The commercial wedge is accountable specificity: a date/number/pick, visible assumptions and source dates, and a later “Did it happen?” response. Avoid ominous mortality/illness statements and false claims of supernatural certainty. Sharing is opt-in and omits private answers. The current social surface follows the [social boundary](../social/model.md).
 
 ## Confidence and next evidence
 
@@ -33,7 +33,7 @@ The review proxy sample is [review-sample.md](review-sample.md): all 11 unique v
 | Product / primary source | Relevant pattern | Crystal Ball decision |
 |---|---|---|
 | [Metaculus question-writing guidance](https://www.metaculus.com/question-writing/) and [approval checklist](https://www.metaculus.com/help/question-checklist/) | A question needs a clear outcome, deadline and resolution criteria; administrative resolution is distinct from a forecast. | Ask for a horizon when the user omits one. Keep the original question and let the owner mark the outcome. A self-reported “came true” is not verified accuracy. |
-| [Manifold FAQ](https://docs.manifold.markets/faq) | Markets resolve under stated criteria, and disputed/ambiguous outcomes need explicit handling. | Keep Pending / Yes / Not quite separate. Do not turn the seeded Explore feed into an implied live consensus or accuracy leaderboard. No trading or wagering is in scope. |
+| [Manifold FAQ](https://docs.manifold.markets/faq) | Markets resolve under stated criteria, and disputed/ambiguous outcomes need explicit handling. | Keep Pending / Yes / Not quite separate. Do not present Sky resonance as predictive accuracy. No trading or wagering is in scope. |
 
 These are closer comparables for accountable forecasts, not pricing substitutes for a consumer oracle. They support the check-back mechanic but do not validate demand for Crystal Ball's tone.
 

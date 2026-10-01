@@ -16,7 +16,7 @@ See [UI rules](ui-rules.md#navigation-and-the-17-states) for the current compone
 
 ## Screen constraints
 
-No sign-up gate. Explore prompts prefill Ask without spending a credit. Knowledge facts retain human labels, editable values and deletion. Friends' facts never enter the owner's knowledge.
+No sign-up gate. See [UI rules](ui-rules.md#navigation-and-the-17-states) for Sky navigation. Knowledge facts retain human labels, editable values and deletion. Friends' facts never enter the owner's knowledge.
 
 Paywall: Free 1/day; Plus $5.99/month or $39.99/year (10/day), packs 5/$1.99 and 20/$5.99. Billing period must remain clear alongside price, with no fake urgency. Simulated purchases take no money; Restore must tell the truth about mock state.
 
