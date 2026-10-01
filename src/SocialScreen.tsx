@@ -50,7 +50,7 @@ export function Social({onAsk,onPlus,invite,seal,reduce}:{onAsk:(question:string
   {section==='sky'?<>
    <Txt display>A sky full of what-ifs.</Txt>
    <Txt style={[styles.caption,{marginTop:12}]}>{stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>
-   <View testID="tonights-sky" style={{minHeight:state.largeText?0:380,marginVertical:20,borderRadius:22,backgroundColor:colors.surface,borderWidth:1,borderColor:'#3F2D5C',padding:state.largeText?16:0}}>
+   <View testID="tonights-sky" style={{minHeight:state.largeText?0:380,marginVertical:20,borderRadius:22,backgroundColor:colors.surface,borderWidth:1,borderColor:'#614C34',padding:state.largeText?16:0}}>
     {templates.map(([key,prompt])=>{
      const live=stars.filter(star=>star.theme===key),points=live.length?live:sampleStars.filter(star=>star.theme===key);
      return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>

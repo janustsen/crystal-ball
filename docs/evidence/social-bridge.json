@@ -1,0 +1,22 @@
+{
+  "boundary": "Real Metro/engine bridge; synthetic local Auth account",
+  "proofs": [
+    {
+      "name": "unauthenticated",
+      "status": 401
+    },
+    {
+      "name": "authenticated",
+      "status": 200
+    },
+    {
+      "name": "foreign-origin",
+      "status": 403
+    },
+    {
+      "name": "wrong-method",
+      "status": 405
+    }
+  ],
+  "earlierProbe": "elsewhere.invalid rejected with HTTP500 by Expo CorsMiddleware before reaching bridge; localhost:9999 exercises the bridge itself"
+}

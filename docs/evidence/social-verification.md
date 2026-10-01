@@ -1,6 +1,6 @@
 # Social verification handoff
 
-Implemented and verified on the pre-redesign main base `d746718`. This is the implementation handoff, not the final merge gate.
+Initial implementation was verified on `d746718`. Rebased onto redesign `5c9e5d9`; the latest social/core evidence records the redesigned navigation, shared warm palette and authenticated same-origin engine bridge. Final no-mistakes and forge-review outcomes are reported separately.
 
 - `npm run check`: pass.
 - `npm test`: 36 pass, one optional native export skip.
@@ -11,6 +11,8 @@ Implemented and verified on the pre-redesign main base `d746718`. This is the im
 - Additional chrome-devtools-axi check: Restore purchases displays its honest test-mode disclosure; Sky reachable.
 - `npx expo export --platform ios --output-dir .local/social-ios-final`: pass. Native device/simulator behavior remains unverified.
 
-Known integration work before final delivery: rebase onto the redesign once https://github.com/janustsen/crystal-ball/pull/2 merges, reconcile the reading-flow lane's age/sign profile and Person-reading entry, then rerun verify-crystal-ball on the exact final head. Firstmate requested Greptile review after the eventual PR opens. No PR has been pushed from this worktree. Real Supabase transport and trusted subscription entitlements remain explicitly documented deployment boundaries.
+Known integration work before final delivery: The redesign at https://github.com/janustsen/crystal-ball/pull/2 has merged and is integrated. Reconcile the reading-flow lane's age/sign profile and Person-reading entry, then rerun verify-crystal-ball on the exact final head. Firstmate requested Greptile review after the eventual PR opens. No PR has been pushed from this worktree. Real Supabase transport and trusted subscription entitlements remain explicitly documented deployment boundaries.
 
 The screenshot CLI sometimes exits nonzero after saving a valid file. The harness validates the newly saved image; it does not suppress a missing/broken image. This is a reporting workaround authorized by Firstmate, not a tool change. Failed-drive evidence is retained.
+
+Final rebase gate status: functional social/core drives and authenticated bridge checks passed on redesign main `5c9e5d9`. The strict serial motion audit did not meet its budget during heavy host load; see [motion boundary](social-motion-boundary.md). No-mistakes has not been started pending that validation boundary.

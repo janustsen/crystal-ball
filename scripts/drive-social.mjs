@@ -30,12 +30,12 @@ async function adultFixture(user){
 try{
  const circle=await run('owner',`
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');
-  ${click('tab-ask')}
+  ${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
   await page.wait('[data-testid="option-0"]',65000);
-  for(let card=0;card<3;card++){${click('option-0')}${click('answer-next')}if(card<2)await page.wait('[data-testid="option-0"]');}
+  for(let card=0;card<3;card++){${click('option-0')}if(card<2)await page.wait('[data-testid="option-0"]');}
   await page.wait('[data-testid="share-this-glimpse"]',65000);
-  ${click('tab-sky')}${click('add-my-star')}
+  ${click('close-flow')}${click('tab-sky')}${click('add-my-star')}
   await page.wait('[data-testid="publish-anonymous-star"]',120000);
   ${assertText('Approve your anonymous wording')}${click('publish-anonymous-star')}
   await page.wait('[data-testid="remove-my-star"]');
@@ -69,13 +69,13 @@ try{
   console.log(JSON.stringify({adultOptInUsed:true}));
  `).then(result=>log.push(result));
  await run('owner',`
-  ${click('view-plans')}${click('-5-99-month-simulate')}
+  ${click('view-plans')}${click('continue-with-plus-simulate')}${click('close-flow')}
   ${click('tab-sky')}${click('social-section-circles')}
   console.log(JSON.stringify({stage:'Plus selected'}));
  `);
  await waitFor('owner','[data-testid="ask-about-friend-2"]:not([aria-disabled="true"])','consented friend button',30000);
  await run('owner',`
-  ${click('ask-about-friend-2')}
+  ${click('ask-about-friend-2')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will this friend make progress on a creative goal this year?');${click('look-into-the-future')}
   console.log(JSON.stringify({stage:'Friend reading requested'}));
  `);
