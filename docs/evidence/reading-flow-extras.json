@@ -2,7 +2,7 @@
   {
     "request": {
       "action": "plan",
-      "question": "Will Alex and I become friends this year?",
+      "question": "Will Alex and I become friends?",
       "facts": {
         "birthday": "2010-01-01"
       },
@@ -14,17 +14,26 @@
       "kind": "ok",
       "value": {
         "topic": "general",
-        "provided": {
-          "horizon": "this year"
-        },
+        "provided": {},
         "cards": [
           {
             "id": "context_1",
-            "question": "What do Alex and you have in common?",
+            "question": "Do Alex and you share a birthday?",
             "options": [
               "We share the same birthday",
               "We have no shared interests",
               "We met at school",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "horizon",
+            "question": "How far ahead should the Ball look?",
+            "options": [
+              "Within 3 months",
+              "Within 6 months",
+              "Within a year",
               "Other"
             ],
             "remember": false
@@ -36,11 +45,11 @@
   {
     "request": {
       "action": "predict",
-      "question": "Will Alex and I become friends this year?",
+      "question": "Will Alex and I become friends?",
       "facts": {
         "birthday": "2010-01-01",
-        "horizon": "this year",
-        "context_1": "What do Alex and you have in common? We share the same birthday"
+        "context_1": "Do Alex and you share a birthday? We share the same birthday",
+        "horizon": "Within 3 months"
       },
       "friend": false,
       "viewerBirthday": "2010-01-01",
@@ -54,11 +63,11 @@
   {
     "request": {
       "action": "predict",
-      "question": "Will Alex and I become friends this year?",
+      "question": "Will Alex and I become friends?",
       "facts": {
         "birthday": "2010-01-01",
-        "horizon": "this year",
-        "context_1": "What do Alex and you have in common? We share the same birthday"
+        "context_1": "Do Alex and you share a birthday? We share the same birthday",
+        "horizon": "Within 3 months"
       },
       "friend": false,
       "viewerBirthday": "2010-01-01",
@@ -67,20 +76,20 @@
     "response": {
       "kind": "ok",
       "value": {
-        "id": "4a9bb683-dc59-4a72-8e41-ae1a85bfd692",
-        "question": "Will Alex and I become friends this year?",
-        "headline": "You will become friends this year.",
-        "dueDate": "2026-12-31",
+        "id": "ec6ce673-5552-4b45-835f-f5f6a11b4042",
+        "question": "Will Alex and I become friends?",
+        "headline": "You will become friends within three months.",
+        "dueDate": "2027-01-01",
         "astrology": "Under your Capricorn Sun, consider this a playful invitation to your next chapter.",
         "personName": "Alex",
-        "createdAt": "2026-09-30T22:24:17.926Z",
+        "createdAt": "2026-10-01T06:19:54.831Z",
         "label": "For fun · speculative forecast",
-        "why": "Recorded context: What do Alex and you have in common? We share the same birthday.\n\nScenario assumption: You continue to share activities and interests with Alex.",
-        "deeperWhy": "Recorded context: What do Alex and you have in common? We share the same birthday.\n\nScenario assumption: You continue to share activities and interests with Alex. No external evidence supports the future outcome; it is a speculative scenario.",
+        "why": "Recorded context: Do Alex and you share a birthday? We share the same birthday.\n\nScenario assumption: You both celebrate the same birthday together in the next three months.",
+        "deeperWhy": "Recorded context: Do Alex and you share a birthday? We share the same birthday.\n\nScenario assumption: You both celebrate the same birthday together in the next three months. No external evidence supports the future outcome; it is a speculative scenario.",
         "facts": {
           "birthday": "2010-01-01",
-          "horizon": "this year",
-          "context_1": "What do Alex and you have in common? We share the same birthday"
+          "context_1": "Do Alex and you share a birthday? We share the same birthday",
+          "horizon": "Within 3 months"
         },
         "sources": [],
         "assumptions": [
@@ -91,8 +100,8 @@
     }
   },
   {
-    "liveTeenCards": 1,
-    "text": "Crystal Ball\n0 readings\nYour glimpse ahead\nYou will become friends this year.\nFor fun · speculative forecast\nBy Dec 31, 2026\nHide the why ⌃\nBehind the mist\nUnder your Capricorn Sun, consider this a playful invitation to your next chapter.\nRecorded context: What do Alex and you have in common? We share the same birthday.\n\nScenario assumption: You continue to share activities and interests with Alex.\nGo deeper with Plus\nShare this glimpse\nRemind me\nAsk again\nHome\nExplore\nAsk\nHistory\nYou"
+    "liveTeenCards": 2,
+    "text": "☾\n✧ · ˚ · ✦\n×\n0 readings\nA glimpse, not a promise\nYou will become friends within three months.\nFor fun · speculative forecast\nBy Jan 1, 2027\nHide the why ⌃\nBehind the mist\nUnder your Capricorn Sun, consider this a playful invitation to your next chapter.\nRecorded context: Do Alex and you share a birthday? We share the same birthday.\n\nScenario assumption: You both celebrate the same birthday together in the next three months.\nGo deeper with Plus\nShare this glimpse\nRemind me\nAsk again\nEdit question\nReview answers"
   },
   {
     "skipPersisted": true,

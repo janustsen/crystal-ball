@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-30",
+  "date": "2026-10-01",
   "branch": "fm/cb-reading-flow",
   "whatChanged": [
     "Engine returns one or two follow-up cards. Complete typed inputs still produce the existing numeric scenario; otherwise targeted cards lead to a qualitative forecast, without invented numeric defaults.",
@@ -47,7 +47,7 @@
     "cleared": [
       "One-repair-then-error provider behavior remains covered by the existing tests.",
       "Unrelated typed memories remain excluded from general plans and forecasts; the Why basis excludes birthday/current-focus placeholders in favor of reading answers.",
-      "An actual PNG download has 1080x1920 dimensions and was visually inspected: only headline, date, brand and speculative label, no birth profile or private answers.",
+      "An actual PNG download has 1080x1920 dimensions and was visually inspected: only headline, brand and speculative label, no birth profile or private answers.",
       "No production caller remains for the deleted animated export. Historical research/grade evidence and captures are retained."
     ],
     "risksAndLimits": [
@@ -62,7 +62,7 @@
   },
   "validation": {
     "automated": "npm run check and npm test: 39 tests pass, 0 fail, 0 skipped",
-    "browser": "Both isolated Playwright drivers passed against this checkout on ports 8092 and 8792 with real local Ollama Qwen3 4B inference; no fixture substituted for generation.",
+    "browser": "Adult one-card and teen two-card real-Qwen flows pass, including profile persistence, birth chart, due date, free/Plus Why, PNG export and injected-failure retry. Skipped and under-13 profiles pass. No fixture substituted for generation.",
     "ios": "npx expo export --platform ios --output-dir .local/ios-export passed",
     "screens": [
       "reading-onboarding-facts.png",
@@ -78,9 +78,15 @@
       "reading-chrome-bridge-failure.txt",
       "reading-drive-packaging-failure.txt",
       "reading-drive-first-live.json",
-      "reading-short-forecast-before-horizon-fix.json"
+      "reading-short-forecast-before-horizon-fix.json",
+      "reading-rebase-cold-start-failure.txt",
+      "reading-rebase-voice-copy-failure.txt",
+      "reading-rebase-reset-driver-failure.txt",
+      "reading-motion/drive.log"
     ],
-    "beforeMerge": "Rebase onto origin/main after https://github.com/janustsen/crystal-ball/pull/2 lands, then rerun verify-crystal-ball on the exact merge head through the firstmate no-mistakes gate. This worker does not merge.",
-    "legacyStorage": "VERIFY_URL=http://localhost:8092 node scripts/verify-profile-migration.mjs: both legacy fixtures passed; explicitly separate from real generation evidence."
+    "beforeMerge": "Rebased onto origin/main 5c9e5d9 after https://github.com/janustsen/crystal-ball/pull/2 merged. Exact final head still goes through verify-crystal-ball and no-mistakes; this worker does not merge.",
+    "legacyStorage": "VERIFY_URL=http://localhost:8092 node scripts/verify-profile-migration.mjs: both legacy fixtures passed; explicitly separate from real generation evidence.",
+    "redesign": "Design drive passes all current screens and axe checks, actual PNG encoding failure/recovery, fact Undo, history outcome, mock plans and 200% text. Memory drive passes friend isolation, live general reading, support control and reset preserving credits. Recovery drive passes real 60-second timeout, cancel, voice-component cleanup and retained-answer recovery. Same-origin Metro bridge safety/origin/method/body-limit checks pass. OS and in-app reduced-motion checks pass.",
+    "motion": "First audit failed: planning had one 50ms long task; Share averaged 57.82fps against >=58fps (reading-motion). Unchanged-code repeat passed all 15 sample budgets: minimum 59.284fps, maximum frame 43.1ms, no long tasks. AXI perf-stop returned MCP TIMEOUT after writing the complete raw trace; recovered locally after verifying valid JSON and the final ambient-sky-end marker. Timing-only excerpt, raw SHA-256 and timeout log retained in reading-motion-repeat. Cause of the first transient slowdown is unconfirmed. No fog internals changed."
   }
 }

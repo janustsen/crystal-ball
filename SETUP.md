@@ -27,7 +27,7 @@ Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo r
 
 ## Known prototype boundaries
 
-Remote HTTP origins cannot access browser speech recognition. The Ask flow offers typing when voice is unavailable; localhost or an HTTPS origin plus microphone permission is needed for real browser recording. The current iMac has no ffmpeg, so MP4 export reports a recoverable error; PNG export works. Supabase is optional and not running here: local history and memory work, cloud mirroring does not.
+Remote HTTP origins cannot access browser speech recognition. The Ask flow offers typing when voice is unavailable; localhost or an HTTPS origin plus microphone permission is needed for real browser recording. Story export is a local 1080×1920 PNG. Supabase is optional and not running here: local history and memory work, cloud mirroring does not.
 
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Seeded Explore is visibly labeled. Apple save and web notification controls explain their native setup requirements. Friend links carry only the question and friend flag, not private answers. No App Store submission, public posting or real payments are part of this build.
 
