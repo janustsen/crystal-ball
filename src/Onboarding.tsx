@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {View} from 'react-native';
+import {Pressable,View} from 'react-native';
 import {Input,Action,Txt,styles,colors} from './ui';
 import {ageGroup,sunSign} from './profile';
 import {validateFact} from './questions';
@@ -28,8 +28,8 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   <Txt display style={{marginBottom:16}}>Your forecast. Then check back.</Txt>
   <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet. The Ball can miss — your story matters either way.</Txt>
   <Txt style={styles.caption}>A little about you · {step+1} of 2</Txt>
-  <Txt display style={{marginTop:16}}>{step===0?'When is your birthday?':'What’s on your mind lately?'}</Txt>
-  <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>13 and up. Your birthday sets your Sun sign.</Txt>
+  <Txt display style={{marginTop:16,fontSize:30,lineHeight:36}}>{step===0?'When is your birthday?':'What’s on your mind lately?'}</Txt>
+  <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>{step===0?'13 and up. Your birthday sets your Sun sign.':'Choose one, or skip. You can change it later.'}</Txt>
   {step===0?<>
    <Txt style={styles.caption}>Birthday · YYYY-MM-DD</Txt>
    <Input testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
@@ -37,7 +37,7 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
    <Action label="Continue" onPress={next}/>
   </>:<>
    {sunSign(birthday)?<Txt style={styles.caption}>Your Sun sign · {sunSign(birthday)}</Txt>:null}
-   <View style={{marginTop:8}}>{['Work & purpose','Love & friendships','Learning & growth','A fresh start'].map(value=><Action key={value} label={value} quiet={focus!==value} onPress={()=>setFocus(value)}/>)}</View>
+   <View style={{marginTop:8}}>{['Work & purpose','Love & friendships','Learning & growth','A fresh start'].map(value=><Pressable key={value} testID={value.toLowerCase().replace(/[^a-z0-9]+/g,'-')} accessibilityRole="button" accessibilityLabel={value} accessibilityState={{selected:focus===value}} aria-pressed={focus===value} onPress={()=>setFocus(value)} style={{minHeight:56,paddingVertical:16,borderBottomWidth:1,borderColor:focus===value?colors.gold:'#614C3466',flexDirection:'row',alignItems:'center',gap:12}}><Txt style={{flex:1,color:focus===value?colors.gold:colors.ivory}}>{value}</Txt><Txt aria-hidden style={{color:colors.gold,width:24}}>{focus===value?'✓':''}</Txt></Pressable>)}</View>
    <Action label="Meet the Ball" onPress={()=>onFinish({...birthday.trim()?{birthday:birthday.trim()}:{},...focus?{current_focus:focus}:{}})}/>
    <Action label="Back" quiet onPress={()=>setStep(0)}/>
   </>}
