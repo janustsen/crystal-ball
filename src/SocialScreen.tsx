@@ -39,12 +39,12 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
  const schoolInvites=useRef(new Map<string,string>());
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
  const [section,setSection]=useState<'sky'|'circles'>(invite||showCircles?'circles':'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
- const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
+ const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[connecting,setConnecting]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{if(showCircles)setSection('circles')},[showCircles]);
  useEffect(()=>{
   let active=true;
-  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){for(const forecast of snapshot.forecasts){if(forecast.asker_id===snapshot.owner&&forecast.charged_at===null)await settleCircle(forecast)}if(active){setData(snapshot);setOffline(false)}}}catch{if(active){setData(null);setOffline(true)}}}
+  async function refresh(){setConnecting(true);try{const snapshot=await loadSocial(profile,schoolOnly);if(active){for(const forecast of snapshot.forecasts){if(forecast.asker_id===snapshot.owner&&forecast.charged_at===null)await settleCircle(forecast)}if(active){setData(snapshot);setOffline(false)}}}catch{if(active){setData(null);setOffline(true)}}finally{if(active)setConnecting(false)}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   return()=>{active=false;clearInterval(timer)};
  },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
@@ -56,7 +56,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
  const templates=Object.entries(skyPrompts) as [SkyPrompt,(typeof skyPrompts)[SkyPrompt]][];
  return <>
   <View style={[styles.row,{flexWrap:'wrap',marginBottom:20}]}>{(['sky','circles'] as const).map(part=><Pressable key={part} testID={`social-section-${part}`} accessibilityRole="button" accessibilityState={{selected:section===part}} onPress={()=>{setSection(part);setNotice('')}} style={{minHeight:48,justifyContent:'center',borderBottomWidth:section===part?1:0,borderColor:colors.gold}}><Txt style={{color:section===part?colors.gold:colors.muted}}>{part==='sky'?'Tonight’s Sky':'Circles'}</Txt></Pressable>)}</View>
-  {offline?<View style={[styles.row,{marginBottom:8}]}><Txt accessibilityLiveRegion="polite" style={[styles.caption,{flex:1}]}>{section==='circles'?'Circles are offline right now.':'Showing sample stars while the sky is offline.'}</Txt><Pressable accessibilityRole="button" accessibilityLabel="Try connecting again" disabled={busy} onPress={()=>setVersion(v=>v+1)} style={{minWidth:44,minHeight:44,justifyContent:'center'}}><Txt style={{color:colors.gold}}>Retry</Txt></Pressable></View>:null}
+  {offline&&section==='sky'?<View style={[styles.row,{marginBottom:8}]}><Txt accessibilityLiveRegion="polite" style={[styles.caption,{flex:1}]}>Showing sample stars while the sky is offline.</Txt><Pressable accessibilityRole="button" accessibilityLabel="Try connecting again" disabled={busy} onPress={()=>setVersion(v=>v+1)} style={{minWidth:44,minHeight:44,justifyContent:'center'}}><Txt style={{color:colors.gold}}>Retry</Txt></Pressable></View>:null}
   {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
@@ -79,7 +79,14 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    <Action label={busy?'The Ball is checking…':'Add my star'} quiet disabled={busy||!!ownStar} onPress={()=>{const reading=state.history[0];if(!reading){onAsk('');return;}void act(async()=>{const next=await prepareSocialDraft('star',reading.question,aiConsent);setDraft(next);setSelected(next.theme)})}}/>
    {draft?<View style={styles.panel}><Txt>Approve your anonymous wording</Txt><Txt style={[styles.caption,{marginTop:8}]}>{draft.wording}</Txt><Txt style={[styles.caption,{marginTop:12}]}>Rewritten from your latest reading. No name, original question or answers. Visible today (UTC). One star per day.</Txt><Action label="Publish anonymous star" disabled={busy||!!ownStar} onPress={()=>void act(async()=>{await publishStar(draft);setDraft(null)},'Your star is in tonight’s sky.')}/><Action label="Keep it private" quiet onPress={()=>setDraft(null)}/></View>:null}
    {ownStar?<Action label="Remove my star" quiet disabled={busy} onPress={()=>void act(()=>removeStar(ownStar),'Your star was removed.')}/>:null}
-  </>:<>
+  </>:offline?<View>
+   <Txt accessibilityRole="header" display style={{fontSize:28,lineHeight:34}}>Circles are offline.</Txt>
+   <Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{connecting?'Checking your connection…':version>0?'Still offline. Try again later. Your circle setup is unavailable.':'We can’t check your circle or create one right now.'}</Txt>
+   <Action testID="retry-circles" label={connecting?'Checking connection…':'Retry connection'} disabled={connecting} onPress={()=>setVersion(v=>v+1)}/>
+   <View style={[styles.panel,{marginTop:24}]}><Txt display style={styles.title}>Shared sky, private questions.</Txt><Txt style={styles.caption}>Friends share their day, theme and Sun sign. Never their question or forecast.</Txt></View>
+   <Txt style={[styles.caption,{marginTop:16}]}>Circle setup returns when the connection is restored.</Txt>
+   {joining&&invite?<><Txt style={[styles.caption,{marginTop:16}]}>Your invitation is waiting. Connect to review and join.</Txt><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></>:null}
+  </View>:<>
    <Txt display>Your little circle.</Txt><SocialPush/>{data?<SocialIdentity key={data.owner} data={data} act={act} busy={busy}/>:null}<Txt style={[styles.caption,{marginTop:12}]}>Friends by invitation. Personal questions stay private. Only Circle forecast questions are shared.</Txt>
    {data?.profile?.school_id?<View style={styles.panel}><Txt>School Circle suggestions</Txt><Txt style={styles.caption}>Only friends you directly invited or who invited you, at your chosen school. No school directory.</Txt>
     {!data.schoolSuggestions.length?<Txt style={styles.caption}>No invited school friends yet. Use a private invitation with someone you already know.</Txt>:null}

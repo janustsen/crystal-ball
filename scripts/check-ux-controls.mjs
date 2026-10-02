@@ -16,7 +16,7 @@ try{
  await expect(large).toHaveCSS('outline-style','solid');await page.screenshot({path:`${out}/settings-focus.png`});
  const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations).toEqual([]);log.push({settingsAxeViolations:axe.violations.length});
  await page.getByRole('switch',{name:'Reduce motion',exact:true}).click();await page.reload();await page.getByTestId('tab-you').click();await expect(page.getByRole('switch',{name:'Reduce motion',exact:true})).toBeChecked();
- await page.getByTestId('tab-sky').click();await page.getByTestId('social-section-circles').click();await expect(page.getByText('Circles are offline right now.',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Create my circle',exact:true})).toBeDisabled();
+ await page.getByTestId('tab-sky').click();await page.getByTestId('social-section-circles').click();await expect(page.getByText('Circles are offline.',{exact:true})).toBeVisible();await expect(page.getByTestId('create-my-circle')).toHaveCount(0);await expect(page.getByTestId('retry-circles')).toBeEnabled();
  await page.screenshot({path:`${out}/circles-offline.png`});
  log.push({labelTap:true,spaceToggle:true,preferencePersists:true,offlineCreationDisabled:true});
 }finally{await browser.close();await writeFile(`${out}/controls.json`,JSON.stringify(log,null,2));console.log(JSON.stringify(log,null,2))}
