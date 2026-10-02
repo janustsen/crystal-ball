@@ -75,7 +75,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
   await page.screenshot({path:`${evidence}/paywall${tag}.png`});
  }
  await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');await tap('tab-home');
- await tap('hero-orb');await check('approach',text('Come closer…'),0);
+ await tap('hero-orb');await check('approach',text('The Ball is opening…'),0);
  await check('listening',page.getByTestId('type-instead'));
  await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));
  await tap('question-subject');await tap('ask-about-someone');await page.getByTestId('person-name').fill('Alex');await page.getByTestId('question-input').fill('Will Alex learn Spanish in six months?');await check('ask-person',page.getByTestId('person-name'));await tap('question-subject');await check('ask-person-collapsed',page.getByTestId('question-subject'));await tap('question-subject');await tap('ask-about-myself');await tap('question-subject');await page.getByTestId('question-input').fill(prediction.question);
@@ -101,6 +101,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await check('reveal-evidence',page.getByTestId('why-reason'));
  for(const id of ['reason','answers','assumptions','sources']){await tap(`why-${id}`);if(id==='sources')for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();await check(`evidence-${id}`,page.getByTestId('why-heading'));await tap('why-all-evidence');}
  await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
+ await tap('preview-story-card');await check('share-inspection',page.getByTestId('share-image-text'));await page.getByRole('button',{name:'Back to sharing',exact:true}).click();
  await tap('share-more');await check('share-options',page.getByTestId('share-friend-link'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
