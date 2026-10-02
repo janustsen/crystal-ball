@@ -1,7 +1,7 @@
 import {chromium} from '@playwright/test';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {expect} from '@playwright/test';
-const out='docs/ux-loop/round-33/golden-motion';await mkdir(out,{recursive:true});
+const out=process.env.UX_EVIDENCE||'.local/golden-motion';await mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 await context.addInitScript(()=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:3,plus:false,onboardingDone:true,ageConfirmed:true,ageBand:'adult',reduceMotion:false})));
 const page=await context.newPage();await page.route('**/engine',r=>{const action=r.request().postDataJSON().action;return r.fulfill({contentType:'application/json',body:JSON.stringify({kind:'ok',value:action==='omen'?{text:'A small beginning can change the shape of a season.'}:action==='plan'?{topic:'general',provided:{},cards:[{id:'a',question:'Have you picked a class?',options:['Yes','Other'],remember:false}]}:{id:'golden-motion',question:'Will I learn pottery this winter?',headline:'You’ll find your rhythm at the pottery wheel this winter.',label:'Speculative forecast · not a guarantee',why:'A weekly class can make room for practice.',facts:{},assumptions:['You keep practising.'],sources:[],createdAt:new Date().toISOString(),golden:true}})});});
