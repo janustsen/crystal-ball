@@ -30,14 +30,13 @@ export function BackupPanel(){
    setNotice('History backed up. Your readings are here.');
   }catch{setNotice(action==='save'?'Backup could not finish. Already saved with Apple? Choose Restore. Your local readings are safe.':'Restore could not finish. Your local readings are safe. Try again when connected.')}
  }
+ if(!available||!configured)return null;
  return <View style={styles.panel}>
   <Txt>Keep your glimpses</Txt>
   <Txt style={styles.caption}>Optional Apple backup saves your readings and remembered answers to Supabase. Use one device at a time. Saving replaces the archive; Restore replaces this device’s readings and remembered answers. Test credits stay here.</Txt>
-  {!available||!configured?<Txt style={[styles.caption,{marginTop:12}]}>Apple backup needs the configured iOS app. Readings stay on this device.</Txt>:<>
    <Action label={mode==='save'?'Restore an Apple backup':'Save this device with Apple'} quiet disabled={backupBusy} onPress={()=>{setMode(mode==='save'?'restore':'save');setNotice('')}}/>
    <Txt style={styles.caption}>{mode==='save'?'Save this device’s history':'Restore from your linked Apple account. If you haven’t linked Apple yet, sign in to choose your backup.'}</Txt>
    {backupBusy?<Txt accessibilityLiveRegion="polite">Saving your glimpses…</Txt>:<Apple.AppleAuthenticationButton buttonType={Apple.AppleAuthenticationButtonType.CONTINUE} buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE} cornerRadius={12} style={{height:52,marginTop:12}} onPress={()=>{if(mode==='restore')Alert.alert('Replace this device’s data?','Restore from your linked Apple account replaces this device’s readings and remembered answers. If you haven’t linked Apple yet, sign in to choose your backup. Use one device at a time.',[{text:'Cancel',style:'cancel'},{text:'Restore and replace',style:'destructive',onPress:()=>{void connect('restore')}}]);else void connect('save')}}/>}
-  </>}
   {notice?<Txt accessibilityLiveRegion="polite" style={styles.caption}>{notice}</Txt>:null}
  </View>;
 }
