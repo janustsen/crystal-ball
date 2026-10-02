@@ -1,0 +1,106 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scene": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hierarchy": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "typography": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "surfaces": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "clarity": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "feedback": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "accessibility": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "hierarchy",
+              "typography",
+              "surfaces",
+              "clarity",
+              "feedback",
+              "accessibility"
+            ]
+          },
+          "finding": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scene",
+          "variant",
+          "dimensions",
+          "finding"
+        ]
+      }
+    },
+    "omenWinner": {
+      "type": "string"
+    },
+    "consentWinner": {
+      "type": "string"
+    },
+    "birthWinner": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "comparisons",
+    "omenWinner",
+    "consentWinner",
+    "birthWinner",
+    "reason",
+    "limitations"
+  ]
+}

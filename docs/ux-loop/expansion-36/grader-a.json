@@ -1,0 +1,89 @@
+{
+  "comparisons": [
+    {
+      "scene": "unavailable omen",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7.5, "surfaces": 8, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "The orb and tabs establish clear Home identity. The example question adds competition at normal size. Status remains readable at 200%, but 'One try a day' does not explicitly explain that today's attempt was consumed. Supplied runtime evidence supports recovery beyond this static state."
+    },
+    {
+      "scene": "unavailable omen",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 9, "feedback": null, "accessibility": 8},
+      "finding": "Best visible explanation: absent content, consumed attempt and next opportunity are distinct and always exposed. A quiet divider separates status from the orb action. All essential status text fits at 200%. Actual loader and storage-error handling are unimplemented."
+    },
+    {
+      "scene": "unavailable omen",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 6, "feedback": null, "accessibility": 5},
+      "finding": "The disclosure saves little useful space while hiding why the omen is unavailable. In the expanded 200% capture, the next-attempt sentence is cut off at the tab bar before 'tomorrow'. Its accessible reachability is unproved; treat this as an unresolved essential-content gate."
+    },
+    {
+      "scene": "unavailable omen",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7.5, "typography": 8, "surfaces": 8, "clarity": 8.5, "feedback": null, "accessibility": 7.5},
+      "finding": "The timeline communicates used-today versus available-tomorrow without opening anything, including at 200%. Two columns and decorative milestones give a minor status more visual weight than it needs; the enlarged state sits close to the tabs."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7.5, "surfaces": 8, "clarity": 8, "feedback": 8.5, "accessibility": 8},
+      "finding": "Disclosure, explicit switch and refusal action communicate a real permission boundary. The reading balance distracts, and the 200% decision view leaves the no-send reassurance outside the viewport. Supplied evidence establishes draft retention, focus return, withdrawal and a separate Ask before sending."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 9, "feedback": null, "accessibility": 7},
+      "finding": "The clearest action wording: 'Allow and return' conveys both consent and destination, while copy distinguishes permission from sending. At 200%, the decision capture shows the grant action but leaves 'Not now' below the viewport. Grant, refusal, withdrawal and focus behavior remain unproved."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7.5, "typography": 7.5, "surfaces": 8, "clarity": 7.5, "feedback": null, "accessibility": 6.5},
+      "finding": "The persistent checkbox and return button remain visible at 200%, but the footer separates the decision from its explanation. Neither supplied enlarged position exposes the separate-Ask reassurance. 'Return to question' also requires interpreting the checkbox to understand whether permission changes."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 7.5},
+      "finding": "Labeled receipt rows make data categories and purposes easiest to scan. They substantially lengthen the screen, but the enlarged decision position keeps the checkbox, no-send explanation and return action together. Earlier provider and input context requires scrolling back; checkbox semantics and permission persistence are unproved."
+    },
+    {
+      "scene": "birth details",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6.5, "typography": 6.5, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 6},
+      "finding": "Local-time guidance, city-selection instructions, saved-location detail and a visible forget action provide useful context. Global header, Close and tabs consume form space. At 200%, the initial city field and saved Done button are only partly visible above navigation; large result typography amplifies the crowding."
+    },
+    {
+      "scene": "birth details",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 7.5, "feedback": null, "accessibility": 7.5},
+      "finding": "A focused form removes competing navigation and keeps both fields together. The saved result has a clear Done action and readable supporting details at 200%. Initial privacy copy extends below the viewport, and shortening the time label removes explicit local-time guidance. Disabled-save explanation and city selection are not demonstrated."
+    },
+    {
+      "scene": "birth details",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "Strongest enlarged form: each step exposes its instruction, field and next action without tab competition. Local-time guidance survives, and the city step keeps its privacy explanation visible. The long city placeholder clips at 200%. Extra navigation requires draft retention and a clear previous-step route that these captures do not establish."
+    },
+    {
+      "scene": "birth details",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 6.5, "feedback": null, "accessibility": 7.5},
+      "finding": "The summary and individual editor fit comfortably at both sizes, retaining You/tab context. Repeated 'Add' links need field-specific accessible names. The editor explicitly saves nothing, so its return route cannot demonstrate progress toward calculation. Saved details and editing are hidden behind a disclosure; this is an incomplete interaction concept."
+    }
+  ],
+  "omenWinner": "A",
+  "consentWinner": "A",
+  "birthWinner": "B",
+  "reason": "For design direction, A makes the unavailable-omen state explicit with minimal visual machinery; consent A expresses the permission decision most directly; birth B handles enlarged text and focused entry best. These are provisional design selections, not replacements proven superior in operation. Baseline alone has supplied production behavior evidence. None establishes the required A>=9 and F>=9 across screens and components.",
+  "limitations": [
+    "Read-only comparison of the supplied images and stated evidence; no source, other reviews, prior scores or runtime inspection.",
+    "Each row aggregates normal and 200% captures, including supplied secondary states. Findings include critical component weaknesses rather than averaging them away.",
+    "Prototype feedback/recovery scores are null because real permission, validation, persistence, calculation and recovery behavior is absent. Visible status wording is assessed under clarity; fictional saved results receive no persistence credit.",
+    "Accessibility scores assess demonstrated visual presentation only. Prototype checks establish fonts, absence of page errors and absence of horizontal document overflow, not keyboard operation, focus, target sizes, contrast compliance or assistive-technology behavior.",
+    "Viewport clipping does not alone establish that scrolling is impossible. Omen B's obscured essential explanation remains an unresolved gate; no passing overall grade should be inferred.",
+    "Baseline feedback and accessibility scores incorporate supplied checks where relevant; broad test counts do not establish every birth-form boundary or eliminate visible enlarged-text crowding.",
+    "Native, physical iPhone and VoiceOver evidence is deferred separately. No full/native 9/10 certification is made, and no prototype receives a complete functional or overall certification from null dimensions."
+  ]
+}

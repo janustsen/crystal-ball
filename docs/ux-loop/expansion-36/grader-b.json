@@ -1,0 +1,172 @@
+{
+  "comparisons": [
+    {
+      "scene": "unavailable omen",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7.5,
+        "surfaces": 7.5,
+        "clarity": 6.5,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "The orb and tabs establish a clear Home identity, but the floating question adds competing emphasis at normal size. Both scales show the empty state and tomorrow timing; neither explicitly says today's attempt was consumed. Feedback and accessibility scores incorporate the supplied baseline checks."
+    },
+    {
+      "scene": "unavailable omen",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 9,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "Strongest Home composition: the orb remains primary, a restrained divider separates the omen, and always-visible prose distinguishes unavailable content, used attempt and tomorrow's next attempt. All three facts remain visible at 200%. Actual status handling is unimplemented."
+    },
+    {
+      "scene": "unavailable omen",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 6,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "The disclosure keeps Home quiet but hides the reason and next opportunity behind an extra action. At 200%, the expanded explanation extends below the visible content area, leaving tomorrow unseen. The downward chevron also remains unchanged in the expanded capture."
+    },
+    {
+      "scene": "unavailable omen",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 7.5,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "The timeline exposes both days and the consumed attempt at both scales. Its dots, rule and two columns add visual machinery for a simple status; at 200%, the Today explanation sits close to the tab boundary. Less effortless to read than A's prose."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7.5,
+        "surfaces": 7.5,
+        "clarity": 8,
+        "feedback": 8.5,
+        "accessibility": 8
+      },
+      "finding": "Full disclosure, an explicit off switch and Not now communicate a conservative initial choice. The reading counter distracts from permission, while the no-send reassurance falls outside the supplied 200% decision view. Supplied production evidence establishes draft retention, focus return, withdrawal and a separate Ask boundary."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "Allow and return expresses a direct grant action, and the adjacent explanation distinguishes permission from sending. At 200%, Not now is outside both supplied views, weakening the visible balance between granting and declining. Consent recording and withdrawal are unproved."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "The persistent checkbox and return button remain visible at 200%, but the separate-Ask explanation is absent from the shown decision context. At normal size, a large empty interval disconnects the disclosure from its controls. Returning unchecked is less explicit than a visible decline action."
+    },
+    {
+      "scene": "AI permission",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8.5,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "Strongest disclosure structure: labeled rows distinguish provider, input, saved context, friend data and purpose. It requires more scrolling at 200%, but the supplied decision position keeps the checkbox, separate-Ask explanation and return button together. Earlier disclosure remains above the viewport; permission behavior is unimplemented."
+    },
+    {
+      "scene": "birth details",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 6.5,
+        "typography": 6.5,
+        "surfaces": 7.5,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "Explicit local-time guidance, city-selection instructions and device-storage confirmation are useful. Global chrome and oversized result typography consume substantial room: at 200%, city entry continues below the initial viewport and the saved Done button is only partially visible. Supplied checks support operation, but the shown layouts impose extra scrolling."
+    },
+    {
+      "scene": "birth details",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8.5,
+        "surfaces": 8.5,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "The focused form keeps both fields and Calculate and save visible at 200%; the saved view cleanly separates outcome, Done and supporting details. However, it drops explicit local-time guidance and the baseline explanation of why saving is disabled. Search, validation and persistence are illustrative."
+    },
+    {
+      "scene": "birth details",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8.5,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "Strongest demonstrated birth flow: numbered steps, explicit local-time guidance and one primary action per step remain readable at 200%. The city privacy explanation also fits. The long city placeholder clips within its input, and the generic You back label does not explain returning to the time step. Draft retention and calculation remain unproved."
+    },
+    {
+      "scene": "birth details",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 6.5,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "The summary makes missing values easy to scan and preserves global context at both scales. Separate Add routes introduce more navigation; the editor explicitly saves no input, so it does not demonstrate completing the summary. The saved disclosure also hides verification details. The fictional result cannot establish a working task."
+    }
+  ],
+  "omenWinner": "A",
+  "consentWinner": "C",
+  "birthWinner": "B",
+  "reason": "A makes omen status explicit without extra interaction. C makes permission scope easiest to scan and preserves the sending boundary beside the decision. B provides the clearest enlarged-text birth sequence. These are design selections, not verified replacements for baseline functionality.",
+  "limitations": [
+    "Reviewed only supplied images and stated evidence; no source, other reviews, prior scores, tools or implementation were inspected.",
+    "Each row aggregates normal and 200% captures, including supplied expanded, decision, editor, city and saved states. Findings cover meaningful visible components.",
+    "Prototype feedback/recovery and accessibility are null because the screenshots and limited prototype checks cannot establish those dimensions as a whole. Visible deficiencies are still recorded.",
+    "Baseline functional scores rely partly on supplied verification facts, not independently repeated checks. Offscreen content alone does not prove an unreachable control or a hard-gate failure.",
+    "No complete prototype F or overall score can be calculated honestly from missing dimensions. No variant is demonstrated to meet the every-screen-and-component threshold.",
+    "Physical iPhone, VoiceOver and other native evidence remain deferred. The individual browser-design score of 9 does not certify native accessibility or overall readiness."
+  ]
+}
