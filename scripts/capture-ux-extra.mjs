@@ -1,4 +1,5 @@
 import {chromium,expect} from '@playwright/test';
+import {writeFile} from 'node:fs/promises';
 const round=process.argv[2],base=process.env.PREVIEW_URL||'http://localhost:8098';
 if(!/^docs\/ux-loop\/round-\d+$/.test(round||''))throw new Error('Pass round path');
 const browser=await chromium.launch({channel:'chrome',headless:true});
@@ -10,4 +11,11 @@ try{
  // Deliberate list-stress fixture, not real readings or a model-quality claim.
  await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));state.largeText=false;state.history=Array.from({length:20},(_,i)=>({id:`stress-${i}`,question:'Will I make time to practise Spanish with a friend every week?',headline:'By spring you may feel more at home in a new conversation.',createdAt:new Date(Date.now()-i*86400000).toISOString(),label:'Speculative · layout fixture',why:'Fixture only',facts:{},sources:[],assumptions:[],friend:false}));localStorage.setItem('crystal-ball-v1',JSON.stringify(state))});
  await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('Saved on this device.')).toBeVisible();await page.waitForTimeout(800);await page.screenshot({path:`${round}/screens/history-stress.png`});
+ // Fixture readings exercise the real save controls and persistence, not forecast quality.
+ await page.getByRole('button').filter({hasText:'By spring you may feel more at home'}).first().click();
+ for(const [outcome,label] of [['pending','◷ Not yet'],['no',"Didn't come true"],['yes','✓ Came true']]){
+  await page.getByTestId(`check-in-${outcome}`).click();await expect(page.getByTestId('check-in-status')).toHaveText(`Saved · ${label}`);await page.waitForTimeout(300);await page.screenshot({path:`${round}/screens/outcome-${outcome}-saved.png`});
+ }
+ await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('✓ Came true',{exact:true})).toBeVisible();await page.waitForTimeout(400);await page.screenshot({path:`${round}/screens/history-outcome-persisted.png`});
+ await writeFile(`${round}/outcome-feedback.json`,JSON.stringify({fixture:'Synthetic history item, real save controls and storage',savedStates:['pending','no','yes'],inlineStatus:true,persistsAfterReload:true},null,2));
 }finally{await browser.close()}
