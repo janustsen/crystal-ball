@@ -24,6 +24,14 @@ export function birthdayProfile(birthday?:string,ageConfirmed=false){
  return {birthday,ageConfirmed:group==='unknown'?ageConfirmed:true,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?(ageConfirmed?'teen' as const:null):group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined};
 }
 
+export function updateBirthday(state:AccountState,birthday?:string):AccountState {
+ if(birthday&&birthday===state.birthday)return state;
+ const confirmed=canRead(state),profile=birthdayProfile(birthday,confirmed);
+ const facts={...state.facts};delete facts.birthday;delete facts.sun_sign;
+ const history=state.history.map(reading=>{const facts={...reading.facts};delete facts.birthday;return {...reading,facts};});
+ return {...state,...profile,...(!birthday&&confirmed?{ageBand:state.ageBand}:{}),facts,history};
+}
+
 export const validPersonName=(name:string)=>/^[\p{L}][\p{L}’'\-]{0,39}$/u.test(name);
 
 
@@ -44,7 +52,7 @@ export function restoreProfile(state:AccountState):AccountState {
  const facts={...state.facts};delete facts.birthday;
  if(state.onboardingBlocked||ageGroup(birthday)==='under13')return {...state,...birthdayProfile(),facts,onboardingBlocked:true,onboardingDone:false};
  const profile=birthdayProfile(birthday,state.ageConfirmed===true);
- return {...state,...profile,...(birthday?{birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign}:{}),facts,onboardingDone:profile.ageConfirmed&&(state.onboardingDone??Boolean(state.history.length||Object.keys(facts).length))};
+ return {...state,...profile,...(!birthday&&profile.ageConfirmed&&state.ageBand==='adult'?{ageBand:'adult' as const}:{}),...(birthday?{birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign}:{}),facts,onboardingDone:profile.ageConfirmed&&(state.onboardingDone??Boolean(state.history.length||Object.keys(facts).length))};
 }
 export function personQuestionIssue(question:string,name?:string):string|undefined {
  if(name===undefined)return;

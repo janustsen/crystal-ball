@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {TextInput,View} from 'react-native';
 import {Action,Txt,styles,colors} from './ui';
 import {useStore} from './store';
-import {ageGroup,birthdayProfile} from './profile';
+import {ageGroup,updateBirthday} from './profile';
 import {birthChart,findBirthPlaces,type BirthPlace} from './birth-chart';
 
 export function BirthProfile(){
@@ -15,7 +15,7 @@ export function BirthProfile(){
  }
  function saveBirthday(){
   if(ageGroup(birthday)==='under13'){update(s=>({...s,onboardingBlocked:true,onboardingDone:false}));return;}
-  try{const profile=birthdayProfile(birthday.trim()||undefined);update(s=>({...s,...profile}));setEditing(false);setNotice('');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
+  try{const next=updateBirthday(state,birthday.trim()||undefined);update(()=>next);setEditing(false);setNotice('');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
  }
  return <View style={styles.panel}>
   <Txt display style={styles.title}>Your sky</Txt>
@@ -23,7 +23,7 @@ export function BirthProfile(){
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
   {state.birthday?<Txt style={styles.caption}>Birthday · {state.birthday}</Txt>:null}
   <Action label={editing?'Close birthday':'Edit birthday'} quiet onPress={()=>{setBirthday(state.birthday||'');setEditing(!editing)}}/>
-  {editing?<><TextInput accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} style={styles.input} maxLength={10}/><Action label="Save birthday" onPress={saveBirthday}/>{state.birthday?<Action label="Forget birthday" quiet onPress={()=>{update(s=>({...s,...birthdayProfile()}));setEditing(false)}}/>:null}</>:null}
+  {editing?<><TextInput accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} style={styles.input} maxLength={10}/><Action label="Save birthday" onPress={saveBirthday}/>{state.birthday?<Action label="Forget birthday" quiet onPress={()=>{update(s=>updateBirthday(s));setEditing(false)}}/>:null}</>:null}
   {state.moonSign?<Txt>{state.moonSign} Moon · {state.risingSign} rising</Txt>:null}
   {state.birthday?<Action label={chartOpen?'Close birth details':'Add birth time and place'} quiet onPress={()=>setChartOpen(!chartOpen)}/>:null}
   {state.birthday&&chartOpen?<>

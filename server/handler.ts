@@ -1,3 +1,4 @@
+import {checkInDate} from '../src/retention.ts';
 import {readingAge,validBirthday,validPersonName} from '../src/profile.ts';
 import {personalOmen} from './omen.ts';
 import { makePlan, predict } from './engine.ts';
@@ -25,7 +26,9 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
    if(body.action!=='omen')readingAge(viewerBirthday,ageConfirmed);
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
-   const context={viewerBirthday,ageConfirmed,personName};
+   const localDate='localDate'in body?body.localDate:undefined;
+   if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
+   const context={viewerBirthday,ageConfirmed,personName,localDate};
    const facts=raw as Facts,question=body.question.trim();
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:body.action==='plan'?await makePlan(question,facts,model,context):await predict(question,facts,'friend'in body&&body.friend===true,model,context);
    return new Response(JSON.stringify(result),{headers});
