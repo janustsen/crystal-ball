@@ -1,0 +1,7 @@
+# Expansion38 — task hierarchy, not another color pass
+
+Round37 minimum8.33/median8.83 is still a stall. Reopen all six axes, retaining Open mist, the selected fonts and the protected wordmark. Revisited the research report’s core findings: atmospheric hero for entry, stable utility content, one clear next action, full context with deliberate detail, short journeys and typography hierarchy before minimalism. The source report’s older font recommendation is superseded.
+
+The new design question is whether an orb and large serif question should consume utility-screen space, and whether repeating one-column form geometry at200% is helping. Compare three materially different task compositions on follow-up choice/custom-answer, optional birthday and check-in. A: compact editorial task, inline progress, no utility hero, reduced base heading role and direct actions. B: deliberate selection and explicit continuation, review before commit; birthday as one date string; check-in actions before expanded context. C: small orb/progress medallion with progressive detail steps; birthday one part at a time; check-in one outcome at a time. Every prototype retains explicit optional exits and the speculative boundary.
+
+Measure390×844 normal/200%, with500px custom-answer captures. Baselines are actual current production; alternatives are throwaway and do not validate/persist/calculate/send anything. Comparison graders remain independent and blind. Selection must be followed by real implementation and current behavior evidence; no prototype score establishes readiness.

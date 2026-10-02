@@ -1,0 +1,113 @@
+{
+  "comparisons": [
+    {
+      "scene": "question",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "A 7.7; F 8.0; overall 7.9. The large orb competes with the question and pushes choices downward. Large type remains legible at 200%, but the last option approaches the viewport edge. Reported acknowledgement supports feedback; automatic advancement limits inspection."
+    },
+    {
+      "scene": "question",
+      "variant": "a",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7.5},
+      "finding": "A 8.3; observed F 7.8; provisional overall 8.0. Strong question-first hierarchy and generous row spacing at both scales. Back and progress are easy to discover. Plain answer rows communicate selection less explicitly than B; activation feedback is unshown."
+    },
+    {
+      "scene": "question",
+      "variant": "b",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 8},
+      "finding": "A 8.3; observed F 8.5; provisional overall 8.4. Radios, instruction and Continue make selection versus commitment explicit. Selected capture uses both a filled marker and color, and the button remains visible at 200%. Small, faint unselected rings weaken discovery; the extra tap buys useful inspection."
+    },
+    {
+      "scene": "question",
+      "variant": "c",
+      "dimensions": {"hierarchy": 7.5, "typography": 8, "surfaces": 8, "clarity": 7.5, "feedback": null, "accessibility": 7.5},
+      "finding": "A 7.8; observed F 7.5; provisional overall 7.6. The small orb retains identity with less dominance, but the medallion and centered question interrupt the left-aligned reading path. At 200%, decorative context consumes space above choices. 'One more detail' beside '1 of 2' is potentially confusing."
+    },
+    {
+      "scene": "custom",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "finding": "A 7.7; F 7.7; overall 7.7. Compact layout keeps Continue visible even at 500px/200%, and the input has a strong focus indicator. However, the field shows only the answer's tail at enlarged text, the header becomes crowded, and the short viewport loses the visible field label."
+    },
+    {
+      "scene": "custom",
+      "variant": "a",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "A 8.3; observed F 8.3; provisional overall 8.3. Separate navigation, persistent visible label and a taller input make the complete draft easier to inspect. Continue follows the field naturally. At 500px/200%, scrolling is needed; the action capture shows the full answer and button together."
+    },
+    {
+      "scene": "custom",
+      "variant": "b",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 8},
+      "finding": "A 8.3; observed F 8.0; provisional overall 8.1. The editor shares A's readable structure. Review, Use this answer and Edit are clearly distinguished, including at 500px/200%. The review repeats an already inspectable short answer and adds navigation; draft retention and edit recovery are unproved."
+    },
+    {
+      "scene": "custom",
+      "variant": "c",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7.5},
+      "finding": "A 7.7; observed F 7.8; provisional overall 7.7. Body-sized question context gives the answer more relative emphasis. The orb/progress block nevertheless spends substantial vertical space before editing begins. Continue extends beyond the initial 844px/200% view and requires scrolling."
+    },
+    {
+      "scene": "birthday",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7.5, "typography": 7.5, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "A 7.7; F 8.0; overall 7.9. Individually labeled fields and the example explain entry well. The oversized heading, repeated optionality and fully stacked enlarged fields push Continue and Skip below the initial viewport. Visible heading focus is useful evidence, not an aesthetic defect."
+    },
+    {
+      "scene": "birthday",
+      "variant": "a",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 8, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "A 8.5; observed F 8.3; provisional overall 8.4. Optionality and Skip are adjacent; familiar labeled date parts avoid a format puzzle. The two-row grid at 200% keeps every field and Continue visible. Error, date-validation and age-decision behavior remain unestablished."
+    },
+    {
+      "scene": "birthday",
+      "variant": "b",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 7.5, "feedback": null, "accessibility": 7.5},
+      "finding": "A 8.3; observed F 7.5; provisional overall 7.8. One field is compact and its label/example explain the expected order. Users must still translate their birthday into YYYY-MM-DD and supply separators. No demonstrated formatting assistance or correction offsets that burden."
+    },
+    {
+      "scene": "birthday",
+      "variant": "c",
+      "dimensions": {"hierarchy": 8, "typography": 8.5, "surfaces": 8, "clarity": 7.5, "feedback": null, "accessibility": 7.5},
+      "finding": "A 8.2; observed F 7.5; provisional overall 7.8. Large individual fields and explicit Next/Previous labels are readable at both scales. Three screens fragment a familiar single task, while '1 of 2' and 'part 1 of 3' introduce competing progress systems. Preservation of earlier entries is unproved."
+    },
+    {
+      "scene": "checkin",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6.5, "typography": 7.5, "surfaces": 8, "clarity": 7.5, "feedback": 8, "accessibility": 8},
+      "finding": "A 7.3; F 7.8; overall 7.6. Outcomes compete with quota, reminder, explanation, sharing and more actions. Expanding the serif forecast at 200% pushes outcomes below the viewport. Reported persisted, correctable outcomes support functionality despite the crowded task hierarchy."
+    },
+    {
+      "scene": "checkin",
+      "variant": "a",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7.5},
+      "finding": "A 8.3; observed F 7.8; provisional overall 8.0. Task heading and original question establish purpose clearly; forecast disclosure preserves context. At 200%, expanding it moves outcomes below the visible area. Direct outcome rows lack visible selection or saved confirmation."
+    },
+    {
+      "scene": "checkin",
+      "variant": "b",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 7.5},
+      "finding": "A 8.3; observed F 8.3; provisional overall 8.3. Outcome radios and Save outcome distinguish choosing from saving. Placing the optional forecast afterward keeps the main task stable when expanded. Small faint rings and low-emphasis supporting copy remain weaknesses; no selected or saved result is supplied."
+    },
+    {
+      "scene": "checkin",
+      "variant": "c",
+      "dimensions": {"hierarchy": 8, "typography": 8.5, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7.5},
+      "finding": "A 8.2; observed F 7.8; provisional overall 7.9. Review clearly presents the original question, forecast and qualifier; the separate outcome screen remains compact at 200%. Mandatory review adds a step even when context is remembered, and direct outcomes still provide no demonstrated saved-state feedback."
+    }
+  ],
+  "questionWinner": "b",
+  "customWinner": "a",
+  "birthdayWinner": "a",
+  "checkinWinner": "b",
+  "reason": "B makes discrete selection and commitment clearest for questions and check-ins. A keeps custom entry directly editable and birthday entry familiar without unnecessary stages. Scores aggregate supplied scales and states, including component weaknesses. Averages normalize non-null dimensions; prototype functional averages and overall grades are partial, provisional comparisons, not acceptance results. No variant demonstrates the authorized threshold across all screens and components.",
+  "limitations": [
+    "Assessment uses only supplied images and accompanying facts; no source, other reviews, runtime inspection or independent verification.",
+    "Prototype feedback/recovery is null: static selected, review and navigation views establish visual design, not reliable transitions, retention, validation, saving or recovery.",
+    "Accessibility scores cover visible enlargement, reading order, labels and control presentation. Prototype semantics, focus, keyboard operation, target hit areas, measured contrast and reduced motion are unverified.",
+    "Baseline functional scores incorporate the supplied production-check summary; those checks were not independently rerun or transferred to prototypes.",
+    "The 500px custom viewport is synthetic. Physical keyboard, iPhone, VoiceOver and other native behavior remain unverified for every variant.",
+    "Offscreen content with a supplied scrolled action view is not treated as an inaccessible control. No demonstrated hard-gate failure is established, but missing interaction evidence prevents acceptance."
+  ]
+}
