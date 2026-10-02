@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import {AccessibilityInfo,Platform,Pressable,View,type TextInput} from 'react-native';
+import {AccessibilityInfo,BackHandler,Platform,Pressable,View,type TextInput} from 'react-native';
 import {Input,Action,Txt,styles,colors} from './ui';
 import {useStore} from './store';
 import {formatCalendarDate} from './retention';
@@ -9,6 +9,7 @@ import {birthChart,findBirthPlaces,validBirthTime,type BirthPlace} from './birth
 
 export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)=>void}){
  const {state,update}=useStore(),[editing,setEditing]=useState(false),[chartOpen,setChartOpen]=useState(false),[birthday,setBirthday]=useState(state.birthday||''),[time,setTime]=useState(state.birthTime||''),[place,setPlace]=useState(''),[places,setPlaces]=useState<BirthPlace[]>([]),[selected,setSelected]=useState<BirthPlace>(),[notice,setNotice]=useState('');
+ const [chartStep,setChartStep]=useState<'time'|'city'>('time');
  const [chartStatus,setChartStatus]=useState<'idle'|'searching'|'no-results'|'search-error'|'time-error'|'calculation-error'|'saved'|'forgotten'>('idle');
  const timeInput=useRef<TextInput>(null),cityInput=useRef<TextInput>(null),busy=chartStatus==='searching';
  const wasChartOpen=useRef(false);
@@ -23,9 +24,13 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   request.current?.abort();const abort=new AbortController();request.current=abort;setChartStatus('searching');setSelected(undefined);setPlaces([]);
   try{const matches=await findBirthPlaces(place.trim(),abort.signal);if(!abort.signal.aborted){setPlaces(matches);setChartStatus(matches.length?'idle':'no-results');}}catch{if(!abort.signal.aborted)setChartStatus('search-error');}
  }
+ function backChart(){if(chartStep==='city'&&chartStatus!=='saved'){request.current?.abort();setChartStep('time');setChartStatus('idle')}else closeChart()}
+ useEffect(()=>{if(!editing&&!chartOpen)return;const listener=BackHandler.addEventListener('hardwareBackPress',()=>{if(editing){setNotice('');setEditing(false)}else backChart();return true});return()=>listener.remove()},[editing,chartOpen,chartStep,chartStatus]);
+ useEffect(()=>{if(!chartOpen||chartStatus==='saved')return;if(Platform.OS==='web'){const heading=document.querySelector<HTMLElement>('[data-testid=birth-details-heading]');heading?.setAttribute('tabindex','-1');heading?.focus();heading?.scrollIntoView({block:'start'})}else AccessibilityInfo.announceForAccessibility(chartStep==='time'?'Step 1 of 2: birth time':'Step 2 of 2: birth city')},[chartStep,chartOpen]);
+ function nextCity(){if(!validBirthTime(time)){setChartStatus('time-error');timeInput.current?.focus();return}setChartStatus('idle');setChartStep('city')}
  function closeChart(){request.current?.abort();setChartOpen(false);setChartStatus('idle')}
  function forgetChart(){
-  request.current?.abort();update(s=>({...s,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined}));setTime('');setPlace('');setSelected(undefined);setPlaces([]);setChartStatus('forgotten');
+  request.current?.abort();update(s=>({...s,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined}));setTime('');setPlace('');setSelected(undefined);setPlaces([]);setChartStatus('forgotten');setChartStep('time');
  }
  function calculate(){
   if(!selected||!state.birthday)return;
@@ -48,28 +53,31 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   const saved=chartStatus==='saved';
   const message=chartStatus==='no-results'?'No matching city. Try a nearby town.':chartStatus==='search-error'?'City search is unavailable. Try again.':chartStatus==='calculation-error'?'The chart could not be calculated. Try again.':chartStatus==='forgotten'?'Birth time and place forgotten. Your birthday is kept.':'';
   return <View>
-   <Pressable testID="close-birth-details" accessibilityRole="button" accessibilityLabel="Close birth details" onPress={closeChart} style={{alignSelf:'flex-end',minHeight:44,minWidth:44,justifyContent:'center',marginBottom:8}}><Txt style={{color:colors.ice}}>Close</Txt></Pressable>
-   <Txt testID="birth-details-heading" accessibilityRole="header" display>{saved?'Your Moon and rising':'Birth details'}</Txt>
+   <Pressable testID="close-birth-details" accessibilityRole="button" accessibilityLabel={chartStep==='city'&&!saved?'Back to birth time':'Back to You'} onPress={backChart} style={{alignSelf:'flex-start',minHeight:44,minWidth:44,justifyContent:'center',marginBottom:8}}><Txt style={{color:colors.ice}}>{chartStep==='city'&&!saved?'‹ Birth time':'‹ You'}</Txt></Pressable>
+   <Txt testID="birth-details-heading" accessibilityRole="header" display style={{fontSize:26,lineHeight:32}}>{saved?'Your Moon and rising':chartStep==='time'?'Your birth time':'Your birth city'}</Txt>
    {saved?<>
     <Txt accessibilityLiveRegion="polite" style={[styles.caption,{color:colors.gold,marginTop:16}]}>Calculated and saved on this device.</Txt>
     <Txt display style={{fontSize:24,lineHeight:32,marginVertical:16}}>{state.moonSign&&state.moonSign[0].toUpperCase()+state.moonSign.slice(1)} Moon · {state.risingSign&&state.risingSign[0].toUpperCase()+state.risingSign.slice(1)} rising</Txt>
-    <Txt style={styles.caption}>{state.birthPlace} · {state.birthTime}</Txt>
     <Action label="Done" onPress={closeChart}/>
-    <Action label="Edit birth details" quiet onPress={()=>{setChartStatus('idle');setTime(state.birthTime||'');setPlace('');setSelected(undefined);setPlaces([])}}/>
+    <Txt style={[styles.caption,{marginTop:12}]}>{state.birthPlace} · {state.birthTime}</Txt>
+    <Action label="Edit birth details" quiet onPress={()=>{setChartStep('time');setChartStatus('idle');setTime(state.birthTime||'');setPlace('');setSelected(undefined);setPlaces([])}}/>
     <Action label="Forget birth time and place" quiet onPress={forgetChart}/>
    </>:<>
-    <Txt style={[styles.caption,{marginTop:8,marginBottom:12}]}>Optional · your Moon and rising signs.</Txt>
+    <Txt style={[styles.caption,{marginTop:8,marginBottom:12}]}>Step {chartStep==='time'?'1':'2'} of 2 · optional</Txt>
     {state.birthPlace?<Txt style={[styles.caption,{marginBottom:16}]}>Editing details. Your saved chart stays until you calculate and save.</Txt>:null}
     {chartStatus==='forgotten'?<Txt accessibilityRole="alert" style={{marginBottom:16}}>{message}</Txt>:null}
+    {chartStep==='time'?<>
     <Txt style={styles.caption}>Birth time · local, 24-hour clock</Txt>
     <Input ref={timeInput} testID="birth-time" accessibilityLabel="Birth time HH:MM" aria-invalid={chartStatus==='time-error'} aria-describedby="birth-time-help" placeholder="HH:MM" placeholderTextColor={colors.muted} value={time} onChangeText={value=>{setTime(value);setChartStatus(current=>current==='searching'?current:'idle')}} style={styles.input} maxLength={5}/>
     <Txt nativeID="birth-time-help" accessibilityRole={chartStatus==='time-error'?'alert':undefined} style={[styles.caption,{color:chartStatus==='time-error'?colors.gold:colors.muted,marginBottom:16}]}>{chartStatus==='time-error'?'Enter a time from 00:00 to 23:59.':'For example, 14:30 is 2:30 pm.'}</Txt>
+    <Action testID="continue-to-birth-city" label="Continue to city" onPress={nextCity}/>
+    </>:<>
     {selected?<>
      <Txt style={styles.caption}>Selected birth city</Txt><Txt>{selected.name}</Txt>
      <Action label="Change birth city" quiet onPress={()=>{setSelected(undefined);setPlaces([]);setChartStatus('idle');if(Platform.OS==='web')requestAnimationFrame(()=>cityInput.current?.focus())}}/>
     </>:<>
      <Txt style={styles.caption}>Birth city</Txt>
-     <Input ref={cityInput} accessibilityLabel="Birth city" placeholder="City, country" placeholderTextColor={colors.muted} value={place} onChangeText={value=>{request.current?.abort();setChartStatus('idle');setPlace(value);setPlaces([])}} style={styles.input} maxLength={100}/>
+     <Input ref={cityInput} accessibilityLabel="Birth city" placeholder="City" placeholderTextColor={colors.muted} value={place} onChangeText={value=>{request.current?.abort();setChartStatus('idle');setPlace(value);setPlaces([])}} style={styles.input} maxLength={100}/>
      {chartStatus==='no-results'||chartStatus==='search-error'?<Txt accessibilityRole="alert" style={{marginVertical:8}}>{message}</Txt>:null}
      <Action testID="find-birth-city" label={busy?'Finding your city…':chartStatus==='search-error'?'Retry city search':'Find birth city'} quiet disabled={busy||place.trim().length<2} onPress={search}/>
      {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet onPress={()=>{setSelected(p);setPlaces([]);setChartStatus('idle')}}/>)}
@@ -77,8 +85,9 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
     {!message&&chartStatus!=='time-error'?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{busy?'Finding matching cities…':selected?(validBirthTime(time)?'Ready to calculate and save.':'Add your local birth time to continue.'):places.length?'Select your city from the results above.':'Find and select your birth city to continue.'}</Txt>:null}
     {chartStatus==='calculation-error'?<Txt accessibilityRole="alert" style={{marginTop:12}}>{message}</Txt>:null}
     <Action testID="reveal-moon-and-rising" label="Calculate and save" disabled={!selected||!time} onPress={calculate}/>
-    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={forgetChart}/>:null}
     <Txt style={[styles.caption,{marginTop:16}]}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
+    </>}
+    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={forgetChart}/>:null}
    </>}
   </View>;
  }
@@ -90,7 +99,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   <Action label="Edit birthday" quiet onPress={()=>{setBirthday(state.birthday||'');setNotice('');setRemoval(false);setEditing(true)}}/>
 
   {state.moonSign?<Txt>{state.moonSign&&state.moonSign[0].toUpperCase()+state.moonSign.slice(1)} Moon · {state.risingSign&&state.risingSign[0].toUpperCase()+state.risingSign.slice(1)} rising</Txt>:null}
-  {state.birthday?<Action label="Add birth time and place" quiet onPress={()=>{setNotice('');setChartStatus(state.birthPlace&&state.moonSign?'saved':'idle');setChartOpen(true)}}/>:null}
+  {state.birthday?<Action label="Add birth time and place" quiet onPress={()=>{setNotice('');setChartStep('time');setChartStatus(state.birthPlace&&state.moonSign?'saved':'idle');setChartOpen(true)}}/>:null}
 
   {notice?<Txt accessibilityRole="alert">{notice}</Txt>:null}
  </View>;

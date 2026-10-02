@@ -36,17 +36,14 @@ try{
  if(process.env.CHECK_AI_CONSENT==='1'){
   await page.getByTestId('question-input').fill('Will I learn Spanish?');
   const ask=page.getByTestId('look-into-the-future');
-  await expect(ask).toBeDisabled();
-  await page.getByRole('switch',{name:'Allow AI processing'}).click();
-  await expect(ask).toBeEnabled();
+  await expect(ask).toHaveText('Review AI consent');await ask.click();
+  await page.getByTestId('allow-ai-permission').click();await expect(ask).toHaveText('Ask the Ball');
   await page.getByRole('button',{name:'Speak instead',exact:true}).click();
-  const voiceAsk=page.getByRole('button',{name:'That’s my question',exact:true});
-  await expect(voiceAsk).toBeEnabled();
-  await page.getByRole('switch',{name:'Allow AI processing'}).click();
-  await expect(voiceAsk).toBeDisabled();
-  await page.getByTestId('type-instead').click();
-  await expect(ask).toBeDisabled();
-  results.push('Named AI consent enables typing/voice reading and revoking disables both; no model call made');
+  await expect(page.getByRole('button',{name:'That’s my question',exact:true})).toBeEnabled();
+  await page.getByTestId('review-ai-permission').click();await page.getByTestId('withdraw-ai-permission').click();
+  await expect(page.getByTestId('confirm-spoken-question')).toHaveText('Review AI consent');
+  await page.getByTestId('type-instead').click();await expect(ask).toHaveText('Review AI consent');
+  results.push('Named AI consent enables typing/voice reading and revoking restores review in both; no model call made');
  }
  await writeFile('docs/evidence/launch-ui.json',JSON.stringify({at:new Date().toISOString(),results},null,2));
  console.log(results);

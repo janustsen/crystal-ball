@@ -71,7 +71,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));await tap('social-section-circles');await check('circles',page.getByTestId('create-my-circle'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
  await tap('tab-you');await check('you',text('What the Ball remembers'));
- await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday day',exact:true}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');
+ await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday day',exact:true}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-time',page.getByTestId('birth-time'));await page.getByTestId('birth-time').fill('14:30');await tap('continue-to-birth-city');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');await tap('close-birth-details');
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');
