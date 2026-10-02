@@ -23,12 +23,12 @@ try {
    let clip=omen.parentElement;while(clip&&!/auto|scroll/.test(getComputedStyle(clip).overflowY))clip=clip.parentElement;
    const ask=document.querySelector('[data-testid="tab-ask"] .orb')?.getBoundingClientRect();
    const navigationClear=!!clip&&!!ask&&clip.getBoundingClientRect().bottom<=ask.top;
-   return {navigationClear,omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
+   return {omenVisible:panel.bottom<=document.querySelector('[data-testid=screen-scroll]').getBoundingClientRect().bottom,navigationClear,omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
   });
   let contrastChecks=0;for(let phase=0;phase<3;phase++){const samples=await measureTextContrast(page);contrastChecks+=samples.length;expect(samples.filter(sample=>sample.contrast<sample.required)).toEqual([]);await page.waitForTimeout(200)}
   results.push({width,height,largeText,...metrics,contrastChecks});
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}.png`});
-  if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||!metrics.navigationClear||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
+  if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||!metrics.omenVisible||!metrics.navigationClear||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
   await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(250);
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}-omen.png`});
   await context.close();
