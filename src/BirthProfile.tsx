@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {Platform,Pressable,View} from 'react-native';
 import {Input,Action,Txt,styles,colors} from './ui';
 import {useStore} from './store';
+import {formatCalendarDate} from './retention';
 import {BirthdayInput} from './BirthdayInput';
 import {ageGroup,updateBirthday} from './profile';
 import {birthChart,findBirthPlaces,type BirthPlace} from './birth-chart';
@@ -31,9 +32,9 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
  </View>;
  return <View style={styles.panel}>
   <Txt display style={styles.title}>Your sky</Txt>
-  <Txt>{state.sunSign?`${state.sunSign} Sun`:'Your Sun sign is a mystery'}</Txt>
+  <Txt>{state.sunSign?`${state.sunSign[0].toUpperCase()+state.sunSign.slice(1)} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
-  {state.birthday?<Txt style={styles.caption}>Birthday · {state.birthday}</Txt>:null}
+  {state.birthday?<Txt style={styles.caption}>Birthday · {formatCalendarDate(state.birthday)}</Txt>:null}
   <Action label="Edit birthday" quiet onPress={()=>{setBirthday(state.birthday||'');setNotice('');setRemoval(false);setEditing(true)}}/>
 
   {state.moonSign?<Txt>{state.moonSign} Moon · {state.risingSign} rising</Txt>:null}
@@ -43,11 +44,11 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
    {state.birthPlace?<Txt style={styles.caption}>{state.birthPlace} · {state.birthTime}</Txt>:null}
    <Txt style={styles.caption}>Birth time · local time, HH:MM</Txt>
    <Input accessibilityLabel="Birth time HH:MM" placeholder="14:30" placeholderTextColor={colors.muted} value={time} onChangeText={setTime} style={styles.input} maxLength={5}/>
-   <Txt style={styles.caption}>Birth city</Txt><Txt style={[styles.caption,{marginTop:6}]}>Find your city, then select a result below.</Txt>
+   <Txt style={styles.caption}>Birth city</Txt>
    <Input accessibilityLabel="Birth city" placeholder="City, country" placeholderTextColor={colors.muted} value={place} onChangeText={value=>{request.current?.abort();setBusy(false);setPlace(value);setSelected(undefined);setPlaces([])}} style={styles.input} maxLength={100}/>
    <Action label={busy?'Finding your city…':'Find birth city'} quiet disabled={busy||place.trim().length<2} onPress={search}/>
    {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet={selected!==p} onPress={()=>setSelected(p)}/>)}
-   <Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{!selected?'Select a city result to continue.':!time?'Add your local birth time to continue.':`Selected: ${selected.name}. Ready to calculate on this device.`}</Txt>
+   <Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{selected?(!time?'Add your local birth time to continue.':`Selected: ${selected.name}. Ready to calculate on this device.`):busy?'Finding matching cities…':places.length?'Select your city from the results above.':place.trim().length<2?'Enter your birth city, then choose Find birth city.':'Choose Find birth city to look up this place.'}</Txt>
    <Action label="Reveal Moon and rising" disabled={!selected||!time} onPress={()=>{try{if(!selected||!state.birthday)return;const chart=birthChart(state.birthday,time,selected.latitude,selected.longitude);update(s=>({...s,...chart,birthTime:time,birthPlace:selected.name}));setNotice('Calculated on this device.');}catch{setNotice('Check your time and place, then try again.');}}}/>
    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={()=>{update(s=>({...s,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined}));setTime('');setPlace('');setSelected(undefined);setPlaces([])}}/>:null}
    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
