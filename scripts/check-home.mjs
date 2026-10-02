@@ -11,7 +11,7 @@ try {
   const context=await browser.newContext({viewport:{width,height},isMobile:true,hasTouch:true});
   await context.addInitScript(large=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText:large})),largeText);
   const page=await context.newPage();
-  await page.route('**/engine',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({kind:'ok',value:{text:'Tonight, the moon hints at a door you have not tried yet.'}})}));
+  await page.route('**/engine',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(process.env.HOME_OMEN_UNAVAILABLE==='1'?{kind:'error',message:'Controlled unavailable omen'}:{kind:'ok',value:{text:'Tonight, the moon hints at a door you have not tried yet.'}})}));
   await page.goto(base);await skipPreviewOnboarding(page);await expect(page.getByTestId('hero-orb')).toBeVisible();await page.waitForTimeout(1000);
   const metrics=await page.evaluate(()=>{
    const orb=document.querySelector('[data-testid="hero-orb"]').getBoundingClientRect();
@@ -23,7 +23,7 @@ try {
    let clip=omen.parentElement;while(clip&&!/auto|scroll/.test(getComputedStyle(clip).overflowY))clip=clip.parentElement;
    const ask=document.querySelector('[data-testid="tab-ask"] .orb')?.getBoundingClientRect();
    const navigationClear=!!clip&&!!ask&&clip.getBoundingClientRect().bottom<=ask.top;
-   return {omenVisible:panel.bottom<=document.querySelector('[data-testid=screen-scroll]').getBoundingClientRect().bottom,navigationClear,omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
+   return {omenBottom:panel.bottom,readingBottom:document.querySelector('[data-testid=screen-scroll]').getBoundingClientRect().bottom,omenVisible:panel.bottom<=document.querySelector('[data-testid=screen-scroll]').getBoundingClientRect().bottom,navigationClear,omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!whisper||(whisper.bottom<=orb.top||whisper.top>=orb.bottom),decorativeWhisperPresent:!!whisper,overflow:document.documentElement.scrollWidth>innerWidth};
   });
   let contrastChecks=0;for(let phase=0;phase<3;phase++){const samples=await measureTextContrast(page);contrastChecks+=samples.length;expect(samples.filter(sample=>sample.contrast<sample.required)).toEqual([]);await page.waitForTimeout(200)}
   results.push({width,height,largeText,...metrics,contrastChecks});

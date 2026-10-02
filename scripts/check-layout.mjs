@@ -9,7 +9,7 @@ const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How set
 // Facts and assumptions exercise their 300/200-character input limits; news titles are unbounded.
 const longFact='I practise with a conversation partner after work and review difficult phrases every weekend. '.repeat(4).slice(0,300);
 const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
-const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
+const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative forecast · not a guarantee',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
 if(process.env.LAYOUT_WIDTH&&![360,390,430].includes(Number(process.env.LAYOUT_WIDTH)))throw new Error('LAYOUT_WIDTH must be 360, 390 or 430');
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const failures=[],checked=[],controls=[];
@@ -79,6 +79,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
   await expect(cards.nth(0)).toBeInViewport({ratio:1});await expect(cards.nth(1)).toBeInViewport({ratio:1});
   await page.screenshot({path:`${evidence}/paywall${tag}.png`});
  }
+ await page.getByRole('radio').filter({hasText:'Monthly'}).click();await expect(page.getByRole('radio').filter({hasText:'Monthly'})).toHaveAttribute('aria-checked','true');await check('paywall-monthly',page.getByTestId('continue-with-plus-simulate'));
  await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');await tap('tab-home');
  await tap('hero-orb');await check('approach',text('The Ball is opening…'),0);
  await check('listening',page.getByTestId('type-instead'));
