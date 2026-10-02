@@ -5,7 +5,7 @@ import {fillBirthday} from './fill-birthday.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',evidence=process.env.LAYOUT_EVIDENCE||'.local/layout';
-const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How settled is your plan right now, honestly?',options:['Barely started','Halfway there','Nearly certain','Other'],remember:false},{id:'context_b',question:'What usually gets in your way?',options:['Time','Money','Nerve','Other'],remember:false},{id:'context_c',question:'Who can help you keep going?',options:['A friend','A teacher','Just me','Other'],remember:false}]};
+const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How much of your plan have you prepared?',options:['Barely started','Halfway there','Nearly ready','Other'],remember:false},{id:'context_b',question:'What usually gets in your way?',options:['Time','Money','Nerve','Other'],remember:false},{id:'context_c',question:'Who can help you keep going?',options:['A friend','A teacher','Just me','Other'],remember:false}]};
 // Facts and assumptions exercise their 300/200-character input limits; news titles are unbounded.
 const longFact='I practise with a conversation partner after work and review difficult phrases every weekend. '.repeat(4).slice(0,300);
 const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
@@ -101,13 +101,13 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
  for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
- await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');expect((await page.getByTestId('reason-body').allTextContents()).join(' ').replace(/\s+/g,' ').trim()).toBe(prediction.why.replace(/\s+/g,' ').trim());
+ await check('reveal',page.getByTestId('why-disclosure'));await tap('reading-more');await check('reveal-actions',page.getByRole('button',{name:'Edit question',exact:true}));await tap('reading-more');await tap('why-disclosure');expect((await page.getByTestId('reason-body').allTextContents()).join(' ').replace(/\s+/g,' ').trim()).toBe(prediction.why.replace(/\s+/g,' ').trim());
  await check('reveal-why',page.getByTestId('why-heading'));
  await tap('go-deeper-with-plus');await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');
  await check('reveal-evidence',page.getByTestId('why-reason'));
  for(const id of ['reason','answers','assumptions','sources']){await tap(`why-${id}`);if(id==='sources')for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();await check(`evidence-${id}`,page.getByTestId('why-heading'));await tap('why-all-evidence');}
  await tap('why-disclosure');await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
- await tap('preview-story-card');await check('share-inspection',page.getByTestId('share-image-text'));await page.getByRole('button',{name:'Back to sharing',exact:true}).click();
+ await tap('preview-story-card');await check('share-inspection',page.getByTestId('share-image-text'));await tap('inspection-read-text');await expect(page.getByTestId('share-preview-heading')).toHaveText('Image text');await page.getByRole('button',{name:'Back to sharing',exact:true}).click();
  await tap('share-read-text');await check('share-text',page.getByTestId('share-image-text'));await tap('back-to-sharing');
  await tap('share-more');await check('share-options',page.getByTestId('share-friend-link'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));

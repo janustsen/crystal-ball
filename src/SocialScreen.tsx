@@ -60,7 +60,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
   {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
-   <Txt display style={styles.title}>What if?</Txt>
+   <Txt display style={styles.title}>What if?</Txt><Txt style={styles.caption}>Choose a star to explore a question.</Txt>
 
    {!offline?<Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>:null}
    <View testID="tonights-sky" style={{minHeight:state.largeText?0:200,marginVertical:16,backgroundColor:'transparent',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',gap:12}: {})}}>
@@ -89,7 +89,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
     })}
    </View>:null}
    {joining&&invite?<View style={styles.panel}><Txt>A place in someone’s circle</Txt><Txt style={styles.caption}>Choose your handle above. Joining shares future consultation days, themes, sun sign, check-in moments and golden draws with up to 20 members. Leave whenever you like.</Txt><Action label="Join this circle" disabled={busy||!data?.profile?.handle} onPress={()=>void act(async()=>{await joinCircle(invite);setJoining(false);onInviteHandled()},'You joined the circle.')}/><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></View>:null}
-   {data&&(data.circles.length<(state.plus?10:5))?<View style={styles.panel}><Txt>A small sky of your own.</Txt><Txt style={styles.caption}>Up to 5 Circles, or 10 with Plus. Each Circle holds 20 people.</Txt><Action testID="create-my-circle" label={!data?(offline?'Create my circle · offline':'Loading circles…'):'Create my circle'} disabled={busy||!data?.profile?.handle} onPress={()=>void act(()=>createCircle(),'Circle created. Invite your first friend.')}/></View>:null}
+   {data&&(data.circles.length<(state.plus?10:5))?<View style={styles.panel}><Txt style={styles.caption}>Up to 5 Circles, or 10 with Plus. Each Circle holds 20 people.</Txt><Action testID="create-my-circle" label={!data?(offline?'Create my circle · offline':'Loading circles…'):'Create my circle'} disabled={busy||!data?.profile?.handle} onPress={()=>void act(()=>createCircle(),'Circle created. Invite your first friend.')}/></View>:null}
    {data?.circles.map((circle,index)=>{
     const owner=circle.owner_id===data.owner,members=data.members.filter(member=>member.circle_id===circle.id);
     return <View key={circle.id} style={styles.panel}><Txt display style={styles.title}>Circle {index+1}</Txt><Txt style={styles.caption}>{members.length} of 20 stars</Txt>{data.glows.some(g=>g.circle_id===circle.id&&g.day===new Date().toISOString().slice(0,10))?<Txt>✨ Circle glow · everyone consulted today</Txt>:null}{data.glows.filter(g=>g.circle_id===circle.id).length?<Txt style={styles.caption}>{data.glows.filter(g=>g.circle_id===circle.id).length} glow days · nothing to lose</Txt>:null}{members.map((member,i)=>{

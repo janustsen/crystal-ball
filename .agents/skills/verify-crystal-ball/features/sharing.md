@@ -7,7 +7,7 @@ Private 9:16 export; Friend-reading entry from Circles. Private Person readings 
 Sky → Circles → Ask about an opted-in friend → first name, or Share this glimpse on a reveal.
 
 ## Driving it with chrome-devtools-axi
-Choose an opted-in friend in Circles and enter their first name, or create a friend link from Share; inspect friend mode. Export story card and inspect downloaded file dimensions and contents. Open the full story preview and Read image text; each has a top Back to sharing control returning focus to its opener. The text view puts the public forecast and qualification before the image and can export the same PNG. scripts/check-enlarged-space.mjs covers both text sizes, focus and export. The still export is generated locally; verify its error boundary with an injected canvas encoding failure.
+Choose an opted-in friend in Circles and enter their first name, or create a friend link from Share; inspect friend mode. Export story card and inspect downloaded file dimensions and contents. Open the full story preview and Read image text; each has a top Back to sharing control returning focus to its opener. Image inspection also has a direct Read image text route. The text view puts the public forecast and qualification before the image and can export the same PNG. scripts/check-enlarged-space.mjs covers both text sizes, focus and export. The still export is generated locally; verify its error boundary with an injected canvas encoding failure.
 
 ## Gotchas
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.

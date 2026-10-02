@@ -1,4 +1,4 @@
-import React,{useRef} from 'react';
+import React,{useRef,useState} from 'react';
 import {Animated,Pressable,StyleSheet,Text,TextInput,View,ScrollView,Platform,Easing,type TextStyle} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {tabArtwork} from './designArt';
@@ -14,11 +14,15 @@ export function Txt({children,display=false,style,...props}:React.ComponentProps
 
 export function Input({style,...props}:React.ComponentPropsWithRef<typeof TextInput>){
  const {state}=useStore(),scale=state.largeText&&props.allowFontScaling!==false?2:1;
+ const [contentHeight,setContentHeight]=useState(0),[height,setHeight]=useState(0),[offset,setOffset]=useState(0);
  const composed:TextStyle=StyleSheet.flatten([styles.input,style]);
- return <TextInput {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}/>;
+ const input=<TextInput {...props} onLayout={event=>{setHeight(event.nativeEvent.layout.height);props.onLayout?.(event)}} onContentSizeChange={event=>{setContentHeight(event.nativeEvent.contentSize.height);props.onContentSizeChange?.(event)}} onScroll={event=>{setOffset(Platform.OS==='web'?(event.currentTarget as unknown as HTMLTextAreaElement).scrollTop:event.nativeEvent.contentOffset.y);props.onScroll?.(event)}} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}/>;
+ if(!props.multiline)return input;
+ const track=Math.max(0,height-32),thumb=Math.max(16,track*height/Math.max(1,contentHeight)),progress=Math.max(0,Math.min(1,offset/Math.max(1,contentHeight-height)));
+ return <View style={{position:'relative'}}>{input}{height>0&&contentHeight>height+2?<View testID={`${props.testID||'input'}-scroll-cue`} pointerEvents="none" accessible={false} style={{position:'absolute',right:5,top:22,width:3,height:track,borderRadius:2,backgroundColor:'#E0A45833'}}><View style={{width:3,height:Math.min(track,thumb),borderRadius:2,backgroundColor:colors.gold,transform:[{translateY:progress*Math.max(0,track-thumb)}]}}/></View>:null}</View>;
 }
 
-export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:'600',color:quiet?colors.ivory:colors.ink,textAlign:'center'}}>{label}</Txt></Pressable>}
+export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:quiet?'400':'600',color:quiet?colors.ice:colors.ink,textAlign:quiet?'left':'center'}}>{label}</Txt></Pressable>}
 export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;reduce?:boolean;onPress?:()=>void;phase?:'idle'|'research'|'reveal'}){
  const {state}=useStore();
  const ballStyle=selectedStyle(state,'ball'),skin=skinColors[ballStyle];
@@ -36,12 +40,12 @@ export function Screen({children,reduce=false,variant=0,zoom=false,kind="screen"
 export const styles=StyleSheet.create({
  action:{minHeight:54,paddingVertical:14,paddingHorizontal:22,borderRadius:27,backgroundColor:'#EBD5B0',borderWidth:1,borderColor:'#EBD5B0',justifyContent:'center',marginTop:14,boxShadow:'0 3px 0 #7A5527, 0 8px 18px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.5)'},
  pressed:{transform:[{translateY:2}],boxShadow:'0 1px 0 #7A5527'},
- quiet:{backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#614C3455',borderRadius:0,paddingHorizontal:0,boxShadow:'none'},
+ quiet:{minHeight:48,marginTop:4,paddingVertical:12,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#614C3455',borderRadius:0,paddingHorizontal:0,boxShadow:'none'},
  quietPressed:{opacity:.7},
  disabled:{opacity:.55,boxShadow:'none'},
  chip:{backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#614C34',borderRadius:0},
  inked:{textShadowColor:'rgba(0,0,0,.4)',textShadowOffset:{width:0,height:1},textShadowRadius:2},
- input:{marginVertical:6,fontFamily:fonts.body,fontSize:16,color:colors.ivory,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#79634A',borderRadius:0,paddingVertical:16,paddingHorizontal:0,minHeight:56},
+ input:{marginVertical:6,fontFamily:fonts.body,fontSize:16,color:colors.ivory,backgroundColor:'transparent',borderWidth:1,borderColor:'#79634A',borderRadius:12,paddingVertical:16,paddingHorizontal:12,minHeight:56},
  panel:{backgroundColor:'transparent',borderRadius:0,paddingVertical:22,paddingHorizontal:0,borderWidth:0,borderBottomWidth:1,borderColor:'#614C3466',marginTop:16},
  row:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12},
  caption:{fontSize:14,lineHeight:20,color:colors.muted},muted:{color:colors.muted},title:{fontSize:28,lineHeight:34,marginBottom:12},gap:{height:20}

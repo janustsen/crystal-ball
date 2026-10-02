@@ -20,5 +20,5 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
   return()=>{mounted=false;clearInterval(timer);listener.remove()};
  },[state.facts,state.sunSign,state.birthday,state.ageConfirmed,aiConsent]);
  const current=currentOmen(omen);
- return <View testID="daily-omen" accessibilityState={{busy:!current}} style={[styles.panel,state.largeText&&{marginTop:8,paddingVertical:8}]}><Txt style={[styles.caption,{color:colors.gold}]}>Today’s omen · free</Txt><View accessibilityLiveRegion="polite">{current&&!current.text?<><Txt style={{marginTop:8}}>Unavailable today.</Txt><Txt style={[styles.caption,{marginTop:4}]}>Return tomorrow.</Txt></>:<Txt display style={{fontSize:16,lineHeight:22,marginTop:8}}>{current?.text??'A little starlight is finding you…'}</Txt>}</View></View>;
+ return <View testID="daily-omen" accessibilityState={{busy:!current}} style={[styles.panel,state.largeText&&{marginTop:8,paddingVertical:8}]}><Txt style={[styles.caption,{color:colors.gold}]}>Today’s omen · free</Txt><View accessibilityLiveRegion="polite">{current&&!current.text?<><Txt style={{marginTop:8}}>No omen today.</Txt><Txt style={[styles.caption,{marginTop:4}]}>One try a day. Next: tomorrow.</Txt></>:<Txt display style={{fontSize:16,lineHeight:22,marginTop:8}}>{current?.text??'Finding your omen…'}</Txt>}</View></View>;
 }
