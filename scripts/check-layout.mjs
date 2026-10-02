@@ -13,7 +13,7 @@ const failures=[],checked=[],controls=[];
 async function audit(page,width,name,marker,delay=1300){
  await expect(marker).toBeVisible();
  if(process.env.UX_CAPTURE&&width===390&&!name.endsWith('-large')){
-  await page.screenshot({path:`${evidence}/${name}-transition.png`});
+  await page.waitForTimeout(90);await page.screenshot({path:`${evidence}/${name}-transition.png`});
   controls.push({name,targets:await page.locator('[role=button],[role=tab],[role=radio],[role=switch],input,textarea').evaluateAll(elements=>elements.map(el=>{const r=el.getBoundingClientRect();return {role:el.getAttribute('role'),label:el.getAttribute('aria-label')||el.textContent?.slice(0,80),width:r.width,height:r.height}}))});
  }
  await page.waitForTimeout(delay);

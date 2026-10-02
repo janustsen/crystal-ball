@@ -15,9 +15,9 @@ const page=await context.newPage(),evidence=process.env.DESIGN_EVIDENCE||'docs/e
 await mkdir(evidence,{recursive:true});
 page.on('pageerror',e=>errors.push(e.message));
 page.on('response',async r=>{if(r.url()===endpoint&&r.request().method()==='POST')try{log.push({action:r.request().postDataJSON().action,response:await r.json()})}catch{}});
-const shot=async name=>{await page.waitForTimeout(750);await page.screenshot({path:`${evidence}/${name}.png`});log.push({screen:name})};
+const shot=async name=>{await page.waitForTimeout(name==='02-approach'?180:750);await page.screenshot({path:`${evidence}/${name}.png`});log.push({screen:name})};
 const close=()=>page.getByTestId('close-flow').click();
-const count=async()=>Number((await page.getByTestId('view-plans').innerText()).match(/\d+/)?.[0]);
+const count=async()=>Number((await page.getByTestId(await page.getByTestId('view-plans').count()?'view-plans':'plan-balance').innerText()).match(/\d+/)?.[0]);
 const dismiss=async()=>{if(await page.getByTestId('dismiss-notice').count())await page.getByTestId('dismiss-notice').click()};
 async function ask(q){await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(q);await page.getByTestId('look-into-the-future').click()}
 async function scan(name){const r=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();log.push({accessibility:name,violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)}))});expect(r.violations).toEqual([])}

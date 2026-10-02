@@ -13,7 +13,7 @@ const credits=await page.eval(()=>document.querySelector('[data-testid="view-pla
 await close();await page.click('[data-testid="tab-history"]');
 await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>/Came true|Took another path|◷ Waiting|Did it come true/.test(e.textContent)).click());
 const due=await page.eval(()=>document.querySelector('[data-testid="forecast-due-date"]').textContent);
-assert(/^Due date · \d{4}-\d{2}-\d{2}$/.test(due),'Due date missing');
+assert(/^Check back · \d{4}-\d{2}-\d{2}$/.test(due),'Check-back date missing');
 await page.click('[data-testid="remind-me-to-check-back"]');
 assert(await page.eval(()=>document.body.innerText.includes('Native reminder preview')),'web fallback missing');
 await page.click('[data-testid="dismiss-notice"]');
@@ -33,7 +33,7 @@ assert(await page.eval(()=>document.querySelector('[data-testid="view-plans"]').
 await close();await page.click('[data-testid="tab-history"]');
 assert(await page.eval(()=>document.body.innerText.includes('Came true')),'verdict lost on reload');
 await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.includes('Came true')).click());
-assert(await page.eval(()=>document.querySelector('[data-testid="forecast-due-date"]').textContent)===due,'Due date changed on reload');
+assert(await page.eval(()=>document.querySelector('[data-testid="forecast-due-date"]').textContent)===due,'Check-back date changed on reload');
 assert(await page.eval(()=>document.querySelector('[data-testid="check-in-yes"]').textContent.includes('✓')),'selected verdict lost');
 console.log('PASS: personal omen, unchanged credits, Due date, web reminder, all verdicts, reload persistence, control bounds');
 JS

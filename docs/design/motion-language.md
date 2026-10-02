@@ -1,24 +1,23 @@
 # Crystal Ball motion language
 
-The ball is a small atmosphere behind glass, drawn like a premium illustrated game: inked silhouettes, brass rims, candle bounce light and hard drop shadows give every surface a front, a side and a floor. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it squashes when touched, overshoots once when it lands and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
+The ball is a small atmosphere behind glass, drawn like a premium illustrated game: inked silhouettes, brass rims, candle bounce light and a shallow brass lip keep the hero and primary action tangible; Open mist content surfaces stay borderless. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it yields slightly when pressed and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
 
 | Signature | Where | Timing and behavior |
 |---|---|---|
 | Living mist | Hero and Ask orb, listening, thinking | Cel-shaded smoke over dark glass: three soft-edged tone bands, one inked contour, lit from below. A doubly domain-warped field advects upward about three times faster than the first release; fog time runs 1.5× while listening and 1.9× while thinking, integrated so speed changes never jump. No rotation or time reset. Native uses three seamless translucent fields driven off the JS thread. |
 | Levitate | Every web orb | The glass floats 2.2% of its size above the stand on a 6.1s (tab orb 4.7s) sine; its floor shadow narrows and fades as it rises. |
 | Gold breath | Orb halos | A quiet 7.3-second light swell. Opacity and scale only. |
-| Squash and spark | Every tappable | 420ms squash (1.07×0.86), stretch (0.95×1.07), settle. The ball itself uses a 620ms jelly. Seven brass four-point sparks and a ring leave the touch point over 560ms. Buttons also sink 3px onto their brass lip while held. |
-| Smoke wipe | Tabs, paywall, ordinary screens | 700ms. A dark smoke curtain with cream leading wisps sweeps left to right while the new screen slides in 22px with a 5° skew. |
-| Orb portal | Ball tap / Ask | 1,000ms. The listening screen opens from a circle at the orb, scaling from 60%, while a gold ring blooms outward. |
-| Ripple in | Listening | 760ms scale-in from 94% with one fine ring from the orb. |
-| Ink settle | Typing | 560ms spring rise through 18px with a 2.5° skew that straightens like wet ink. |
-| Card flip | Follow-up questions | 780ms spring flip through 62° around the vertical axis, alternating direction per question, through a puff of mist. |
-| Inhale | Thinking | 900ms. The screen arrives from 112% with a slight counter-turn while the mist gathers inward. |
-| Glimpse burst | Prediction | 1,000ms. Content pops from 55% with one squash, one stretch and a settle; a thick gold shockwave leaves the orb. Headline text follows 200ms later. |
-| Card deal | Share | 720ms spring. The story card is dealt up from 80px, rotated 8°, landing square. No scale or veil: the share preview is a large image layer, and a scale change re-rasterizes it on landing. |
+| Touch ripple | Hero orb only | One fine gold ring for 320ms. Routine actions have no sparks or whole-control distortion. Primary buttons sink 2px while held. |
+| Mist arrival | Tabs, paywall, ordinary screens | 200ms fade from 55% with a 6px lift; no curtain, masking or skew. |
+| Approach | Ball tap / Ask | 400ms arrival; advances automatically after 650ms, immediately with reduced motion. Instruction remains readable. |
+| Listening / typing | Input modes | 220 / 200ms, 6px lift; task text remains readable. |
+| Question | Follow-ups | 260ms, 8px lift; one consistent full-width choice list. No card flip. |
+| Thinking | Loading | 300ms, 6px lift. Living orb retains its continuous time. |
+| Reveal | Prediction | 550ms, 10px lift; no scaling or shockwave. Headline follows 200ms later. |
+| Share | Export choices and story | 220ms, 6px lift. No bitmap scale or rotation. |
 | Sky depth | Background | Two seamless star tiles drift at different speeds (140s and 90s per tile, the near one twinkling), the sky sways on a 23s breath, and pointer position shifts sky, candle and embers by different amounts for parallax. Rare gold streak, passing crescent and faint constellation remain the easter eggs. |
 
-`src/motion.ts` owns transition names, durations and two curves: ease cubic-bezier(.2,.75,.2,1) for smoke and glass, spring cubic-bezier(.34,1.56,.64,1) for brass and cards. `src/motionCss.ts` owns the web keyframes and the illustrated depth layer. Native `Enter` uses the same durations and curves through the native driver, including the question flip; native taps keep the button lip press and orb scale. Web uses compositor transforms and opacity; the orb portal scales a radial iris layer for one second. Constant fog advection uses continuous time rather than easing to a stop.
+`src/motion.ts` owns transition names, durations and two curves: ease cubic-bezier(.2,.75,.2,1) for smoke and glass, spring cubic-bezier(.34,1.56,.64,1) for brass and cards. `src/motionCss.ts` owns the web keyframes and the illustrated depth layer. Native `Enter` uses the same durations and curves through the native driver, with readable fades and short lifts; native taps keep the button lip press and orb scale. Web uses compositor translation and opacity; no full-screen veils cover controls. Constant fog advection uses continuous time rather than easing to a stop.
 
 Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, time reversal, or countdown. Star tiles translate by exactly one tile period, so their loop has no visible seam. The web renderer survives mood changes; [motion lifecycle](motion.md) defines its display cadence and pause behavior. Native seamless tile endpoints contain the same pixels; differently sized layers and nonmatching periods conceal any combined pose. Escaping native wisps wrap only while fully transparent. Sky discoveries also reset only while invisible. Reduced motion shows a still, readable composition, hides sky visitors, transition veils and tap sparks, and skips squash. Changing that preference must stop motion immediately.
 

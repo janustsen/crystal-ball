@@ -16,12 +16,11 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   function move(e:PointerEvent){if(still())return;const r=shell!.getBoundingClientRect();px=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));py=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(still())return;root!.style.setProperty('--px',px.toFixed(3));root!.style.setProperty('--py',py.toFixed(3))})}
   function down(e:PointerEvent){
    if(still())return;move(e);
-   const target=(e.target as Element).closest?.('[role=button],[role=tab],[role=radio],[role=link],[role=switch],button,a') as HTMLElement|null;
+   const target=(e.target as Element).closest?.('[data-testid="hero-orb"]');
    if(!target||!shell!.contains(target))return;
-   target.classList.remove('tap-squash');void target.offsetWidth;target.classList.add('tap-squash');setTimeout(()=>target.classList.remove('tap-squash'),700);
    const r=shell!.getBoundingClientRect(),burst=document.createElement('div');
    burst.className='tap-burst';burst.style.left=`${e.clientX-r.left}px`;burst.style.top=`${e.clientY-r.top}px`;
-   burst.innerHTML='<b></b>'+Array.from({length:7},(_,i)=>`<i style="--a:${Math.round(i*360/7+Math.random()*24)}deg;--r:${Math.round(26+Math.random()*24)}px;animation-delay:${Math.round(Math.random()*50)}ms"></i>`).join('');
+   burst.innerHTML='<b></b>';
    layer!.appendChild(burst);setTimeout(()=>burst.remove(),700);
   }
   shell.addEventListener('pointermove',move,{passive:true});shell.addEventListener('pointerdown',down,{passive:true});
