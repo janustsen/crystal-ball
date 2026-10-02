@@ -18,11 +18,14 @@ try {
    const omen=document.querySelector('[data-testid="daily-omen"]'),panel=omen.getBoundingClientRect();
    const omenFits=[...omen.children].every(child=>{const r=child.getBoundingClientRect();return r.left>=panel.left&&r.right<=panel.right&&r.top>=panel.top&&r.bottom<=panel.bottom});
    const whisper=document.querySelector('[data-testid="home-whisper"]')?.getBoundingClientRect();
-   return {omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
+   let clip=omen.parentElement;while(clip&&!/auto|scroll/.test(getComputedStyle(clip).overflowY))clip=clip.parentElement;
+   const ask=document.querySelector('[data-testid="tab-ask"] .orb')?.getBoundingClientRect();
+   const navigationClear=!!clip&&!!ask&&clip.getBoundingClientRect().bottom<=ask.top;
+   return {navigationClear,omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
   });
   results.push({width,height,largeText,...metrics});
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}.png`});
-  if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
+  if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||!metrics.navigationClear||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
   await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(250);
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}-omen.png`});
   await context.close();
