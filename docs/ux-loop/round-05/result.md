@@ -1,0 +1,5 @@
+# Round 05 result
+
+Both independent blind graders completed against candidate cb1ae61. Minimum A/F: 7.00, median 7.67; the +0.50 minimum improvement resets the plateau counter. The authorized 9/9 threshold is not met. This round changed interaction feedback: multiline custom answers with Change, explicit typing recovery from unavailable voice, and a non-color Sky selection cue.
+
+Current-head validation is documented in runtime.md. Remaining findings include clearance around the raised Ask tab, background contrast variation, selected/saved-state evidence, and physical-device/assistive verification. The subsequent contrast probe is diagnostic evidence, not part of the frozen grading packet: a bright ember crosses the Home omen's text rectangle and reduces a sampled background contrast to 1.76. The first probe incorrectly included clipped settings text; its corrected version excludes text outside ancestor scroll clips and still reproduces the Home sample. All original evidence is retained.
