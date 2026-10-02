@@ -1,0 +1,295 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fbed-d16f-73b2-a6f8-1c2f5a31652e
+--------
+user
+Independent blind design comparison. Read only, no delegation, no implementation, no previous scores or other graders. Compare attached normal/200% mobile screenshots. Each sheet shows production baseline and THREE alternative layouts A/B/C for one screen. All are Open mist: borderless ink/brass/ivory and illustrated mystical artifact. Use the same rubric below; desired result is truthful comparison, not a target score. Score all EIGHT screen/variant pairs, six dimensions. Choose best Share and best Why composition, including baseline if best. Explain tradeoffs.
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+Evidence boundaries: baseline is production with passing browser layout, keyboard, contrast, reduced motion, real reading/image export and ~60fps evidence. Alternatives are throwaway HTML prototypes, NOT working product implementations. Prototype Download reports no file downloaded; outbound tools are placeholders; native details and section links work. Do not infer successful export, video, motion, native accessibility or real device behavior from mockups. Grade functional dimensions as provisional structural expectations only and name implementation requirements. All four candidates use the SAME actual reading result from a prior real engine drive: headline, why, facts, assumptions, no current sources. Image matches that reading. No model quality claim. A/B/C layouts:
+Share A poster + primary image + privacy + disclosed secondary tools; B small artifact/editorial pairing + primary image + visible tool rows; C larger gallery + primary image + two-action strip + privacy/formats disclosure. All three propose truthful video-unavailable copy inside formats/tools (B visible). Current baseline tries video and handles error, successful video not verified.
+Why A dedicated page with compact result context and sections; B compact result with separate evidence disclosures; C editorial section-navigation page. All evidence remains accessible by scrolling/disclosing; do not mark below-fold material as deleted. Assess the cost of that scrolling. Normal and200% screenshots are initial view. You may inspect ONLY these screenshots and public/concepts/expansion-13.html if needed; do not inspect scores/source/history/other task state. Missing real-phone and assistive checks prohibit certification at9/10. Compare aesthetics independently; no candidate is automatically best because it is new. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+{
+  "comparisons": [
+    {
+      "screen": "Share",
+      "variant": "Baseline",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 7.5,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=7.8, F=7.0, overall=7.3. The substantial artifact preview and restrained brass rules suit the product. Download, video and invitation receive nearly equal emphasis; the remaining-reading counter distracts from sharing. At 200%, Download remains visible, but its supporting format information approaches the viewport edge. Passing production export and browser checks give this candidate the strongest implementation evidence. Video error handling is reported, but successful video is unverified. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: artifact [8,7,9,8,N/A,6]; download row [7,8,8,8,N/A,7]; video row [7,7,8,6,7,7]; invitation row [7,7,8,8,N/A,7]; header/close/quota [6,7,8,6,N/A,7]. Artifact disclaimer text remains tiny at both text sizes."
+    },
+    {
+      "screen": "Share",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.8,
+        "typography": 8.5,
+        "surfaces": 8.8,
+        "clarity": 8.8,
+        "feedback": 0,
+        "accessibility": 7.5
+      },
+      "finding": "A=8.7, F=5.4, weighted overall=6.7; delivered-task gate caps overall at 4.0 because prototype Download produces no file. Best proposed Share composition. The poster, explicit format and broad primary button form a clear sequence; privacy reassurance is immediately visible at normal size. Secondary tools stay subordinate. At 200%, the primary button remains visible, although reassurance continues below the initial viewport. The poetic heading is less direct than 'Share this glimpse,' and the smaller poster makes its embedded text harder to inspect. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; poster/format [9,8,9,9,N/A,6]; download [9,9,9,9,0,8]; privacy copy [8,8,9,9,N/A,8]; secondary disclosure [8,8,8,7,N/A,7]. Feedback=0 represents the known missing download outcome, not an inferred visual state."
+    },
+    {
+      "screen": "Share",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7.8,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": 0,
+        "accessibility": 6.8
+      },
+      "finding": "A=8.1, F=5.1, weighted overall=6.3; delivered-task gate caps overall at 4.0. Visible tool rows, privacy reassurance and video-unavailable copy make the options unusually explicit. However, the eyebrow, page heading and second editorial headline spend too much attention before the task. At 200%, the pairing becomes a long vertical sequence and pushes Download close to the viewport bottom. The thumbnail is too small to review the exported reading comfortably. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; heading/eyebrow [7,8,8,7,N/A,7]; artifact/editorial pairing [7,7,9,7,N/A,5]; download [9,9,9,9,0,8]; privacy copy [8,8,9,9,N/A,8]; invitation/reminder rows [8,8,8,8,N/A,7]; video-unavailable notice [7,7,8,9,N/A,7]. The explicit unavailable notice is good state communication, but cannot compensate for the missing primary output."
+    },
+    {
+      "screen": "Share",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8.7,
+        "typography": 8.4,
+        "surfaces": 8.8,
+        "clarity": 8.2,
+        "feedback": 0,
+        "accessibility": 7.4
+      },
+      "finding": "A=8.6, F=5.2, weighted overall=6.6; delivered-task gate caps overall at 4.0. Best artifact presentation: a large preview, direct title and strong Download button preserve the mystical object as the focal point. At 200%, Download remains visible and the secondary strip appears to reflow vertically. The tradeoff is weaker informed sharing: privacy is hidden, and the visible invitation has less explanation about what it includes. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; poster/format [9,8,9,9,N/A,7]; download [9,9,9,9,0,8]; invitation/reminder strip [8,8,8,7,N/A,7]; privacy/formats disclosure [7,8,8,7,N/A,7]. Strong gallery composition, but A gives more useful reassurance before the action."
+    },
+    {
+      "screen": "Why",
+      "variant": "Baseline",
+      "dimensions": {
+        "hierarchy": 6.4,
+        "typography": 5,
+        "surfaces": 8.4,
+        "clarity": 6.8,
+        "feedback": 7,
+        "accessibility": 4.8
+      },
+      "finding": "A=6.6, F=6.2, overall=6.4. The orb and prediction establish emotional continuity, but consume most of an explanation screen. At 200%, the prediction breaks 'conversational' inside the word, introductory text is visibly clipped near the top, and the explanation falls below the initial viewport. This is substantial reading friction despite the supplied passing browser evidence. Below-fold evidence is not treated as missing. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: orb [7,N/A,9,6,N/A,N/A]; prediction/disclaimer [6,4,8,7,N/A,4]; explanation toggle [7,7,8,8,7,7]; reasoning block [7,7,8,7,N/A,6]; header/close/quota [6,7,8,6,N/A,7]. The visible 'Hide the why' state supplies limited disclosure feedback evidence; no transition or recovery behavior is certified."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.4,
+        "typography": 8.2,
+        "surfaces": 8.7,
+        "clarity": 8.6,
+        "feedback": 7,
+        "accessibility": 7.7
+      },
+      "finding": "A=8.4, F=7.8, overall=8.0. A clear dedicated explanation page with compact result context and recognizable section headings. Open sections make evidence discoverable without learning a disclosure system. At 200%, text wraps cleanly, but the title, result and disclaimer delay the reasoning; reaching answers and assumptions requires substantial scrolling. The reasoning remains a dense paragraph. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; result/disclaimer [8,8,9,9,N/A,8]; reasoning [9,8,9,8,N/A,8]; answer list [8,8,8,9,N/A,8]; assumptions section [8,8,8,8,N/A,8]. Screen feedback=7 is limited to the supplied working navigation evidence; static content has no applicable feedback score."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.8,
+        "typography": 8.5,
+        "surfaces": 8.7,
+        "clarity": 8.8,
+        "feedback": 7.5,
+        "accessibility": 7.8
+      },
+      "finding": "A=8.7, F=8.0, overall=8.3. Best Why composition. Compact result context leads directly into the open explanation, while separately labeled disclosures expose the evidence structure. 'Your answers · 4' and 'Current sources · none' communicate useful information before opening anything. At 200%, the explanation starts earlier than A's and wraps cleanly. Other evidence still requires scrolling and an additional disclosure action; the long paragraph remains the main reading burden. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; result/disclaimer [9,9,9,9,N/A,8]; open reasoning disclosure [9,8,9,9,8,8]; answers disclosure [8,8,8,9,7,7]; assumptions disclosure [8,8,8,8,7,7]; sources disclosure [9,8,8,9,8,7]; share button [8,8,9,9,N/A,8]. Feedback scores cover visible expanded/collapsed and no-source communication plus reported working disclosures; they do not certify focus handling or announcements."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7.6,
+        "typography": 7.3,
+        "surfaces": 8.5,
+        "clarity": 7.4,
+        "feedback": 6,
+        "accessibility": 5.5
+      },
+      "finding": "A=7.8, F=6.3, overall=6.9. The editorial treatment is coherent, but the section-navigation row competes with headings and provides ambiguous selected-state cues: all visible links have similar underlines. At 200%, the row extends beyond the visible content area and 'Assumptions' is cut off. The inset rule also reduces the reasoning's line width, increasing scrolling. The initial view lacks the result context provided by A and B; this is a context cost, not a claim that evidence was deleted. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; page title [8,8,9,8,N/A,8]; section navigation [6,5,8,6,6,4]; inset reasoning [8,7,9,8,N/A,6]; answer list [8,8,8,9,N/A,7]; assumptions section [8,8,8,8,N/A,7]. Working section links do not resolve the visible enlargement problem."
+    }
+  ],
+  "shareWinner": "A — composition winner; baseline remains the implementation winner.",
+  "whyWinner": "B — strongest balance of result context, explanation and discoverable evidence.",
+  "reason": "Share A gives the clearest sequence from preview to Download to privacy reassurance, with secondary tools appropriately subordinate. C wins on preview size; B wins on immediately visible tool explanations. Why B makes the explanation primary while keeping answers, assumptions and the absence of sources legible as separate categories. A is the strongest alternative for uninterrupted reading. No candidate meets the authorized A>=9 and F>=9 threshold for every screen and component. The preferred compositions are design selections, not shipping approvals.",
+  "limitations": [
+    "Independent assessment used only the four attached sheets and the supplied evidence boundaries. No source, history, prior grades or other graders were inspected.",
+    "Component tuples use [hierarchy, typography/spacing, surface/color coherence, task clarity, feedback/recovery, accessibility]. N/A is excluded from component means. Component scores are reported separately; screen scores assess the whole composition.",
+    "A is the mean of hierarchy, typography and surfaces; F is the mean of clarity, feedback and accessibility. Overall uses 0.4A+0.6F before rounding. Hard gates override averages.",
+    "Share prototype feedback=0 records the explicitly missing primary download result. Their gated overall scores assess present task completion; their hierarchy, clarity and accessibility scores describe provisional structural expectations. Placeholder outbound tools also require implementation.",
+    "Feedback scores elsewhere cover only visible state communication or explicitly supplied behavior. Screenshots cannot establish press, loading, error recovery, transition continuity, focus restoration or assistive announcements.",
+    "Alternatives require real export with verified file contents, truthful progress/success/failure states and retry, implemented secondary actions or explicit unavailable states, and verified disclosure/navigation semantics. Share C should expose essential privacy reassurance before export; Why C needs accessible navigation at 200%.",
+    "The fixed artwork's small embedded text does not enlarge with surrounding UI text. Export resolution labels do not prove preview readability or accessible equivalents.",
+    "Exact target sizes, measured prototype contrast, reduced-motion behavior, full scrolling, empty/loading/error states and real-device behavior were not verified. Viewport boundaries alone are not treated as deleted content or inaccessible controls.",
+    "Baseline browser evidence is credited as supplied, but does not erase screenshot-visible enlargement friction. Native and physical assistive-technology checks remain unverified; no 9/10 certification is made.",
+    "All candidates use the same reading. These judgments concern composition and interaction evidence, not predictive accuracy or model quality."
+  ]
+}
+tokens used
+29,778
+{
+  "comparisons": [
+    {
+      "screen": "Share",
+      "variant": "Baseline",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 7.5,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=7.8, F=7.0, overall=7.3. The substantial artifact preview and restrained brass rules suit the product. Download, video and invitation receive nearly equal emphasis; the remaining-reading counter distracts from sharing. At 200%, Download remains visible, but its supporting format information approaches the viewport edge. Passing production export and browser checks give this candidate the strongest implementation evidence. Video error handling is reported, but successful video is unverified. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: artifact [8,7,9,8,N/A,6]; download row [7,8,8,8,N/A,7]; video row [7,7,8,6,7,7]; invitation row [7,7,8,8,N/A,7]; header/close/quota [6,7,8,6,N/A,7]. Artifact disclaimer text remains tiny at both text sizes."
+    },
+    {
+      "screen": "Share",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.8,
+        "typography": 8.5,
+        "surfaces": 8.8,
+        "clarity": 8.8,
+        "feedback": 0,
+        "accessibility": 7.5
+      },
+      "finding": "A=8.7, F=5.4, weighted overall=6.7; delivered-task gate caps overall at 4.0 because prototype Download produces no file. Best proposed Share composition. The poster, explicit format and broad primary button form a clear sequence; privacy reassurance is immediately visible at normal size. Secondary tools stay subordinate. At 200%, the primary button remains visible, although reassurance continues below the initial viewport. The poetic heading is less direct than 'Share this glimpse,' and the smaller poster makes its embedded text harder to inspect. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; poster/format [9,8,9,9,N/A,6]; download [9,9,9,9,0,8]; privacy copy [8,8,9,9,N/A,8]; secondary disclosure [8,8,8,7,N/A,7]. Feedback=0 represents the known missing download outcome, not an inferred visual state."
+    },
+    {
+      "screen": "Share",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7.8,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": 0,
+        "accessibility": 6.8
+      },
+      "finding": "A=8.1, F=5.1, weighted overall=6.3; delivered-task gate caps overall at 4.0. Visible tool rows, privacy reassurance and video-unavailable copy make the options unusually explicit. However, the eyebrow, page heading and second editorial headline spend too much attention before the task. At 200%, the pairing becomes a long vertical sequence and pushes Download close to the viewport bottom. The thumbnail is too small to review the exported reading comfortably. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; heading/eyebrow [7,8,8,7,N/A,7]; artifact/editorial pairing [7,7,9,7,N/A,5]; download [9,9,9,9,0,8]; privacy copy [8,8,9,9,N/A,8]; invitation/reminder rows [8,8,8,8,N/A,7]; video-unavailable notice [7,7,8,9,N/A,7]. The explicit unavailable notice is good state communication, but cannot compensate for the missing primary output."
+    },
+    {
+      "screen": "Share",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8.7,
+        "typography": 8.4,
+        "surfaces": 8.8,
+        "clarity": 8.2,
+        "feedback": 0,
+        "accessibility": 7.4
+      },
+      "finding": "A=8.6, F=5.2, weighted overall=6.6; delivered-task gate caps overall at 4.0. Best artifact presentation: a large preview, direct title and strong Download button preserve the mystical object as the focal point. At 200%, Download remains visible and the secondary strip appears to reflow vertically. The tradeoff is weaker informed sharing: privacy is hidden, and the visible invitation has less explanation about what it includes. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; poster/format [9,8,9,9,N/A,7]; download [9,9,9,9,0,8]; invitation/reminder strip [8,8,8,7,N/A,7]; privacy/formats disclosure [7,8,8,7,N/A,7]. Strong gallery composition, but A gives more useful reassurance before the action."
+    },
+    {
+      "screen": "Why",
+      "variant": "Baseline",
+      "dimensions": {
+        "hierarchy": 6.4,
+        "typography": 5,
+        "surfaces": 8.4,
+        "clarity": 6.8,
+        "feedback": 7,
+        "accessibility": 4.8
+      },
+      "finding": "A=6.6, F=6.2, overall=6.4. The orb and prediction establish emotional continuity, but consume most of an explanation screen. At 200%, the prediction breaks 'conversational' inside the word, introductory text is visibly clipped near the top, and the explanation falls below the initial viewport. This is substantial reading friction despite the supplied passing browser evidence. Below-fold evidence is not treated as missing. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: orb [7,N/A,9,6,N/A,N/A]; prediction/disclaimer [6,4,8,7,N/A,4]; explanation toggle [7,7,8,8,7,7]; reasoning block [7,7,8,7,N/A,6]; header/close/quota [6,7,8,6,N/A,7]. The visible 'Hide the why' state supplies limited disclosure feedback evidence; no transition or recovery behavior is certified."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.4,
+        "typography": 8.2,
+        "surfaces": 8.7,
+        "clarity": 8.6,
+        "feedback": 7,
+        "accessibility": 7.7
+      },
+      "finding": "A=8.4, F=7.8, overall=8.0. A clear dedicated explanation page with compact result context and recognizable section headings. Open sections make evidence discoverable without learning a disclosure system. At 200%, text wraps cleanly, but the title, result and disclaimer delay the reasoning; reaching answers and assumptions requires substantial scrolling. The reasoning remains a dense paragraph. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; result/disclaimer [8,8,9,9,N/A,8]; reasoning [9,8,9,8,N/A,8]; answer list [8,8,8,9,N/A,8]; assumptions section [8,8,8,8,N/A,8]. Screen feedback=7 is limited to the supplied working navigation evidence; static content has no applicable feedback score."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.8,
+        "typography": 8.5,
+        "surfaces": 8.7,
+        "clarity": 8.8,
+        "feedback": 7.5,
+        "accessibility": 7.8
+      },
+      "finding": "A=8.7, F=8.0, overall=8.3. Best Why composition. Compact result context leads directly into the open explanation, while separately labeled disclosures expose the evidence structure. 'Your answers · 4' and 'Current sources · none' communicate useful information before opening anything. At 200%, the explanation starts earlier than A's and wraps cleanly. Other evidence still requires scrolling and an additional disclosure action; the long paragraph remains the main reading burden. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; result/disclaimer [9,9,9,9,N/A,8]; open reasoning disclosure [9,8,9,9,8,8]; answers disclosure [8,8,8,9,7,7]; assumptions disclosure [8,8,8,8,7,7]; sources disclosure [9,8,8,9,8,7]; share button [8,8,9,9,N/A,8]. Feedback scores cover visible expanded/collapsed and no-source communication plus reported working disclosures; they do not certify focus handling or announcements."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7.6,
+        "typography": 7.3,
+        "surfaces": 8.5,
+        "clarity": 7.4,
+        "feedback": 6,
+        "accessibility": 5.5
+      },
+      "finding": "A=7.8, F=6.3, overall=6.9. The editorial treatment is coherent, but the section-navigation row competes with headings and provides ambiguous selected-state cues: all visible links have similar underlines. At 200%, the row extends beyond the visible content area and 'Assumptions' is cut off. The inset rule also reduces the reasoning's line width, increasing scrolling. The initial view lacks the result context provided by A and B; this is a context cost, not a claim that evidence was deleted. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: header [8,8,9,8,N/A,7]; page title [8,8,9,8,N/A,8]; section navigation [6,5,8,6,6,4]; inset reasoning [8,7,9,8,N/A,6]; answer list [8,8,8,9,N/A,7]; assumptions section [8,8,8,8,N/A,7]. Working section links do not resolve the visible enlargement problem."
+    }
+  ],
+  "shareWinner": "A — composition winner; baseline remains the implementation winner.",
+  "whyWinner": "B — strongest balance of result context, explanation and discoverable evidence.",
+  "reason": "Share A gives the clearest sequence from preview to Download to privacy reassurance, with secondary tools appropriately subordinate. C wins on preview size; B wins on immediately visible tool explanations. Why B makes the explanation primary while keeping answers, assumptions and the absence of sources legible as separate categories. A is the strongest alternative for uninterrupted reading. No candidate meets the authorized A>=9 and F>=9 threshold for every screen and component. The preferred compositions are design selections, not shipping approvals.",
+  "limitations": [
+    "Independent assessment used only the four attached sheets and the supplied evidence boundaries. No source, history, prior grades or other graders were inspected.",
+    "Component tuples use [hierarchy, typography/spacing, surface/color coherence, task clarity, feedback/recovery, accessibility]. N/A is excluded from component means. Component scores are reported separately; screen scores assess the whole composition.",
+    "A is the mean of hierarchy, typography and surfaces; F is the mean of clarity, feedback and accessibility. Overall uses 0.4A+0.6F before rounding. Hard gates override averages.",
+    "Share prototype feedback=0 records the explicitly missing primary download result. Their gated overall scores assess present task completion; their hierarchy, clarity and accessibility scores describe provisional structural expectations. Placeholder outbound tools also require implementation.",
+    "Feedback scores elsewhere cover only visible state communication or explicitly supplied behavior. Screenshots cannot establish press, loading, error recovery, transition continuity, focus restoration or assistive announcements.",
+    "Alternatives require real export with verified file contents, truthful progress/success/failure states and retry, implemented secondary actions or explicit unavailable states, and verified disclosure/navigation semantics. Share C should expose essential privacy reassurance before export; Why C needs accessible navigation at 200%.",
+    "The fixed artwork's small embedded text does not enlarge with surrounding UI text. Export resolution labels do not prove preview readability or accessible equivalents.",
+    "Exact target sizes, measured prototype contrast, reduced-motion behavior, full scrolling, empty/loading/error states and real-device behavior were not verified. Viewport boundaries alone are not treated as deleted content or inaccessible controls.",
+    "Baseline browser evidence is credited as supplied, but does not erase screenshot-visible enlargement friction. Native and physical assistive-technology checks remain unverified; no 9/10 certification is made.",
+    "All candidates use the same reading. These judgments concern composition and interaction evidence, not predictive accuracy or model quality."
+  ]
+}

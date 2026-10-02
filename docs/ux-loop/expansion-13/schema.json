@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "screen": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hierarchy": {
+                "type": "number"
+              },
+              "typography": {
+                "type": "number"
+              },
+              "surfaces": {
+                "type": "number"
+              },
+              "clarity": {
+                "type": "number"
+              },
+              "feedback": {
+                "type": "number"
+              },
+              "accessibility": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "hierarchy",
+              "typography",
+              "surfaces",
+              "clarity",
+              "feedback",
+              "accessibility"
+            ]
+          },
+          "finding": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "screen",
+          "variant",
+          "dimensions",
+          "finding"
+        ]
+      }
+    },
+    "shareWinner": {
+      "type": "string"
+    },
+    "whyWinner": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "comparisons",
+    "shareWinner",
+    "whyWinner",
+    "reason",
+    "limitations"
+  ]
+}
