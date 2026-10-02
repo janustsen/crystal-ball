@@ -7,6 +7,26 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
  const ref=useRef<HTMLCanvasElement>(null),settings=useRef({reduce,mood});
  settings.current={reduce,mood};
  useEffect(()=>{const shell=ref.current?.closest('[data-testid="app-shell"]');shell?.setAttribute('data-reduced',String(reduce));return()=>shell?.removeAttribute('data-reduced')},[reduce]);
+ // Tap feedback and pointer parallax share one listener pair on the shell.
+ useEffect(()=>{
+  const shell=ref.current?.closest('[data-testid="app-shell"]') as HTMLElement|null,root=ref.current?.parentElement,layer=root?.querySelector('.tap-layer');
+  if(!shell||!root||!layer)return;
+  let raf=0,px=0,py=0;
+  const still=()=>shell.getAttribute('data-reduced')==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function move(e:PointerEvent){const r=shell!.getBoundingClientRect();px=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));py=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));if(!raf)raf=requestAnimationFrame(()=>{raf=0;root!.style.setProperty('--px',px.toFixed(3));root!.style.setProperty('--py',py.toFixed(3))})}
+  function down(e:PointerEvent){
+   if(still())return;move(e);
+   const target=(e.target as Element).closest?.('[role=button],[role=tab],[role=radio],[role=link],[role=switch],button,a') as HTMLElement|null;
+   if(!target||!shell!.contains(target))return;
+   target.classList.remove('tap-squash');void target.offsetWidth;target.classList.add('tap-squash');setTimeout(()=>target.classList.remove('tap-squash'),700);
+   const r=shell!.getBoundingClientRect(),burst=document.createElement('div');
+   burst.className='tap-burst';burst.style.left=`${e.clientX-r.left}px`;burst.style.top=`${e.clientY-r.top}px`;
+   burst.innerHTML='<b></b>'+Array.from({length:7},(_,i)=>`<i style="--a:${Math.round(i*360/7+Math.random()*24)}deg;--r:${Math.round(26+Math.random()*24)}px;animation-delay:${Math.round(Math.random()*50)}ms"></i>`).join('');
+   layer!.appendChild(burst);setTimeout(()=>burst.remove(),700);
+  }
+  shell.addEventListener('pointermove',move,{passive:true});shell.addEventListener('pointerdown',down,{passive:true});
+  return()=>{cancelAnimationFrame(raf);shell.removeEventListener('pointermove',move);shell.removeEventListener('pointerdown',down)};
+ },[]);
  useEffect(()=>{
   const cv=ref.current;if(!cv)return;
   const gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false});if(!gl)return;
@@ -29,7 +49,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
    if(document.hidden)return;
    const current=settings.current;
    if(current.reduce&&!dirty)return;
-   if(!current.reduce)time+=dt;
+   if(!current.reduce)time+=dt*(.6+.4*m[0]);
    dirty=false;
    const target=moods[current.mood]||moods.calm;
    m=current.reduce?[...target]:m.map((v,i)=>v+(target[i]-v)*(1-Math.exp(-dt*3)));
@@ -52,9 +72,10 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   return()=>{disposed=true;cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);resize.disconnect();mutations.disconnect();host.parentElement?.removeEventListener('scroll',redraw,true);host.classList.remove('gl');gl.deleteBuffer(buffer);gl.deleteProgram(program);shaders.forEach(s=>gl.deleteShader(s))};
  },[]);
  return <div aria-hidden="true" className={reduce?'atmosphere reduced':'atmosphere'} style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden'}}>
-  <style>{designCss+motionCss+` .reduced *, [data-reduced="true"] *, [data-reduced="true"] *::before {animation:none!important;transition:none!important} .orb{pointer-events:none} [data-testid="app-shell"]:has(.gl) .orb .gb{background:rgba(20,14,9,.18)} [data-testid="app-shell"]:has(.gl) .orb .fb{display:none} [role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F2C284!important;outline-offset:3px}`}</style>
-  <div className="room"/><div className="sky"><i className="shooting-star" style={{animationDuration:`${sky.current[0]}s`}}/><i className="wandering-moon" style={{animationDuration:`${sky.current[1]}s`}}>☾</i><div className="hidden-constellation" style={{animationDuration:`${sky.current[2]}s`}}>✧ · ˚ · ✦</div></div>
+  <style>{designCss+motionCss+` .reduced *, [data-reduced="true"] *, [data-reduced="true"] *::before, [data-reduced="true"] *::after {animation:none!important;transition:none!important} .orb{pointer-events:none} [data-testid="app-shell"]:has(.gl) .orb .gb{background:rgba(20,14,9,.18)} [data-testid="app-shell"]:has(.gl) .orb .fb{display:none} [role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F2C284!important;outline-offset:3px}`}</style>
+  <div className="room"/><div className="sky"><div className="stars"/><i className="shooting-star" style={{animationDuration:`${sky.current[0]}s`}}/><i className="wandering-moon" style={{animationDuration:`${sky.current[1]}s`}}>☾</i><div className="hidden-constellation" style={{animationDuration:`${sky.current[2]}s`}}>✧ · ˚ · ✦</div></div>
   <div className="candle"/><canvas ref={ref} className="mist"/>
   <div className="embers" style={{'--h':'900px'} as React.CSSProperties}>{Array.from({length:10},(_,i)=><i key={i} style={{'--x':`${8+i*9}%`,'--z':`${i%3+1}px`,'--t':`${14+i}s`,'--d':`${-i*3}s`,'--dx':`${i%2?20:-20}px`} as React.CSSProperties}/>)}</div>
+  <div className="tap-layer"/>
  </div>;
 }
