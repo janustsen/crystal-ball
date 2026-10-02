@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {Pressable,Share,Switch,TextInput,View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {Action,colors,Orb,styles,Txt} from './ui';
@@ -32,6 +32,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce}:{onAsk:
  const {state}=useStore();
  const profile=accountSocialProfile(state);
  const [schoolOnly,setSchoolOnly]=useState(false);
+ const schoolInvites=useRef(new Map<string,string>());
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
  const [section,setSection]=useState<'sky'|'circles'>(invite?'circles':'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
  const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
@@ -77,7 +78,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce}:{onAsk:
     {!data.schoolSuggestions.length?<Txt style={styles.caption}>No invited school friends yet. Use a private invitation with someone you already know.</Txt>:null}
     {data.schoolSuggestions.filter((suggestion,index,all)=>all.findIndex(s=>s.user_id===suggestion.user_id)===index).map(suggestion=>{
      const circleIndex=data.circles.findIndex(c=>c.id===suggestion.circle_id),friendIndex=data.members.filter(m=>m.circle_id===suggestion.circle_id).findIndex(m=>m.user_id===suggestion.user_id);
-     return <View key={suggestion.user_id}><Txt style={styles.caption}>Friend {friendIndex+1} in Circle {circleIndex+1} chose your school.</Txt><Action label={`Start a school circle · Friend ${friendIndex+1} in Circle ${circleIndex+1}`} quiet disabled={busy} onPress={()=>void act(async()=>{const empty=data.circles.find(c=>c.owner_id===data.owner&&data.members.every(m=>m.circle_id!==c.id||m.user_id===data.owner));const token=await inviteToCircle(empty?.id??await createCircle());setLink(Linking.createURL('/',{queryParams:{circle:token}}))},'Share this private invitation with your school friend. They choose whether to join.')}/></View>;
+     return <View key={suggestion.user_id}><Txt style={styles.caption}>Friend {friendIndex+1} in Circle {circleIndex+1} chose your school.</Txt><Action label={`Start a school circle · Friend ${friendIndex+1} in Circle ${circleIndex+1}`} quiet disabled={busy} onPress={()=>void act(async()=>{const key=JSON.stringify([data.owner,data.profile?.school_id,suggestion.user_id]);const token=schoolInvites.current.get(key)??await inviteToCircle(await createCircle());schoolInvites.current.set(key,token);setLink(Linking.createURL('/',{queryParams:{circle:token}}))},'Share this private invitation with your school friend. They choose whether to join.')}/></View>;
     })}
    </View>:null}
    {joining&&invite?<View style={styles.panel}><Txt>A place in someone’s circle</Txt><Txt style={styles.caption}>Joining shares your future consultation days, themes and sun sign with up to 20 members. Leave whenever you like.</Txt><Action label="Join this circle" disabled={busy} onPress={()=>void act(async()=>{await joinCircle(invite);setJoining(false);onInviteHandled()},'You joined the circle.')}/><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></View>:null}
