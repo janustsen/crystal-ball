@@ -11,10 +11,11 @@ export async function measureTextContrast(page,backgroundPath,includeFades=false
    const visible=opacity>0.01&&(includeFades||opacity>=.98);
    if(!visible)continue;
    const rects=[];for(const node of el.childNodes)if(node.nodeType===3&&node.textContent.trim()){const range=document.createRange();range.selectNodeContents(node);for(const r of range.getClientRects())if(r.width&&r.height&&r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight&&(()=>{for(let parent=el.parentElement;parent;parent=parent.parentElement){const style=getComputedStyle(parent),clip=parent.getBoundingClientRect();if(/hidden|scroll|auto/.test(style.overflowY)&&(r.top<clip.top||r.bottom>clip.bottom))return false}return true})())rects.push({x:r.x,y:r.y,width:r.width,height:r.height})}
-   if(!rects.length)continue;
-   result.push({text:el.textContent.trim().slice(0,90),color:css.color,opacity,size:parseFloat(css.fontSize),weight:parseInt(css.fontWeight)||400,rects});restore.push([el,el.getAttribute('style')]);
-   el.style.setProperty('color','transparent','important');el.style.setProperty('text-shadow','none','important');
+   if(rects.length)result.push({text:el.textContent.trim().slice(0,90),color:css.color,opacity,size:parseFloat(css.fontSize),weight:parseInt(css.fontWeight)||400,rects});restore.push([el,el.getAttribute('style')]);
   }
+  // Hide even partially clipped text: neighboring glyphs are not background.
+  // Collect first so inherited foreground colors are measured before mutation.
+  for(const [el] of restore){el.style.setProperty('color','transparent','important');el.style.setProperty('text-shadow','none','important');}
   window.__contrastRestore=restore;return result;
  },includeFades);
  let pixels;

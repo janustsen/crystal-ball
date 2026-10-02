@@ -38,6 +38,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   gl.useProgram(program);const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const pos=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
   const uRes=gl.getUniformLocation(program,'uRes'),uT=gl.getUniformLocation(program,'uT'),uOrb=gl.getUniformLocation(program,'uOrb'),uMood=gl.getUniformLocation(program,'uMood'),uAsk=gl.getUniformLocation(program,'uAsk');
+  const uOrbClip=gl.getUniformLocation(program,'uOrbClip'),uAskClip=gl.getUniformLocation(program,'uAskClip');
   const moods:Record<string,number[]>={utility:[.25,.3,.12,.15],calm:[1,.3,.5,1],approach:[1.2,.3,.6,1],listening:[2.2,.3,.6,1],cards:[1.1,.25,.5,1],planning:[3.2,.3,.7,1.1],research:[3.2,.3,.7,1.1],reveal:[1.2,.25,1,1],error:[.45,.2,.1,.7],blocked:[.7,.2,.8,.9]};
   let m=[...moods.calm],frame=0,last=0,time=20,disposed=false,dirty=true;
   const host=cv.parentElement!;host.classList.add('gl');
@@ -55,10 +56,17 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
    const rect=cv!.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2)*.75;
    const factor=Math.min(ratio,1100/Math.max(rect.width,rect.height)),w=Math.max(1,Math.round(rect.width*factor)),h=Math.max(1,Math.round(rect.height*factor));
    if(cv!.width!==w||cv!.height!==h){cv!.width=w;cv!.height=h}
-   const orb=host.parentElement?.querySelector('.orb.hero .gb')?.getBoundingClientRect(),ask=host.parentElement?.querySelector('.orb:not(.hero) .gb')?.getBoundingClientRect();
+   const orbElement=host.parentElement?.querySelector('.orb.hero .gb'),askElement=host.parentElement?.querySelector('.orb:not(.hero) .gb');
+   const orb=orbElement?.getBoundingClientRect(),ask=askElement?.getBoundingClientRect();
+   const screen=host.parentElement?.querySelector('[data-testid="screen-scroll"]'),screenBounds=screen?.getBoundingClientRect();
+   function clip(location:WebGLUniformLocation|null,element:Element|null|undefined){
+    const bounds=element&&screen?.contains(element)&&screenBounds?screenBounds:rect;
+    gl!.uniform4f(location,(bounds.left-rect.left)*factor,h-(bounds.bottom-rect.top)*factor,(bounds.right-rect.left)*factor,h-(bounds.top-rect.top)*factor);
+   }
    gl!.viewport(0,0,w,h);gl!.uniform2f(uRes,w,h);gl!.uniform1f(uT,time);
    gl!.uniform3f(uOrb,orb?(orb.left+orb.width/2-rect.left)*factor:0,orb?h-(orb.top+orb.height/2-rect.top)*factor:0,orb?orb.width/2*factor:0);
    gl!.uniform3f(uAsk,ask?(ask.left+ask.width/2-rect.left)*factor:0,ask?h-(ask.top+ask.height/2-rect.top)*factor:0,ask?ask.width/2*factor:0);
+   clip(uOrbClip,orbElement);clip(uAskClip,askElement);
    gl!.uniform4f(uMood,m[0],m[1],m[2],m[3]);gl!.drawArrays(gl!.TRIANGLES,0,3);
    if(!current.reduce)frame=requestAnimationFrame(draw);
   }

@@ -5,6 +5,7 @@ precision highp float;
 precision mediump float;
 #endif
 uniform vec2 uRes; uniform float uT; uniform vec3 uOrb; uniform vec3 uAsk; uniform vec4 uMood;
+uniform vec4 uOrbClip; uniform vec4 uAskClip;
 float hs(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float ns(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
   return mix(mix(hs(i), hs(i + vec2(1.0, 0.0)), u.x), mix(hs(i + vec2(0.0, 1.0)), hs(i + vec2(1.0, 1.0)), u.x), u.y); }
@@ -33,6 +34,8 @@ void main(){
   for (int orbIndex = 0; orbIndex < 2; orbIndex++) {
     vec3 orb = orbIndex == 0 ? uOrb : uAsk;
     if (orb.z <= 0.0) continue;
+    vec4 clip = orbIndex == 0 ? uOrbClip : uAskClip;
+    if (fc.x < clip.x || fc.y < clip.y || fc.x > clip.z || fc.y > clip.w) continue;
     vec2 l = (fc - orb.xy) / orb.z;
     float dist = length(l);
     if (dist >= 1.6) continue;
