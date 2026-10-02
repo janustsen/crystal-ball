@@ -14,6 +14,12 @@ set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.set_school('sfusd-lowell');
 select proof.assert((select school_id='sfusd-lowell' from public.social_profiles),'school stored on own profile');
+reset role;
+set role service_role;
+select public.sync_social_profile(user_id,age_band,sun_sign,null) from public.social_profiles where user_id='00000000-0000-0000-0000-000000000001';
+reset role;
+set role authenticated;
+select proof.assert((select school_id='sfusd-lowell' from public.social_profiles),'profile sync preserves school');
 select proof.reject('update public.social_profiles set school_id=''sfusd-lincoln''','42501');
 select proof.reject('select public.set_school(''invented-school'')','23503');
 select public.create_circle() as school_circle \gset

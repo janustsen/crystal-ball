@@ -3,6 +3,7 @@ import {Pressable,Share,Switch,TextInput,View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {Action,colors,Orb,styles,Txt} from './ui';
 import {useStore} from './store';
+import {SchoolPicker} from './SchoolPicker';
 import type {Prediction,FriendTarget} from './types';
 import {accountSocialProfile,sampleStars,skyPrompts,socialUnavailable,validFirstName,type SkyPrompt} from './social-policy';
 import {blockMember,blockStarAuthor,createCircle,dismissFriendNotices,inviteToCircle,joinCircle,leaveCircle,loadSocial,openForecast,prepareSocialDraft,publishStar,reactInCircle,removeStar,reportStar,resonate,revokeSeal,sealForecast,setFriendConsent,type SocialDraft,type SocialSnapshot} from './social';
@@ -30,44 +31,55 @@ function SealedCard({token,reduce}:{token:string;reduce:boolean}){
 export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce}:{onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
  const {state}=useStore();
  const profile=accountSocialProfile(state);
+ const [schoolOnly,setSchoolOnly]=useState(false);
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
  const [section,setSection]=useState<'sky'|'circles'>(invite?'circles':'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
  const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{
   let active=true;
-  async function refresh(){try{const snapshot=await loadSocial(profile);if(active){setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
+  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   return()=>{active=false;clearInterval(timer)};
- },[version,profile.plus,profile.ageBand,profile.sunSign]);
+ },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
  async function act(operation:()=>Promise<unknown>,message=''){
   if(busy)return;setBusy(true);setNotice('');
   try{await operation();setVersion(v=>v+1);setNotice(message)}catch(error){setNotice(error instanceof Error?error.message:'The sky could not be reached. Try again.')}finally{setBusy(false)}
  }
- const stars=data?.stars??[],themeStars=stars.filter(star=>star.theme===selected),ownStar=data?.ownStar;
+ const stars=data?.schoolOnly===schoolOnly?data.stars:[],themeStars=stars.filter(star=>star.theme===selected),ownStar=data?.ownStar;
  const templates=Object.entries(skyPrompts) as [SkyPrompt,(typeof skyPrompts)[SkyPrompt]][];
  return <>
   <View style={[styles.row,{flexWrap:'wrap',marginBottom:20}]}>{(['sky','circles'] as const).map(part=><Pressable key={part} testID={`social-section-${part}`} accessibilityRole="button" accessibilityState={{selected:section===part}} onPress={()=>{setSection(part);setNotice('')}} style={{minHeight:48,justifyContent:'center',borderBottomWidth:section===part?1:0,borderColor:colors.gold}}><Txt style={{color:section===part?colors.gold:colors.muted}}>{part==='sky'?'Tonight’s Sky':'Circles'}</Txt></Pressable>)}</View>
+  {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
    <Txt display>A sky full of what-ifs.</Txt>
-   <Txt style={[styles.caption,{marginTop:12}]}>{stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>
+   <View style={styles.row}><Txt>My school</Txt><Switch accessibilityLabel="My school" value={schoolOnly} disabled={!data?.profile?.school_id} onValueChange={setSchoolOnly}/></View>
+   <Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>
    <View testID="tonights-sky" style={{minHeight:state.largeText?0:380,marginVertical:20,borderRadius:22,backgroundColor:colors.surface,borderWidth:1,borderColor:'#614C34',padding:state.largeText?16:0}}>
     {templates.map(([key,prompt])=>{
-     const live=stars.filter(star=>star.theme===key),points=live.length?live:sampleStars.filter(star=>star.theme===key);
-     return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>
+     const live=stars.filter(star=>star.theme===key),points=live.length?live:schoolOnly?[]:sampleStars.filter(star=>star.theme===key);
+     return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>
       <View accessible={false} style={{flexDirection:'row',gap:3,alignItems:'center'}}>{points.slice(0,5).map((point,index)=><Txt key={point.id} allowFontScaling={false} style={{fontSize:index?13:26,lineHeight:30,color:selected===key?colors.gold:colors.lavender,transform:[{translateY:index%2?5:-3}]}}>✦</Txt>)}</View>
       <Txt style={{color:selected===key?colors.gold:colors.ivory,fontSize:14}}>{prompt.label}</Txt>
      </Pressable>;
     })}
    </View>
-   {!themeStars.length?<View style={styles.panel}><Txt style={styles.caption}>{skyPrompts[selected].label} · sample question</Txt><Txt display style={[styles.title,{marginTop:12}]}>{skyPrompts[selected].question}</Txt><Action label="Ask this too" onPress={()=>onAsk(skyPrompts[selected].question)}/></View>:null}
+   {schoolOnly&&!themeStars.length?<View style={styles.panel}><Txt>No school stars in {skyPrompts[selected].label.toLowerCase()} yet.</Txt><Txt style={styles.caption}>Prom, exams, a crush — ask the Ball and choose whether to share an anonymous Star.</Txt></View>:null}
+   {!schoolOnly&&!themeStars.length?<View style={styles.panel}><Txt style={styles.caption}>{skyPrompts[selected].label} · sample question</Txt><Txt display style={[styles.title,{marginTop:12}]}>{skyPrompts[selected].question}</Txt><Action label="Ask this too" onPress={()=>onAsk(skyPrompts[selected].question)}/></View>:null}
    {themeStars.map((star,index)=><View key={star.id} style={styles.panel}><Txt style={styles.caption}>{star.mine?'Your star':'Anonymous star'} · {star.resonances} resonance{star.resonances===1?'':'s'}</Txt><Txt display style={[styles.title,{marginTop:12}]}>{star.wording}</Txt><Action label={`Ask this too${index?` · ${index+1}`:''}`} onPress={()=>onAsk(star.wording)}/><Action label={star.resonated?'✦ Resonated':`✦ This resonates${index?` · ${index+1}`:''}`} quiet disabled={busy||star.resonated} onPress={()=>void act(()=>resonate(star.id))}/>{!star.mine?<View><Action label="Report this star" quiet disabled={busy} onPress={()=>void act(()=>reportStar(star.id),'Reported. Repeated reports hide a star automatically.')}/><Action label="Block this person" quiet disabled={busy} onPress={()=>void act(()=>blockStarAuthor(star.id),'This person is blocked. Their stars and activity are hidden.')}/></View>:null}</View>)}
    <Action label={busy?'The Ball is checking…':'Add my star'} quiet disabled={busy||!!ownStar} onPress={()=>{const reading=state.history[0];if(!reading){onAsk('');return;}void act(async()=>{const next=await prepareSocialDraft('star',reading.question);setDraft(next);setSelected(next.theme)})}}/>
    {draft?<View style={styles.panel}><Txt>Approve your anonymous wording</Txt><Txt style={[styles.caption,{marginTop:8}]}>{draft.wording}</Txt><Txt style={[styles.caption,{marginTop:12}]}>Rewritten from your latest reading. No name, original question or answers. Visible today (UTC). One star per day.</Txt><Action label="Publish anonymous star" disabled={busy||!!ownStar} onPress={()=>void act(async()=>{await publishStar(draft);setDraft(null)},'Your star is in tonight’s sky.')}/><Action label="Keep it private" quiet onPress={()=>setDraft(null)}/></View>:null}
    {ownStar?<Action label="Remove my star" quiet disabled={busy} onPress={()=>void act(()=>removeStar(ownStar),'Your star was removed.')}/>:null}
   </>:<>
    <Txt display>Your little circle.</Txt><Txt style={[styles.caption,{marginTop:12}]}>Friends by invitation. Their day, theme and sun sign. Never their question or forecast.</Txt>
+   {data?.profile?.school_id?<View style={styles.panel}><Txt>School Circle suggestions</Txt><Txt style={styles.caption}>Only friends you directly invited or who invited you, at your chosen school. No school directory.</Txt>
+    {!data.schoolSuggestions.length?<Txt style={styles.caption}>No invited school friends yet. Use a private invitation with someone you already know.</Txt>:null}
+    {data.schoolSuggestions.filter((suggestion,index,all)=>all.findIndex(s=>s.user_id===suggestion.user_id)===index).map(suggestion=>{
+     const circleIndex=data.circles.findIndex(c=>c.id===suggestion.circle_id),friendIndex=data.members.filter(m=>m.circle_id===suggestion.circle_id).findIndex(m=>m.user_id===suggestion.user_id);
+     return <View key={suggestion.user_id}><Txt style={styles.caption}>Friend {friendIndex+1} in Circle {circleIndex+1} chose your school.</Txt><Action label={`Start a school circle · Friend ${friendIndex+1} in Circle ${circleIndex+1}`} quiet disabled={busy} onPress={()=>void act(async()=>{const circle=await createCircle();const token=await inviteToCircle(circle);setLink(Linking.createURL('/',{queryParams:{circle:token}}))},'Share this private invitation with your school friend. They choose whether to join.')}/></View>;
+    })}
+   </View>:null}
    {joining&&invite?<View style={styles.panel}><Txt>A place in someone’s circle</Txt><Txt style={styles.caption}>Joining shares your future consultation days, themes and sun sign with up to 20 members. Leave whenever you like.</Txt><Action label="Join this circle" disabled={busy} onPress={()=>void act(async()=>{await joinCircle(invite);setJoining(false);onInviteHandled()},'You joined the circle.')}/><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></View>:null}
    {!data?.circles.length?<View style={styles.panel}><Txt>A small sky of your own.</Txt><Txt style={styles.caption}>Create a circle, then invite someone you trust. Only the day, theme and sun sign are shared.</Txt><Action label="Create my circle" disabled={busy} onPress={()=>void act(()=>createCircle(),'Circle created. Invite your first friend.')}/></View>:null}
    {data?.circles.map((circle,index)=>{

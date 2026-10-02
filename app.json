@@ -14,7 +14,8 @@
         "NSLocalNetworkUsageDescription": "Connect to your local Crystal Ball prediction engine during development.",
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
-        }
+        },
+        "NSLocationDefaultAccuracyReduced": true
       }
     },
     "plugins": [
@@ -54,10 +55,27 @@
             }
           ]
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Use your approximate location once to suggest nearby schools. Only the school you choose is saved.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false
+        }
       ]
     ],
     "web": {
       "bundler": "metro"
+    },
+    "android": {
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ]
     }
   }
 }

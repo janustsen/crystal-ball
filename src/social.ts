@@ -3,12 +3,14 @@ import {engineUrl,previewHeaders} from './api';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
 import type {Prediction,FriendTarget} from './types';
 
+export type School = {id:string;name:string;city:string;latitude:number;longitude:number};
+export type SchoolSuggestion = {circle_id:string;user_id:string};
 export type Circle = {id:string;owner_id:string};
 export type CircleMember = {circle_id:string;user_id:string;joined_at:string;consulted_on:string|null;theme:SkyPrompt|null;sun_sign:string|null;can_ask:boolean};
 export type CircleReaction = {circle_id:string;target_id:string;user_id:string;day:string};
 export type SentSeal = {id:string;headline:string;token:string;opened_at:string|null};
 export type SocialDraft={id:string;wording:string;theme:SkyPrompt};
-export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean}|null;notices:number};
+export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean;school_id:string|null}|null;notices:number;schools:School[];schoolSuggestions:SchoolSuggestion[];schoolOnly:boolean};
 
 async function client(){
  if(!supabase)throw new Error(socialUnavailable);
@@ -33,22 +35,23 @@ async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal)
 export const syncSocialProfile=(profile:SocialProfile)=>socialRequest({action:'profile',...profile});
 export const prepareSocialDraft=(kind:'star'|'seal',text:string)=>socialRequest<SocialDraft>({action:'draft',kind,text});
 export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal)=>socialRequest<Prediction>({action:'friend',question,...target},signal);
-export async function loadSocial(account:SocialProfile):Promise<SocialSnapshot>{
+export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise<SocialSnapshot>{
  await syncSocialProfile(account);
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);
- const [sky,own,circles,members,reactions,seals,profile,notices]=await Promise.all([
-  db.rpc('tonights_sky'),db.from('sky_stars').select('id').eq('day',day),db.from('circles').select('id,owner_id'),
+ const [sky,own,circles,members,reactions,seals,profile,notices,schools,suggestions]=await Promise.all([
+  db.rpc('tonights_sky',{my_school:schoolOnly}),db.from('sky_stars').select('id').eq('day',day),db.from('circles').select('id,owner_id'),
   db.rpc('circle_people'),db.from('circle_reactions').select('circle_id,target_id,user_id,day').eq('day',day),
   db.from('sealed_forecasts').select('id,headline,token,opened_at').eq('revoked',false),
-  db.from('social_profiles').select('age_band,friends_can_ask'),db.from('friend_notices').select('id').eq('seen',false),
+  db.from('social_profiles').select('age_band,friends_can_ask,school_id'),db.from('friend_notices').select('id').eq('seen',false),
+  db.from('schools').select('id,name,city,latitude,longitude'),db.rpc('school_circle_suggestions'),
  ]);
- for(const result of [sky,own,circles,members,reactions,seals,profile,notices])if(result.error)throw new Error(socialUnavailable);
+ for(const result of [sky,own,circles,members,reactions,seals,profile,notices,schools,suggestions])if(result.error)throw new Error(socialUnavailable);
  const stars:SkyStar[]=[];
  for(const row of sky.data??[]){
   if(isSkyPrompt(row.theme)&&safeSealedHeadline(row.wording)&&typeof row.id==='string'&&Number.isFinite(row.resonances))
    stars.push({id:row.id,theme:row.theme,wording:row.wording,resonances:row.resonances,resonated:row.resonated===true,mine:row.mine===true,synthetic:false});
  }
- return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0};
+ return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly};
 }
 export const publishStar=(draft:SocialDraft)=>rpc('publish_star',{approved_draft:draft.id});
 export const removeStar=(id:string)=>rpc('withdraw_star',{star:id});
@@ -71,3 +74,5 @@ export async function openForecast(token:string):Promise<string>{
  return headline;
 }
 export const revokeSeal=(id:string)=>rpc('revoke_forecast',{card:id});
+
+export const setSchool=(school:string|null)=>rpc('set_school',{chosen_school:school});
