@@ -1,0 +1,118 @@
+[
+  {
+    "request": {
+      "action": "plan",
+      "question": "Will I finish writing my novel this year?",
+      "facts": {
+        "current_focus": "Writing a novel",
+        "birthday": "1995-06-15"
+      },
+      "friend": false,
+      "viewerBirthday": "1995-06-15",
+      "ageConfirmed": true,
+      "localDate": "2026-10-02",
+      "aiConsent": ""
+    },
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "What is your current status on writing your novel?",
+            "options": [
+              "Writing my novel daily",
+              "Write my novel occasionally",
+              "Haven't started writing my novel",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "action": "predict",
+      "question": "Will I finish writing my novel this year?",
+      "facts": {
+        "current_focus": "Writing a novel",
+        "birthday": "1995-06-15",
+        "horizon": "this year",
+        "context_1": "What is your current status on writing your novel? I write for an hour every day and have finished half the draft"
+      },
+      "friend": false,
+      "viewerBirthday": "1995-06-15",
+      "ageConfirmed": true,
+      "localDate": "2026-10-02",
+      "aiConsent": ""
+    },
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "03c68f59-7b01-461d-9160-7856caef1c88",
+        "question": "Will I finish writing my novel this year?",
+        "headline": "You will finish writing your novel this year.",
+        "dueDate": "2026-12-31",
+        "astrology": "Under your Gemini Sun, consider this a playful invitation to your next chapter.",
+        "createdAt": "2026-10-02T10:16:04.222Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is your current status on writing your novel? I write for an hour every day and have finished half the draft.\n\nScenario assumption: You will continue writing for one hour daily without interruption.",
+        "deeperWhy": "Recorded context: What is your current status on writing your novel? I write for an hour every day and have finished half the draft.\n\nScenario assumption: You will continue writing for one hour daily without interruption. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "current_focus": "Writing a novel",
+          "birthday": "1995-06-15",
+          "horizon": "this year",
+          "context_1": "What is your current status on writing your novel? I write for an hour every day and have finished half the draft"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "adaptiveCards": 1,
+    "freeWhy": "☾\n✧ · ˚ · ✦\n×\n0 left today\nBehind the mist\n‹ Back to forecast\nYou will finish writing your novel this year.\nSpeculative forecast · not a guarantee\nUnder your Gemini Sun, consider this a playful invitation to your next chapter.\nWhy this forecast\n−\nRecorded context: What is your current status on writing your novel? I write for an hour every day and have finished half the draft.\n\nScenario assumption: You will continue writing for one hour daily without interruption.\nGo deeper with Plus\nShare this glimpse\nRemind me\nAsk again\nEdit question\nReview answers"
+  },
+  {
+    "request": {
+      "action": "plan",
+      "question": "Will my IVF succeed?",
+      "facts": {
+        "current_focus": "Writing a novel",
+        "birthday": "1995-06-15"
+      },
+      "friend": false,
+      "viewerBirthday": "1995-06-15",
+      "ageConfirmed": true,
+      "localDate": "2026-10-02",
+      "aiConsent": ""
+    },
+    "response": {
+      "kind": "blocked",
+      "category": "pregnancy",
+      "message": "This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead."
+    }
+  },
+  {
+    "persistedProfile": {
+      "birthday": "1995-06-15",
+      "sunSign": "gemini",
+      "ageBand": "adult",
+      "birthTime": "12:30",
+      "birthPlace": "Copenhagen, Capital Region, Denmark",
+      "moonSign": "capricorn",
+      "risingSign": "virgo",
+      "dueDate": "2026-12-31"
+    },
+    "pageErrors": []
+  }
+]

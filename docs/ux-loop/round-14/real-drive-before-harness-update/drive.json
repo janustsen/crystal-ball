@@ -1,0 +1,78 @@
+[
+  {
+    "at": "2026-10-02T10:01:55.463Z",
+    "base": "http://localhost:8098",
+    "health": {
+      "app": "crystal-ball",
+      "provider": "ollama"
+    }
+  },
+  {
+    "screen": "01-home"
+  },
+  {
+    "accessibility": "home",
+    "violations": []
+  },
+  {
+    "action": "omen",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "text": "Gemini, your mind dances with curiosity—today, learn something new!"
+      }
+    }
+  },
+  {
+    "screen": "02-approach"
+  },
+  {
+    "screen": "03-listening-fallback"
+  },
+  {
+    "screen": "04-typing"
+  },
+  {
+    "accessibility": "typing",
+    "violations": []
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "in 6 months"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "How often do you speak Spanish now?",
+            "options": [
+              "Speak Spanish daily",
+              "Speak Spanish occasionally",
+              "Haven't spoken Spanish",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "question-1"
+  },
+  {
+    "accessibility": "borderless question",
+    "violations": []
+  },
+  {
+    "failure": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('radio', { name: '✧ In my own words' })\u001b[22m\n",
+    "errors": []
+  },
+  {
+    "screen": "failure"
+  }
+]

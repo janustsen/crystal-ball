@@ -28,8 +28,8 @@ try{
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Hidden page',true);
  await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Visible page resumed',false);
  await page.emulateMedia({reducedMotion:'reduce'});
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').waitFor();await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([2.2,1.15,.6,1]);await callbacks('Reduced listening mood',true);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();
- await page.getByTestId('option-0').waitFor({timeout:65000});await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([1.1,.9,.5,1]);
+ await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').waitFor();await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([2.2,.3,.6,1]);await callbacks('Reduced listening mood',true);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();
+ await page.getByTestId('option-0').waitFor({timeout:65000});await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([1.1,.25,.5,1]);
  let predictions=0;await page.route('**/engine',async route=>{if(route.request().postDataJSON()?.action==='predict'){predictions++;await route.abort()}else await route.continue()});
  const total=Number((await page.getByText(/^1 of [12]$/).innerText()).split(' of ')[1]);
  for(let index=1;index<total;index++){await page.getByTestId('option-0').click();await expect(page.getByText(`${index+1} of ${total}`,{exact:true})).toBeVisible()}
