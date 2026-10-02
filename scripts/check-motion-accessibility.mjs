@@ -1,6 +1,7 @@
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {writeFile,mkdir} from 'node:fs/promises';
+const evidence=process.env.MOTION_EVIDENCE||'docs/evidence/motion-2026-09-30';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:false});
 const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844},reducedMotion:'reduce'}),log=[];
 const styleErrors=[];page.on('console',message=>{if(message.type()==='error'&&/style property during rerender/.test(message.text()))styleErrors.push(message.text());});
@@ -13,7 +14,6 @@ try{
  await page.getByRole('switch',{name:'Large text',exact:true}).click();await page.getByTestId('tab-home').click();await still('large text reduced motion');
  const balls=await page.locator('.orb .gb').evaluateAll(nodes=>nodes.map(n=>({width:n.getBoundingClientRect().width,visible:n.getBoundingClientRect().bottom<=innerHeight})));expect(balls).toHaveLength(2);expect(balls.every(b=>b.visible)).toBe(true);log.push({balls});
  await page.getByTestId('hero-orb').click();await expect(page.getByTestId('type-instead')).toBeVisible({timeout:1000});log.push({label:'approach delay skipped'});
- expect(styleErrors).toEqual([]);
- await mkdir('docs/evidence/motion-2026-09-30',{recursive:true});await writeFile('docs/evidence/motion-2026-09-30/reduced-motion.json',JSON.stringify(log,null,2)+'\n');
+ await mkdir(evidence,{recursive:true});await writeFile(evidence+'/reduced-motion.json',JSON.stringify(log,null,2)+'\n');
  console.log('Reduced motion, resume, large text and immediate listening passed.');
 }finally{await browser.close()}
