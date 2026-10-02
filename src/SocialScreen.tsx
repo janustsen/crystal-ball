@@ -60,15 +60,15 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
   {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
-   <Txt display style={styles.title}>A sky full of what-ifs.</Txt>
+   <Txt display style={styles.title}>What if?</Txt>
 
    {!offline?<Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>:null}
-   <View testID="tonights-sky" style={{minHeight:state.largeText?0:200,marginVertical:16,backgroundColor:'transparent',padding:state.largeText?8:0}}>
+   <View testID="tonights-sky" style={{minHeight:state.largeText?0:200,marginVertical:16,backgroundColor:'transparent',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',gap:12}: {})}}>
     {templates.map(([key,prompt])=>{
      const live=stars.filter(star=>star.theme===key),points=live.length?live:schoolOnly?[]:sampleStars.filter(star=>star.theme===key);
-     return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>
-      <View accessible={false} style={{flexDirection:'row',gap:3,alignItems:'center'}}>{points.slice(0,5).map((point,index)=><Txt key={point.id} allowFontScaling={false} style={{fontSize:index?13:26,lineHeight:30,color:selected===key?colors.gold:colors.lavender,transform:[{translateY:index%2?5:-3}]}}>✦</Txt>)}</View>
-      <Txt style={{color:selected===key?colors.gold:colors.ivory,fontSize:14}}>{selected===key?'✓ ':''}{prompt.label}</Txt>
+     return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{width:'48%',paddingVertical:8,paddingHorizontal:4,minHeight:56,justifyContent:'center',borderBottomWidth:1,borderColor:selected===key?colors.gold:'#614C3466'}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>
+      {!state.largeText?<View accessible={false} style={{flexDirection:'row',gap:3,alignItems:'center'}}>{points.slice(0,5).map((point,index)=><Txt key={point.id} allowFontScaling={false} style={{fontSize:index?13:26,lineHeight:30,color:selected===key?colors.gold:colors.lavender,transform:[{translateY:index%2?5:-3}]}}>✦</Txt>)}</View>:null}
+      <Txt style={{color:selected===key?colors.gold:colors.ivory,fontSize:14,lineHeight:20}}>{selected===key?'✓ ':''}{prompt.label}</Txt>
      </Pressable>;
     })}
    </View>

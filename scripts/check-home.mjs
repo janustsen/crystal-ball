@@ -14,7 +14,7 @@ try {
   await page.goto(base);await skipPreviewOnboarding(page);await expect(page.getByTestId('hero-orb')).toBeVisible();await page.waitForTimeout(1000);
   const metrics=await page.evaluate(()=>{
    const orb=document.querySelector('[data-testid="hero-orb"]').getBoundingClientRect();
-   const headline=[...document.querySelectorAll('div')].find(e=>e.textContent==='Touch the ball. Ask what’s ahead.');
+   const headline=document.querySelector('[data-testid=home-invitation]');
    const hs=getComputedStyle(headline),hr=headline.getBoundingClientRect();
    const omen=document.querySelector('[data-testid="daily-omen"]'),panel=omen.getBoundingClientRect();
    const omenFits=[...omen.children].every(child=>{const r=child.getBoundingClientRect();return r.left>=panel.left&&r.right<=panel.right&&r.top>=panel.top&&r.bottom<=panel.bottom});

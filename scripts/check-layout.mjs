@@ -68,7 +68,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
  await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await tap('decline-age');await check('onboarding-blocked',page.getByTestId('age-restriction'));await tap('correct-birthday');await check('onboarding-correction',page.getByTestId('age-correction-heading'));await fillBirthday(page,'1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('learning-growth');await check('onboarding-focus-selected',page.getByTestId('learning-growth'));await tap('meet-the-ball');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
- await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
+ await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));await tap('social-section-circles');await check('circles',page.getByTestId('create-my-circle'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
  await tap('tab-you');await check('you',text('What the Ball remembers'));
  await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday day',exact:true}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');
@@ -107,6 +107,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  for(const id of ['reason','answers','assumptions','sources']){await tap(`why-${id}`);if(id==='sources')for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();await check(`evidence-${id}`,page.getByTestId('why-heading'));await tap('why-all-evidence');}
  await tap('why-disclosure');await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
  await tap('preview-story-card');await check('share-inspection',page.getByTestId('share-image-text'));await page.getByRole('button',{name:'Back to sharing',exact:true}).click();
+ await tap('share-read-text');await check('share-text',page.getByTestId('share-image-text'));await tap('back-to-sharing');
  await tap('share-more');await check('share-options',page.getByTestId('share-friend-link'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
