@@ -1,0 +1,178 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hierarchy": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "typography": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "surfaces": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "clarity": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "feedback": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "accessibility": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "hierarchy",
+              "typography",
+              "surfaces",
+              "clarity",
+              "feedback",
+              "accessibility"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "dimensions",
+          "evidence",
+          "findings"
+        ]
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hierarchy": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "typography": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "surfaces": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "clarity": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "feedback": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "accessibility": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "hierarchy",
+              "typography",
+              "surfaces",
+              "clarity",
+              "feedback",
+              "accessibility"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "dimensions",
+          "evidence",
+          "findings"
+        ]
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "topFixes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "screens",
+    "components",
+    "limitations",
+    "topFixes"
+  ]
+}
