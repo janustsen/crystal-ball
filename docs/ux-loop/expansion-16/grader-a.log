@@ -1,0 +1,302 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fc42-f414-72a0-b26d-f93d79a93c98
+--------
+user
+Independent blind design comparison. Read-only, no delegation, no implementation, no prior grades or other graders. Compare the attached phone screenshot sheets. Each main sheet contains current production baseline and THREE materially different compositions A/B/C, at normal or200% text. Two additional images show C's explanation reader after opening it. All variants retain Open mist: borderless ink, ivory and brass. Score all EIGHT screen/variant pairs on the six dimensions, considering both sizes. Choose the best Ask and Why composition; baseline can win. A desired target score is not evidence. Explain one concrete tradeoff per option.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Evidence boundaries: production baseline has198 passing browser layouts, actual Ollama readings/PNG export, normal/200% entry selection and axe, contrast, reduced motion and isolated~60fps proof. Its most recent phone screenshot is the baseline shown. Alternatives are disposable HTML prototypes: real local radio/text/disclosure/section controls, but NO engine, actual submission, export, native behavior or motion implemented. Ask submit explicitly says no forecast requested. Prototype controls were driven at both sizes, all content preserved and no horizontal document overflow. Function scores are provisional structural expectations only; list implementation requirements. Do not silently credit a prototype for passing production tests. Physical iPhone/VoiceOver remains a later gate, not a browser-score ceiling.
+
+Content parity: all Ask variants contain the SAME person Alex and question Will Alex learn Spanish this year? All Why variants and baseline use the EXACT same long-content synthetic layout fixture, including full reasoning, three long supplied facts, one long assumption and three long sources. This is intentional reading/navigation stress, not release copy or model quality. Do not reward shorter substitute prose; none was substituted. All text is reachable via scrolling/navigation. Opening costs and below-fold discovery are legitimate tradeoffs.
+
+Ask A: focused single-page composer, visible identity choices that stack at200%, four-line question and bottom action. Ask B: identity and question stages, visible About Alex context/change, full question editor; extra identity step. Ask C: question-first composer with identity in an explicit About Alex/change disclosure; fewer immediate controls but less exposed identity editing.
+Why A: complete editorial document with section links and every section in one scroll. Why B: section selector showing one evidence category at a time; reading context disclosed. Why C: evidence overview then dedicated reader with explicit All evidence back. All retain full content and headings.
+
+Only inspect attached images, docs/ux-loop/expansion-16/checks.json and public/concepts/expansion-16.html if needed. Do not inspect source, previous scores, research or other task state. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+{
+  "comparisons": [
+    {
+      "screen": "Ask",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=7.0; F=7.0; overall=7.0, provisional. Feedback 0 is a schema placeholder for N/A, excluded from averages throughout this report. The atmospheric orb establishes identity but pushes the question and primary action down; at normal size the submit button is only partly visible. At 200%, the selected check separates from Someone, weakening grouping. Component scores (hierarchy/typography/surfaces/clarity/feedback/accessibility): orb 6/7/8/N/A/N/A/N/A; identity options 6/6/8/7/N/A/6; name input 7/7/8/8/N/A/7; question input 7/7/8/8/N/A/7; disclosure copy 7/7/8/8/N/A/7; submit/voice actions 6/7/8/7/N/A/7; header/close 6/7/8/7/N/A/6. Tradeoff: strongest atmosphere, weakest immediate task emphasis."
+    },
+    {
+      "screen": "Ask",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 7,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 6
+      },
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Visible identity choices make the form self-explanatory, and their vertical arrangement at 200% improves selection grouping. However, the enlarged question runs into the bottom action region, reducing how much can be reviewed simultaneously. The black rectangle behind the normal-size action interrupts the otherwise coherent surface. Component scores: identity radios 8/8/8/8/N/A/7; name input 8/8/8/8/N/A/7; question input 7/6/8/8/N/A/6; disclosure copy 7/7/8/8/N/A/7; submit 8/8/6/8/N/A/6; voice action 7/7/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: most exposed configuration, greatest competition between enlarged form content and the primary action."
+    },
+    {
+      "screen": "Ask",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 7,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=7.3; F=7.5; overall=7.4, provisional. About Alex and Change keep the subject explicit without showing the whole identity form. The additional What do you wonder? heading consumes substantial height at 200%; the entertainment notice is partly covered by the bottom action region in that capture. Component scores: identity summary/change 8/8/8/8/N/A/7; heading 7/7/8/8/N/A/7; question input 8/7/8/8/N/A/7; disclosure copy 6/6/8/7/N/A/6; submit 8/8/6/8/N/A/7; voice action 7/7/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: clear subject context and a focused editor, at the cost of an extra identity stage and a space-consuming heading."
+    },
+    {
+      "screen": "Ask",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=8.0; F=7.5; overall=7.7, provisional. Best Ask composition. The question leads, the small orb preserves character, and the identity disclosure remains explicit. At 200%, the complete question and entertainment notice are visible before the partly below-fold submit button; this is a better review sequence than the competing action regions in A/B. Component scores: orb N/A/N/A/8/N/A/N/A/N/A; heading 8/8/8/8/N/A/8; question input 8/8/8/8/N/A/8; identity disclosure 8/8/8/7/N/A/7; disclosure copy 8/8/8/8/N/A/8; submit 8/8/8/8/N/A/7; voice action 7/7/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: strongest question-first flow, but identity editing is less discoverable and requires opening the disclosure."
+    },
+    {
+      "screen": "Why",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. The forecast, uncertainty label and immediate explanation form a coherent reading sequence. Normal-weight body text is more comfortable than the prototypes' heavier paragraphs. However, the long expanded explanation pushes other evidence categories below the fold, especially at 200%. Component scores: forecast/uncertainty 8/7/8/8/N/A/7; explanation reader 7/8/8/7/N/A/7; accordion rows 7/7/8/7/N/A/7; back link 8/7/8/8/N/A/7; header/close 6/7/8/7/N/A/6. Tradeoff: immediate reasoning with little navigation overhead, but poor overview of the full evidence set."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 6
+      },
+      "finding": "A=7.0; F=6.5; overall=6.7, provisional. Section links expose the evidence categories before the long document, but the enlarged two-column layout breaks Assumptions inside the word. At 200%, the forecast and navigation occupy almost the entire first viewport. The heavy paragraph weight reduces visual separation between explanation and headings. Component scores: forecast/uncertainty 8/7/8/8/N/A/7; section links 7/5/8/7/N/A/6; section headings 8/8/8/8/N/A/7; explanation reader 7/6/8/7/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: continuous access to every section in one document, but substantial scrolling and visibly weak enlarged navigation."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 6
+      },
+      "finding": "A=7.3; F=6.5; overall=6.8, provisional. Collapsing the forecast gets readers to the selected explanation sooner, including at 200%. The two-column selector still breaks Assumptions inside the word; the selected category depends on a relatively subtle text/underline distinction. Component scores: forecast disclosure 7/8/8/7/N/A/7; category selector 7/5/8/7/N/A/6; section heading 8/8/8/8/N/A/7; explanation reader 8/6/8/7/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: faster access to one evidence category, but forecast context is hidden and comparing categories requires switching."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 8
+      },
+      "finding": "A=8.0; F=8.0; overall=8.0, provisional. Best Why composition. Full-width evidence rows provide distinct destinations and useful summaries without the narrow-column wrapping defects. The supplied reader preserves the full long fixture, has a clear All evidence return, and wraps cleanly at 200%. Its body text remains unnecessarily heavy. Component scores: forecast/uncertainty 8/8/8/8/N/A/8; evidence rows 8/8/8/8/N/A/8; reader heading 8/8/8/8/N/A/8; reader body 8/7/8/8/N/A/8; All evidence/back-to-forecast links 8/8/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: clearest evidence overview and dedicated reading space, but explanation takes an extra opening action and later categories remain below the fold at 200%."
+    }
+  ],
+  "askWinner": "C",
+  "whyWinner": "C",
+  "reason": "C provides the strongest compositions across both text sizes: Ask prioritizes reviewing the question; Why separates evidence discovery from sustained reading. Scores use A=mean(hierarchy, typography, surfaces), F=mean(clarity, accessibility), and overall=0.4A+0.6F rounded to one decimal. Feedback is N/A because interaction outcomes cannot be graded from these screenshots; its numeric placeholder is excluded. Component tuples use the same six dimensions and exclude N/A entries when normalized. Neither winner meets the authorized threshold, and several components remain below 8. No hard-gate failure is established: the supplied evidence states that all content is reachable.",
+  "limitations": [
+    "Independent assessment used only the six attached images and the stated evidence boundaries. No source, prior grades or other graders were consulted.",
+    "Prototype functional scores describe provisional structural expectations. Submit does not request a forecast; these compositions are not demonstrated end-to-end replacements.",
+    "Implement and verify engine submission, pending/error/retry states, input preservation, export and voice integration before crediting those prototype capabilities.",
+    "Verify keyboard avoidance, focused-field visibility and scroll clearance around Ask actions at 200%. The captured overlap in A/B is a concern, not proof of unreachable content.",
+    "Verify disclosure and section navigation semantics, selected-state announcements, keyboard focus, return-focus behavior and preserved reading position. Visible back links alone do not prove recovery.",
+    "Close controls appear very small; screenshots cannot establish their actual 44pt hit areas. Prototype contrast, reduced motion and assistive-technology behavior are not established by production tests.",
+    "Production browser checks are acknowledged only for baseline. They do not transfer to alternatives or provide missing screenshots of loading, error and recovery behavior.",
+    "The repeated synthetic reasoning is an intentional layout fixture and received no model-quality penalty. Physical iPhone and VoiceOver proof remains a separate later gate, not an automatic browser-score ceiling."
+  ]
+}
+tokens used
+30,364
+{
+  "comparisons": [
+    {
+      "screen": "Ask",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=7.0; F=7.0; overall=7.0, provisional. Feedback 0 is a schema placeholder for N/A, excluded from averages throughout this report. The atmospheric orb establishes identity but pushes the question and primary action down; at normal size the submit button is only partly visible. At 200%, the selected check separates from Someone, weakening grouping. Component scores (hierarchy/typography/surfaces/clarity/feedback/accessibility): orb 6/7/8/N/A/N/A/N/A; identity options 6/6/8/7/N/A/6; name input 7/7/8/8/N/A/7; question input 7/7/8/8/N/A/7; disclosure copy 7/7/8/8/N/A/7; submit/voice actions 6/7/8/7/N/A/7; header/close 6/7/8/7/N/A/6. Tradeoff: strongest atmosphere, weakest immediate task emphasis."
+    },
+    {
+      "screen": "Ask",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 7,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 6
+      },
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Visible identity choices make the form self-explanatory, and their vertical arrangement at 200% improves selection grouping. However, the enlarged question runs into the bottom action region, reducing how much can be reviewed simultaneously. The black rectangle behind the normal-size action interrupts the otherwise coherent surface. Component scores: identity radios 8/8/8/8/N/A/7; name input 8/8/8/8/N/A/7; question input 7/6/8/8/N/A/6; disclosure copy 7/7/8/8/N/A/7; submit 8/8/6/8/N/A/6; voice action 7/7/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: most exposed configuration, greatest competition between enlarged form content and the primary action."
+    },
+    {
+      "screen": "Ask",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 7,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=7.3; F=7.5; overall=7.4, provisional. About Alex and Change keep the subject explicit without showing the whole identity form. The additional What do you wonder? heading consumes substantial height at 200%; the entertainment notice is partly covered by the bottom action region in that capture. Component scores: identity summary/change 8/8/8/8/N/A/7; heading 7/7/8/8/N/A/7; question input 8/7/8/8/N/A/7; disclosure copy 6/6/8/7/N/A/6; submit 8/8/6/8/N/A/7; voice action 7/7/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: clear subject context and a focused editor, at the cost of an extra identity stage and a space-consuming heading."
+    },
+    {
+      "screen": "Ask",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=8.0; F=7.5; overall=7.7, provisional. Best Ask composition. The question leads, the small orb preserves character, and the identity disclosure remains explicit. At 200%, the complete question and entertainment notice are visible before the partly below-fold submit button; this is a better review sequence than the competing action regions in A/B. Component scores: orb N/A/N/A/8/N/A/N/A/N/A; heading 8/8/8/8/N/A/8; question input 8/8/8/8/N/A/8; identity disclosure 8/8/8/7/N/A/7; disclosure copy 8/8/8/8/N/A/8; submit 8/8/8/8/N/A/7; voice action 7/7/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: strongest question-first flow, but identity editing is less discoverable and requires opening the disclosure."
+    },
+    {
+      "screen": "Why",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 7
+      },
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. The forecast, uncertainty label and immediate explanation form a coherent reading sequence. Normal-weight body text is more comfortable than the prototypes' heavier paragraphs. However, the long expanded explanation pushes other evidence categories below the fold, especially at 200%. Component scores: forecast/uncertainty 8/7/8/8/N/A/7; explanation reader 7/8/8/7/N/A/7; accordion rows 7/7/8/7/N/A/7; back link 8/7/8/8/N/A/7; header/close 6/7/8/7/N/A/6. Tradeoff: immediate reasoning with little navigation overhead, but poor overview of the full evidence set."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 6
+      },
+      "finding": "A=7.0; F=6.5; overall=6.7, provisional. Section links expose the evidence categories before the long document, but the enlarged two-column layout breaks Assumptions inside the word. At 200%, the forecast and navigation occupy almost the entire first viewport. The heavy paragraph weight reduces visual separation between explanation and headings. Component scores: forecast/uncertainty 8/7/8/8/N/A/7; section links 7/5/8/7/N/A/6; section headings 8/8/8/8/N/A/7; explanation reader 7/6/8/7/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: continuous access to every section in one document, but substantial scrolling and visibly weak enlarged navigation."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 0,
+        "accessibility": 6
+      },
+      "finding": "A=7.3; F=6.5; overall=6.8, provisional. Collapsing the forecast gets readers to the selected explanation sooner, including at 200%. The two-column selector still breaks Assumptions inside the word; the selected category depends on a relatively subtle text/underline distinction. Component scores: forecast disclosure 7/8/8/7/N/A/7; category selector 7/5/8/7/N/A/6; section heading 8/8/8/8/N/A/7; explanation reader 8/6/8/7/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: faster access to one evidence category, but forecast context is hidden and comparing categories requires switching."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 0,
+        "accessibility": 8
+      },
+      "finding": "A=8.0; F=8.0; overall=8.0, provisional. Best Why composition. Full-width evidence rows provide distinct destinations and useful summaries without the narrow-column wrapping defects. The supplied reader preserves the full long fixture, has a clear All evidence return, and wraps cleanly at 200%. Its body text remains unnecessarily heavy. Component scores: forecast/uncertainty 8/8/8/8/N/A/8; evidence rows 8/8/8/8/N/A/8; reader heading 8/8/8/8/N/A/8; reader body 8/7/8/8/N/A/8; All evidence/back-to-forecast links 8/8/8/8/N/A/7; header/close 8/8/8/7/N/A/6. Tradeoff: clearest evidence overview and dedicated reading space, but explanation takes an extra opening action and later categories remain below the fold at 200%."
+    }
+  ],
+  "askWinner": "C",
+  "whyWinner": "C",
+  "reason": "C provides the strongest compositions across both text sizes: Ask prioritizes reviewing the question; Why separates evidence discovery from sustained reading. Scores use A=mean(hierarchy, typography, surfaces), F=mean(clarity, accessibility), and overall=0.4A+0.6F rounded to one decimal. Feedback is N/A because interaction outcomes cannot be graded from these screenshots; its numeric placeholder is excluded. Component tuples use the same six dimensions and exclude N/A entries when normalized. Neither winner meets the authorized threshold, and several components remain below 8. No hard-gate failure is established: the supplied evidence states that all content is reachable.",
+  "limitations": [
+    "Independent assessment used only the six attached images and the stated evidence boundaries. No source, prior grades or other graders were consulted.",
+    "Prototype functional scores describe provisional structural expectations. Submit does not request a forecast; these compositions are not demonstrated end-to-end replacements.",
+    "Implement and verify engine submission, pending/error/retry states, input preservation, export and voice integration before crediting those prototype capabilities.",
+    "Verify keyboard avoidance, focused-field visibility and scroll clearance around Ask actions at 200%. The captured overlap in A/B is a concern, not proof of unreachable content.",
+    "Verify disclosure and section navigation semantics, selected-state announcements, keyboard focus, return-focus behavior and preserved reading position. Visible back links alone do not prove recovery.",
+    "Close controls appear very small; screenshots cannot establish their actual 44pt hit areas. Prototype contrast, reduced motion and assistive-technology behavior are not established by production tests.",
+    "Production browser checks are acknowledged only for baseline. They do not transfer to alternatives or provide missing screenshots of loading, error and recovery behavior.",
+    "The repeated synthetic reasoning is an intentional layout fixture and received no model-quality penalty. Physical iPhone and VoiceOver proof remains a separate later gate, not an automatic browser-score ceiling."
+  ]
+}
