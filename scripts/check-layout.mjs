@@ -100,7 +100,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('go-deeper-with-plus');await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');
  await check('reveal-evidence',page.getByTestId('why-reason'));
  for(const id of ['reason','answers','assumptions','sources']){await tap(`why-${id}`);if(id==='sources')for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();await check(`evidence-${id}`,page.getByTestId('why-heading'));await tap('why-all-evidence');}
- await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
+ await tap('why-disclosure');await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
  await tap('preview-story-card');await check('share-inspection',page.getByTestId('share-image-text'));await page.getByRole('button',{name:'Back to sharing',exact:true}).click();
  await tap('share-more');await check('share-options',page.getByTestId('share-friend-link'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
