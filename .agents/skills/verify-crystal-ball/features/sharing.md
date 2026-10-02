@@ -1,7 +1,7 @@
 # Sharing
 
 ## Sub-features
-Private 9:16 export; Person-reading entry from Circles.
+Private 9:16 export; Friend-reading entry from Circles. Private Person readings enter through Ask; see [usage](../../../../README.md).
 
 ## How to get to it (user POV)
 Sky → Circles → Ask about an opted-in friend → first name, or Share this glimpse on a reveal.
