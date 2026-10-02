@@ -29,6 +29,11 @@ async function audit(page,width,name,marker,delay=1300){
    const r=el.getBoundingClientRect(),s=getComputedStyle(el);
    if(!r.width||!r.height||s.visibility==='hidden'||s.position==='fixed')continue;
    if(r.left<shell.left-1||r.right>shell.right+1)out.push(`${el.tagName.toLowerCase()}${el.dataset.testid?`#${el.dataset.testid}`:''} "${(el.textContent||'').trim().slice(0,30)}" ${Math.round(r.left)}..${Math.round(r.right)} outside ${Math.round(shell.left)}..${Math.round(shell.right)}`);
+   for(const node of el.childNodes){
+    if(node.nodeType!==Node.TEXT_NODE||!node.textContent.trim())continue;
+    const range=document.createRange();range.selectNodeContents(node);
+    for(const line of range.getClientRects())if(line.width&&(line.left<r.left-1||line.right>r.right+1))out.push(`text line outside ${el.tagName.toLowerCase()} bounds: "${node.textContent.trim().slice(0,40)}" ${Math.round(line.left)}..${Math.round(line.right)} versus ${Math.round(r.left)}..${Math.round(r.right)}`);
+   }
   }
   for(const sc of document.querySelectorAll('[data-testid="app-shell"] *'))if(sc.scrollLeft>0)out.push(`scrolled horizontally by ${sc.scrollLeft}`);
   return out.slice(0,8);
