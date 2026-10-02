@@ -11,7 +11,7 @@ test('timeframe inputs resolve completely or fail before outcome generation',asy
  assert.equal(forecastDueDate('next week'),'2026-10-11');
  assert.equal(forecastDueDate('in 104 weeks'),'2028-09-27');
  assert.equal(forecastDueDate('in 2030'),'2030-12-31');
- assert.equal(forecastDueDate('in 1 month',new Date('2026-01-31T12:00:00Z')),'2026-02-28');
+ assert.equal(forecastDueDate('in 1 month','2026-01-31'),'2026-02-28');
  const original=globalThis.fetch;let outcomes=0;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);

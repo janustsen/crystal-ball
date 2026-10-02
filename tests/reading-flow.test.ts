@@ -62,7 +62,7 @@ test('local ephemeris uses birth time and location for Moon and rising',()=>{
 });
 
 test('Due dates preserve horizons and clamp calendar months instead of overflowing',()=>{
- const now=new Date('2026-01-31T12:00:00Z');
+ const now='2026-01-31';
  assert.equal(forecastDueDate('within 1 month',now),'2026-02-28');
  assert.equal(forecastDueDate('this year',now),'2026-12-31');
  assert.equal(forecastDueDate('by 2028',now),'2028-12-31');
@@ -102,7 +102,7 @@ test('teen and unknown output is screened for private-feelings claims; adults re
 test('a model decade and a supplied ten-year horizon are the same timeframe',()=>{assert.equal(formatForecast('Your net worth will grow over the next decade.','in 10 years'),'Your net worth will grow over the next decade.');});
 
 test('Due dates cover next week, long growth periods, and each duration unit',()=>{
- const now=new Date('2026-09-30T12:00:00Z');
+ const now='2026-09-30';
  for(const [horizon,expected] of [['next week','2026-10-11'],['this week','2026-10-04'],['in 104 weeks','2028-09-27'],['in 520 weeks','2036-09-17'],['within a year','2027-09-30'],['for a year','2027-09-30'],['in two months','2026-11-30'],['in 10 days','2026-10-10'],['in 2030','2030-12-31'],['in 2100','2100-12-31']])assert.equal(forecastDueDate(horizon,now),expected,horizon);
 });
 

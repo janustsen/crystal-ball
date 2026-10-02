@@ -54,7 +54,7 @@ test('API requires age confirmation on both actions, including friend links, bef
 });
 
 test('fractional horizons fail across cards and forecast branches without truncation',async()=>{
- const now=new Date('2026-10-01T00:00:00Z');
+ const now='2026-10-01';
  assert.throws(()=>validateAnswer('growth','growth_weeks','1.5'),/whole/);
  assert.equal(forecastDueDate('in 1 day',now),'2026-10-02');assert.equal(forecastDueDate('in 2 weeks',now),'2026-10-15');
  const original=globalThis.fetch;let outcomes=0;

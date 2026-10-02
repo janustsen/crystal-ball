@@ -1,5 +1,6 @@
-export function forecastDueDate(horizon:string,now=new Date()):string {
- const date=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()));
+import {localDay} from './retention';
+export function forecastDueDate(horizon:string,now:Date|string=new Date()):string {
+ const date=new Date((typeof now==='string'?now:localDay(now))+'T00:00:00Z'),start=date.getTime();
  const words:Record<string,string>={one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',ten:'10',a:'1',an:'1'};
  const text=horizon.trim().toLowerCase().replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|a|an)\b/g,w=>words[w]);
  const interval=text.match(/^(?:(?:in|within|over|next|for)\s+)?(\d+(?:\.\d+)?)\s+(days?|weeks?|months?|years?)$/);
@@ -15,6 +16,6 @@ export function forecastDueDate(horizon:string,now=new Date()):string {
  else if(/^(?:this|next) month$/.test(text))date.setUTCMonth(date.getUTCMonth()+(/\bnext month\b/.test(text)?2:1),0);
  else if(/^(?:this|next) week$/.test(text))date.setUTCDate(date.getUTCDate()+7-(date.getUTCDay()||7)+(/\bnext week\b/.test(text)?7:0));
  else throw new Error('Use a timeframe such as tomorrow, next week, in 3 months, or by 2030.');
- if(!Number.isFinite(date.getTime())||date.getTime()<Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()))throw new Error('Use a current or future timeframe.');
+ if(!Number.isFinite(date.getTime())||date.getTime()<start)throw new Error('Use a current or future timeframe.');
  return date.toISOString().slice(0,10);
 }

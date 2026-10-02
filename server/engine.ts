@@ -119,7 +119,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
    reasoning=`Your success definition is ${facts.definition||'a majority'}, and your scenario is ${facts.scenario||'current conditions'}. This scenario assumes tighter constraints reduce share, otherwise share grows; it does not assume a majority jump within one year. Added context: ${facts.evidence||'none'}. This scenario rule is not calibrated or proved by headlines.`;
   } else choices=[];
   if(/^\d/.test(horizon))horizon=`within ${horizon}`;
-  const dueDate=forecastDueDate(horizon,context.localDate?new Date(context.localDate+'T12:00:00Z'):undefined);
+  const dueDate=forecastDueDate(horizon,context.localDate);
   facts.horizon=horizon;
   const basisKeys=Object.keys(facts).filter(key=>!['horizon','birthday','current_focus'].includes(key));
   type Forecast={prediction:string;basis?:string;assumption?:string};
