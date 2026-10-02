@@ -12,7 +12,7 @@ test('authenticated clients reach the configured engine port through every previ
   res.writeHead(200,{'content-type':'application/json'});
   res.end(JSON.stringify({kind:'ok',value:{text:'Your personal omen'},path:req.url,body:body?JSON.parse(body):null}));
  });
- const server=createServer(bridge((_req:any,res:any)=>res.end('private client bundle'),secret));
+ const server=createServer(bridge((_req:any,res:any)=>res.end('public client bundle'),secret));
  const keys=['CRYSTAL_BALL_ENGINE_PORT','EXPO_PUBLIC_ENGINE_URL','EXPO_PUBLIC_PREVIEW_SECRET'] as const;
  const previous=keys.map(key=>process.env[key]);
  const originalFetch=globalThis.fetch;
@@ -47,9 +47,9 @@ test('authenticated clients reach the configured engine port through every previ
   await Promise.all([server,upstream].map(server=>new Promise<void>(resolve=>server.close(()=>resolve()))));
  }
 });
-test('preview refuses unauthenticated engine calls and protects the injected-key bundle',async()=>{
+test('preview refuses unauthenticated engine calls while the page and bundle load without login',async()=>{
  const secret=randomBytes(32).toString('hex');
- const server=createServer(bridge((_req:any,res:any)=>res.end('private client bundle'),secret));
+ const server=createServer(bridge((_req:any,res:any)=>res.end('public client bundle'),secret));
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
  const address=server.address() as {port:number},base=`http://127.0.0.1:${address.port}`;
  try{
@@ -58,23 +58,28 @@ test('preview refuses unauthenticated engine calls and protects the injected-key
    assert.equal((await fetch(base+path,{method:'POST',headers:{origin:base},body:'{}'})).status,401);
    assert.equal((await fetch(base+path,{method:'POST',headers:{'x-preview-token':secret},body:'{}'})).status,401);
   }
-  for(const path of ['/','/index.bundle','/engine/health'])assert.equal((await fetch(base+path)).status,401);
+  // Owner-approved change: captain requested removal of the page login; engine checks remain.
+  for(const path of ['/','/index.bundle']){
+   const response=await fetch(base+path);assert.equal(response.status,200);
+   assert.equal(response.headers.get('www-authenticate'),null);assert.equal(await response.text(),'public client bundle');
+  }
+  assert.equal((await fetch(base+'/engine/health')).status,401);
   assert.equal((await fetch(base+'/engine/health',{headers:{'x-preview-token':secret}})).status,401);
   const authenticated=await fetch(base+'/index.bundle',{headers:{authorization:'Basic '+Buffer.from(`preview:${secret}`).toString('base64')}});
-  assert.equal(authenticated.status,200);assert.equal(await authenticated.text(),'private client bundle');
+  assert.equal(authenticated.status,200);assert.equal(await authenticated.text(),'public client bundle');
   assert.equal((await fetch(base+'/engine',{headers:{'x-preview-token':secret,origin:base}})).status,405);
   assert.equal((await fetch(base+'/engine',{method:'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'},body:'{}'})).status,403);
   for(const path of ['/engine','/engine/share','/engine/social','/engine/health']){
    assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'POST':'GET',headers:{'x-preview-token':secret,origin:base}})).status,405);
    assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'GET':'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'}})).status,403);
   }
-  assert.equal((await fetch(base+'/',{headers:{authorization:'é'.repeat(94)}})).status,401);
+  assert.equal((await fetch(base+'/engine/health',{headers:{'x-preview-token':'é'.repeat(94),origin:base}})).status,401);
  }finally{await new Promise<void>(resolve=>server.close(()=>resolve()))}
 });
 test('preview fails closed without startup secret',async()=>{
  const server=createServer(bridge((_req:any,res:any)=>res.end('not public'),undefined));
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
- try{assert.equal((await fetch(`http://127.0.0.1:${(server.address() as {port:number}).port}/`)).status,401)}finally{await new Promise<void>(resolve=>server.close(()=>resolve()))}
+ try{assert.equal((await fetch(`http://127.0.0.1:${(server.address() as {port:number}).port}/engine/health`)).status,401)}finally{await new Promise<void>(resolve=>server.close(()=>resolve()))}
 });
 
 test('preview routes every engine endpoint to ENGINE_PORT and forwards social identity',async()=>{
