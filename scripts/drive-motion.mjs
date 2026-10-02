@@ -24,7 +24,7 @@ try{
  shot('fog-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
  cli('perf-start','--no-reload','--no-auto-stop','--file',raw);tracing=true;
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');
- sample('idle-both-orbs');sample('orb-approach-listening','hero-orb');sample('listening');sample('typing','type-instead');
+ sample('idle-both-orbs');sample('orb-approach-listening','hero-orb');sample('listening','speak-question');sample('typing','type-instead');
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
  sample('planning-to-question-one','look-into-the-future',2200,'option-0');const total=evaluate('()=>Number(document.body.innerText.match(/1 of (\\d)/)[1])');for(let i=0;i<total;i++)sample(i===total-1?'thinking-to-reveal':'question-two','option-0',2200,i===total-1?'share-this-glimpse':'option-0');
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');

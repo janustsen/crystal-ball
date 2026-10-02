@@ -81,8 +81,8 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  }
  await page.getByRole('radio').filter({hasText:'Monthly'}).click();await expect(page.getByRole('radio').filter({hasText:'Monthly'})).toHaveAttribute('aria-checked','true');await check('paywall-monthly',page.getByTestId('continue-with-plus-simulate'));
  await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');await tap('tab-home');
- await tap('hero-orb');await check('approach',text('Come closer…'),0);
- await check('listening',page.getByTestId('type-instead'));
+ await tap('hero-orb');await check('approach',text('Your question.'),0);
+ await tap('speak-question');await check('listening',page.getByTestId('type-instead'));
  await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));
  await page.getByTestId('question-input').fill('Will Alex learn Spanish in six months?');await tap('question-subject');await tap('ask-about-someone');await page.getByTestId('person-name').fill('Alex');await check('ask-person',page.getByTestId('person-name'));await tap('save-subject');await check('ask-person-collapsed',page.getByTestId('question-subject'));await tap('question-subject');await tap('ask-about-myself');await tap('save-subject');await page.getByTestId('question-input').fill(prediction.question);
  await tap('look-into-the-future');await check('planning',planning);

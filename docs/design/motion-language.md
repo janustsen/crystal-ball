@@ -9,11 +9,11 @@ The ball is a small atmosphere behind glass, drawn like a premium illustrated ga
 | Gold breath | Orb halos | A quiet 7.3-second light swell. Opacity and scale only. |
 | Touch ripple | Hero orb only | One fine gold ring for 320ms. Routine actions have no sparks or whole-control distortion. Primary buttons sink 2px while held. |
 | Mist arrival | Tabs, paywall, ordinary screens | 200ms 6px lift with fully opaque text; no curtain, masking or skew. |
-| Approach | Ball tap / Ask | 400ms arrival; advances automatically after 650ms, immediately with reduced motion. Instruction remains readable. |
+| Approach | Ball tap / Ask | 200ms arrival; waits for Type a question or Speak a question. No automatic microphone transition or timed reading window. |
 | Listening / typing | Input modes | 220 / 200ms, 6px lift; task text remains readable. |
 | Question | Follow-ups | 260ms, 8px lift; one consistent full-width choice list. No card flip. |
 | Thinking | Loading | 300ms, 6px lift. Living orb retains its continuous time. |
-| Reveal | Newly generated prediction | 900ms compression/wobble/charge, 200ms glass release, then a 700ms forecast rise and single settle. Golden editions charge 250ms longer and use 12 rather than 8 embers. One bounded ring, no camera shake or whole-screen flash. Show forecast skips immediately; Close leaves the already-saved reading in History. History and return from sharing never replay the opening. Reduced motion uses a 180ms calm crossfade. |
+| Reveal | Newly generated prediction | 900ms compression/wobble/charge, 200ms luminous fracture and mist release with the sphere/stand silhouette intact, then a 700ms forecast rise and single settle. Golden editions charge 250ms longer and use 12 rather than 8 embers. One bounded ring, no camera shake or whole-screen flash. Show forecast skips immediately; Close leaves the already-saved reading in History. History and return from sharing never replay the opening. Reduced motion uses a 180ms calm crossfade. |
 | Share | Export choices and story | 220ms, 6px lift. No bitmap scale or rotation. |
 | Sky depth | Background | Two seamless star tiles drift at different speeds (140s and 90s per tile, the near one twinkling), the sky sways on a 23s breath, and pointer position shifts sky, candle and embers by different amounts for parallax. Rare gold streak, passing crescent and faint constellation remain the easter eggs. |
 

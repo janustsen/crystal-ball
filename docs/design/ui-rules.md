@@ -22,11 +22,11 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 Home, Sky, raised Ask orb, History and You are the five destinations. The tab orb uses exactly the Home orb artwork. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
-1. Home: orb, italic forecast/check-back headline, return-visit guidance, due-check-in action, Daily omen panel and decorative fog whispers; see [motion](motion.md#orb-delight) for their animation and input behavior.
-2. Approach: larger orb and “Come closer…” before voice.
+1. Home: orb, one sans-serif forecast/check-back headline, return-visit guidance, due-check-in action, Daily omen content and decorative fog whispers; see [motion](motion.md#orb-delight) for their animation and input behavior.
+2. Approach: orb and “Your question.” with explicit Type a question and Speak a question controls.
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
-4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
-5–7. Follow-ups: small decorative orb above a borderless question, with consistently aligned underlined choices. At 200% text, decorative orbs in forms are omitted and plan pricing stacks; Home retains its full hero. Custom entry collapses unused choices and offers a visible way back to them. Standard answers advance immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
+4. Typing: outlined sans-serif question input, Speak instead and Ask the Ball. Configured AI providers require a separate explicit consent review before sending; the draft is retained.
+5–7. Follow-ups: small decorative orb above a borderless question, with consistently aligned underlined choices. At 200% text, decorative orbs in forms are omitted and plan pricing stacks; Home retains its full hero. Custom entry collapses unused choices and offers a visible way back to them. Standard answers acknowledge selection for 180ms then advance; reduced motion advances immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
 8. Thinking: smoke, status, longer-wait message and Cancel; no credit is spent yet.
 9. Reveal: actual engine headline and speculative label; see [Short, personal readings](#short-personal-readings) for Due date and Why disclosure. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
 10. Share: compact actual export preview and image/friend/reminder actions.
