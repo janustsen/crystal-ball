@@ -26,7 +26,7 @@ Draft for a hosted engine + Supabase backup release; reconcile with final SDK ma
 | User ID (Supabase anonymous ID, later Apple-linked account) | App functionality, backup | Yes | No |
 | Other user content (questions, answers, predictions, remembered facts) | App functionality, inference, backup | Yes when mirrored | No |
 | Financial information / other financial info (assets, debts, savings supplied for money readings) | App functionality | Yes when saved | No |
-| Coarse location (volunteered city; future one-time approximate school lookup) | App functionality / school selection | Yes for saved city or chosen school; audit transient lookup processing | No |
+| Coarse location / school selection | See the [school privacy boundary](../social/school.md#app-store-privacy-and-native-release-note); volunteered city is used for readings | Yes for saved city or chosen school | No |
 | Birthday / school / sun sign and social content | Age gating, personalization and approved social features | Yes when saved or mirrored | No |
 | Purchase history | App functionality, once real RevenueCat billing is enabled | Review SDK configuration | No intended tracking |
 | Email/name | No name/email scopes requested by the app; audit identity-provider claims retained by Supabase before deciding whether to declare | Potentially yes | No |
@@ -51,9 +51,7 @@ Answer the rating questionnaire for the actual astrology, generated person readi
 
 ## School-location privacy follow-up
 
-School features ship separately after social. Request approximate location once, only when the user chooses nearby school selection; do not request it at first launch or for basic readings. Store only the chosen school, never exact coordinates; never share exact location. Do not retain the transient lookup in logs. Audit whether the school-lookup vendor retains location before finalizing the coarse-location label. The school itself can reveal approximate location and is linked user information.
-
-School Sky filters to “My school”; School Circle suggestions contain only people at that school who have invited each other, never a directory of strangers. Before that release, update the public privacy policy, native permission purpose text, nutrition labels and teen-safety drive. No location permission is introduced by this launch branch.
+School features are integrated; the [school boundary](../social/school.md) owns lookup, storage, visibility and native permission details. Before public release, reconcile the public privacy policy and nutrition labels with that implementation and complete the native and teen-safety checks documented there.
 
 ## Apple backup setup and release blockers
 
