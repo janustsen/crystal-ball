@@ -1,6 +1,6 @@
 import {useState} from 'react';
-import {TextInput,View} from 'react-native';
-import {Action,Txt,styles,colors} from './ui';
+import {View} from 'react-native';
+import {Input,Action,Txt,styles,colors} from './ui';
 import {ageGroup,sunSign} from './profile';
 import {validateFact} from './questions';
 import type {Facts} from './types';
@@ -32,7 +32,7 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>13 and up. Your birthday sets your Sun sign.</Txt>
   {step===0?<>
    <Txt style={styles.caption}>Birthday · YYYY-MM-DD</Txt>
-   <TextInput testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
+   <Input testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
    {error?<Txt accessibilityRole="alert">{error}</Txt>:null}
    <Action label="Continue" onPress={next}/>
   </>:<>

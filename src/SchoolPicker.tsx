@@ -1,8 +1,8 @@
 import React,{useEffect,useState} from 'react';
-import {TextInput,View} from 'react-native';
+import {View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import {Action,styles,Txt} from './ui';
+import {Input,Action,styles,Txt} from './ui';
 import {nearbySchools,searchSchools} from './schools';
 import {setSchool,type School} from './social';
 
@@ -33,7 +33,7 @@ export function SchoolPicker({schools,selected,onSaved}:{schools:School[];select
   {!editing?<Action label={selected?'Change school':'Choose my school'} quiet onPress={()=>setEditing(true)}/>:<>
    <Txt style={styles.caption}>Find nearby schools once, or search by name. Location stays on this device and is never saved or shared. Only your chosen school is saved. Your anonymous Stars can appear in its sky; invited friends at the same school can see Circle suggestions.</Txt>
    {!attempted?<Action label="Find nearby schools once" disabled={busy} onPress={()=>void locate()}/>:null}
-   <TextInput accessibilityLabel="Search school name" value={query} onChangeText={value=>{setQuery(value);setNearby(null)}} style={styles.input} placeholder="Search school name"/>
+   <Input accessibilityLabel="Search school name" value={query} onChangeText={value=>{setQuery(value);setNearby(null)}} style={styles.input} placeholder="Search school name"/>
    <Txt style={styles.caption}>Small starter catalog · San Francisco schools. If yours is missing, skip for now.</Txt>
    {searchSchools(nearby??schools,query).map(school=><Action key={school.id} label={`Choose ${school.name}`} quiet disabled={busy} onPress={()=>void save(school.id)}/>)}
    {!searchSchools(nearby??schools,query).length?<Txt style={styles.caption}>No matching schools.</Txt>:null}

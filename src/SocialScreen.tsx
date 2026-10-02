@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {Platform,Pressable,Share,TextInput,View} from 'react-native';
+import {Platform,Pressable,Share,View} from 'react-native';
 import * as Linking from 'expo-linking';
-import {Action,colors,Orb,styles,Txt,Toggle} from './ui';
+import {Input,Action,colors,Orb,styles,Txt,Toggle} from './ui';
 import {sealedLink} from './social-links';
 import {useStore} from './store';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
@@ -99,7 +99,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    })}
    <View style={styles.panel}><Toggle accessibilityLabel="Friends can ask about me" disabled={busy||data?.profile?.age_band!=='adult'} value={data?.profile?.friends_can_ask===true} onValueChange={allowed=>void act(()=>setFriendConsent(allowed))}/><Txt style={styles.caption}>{data?.profile?.age_band==='adult'?'Off unless you choose. Only your sun sign and shared themes are used.':'Off for teens and unknown ages.'}</Txt></View>
    {data?.notices?<View style={styles.panel}><Txt>Someone asked about you.</Txt><Txt style={styles.caption}>Their question and forecast stay private.</Txt><Action label="Got it" quiet onPress={()=>void act(()=>dismissFriendNotices())}/></View>:null}
-   {friendEntry?<View style={styles.panel}><Txt>What is this friend’s first name?</Txt><TextInput accessibilityLabel="Friend’s first name" value={firstName} onChangeText={setFirstName} maxLength={40} style={styles.input}/><Action label="Ask about this friend" disabled={busy||!validFirstName(firstName.trim())||!data?.members.some(m=>m.circle_id===friendEntry.circle&&m.user_id===friendEntry.member&&m.can_ask)} onPress={()=>{const name=firstName.trim();if(!validFirstName(name))return;if(!state.plus){onPlus();return;}onAsk(`What lies ahead for ${name}?`,true,{...friendEntry,firstName:name})}}/><Txt style={styles.caption}>Only their sun sign and shared themes inform the reading. They are told someone asked, never what.</Txt></View>:null}
+   {friendEntry?<View style={styles.panel}><Txt>What is this friend’s first name?</Txt><Input accessibilityLabel="Friend’s first name" value={firstName} onChangeText={setFirstName} maxLength={40} style={styles.input}/><Action label="Ask about this friend" disabled={busy||!validFirstName(firstName.trim())||!data?.members.some(m=>m.circle_id===friendEntry.circle&&m.user_id===friendEntry.member&&m.can_ask)} onPress={()=>{const name=firstName.trim();if(!validFirstName(name))return;if(!state.plus){onPlus();return;}onAsk(`What lies ahead for ${name}?`,true,{...friendEntry,firstName:name})}}/><Txt style={styles.caption}>Only their sun sign and shared themes inform the reading. They are told someone asked, never what.</Txt></View>:null}
    {data?.receivedSeals.map(card=><SealedCard key={card.token} token={card.token} reduce={reduce}/>)}
    {data?.seals.map(card=><View key={card.id} style={styles.panel}><Txt>{card.opened_at?'Opened':'Sealed'} · {card.headline}</Txt><Action label="Show sealed link" quiet onPress={()=>{try{setLink(sealedLink(card.token))}catch(error){setNotice(error instanceof Error?error.message:'The card could not be shared.')}}}/><Action label="Revoke this card" quiet disabled={busy} onPress={()=>void act(()=>revokeSeal(card.id),'Card revoked.')}/></View>)}
   </>}
