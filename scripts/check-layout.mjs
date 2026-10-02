@@ -112,7 +112,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
  await tap('tab-history');await check('history-filled',text(prediction.headline));
- await text(prediction.headline).click();await check('check-in',page.getByTestId('check-in-yes'));
+ await text(prediction.headline).click();await check('check-in',page.getByTestId('check-in-yes'));await tap('check-in-forecast');await check('check-in-forecast',page.getByTestId('check-in-forecast-content'));
  }finally{await context.close()}
 }
 }finally{
