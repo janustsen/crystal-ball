@@ -1,0 +1,329 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fc85-eaa5-7381-982e-5b82556feb24
+--------
+user
+Independent blind design comparison. Read-only. No delegation, implementation, prior ratings or other graders. Compare baseline and A/B/C for expanded identity editing and a long reason reader, each at normal/200%. Score all eight screen/variant pairs using six dimensions; use null for truly inapplicable prototype behavior, not0. Choose best Ask and Why; baseline can win. No desired score. Explain tradeoffs.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Baseline: actual current product,234 passing layouts, real Ollama/PNG, keyboard/focus, contrast/reduced motion and isolated~60fps. It starts with identity EXPANDED and the reason reader OPEN. All alternatives are disposable HTML: controls work but no engine/export/native/motion implemented. Functional scores are provisional structural judgments only; never silently credit prototype with product tests. All twelve normal/200% combinations drove controls and retained content without horizontal overflow. Identity completion views B/C are separately pictured.
+
+Exact same Alex/question and full synthetic long reasoning in every alternative. This is intentional stress content, not release/model-quality copy. Sentences remain intact, grouped two per passage; no semantic headings invented. Reason is reached from the existing four-category overview, unchanged outside this study.
+
+Ask A: single inline identity-first form, compact question editor; fewer steps but less editing space. B: dedicated identity editing page, then existing question-first composer; no competing question editor while editing identity, extra transition. C: lower ink sheet under visible question summary, then return to full composer; context remains but more vertical content.
+Why A: complete continuous reader with separated numbered passages. B: single passage at a time, count/Previous/Next; extra navigation, less text per view. C: expandable numbered passages; contents reachable with disclosure cost. Source text unchanged, all words reachable. No invented context/assumption labels that data cannot support.
+
+Only inspect attached images, docs/ux-loop/expansion-18/checks.json and public/concepts/expansion-18.html if necessary; never previous grades or research. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+I’ll compare the supplied views and check the permitted interaction log, keeping browser evidence separate from unverified native behavior.
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat docs/ux-loop/expansion-18/checks.json' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+[
+  {
+    "screen": "ask",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "ask",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "ask",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "ask",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "ask",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "ask",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "why",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "why",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "why",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "why",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "why",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  },
+  {
+    "screen": "why",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "contentPreserved": true,
+    "boundary": "HTML layout/controls only, no engine or native proof"
+  }
+]
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat public/concepts/expansion-18.html' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open mist · focused editing and reading</title><style>
+@font-face{font-family:Fell;src:url(study-assets/display.woff2)}@font-face{font-family:Hanken;src:url(study-assets/body.woff2)}*{box-sizing:border-box}html{background:#100c09;color:#f1e9dc;font-family:Hanken,sans-serif;font-size:16px}body{margin:0;background:radial-gradient(ellipse at 85% 90%,#4d341c66,transparent 62%);min-height:100vh}body.large{font-size:32px}main{max-width:390px;margin:auto;padding:24px;min-height:100vh}header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 24px;font-size:.875em}header button{min-width:44px}h1,h2,.quote{font-family:Fell,serif;font-weight:400}h1{font-size:1.75em;line-height:1.18;margin:16px 0}h2{font-size:1.35em;line-height:1.3;margin:16px 0}.quote{font-size:1.375em;line-height:1.3;margin:14px 0}p{line-height:1.55;margin:12px 0}button,select,input,textarea{font:inherit;color:inherit}button,a,summary{touch-action:manipulation}button,select{min-height:48px}button{background:none;border:0;cursor:pointer;padding:12px 0;text-align:left}button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e0a458;outline-offset:4px}label{display:block}.small{font-size:.875em;line-height:1.45;color:#b9ab97}.gold{color:#e0a458}.rule{border-bottom:1px solid #614c3466;padding:16px 0}.primary{display:block;text-align:center;width:100%;padding:14px 18px;background:#ebd5b0;color:#120e0b;border-radius:28px;box-shadow:0 3px #7a5527;min-height:54px;font-weight:600;margin:14px 0}.quiet{display:block;width:100%;border-bottom:1px solid #614c3466;margin-top:8px;text-align:center}input,textarea,select{display:block;width:100%;border:0;border-bottom:1px solid #79634a;background:transparent;padding:14px 0;border-radius:0;margin:6px 0 14px}textarea{font-family:Fell,serif;font-size:1.5em;line-height:1.3;resize:vertical;min-height:5.6em}select{appearance:auto}option{background:#120e0b}fieldset{border:0;padding:0;margin:0 0 16px}legend{font-size:.875em;color:#b9ab97;margin-bottom:6px}.choices{display:flex;gap:20px}.choices label{display:flex;align-items:center;gap:10px;flex:1;min-height:52px;border-bottom:1px solid #614c34}.choices input{appearance:none;flex:0 0 20px;width:20px;height:20px;padding:0;margin:0;border:1px solid #79634a;border-radius:50%}.choices input:checked{background:#e0a458;box-shadow:inset 0 0 0 4px #120e0b}.large .choices{flex-direction:column;gap:0}.fixed-action{position:sticky;bottom:0;background:linear-gradient(transparent,#120e0b 14%);padding:14px 0 4px;margin-top:12px}.context{display:flex;align-items:center;gap:12px}.context span{flex:1}.context button{color:#e0a458;flex-shrink:0}details{border-bottom:1px solid #614c3466;padding:14px 0}summary{min-height:48px;cursor:pointer;line-height:1.4}.section-nav{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:16px 0}.section-nav a,.section-nav button{min-width:0;min-height:48px;color:#e0a458;text-decoration:none;border-bottom:1px solid #614c34;padding:12px 0;overflow-wrap:anywhere}.section-nav button[aria-pressed=true]{border-color:#e0a458;color:#f1e9dc}.reader{font-size:1.0625em;line-height:1.5}.reader p{white-space:pre-wrap;overflow-wrap:anywhere}.source{display:block;color:#e0a458;overflow-wrap:anywhere;padding:12px 0;text-decoration:none}.section{padding:8px 0 20px;border-bottom:1px solid #614c3466;scroll-margin-top:12px}.library button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border-bottom:1px solid #614c3466;padding:20px 0}.library strong{font-weight:400}.library small{display:block;color:#b9ab97;font-size:.875em;margin-top:6px}.orb-mark{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#f1e9dc 0 3%,#b2915755 9%,#23190f 52%,#775b36 70%,#140e08 76%);border:1px solid #9c7b4f;flex-shrink:0}#study{max-width:390px;margin:24px auto;padding:16px;color:#b9ab97;font-size:14px}#study a{color:#e0a458;margin-right:10px}#status{line-height:1.4;color:#e0a458}.large .context{flex-wrap:wrap}.large header{margin-bottom:16px}
+
+.sheet{background:#19130e;padding:20px;margin:20px -24px -24px;min-height:50vh}.excerpt{font-size:.875em;color:#b9ab97;line-height:1.4}.passage{margin:24px 0;padding-bottom:24px;border-bottom:1px solid #614c3455}.passage .number{color:#e0a458;font-size:.75em}.reading{font-size:1.0625em;line-height:1.6}.reading p{white-space:pre-wrap}.pager{display:flex;justify-content:space-between;gap:12px}.large .pager{flex-direction:column}body{background:#100c09}.compact textarea{min-height:3em;height:3em}details p{padding:8px 0}#study{padding:20px;background:#211a13}#study a{color:#e0a458;padding:10px;display:inline-block}</style><div id="study"></div><main id="app"></main><script>const prediction={"id": "layout-fixture", "question": "Will I be conversational in Spanish in six months?", "headline": "By spring you will hold a twenty-minute conversation in Spanish", "createdAt": "2026-10-02T10:53:50.818Z", "label": "Speculative \u00b7 moderate confidence", "why": "Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction.", "facts": {"context_a": "I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a ", "context_b": "I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a ", "context_c": "I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a "}, "sources": [{"title": "Layout source 1: Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation grou", "url": "https://example.com/layout-source-1", "date": "2026-10-01", "publisher": "Synthetic international language and education research publication"}, {"title": "Layout source 2: Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation grou", "url": "https://example.com/layout-source-2", "date": "2026-10-01", "publisher": "Synthetic international language and education research publication"}, {"title": "Layout source 3: Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation groups. Language learners describe sustained practice, changing schedules and community conversation grou", "url": "https://example.com/layout-source-3", "date": "2026-10-01", "publisher": "Synthetic international language and education research publication"}], "assumptions": ["You keep making time for regular practice and feedback even when your weekly schedule changes. You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m"], "friend": false};
+const params=new URLSearchParams(location.search),screen=params.get('screen')||'ask',variant=params.get('variant')||'a',large=params.get('large')==='1';if(large)document.body.classList.add('large');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let question='Will Alex learn Spanish this year?',person='Alex',subject='someone',editing=true,passage=0;
+const reason=prediction.deeperWhy||prediction.why,sentences=reason.split(/(?<=[.!?])\s+/),parts=[];for(let i=0;i<sentences.length;i+=2)parts.push(sentences.slice(i,i+2).join(' '));
+const header='<header><button aria-label="Close study">×</button><span class="small">Plus · test</span></header>';
+function identity(){return '<fieldset><legend>Question about</legend><div class="choices"><label><input type="radio" name="subject" value="myself" '+(subject==='myself'?'checked':'')+'>Myself</label><label><input type="radio" name="subject" value="someone" '+(subject==='someone'?'checked':'')+'>Someone</label></div></fieldset>'+(subject==='someone'?'<label class="small" for="person">First name</label><input id="person" value="'+esc(person)+'"><p class="small">For fun. The Ball knows nothing about them; nobody is notified.</p>':'')}
+const editor=()=>'<label class="small" for="question">Your question</label><textarea id="question" rows="4">'+esc(question)+'</textarea>';
+const submit='<p class="small">For entertainment. Questions and answers are sent for a generated forecast.</p><button class="primary" id="submit">Ask the Ball</button><p role="status" id="status"></p><button class="quiet">Speak instead</button>';
+function draw(){let html=header;if(screen==='ask'){
+ if(variant==='a')html+='<h1>Ask about someone</h1><div class="compact">'+identity()+editor()+'</div>'+submit;
+ if(variant==='b')html+=editing?'<button id="cancel" class="gold">‹ Your question</button><h1>Who is it about?</h1>'+identity()+'<button id="done" class="primary">Use this person</button>':'<h1>Ask the Ball</h1>'+editor()+'<button id="change" class="rule">About '+esc(subject==='someone'?person:'myself')+' · change</button>'+submit;
+ if(variant==='c')html+='<h1>Ask the Ball</h1>'+(editing?'<p class="excerpt">'+esc(question)+'</p><section class="sheet"><h2>Change person</h2>'+identity()+'<button id="done" class="primary">Done</button><button id="cancel" class="quiet">Cancel</button></section>':editor()+'<button id="change" class="rule">About '+esc(subject==='someone'?person:'myself')+' · change</button>'+submit);
+}else{
+ html+='<button class="gold">‹ All evidence</button><h1>Why this forecast</h1><p class="small gold">'+esc(prediction.label)+'</p>';
+ if(variant==='a')html+='<div class="reading">'+parts.map((p,i)=>'<section class="passage"><span class="number">'+String(i+1).padStart(2,'0')+'</span><p>'+esc(p)+'</p></section>').join('')+'</div>';
+ if(variant==='b')html+='<p class="small">Passage '+(passage+1)+' of '+parts.length+'</p><div class="reading"><p>'+esc(parts[passage])+'</p></div><nav class="pager"><button id="prev" '+(!passage?'disabled':'')+'>‹ Previous</button><button id="next" '+(passage===parts.length-1?'disabled':'')+'>Next passage ›</button></nav>';
+ if(variant==='c')html+='<div class="reading">'+parts.map((p,i)=>'<details '+(!i?'open':'')+'><summary>Passage '+(i+1)+'</summary><p>'+esc(p)+'</p></details>').join('')+'</div>';
+ html+='<button class="quiet">Back to forecast</button>';
+}document.querySelector('#app').innerHTML=html;
+document.querySelectorAll('[name=subject]').forEach(el=>el.onchange=()=>{subject=el.value;draw()});document.querySelector('#person')?.addEventListener('input',e=>person=e.target.value);document.querySelector('#question')?.addEventListener('input',e=>question=e.target.value);
+for(const id of ['done','cancel'])document.querySelector('#'+id)?.addEventListener('click',()=>{editing=false;draw();scrollTo(0,0)});document.querySelector('#change')?.addEventListener('click',()=>{editing=true;draw();scrollTo(0,0)});document.querySelector('#submit')?.addEventListener('click',()=>document.querySelector('#status').textContent='Layout study only. No forecast requested.');
+for(const [id,delta]of [['prev',-1],['next',1]])document.querySelector('#'+id)?.addEventListener('click',()=>{passage+=delta;draw();scrollTo(0,0)});
+}draw();
+document.querySelector('#study').innerHTML='Throwaway Open mist comparison · '+screen+' '+variant.toUpperCase()+'<p>No engine or native implementation. A: one continuous task; B: dedicated task/page; C: lower sheet/disclosures.</p>'+['a','b','c'].map(v=>'<a href="?screen='+screen+'&variant='+v+'&large='+(large?1:0)+'">'+v.toUpperCase()+'</a>').join('')+'<a href="?screen='+(screen==='ask'?'why':'ask')+'&variant='+variant+'&large='+(large?1:0)+'">Switch task</a><a href="?screen='+screen+'&variant='+variant+'&large='+(large?0:1)+'">Change text size</a>';if(params.has('capture'))document.querySelector('#study').remove();
+</script></html>
+
+codex
+{
+  "comparisons": [
+    {
+      "screen": "Ask",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6.5, "typography": 7.5, "surfaces": 7.5, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=7.2, F=7.7, overall=7.5. Normal: the large question editor dominates an identity-editing task; expanded choices push submission downward. At 200%, identity completion requires substantial scrolling. Selected-state checkmark is explicit. Component scores [H,T,S,C,Fb,Ac]: decorative orb [7, null, 8, null, null, null]; identity expander/options [6.5,7.5,7.5,7,8,8]; name input [7.5,8,7.5,8,8,8]; question editor [7,8,8,8,8,8]; submission/disclosure [8,7.5,8,7,8,8]. Functional credit uses the supplied product verification summary, not newly performed tests."
+    },
+    {
+      "screen": "Ask",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7.5, "feedback": 6.5, "accessibility": 7},
+      "finding": "A=8.2, F=7.0, overall=7.5. Normal: coherent identity-first form with one submission action. At 200%, options stack cleanly, but identity information pushes the compact question editor and submission below the initial viewport. The heading remains 'Ask about someone' after choosing Myself. Changing a radio reconstructs the focused control without restoring focus. Components: identity options [8,8,8,7.5,6,6.5]; name input/help [8,8,8,8,7,8]; question editor [7.5,7.5,8,8,7,7]; submission/status [8.5,8,8.5,8,7,8]. Its explicit study-only submission status is honest; it provides no forecast behavior."
+    },
+    {
+      "screen": "Ask",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8.5, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.3, F=7.2, overall=7.6. Best separation of tasks: identity editing has a clear 'Use this person' action, then the full question editor returns. At 200%, the completion button begins within the pictured viewport; continued scrolling is still necessary. Costs an extra transition. Returning through 'Your question' also retains edits, so the distinction from explicit completion is weak. View replacement lacks focus transfer. Components: identity page/options [8.5,8.5,8,8.5,6,6.5]; name input/help [8,8,8,8.5,7,8]; completion/back controls [8.5,8,8,8,6,7]; returned question editor [8.5,8.5,8,8.5,7,8]; change/submission controls [8,8,8.5,8.5,7,8]."
+    },
+    {
+      "screen": "Ask",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7, "feedback": 4, "accessibility": 6.5},
+      "finding": "A=8.2, F=5.8, raw overall=6.8; gated overall=4.0. Normal: the question summary preserves useful context and the restrained sheet separates editing. At 200%, that context pushes Done and Cancel below the pictured viewport. Material recovery failure in source: Cancel and Done execute the same operation; edits already mutate shared state, so Cancel preserves changes instead of restoring the original identity. This defeats the explicitly offered cancellation task. Components: question summary [8,8,8,8,null,8]; sheet [8,8,8.5,8,null,7]; identity options/input [8,8,8,8,6,6.5]; Done/Cancel [8,8,8.5,5,4,6.5]; returned composer [8.5,8.5,8,8.5,7,8]. The sheet is an inline section, not an implemented modal."
+    },
+    {
+      "screen": "Why",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 6.5, "feedback": 8, "accessibility": 8},
+      "finding": "A=6.7, F=7.5, overall=7.2. Normal: an uninterrupted text block makes place-keeping and scanning difficult, although return and outcome controls remain visible. At 200%, the long block magnifies this weakness. The synthetic wording is held constant and is not penalized as model quality. Components: title/confidence [8,8,8,8,null,8]; reason body [5.5,7,7,6,null,8]; return navigation [7.5,8,7.5,8,8,8]; outcome controls [7,7.5,7.5,8,8,8]. Product behavior credit comes from supplied baseline evidence."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "A=8.3, F=8.3, overall=8.3. Best long-reader structure: all passages remain available in one continuous reading flow, with separators and numbers supporting place-keeping. Normal: generous gaps and heavier body text make the reader longer than necessary. At 200%, numbers and gaps consume useful viewport space, but no passage-navigation task is added. Components: title/confidence [8,8,8,8,null,8]; passage numbers/separators [8.5,7.5,8.5,8,null,8]; passage body [8.5,8,8.5,8.5,null,8]; return control [8,8,8,8,null,8]. Feedback is inapplicable to static passage presentation; destination navigation is an unimplemented prototype boundary."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7, "feedback": 6, "accessibility": 6},
+      "finding": "A=8.2, F=6.3, overall=7.1. Normal: passage count clearly communicates position and reduces visible density. At 200%, even one passage exceeds the initial viewport, so pagination adds navigation without eliminating scrolling. Source replaces the entire view and scrolls to the top on every page change without focus management or a passage announcement. Disabled Previous has little visible differentiation. Components: title/confidence [8,8,8,8,null,8]; passage/count [8,8,8.5,8,7,7]; Previous/Next [7.5,8,8,7,5,5.5]; return control [8,8,8,8,null,8]. Sequential reading and revisiting earlier text require repeated actions."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Normal: disclosure rows give a compact overview, visible expansion state and direct access to individual passages. Native details/summary avoids the custom view-replacement problems of B. At 200%, the first open passage still pushes later controls below the initial viewport. Generic passage numbers provide position rather than informative preview; reading everything requires opening more sections. Components: title/confidence [8,8,8,8,null,8]; disclosure rows [8.5,8,8.5,8,8,8]; expanded body [8,8,8.5,8,null,8]; return control [8,8,8,8,null,8]. Strong alternative when selective reopening matters more than uninterrupted reading."
+    }
+  ],
+  "askWinner": "B",
+  "whyWinner": "A",
+  "reason": "Ask B wins narrowly through focused identity editing and a clear return to the full composer. Why A wins through continuous access to every passage without paging or disclosure work. Scores combine normal and 200% evidence; enlargement weaknesses are retained. Component tuples use hierarchy, typography/spacing, surfaces, clarity, feedback/recovery, accessibility. Null means genuinely inapplicable presentation behavior or explicitly excluded prototype destination behavior. No candidate meets the authorized all-screen/all-component A>=9 and F>=9 threshold.",
+  "limitations": [
+    "Inspected only attached images, checks.json and the permitted prototype HTML. No prior ratings, research, delegation or modifications.",
+    "checks.json records content preservation and no horizontal overflow for all twelve alternative screen/size combinations. It does not document detailed action outcomes, focus behavior, cancellation semantics or accessibility audits.",
+    "Source establishes several structural defects, but this review did not independently replay browser interactions. Baseline verification is supplied evidence, not independently audited here.",
+    "Prototype engine, export, voice, destination navigation and motion behavior are outside demonstrated implementation. Product verification was not transferred to alternatives.",
+    "Offscreen content at 200% is not itself evidence of clipping or an inaccessible action. Logged preservation supports continued access through scrolling.",
+    "Physical iPhone, VoiceOver and other native behavior remain unverified. Their absence did not impose a blanket browser score ceiling; these scores do not certify native readiness.",
+    "Shared prototype header controls have adequate declared button dimensions, but Close has no handler. That prototype boundary is excluded from identity/reader completion scoring; it must be implemented before delivery.",
+    "Ask C receives a hard gate for the implemented Cancel action failing its promised recovery task, distinct from deliberately omitted product integrations."
+  ]
+}
+tokens used
+36,705
+{
+  "comparisons": [
+    {
+      "screen": "Ask",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6.5, "typography": 7.5, "surfaces": 7.5, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=7.2, F=7.7, overall=7.5. Normal: the large question editor dominates an identity-editing task; expanded choices push submission downward. At 200%, identity completion requires substantial scrolling. Selected-state checkmark is explicit. Component scores [H,T,S,C,Fb,Ac]: decorative orb [7, null, 8, null, null, null]; identity expander/options [6.5,7.5,7.5,7,8,8]; name input [7.5,8,7.5,8,8,8]; question editor [7,8,8,8,8,8]; submission/disclosure [8,7.5,8,7,8,8]. Functional credit uses the supplied product verification summary, not newly performed tests."
+    },
+    {
+      "screen": "Ask",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7.5, "feedback": 6.5, "accessibility": 7},
+      "finding": "A=8.2, F=7.0, overall=7.5. Normal: coherent identity-first form with one submission action. At 200%, options stack cleanly, but identity information pushes the compact question editor and submission below the initial viewport. The heading remains 'Ask about someone' after choosing Myself. Changing a radio reconstructs the focused control without restoring focus. Components: identity options [8,8,8,7.5,6,6.5]; name input/help [8,8,8,8,7,8]; question editor [7.5,7.5,8,8,7,7]; submission/status [8.5,8,8.5,8,7,8]. Its explicit study-only submission status is honest; it provides no forecast behavior."
+    },
+    {
+      "screen": "Ask",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8.5, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.3, F=7.2, overall=7.6. Best separation of tasks: identity editing has a clear 'Use this person' action, then the full question editor returns. At 200%, the completion button begins within the pictured viewport; continued scrolling is still necessary. Costs an extra transition. Returning through 'Your question' also retains edits, so the distinction from explicit completion is weak. View replacement lacks focus transfer. Components: identity page/options [8.5,8.5,8,8.5,6,6.5]; name input/help [8,8,8,8.5,7,8]; completion/back controls [8.5,8,8,8,6,7]; returned question editor [8.5,8.5,8,8.5,7,8]; change/submission controls [8,8,8.5,8.5,7,8]."
+    },
+    {
+      "screen": "Ask",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7, "feedback": 4, "accessibility": 6.5},
+      "finding": "A=8.2, F=5.8, raw overall=6.8; gated overall=4.0. Normal: the question summary preserves useful context and the restrained sheet separates editing. At 200%, that context pushes Done and Cancel below the pictured viewport. Material recovery failure in source: Cancel and Done execute the same operation; edits already mutate shared state, so Cancel preserves changes instead of restoring the original identity. This defeats the explicitly offered cancellation task. Components: question summary [8,8,8,8,null,8]; sheet [8,8,8.5,8,null,7]; identity options/input [8,8,8,8,6,6.5]; Done/Cancel [8,8,8.5,5,4,6.5]; returned composer [8.5,8.5,8,8.5,7,8]. The sheet is an inline section, not an implemented modal."
+    },
+    {
+      "screen": "Why",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 6.5, "feedback": 8, "accessibility": 8},
+      "finding": "A=6.7, F=7.5, overall=7.2. Normal: an uninterrupted text block makes place-keeping and scanning difficult, although return and outcome controls remain visible. At 200%, the long block magnifies this weakness. The synthetic wording is held constant and is not penalized as model quality. Components: title/confidence [8,8,8,8,null,8]; reason body [5.5,7,7,6,null,8]; return navigation [7.5,8,7.5,8,8,8]; outcome controls [7,7.5,7.5,8,8,8]. Product behavior credit comes from supplied baseline evidence."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "A=8.3, F=8.3, overall=8.3. Best long-reader structure: all passages remain available in one continuous reading flow, with separators and numbers supporting place-keeping. Normal: generous gaps and heavier body text make the reader longer than necessary. At 200%, numbers and gaps consume useful viewport space, but no passage-navigation task is added. Components: title/confidence [8,8,8,8,null,8]; passage numbers/separators [8.5,7.5,8.5,8,null,8]; passage body [8.5,8,8.5,8.5,null,8]; return control [8,8,8,8,null,8]. Feedback is inapplicable to static passage presentation; destination navigation is an unimplemented prototype boundary."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7, "feedback": 6, "accessibility": 6},
+      "finding": "A=8.2, F=6.3, overall=7.1. Normal: passage count clearly communicates position and reduces visible density. At 200%, even one passage exceeds the initial viewport, so pagination adds navigation without eliminating scrolling. Source replaces the entire view and scrolls to the top on every page change without focus management or a passage announcement. Disabled Previous has little visible differentiation. Components: title/confidence [8,8,8,8,null,8]; passage/count [8,8,8.5,8,7,7]; Previous/Next [7.5,8,8,7,5,5.5]; return control [8,8,8,8,null,8]. Sequential reading and revisiting earlier text require repeated actions."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Normal: disclosure rows give a compact overview, visible expansion state and direct access to individual passages. Native details/summary avoids the custom view-replacement problems of B. At 200%, the first open passage still pushes later controls below the initial viewport. Generic passage numbers provide position rather than informative preview; reading everything requires opening more sections. Components: title/confidence [8,8,8,8,null,8]; disclosure rows [8.5,8,8.5,8,8,8]; expanded body [8,8,8.5,8,null,8]; return control [8,8,8,8,null,8]. Strong alternative when selective reopening matters more than uninterrupted reading."
+    }
+  ],
+  "askWinner": "B",
+  "whyWinner": "A",
+  "reason": "Ask B wins narrowly through focused identity editing and a clear return to the full composer. Why A wins through continuous access to every passage without paging or disclosure work. Scores combine normal and 200% evidence; enlargement weaknesses are retained. Component tuples use hierarchy, typography/spacing, surfaces, clarity, feedback/recovery, accessibility. Null means genuinely inapplicable presentation behavior or explicitly excluded prototype destination behavior. No candidate meets the authorized all-screen/all-component A>=9 and F>=9 threshold.",
+  "limitations": [
+    "Inspected only attached images, checks.json and the permitted prototype HTML. No prior ratings, research, delegation or modifications.",
+    "checks.json records content preservation and no horizontal overflow for all twelve alternative screen/size combinations. It does not document detailed action outcomes, focus behavior, cancellation semantics or accessibility audits.",
+    "Source establishes several structural defects, but this review did not independently replay browser interactions. Baseline verification is supplied evidence, not independently audited here.",
+    "Prototype engine, export, voice, destination navigation and motion behavior are outside demonstrated implementation. Product verification was not transferred to alternatives.",
+    "Offscreen content at 200% is not itself evidence of clipping or an inaccessible action. Logged preservation supports continued access through scrolling.",
+    "Physical iPhone, VoiceOver and other native behavior remain unverified. Their absence did not impose a blanket browser score ceiling; these scores do not certify native readiness.",
+    "Shared prototype header controls have adequate declared button dimensions, but Close has no handler. That prototype boundary is excluded from identity/reader completion scoring; it must be implemented before delivery.",
+    "Ask C receives a hard gate for the implemented Cancel action failing its promised recovery task, distinct from deliberately omitted product integrations."
+  ]
+}

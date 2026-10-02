@@ -1,0 +1,19 @@
+import {chromium,expect} from '@playwright/test';import {readFile,mkdir,writeFile} from 'node:fs/promises';
+const out='docs/ux-loop/expansion-18',base='http://localhost:8098',prediction=JSON.parse(await readFile(`${out}/fixture.json`,'utf8'));await mkdir(`${out}/screens`,{recursive:true});const browser=await chromium.launch({channel:'chrome',headless:true}),checks=[];
+try{
+for(const largeText of [false,true]){
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await context.addInitScript(({largeText,prediction})=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[prediction],plus:true,credits:0,usage:{day:new Date().toISOString().slice(0,10),count:0},birthday:'1995-06-15',ageBand:'adult',sunSign:'gemini',onboardingDone:true,ageConfirmed:true,largeText,reduceMotion:true})),{largeText,prediction});const page=await context.newPage(),suffix=largeText?'-200pct':'';
+ await page.goto(base);await page.getByTestId('tab-history').click();await page.getByRole('button').filter({hasText:prediction.headline}).click();await page.getByTestId('why-disclosure').click();await page.getByTestId('why-reason').click();await page.waitForTimeout(300);await page.screenshot({path:`${out}/screens/why-baseline${suffix}.png`});await page.getByTestId('close-flow').click();await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-subject').click();await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex');await page.getByTestId('question-input').fill('Will Alex learn Spanish this year?');await page.getByTestId('question-input').blur();await page.evaluate(()=>document.querySelectorAll('*').forEach(el=>{if(getComputedStyle(el).overflowY==='auto'||getComputedStyle(el).overflowY==='scroll')el.scrollTop=0}));await page.waitForTimeout(300);await page.screenshot({path:`${out}/screens/ask-baseline${suffix}.png`});await context.close();
+}
+const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+for(const screen of ['ask','why'])for(const variant of ['a','b','c'])for(const large of [0,1]){
+ await page.goto(`${base}/concepts/expansion-18.html?screen=${screen}&variant=${variant}&large=${large}&capture=1`);await page.locator('h1').waitFor();await page.evaluate(()=>document.fonts.ready);const suffix=large?'-200pct':'';await page.screenshot({path:`${out}/screens/${screen}-${variant}${suffix}.png`});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ if(screen==='ask'){
+  await expect(page.locator('#person')).toHaveValue('Alex');if(variant!=='a'){await page.locator('#done').click();await page.screenshot({path:`${out}/screens/ask-${variant}-question${suffix}.png`});}await expect(page.locator('#question')).toHaveValue('Will Alex learn Spanish this year?');await page.locator('#submit').click();await expect(page.getByRole('status')).toContainText('No forecast requested');
+ }else{
+  let collected='';if(variant==='b'){while(true){collected+=' '+await page.locator('.reading').innerText();if(await page.locator('#next').isDisabled())break;await page.locator('#next').click()}}else {if(variant==='c')await page.locator('details').evaluateAll(nodes=>nodes.forEach(n=>n.open=true));collected=await page.locator('.reading').innerText()}
+  for(const sentence of (prediction.deeperWhy||prediction.why).split(/(?<=[.!?])\s+/))expect(collected.replace(/\s+/g,' ')).toContain(sentence.replace(/\s+/g,' '));
+ }
+ checks.push({screen,variant,large,overflow:false,contentPreserved:true,boundary:'HTML layout/controls only, no engine or native proof'});
+}
+}finally{await browser.close();await writeFile(`${out}/checks.json`,JSON.stringify(checks,null,2));}console.log(checks);

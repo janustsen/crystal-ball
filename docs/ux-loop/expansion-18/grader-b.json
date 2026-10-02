@@ -1,0 +1,65 @@
+{
+  "comparisons": [
+    {
+      "screen": "Ask",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6.5, "typography": 7.5, "surfaces": 7.5, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=7.2, F=7.7, overall=7.5. Normal: the large question editor dominates an identity-editing task; expanded choices push submission downward. At 200%, identity completion requires substantial scrolling. Selected-state checkmark is explicit. Component scores [H,T,S,C,Fb,Ac]: decorative orb [7, null, 8, null, null, null]; identity expander/options [6.5,7.5,7.5,7,8,8]; name input [7.5,8,7.5,8,8,8]; question editor [7,8,8,8,8,8]; submission/disclosure [8,7.5,8,7,8,8]. Functional credit uses the supplied product verification summary, not newly performed tests."
+    },
+    {
+      "screen": "Ask",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7.5, "feedback": 6.5, "accessibility": 7},
+      "finding": "A=8.2, F=7.0, overall=7.5. Normal: coherent identity-first form with one submission action. At 200%, options stack cleanly, but identity information pushes the compact question editor and submission below the initial viewport. The heading remains 'Ask about someone' after choosing Myself. Changing a radio reconstructs the focused control without restoring focus. Components: identity options [8,8,8,7.5,6,6.5]; name input/help [8,8,8,8,7,8]; question editor [7.5,7.5,8,8,7,7]; submission/status [8.5,8,8.5,8,7,8]. Its explicit study-only submission status is honest; it provides no forecast behavior."
+    },
+    {
+      "screen": "Ask",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8.5, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.3, F=7.2, overall=7.6. Best separation of tasks: identity editing has a clear 'Use this person' action, then the full question editor returns. At 200%, the completion button begins within the pictured viewport; continued scrolling is still necessary. Costs an extra transition. Returning through 'Your question' also retains edits, so the distinction from explicit completion is weak. View replacement lacks focus transfer. Components: identity page/options [8.5,8.5,8,8.5,6,6.5]; name input/help [8,8,8,8.5,7,8]; completion/back controls [8.5,8,8,8,6,7]; returned question editor [8.5,8.5,8,8.5,7,8]; change/submission controls [8,8,8.5,8.5,7,8]."
+    },
+    {
+      "screen": "Ask",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7, "feedback": 4, "accessibility": 6.5},
+      "finding": "A=8.2, F=5.8, raw overall=6.8; gated overall=4.0. Normal: the question summary preserves useful context and the restrained sheet separates editing. At 200%, that context pushes Done and Cancel below the pictured viewport. Material recovery failure in source: Cancel and Done execute the same operation; edits already mutate shared state, so Cancel preserves changes instead of restoring the original identity. This defeats the explicitly offered cancellation task. Components: question summary [8,8,8,8,null,8]; sheet [8,8,8.5,8,null,7]; identity options/input [8,8,8,8,6,6.5]; Done/Cancel [8,8,8.5,5,4,6.5]; returned composer [8.5,8.5,8,8.5,7,8]. The sheet is an inline section, not an implemented modal."
+    },
+    {
+      "screen": "Why",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 6.5, "feedback": 8, "accessibility": 8},
+      "finding": "A=6.7, F=7.5, overall=7.2. Normal: an uninterrupted text block makes place-keeping and scanning difficult, although return and outcome controls remain visible. At 200%, the long block magnifies this weakness. The synthetic wording is held constant and is not penalized as model quality. Components: title/confidence [8,8,8,8,null,8]; reason body [5.5,7,7,6,null,8]; return navigation [7.5,8,7.5,8,8,8]; outcome controls [7,7.5,7.5,8,8,8]. Product behavior credit comes from supplied baseline evidence."
+    },
+    {
+      "screen": "Why",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "A=8.3, F=8.3, overall=8.3. Best long-reader structure: all passages remain available in one continuous reading flow, with separators and numbers supporting place-keeping. Normal: generous gaps and heavier body text make the reader longer than necessary. At 200%, numbers and gaps consume useful viewport space, but no passage-navigation task is added. Components: title/confidence [8,8,8,8,null,8]; passage numbers/separators [8.5,7.5,8.5,8,null,8]; passage body [8.5,8,8.5,8.5,null,8]; return control [8,8,8,8,null,8]. Feedback is inapplicable to static passage presentation; destination navigation is an unimplemented prototype boundary."
+    },
+    {
+      "screen": "Why",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8.5, "clarity": 7, "feedback": 6, "accessibility": 6},
+      "finding": "A=8.2, F=6.3, overall=7.1. Normal: passage count clearly communicates position and reduces visible density. At 200%, even one passage exceeds the initial viewport, so pagination adds navigation without eliminating scrolling. Source replaces the entire view and scrolls to the top on every page change without focus management or a passage announcement. Disabled Previous has little visible differentiation. Components: title/confidence [8,8,8,8,null,8]; passage/count [8,8,8.5,8,7,7]; Previous/Next [7.5,8,8,7,5,5.5]; return control [8,8,8,8,null,8]. Sequential reading and revisiting earlier text require repeated actions."
+    },
+    {
+      "screen": "Why",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Normal: disclosure rows give a compact overview, visible expansion state and direct access to individual passages. Native details/summary avoids the custom view-replacement problems of B. At 200%, the first open passage still pushes later controls below the initial viewport. Generic passage numbers provide position rather than informative preview; reading everything requires opening more sections. Components: title/confidence [8,8,8,8,null,8]; disclosure rows [8.5,8,8.5,8,8,8]; expanded body [8,8,8.5,8,null,8]; return control [8,8,8,8,null,8]. Strong alternative when selective reopening matters more than uninterrupted reading."
+    }
+  ],
+  "askWinner": "B",
+  "whyWinner": "A",
+  "reason": "Ask B wins narrowly through focused identity editing and a clear return to the full composer. Why A wins through continuous access to every passage without paging or disclosure work. Scores combine normal and 200% evidence; enlargement weaknesses are retained. Component tuples use hierarchy, typography/spacing, surfaces, clarity, feedback/recovery, accessibility. Null means genuinely inapplicable presentation behavior or explicitly excluded prototype destination behavior. No candidate meets the authorized all-screen/all-component A>=9 and F>=9 threshold.",
+  "limitations": [
+    "Inspected only attached images, checks.json and the permitted prototype HTML. No prior ratings, research, delegation or modifications.",
+    "checks.json records content preservation and no horizontal overflow for all twelve alternative screen/size combinations. It does not document detailed action outcomes, focus behavior, cancellation semantics or accessibility audits.",
+    "Source establishes several structural defects, but this review did not independently replay browser interactions. Baseline verification is supplied evidence, not independently audited here.",
+    "Prototype engine, export, voice, destination navigation and motion behavior are outside demonstrated implementation. Product verification was not transferred to alternatives.",
+    "Offscreen content at 200% is not itself evidence of clipping or an inaccessible action. Logged preservation supports continued access through scrolling.",
+    "Physical iPhone, VoiceOver and other native behavior remain unverified. Their absence did not impose a blanket browser score ceiling; these scores do not certify native readiness.",
+    "Shared prototype header controls have adequate declared button dimensions, but Close has no handler. That prototype boundary is excluded from identity/reader completion scoring; it must be implemented before delivery.",
+    "Ask C receives a hard gate for the implemented Cancel action failing its promised recovery task, distinct from deliberately omitted product integrations."
+  ]
+}
