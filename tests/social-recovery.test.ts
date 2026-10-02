@@ -19,6 +19,7 @@ test('social recovery retries current profile before exposing a snapshot',async 
  t.mock.method(supabase.auth,'getSession',async()=>({data:{session:{access_token:'test-token',user:{id:'viewer'}}},error:null}));
  const {loadSocial,syncSocialProfile}=await import('../src/social');
  let offline=true,reads=0;
+ let failSchool=false;
  const writes:unknown[]=[];
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   if(String(input).endsWith('/social')){
@@ -28,6 +29,7 @@ test('social recovery retries current profile before exposing a snapshot',async 
   }
   assert.ok(writes.length>0,'snapshot reads must follow successful profile synchronization');
   reads++;
+  if(failSchool&&/\/(schools|rpc\/school_circle_suggestions)\b/.test(String(input)))return Response.json({message:'unavailable'},{status:500});
   return Response.json([]);
  });
  const plus={plus:true,ageBand:'adult' as const,sunSign:'leo'};
@@ -42,4 +44,7 @@ test('social recovery retries current profile before exposing a snapshot',async 
  await loadSocial(unknown);
  assert.deepEqual(writes,[{action:'profile',...plus},{action:'profile',...unknown}]);
  assert.equal(reads,20);
+ failSchool=true;
+ const partial=await loadSocial(plus);
+ assert.deepEqual([partial.owner,partial.schools,partial.schoolSuggestions],['viewer',[],[]]);
 });

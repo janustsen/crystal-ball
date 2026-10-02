@@ -45,7 +45,8 @@ export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise
   db.from('social_profiles').select('age_band,friends_can_ask,school_id'),db.from('friend_notices').select('id').eq('seen',false),
   db.from('schools').select('id,name,city,latitude,longitude'),db.rpc('school_circle_suggestions'),
  ]);
- for(const result of [sky,own,circles,members,reactions,seals,profile,notices,schools,suggestions])if(result.error)throw new Error(socialUnavailable);
+ // School data is optional: its failure leaves Sky and Circles working with an empty catalog.
+ for(const result of [sky,own,circles,members,reactions,seals,profile,notices])if(result.error)throw new Error(socialUnavailable);
  const stars:SkyStar[]=[];
  for(const row of sky.data??[]){
   if(isSkyPrompt(row.theme)&&safeSealedHeadline(row.wording)&&typeof row.id==='string'&&Number.isFinite(row.resonances))
