@@ -14,9 +14,9 @@ cleanup() {
 }
 trap cleanup EXIT
 "$pg_bin/initdb" -D "$cluster/data" -A trust --no-locale -E UTF8 >"$cluster/init.log"
-# Unix socket only: no shared instance, ports, credentials or containers.
-"$pg_bin/pg_ctl" -D "$cluster/data" -l "$cluster/server.log" -o "-k $cluster -p 55439 -c listen_addresses=''" -w start >/dev/null
-export PGHOST="$cluster" PGPORT=55439 PGDATABASE=postgres
+# Disposable loopback cluster; short socket paths are unavailable in long worktree paths.
+"$pg_bin/pg_ctl" -D "$cluster/data" -l "$cluster/server.log" -o "-p ${SOCIAL_PG_PORT:-55439} -c unix_socket_directories='' -c listen_addresses='127.0.0.1'" -w start >/dev/null
+export PGHOST=127.0.0.1 PGPORT="${SOCIAL_PG_PORT:-55439}" PGDATABASE=postgres
 sql=("$pg_bin/psql" -X -v ON_ERROR_STOP=1)
 "${sql[@]}" <<'SQL' >/dev/null
 create role anon nologin;

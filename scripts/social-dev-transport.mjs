@@ -24,7 +24,7 @@ function session(uid){
  sessions.set(access_token,result);sessions.set(refresh_token,result);return result;
 }
 const server=createServer(async(req,res)=>{
- const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':'http://localhost:8095','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version,prefer,accept-profile,content-profile','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS'};
+ const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':process.env.APP_ORIGIN||'http://localhost:8095','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version,prefer,accept-profile,content-profile','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS'};
  if(req.method==='OPTIONS'){res.writeHead(204,headers);res.end();return;}
  try{
   const url=new URL(req.url,'http://127.0.0.1:55329');
@@ -70,4 +70,5 @@ const server=createServer(async(req,res)=>{
   res.writeHead(200,headers);res.end(JSON.stringify(result));
  }catch(error){res.writeHead(400,headers);res.end(JSON.stringify({message:String(error.message).split('\n').find(line=>line.includes('ERROR:'))?.replace(/^.*ERROR:\s*/,'')||'Verification transport unavailable',code:'verification'}));}
 });
-server.listen(55329,'127.0.0.1',()=>console.log('Verification-only Auth/PostgREST adapter: http://127.0.0.1:55329 (real PostgreSQL RLS)'));
+const port=Number(process.env.SOCIAL_DB_PORT||55329);
+server.listen(port,'127.0.0.1',()=>console.log(`Verification-only Auth/PostgREST adapter: http://127.0.0.1:${port} (real PostgreSQL RLS)`));

@@ -1,14 +1,14 @@
 import {chromium} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {httpCredentials,previewSecret} from './preview-auth.mjs';
-const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',stamp=Date.now(),sessions=new Map(),evidence=[];
+const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',stamp=Date.now(),sessions=new Map(),evidence=[],requests=[];
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence/school';
 const dbUrl=process.env.SOCIAL_DB_URL||'http://127.0.0.1:55329';
 const browser=await chromium.launch({channel:'chrome',headless:true});
 async function run(person,script){
  let native=sessions.get(person);
  if(!native){// Owner: synthetic coarse position near Lowell (browser geolocation stub). Others: no permission.
- const context=await browser.newContext({httpCredentials,reducedMotion:'reduce',viewport:{width:390,height:844},...(person==='owner'?{geolocation:{latitude:37.7312,longitude:-122.4836},permissions:['geolocation']}:{})});native=await context.newPage();sessions.set(person,native)}
+ const context=await browser.newContext({httpCredentials,reducedMotion:'reduce',viewport:{width:390,height:844},...(person==='owner'?{geolocation:{latitude:37.7312,longitude:-122.4836},permissions:['geolocation']}:{})});context.on('request',request=>requests.push(request.url()+' '+(request.postData()||'')));native=await context.newPage();sessions.set(person,native)}
  const page={open:url=>native.goto(url),click:selector=>native.locator(selector).click(),fill:(selector,value)=>native.locator(selector).fill(value),eval:fn=>native.evaluate(fn),waitText:text=>native.waitForFunction(text=>document.body.innerText.includes(text),text,{timeout:30000}),wait:(value,timeout=30000)=>typeof value==='number'?native.waitForTimeout(value):native.locator(value).waitFor({timeout})};
  let output='';
  await new Function('page','console',`return (async()=>{${script}})()`)(page,{log:value=>{output+=String(value)}});
@@ -24,6 +24,9 @@ async function choose(person,name='Lowell High School'){
 try{
  await mkdir(evidenceDir,{recursive:true});
  await choose('owner');await choose('friend');await choose('stranger');
+ for(const page of sessions.values()){const stored=await page.evaluate(()=>JSON.stringify({...localStorage}));if(/37\.7312|-122\.4836|37\.7[,}]|-122\.5[,}]/.test(stored))throw Error('User coordinates persisted in browser storage');}
+ if(requests.some(request=>/37\.7312|-122\.4836|37\.7[,}]|-122\.5[,}]/.test(request)))throw Error('User coordinates transmitted');
+ evidence.push({noUserCoordinatesInStorageOrRequests:true});
  evidence.push({stubbedCoarseLocationNearby:true,locationOfferedOnce:true,deniedLocationFallsBackToSearch:true,webNameSearch:true,missingSchoolFallback:true,explicitSelection:true});
  const baseline=JSON.parse(await run('friend',`console.log(JSON.stringify((await page.eval(()=>(${rpc})('tonights_sky',{my_school:true}))).length));`));
  // Actual AI moderation and SQL publication; no fabricated draft or prediction.
@@ -33,6 +36,7 @@ try{
  evidence.push({realAiModeratedStar:true,sameSchoolSky:true,noSampleStarsInSchoolSky:true,noStrangerSuggestions:true});
  const invite=JSON.parse(await run('owner',`${click('social-section-circles')}${click('create-my-circle')}await page.wait('[data-testid="invite-a-friend"]');${click('invite-a-friend')}await page.wait('[data-testid="social-link"]');console.log(JSON.stringify(await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent)));`));
  await run('friend',`await page.open(${JSON.stringify(invite)});await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}await page.wait('[data-testid="leave-this-circle"]');${assert('chose your school.')}if((await page.eval(()=>document.querySelector('[aria-label="Friends can ask about me"]').getAttribute('aria-checked')))==='true')throw Error('Teen consent changed');`);
+ await sessions.get('friend').screenshot({path:`${evidenceDir}/circle-suggestions.png`,fullPage:true});
  await run('friend',`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Start a school circle')).click());await page.wait('[data-testid="social-link"]');${assert('They choose whether to join.')}const count=async()=>(await page.eval(async()=>{const key=Object.keys(localStorage).find(k=>/^sb-.*-auth-token$/.test(k)),session=JSON.parse(localStorage.getItem(key));return (await (await fetch(${JSON.stringify(dbUrl+'/rest/v1/circles?select=id')},{headers:{apikey:'local-verification-only',Authorization:'Bearer '+session.access_token}})).json()).length;}));const before=await count(),originalLink=await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent);${click('close-link')}await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Start a school circle')).click());await page.wait('[data-testid="social-link"]');if(await count()!==before)throw Error('Retry created a duplicate empty circle');if(await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent)!==originalLink)throw Error('Retry replaced the original invitation');`);
  evidence.push({privateInviteJoined:true,directInviteSchoolSuggestion:true,createSchoolCircleInvite:true,retryReopensSameInvitation:true,teenConsentRemainsOff:true});
  await run('stranger',`${click('social-section-circles')}${assert('No invited school friends yet.')}`);
