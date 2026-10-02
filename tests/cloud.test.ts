@@ -138,3 +138,10 @@ test('older backup restore preserves local Circle charge receipts',async()=>{
  assert.equal(writes,0);assert.equal(marks,1);
  assert.equal(restored.credits,local.credits);assert.deepEqual(restored.history,[]);
 });
+
+test('optional original-question labels survive the actual backup client round trip',async()=>{
+ const {client}=archive();const restored=await restoreBackup(empty,client);
+ const labeled={...reading,answerQuestions:{practice:'How often do you practise?'}};
+ await mirror({...restored,history:[labeled]},client);
+ assert.deepEqual((await restoreBackup(empty,client)).history,[labeled]);
+});

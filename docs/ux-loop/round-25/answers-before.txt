@@ -1,0 +1,39 @@
+node:internal/modules/cjs/loader:1591
+  const err = new Error(message);
+              ^
+
+Error: Cannot find module '../src/reading-answers.ts'
+Require stack:
+- /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/tests/reading-answers.test.ts
+    at node:internal/modules/cjs/loader:1591:15
+    at nextResolveSimple (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/tsx/dist/register-B1c7OH6V.cjs:23:1010)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/tsx/dist/register-B1c7OH6V.cjs:22:4512
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/tsx/dist/register-B1c7OH6V.cjs:22:2830
+    at resolveTsPaths (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/tsx/dist/register-B1c7OH6V.cjs:23:762)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/tsx/dist/register-B1c7OH6V.cjs:23:1203
+    at j._resolveFilename (file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:18825)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1145:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1169:10)
+    at defaultResolve (node:internal/modules/cjs/loader:1226:20) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/tests/reading-answers.test.ts'
+  ]
+}
+
+Node.js v26.10.0
+✖ tests/reading-answers.test.ts (119.695083ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 124.407417
+
+✖ failing tests:
+
+test at tests/reading-answers.test.ts:1:1
+✖ tests/reading-answers.test.ts (119.695083ms)
+  'test failed'
