@@ -67,7 +67,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   const redraw=()=>{dirty=true;if(!frame&&!document.hidden&&!disposed){last=0;frame=requestAnimationFrame(draw)}};
   const visibility=()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;last=0}else redraw()};
   document.addEventListener('visibilitychange',visibility);
-  const mutations=new MutationObserver(redraw);mutations.observe(host.parentElement!,{childList:true,subtree:true,attributes:true,attributeFilter:["data-reduced"]});
+  const mutations=new MutationObserver(list=>{if(list.some(m=>!(m.target as Element).classList?.contains('tap-layer')))redraw()});mutations.observe(host.parentElement!,{childList:true,subtree:true,attributes:true,attributeFilter:["data-reduced"]});
   const resize=new ResizeObserver(redraw);resize.observe(cv);host.parentElement?.addEventListener('scroll',redraw,true);
   return()=>{disposed=true;cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);resize.disconnect();mutations.disconnect();host.parentElement?.removeEventListener('scroll',redraw,true);host.classList.remove('gl');gl.deleteBuffer(buffer);gl.deleteProgram(program);shaders.forEach(s=>gl.deleteShader(s))};
  },[]);
