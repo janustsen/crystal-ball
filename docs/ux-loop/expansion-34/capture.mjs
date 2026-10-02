@@ -1,0 +1,15 @@
+import {chromium,expect} from '@playwright/test';import {mkdir,copyFile,writeFile} from 'node:fs/promises';
+const out='docs/ux-loop/expansion-34',base='http://localhost:8098';await mkdir(`${out}/screens`,{recursive:true});const browser=await chromium.launch({channel:'chrome',headless:true}),checks=[];
+try{
+ for(const large of [0,1]){
+  await copyFile(`docs/ux-loop/round-33/screens/approach${large?'-large':''}.png`,`${out}/screens/approach-baseline-${large?200:100}.png`);
+  const page=await browser.newPage({viewport:{width:390,height:500},isMobile:true,hasTouch:true});await page.addInitScript(largeText=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,onboardingDone:true,ageConfirmed:true,ageBand:'teen',largeText,reduceMotion:true})),!!large);await page.goto('http://localhost:8097');await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I start learning pottery this winter?');await page.getByTestId('look-into-the-future').scrollIntoViewIfNeeded();await page.screenshot({path:`${out}/screens/consent-baseline-${large?200:100}.png`});await page.close();
+  for(const scene of ['approach','consent'])for(const variant of ['a','b','c']){
+   const p=await browser.newPage({viewport:{width:390,height:scene==='consent'?500:844},isMobile:true,hasTouch:true}),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(`${base}/concepts/expansion-34.html?scene=${scene}&variant=${variant}&large=${large}&capture=1`);await p.locator('#content button').first().waitFor();await p.evaluate(()=>document.fonts.ready);if(scene==='consent')await p.locator('.primary').scrollIntoViewIfNeeded();await p.screenshot({path:`${out}/screens/${scene}-${variant}-${large?200:100}.png`});expect(errors).toEqual([]);expect(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);checks.push({scene,variant,large,height:scene==='consent'?500:844,overflow:false,errors,prototypeOnly:true});if(scene==='consent'&&variant==='b'){await p.locator('#review').click();await p.screenshot({path:`${out}/screens/consent-b-review-${large?200:100}.png`});}await p.close();
+  }
+ }
+ for(const time of [0,500,900,1000]){
+  if(time!==1000)await copyFile(`docs/ux-loop/round-33/opening-final/normal-${time}.png`,`${out}/screens/opening-baseline-${time}.png`);
+  for(const variant of ['a','b','c']){const p=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(`${base}/concepts/expansion-34.html?scene=opening&variant=${variant}&time=${time}&capture=1`);await p.locator('#content button').waitFor();await p.evaluate(()=>document.fonts.ready);await p.screenshot({path:`${out}/screens/opening-${variant}-${time}.png`});expect(errors).toEqual([]);checks.push({scene:'opening',variant,time,errors,prototypeOnly:true});await p.close();}
+ }
+}finally{await browser.close();await writeFile(`${out}/checks.json`,JSON.stringify(checks,null,2))}console.log(checks.length,'prototype captures verified');

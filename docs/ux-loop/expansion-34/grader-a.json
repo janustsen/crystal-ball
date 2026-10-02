@@ -1,0 +1,89 @@
+{
+  "comparisons": [
+    {
+      "scene": "approach",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 6, "feedback": 7, "accessibility": 8},
+      "finding": "A 8.3 / F 7.0 / overall 7.5. Atmospheric orb and strong headline survive enlargement. The known 650ms advance avoids a gesture dead end, but “Come closer” does not explain the transition and may disappear before enlarged text is read."
+    },
+    {
+      "scene": "approach",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 7},
+      "finding": "A 8.0 / F 8.0 / overall 8.0. Fastest route to writing: labeled input, dominant submit and optional speech. At 200%, supporting copy consumes substantial space and the speech alternative approaches the viewport edge. Loses the orb-led welcome."
+    },
+    {
+      "scene": "approach",
+      "variant": "B",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": null, "accessibility": 8},
+      "finding": "A 9.0 / F 8.5 / overall 8.7. Best coherent welcome: grounded orb, concise heading, unmistakable typing button and quieter speech choice. Both sizes retain generous separation. Adds one deliberate tap; control behavior and semantics remain unproved."
+    },
+    {
+      "scene": "approach",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "finding": "A 8.3 / F 6.7 / overall 7.3. Progress line and explanatory copy make the automatic transition explicit. However, a 650ms window gives little time to read or choose Type instead, especially at 200%. “Preparing” also suggests work beyond selecting an input mode."
+    },
+    {
+      "scene": "consent",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 6, "surfaces": 8, "clarity": 5, "feedback": 5, "accessibility": 6},
+      "finding": "A 6.7 / F 5.3 / overall 5.9. Input focus is conspicuous, but disabled Ask gives no local explanation. At the supplied submit scroll position, disclosure is outside view and the enlarged consent row is obscured beneath the header. Recovery requires rediscovering the earlier consent control."
+    },
+    {
+      "scene": "consent",
+      "variant": "A",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "finding": "A 7.7 / F 7.7 / overall 7.7. Local reason and Review consent link explain the disabled submit even when the checkbox is offscreen. At 200%, recovery remains visible. The largest button still cannot act, while the useful next action receives weaker emphasis."
+    },
+    {
+      "scene": "consent",
+      "variant": "B",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 8, "accessibility": 7},
+      "finding": "A 8.7 / F 8.0 / overall 8.3. Best next-action clarity: Review AI consent replaces the inert submit while retaining the question. Separate review gives disclosure and checkbox room, but adds a return step. Its 200% heading is obscured at the shown scroll position; unchecked Return to question does not explain whether consent remains outstanding."
+    },
+    {
+      "scene": "consent",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A 8.3 / F 7.3 / overall 7.7. Focused disclosure, explicit checkbox and Not now form a comprehensible gate. It interrupts users before composing and keeps Continue disabled. At 200%, introductory context is outside the shown view and the long button label has little horizontal breathing room."
+    },
+    {
+      "scene": "opening",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "A 7.7 / F 8.0 / overall 7.9. Complete stand and atmospheric setting establish weight. The roughly 900ms frame introduces a dark wedge and dimmed glass that read more like occlusion than luminous release. Supplied runtime evidence supports skip, reduced motion and performance beyond what the stills show."
+    },
+    {
+      "scene": "opening",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": null, "accessibility": null},
+      "finding": "A 7.3 / F 8.0 / overall 7.7. Vertical warm light gives the release a clear axis, but the thick central strip resembles an inserted panel. Flat cropping beneath the orb weakens its base and material continuity. Show forecast remains legible; smoothness and recovery are unverified."
+    },
+    {
+      "scene": "opening",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": null, "accessibility": null},
+      "finding": "A 7.7 / F 8.0 / overall 7.9. Lifted cap provides the clearest physical opening and strongest reward beat. The broad opaque gold ellipse and sharp horizontal cut make the orb resemble a hinged container; base cropping further weakens grounding. Motion could improve or worsen the implied weight."
+    },
+    {
+      "scene": "opening",
+      "variant": "C",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 8, "feedback": null, "accessibility": null},
+      "finding": "A 8.7 / F 8.0 / overall 8.3. Strongest material continuity: full stand, intact silhouette and fine luminous fracture preserve the orb’s weight. More restrained than either split, though dimming can read as fading or damage. Captures do not establish the mist payoff or motion quality."
+    }
+  ],
+  "approachWinner": "B",
+  "consentWinner": "B",
+  "openingWinner": "C",
+  "reason": "B makes the input choice explicit without sacrificing atmosphere; consent B turns a blocked submission into an actionable review; opening C preserves the most convincing object and restrained release. Approach A is preferable if minimum taps outweigh the welcome ritual. These are provisional design choices, not loop acceptance.",
+  "limitations": [
+    "Twelve rows aggregate all supplied sizes or times. Component observations inform each row; screen averages do not establish that every component passes.",
+    "Null means the supplied evidence cannot establish the dimension. Means normalize over scored dimensions; fewer measured dimensions do not imply equivalent verification.",
+    "Consent feedback scores concern visible explanations and recovery affordances, not verified navigation, persistence, focus handling or submission guards.",
+    "Consent screenshots show scrolled 500px views. Offscreen content is not proven unreachable; letterboxing is outside the product. Header occlusion remains a visible concern.",
+    "Prototype semantics, target sizes, contrast measurements, speech, keyboard, submission and reduced-motion behavior are unverified. Baseline test evidence does not transfer to alternatives.",
+    "Opening frames use different capture timing methods. Static sequences cannot establish smoothness, FPS, exact continuity or completed payoff.",
+    "Physical iPhone and assistive-technology evidence remains deferred. Browser visual scores of 9 do not certify native quality or satisfaction of the full A≥9/F≥9 threshold."
+  ]
+}

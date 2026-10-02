@@ -1,0 +1,90 @@
+{
+  "comparisons": [
+    {
+      "scene": "approach",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 7},
+      "finding": "Atmospheric orb and strong headline survive enlargement. The automatic 650ms advance avoids a gesture dead end, but neither its timing nor destination is clearly signaled."
+    },
+    {
+      "scene": "approach",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 7},
+      "finding": "Fastest route to typing: labeled input, prominent submit and optional speech. Both sizes remain legible; at 200%, metadata and disclosure consume substantial space. Loses the orb-led welcome."
+    },
+    {
+      "scene": "approach",
+      "variant": "B",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 8},
+      "finding": "Best balance of atmosphere and explicit control. Orb, heading, primary typing button and secondary speech action form a clear sequence at both sizes. Adds a mode-selection step."
+    },
+    {
+      "scene": "approach",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 6},
+      "finding": "Names the automatic voice transition and exposes a typing alternative. The faint progress line communicates little, and 650ms gives limited time to read or choose the alternative, especially at 200%."
+    },
+    {
+      "scene": "consent",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 6, "surfaces": 7, "clarity": 5, "feedback": 5, "accessibility": 5},
+      "finding": "Focused input dominates a disabled submit. In the constrained, scrolled view, disclosure is outside view and the consent control is partly obscured at 200%; no local explanation identifies the blocker."
+    },
+    {
+      "scene": "consent",
+      "variant": "A",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "finding": "Local explanation and Review consent make the disabled submit understandable. At 200%, consent remains outside view; the user must follow the secondary link and return. Input, helper, link and disabled button compete for space."
+    },
+    {
+      "scene": "consent",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 8, "accessibility": 7},
+      "finding": "Review AI consent replaces a dead-looking submit with an explicit next action. Separate review groups disclosure and checkbox clearly. At 200%, the review heading is obscured by the header; returning adds a step. Draft and focus preservation remain unproven."
+    },
+    {
+      "scene": "consent",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "Focused consent step pairs a checkbox with Continue and a visible Not now exit. At 200%, disclosure begins outside view and the long button label is cramped. Requires consent before question entry."
+    },
+    {
+      "scene": "opening",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "finding": "Grounded stand and atmospheric background establish weight. The sampled split introduces a conspicuous dark wedge and doubled contours. Supplied runtime evidence supports skip, reduced motion and performance; the small Show forecast action has modest emphasis."
+    },
+    {
+      "scene": "opening",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": null, "accessibility": 7},
+      "finding": "Vertical light makes release recognizable, but black seams and a hard lower crop weaken glass continuity. The 1000ms gold opening reads as a solid insert. Stable skip placement; smoothness and reduced motion are unverified."
+    },
+    {
+      "scene": "opening",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": null, "accessibility": 7},
+      "finding": "Lifting the cap produces the clearest mechanical opening. Broad opaque light and sliced glass make the orb resemble a hinged container; the cropped base weakens grounding. Static frames cannot establish convincing weight or easing."
+    },
+    {
+      "scene": "opening",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "Intact silhouette, complete stand and fine luminous fracture preserve material continuity best. Restrained release risks reading as damage rather than revelation. Captures show the fracture and dimming, but do not establish the final mist payoff."
+    }
+  ],
+  "approachWinner": "B",
+  "consentWinner": "B",
+  "openingWinner": "C",
+  "reason": "B makes input modes explicit while retaining the ritual. Consent B provides the clearest actionable route from an entered question to consent. Opening C preserves the orb’s silhouette and grounding with the least visual disruption. These are provisional design selections; none demonstrates the required 9/9 threshold across every screen and component.",
+  "limitations": [
+    "Scores aggregate the supplied sizes, review states and timing frames. Findings include critical component strengths and defects.",
+    "Accessibility scores assess visible enlargement and supplied evidence, not complete semantic or assistive-technology compliance.",
+    "Null feedback scores indicate insufficient demonstrated interaction evidence. Consent feedback scores cover visible blockers and next-step guidance only.",
+    "Baseline runtime checks were supplied by the user and were not independently repeated. They do not transfer to proposals.",
+    "Prototype submission, persisted consent, speech, draft retention, focus recovery and native behavior are unverified.",
+    "Opening frames are not synchronized comparisons and cannot prove smoothness, reduced-motion behavior or the completed payoff.",
+    "Consent views represent constrained 500px space; letterboxing was excluded. Obscured content was assessed as a visible navigation problem, not proof that scrolling cannot recover it.",
+    "Physical iPhone and VoiceOver verification remains deferred; no full/native certification is implied."
+  ]
+}
