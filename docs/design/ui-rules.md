@@ -26,7 +26,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 2. Approach: larger orb and “Come closer…” before voice.
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
 4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
-5–7. Follow-ups: shrinking orb above a borderless question; centered, staggered and left-aligned answer arrangements. Each real question uses the next arrangement. Standard answers advance immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
+5–7. Follow-ups: small decorative orb above a borderless question, with consistently aligned underlined choices. At 200% text, decorative orbs in forms are omitted and plan pricing stacks; Home retains its full hero. Custom entry collapses unused choices and offers a visible way back to them. Standard answers advance immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
 8. Thinking: smoke, status, longer-wait message and Cancel; no credit is spent yet.
 9. Reveal: actual engine headline and speculative label; see [Short, personal readings](#short-personal-readings) for Due date and Why disclosure. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
 10. Share: compact actual export preview and image/friend/reminder actions.
