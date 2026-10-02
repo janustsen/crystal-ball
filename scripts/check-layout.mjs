@@ -100,7 +100,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
  for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
- await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(page.getByTestId('reason-passages')).toHaveText(prediction.why);
+ await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');expect((await page.getByTestId('reason-body').allTextContents()).join(' ').replace(/\s+/g,' ').trim()).toBe(prediction.why.replace(/\s+/g,' ').trim());
  await check('reveal-why',page.getByTestId('why-heading'));
  await tap('go-deeper-with-plus');await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');
  await check('reveal-evidence',page.getByTestId('why-reason'));
