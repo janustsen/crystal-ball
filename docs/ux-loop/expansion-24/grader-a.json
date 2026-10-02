@@ -1,0 +1,89 @@
+{
+  "comparisons": [
+    {
+      "screen": "reveal",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 5, "surfaces": 7, "clarity": 7, "feedback": 8, "accessibility": 5},
+      "finding": "A=6.3, F=6.7, overall=6.5. Strong atmosphere and a prominent forecast, but the orb and numerous secondary actions compete. At 200%, the headline fragments into exhausting lines; the viewport ending mid-word does not establish text loss. Components [H,T,S,C,F,X]: orb [6,null,8,null,null,null]; forecast/qualification/date [7,5,7,8,7,5]; Share [8,8,8,8,null,7]; secondary actions [6,7,7,7,null,6]; close/allowance [7,6,7,8,8,6]."
+    },
+    {
+      "screen": "reveal",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A=8.0, F=7.3, overall=7.6. Best ceremonial composition: the smaller orb preserves identity while qualification precedes the claim. The enlarged headline remains readable, though Why pushes Share partly below the captured viewport. Components [H,T,S,C,F,X]: orb [8,null,8,null,null,null]; forecast/qualification/date [8,8,8,8,7,8]; Share [8,8,8,8,null,7]; Why/reminder [7,8,8,8,null,7]; close/plan [7,7,8,6,null,6]."
+    },
+    {
+      "screen": "reveal",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for reading and acting on a forecast. Left alignment and the smaller headline make 200% reading easier; the complete Share control remains visible. 'Your forecast' is somewhat redundant, and the orb below the actions feels appended. Components [H,T,S,C,F,X]: orb [6,null,8,null,null,null]; forecast/qualification/date [8,8,8,8,7,8]; Share [8,8,8,8,null,8]; Why/reminder [7,8,8,8,null,7]; close/plan [7,7,8,6,null,6]."
+    },
+    {
+      "screen": "reveal",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "finding": "A=7.3, F=7.0, overall=7.1. Clear Share priority at normal size, but generous upper spacing and the larger headline spend substantial vertical space. At 200%, Share falls below the captured viewport and the headline becomes much more fragmented than B. This is a readability and travel cost, not demonstrated unreachable content. Components [H,T,S,C,F,X]: orb [7,null,8,null,null,null]; forecast/qualification/date [7,6,8,8,7,6]; Share [8,8,8,8,null,7]; Why/reminder [7,8,8,8,null,7]; close/plan [7,7,8,6,null,6]."
+    },
+    {
+      "screen": "history",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 5, "surfaces": 7, "clarity": 7, "feedback": 6, "accessibility": 5},
+      "finding": "A=6.3, F=6.0, overall=6.1. The prominent title and persistent navigation provide strong orientation. The fixed date rail wastes reading width and visibly splits the month at 200%; the forecast then becomes an unusually narrow column. The visible entry supplies a check-back date but no explicit outcome/open cue. Components [H,T,S,C,F,X]: title/storage [8,8,7,8,7,8]; date rail [6,4,7,6,null,4]; question/forecast entry [7,5,7,7,6,5]; bottom tabs [8,7,8,8,null,7]; plan [6,7,7,6,null,6]."
+    },
+    {
+      "screen": "history",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for reviewing saved predictions: each entry preserves date, question, forecast and outcome/open cue in a consistent full-width sequence. It remains legible at 200%, although a forecast consumes much of the viewport. 'Not yet' leaves the precise outcome state ambiguous. Components [H,T,S,C,F,X]: header/storage [7,8,8,8,7,8]; date [8,8,8,8,null,8]; question/forecast entry [8,8,8,8,7,8]; outcome/open cue [7,8,8,7,7,7]; plan [6,7,8,6,null,6]."
+    },
+    {
+      "screen": "history",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A=7.7, F=7.3, overall=7.5. Grouping is useful when several readings share a day, and avoids repeating dates. Large gaps between day headings and entries weaken their association and make the enlarged list especially long. Extra fixture entries are not themselves a defect. Components [H,T,S,C,F,X]: header/storage [7,8,8,8,7,8]; day grouping [8,6,8,8,null,7]; question/forecast entries [8,8,8,8,7,8]; outcome/open cues [7,8,8,7,7,7]; plan [6,7,8,6,null,6]."
+    },
+    {
+      "screen": "history",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.0, F=7.3, overall=7.6. Best compact question index, with particularly comfortable enlarged text. Hiding every forecast makes comparing predictions require opening entries; identical questions become hard to distinguish beyond their dates. The explanatory footer helps but comes after the entries. Components [H,T,S,C,F,X]: header/storage [7,8,8,8,7,8]; date/question entries [8,8,8,7,7,8]; outcome/open cues [7,8,8,7,7,7]; explanatory footer [6,8,8,8,null,8]; plan [6,7,8,6,null,6]."
+    },
+    {
+      "screen": "error",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 6, "surfaces": 7, "clarity": 7, "feedback": 8, "accessibility": 6},
+      "finding": "A=6.3, F=7.0, overall=6.7. Clear Retry priority and the no-charge reassurance support recovery, with supplied baseline evidence of real retry behavior. The oversized orb postpones the explanation; at 200%, Retry is mostly below the captured viewport. 'Layout fixture' is technical copy. Components [H,T,S,C,F,X]: orb [5,null,8,null,null,null]; failure title/message [7,6,7,7,8,6]; Retry [8,8,8,8,8,7]; Review/Edit [7,8,7,8,null,7]; close/allowance [7,6,7,8,8,6]."
+    },
+    {
+      "screen": "error",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for recovery composition. Failure, explanation, reassurance and three recovery choices all fit in the enlarged capture. 'Reading paused' suggests resumability that is not demonstrated; 'Layout fixture' remains technical. Components [H,T,S,C,F,X]: status/title/message [8,8,8,8,7,8]; Retry [8,8,8,8,null,8]; Review/Edit [8,8,8,8,null,8]; close/plan [7,7,8,6,null,6]."
+    },
+    {
+      "screen": "error",
+      "variant": "B",
+      "dimensions": {"hierarchy": 6, "typography": 6, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 5},
+      "finding": "A=6.7, F=5.7, overall=6.1. The plain failure heading is clearer than the metaphor, but the editable question dominates recovery. At 200%, the fixed-height field shows only part of the question, introducing internal navigation. The relationship between edits, existing answers and Retry is unexplained. No essential-content-loss gate is established from this capture alone. Components [H,T,S,C,F,X]: question input [5,5,7,6,null,5]; failure title/message [7,7,8,8,7,7]; Retry [8,8,8,6,null,7]; Review [7,8,8,7,null,7]; close/plan [7,7,8,6,null,6]."
+    },
+    {
+      "screen": "error",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A=7.7, F=7.3, overall=7.5. The original question supplies useful context and the smaller failure title enlarges well. The orb and its surrounding separators interrupt the path from question to recovery. Retry remains visible at 200%, but secondary options extend beyond the capture. Components [H,T,S,C,F,X]: question context [8,8,8,8,null,8]; orb [6,null,8,null,null,null]; failure title/message [8,8,8,8,7,8]; Retry [8,8,8,8,null,8]; Review/Edit [7,8,8,8,null,7]; close/plan [7,7,8,6,null,6]."
+    }
+  ],
+  "revealWinner": "B",
+  "historyWinner": "A",
+  "errorWinner": "A",
+  "reason": "Reveal B best supports reading the full forecast and reaching Share at both sizes. History A best balances preview, chronology and entry-level action. Error A gives recovery the clearest priority and strongest enlarged composition. These are provisional composition choices, not implementation acceptance. Component vectors use hierarchy, typography/spacing, surfaces/color, clarity, feedback/recovery, accessibility. A and F are their normalized three-dimension means; overall weights A 40% and F 60%. Screen totals use unrounded means. No option demonstrates the required 9/9 threshold.",
+  "limitations": [
+    "Assessment uses the six attached comparison sheets and supplied evidence descriptions only. No files, prior ratings, other graders or live interactions were inspected.",
+    "Component feedback numbers assess visible status, explanation or supplied baseline behavior. Null denotes genuinely inapplicable decorative dimensions or interaction behavior absent from the structural prototype; it does not imply a pass.",
+    "Prototype buttons announce study status; they do not demonstrate inference, persistence, sharing, reminders or recovery. Their visible guidance scores cannot certify those tasks. Baseline runtime evidence was not transferred to alternatives.",
+    "The captures establish enlargement and visible layout behavior, not exact hit areas, keyboard focus, screen-reader semantics, scroll reachability or transition continuity. Prototype contrast and reduced-motion behavior are not established by static imagery or the reused orb.",
+    "Baseline headline fragmentation and the broken History month rail are visible defects. Viewport cropping alone does not prove lost content or an inaccessible action; no hard-gate failure is conclusively established by these sheets.",
+    "Baseline and alternatives differ in visible navigation, allowance information and secondary actions. Prototype omissions prevent judging complete product-flow parity.",
+    "Physical iPhone and assistive-technology coverage remains deferred. No full/native 9 or 10 certification is made; missing physical proof alone was not used to cap browser composition scores."
+  ]
+}

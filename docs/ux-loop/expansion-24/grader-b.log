@@ -1,0 +1,409 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fd20-b9e6-7c11-8700-aa3d647882f6
+--------
+user
+Independent blind design comparison. Read-only, no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C for forecast reveal, History and prediction error at normal200%. Score all twelve screen/variant pairs on six dimensions; null only for genuinely inapplicable prototype behavior. Choose best composition per task; baseline may win. No desired score. Explain tradeoffs.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Baseline: actual current product screenshots,246layouts/1536targets,123tests,actual engine/retry/PNG and contrast/reduced-motion/isolated60fps passed. Expanded reveal at72px breaks long words. A direct character-range measurement found NO glyph outside342px: apparent screenshot truncation is wrapping to next line, not proven text loss. scrollWidth equals clientWidth, replacing break-word with anywhere changes nothing. Do not call content lost solely because the visible screenshot ends mid-word; still assess the fragmentation/readability. Baseline History dates occupy fixed38px rail and break month labels at200%. Those are real visible layout weaknesses.
+
+Alternatives are structural HTML prototypes: no inference, stored history, reminders or retry behavior; buttons only announce study status. Eighteen normal200% combinations driven for horizontal overflow and local status. Never transfer baseline proof to prototypes. Same full forecast headline, explicit synthetic engine error. Static orb reuses product SVG/CSS art without its real WebGL animation; do not infer motion proof. All type sizes double; no suppressed text enlargement. Physical/native remains separate.
+
+Reveal A: compact centered ritual with112pxorb/88large,26px headline, qualification before headline, date, Why, Share, reminder. B: reading-first left-aligned22px headline, actions directly below, small orb afterward. C:28px left-aligned headline with small orb and action dock; dock is static at200%.
+History A: each entry stacks readable date, original question,22px forecast, outcome/open cue. B: entries grouped under full day heading, no repeated narrow date rail; adds more representative entries to show grouping. C: question index with date/outcome/open cue; forecast hidden until opened, reducing scroll at the cost of preview. These are repeated synthetic fixtures, not claims about a user's real history.
+Error A: recovery-first notice,28px title, unchanged message, Retry/Review/Edit. B: question stays editable, failure section follows with Retry/Review; not proven how edit interacts with answers/retry. C: original question context, small orb then recovery section with22px title. Do not infer that any prototype action performs recovery.
+
+Only inspect attached images, docs/ux-loop/expansion-24/screens, checks.json and public/concepts/expansion-24.html if needed. No other files/previous grades. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+{
+  "comparisons": [
+    {
+      "screen": "reveal",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 5,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 8,
+        "accessibility": 5
+      },
+      "finding": "A=6.7, F=6.7, overall=6.7. Strong atmosphere and a prominent Share button, but numerous secondary actions compete. At 200%, the headline fragments into laborious short lines and pushes useful context and actions far down. The screenshot boundary does not establish lost text. Components [H,T,S,C,F,X]: orb [7,null,8,null,null,null]; headline/qualification/date [7,5,8,7,7,5]; Share [8,8,8,8,8,7]; secondary actions [6,7,8,7,8,6]; close/allowance [7,6,8,8,null,6]. Action feedback scores rely on the supplied baseline evidence, whose coverage is broader than these screenshots."
+    },
+    {
+      "screen": "reveal",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=8.0, F=7.3, overall=7.6. Best balance of ritual and restraint: compact orb, qualification before the prediction, and orderly actions. Centered enlarged text takes longer to scan than B; Share reaches the viewport boundary at 200%. Components [H,T,S,C,F,X]: orb [8,null,8,null,null,null]; headline/qualification/date [8,8,8,8,8,7]; Share [8,8,8,8,null,7]; Why/reminder [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. Recovery and action execution are unproven; the feedback grade covers visible qualification and timing only."
+    },
+    {
+      "screen": "reveal",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for reading and acting on the forecast. Left alignment and the smaller headline preserve the complete forecast, date, Why and Share within the shown 200% viewport. The trailing orb feels detached, and 'Your forecast' adds a modest extra label. Components [H,T,S,C,F,X]: forecast block [8,8,8,8,8,8]; Share [8,8,8,8,null,8]; Why/reminder [8,8,8,8,null,7]; trailing orb [6,null,8,null,null,null]; close/plan [6,7,8,6,null,6]. Clear visible composition does not demonstrate working sharing or reminders."
+    },
+    {
+      "screen": "reveal",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 6
+      },
+      "finding": "A=7.3, F=6.7, overall=6.9. Attractive left-aligned prediction, but the larger headline and generous vertical gaps delay actions. At 200%, Share falls almost entirely beyond the shown viewport. Putting Why below Share also separates explanation from the forecast. Components [H,T,S,C,F,X]: orb [7,null,8,null,null,null]; headline/qualification/date [8,7,8,8,8,7]; action region [6,7,8,7,null,6]; Share [8,8,8,8,null,7]; Why/reminder [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. Below-fold placement is a reachability cost, not proof of an inaccessible control."
+    },
+    {
+      "screen": "history",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 5,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 6,
+        "accessibility": 5
+      },
+      "finding": "A=6.7, F=6.0, overall=6.3. Distinctive heading, forecast preview and persistent navigation provide useful orientation. The fixed date rail visibly splits the month at 200% and compresses the forecast into an unnecessarily narrow column. The row shows a check-back date but no explicit outcome/open cue. Components [H,T,S,C,F,X]: heading/storage note [8,8,8,8,8,7]; date rail [6,4,8,6,null,4]; question/forecast row [7,5,8,7,6,5]; tabs [8,7,8,8,8,6]; plan [6,7,8,6,null,6]. The date component falls below the component threshold; whole-screen text loss is not established."
+    },
+    {
+      "screen": "history",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for recognizing a saved prediction and finding its check-in. Each entry contains a readable full date, original question, forecast and opening cue. At 200%, the first complete entry remains coherent. Repeating dates costs space, but keeps every entry self-contained. Components [H,T,S,C,F,X]: heading/storage note [7,8,8,8,8,8]; date [8,8,8,8,null,8]; question/forecast row [8,8,8,8,null,8]; outcome/open cue [7,8,8,7,7,7]; plan [6,7,8,6,null,6]. 'Not yet' is ambiguous about whether the outcome is unresolved or the check-in is unavailable. Opening and persistence are unproven."
+    },
+    {
+      "screen": "history",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.3, overall=7.5. Day grouping is the strongest structure for many entries on the same date. Generous gaps between day headings and entries reduce scanning efficiency, especially at 200%; A uses the available height better. Components [H,T,S,C,F,X]: heading/storage note [7,8,8,8,8,8]; day grouping [8,7,8,8,null,7]; question/forecast rows [8,8,8,8,null,8]; outcome/open cues [7,8,8,7,7,7]; plan [6,7,8,6,null,6]. Additional synthetic entries demonstrate grouping, not superior real history behavior."
+    },
+    {
+      "screen": "history",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=7.0, overall=7.4. Best compact question index and easiest enlarged list to scan. Hiding forecasts weakens the core task of reviewing predictions and distinguishing repeated questions; the user must open entries to discover what was predicted. Components [H,T,S,C,F,X]: heading/storage note [7,8,8,8,8,8]; date/question rows [8,8,8,6,null,8]; outcome/open cues [7,8,8,7,7,7]; explanatory footer [6,7,8,8,null,7]; plan [6,7,8,6,null,6]. This is a deliberate information tradeoff, not demonstrated data loss; actual opening behavior is absent."
+    },
+    {
+      "screen": "error",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 6
+      },
+      "finding": "A=7.0, F=7.3, overall=7.2. Clear failure explanation, no-charge reassurance and three recovery routes. The large orb and title dominate the error; at 200%, the primary recovery button only begins at the viewport bottom. Components [H,T,S,C,F,X]: orb [6,null,8,null,null,null]; error title/message [7,6,8,8,8,6]; Retry [8,8,8,8,8,7]; Review/Edit [8,8,8,8,null,7]; close/allowance [7,6,8,8,null,6]. Retry feedback is supported by the supplied baseline evidence; Review/Edit execution is not independently established here."
+    },
+    {
+      "screen": "error",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=8.0, overall=8.0. Winner: failure, reassurance and recovery actions form one compact sequence. At 200%, Retry, Review and Edit all remain visible. 'Reading paused' suggests resumability that is not established, while the metaphorical title needs the explanatory paragraph. Components [H,T,S,C,F,X]: status/title/message [8,8,8,8,8,8]; Retry [8,8,8,8,null,8]; Review/Edit [8,8,8,8,null,8]; close/plan [6,7,8,6,null,6]. Feedback measures the explicit visible failure and no-charge message, not successful recovery."
+    },
+    {
+      "screen": "error",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": 7,
+        "accessibility": 5
+      },
+      "finding": "A=6.7, F=6.0, overall=6.3. The direct failure title is useful, and editing in context could help. However, the question receives priority over the error. At 200%, its fixed visible input area cuts off the displayed question and Retry moves to the viewport bottom. Components [H,T,S,C,F,X]: question input [6,5,7,6,null,5]; failure title/message [7,7,8,8,8,7]; Retry [8,8,8,7,null,6]; Review [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. Internal input scrolling may expose the remaining text; that is unverified. How edits affect answers and retry is also unresolved."
+    },
+    {
+      "screen": "error",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.7, overall=7.7. Retaining the original question gives helpful context without an ambiguous editing workflow. The orb and separators interrupt the path to recovery; at 200%, Retry remains visible but secondary actions extend below the viewport. Components [H,T,S,C,F,X]: question context [7,8,8,8,null,8]; orb/dividers [6,null,8,null,null,null]; failure title/message [8,8,8,8,8,8]; Retry [8,8,8,8,null,8]; Review/Edit [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. A provides faster access to the same visible recovery choices."
+    }
+  ],
+  "revealWinner": "B",
+  "historyWinner": "A",
+  "errorWinner": "A",
+  "reason": "Reveal B prioritizes readable prediction content and keeps Share visible at 200%. History A preserves both question and forecast with readable dates. Error A brings the entire recovery choice set into the enlarged viewport. Reveal A is the stronger ceremonial alternative; History B becomes attractive with frequent same-day entries; Error C adds useful question context. None demonstrates the required browser A>=9 and F>=9 across every screen and component.",
+  "limitations": [
+    "Independent read-only assessment of the six attached sheets and supplied evidence descriptions only. No files, prior ratings, other graders or runtime tools were consulted.",
+    "Each screen score combines normal and 200% views. Component tuples use [hierarchy, typography/spacing, surfaces/color, clarity, feedback/recovery, accessibility]. X denotes accessibility; null denotes an inapplicable dimension or an undemonstrated component interaction.",
+    "Numeric feedback grades assess visible qualification, state, reassurance and recovery guidance; supplied baseline runtime evidence is identified where used. Prototype study-status announcements do not prove sharing, reminders, history opening or recovery.",
+    "Grades and calculated overall scores are provisional. Physical/native evidence is recorded as missing rather than used as a blanket score deduction. Browser evidence also does not establish target sizes, focus behavior, keyboard operation, screen-reader semantics or measured contrast for these prototypes.",
+    "Viewport boundaries do not prove content loss or unreachable controls. Baseline reveal fragmentation, baseline History month splitting and Error B's partially displayed enlarged input are distinct visible readability weaknesses.",
+    "No whole-screen hard-gate failure is established by these sheets. Offscreen content and the input's internal scrolling require direct checks before stronger accessibility conclusions.",
+    "Prototype orb motion, loading, selected states, transitions, actual recovery and representative novice outcomes remain unverified. Baseline proof does not transfer to alternatives.",
+    "Synthetic fixture wording and repeated questions are study artifacts. History alternatives omit the baseline navigation; their integration into the product and return paths are not demonstrated."
+  ]
+}
+tokens used
+33,494
+{
+  "comparisons": [
+    {
+      "screen": "reveal",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 5,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 8,
+        "accessibility": 5
+      },
+      "finding": "A=6.7, F=6.7, overall=6.7. Strong atmosphere and a prominent Share button, but numerous secondary actions compete. At 200%, the headline fragments into laborious short lines and pushes useful context and actions far down. The screenshot boundary does not establish lost text. Components [H,T,S,C,F,X]: orb [7,null,8,null,null,null]; headline/qualification/date [7,5,8,7,7,5]; Share [8,8,8,8,8,7]; secondary actions [6,7,8,7,8,6]; close/allowance [7,6,8,8,null,6]. Action feedback scores rely on the supplied baseline evidence, whose coverage is broader than these screenshots."
+    },
+    {
+      "screen": "reveal",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=8.0, F=7.3, overall=7.6. Best balance of ritual and restraint: compact orb, qualification before the prediction, and orderly actions. Centered enlarged text takes longer to scan than B; Share reaches the viewport boundary at 200%. Components [H,T,S,C,F,X]: orb [8,null,8,null,null,null]; headline/qualification/date [8,8,8,8,8,7]; Share [8,8,8,8,null,7]; Why/reminder [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. Recovery and action execution are unproven; the feedback grade covers visible qualification and timing only."
+    },
+    {
+      "screen": "reveal",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for reading and acting on the forecast. Left alignment and the smaller headline preserve the complete forecast, date, Why and Share within the shown 200% viewport. The trailing orb feels detached, and 'Your forecast' adds a modest extra label. Components [H,T,S,C,F,X]: forecast block [8,8,8,8,8,8]; Share [8,8,8,8,null,8]; Why/reminder [8,8,8,8,null,7]; trailing orb [6,null,8,null,null,null]; close/plan [6,7,8,6,null,6]. Clear visible composition does not demonstrate working sharing or reminders."
+    },
+    {
+      "screen": "reveal",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 6
+      },
+      "finding": "A=7.3, F=6.7, overall=6.9. Attractive left-aligned prediction, but the larger headline and generous vertical gaps delay actions. At 200%, Share falls almost entirely beyond the shown viewport. Putting Why below Share also separates explanation from the forecast. Components [H,T,S,C,F,X]: orb [7,null,8,null,null,null]; headline/qualification/date [8,7,8,8,8,7]; action region [6,7,8,7,null,6]; Share [8,8,8,8,null,7]; Why/reminder [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. Below-fold placement is a reachability cost, not proof of an inaccessible control."
+    },
+    {
+      "screen": "history",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 5,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 6,
+        "accessibility": 5
+      },
+      "finding": "A=6.7, F=6.0, overall=6.3. Distinctive heading, forecast preview and persistent navigation provide useful orientation. The fixed date rail visibly splits the month at 200% and compresses the forecast into an unnecessarily narrow column. The row shows a check-back date but no explicit outcome/open cue. Components [H,T,S,C,F,X]: heading/storage note [8,8,8,8,8,7]; date rail [6,4,8,6,null,4]; question/forecast row [7,5,8,7,6,5]; tabs [8,7,8,8,8,6]; plan [6,7,8,6,null,6]. The date component falls below the component threshold; whole-screen text loss is not established."
+    },
+    {
+      "screen": "history",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=7.7, overall=7.8. Winner for recognizing a saved prediction and finding its check-in. Each entry contains a readable full date, original question, forecast and opening cue. At 200%, the first complete entry remains coherent. Repeating dates costs space, but keeps every entry self-contained. Components [H,T,S,C,F,X]: heading/storage note [7,8,8,8,8,8]; date [8,8,8,8,null,8]; question/forecast row [8,8,8,8,null,8]; outcome/open cue [7,8,8,7,7,7]; plan [6,7,8,6,null,6]. 'Not yet' is ambiguous about whether the outcome is unresolved or the check-in is unavailable. Opening and persistence are unproven."
+    },
+    {
+      "screen": "history",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.3, overall=7.5. Day grouping is the strongest structure for many entries on the same date. Generous gaps between day headings and entries reduce scanning efficiency, especially at 200%; A uses the available height better. Components [H,T,S,C,F,X]: heading/storage note [7,8,8,8,8,8]; day grouping [8,7,8,8,null,7]; question/forecast rows [8,8,8,8,null,8]; outcome/open cues [7,8,8,7,7,7]; plan [6,7,8,6,null,6]. Additional synthetic entries demonstrate grouping, not superior real history behavior."
+    },
+    {
+      "screen": "history",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=7.0, overall=7.4. Best compact question index and easiest enlarged list to scan. Hiding forecasts weakens the core task of reviewing predictions and distinguishing repeated questions; the user must open entries to discover what was predicted. Components [H,T,S,C,F,X]: heading/storage note [7,8,8,8,8,8]; date/question rows [8,8,8,6,null,8]; outcome/open cues [7,8,8,7,7,7]; explanatory footer [6,7,8,8,null,7]; plan [6,7,8,6,null,6]. This is a deliberate information tradeoff, not demonstrated data loss; actual opening behavior is absent."
+    },
+    {
+      "screen": "error",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 6
+      },
+      "finding": "A=7.0, F=7.3, overall=7.2. Clear failure explanation, no-charge reassurance and three recovery routes. The large orb and title dominate the error; at 200%, the primary recovery button only begins at the viewport bottom. Components [H,T,S,C,F,X]: orb [6,null,8,null,null,null]; error title/message [7,6,8,8,8,6]; Retry [8,8,8,8,8,7]; Review/Edit [8,8,8,8,null,7]; close/allowance [7,6,8,8,null,6]. Retry feedback is supported by the supplied baseline evidence; Review/Edit execution is not independently established here."
+    },
+    {
+      "screen": "error",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "A=8.0, F=8.0, overall=8.0. Winner: failure, reassurance and recovery actions form one compact sequence. At 200%, Retry, Review and Edit all remain visible. 'Reading paused' suggests resumability that is not established, while the metaphorical title needs the explanatory paragraph. Components [H,T,S,C,F,X]: status/title/message [8,8,8,8,8,8]; Retry [8,8,8,8,null,8]; Review/Edit [8,8,8,8,null,8]; close/plan [6,7,8,6,null,6]. Feedback measures the explicit visible failure and no-charge message, not successful recovery."
+    },
+    {
+      "screen": "error",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": 7,
+        "accessibility": 5
+      },
+      "finding": "A=6.7, F=6.0, overall=6.3. The direct failure title is useful, and editing in context could help. However, the question receives priority over the error. At 200%, its fixed visible input area cuts off the displayed question and Retry moves to the viewport bottom. Components [H,T,S,C,F,X]: question input [6,5,7,6,null,5]; failure title/message [7,7,8,8,8,7]; Retry [8,8,8,7,null,6]; Review [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. Internal input scrolling may expose the remaining text; that is unverified. How edits affect answers and retry is also unresolved."
+    },
+    {
+      "screen": "error",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.7, overall=7.7. Retaining the original question gives helpful context without an ambiguous editing workflow. The orb and separators interrupt the path to recovery; at 200%, Retry remains visible but secondary actions extend below the viewport. Components [H,T,S,C,F,X]: question context [7,8,8,8,null,8]; orb/dividers [6,null,8,null,null,null]; failure title/message [8,8,8,8,8,8]; Retry [8,8,8,8,null,8]; Review/Edit [7,8,8,8,null,7]; close/plan [6,7,8,6,null,6]. A provides faster access to the same visible recovery choices."
+    }
+  ],
+  "revealWinner": "B",
+  "historyWinner": "A",
+  "errorWinner": "A",
+  "reason": "Reveal B prioritizes readable prediction content and keeps Share visible at 200%. History A preserves both question and forecast with readable dates. Error A brings the entire recovery choice set into the enlarged viewport. Reveal A is the stronger ceremonial alternative; History B becomes attractive with frequent same-day entries; Error C adds useful question context. None demonstrates the required browser A>=9 and F>=9 across every screen and component.",
+  "limitations": [
+    "Independent read-only assessment of the six attached sheets and supplied evidence descriptions only. No files, prior ratings, other graders or runtime tools were consulted.",
+    "Each screen score combines normal and 200% views. Component tuples use [hierarchy, typography/spacing, surfaces/color, clarity, feedback/recovery, accessibility]. X denotes accessibility; null denotes an inapplicable dimension or an undemonstrated component interaction.",
+    "Numeric feedback grades assess visible qualification, state, reassurance and recovery guidance; supplied baseline runtime evidence is identified where used. Prototype study-status announcements do not prove sharing, reminders, history opening or recovery.",
+    "Grades and calculated overall scores are provisional. Physical/native evidence is recorded as missing rather than used as a blanket score deduction. Browser evidence also does not establish target sizes, focus behavior, keyboard operation, screen-reader semantics or measured contrast for these prototypes.",
+    "Viewport boundaries do not prove content loss or unreachable controls. Baseline reveal fragmentation, baseline History month splitting and Error B's partially displayed enlarged input are distinct visible readability weaknesses.",
+    "No whole-screen hard-gate failure is established by these sheets. Offscreen content and the input's internal scrolling require direct checks before stronger accessibility conclusions.",
+    "Prototype orb motion, loading, selected states, transitions, actual recovery and representative novice outcomes remain unverified. Baseline proof does not transfer to alternatives.",
+    "Synthetic fixture wording and repeated questions are study artifacts. History alternatives omit the baseline navigation; their integration into the product and return paths are not demonstrated."
+  ]
+}
