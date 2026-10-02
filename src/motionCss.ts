@@ -12,7 +12,9 @@ export const motionCss = `
 .glimpse-burst{animation-name:glimpse-burst;animation-timing-function:${ease};transform-origin:50% 22%}
 .card-deal{animation-name:card-deal;animation-timing-function:${spring};transform-origin:50% 100%}
 @keyframes smoke-wipe{0%,22%{opacity:0;transform:translate3d(-22px,0,0) skewX(5deg)}100%{opacity:1;transform:none}}
-@keyframes orb-portal{0%{opacity:0;transform:scale(var(--enter-scale,.6));clip-path:circle(4% at 50% 40%)}30%{opacity:1}100%{opacity:1;transform:none;clip-path:circle(150% at 50% 40%)}}
+@keyframes orb-portal{0%{opacity:0;transform:scale(var(--enter-scale,.6))}30%{opacity:1}100%{opacity:1;transform:none}}
+.orb-portal.screen-veil::before{content:'';position:absolute;z-index:19;left:50%;top:34%;width:1600px;height:1600px;margin:-800px 0 0 -800px;pointer-events:none;background:radial-gradient(circle,rgba(14,9,6,0) 0 20px,rgba(14,9,6,.98) 44px);opacity:0;animation:portal-iris 1000ms cubic-bezier(.5,0,.2,1) both}
+@keyframes portal-iris{0%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0;transform:scale(28)}}
 @keyframes ripple-in{0%{opacity:0;transform:scale(var(--enter-scale,.94))}100%{opacity:1;transform:none}}
 @keyframes ink-settle{0%{opacity:0;transform:translate3d(0,var(--enter-y,18px),0) skewY(-2.5deg)}55%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes card-flip{0%{opacity:0;transform:perspective(1000px) rotateY(var(--flip,-62deg)) translate3d(0,var(--enter-y,28px),-80px) scale(var(--enter-scale,.92))}40%{opacity:1}100%{opacity:1;transform:none}}
@@ -79,5 +81,5 @@ export const motionCss = `
 .hidden-constellation{position:absolute;right:7%;top:21%;color:#e9cd9c;font-size:17px;letter-spacing:7px;opacity:0;animation:sky-stars 61s ease-in-out infinite;animation-delay:-20s}
 @keyframes sky-stars{0%,70%,100%{opacity:0}78%,88%{opacity:.24}}
 [data-reduced="true"] .sky,.reduced .sky,[data-reduced="true"] .tap-burst{display:none}
-@media(prefers-reduced-motion:reduce){.motion-enter{animation:none}.screen-veil::after{display:none}.sky,.tap-burst{display:none}.tap-squash{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.motion-enter{animation:none}.screen-veil::after,.screen-veil::before{display:none}.sky,.tap-burst{display:none}.tap-squash{animation:none!important}}
 `;
