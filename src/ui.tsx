@@ -1,4 +1,4 @@
-import React,{useRef,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {Animated,Pressable,StyleSheet,Text,TextInput,View,ScrollView,Platform,Easing,type TextStyle} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {tabArtwork} from './designArt';
@@ -11,6 +11,25 @@ import {useStore} from './store';
 export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C284',gold:'#E0A458',ivory:'#F1E9DC',muted:'#B9AB97',surface:'#1C1510',outline:'#0B0604'};
 export const fonts={display:'Fraunces',wordmark:'IMFellEnglishItalic',body:'Manrope'};
 export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){const {state}=useStore();const scale=state.largeText&&props.allowFontScaling!==false?2:1;const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?28:16,lineHeight:display?34:24},display&&styles.inked,style]);return <Text {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}>{children}</Text>}
+
+export function RadioGroup({testID,...props}:React.ComponentProps<typeof View>&{testID:string}){
+ useEffect(()=>{
+  if(Platform.OS!=='web')return;
+  const group=document.querySelector<HTMLElement>(`[data-testid="${testID}"]`);
+  function navigate(event:KeyboardEvent){
+   if(![' ','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)||!(event.target instanceof Element))return;
+   const current=event.target.closest<HTMLElement>('[role="radio"]');
+   const options=Array.from(group?.querySelectorAll<HTMLElement>('[role="radio"]')??[]).filter(option=>option.getAttribute('aria-disabled')!=='true');
+   const index=current?options.indexOf(current):-1;if(index<0)return;
+   event.preventDefault();
+   if(event.key===' '){if(!event.repeat)current?.click();return;}
+   const next=event.key==='Home'?0:event.key==='End'?options.length-1:(index+(['ArrowLeft','ArrowUp'].includes(event.key)?-1:1)+options.length)%options.length;
+   options[next].focus();options[next].click();
+  }
+  group?.addEventListener('keydown',navigate);return()=>group?.removeEventListener('keydown',navigate);
+ },[testID]);
+ return <View {...props} testID={testID} accessibilityRole="radiogroup"/>;
+}
 
 export function Input({style,...props}:React.ComponentPropsWithRef<typeof TextInput>){
  const {state}=useStore(),scale=state.largeText&&props.allowFontScaling!==false?2:1;

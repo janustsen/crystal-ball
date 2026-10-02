@@ -38,7 +38,7 @@ try{
   ${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
   await page.wait('[data-testid="option-0"]',65000);
-  const total=Number(await page.eval(()=>document.body.innerText.match(/1 of ([12])/)[1]));for(let card=0;card<total;card++){${click('option-0')}if(card<total-1)await page.wait('[data-testid="option-0"]');}
+  const total=Number(await page.eval(()=>document.body.innerText.match(/1 of ([12])/)[1]));for(let card=0;card<total;card++){${click('option-0')}${click('answer-next')}if(card<total-1)await page.wait('[data-testid="option-0"]');}
   await page.wait('[data-testid="share-this-glimpse"]',65000);
   ${click('close-flow')}${click('tab-sky')}${click('add-my-star')}
   await page.wait('[data-testid="publish-anonymous-star"]',120000);

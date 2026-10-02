@@ -17,7 +17,7 @@ for(let round=0;round<3;round++)for(const variant of ['art','plain']){
  if(round===0&&variant==='art')console.log('renderer',await p.evaluate(()=>{const g=document.createElement('canvas').getContext('webgl');const e=g.getExtension('WEBGL_debug_renderer_info');return g.getParameter(e.UNMASKED_RENDERER_WEBGL)}));
  const taps=p.evaluate(()=>motionAudit.sample('taps',null,2200));for(const [x,y] of [[39,800],[39,800],[39,800],[39,800],[39,800]]){await p.waitForTimeout(300);await p.mouse.click(x,y)}out.push(await taps);await p.getByTestId('tab-home').click();await p.waitForTimeout(900);
  out.push(await s('approach','hero-orb'));await p.getByTestId('type-instead').click();await p.getByTestId('question-input').fill('Will I be conversational in Spanish?');
- out.push(await s('plan-q1','look-into-the-future','option-0'));out.push(await s('reveal','option-0','why-disclosure'));out.push(await s('share','share-this-glimpse'));out.push(await s('back','close-flow'));out.push(await s('home','close-flow'));
+ out.push(await s('plan-q1','look-into-the-future','option-0'));await p.getByTestId('option-0').click();out.push(await s('reveal','answer-next','why-disclosure'));out.push(await s('share','share-this-glimpse'));out.push(await s('back','close-flow'));out.push(await s('home','close-flow'));
  out.push(await s('history','tab-history'));
  for(const r of out)rows.push({variant,label:r.label,fps:+r.fps.toFixed(1),p95:+r.p95.toFixed(1),max:+r.max.toFixed(1)});
  await c.close();

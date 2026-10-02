@@ -26,7 +26,7 @@ try{
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');
  sample('idle-both-orbs');sample('orb-approach-listening','hero-orb');sample('listening','speak-question');sample('typing','type-instead');
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
- sample('planning-to-question-one','look-into-the-future',2200,'option-0');const total=evaluate('()=>Number(document.body.innerText.match(/1 of (\\d)/)[1])');for(let i=0;i<total;i++)sample(i===total-1?'thinking-to-reveal':'question-two','option-0',2200,i===total-1?'share-this-glimpse':'option-0');
+ sample('planning-to-question-one','look-into-the-future',2200,'option-0');const total=evaluate('()=>Number(document.body.innerText.match(/1 of (\\d)/)[1])');for(let i=0;i<total;i++){sample('select-answer-'+(i+1),'option-0',500);sample(i===total-1?'thinking-to-reveal':'question-two','answer-next',2200,i===total-1?'share-this-glimpse':'option-0');}
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');
  for(const tab of ['sky','history','you'])sample(tab+'-tab','tab-'+tab);
  sample('ask-tab','tab-ask');sample('close-flow','close-flow');sample('ambient-sky',null,45000);

@@ -32,8 +32,8 @@ try{
  await page.getByTestId('option-0').waitFor({timeout:65000});await expect.poll(()=>page.evaluate(()=>window.lastMood)).toEqual([1.1,.25,.5,1]);
  let predictions=0;await page.route('**/engine',async route=>{if(route.request().postDataJSON()?.action==='predict'){predictions++;await route.abort()}else await route.continue()});
  const total=Number((await page.getByText(/^1 of [12]$/).innerText()).split(' of ')[1]);
- for(let index=1;index<total;index++){await page.getByTestId('option-0').click();await expect(page.getByText(`${index+1} of ${total}`,{exact:true})).toBeVisible()}
- await page.getByTestId('option-0').evaluate(node=>{node.click();node.click()});await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(1);
+ for(let index=1;index<total;index++){await page.getByTestId('option-0').click();await page.getByTestId('answer-next').click();await expect(page.getByText(`${index+1} of ${total}`,{exact:true})).toBeVisible()}
+ await page.getByTestId('option-0').click();await page.getByTestId('answer-next').evaluate(node=>{node.click();node.click()});await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(1);
  await page.getByRole('button',{name:'Try again',exact:true}).click();await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(2);
  console.log('PASS: login-free app, guarded bridge, paused callbacks, single final submit, and retry after failure.');
 }finally{await browser.close()}

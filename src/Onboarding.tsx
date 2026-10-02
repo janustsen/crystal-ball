@@ -35,10 +35,10 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   <Txt display style={{marginBottom:16}}>Your forecast. Then check back.</Txt>
   <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet. The Ball can miss — your story matters either way.</Txt>
   <Txt style={styles.caption}>A little about you · {step+1} of 2</Txt>
-  <Txt testID={step===1?'onboarding-focus-heading':blocked?'age-correction-heading':'onboarding-birthday-heading'} accessibilityRole="header" display style={{marginTop:8,fontSize:30,lineHeight:36}}>{blocked&&step===0?'Correct your birthday':step===0?'Your birthday':'Your focus'}</Txt>
+  <Txt testID={step===1?'onboarding-focus-heading':blocked?'age-correction-heading':'onboarding-birthday-heading'} accessibilityRole="header" display style={{marginTop:8,fontSize:22,lineHeight:28}}>{blocked&&step===0?'Correct your birthday':step===0?'Your birthday':'Your focus'}</Txt>
   <Txt style={[styles.caption,{marginTop:8,marginBottom:12}]}>{blocked&&step===0?'Enter your actual birthday. Access still requires age 13 or older.':step===0?'13 and up. Your birthday sets your Sun sign.':'Choose one, or skip. You can change it later.'}</Txt>
   {step===0?<>
-   <Txt style={[styles.caption,{marginBottom:12}]}>Birthday{blocked?'':' · optional'}</Txt>
+   <View style={{flexDirection:'row',alignItems:'center',flexWrap:'wrap',gap:12,marginBottom:12}}><Txt style={[styles.caption,{flex:1}]}>Birthday{blocked?'':' · optional'}</Txt>{!blocked?<Pressable testID="skip-for-now" accessibilityRole="button" onPress={skip} style={{minHeight:44,minWidth:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>Skip</Txt></Pressable>:null}</View>
    <BirthdayInput testID="onboarding-birthday" value={birthday} onChange={setBirthday}/>
 
    {error?<Txt accessibilityRole="alert">{error}</Txt>:null}
@@ -49,6 +49,6 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
    <Action testID="meet-the-ball" label={focus?"Meet the Ball":"Skip focus"} onPress={()=>onFinish({...birthday.trim()?{birthday:birthday.trim()}:{},...focus?{current_focus:focus}:{}})}/>
    <Action label="Back" quiet onPress={()=>setStep(0)}/>
   </>}
-  {!blocked&&(step===0||!!focus)?<Action testID="skip-for-now" label={step===0?"Skip for now":"Skip focus"} quiet onPress={skip}/>:null}
+  {!blocked&&step===1&&!!focus?<Action testID="skip-for-now" label="Skip focus" quiet onPress={skip}/>:null}
  </>;
 }

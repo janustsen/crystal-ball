@@ -92,14 +92,14 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
  await check('card-1',text(plan.cards[0].question));
  await tap('option-3');await check('card-other',page.getByTestId('other-input'));await page.getByTestId('other-input').fill('Somewhere between halfway and nearly');await tap('answer-next');
- await check('card-2',text(plan.cards[1].question));await tap('option-0');
- await check('card-3',text(plan.cards[2].question));await tap('option-0');
+ await check('card-2',text(plan.cards[1].question));await tap('option-0');await check('card-selected',page.getByTestId('answer-next'));await tap('answer-next');
+ await check('card-3',text(plan.cards[2].question));await tap('option-0');await tap('answer-next');
  await check('research',research);await reply('predict',error);
  await check('error-predict',page.getByTestId('review-answers'));
  await tap('try-again');await expect(research).toBeVisible();await reply('predict',blocked);
  await check('sensitive-predict',text('This one isn’t for the Ball.'));
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
- for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
+ for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0');await tap('answer-next')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
  await check('reveal',page.getByTestId('why-disclosure'));await tap('reading-more');await check('reveal-actions',page.getByRole('button',{name:'Edit question',exact:true}));await tap('reading-more');await tap('why-disclosure');expect((await page.getByTestId('reason-body').allTextContents()).join(' ').replace(/\s+/g,' ').trim()).toBe(prediction.why.replace(/\s+/g,' ').trim());
  await check('reveal-why',page.getByTestId('why-heading'));
@@ -113,7 +113,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
  await tap('tab-history');await check('history-filled',text(prediction.headline));
- await text(prediction.headline).click();await check('check-in',page.getByTestId('check-in-yes'));await tap('check-in-forecast');await check('check-in-forecast',page.getByTestId('check-in-forecast-content'));
+ await text(prediction.headline).click();await check('check-in',page.getByTestId('check-in-yes'));await tap('check-in-pending');await check('check-in-unsaved',page.getByTestId('save-outcome'));await tap('save-outcome');await check('check-in-saved',page.getByTestId('check-in-status'));await tap('check-in-forecast');await check('check-in-forecast',page.getByTestId('check-in-forecast-content'));
  }finally{await context.close()}
 }
 }finally{

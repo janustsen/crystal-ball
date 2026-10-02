@@ -17,7 +17,7 @@ async function answerCards(){
   await shot(`card-${count+1}`);askedQuestions.push(await page.getByTestId('question-heading').innerText());
   const progress=await page.locator('body').innerText(),last=progress.includes(`${count+1} of ${count+1}`);
   if(count===0){await page.getByRole('button',{name:'In my own words',exact:true}).click();await page.getByTestId('other-input').fill('I write for an hour every day and have finished half the draft');await page.getByTestId('answer-next').click();}
-  else await page.getByTestId('option-0').click();
+  else {await page.getByTestId('option-0').click();await page.getByTestId('answer-next').click();}
   if(last){count++;break;}await page.waitForTimeout(800);
  }
  await page.getByTestId('share-this-glimpse').waitFor({timeout:65000});return count;

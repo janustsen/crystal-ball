@@ -28,7 +28,7 @@ try{
     const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
     expect(saved.ageConfirmed).toBe(true);expect(saved.ageBand).toBe('teen');expect(saved.sunSign).toBeNull();expect(saved.birthday).toBeUndefined();expect(saved.onboardingDone).toBe(true);
     if(entry==='friend'){
-     await expect(page.getByTestId('question-input')).toHaveValue('Will I finish writing in six months?');await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').click();await page.getByTestId('share-this-glimpse').waitFor();
+     await expect(page.getByTestId('question-input')).toHaveValue('Will I finish writing in six months?');await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').click();await page.getByTestId('answer-next').click();await page.getByTestId('share-this-glimpse').waitFor();
      await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history.length)).toBe(1);
      expect(requests.map(r=>r.action)).toEqual(['plan','predict']);for(const r of requests){expect(r.ageConfirmed).toBe(true);expect(r.viewerBirthday).toBeUndefined();expect(r.friend).toBe(true);}
      expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).facts)).toEqual({});
