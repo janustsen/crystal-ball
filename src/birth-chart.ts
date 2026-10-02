@@ -1,7 +1,8 @@
 import {Origin,Horoscope} from 'circular-natal-horoscope-js/dist/index';
 import {validBirthday} from './profile';
+export const validBirthTime=(time:string)=>/^([01]\d|2[0-3]):[0-5]\d$/.test(time);
 export function birthChart(birthday:string,time:string,latitude:number,longitude:number){
- if(!validBirthday(birthday)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)||!Number.isFinite(latitude)||Math.abs(latitude)>90||!Number.isFinite(longitude)||Math.abs(longitude)>180)throw new Error('Check your birthday, birth time and place.');
+ if(!validBirthday(birthday)||!validBirthTime(time)||!Number.isFinite(latitude)||Math.abs(latitude)>90||!Number.isFinite(longitude)||Math.abs(longitude)>180)throw new Error('Check your birthday, birth time and place.');
  const [year,month,date]=birthday.split('-').map(Number),[hour,minute]=time.split(':').map(Number);
  const chart=new Horoscope({origin:new Origin({year,month:month-1,date,hour,minute,latitude,longitude}),houseSystem:'whole-sign',zodiac:'tropical',aspectPoints:[],aspectWithPoints:[],aspectTypes:[]});
  return {moonSign:String(chart.CelestialBodies.moon.Sign.label).toLowerCase(),risingSign:String(chart.Ascendant.Sign.label).toLowerCase()};

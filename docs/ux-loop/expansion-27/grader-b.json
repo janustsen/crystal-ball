@@ -1,0 +1,173 @@
+{
+  "comparisons": [
+    {
+      "screen": "initial",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 6.5,
+        "surfaces": 7,
+        "clarity": 6,
+        "feedback": 6,
+        "accessibility": 6
+      },
+      "finding": "A=6.5, F=6.0, overall=6.2. Close competes with the form heading; time guidance is terse. Disabled-looking actions and distant instructions weaken the sequence. At 200%, neither action is visible in the capture. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: time input [6,6,7,6,6,6]; city/search group [6,6,7,6,6,6]; calculate button [7,7,7,6,5,6]."
+    },
+    {
+      "screen": "initial",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7.5
+      },
+      "finding": "A=8.2, F=7.5, overall=7.8. Best initial composition: a compact, legible sequence with useful time guidance and a clear save action. At 200%, Find city remains visible but Calculate moves below the viewport. The equally prominent save action before city selection needs a defined readiness state. Components: time input/help [8,8,8,8.5,8,8]; city/search group [8,8,8,8,7,7]; calculate button [9,8,8,8,6,8]; privacy note [7,8,8,8,7,7]."
+    },
+    {
+      "screen": "initial",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7.5,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.5, overall=7.6. Strong focus at normal size, but the three-line question at 200% consumes space without helping entry; Continue falls below the capture. Two-step overhead is difficult to justify for two fields. Components: progress indicator [8,8,8,8,8,7]; question heading [8,6,8,8, null,7]; time input/help [8,8,8,8.5,8,8]; Continue [9,8,8,8,7,7]; Cancel [7,8,8,7, null,7]."
+    },
+    {
+      "screen": "initial",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 6.5
+      },
+      "finding": "A=7.3, F=6.8, overall=7.0. Useful review structure, but birthday context and repeated time add substantial height. At 200%, city and save are below the capture. Existing-value fixtures make this less representative of first entry. Components: birthday context [6,8,8,7, null,7]; time disclosure/input [7,7,8,7,7,6.5]; city disclosure [7,8,8,7,7,7]; calculate button [8,8,8,8,6,7]."
+    },
+    {
+      "screen": "invalid",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 5,
+        "typography": 6.5,
+        "surfaces": 7,
+        "clarity": 4,
+        "feedback": 4,
+        "accessibility": 5
+      },
+      "finding": "A=6.2, F=4.3, overall=5.1. The reached position shows city results instead of the faulty time. Generic advice makes users locate and diagnose the problem themselves; selected-city readiness copy further muddies the cause. Components: city results/selection [6,6.5,7,6,6,6]; error message [5,7,7,4,4,5]; calculate button [8,7,7,6,4,6]. No proven blocked path, so no overall≤4 gate asserted."
+    },
+    {
+      "screen": "invalid",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "A=8.2, F=8.2, overall=8.2. Best recovery composition. Invalid value and precise correction remain together and comfortably visible at 200%. Selected city is preserved visibly without a competing results list. Components: time/error group [9,8,8,9,8.5,8]; city summary/change [8,8,8,8.5,8,8]; calculate button [9,8,8,8,7,8]. Feedback scores describe the depicted error, not functioning validation or focus."
+    },
+    {
+      "screen": "invalid",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.7, overall=7.7. Error is specific and adjacent, but at 200% its bottom sits immediately above navigation and Continue is outside the capture. The oversized question delays the recovery information. Components: progress indicator [8,8,8,8,8,7]; time/error group [8,7,8,9,8,7]; Continue [9,8,8,8,7,7]; Cancel [7,8,8,7, null,7]."
+    },
+    {
+      "screen": "invalid",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7.5,
+        "feedback": 7.5,
+        "accessibility": 6.5
+      },
+      "finding": "A=7.3, F=7.2, overall=7.2. Needs correction usefully identifies the section, but birthday and introductory context push the specific remedy below the 200% capture. Components: birthday context [6,8,8,7, null,7]; time disclosure/error group [7,7,8,8,7.5,6.5]; city disclosure [7,8,8,7,7,7]; calculate button [8,8,8,8,7,7]."
+    },
+    {
+      "screen": "saved",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 4,
+        "typography": 6.5,
+        "surfaces": 7,
+        "clarity": 4,
+        "feedback": 3,
+        "accessibility": 5
+      },
+      "finding": "A=5.8, F=4.0, weighted=4.7; gated overall=4.0. The actual reached viewport omits the requested signs and retains the calculation action. Reported stale Calculated text after forgetting also contradicts persisted state. Components: city results/summary [5,6.5,7,5,5,6]; saved feedback/result placement [3,6,7,3,3,4]; calculate button [8,7,7,4,3,6]; Forget [6,7,7,7,3,6]. Gate: materially unanswered result at the reached state."
+    },
+    {
+      "screen": "saved",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": 8.5,
+        "accessibility": 8
+      },
+      "finding": "A=8.2, F=8.3, overall=8.3. Best saved composition: confirmation, signs, provenance and Done are visible at both sizes. Edit and Forget are appropriately secondary. The optional-entry subtitle becomes unnecessary after saving. Components: saved result [9,8,8,9,8.5,8]; Done [9,8,8,9,8,8]; Edit [8,8,8,8, null,8]; Forget [7,8,8,8, null,7]."
+    },
+    {
+      "screen": "saved",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7.5,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7.5
+      },
+      "finding": "A=7.8, F=7.8, overall=7.8. Result-specific heading is helpful and Done remains visible at 200%. Progress chrome adds height and makes completion look like an unfinished second step despite the confirmation. Components: progress indicator [7,8,8,6.5,7,7]; saved result [8,7.5,8,9,8.5,8]; Done [9,8,8,9,8,8]; Edit [8,8,8,8, null,8]; Forget [7,8,8,8, null,7]."
+    },
+    {
+      "screen": "saved",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 8,
+        "accessibility": 6.5
+      },
+      "finding": "A=7.3, F=7.2, overall=7.2. Confirmation is clear, but Review each detail, then save contradicts completion. Repeated context pushes Done partly behind the navigation in the 200% capture. Components: saved result [8,8,8,8,8,7]; Done [8,8,8,9,8,6]; birthday context [6,8,8,6, null,7]; time/city disclosures [7,8,8,7,7,7]; Forget [6,8,8,8, null,7]."
+    }
+  ],
+  "initialWinner": "A",
+  "invalidWinner": "A",
+  "savedWinner": "A",
+  "reason": "Use A's single compact form overall: time with nearby guidance, city search with an explicit selected summary, then Calculate and save. Replace entry controls with confirmation, signs, source details and Done after success; retain secondary Edit and Forget. It offers the clearest recovery and completion with the least navigation overhead. Shorten the saved introduction and prove readiness, scrolling, focus and persistence before treating it as a functional replacement.",
+  "limitations": [
+    "Independent read-only comparison of the six attached sheets and supplied behavioral evidence; no files, prior ratings, other graders or runtime were consulted.",
+    "Each state/variant score covers normal and 200% together. A means aesthetic mean; F means functional mean. Component vectors use the same six dimensions as the screen. Null denotes absent state feedback on a static heading or secondary action, not an assumed working interaction.",
+    "Shared components, applicable to every respective state: baseline header [6,6.5,7,6,6,6], tabs [7,6.5,7.5,7,7,6.5], orb [6,7,7,6, null,6]. A/B/C header [8,8,8,8, null,8], tabs [7,7,7,6,5,7]. Alternative tabs lack an obvious current-page indicator; mixed icon styles weaken coherence. Orb typography score concerns its relationship to the Ask label.",
+    "Prototype feedback scores assess visible messages and state composition only. Lookup, validation, calculation, persistence, draft retention, editing, forgetting, focus, announcements, keyboard operation and motion remain unverified for A/B/C. Their fixture results demonstrate no successful calculation.",
+    "Offscreen controls at 200% are a composition cost, not proof of inaccessibility. Screenshots cannot establish whether scrolling fully exposes them above navigation; no inaccessible-control gate was inferred solely from cropping.",
+    "Baseline's supplied browser checks support its implemented behavior but do not erase its generic error, displaced saved result or stale post-forgetting confirmation.",
+    "No variant demonstrates the required browser-stage A≥9 and F≥9 across every screen and meaningful component. Physical iPhone and assistive-technology proof remains separate and unverified; these are provisional composition grades, not native certification."
+  ]
+}

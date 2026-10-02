@@ -12,7 +12,7 @@ export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C
 export const fonts={display:'IMFellEnglish',italic:'IMFellEnglishItalic',body:'HankenGrotesk'};
 export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){const {state}=useStore();const scale=state.largeText&&props.allowFontScaling!==false?2:1;const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?28:16,lineHeight:display?34:24},display&&styles.inked,style]);return <Text {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}>{children}</Text>}
 
-export function Input({style,...props}:React.ComponentProps<typeof TextInput>){
+export function Input({style,...props}:React.ComponentPropsWithRef<typeof TextInput>){
  const {state}=useStore(),scale=state.largeText&&props.allowFontScaling!==false?2:1;
  const composed:TextStyle=StyleSheet.flatten([styles.input,style]);
  return <TextInput {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}/>;
