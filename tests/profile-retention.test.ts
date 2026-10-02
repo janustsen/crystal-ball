@@ -34,13 +34,22 @@ test('mirror replaces birthday-bearing payloads and retains owner-scoped deletio
  try{
   const {mirror,supabase}=await import('../src/cloud.ts');assert.ok(supabase);await supabase.auth.initialize();
   supabase.auth.getSession=async()=>({data:{session:{user:{id:'owner-015'}}},error:null} as any);
-  await mirror(updateBirthday(account()));
-  assert.equal(sent.length,2);
+  const owned={...account(),backupOwner:'owner-015'};
+  await mirror(updateBirthday(owned));
+  assert.equal(sent.length,3);
+  assert.deepEqual(sent.map(({url,method})=>[new URL(url).pathname,method]),[['/rest/v1/knowledge','POST'],['/rest/v1/predictions','POST'],['/rest/v1/predictions','DELETE']]);
+  assert.equal(sent[0].body.user_id,'owner-015');
   assert.equal(sent[0].body.facts.birthday,undefined);
   assert.equal(sent[1].body[0].payload.facts.birthday,undefined);
   assert.equal(sent[1].body[0].user_id,'owner-015');assert.equal(sent[1].body[0].id,'reading');
-  await mirror({...updateBirthday(account()),history:[]});
+  assert.equal(new URL(sent[2].url).searchParams.get('user_id'),'eq.owner-015');
+  assert.equal(new URL(sent[2].url).searchParams.get('id'),'not.in.(reading)');
+  await mirror({...updateBirthday(owned),history:[]});
+  assert.equal(sent.length,5);
+  assert.equal(sent[3].method,'POST');assert.equal(new URL(sent[3].url).pathname,'/rest/v1/knowledge');
+  assert.equal(sent[3].body.user_id,'owner-015');assert.equal(sent[3].body.facts.birthday,undefined);
   const deletion=sent.at(-1)!;assert.equal(deletion.method,'DELETE');assert.equal(new URL(deletion.url).searchParams.get('user_id'),'eq.owner-015');
+  assert.equal(new URL(deletion.url).pathname,'/rest/v1/predictions');assert.equal(new URL(deletion.url).searchParams.get('id'),null);
   await supabase.auth.stopAutoRefresh();
  }finally{globalThis.fetch=originalFetch;for(const [key,value] of [['EXPO_PUBLIC_SUPABASE_URL',oldUrl],['EXPO_PUBLIC_SUPABASE_ANON_KEY',oldKey]]){if(value===undefined)delete process.env[key!];else process.env[key!]=value;}}
 });
