@@ -1,0 +1,1 @@
+Invalid review packet: two background-only contrast sampler images were accidentally copied into the screenshot deck. They deliberately hide UI to measure backing pixels and are not user-visible states. Both returned reviews are preserved here, but their aggregate is not the round result. Fresh blind reviews use the corrected UI-only deck; no product change or rubric change.
