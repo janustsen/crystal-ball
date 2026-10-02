@@ -1,0 +1,124 @@
+[
+  {
+    "request": {
+      "action": "plan",
+      "question": "Will I finish writing my novel this year?",
+      "facts": {
+        "current_focus": "Writing a novel",
+        "birthday": "1995-06-15"
+      },
+      "friend": false,
+      "viewerBirthday": "1995-06-15",
+      "ageConfirmed": true,
+      "localDate": "2026-10-02",
+      "aiConsent": ""
+    },
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "What is your current status on writing your novel?",
+            "options": [
+              "Writing my novel daily",
+              "Write my novel occasionally",
+              "Haven't started writing my novel",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": {
+      "action": "predict",
+      "question": "Will I finish writing my novel this year?",
+      "facts": {
+        "current_focus": "Writing a novel",
+        "birthday": "1995-06-15",
+        "horizon": "this year",
+        "context_1": "What is your current status on writing your novel? I write for an hour every day and have finished half the draft"
+      },
+      "friend": false,
+      "viewerBirthday": "1995-06-15",
+      "ageConfirmed": true,
+      "localDate": "2026-10-02",
+      "aiConsent": ""
+    },
+    "response": {
+      "kind": "ok",
+      "value": {
+        "reasonSections": [
+          {
+            "title": "Recorded context",
+            "body": "What is your current status on writing your novel? I write for an hour every day and have finished half the draft"
+          },
+          {
+            "title": "Scenario assumption",
+            "body": "You will continue writing for one hour daily without interruption"
+          },
+          {
+            "title": "Limits",
+            "body": "No external evidence supports the future outcome; it is a speculative scenario."
+          }
+        ],
+        "id": "d3dcb8b6-d23c-4fb3-9757-30024f73ba91",
+        "question": "Will I finish writing my novel this year?",
+        "headline": "You will finish writing your novel this year.",
+        "dueDate": "2026-12-31",
+        "astrology": "Under your Gemini Sun, consider this a playful invitation to your next chapter.",
+        "createdAt": "2026-10-02T22:57:31.496Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: What is your current status on writing your novel? I write for an hour every day and have finished half the draft.\n\nScenario assumption: You will continue writing for one hour daily without interruption.",
+        "deeperWhy": "Recorded context: What is your current status on writing your novel? I write for an hour every day and have finished half the draft.\n\nScenario assumption: You will continue writing for one hour daily without interruption. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "current_focus": "Writing a novel",
+          "birthday": "1995-06-15",
+          "horizon": "this year",
+          "context_1": "What is your current status on writing your novel? I write for an hour every day and have finished half the draft"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "producerReasonSections": [
+      {
+        "title": "Recorded context",
+        "body": "What is your current status on writing your novel? I write for an hour every day and have finished half the draft"
+      },
+      {
+        "title": "Scenario assumption",
+        "body": "You will continue writing for one hour daily without interruption"
+      },
+      {
+        "title": "Limits",
+        "body": "No external evidence supports the future outcome; it is a speculative scenario."
+      }
+    ]
+  },
+  {
+    "adaptiveCards": 1,
+    "freeWhy": "☾\n✧ · ˚ · ✦\n×\n0 readings left\n‹ Back to forecast\nWhy this forecast\nSpeculative forecast · not a guarantee\nUnder your Gemini Sun, consider this a playful invitation to your next chapter.\nRecorded context\nWhat is your current status on writing your novel? I write for an hour every day and have finished half the draft \nScenario assumption\nYou will continue writing for one hour daily without interruption \nLimits\nNo external evidence supports the future outcome; it is a speculative scenario. \nGo deeper with Plus"
+  },
+  {
+    "originalQuestionLabelsAfterReload": {
+      "context_1": "What is your current status on writing your novel?"
+    }
+  },
+  {
+    "failure": "TimeoutError: locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByTestId('view-plans')\u001b[22m\n",
+    "pageErrors": []
+  }
+]

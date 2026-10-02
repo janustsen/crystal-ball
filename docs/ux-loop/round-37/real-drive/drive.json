@@ -1,0 +1,206 @@
+[
+  {
+    "at": "2026-10-02T23:01:30.033Z",
+    "base": "http://localhost:8098",
+    "health": {
+      "app": "crystal-ball",
+      "provider": "ollama"
+    }
+  },
+  {
+    "screen": "01-home"
+  },
+  {
+    "accessibility": "home",
+    "violations": []
+  },
+  {
+    "action": "omen",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "text": "Gemini, your mind dances with curiosity—today, learn something new!"
+      }
+    }
+  },
+  {
+    "screen": "02-approach"
+  },
+  {
+    "screen": "03-listening-fallback"
+  },
+  {
+    "screen": "04-typing"
+  },
+  {
+    "accessibility": "typing",
+    "violations": []
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "in 6 months"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "How often do you speak Spanish now?",
+            "options": [
+              "Speak Spanish daily",
+              "Speak Spanish occasionally",
+              "Haven't spoken Spanish",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "question-1"
+  },
+  {
+    "accessibility": "borderless question",
+    "violations": []
+  },
+  {
+    "accessibility": "own answer",
+    "violations": []
+  },
+  {
+    "screen": "08-thinking"
+  },
+  {
+    "action": "predict",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "reasonSections": [
+          {
+            "title": "Recorded context",
+            "body": "How often do you speak Spanish now? I am a beginner and practice for thirty minutes every day"
+          },
+          {
+            "title": "Scenario assumption",
+            "body": "You will continue practicing thirty minutes daily in Spanish."
+          },
+          {
+            "title": "Limits",
+            "body": "No external evidence supports the future outcome; it is a speculative scenario."
+          }
+        ],
+        "id": "5d635dd6-4886-4add-af7e-a37c58bb0266",
+        "question": "Will I be conversational in Spanish in six months?",
+        "headline": "You will be conversational in Spanish in six months.",
+        "dueDate": "2027-04-02",
+        "astrology": "Under your Gemini Sun, consider this a playful invitation to your next chapter.",
+        "createdAt": "2026-10-02T23:01:44.517Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: How often do you speak Spanish now? I am a beginner and practice for thirty minutes every day.\n\nScenario assumption: You will continue practicing thirty minutes daily in Spanish.",
+        "deeperWhy": "Recorded context: How often do you speak Spanish now? I am a beginner and practice for thirty minutes every day.\n\nScenario assumption: You will continue practicing thirty minutes daily in Spanish. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "current_focus": "Learning & growth",
+          "birthday": "1995-06-15",
+          "horizon": "in 6 months",
+          "context_1": "How often do you speak Spanish now? I am a beginner and practice for thirty minutes every day"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "screen": "09-reveal-why"
+  },
+  {
+    "accessibility": "reveal",
+    "violations": []
+  },
+  {
+    "screen": "10-share"
+  },
+  {
+    "screen": "11-story-card"
+  },
+  {
+    "stillExportFailureRecovery": true
+  },
+  {
+    "screen": "16-history"
+  },
+  {
+    "screen": "17-you"
+  },
+  {
+    "screen": "14-plans"
+  },
+  {
+    "accessibility": "plans",
+    "violations": []
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "blocked",
+      "category": "pregnancy",
+      "message": "This question deserves care and reliable support rather than a prediction. Let’s explore a hopeful personal goal instead."
+    }
+  },
+  {
+    "screen": "13-sensitive"
+  },
+  {
+    "accessibility": "sensitive redirect",
+    "violations": []
+  },
+  {
+    "screen": "12-error"
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "What are you doing with piano practice?",
+            "options": [
+              "Practice daily",
+              "Practice weekly",
+              "Haven't practiced",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "screen": "15-sky"
+  },
+  {
+    "screen": "small-large-text-reduced-motion"
+  },
+  {
+    "accessibility": "large text home",
+    "violations": []
+  },
+  {
+    "passed": true,
+    "errors": []
+  }
+]
