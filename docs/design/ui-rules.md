@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home keeps the orb central, with the forecast/check-back introduction and a due-check-in action when applicable. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
+The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, Fraunces display type and Manrope body type (the captain’s selected B direction); the protected Crystal Ball wordmark retains IM Fell English Italic. Home keeps the orb central, with the forecast/check-back introduction and a due-check-in action when applicable. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
@@ -14,7 +14,7 @@ The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority
 | Secondary text | #B9AB97 |
 | Gold / focus | #E0A458 / #F2C284 |
 | Borders | #614C34 / #79634A |
-| Display / body | IM Fell English / Hanken Grotesk |
+| Display / body | Fraunces / Manrope; wordmark IM Fell English Italic |
 
 The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark retains its graphic size; task text and tab labels scale. Footer height is measured so enlarged navigation stays clear of scrolling content and the raised Ask orb. Touch targets remain at least 44 pt. The selected Open mist direction leaves content borderless in the room, grouped with space and fine, low-contrast gold dividers. Primary buttons retain a shallow warm brass lip; secondary actions and answer choices use quiet underlines. Keep illustrated depth on the orb, not repeated card frames. Utility-screen atmosphere is dimmed behind readable content. The [motion language](motion-language.md) owns these finishes alongside movement. Smoke and embers are decorative and cannot intercept input. Reduced motion stops the shader animation and CSS motion.
 

@@ -9,7 +9,7 @@ import {selectedStyle,skinColors} from './delight';
 import {haptic} from './native';
 import {useStore} from './store';
 export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C284',gold:'#E0A458',ivory:'#F1E9DC',muted:'#B9AB97',surface:'#1C1510',outline:'#0B0604'};
-export const fonts={display:'IMFellEnglish',italic:'IMFellEnglishItalic',body:'HankenGrotesk'};
+export const fonts={display:'Fraunces',wordmark:'IMFellEnglishItalic',body:'Manrope'};
 export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){const {state}=useStore();const scale=state.largeText&&props.allowFontScaling!==false?2:1;const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?28:16,lineHeight:display?34:24},display&&styles.inked,style]);return <Text {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}>{children}</Text>}
 
 export function Input({style,...props}:React.ComponentPropsWithRef<typeof TextInput>){
