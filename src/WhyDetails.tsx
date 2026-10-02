@@ -8,6 +8,7 @@ import type {Prediction} from './types';
 export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction;onClose:()=>void;onUpgrade:()=>void}){
  const {state}=useStore();
  const [section,setSection]=useState<string|null>(state.plus?null:'reason');
+ const [contextOpen,setContextOpen]=useState(false);
  const returnFocus=useRef<string|null>(null);
  const groups=[
   {id:'reason',title:'Why this forecast',detail:'The scenario and its limits',body:<View testID="reason-passages">{readingPassages(state.plus?(prediction.deeperWhy||prediction.why):prediction.why).map((part,index)=><View key={index} style={{paddingBottom:20,marginBottom:20,borderBottomWidth:1,borderColor:'#614C3433'}}><Txt style={{fontSize:17,lineHeight:26,fontWeight:'400'}}>{part+' '}</Txt></View>)}</View>},
@@ -30,14 +31,14 @@ export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction
  const back=<Pressable testID="why-disclosure" accessibilityRole="button" accessibilityLabel="Back to forecast" onPress={onClose} style={{minHeight:52,paddingVertical:16,marginTop:16,borderBottomWidth:1,borderColor:'#614C3466'}}><Txt style={{color:colors.ice}}>‹ Back to forecast</Txt></Pressable>;
  return <>
   <View testID="why-top">
-   {!state.plus?back:null}
+   {!active||!state.plus?back:null}
    {active&&state.plus?<Pressable testID="why-all-evidence" accessibilityRole="button" onPress={overview} style={{minHeight:48,justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ All evidence</Txt></Pressable>:null}
-   <Txt testID="why-heading" accessibilityRole="header" display={!!active} style={active?{fontSize:28,lineHeight:34,marginVertical:12}:[styles.caption,{color:colors.gold}] }>{active?.title||'Behind the mist'}</Txt>
-   {!active?<Txt display style={{fontSize:24,lineHeight:30,marginVertical:14}}>{prediction.headline}</Txt>:null}
-   <Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.label}</Txt>
+   <Txt testID="why-heading" accessibilityRole="header" display style={{fontSize:28,lineHeight:34,marginVertical:12}}>{active?.title||'Behind the mist'}</Txt>
+   {active?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.label}</Txt>:null}
   </View>
   {active?<>{prediction.astrology&&active.id==='reason'?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.astrology}</Txt>:null}{active.id==='sources'?<Txt style={[styles.caption,{marginBottom:16}]}>These sources provide background. They do not verify the forecast.</Txt>:null}{active.body}</>:groups.map(group=><Pressable key={group.id} testID={`why-${group.id}`} accessibilityRole="button" accessibilityLabel={`${group.title} · ${group.detail}`} onPress={()=>setSection(group.id)} style={{minHeight:64,paddingVertical:20,borderBottomWidth:1,borderColor:'#614C3466',flexDirection:'row',alignItems:'center',gap:16}}><View style={{flex:1}}><Txt style={{fontSize:18,lineHeight:26}}>{group.title}</Txt><Txt style={[styles.caption,{marginTop:6}]}>{group.detail}</Txt></View><Txt aria-hidden style={{color:colors.gold,fontSize:26}}>›</Txt></Pressable>)}
   {!state.plus?<Action label="Go deeper with Plus" quiet onPress={onUpgrade}/>:null}
-  {state.plus?back:null}
+  {!active?<><Pressable testID="why-context" accessibilityRole="button" aria-expanded={contextOpen} accessibilityState={{expanded:contextOpen}} onPress={()=>setContextOpen(!contextOpen)} style={{minHeight:52,paddingVertical:16}}><Txt style={{color:colors.ice}}>Which forecast? {contextOpen?'⌃':'⌄'}</Txt></Pressable>{contextOpen?<><Txt style={{fontSize:18,lineHeight:26}}>{prediction.headline}</Txt><Txt style={[styles.caption,{color:colors.gold,marginTop:8}]}>{prediction.label}</Txt></>:null}</>:null}
+  {state.plus&&active?back:null}
  </>;
 }
