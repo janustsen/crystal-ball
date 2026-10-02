@@ -36,7 +36,6 @@ void main(){
     vec2 l = (fc - orb.xy) / orb.z;
     float dist = length(l);
     if (dist >= 1.6) continue;
-    // Advect through a warped noise field. Never rotate, reverse time or wrap a pose.
     // Advect through a doubly warped field. Never rotate, reverse time or wrap a pose.
     vec2 flow = vec2(T * 0.07, -T * 0.16);
     vec2 lp = l * 1.1 + flow;
