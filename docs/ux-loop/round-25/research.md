@@ -1,0 +1,11 @@
+# Round25 — feedback and retained question labels
+
+Round24 minimum7.67 improved1.17, so targeted pass rather than a stall expansion. Both reviewers converge on missing selection acknowledgment and original question context for answers.
+
+Standard choices now show a gold/check selection and polite Next question/Revealing message for180ms before advancing. A synchronous timer ref blocks duplicates; Back/cancel/unmount clear pending work. Reduced-motion preference advances immediately. Static instruction occupies the same layout space while selected status overlays it: a measured40px jump at200% was fixed without hardcoding native font-height assumptions. Frozen-clock browser proof atnormal200% covers stable geometry, one advance/request, next-heading focus and pending cancellation. These are deliberate clock/DOM activation tests; real pointer drives supplement them.
+
+Optional Prediction.answerQuestions maps only actually answered card ids that exist in returned facts to original card questions. Existing facts and model requests are unchanged. New reader labels use recorded question or known fact label; unknown legacy keys use Answer N, never invented original questions. A fact value beginning with that exact recorded question removes only the separately displayed prefix; whole original information remains in heading+answer. Real local Ollama reading/reload proves original asked question appears in Plus reader. Old full-reader fixture proves fallback retains all values.
+
+Blast radius: local JSON stores whole prediction; Supabase payload is jsonb, mirror/restore carries whole object. Actual Supabase client round-trip with controlled HTTP transport preserves new metadata; no live production cloud claim. validPrediction now rejects malformed optional maps while still accepting absent legacy maps. Tests pin unchanged facts, exact-prefix deduplication, legacy fallback and malformed maps. Forget history clears the entire payload; no new model/provider transmission. Friend-target readings have no card metadata and use existing labels/fallbacks. All126tests pass.
+
+No guessed semantic parsing is added to unstructured historical Why prose. Physical VoiceOver and hardware timing remain separate. Full layout/contrast/motion/live validation follows on committeddb3eb5a.
