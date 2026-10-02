@@ -1,21 +1,26 @@
 # Crystal Ball motion language
 
-The ball is a small atmosphere behind glass. Movement behaves like fog finding a path, light settling on brass, and a thought coming into focus. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
+The ball is a small atmosphere behind glass, drawn like a premium illustrated game: inked silhouettes, brass rims, candle bounce light and hard drop shadows give every surface a front, a side and a floor. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it squashes when touched, overshoots once when it lands and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
 
 | Signature | Where | Timing and behavior |
 |---|---|---|
-| Living mist | Hero and Ask orb, listening, thinking | Continuous domain-warped noise, independently drifting fields, no rotation or time reset. Soft wisps escape upward; glass reflections stay above the fog. Native uses three seamless translucent fields at different speeds, driven off the JS thread. |
-| Gold breath | Both orb halos | A quiet 7.3-second light swell. Opacity and scale only; no changing blur radius. |
-| Draw closer | Ball tap / Ask | A 1,000ms approach from 80% scale; immediate 180ms press response. No bounce or loss of input while settling. |
-| Gather a thought | Follow-up questions | An 850ms rise or fall through 28px at 96% scale. The alternating direction distinguishes questions while retaining one visual grammar. |
-| Settle into glass | Listening / typing / thinking | Respectively 700/520/900ms, 6–16px travel and restrained scale. Fog time carries through state changes. |
-| Glimpse | Prediction / share | A 950ms reveal with 200ms text delay; sharing rises 24px over 650ms. Text is never animated character by character. |
-| Pass through | Tabs and ordinary screens | A 500ms, 12px entrance. Controls compress subtly on press and settle over 180ms. |
-| Sky discoveries | Background | Rare gold streak, passing crescent, faint constellation. Randomized long periods, invisible between appearances, always subordinate to the orb. |
+| Living mist | Hero and Ask orb, listening, thinking | Cel-shaded smoke over dark glass: three soft-edged tone bands, one inked contour, lit from below. A doubly domain-warped field advects upward about three times faster than the first release; fog time runs 1.5× while listening and 1.9× while thinking, integrated so speed changes never jump. No rotation or time reset. Native uses three seamless translucent fields driven off the JS thread. |
+| Levitate | Every web orb | The glass floats 2.2% of its size above the stand on a 6.1s (tab orb 4.7s) sine; its floor shadow narrows and fades as it rises. |
+| Gold breath | Orb halos | A quiet 7.3-second light swell. Opacity and scale only. |
+| Squash and spark | Every tappable | 420ms squash (1.07×0.86), stretch (0.95×1.07), settle. The ball itself uses a 620ms jelly. Seven brass four-point sparks and a ring leave the touch point over 560ms. Buttons also sink 3px onto their brass lip while held. |
+| Smoke wipe | Tabs, paywall, ordinary screens | 700ms. A dark smoke curtain with cream leading wisps sweeps left to right while the new screen slides in 22px with a 5° skew. |
+| Orb portal | Ball tap / Ask | 1,000ms. The listening screen opens from a circle at the orb, scaling from 60%, while a gold ring blooms outward. |
+| Ripple in | Listening | 760ms scale-in from 94% with one fine ring from the orb. |
+| Ink settle | Typing | 560ms spring rise through 18px with a 2.5° skew that straightens like wet ink. |
+| Card flip | Follow-up questions | 780ms spring flip through 62° around the vertical axis, alternating direction per question, through a puff of mist. |
+| Inhale | Thinking | 900ms. The screen arrives from 112% with a slight counter-turn while the mist gathers inward. |
+| Glimpse burst | Prediction | 1,000ms. Content pops from 55% with one squash, one stretch and a settle; a thick gold shockwave leaves the orb. Headline text follows 200ms later. |
+| Card deal | Share | 720ms spring. The story card is dealt up from 80px, rotated 8°, landing square. |
+| Sky depth | Background | Two seamless star tiles drift at different speeds (140s and 90s per tile, the near one twinkling), the sky sways on a 23s breath, and pointer position shifts sky, candle and embers by different amounts for parallax. Rare gold streak, passing crescent and faint constellation remain the easter eggs. |
 
-`src/motion.ts` owns entrance durations and the shared settling curve: cubic-bezier(.2,.75,.2,1). It decelerates without overshoot: glass has weight, fog has softness. Native uses the same curve through the native driver; web uses compositor transforms and opacity. Ambient light has a smooth sinusoidal rhythm. Constant fog advection uses continuous time rather than easing to a stop.
+`src/motion.ts` owns transition names, durations and two curves: ease cubic-bezier(.2,.75,.2,1) for smoke and glass, spring cubic-bezier(.34,1.56,.64,1) for brass and cards. `src/motionCss.ts` owns the web keyframes and the illustrated depth layer. Native `Enter` uses the same durations and curves through the native driver, including the question flip; native taps keep the button lip press and orb scale. Web uses compositor transforms and opacity; the orb portal additionally animates a clip-path for one second. Constant fog advection uses continuous time rather than easing to a stop.
 
-Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, time reversal, or countdown. The web renderer survives mood changes; [motion lifecycle](motion.md) defines its display cadence and pause behavior. Native seamless tile endpoints contain the same pixels; differently sized layers and nonmatching periods conceal any combined pose. Escaping native wisps wrap only while fully transparent. Sky discoveries also reset only while invisible. Reduced motion shows a still, readable composition and hides sky visitors. Changing that preference must stop motion immediately.
+Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, time reversal, or countdown. Star tiles translate by exactly one tile period, so their loop has no visible seam. The web renderer survives mood changes; [motion lifecycle](motion.md) defines its display cadence and pause behavior. Native seamless tile endpoints contain the same pixels; differently sized layers and nonmatching periods conceal any combined pose. Escaping native wisps wrap only while fully transparent. Sky discoveries also reset only while invisible. Reduced motion shows a still, readable composition, hides sky visitors, transition veils and tap sparks, and skips squash. Changing that preference must stop motion immediately.
 
 ## Reference lessons (bounded review, 2026-09-30)
 
@@ -24,4 +29,4 @@ Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, tim
 - [Apple’s Designing Fluid Interfaces](https://developer.apple.com/videos/play/wwdc2018/803/): motion is ongoing behavior coupled to interaction. Fog keeps its time across screens, press response is immediate, and controls remain interruptible.
 - [Airbnb’s Lottie project](https://lottie.airbnb.tech/): shared animation tooling helps consistency across platforms. Here a small shared token set and equivalent GPU/native primitives suffice without adding an animation runtime.
 
-Performance evidence belongs in `docs/evidence/motion-2026-09-30/`. Measure each named interaction at 390×844, including actual canvas draws rather than only rAF callbacks. A native bundle proves compilation, not native device frame rate; report that boundary explicitly.
+Performance evidence belongs in `docs/evidence/motion-2026-09-30/` (art pass: `docs/evidence/art-pass-2026-10-01/`). Measure each named interaction at 390×844, including actual canvas draws rather than only rAF callbacks. A native bundle proves compilation, not native device frame rate; report that boundary explicitly.

@@ -51,6 +51,11 @@ export const motionCss = `
 .orb .halo{inset:-28%;background:radial-gradient(circle at 50% 52%,rgba(244,186,104,.32),rgba(224,164,88,.1) 45%,transparent 68%);animation:orb-glow 7.3s ease-in-out infinite}
 .orb .pool{animation:orb-glow 9.7s ease-in-out infinite}
 .orb .fb{animation:none}
+.orb .gb{animation:orb-float 6.1s ease-in-out infinite}
+.orb:not(.hero) .gb{animation-duration:4.7s}
+@keyframes orb-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,calc(var(--s)*-.022),0)}}
+.orb::before{animation:shadow-breathe 6.1s ease-in-out infinite}
+@keyframes shadow-breathe{0%,100%{opacity:1;transform:scaleX(1)}50%{opacity:.7;transform:scaleX(.9)}}
 @keyframes orb-glow{0%,100%{opacity:.58;transform:scale(.96)}50%{opacity:1;transform:scale(1.06)}}
 [role="tab"][aria-selected="true"] svg{transform:translateY(-2px);filter:drop-shadow(0 2px 0 #0B0604) drop-shadow(0 0 8px rgba(224,164,88,.55))}
 [role="tab"] svg{transition:transform 260ms ${spring}}
