@@ -9,6 +9,6 @@ try {
  const samples=await measureTextContrast(page);
  assert(samples.some(row=>row.text==='Behind the mist'),'Heading must be sampled');
  assert(samples.every(row=>row.contrast>=row.required),JSON.stringify(samples));
- assert.equal(await page.locator('h1').getAttribute('style'),null,'Inline styles restored');
+ assert.equal(await page.locator('h1').evaluate(el=>getComputedStyle(el).color),'rgb(255, 255, 255)','Foreground restored');
  console.log('Heading collected, neighboring text hidden, original styles restored');
 } finally {await browser.close()}

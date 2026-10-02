@@ -4,7 +4,7 @@ import sharp from 'sharp';
 export async function measureTextContrast(page,backgroundPath,includeFades=false){
  const text=await page.evaluate(includeFades=>{
   const result=[],restore=[];
-  for(const el of document.querySelectorAll('div,span,button,a')){
+  for(const el of document.body.querySelectorAll('*')){
    if(el.closest('[aria-hidden="true"],[aria-disabled="true"]')||![...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))continue;
    const css=getComputedStyle(el);let opacity=1;
    for(let parent=el;parent;parent=parent.parentElement)opacity*=Number(getComputedStyle(parent).opacity);
