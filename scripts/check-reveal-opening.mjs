@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
 const out=process.env.UX_EVIDENCE||'.local/reveal-opening';await mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true}),checks=[];
-try{for(const mode of ['normal','golden','reduced','system-reduced','skip','interrupt']){
+try{for(const mode of (process.env.OPENING_MODE?[process.env.OPENING_MODE]:['normal','golden','reduced','system-reduced','skip','interrupt','early-share'])){
  const golden=mode==='golden',reduced=mode==='reduced'||mode==='system-reduced',errors=[];
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:mode==='system-reduced'?'reduce':'no-preference',recordVideo:{dir:`${out}/raw`,size:{width:390,height:844}}});
  await context.addInitScript(reduceMotion=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:3,plus:false,onboardingDone:true,ageConfirmed:true,ageBand:'adult',reduceMotion})),mode==='reduced');
@@ -15,6 +15,7 @@ try{for(const mode of ['normal','golden','reduced','system-reduced','skip','inte
  else{await page.getByTestId('reveal-opening').waitFor();expect(await page.locator('.opening-ember').count()).toBe(golden?12:8);
  if(mode==='skip'){await page.getByTestId('skip-reveal').focus();await page.keyboard.press('Enter');await expect(page.getByTestId('share-this-glimpse')).toBeVisible();await page.waitForTimeout(2200);await expect(page.getByTestId('reveal-opening')).toHaveCount(0);expect(await page.getByTestId('reveal-content').getAttribute('class')).toBe('opening-content');}
  else if(mode==='interrupt'){await page.getByTestId('close-flow').click();await page.waitForTimeout(2200);await expect(page.getByTestId('hero-orb')).toBeVisible();await page.getByTestId('tab-history').click();await page.getByRole('button').filter({hasText:prediction.headline}).click();await expect(page.getByTestId('reveal-opening')).toHaveCount(0);await expect(page.getByTestId('check-in-forecast')).toBeVisible();}
+ else if(mode==='early-share'){await page.getByTestId('reveal-content').waitFor();expect(await page.getByTestId('reveal-content').getAttribute('class')).toContain('opening-payoff');await page.getByTestId('share-this-glimpse').focus();await page.keyboard.press('Enter');await page.getByTestId('close-flow').click();expect(await page.getByTestId('reveal-opening').count()).toBe(0);}
  else{const start=Date.now();for(const time of [0,180,500,900,1100,1500,2100]){await page.waitForTimeout(Math.max(0,time-(Date.now()-start)));await page.screenshot({path:`${out}/${mode}-${time}.png`});}await expect(page.getByTestId('share-this-glimpse')).toBeVisible();}
  }
  await expect(page.getByTestId('share-this-glimpse')).toBeVisible();await page.getByTestId('share-this-glimpse').click();await page.getByTestId('close-flow').click();await expect(page.getByTestId('reveal-opening')).toHaveCount(0);await expect(page.getByTestId('share-this-glimpse')).toBeVisible();
