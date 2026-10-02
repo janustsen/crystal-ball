@@ -9,5 +9,8 @@ try{
  await page.goto(base);await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I learn pottery this winter?');await page.getByTestId('look-into-the-future').click();
  const option=page.getByTestId('option-0');await option.waitFor();await option.focus();await option.press('Space');
  await expect(page.getByText('What will help you begin?',{exact:true})).toBeVisible({timeout:2000});
- log.push({spaceAdvances:true});await page.screenshot({path:`${out}/answer-space.png`});
+ await expect(page.getByTestId('question-heading')).toBeFocused();await page.keyboard.press('Tab');await expect(page.getByTestId('option-0')).toBeFocused();
+ await page.getByTestId('close-flow').click();await expect(page.getByTestId('question-heading')).toBeFocused();await expect(page.getByTestId('option-0')).toHaveAccessibleName('Previous answer: Time');
+ await page.getByTestId('option-0').focus();await page.keyboard.press('Enter');await expect(page.getByText('What will help you begin?',{exact:true})).toBeVisible();await expect(page.getByTestId('question-heading')).toBeFocused();
+ log.push({spaceAdvances:true,enterAdvances:true,nextQuestionFocused:true,tabReachesFirstAnswer:true,backRestoresAnswer:true,boundary:'DOM keyboard proof, not a physical device or screen reader test.'});await page.screenshot({path:`${out}/answer-space.png`});
 }catch(error){log.push({failure:String(error)});process.exitCode=1}finally{await browser.close();await writeFile(`${out}/keyboard.json`,JSON.stringify(log,null,2));console.log(JSON.stringify(log,null,2))}

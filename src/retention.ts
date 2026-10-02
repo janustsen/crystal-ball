@@ -20,7 +20,7 @@ export function personalCheckInDue(p:Prediction,today=localDay()):boolean {
 
 export function checkInLabel(p:Prediction,today=localDay()):string {
  if(p.circleId)return `Circle check-in · ${suggestedCheckIn(p)<=today?'Vote in Circles':suggestedCheckIn(p)}`;
- return p.outcome==='yes'?'Yes':p.outcome==='no'?'Not quite':p.outcome==='pending'?'Not yet':suggestedCheckIn(p)<=today?'Ready to check in':`Check back ${suggestedCheckIn(p)}`;
+ return p.outcome==='yes'?'Yes':p.outcome==='no'?'Not quite':p.outcome==='pending'?'Not yet':suggestedCheckIn(p)<=today?'Ready to check in':`Check back · ${suggestedCheckIn(p)}`;
 }
 
 export function currentOmen(omen:Omen|null,today=localDay()):Omen|null {
