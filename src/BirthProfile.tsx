@@ -60,9 +60,9 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
    </>:<>
     <Txt style={[styles.caption,{marginTop:12,marginBottom:20}]}>Optional · your Moon and rising signs.</Txt>
     {state.birthPlace?<Txt style={[styles.caption,{marginBottom:16}]}>Editing details. Your saved chart stays until you calculate and save.</Txt>:null}
-    {message?<Txt accessibilityRole="alert" style={{marginBottom:16}}>{message}</Txt>:null}
+    {chartStatus==='forgotten'?<Txt accessibilityRole="alert" style={{marginBottom:16}}>{message}</Txt>:null}
     <Txt style={styles.caption}>Birth time · local, 24-hour clock</Txt>
-    <Input ref={timeInput} testID="birth-time" accessibilityLabel="Birth time HH:MM" aria-invalid={chartStatus==='time-error'} aria-describedby="birth-time-help" placeholder="14:30" placeholderTextColor={colors.muted} value={time} onChangeText={value=>{setTime(value);setChartStatus(current=>current==='searching'?current:'idle')}} style={styles.input} maxLength={5}/>
+    <Input ref={timeInput} testID="birth-time" accessibilityLabel="Birth time HH:MM" aria-invalid={chartStatus==='time-error'} aria-describedby="birth-time-help" placeholder="HH:MM" placeholderTextColor={colors.muted} value={time} onChangeText={value=>{setTime(value);setChartStatus(current=>current==='searching'?current:'idle')}} style={styles.input} maxLength={5}/>
     <Txt nativeID="birth-time-help" accessibilityRole={chartStatus==='time-error'?'alert':undefined} style={[styles.caption,{color:chartStatus==='time-error'?colors.gold:colors.muted,marginBottom:16}]}>{chartStatus==='time-error'?'Enter a time from 00:00 to 23:59.':'For example, 14:30 is 2:30 pm.'}</Txt>
     {selected?<>
      <Txt style={styles.caption}>Selected birth city</Txt><Txt>{selected.name}</Txt>
@@ -70,10 +70,12 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
     </>:<>
      <Txt style={styles.caption}>Birth city</Txt>
      <Input ref={cityInput} accessibilityLabel="Birth city" placeholder="City, country" placeholderTextColor={colors.muted} value={place} onChangeText={value=>{request.current?.abort();setChartStatus('idle');setPlace(value);setPlaces([])}} style={styles.input} maxLength={100}/>
+     {chartStatus==='no-results'||chartStatus==='search-error'?<Txt accessibilityRole="alert" style={{marginVertical:8}}>{message}</Txt>:null}
      <Action testID="find-birth-city" label={busy?'Finding your city…':chartStatus==='search-error'?'Retry city search':'Find birth city'} quiet disabled={busy||place.trim().length<2} onPress={search}/>
      {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet onPress={()=>{setSelected(p);setPlaces([]);setChartStatus('idle')}}/>)}
     </>}
     {!message&&chartStatus!=='time-error'?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{busy?'Finding matching cities…':selected?(validBirthTime(time)?'Ready to calculate and save.':'Add your local birth time to continue.'):places.length?'Select your city from the results above.':'Find and select your birth city to continue.'}</Txt>:null}
+    {chartStatus==='calculation-error'?<Txt accessibilityRole="alert" style={{marginTop:12}}>{message}</Txt>:null}
     <Action testID="reveal-moon-and-rising" label="Calculate and save" disabled={!selected||!time} onPress={calculate}/>
     {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={forgetChart}/>:null}
     <Txt style={[styles.caption,{marginTop:16}]}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
