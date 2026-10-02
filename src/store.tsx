@@ -15,7 +15,14 @@ export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
  const locked=useRef(true),current=useRef(state);
+ const archiveWork=useRef<Promise<void>>(Promise.resolve());
  const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
+ function withArchiveLock(action:()=>Promise<void>){
+  locked.current=true;setBackupBusy(true);
+  const work=archiveWork.current.catch(()=>{}).then(action);
+  archiveWork.current=work;
+  return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
+ }
  useEffect(()=>{const timer=setInterval(()=>{if(!locked.current)change(s=>{const day=new Date().toISOString().slice(0,10);return s.usage.day===day?s:{...s,usage:{day,count:0}}})},60000);return()=>clearInterval(timer)},[]);
  useEffect(()=>{
   let active=true;
@@ -32,9 +39,8 @@ export function Store({children}:React.PropsWithChildren){
   if(!locked.current&&snapshot.backupOwner&&canRead(snapshot))await mirror(snapshot);
  }).catch(()=>{});}},[state,ready]);
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
-  if(locked.current||!ready)throw new Error('Please wait for your archive.');
-  locked.current=true;setBackupBusy(true);
-  try{
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
    await writes.catch(()=>{});await authenticate();
    let next:AccountState;
    if(mode==='restore')next=await restoreBackup(current.current);
@@ -46,11 +52,21 @@ export function Store({children}:React.PropsWithChildren){
     await mirror(next);
    }
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
-  }finally{locked.current=false;setBackupBusy(false)}
+  });
+ }
+ async function forgetAll(){
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});await forgetOmen(AsyncStorage);
+   void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));
+   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[]}));
+   await AsyncStorage.setItem(key,JSON.stringify(current.current));
+   if(current.current.backupOwner&&canRead(current.current))await mirror(current.current);
+  });
  }
 
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[]}))},savePrediction:(prediction)=>change(s=>{
+ return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction:(prediction)=>change(s=>{
   if(locked.current||!canRead(s))return s;
   if(s.history.some(p=>p.id===prediction.id))return s;
   const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;

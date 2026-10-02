@@ -50,7 +50,7 @@ export default function App(){
  useEffect(()=>{if(params.question)openAsk(params.question.slice(0,500),params.friend==='1')},[params.question,params.friend]);
  useEffect(()=>{if(params.circle||params.seal)setTab('Sky')},[params.circle,params.seal]);
  useEffect(()=>()=>controller.current?.abort(),[]);
- async function forgetEverything(){try{await forgetAll();cancel();}catch{setNotice('Could not erase your omen. Try Forget everything again.');}}
+ async function forgetEverything(){try{await forgetAll();cancel();}catch{setNotice('Could not finish erasing your data. Try Forget everything again.');}}
  function cancel(){predicting.current=false;generation.current++;controller.current?.abort();setFlow({stage:'ask'});setChoice('');setOther('');setNotice('');}
  useEffect(()=>{const listener=BackHandler.addEventListener('hardwareBackPress',()=>{if(backupBusy)return true;if(share){setShare(false);return true}if(paywall){setPaywall(false);return true}if(tab==='Ask'&&flow.stage!=='ask'){cancel();return true}if(tab!=='Home'){setTab('Home');return true}return false});return()=>listener.remove()},[tab,flow.stage,share,paywall,backupBusy]);
  function openAsk(value='',forFriend=false,target?:FriendTarget,subject=''){setReadingIdentity(readingIdentity({friend:forFriend,friendTarget:target}));lastReading.current=null;cancel();setFlow({stage:value?'ask':'approach'});setQuestion(value);setTab('Ask');setWhy(false);setShare(false);setPersonMode(Boolean(subject));setPersonName(subject)}
