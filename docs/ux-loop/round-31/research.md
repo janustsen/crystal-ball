@@ -9,3 +9,5 @@ A whole-omen check was committed before implementation. Baseline fails390normal/
 Initial measurement code briefly read bottom from the DOM element instead of its rectangle; that invalid capture is retained separately. Corrected measurements and red check precede implementation. First implementation failure is also preserved.
 
 Blast radius: shared header change affects every enlarged browser screen but preserves text/controls/navigation/safe inset max. Full layout expands to45states270measurements including monthly plan selection; all relevant input/flow/contrast/motion checks rerun. No provider, persistence, outcome or payment behavior changes. The layout fixture now uses actual current engine label Speculative forecast · not a guarantee; historical moderate-confidence fixtures/captures remain unchanged and are not current-output claims.
+
+Full blind reviews: minimum7.667/median8.833, allAtLeast9=false. New constrained500px typing evidence exposes almost-hidden current question at submission. Minimum decline triggers expansion32 despite median improvement. Preserve full content/enlargement; compare task structure and reachable context in short viewports.
