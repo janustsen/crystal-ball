@@ -62,5 +62,44 @@ select proof.assert((select count(*)=0 from public.tonights_sky(true)),'moderati
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select public.leave_circle(:'school_circle');
 select proof.assert(not exists(select 1 from public.school_circle_suggestions() where circle_id=:'school_circle'),'leaving removes suggestion');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.create_school_circle_invite() as retry_invite \gset
+select proof.assert(public.create_school_circle_invite(:'retry_invite')=:'retry_invite','valid retry keeps its invitation');
+reset role;
+select circle_id as retry_circle from public.circle_invites where token=:'retry_invite' \gset
+set role authenticated;
+select public.leave_circle(:'retry_circle');
+select public.create_school_circle_invite(:'retry_invite') as after_close \gset
+select proof.assert(:'after_close'<>:'retry_invite','closed circle gets a fresh invitation');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.join_circle(:'after_close') as joined_circle \gset
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.create_school_circle_invite(:'after_close') as after_join \gset
+select proof.assert(:'after_join'<>:'after_close','consumed invitation is replaced');
+reset role;
+select proof.assert((select circle_id<>:'joined_circle' from public.circle_invites where token=:'after_join'),'consumed retry creates a separate circle');
+update public.circle_invites set expires_at=now()-interval '1 second' where token=:'after_join';
+set role authenticated;
+select public.create_school_circle_invite(:'after_join') as after_expiry \gset
+select proof.assert(:'after_expiry'<>:'after_join','expired invitation is replaced');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.create_school_circle_invite(:'after_expiry') as other_owner \gset
+select proof.assert(:'other_owner'<>:'after_expiry','another owner cannot reuse an invitation');
+reset role;
+select circle_id as occupied_circle from public.circle_invites where token=:'after_expiry' \gset
+insert into public.circle_members(circle_id,user_id) values(:'occupied_circle','00000000-0000-0000-0000-000000000002');
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.block_person(member=>'00000000-0000-0000-0000-000000000002');
+select public.create_school_circle_invite(:'after_expiry') as after_hidden_member \gset
+select proof.assert(:'after_hidden_member'<>:'after_expiry','hidden member prevents circle reuse');
+reset role;
+select proof.assert((select circle_id<>:'occupied_circle' from public.circle_invites where token=:'after_hidden_member'),'hidden member retry creates a separate circle');
+set role anon;
+select proof.reject('select public.create_school_circle_invite()','42501');
+reset role;
+set role authenticated;
+set request.jwt.claim.sub='';
+select proof.reject('select public.create_school_circle_invite()','P0001');
 rollback;
 \echo 'PASS: school profile RLS, catalog validation, filtered anonymous sky, direct invitation-only suggestions, teen consent, blocks, reports, leaving'

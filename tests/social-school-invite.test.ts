@@ -11,7 +11,8 @@ test('school invitations never reuse filtered circles or another suggestion’s 
   schools:[],reactions:[],seals:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,created=0,reads=0;
- const invited:string[]=[];
+ const invited:string[]=[],checked:(string|undefined)[]=[];
+ const valid=new Set<string>();
  const react={
   createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
   useState:(initial:any)=>{
@@ -34,7 +35,12 @@ test('school invitations never reuse filtered circles or another suggestion’s 
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),
-   createCircle:async()=>`new-${++created}`,
+   createSchoolCircleInvite:async(previous?:string)=>{
+    checked.push(previous);
+    if(previous&&valid.has(previous))return previous;
+    const id=`new-${++created}`,token=`token-${id}`;
+    invited.push(id);valid.add(token);return token;
+   },
    inviteToCircle:async(id:string)=>{invited.push(id);return `token-${id}`},
   },
  };
@@ -61,6 +67,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  assert.deepEqual(invited,['new-1']);
  assert.equal(await start(0),'circle=token-new-1');
  assert.equal(created,1);
+ assert.deepEqual(checked,[undefined,'token-new-1']);
  assert.deepEqual(invited,['new-1']);
  assert.equal(await start(1),'circle=token-new-2');
  assert.deepEqual(invited,['new-1','new-2']);
@@ -75,4 +82,10 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  await settle();
  assert.equal(render().find(node=>node.props.url)?.props.url,'circle=token-occupied');
  assert.deepEqual(invited,['new-1','new-2','new-3','new-4','occupied']);
+ for(const id of [3,5,6]){
+  valid.delete(`token-new-${id}`);
+  assert.equal(await start(0),`circle=token-new-${created}`);
+  assert.equal(checked.at(-1),`token-new-${id}`);
+  assert.equal(created,id===3?5:id+1);
+ }
 });

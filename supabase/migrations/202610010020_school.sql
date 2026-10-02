@@ -59,3 +59,17 @@ create function public.school_circle_suggestions() returns table(circle_id uuid,
 $$;
 revoke all on function public.set_school(text),public.tonights_sky(boolean),public.school_circle_suggestions() from public,anon;
 grant execute on function public.set_school(text),public.tonights_sky(boolean),public.school_circle_suggestions() to authenticated;
+
+create function public.create_school_circle_invite(previous uuid default null) returns uuid
+ language plpgsql security definer set search_path = '' as $$
+ begin
+  if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
+  if exists(select 1 from public.circle_invites i join public.circles c on c.id=i.circle_id
+   where i.token=previous and i.expires_at>now() and c.owner_id=auth.uid()
+   and not exists(select 1 from public.circle_members m where m.circle_id=c.id and m.user_id<>auth.uid()))
+  then return previous; end if;
+  return public.invite_to_circle(public.create_circle());
+ end;
+$$;
+revoke all on function public.create_school_circle_invite(uuid) from public,anon;
+grant execute on function public.create_school_circle_invite(uuid) to authenticated;

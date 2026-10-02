@@ -63,6 +63,7 @@ export const setFriendConsent=(allowed:boolean)=>rpc('set_friend_consent',{allow
 export const dismissFriendNotices=()=>rpc('dismiss_friend_notices');
 export const resonate=(id:string)=>rpc('resonate',{star:id});
 export const createCircle=()=>rpc('create_circle');
+export const createSchoolCircleInvite=(previous?:string):Promise<string>=>rpc('create_school_circle_invite',{previous:previous??null});
 export const inviteToCircle=(id:string)=>rpc('invite_to_circle',{target:id});
 export const joinCircle=(token:string)=>rpc('join_circle',{invite:token});
 export const leaveCircle=(id:string)=>rpc('leave_circle',{target:id});
