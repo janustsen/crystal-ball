@@ -1,15 +1,18 @@
-import {spawn} from 'node:child_process';
-import {openAuthenticatedPreview} from './preview-auth.mjs';
+import {chromium} from '@playwright/test';
+import {httpCredentials} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
-const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],runId=Date.now().toString(36),sessions=new Set();
+const out=process.env.EVIDENCE_DIR||'docs/evidence';await mkdir(out,{recursive:true});
+const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],sessions=new Map();
+const browser=await chromium.launch({channel:'chrome',headless:true});let capture=0;
 async function run(name,script){
- const session=`cb-social-${runId}-${name}`,fresh=!sessions.has(session);sessions.add(session);
- if(fresh)openAuthenticatedPreview(base,{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session});
- const output=await new Promise((resolve,reject)=>{
-  const child=spawn('chrome-devtools-axi',['run'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session}});
-  let text='';child.stdout.on('data',chunk=>text+=chunk);child.stderr.on('data',chunk=>text+=chunk);
-  child.on('error',reject);child.on('close',code=>code?reject(new Error(text)):resolve(text.trim()));child.stdin.end(script);
- });
+ let native=sessions.get(name);
+ if(!native){
+  const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true});native=await context.newPage();sessions.set(name,native);
+  await native.goto(base);await native.getByTestId('onboarding-birthday').fill('1995-06-15');await native.getByTestId('continue').click();await native.getByTestId('skip-for-now').click();
+ }
+ const page={open:url=>native.goto(url),click:selector=>native.locator(selector).click(),fill:(selector,value)=>native.locator(selector).fill(value),eval:fn=>native.evaluate(fn),wait:(value,timeout=30000)=>typeof value==='number'?native.waitForTimeout(value):native.locator(value).waitFor({timeout})};
+ let output='';await new Function('page','console',`return (async()=>{${script}})()`)(page,{log:value=>{output+=String(value)}});
+ await native.screenshot({path:`${out}/${String(++capture).padStart(2,'0')}-${name}.png`});
  return output?JSON.parse(output):null;
 }
 async function waitFor(name,selector,label,ms=95000,expectedText=''){
@@ -34,7 +37,7 @@ try{
   ${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
   await page.wait('[data-testid="option-0"]',65000);
-  for(let card=0;card<2;card++){const last=(await page.eval(()=>document.body.innerText)).includes((card+1)+' of '+(card+1));${click('option-0')}if(last)break;await page.wait('[data-testid="option-0"]');}
+  const total=Number(await page.eval(()=>document.body.innerText.match(/1 of ([12])/)[1]));for(let card=0;card<total;card++){${click('option-0')}if(card<total-1)await page.wait('[data-testid="option-0"]');}
   await page.wait('[data-testid="share-this-glimpse"]',65000);
   ${click('close-flow')}${click('tab-sky')}${click('add-my-star')}
   await page.wait('[data-testid="publish-anonymous-star"]',120000);
@@ -139,6 +142,6 @@ try{
  console.log('PASS: social browser drive; real PostgreSQL RLS and Ollama, simulated Auth/PostgREST; adult onboarding through UI');
 }catch(error){log.push({failure:String(error)});console.error(error);process.exitCode=1;}
 finally{
- await mkdir('docs/evidence',{recursive:true});await writeFile('docs/evidence/social-drive.json',JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST simulated; adult onboarding through UI, PostgreSQL RLS and Ollama real',steps:log},null,2));
- for(const session of sessions)await new Promise(resolve=>{const child=spawn('chrome-devtools-axi',['stop'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session},stdio:'ignore'});child.on('error',resolve);child.on('close',resolve)});
+ await mkdir(out,{recursive:true});await writeFile(`${out}/social-drive.json`,JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST and adult profile setup simulated; PostgreSQL RLS and Ollama real',steps:log},null,2));
+ for(const [name,page] of sessions)await page.screenshot({path:`${out}/final-${name}.png`}).catch(()=>{});await browser.close();
 }
