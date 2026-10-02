@@ -1,18 +1,40 @@
-import {useEffect,useState} from 'react';
-import {AccessibilityInfo,Linking,Platform,Pressable,View} from 'react-native';
+import {useEffect,useRef,useState} from 'react';
+import {AccessibilityInfo,BackHandler,Linking,Platform,Pressable,View} from 'react-native';
 import {Action,colors,styles,Txt} from './ui';
 import {factLabels} from './questions';
 import {useStore} from './store';
 import type {Prediction} from './types';
 export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction;onClose:()=>void;onUpgrade:()=>void}){
  const {state}=useStore();
- const [open,setOpen]=useState<string[]>(['reason']);
- useEffect(()=>{if(Platform.OS==='web'){const heading=document.querySelector<HTMLElement>('[data-testid="why-heading"]');heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}else AccessibilityInfo.announceForAccessibility('Behind the mist')},[]);
+ const [section,setSection]=useState<string|null>(state.plus?null:'reason');
+ const returnFocus=useRef<string|null>(null);
  const groups=[
-  {id:'reason',label:'Why this forecast',body:<Txt style={{lineHeight:25}}>{state.plus?(prediction.deeperWhy||prediction.why):prediction.why}</Txt>},
-  {id:'answers',label:`Your answers · ${Object.keys(prediction.facts).length}`,body:Object.entries(prediction.facts).map(([key,value])=><View key={key} style={{marginBottom:12}}><Txt style={[styles.caption,{color:colors.gold}]}>{factLabels[key]||key.replaceAll('_',' ')}</Txt><Txt>{value}</Txt></View>)},
-  {id:'assumptions',label:`Assumptions · ${prediction.assumptions.length}`,body:prediction.assumptions.map(assumption=><Txt key={assumption} style={{marginBottom:12,lineHeight:25}}>{assumption}</Txt>)},
-  {id:'sources',label:`Current sources · ${prediction.sources.length||'none'}`,body:prediction.sources.length?prediction.sources.map(source=><Pressable key={source.url} accessibilityRole="link" onPress={()=>Linking.openURL(source.url)} style={{minHeight:48,paddingVertical:12}}><Txt style={{color:colors.ice}}>{source.title}</Txt><Txt style={styles.caption}>{new Date(source.date).toLocaleDateString()} · {source.publisher}</Txt></Pressable>):<Txt>No relevant current sources found.</Txt>}
+  {id:'reason',title:'Why this forecast',detail:'The scenario and its limits',body:<Txt style={{fontSize:17,lineHeight:26,fontWeight:'400'}}>{state.plus?(prediction.deeperWhy||prediction.why):prediction.why}</Txt>},
+  {id:'answers',title:'Your answers',detail:`${Object.keys(prediction.facts).length} details you supplied`,body:Object.entries(prediction.facts).map(([key,value])=><View key={key} style={{marginBottom:24}}><Txt style={[styles.caption,{color:colors.gold,marginBottom:8}]}>{factLabels[key]||key.replaceAll('_',' ')}</Txt><Txt style={{fontSize:17,lineHeight:26}}>{value}</Txt></View>)},
+  {id:'assumptions',title:'Assumptions',detail:`${prediction.assumptions.length} scenario conditions`,body:prediction.assumptions.length?prediction.assumptions.map((assumption,index)=><Txt key={index} style={{marginBottom:20,fontSize:17,lineHeight:26}}>{assumption}</Txt>):<Txt>No additional assumptions recorded.</Txt>},
+  {id:'sources',title:'Current sources',detail:prediction.sources.length?`${prediction.sources.length} background sources`:'No current sources found',body:prediction.sources.length?prediction.sources.map(source=><Pressable key={source.url} accessibilityRole="link" onPress={()=>Linking.openURL(source.url)} style={{minHeight:48,paddingVertical:12}}><Txt style={{color:colors.ice,fontSize:17,lineHeight:26}}>{source.title}</Txt><Txt style={[styles.caption,{marginTop:8}]}>{new Date(source.date).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} · {source.publisher}</Txt></Pressable>):<Txt>No relevant current sources found.</Txt>}
  ];
- return <><Txt testID="why-heading" accessibilityRole="header" style={[styles.caption,{color:colors.gold}]}>Behind the mist</Txt><Pressable testID="why-disclosure" accessibilityRole="button" accessibilityLabel="Back to forecast" accessibilityState={{expanded:true}} aria-expanded onPress={onClose} style={{minHeight:48,justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ Back to forecast</Txt></Pressable><Txt display style={{fontSize:24,lineHeight:30,marginVertical:8}}>{prediction.headline}</Txt><Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.label}</Txt>{prediction.astrology?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.astrology}</Txt>:null}{(state.plus?groups:groups.slice(0,1)).map(group=>{const expanded=open.includes(group.id);return <View key={group.id} style={{borderBottomWidth:1,borderColor:'#614C34'}}><Pressable testID={`why-${group.id}`} accessibilityRole="button" accessibilityLabel={group.label} accessibilityState={{expanded}} aria-expanded={expanded} onPress={()=>setOpen(current=>expanded?current.filter(id=>id!==group.id):[...current,group.id])} style={{minHeight:52,paddingVertical:16,flexDirection:'row',alignItems:'center',gap:12}}><Txt style={{flex:1,fontWeight:'600'}}>{group.label}</Txt><Txt aria-hidden style={{color:colors.gold}}>{expanded?'−':'+'}</Txt></Pressable>{expanded?<View style={{paddingBottom:20}}>{group.body}</View>:null}</View>})}{!state.plus?<Action label="Go deeper with Plus" quiet onPress={onUpgrade}/>:null}</>;
+ const active=groups.find(group=>group.id===section);
+ function overview(){returnFocus.current=section;setSection(null)}
+ useEffect(()=>{
+  if(Platform.OS==='web'){
+   const restoring=!section&&returnFocus.current;
+   const target=document.querySelector<HTMLElement>(restoring?`[data-testid="why-${returnFocus.current}"]`:'[data-testid="why-heading"]');
+   target?.setAttribute('tabindex',restoring?'0':'-1');target?.focus({preventScroll:true});
+   if(restoring)target?.scrollIntoView({block:'nearest'});else document.querySelector('[data-testid="why-top"]')?.scrollIntoView({block:'start'});
+  }else AccessibilityInfo.announceForAccessibility(active?.title||'Behind the mist');
+  returnFocus.current=null;
+ },[section]);
+ useEffect(()=>{if(Platform.OS==='web'||!state.plus||!section)return;const handler=BackHandler.addEventListener('hardwareBackPress',()=>{overview();return true});return()=>handler.remove()},[section,state.plus]);
+ return <>
+  <View testID="why-top">
+   {active&&state.plus?<Pressable testID="why-all-evidence" accessibilityRole="button" onPress={overview} style={{minHeight:48,justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ All evidence</Txt></Pressable>:null}
+   <Txt testID="why-heading" accessibilityRole="header" display={!!active} style={active?{fontSize:28,lineHeight:34,marginVertical:12}:[styles.caption,{color:colors.gold}] }>{active?.title||'Behind the mist'}</Txt>
+   {!active?<Txt display style={{fontSize:24,lineHeight:30,marginVertical:14}}>{prediction.headline}</Txt>:null}
+   <Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.label}</Txt>
+  </View>
+  {active?<>{prediction.astrology&&active.id==='reason'?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.astrology}</Txt>:null}{active.body}</>:groups.map(group=><Pressable key={group.id} testID={`why-${group.id}`} accessibilityRole="button" accessibilityLabel={`${group.title} · ${group.detail}`} onPress={()=>setSection(group.id)} style={{minHeight:64,paddingVertical:20,borderBottomWidth:1,borderColor:'#614C3466',flexDirection:'row',alignItems:'center',gap:16}}><View style={{flex:1}}><Txt style={{fontSize:18,lineHeight:26}}>{group.title}</Txt><Txt style={[styles.caption,{marginTop:6}]}>{group.detail}</Txt></View><Txt aria-hidden style={{color:colors.gold,fontSize:26}}>›</Txt></Pressable>)}
+  {!state.plus?<Action label="Go deeper with Plus" quiet onPress={onUpgrade}/>:null}
+  <Pressable testID="why-disclosure" accessibilityRole="button" accessibilityLabel="Back to forecast" onPress={onClose} style={{minHeight:52,paddingVertical:16,marginTop:16,borderBottomWidth:1,borderColor:'#614C3466'}}><Txt style={{color:colors.ice}}>‹ Back to forecast</Txt></Pressable>
+ </>;
 }
