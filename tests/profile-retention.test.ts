@@ -50,14 +50,14 @@ test('omen transport maps the current profile sign without changing the daily cl
  globalThis.fetch=async(_url,init)=>{requests.push(JSON.parse(String(init?.body)));return Response.json({kind:'ok',value:{text:'A quiet moment brings a fresh perspective to your day.'}});};
  try{
   for(const state of [account(),updateBirthday(account(),'1996-07-15'),restoreProfile(account()),updateBirthday(account())]){
-   await requestOmen({...state.facts,sun_sign:'wrong'},state.sunSign);
+   await requestOmen({...state.facts,sun_sign:'wrong'},state);
    assert.equal(requests.at(-1).facts.sun_sign,state.sunSign||undefined);
   }
   invalidateOmen();const values=new Map<string,string>();
   const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value);}};
   const now=()=>new Date('2026-10-01T12:00:00Z'),start=requests.length;
-  await loadDailyOmen(storage,{},facts=>requestOmen(facts,'gemini'),now,()=>{});
-  await loadDailyOmen(storage,{},facts=>requestOmen(facts,null),now,()=>{});
+  await loadDailyOmen(storage,{},facts=>requestOmen(facts,account()),now,()=>{});
+  await loadDailyOmen(storage,{},facts=>requestOmen(facts,updateBirthday(account())),now,()=>{});
   assert.equal(requests.length,start+1);
  }finally{globalThis.fetch=originalFetch;invalidateOmen();}
 });

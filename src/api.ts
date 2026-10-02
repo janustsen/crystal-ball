@@ -1,5 +1,5 @@
 import {localDay} from './retention';
-import type {Facts,Result,Plan,Prediction,ReadingContext} from './types';
+import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState} from './types';
 export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
 export const engineUrl=process.env.EXPO_PUBLIC_ENGINE_URL||(typeof window!=='undefined'&&window.location?.protocol.startsWith('http')?`${window.location.origin}/engine`:'http://127.0.0.1:8787');
 export const previewHeaders:Record<string,string>=process.env.EXPO_PUBLIC_PREVIEW_SECRET?{'x-preview-token':process.env.EXPO_PUBLIC_PREVIEW_SECRET}:{};
@@ -10,10 +10,10 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
  return result;
 }
 
-export async function requestOmen(facts:Facts,sunSign:string|null=null,aiConsent=''):Promise<string>{
+export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent=''):Promise<string>{
  facts={...facts};delete facts.sun_sign;
  if(sunSign)facts.sun_sign=sunSign;
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,aiConsent}),signal:AbortSignal.timeout(60000)});
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
  return result.value.text;

@@ -2,11 +2,12 @@ import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {previewFetch,previewSecret} from './preview-auth.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
-for(const path of ['/engine','/engine/share']){
+for(const path of ['/engine','/engine/social']){
  assert.equal((await fetch(base+path,{method:'POST',body:'{}'})).status,401);
  assert.equal((await fetch(base+path,{method:'POST',headers:{origin:base},body:'{}'})).status,401);
  assert.equal((await fetch(base+path,{method:'POST',headers:{'x-preview-token':previewSecret},body:'{}'})).status,401);
 }
+const removed=await previewFetch(base+'/engine/share',{method:'POST',body:'{}'});assert.ok(!removed.headers.get('content-type')?.includes('application/json'));
 const shell=await fetch(base+'/').then(r=>r.text());assert.ok(!shell.includes(previewSecret));
 // Owner-approved login removal: the bundle is public; engine guards still apply.
 const bundle=await fetch(base+'/node_modules/expo-router/entry.bundle?platform=web');

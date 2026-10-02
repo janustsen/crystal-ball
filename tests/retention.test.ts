@@ -53,9 +53,9 @@ test('omen endpoint shares input limits and forwards Sun sign and facts to the r
  globalThis.fetch=async(_url,init)=>{calls++;const body=JSON.parse(String(init?.body));assert.equal(body.options.num_predict,160);assert.deepEqual(JSON.parse(body.messages[1].content).facts,{sun_sign:'Libra',learning_target:'Spanish'});return new Response(JSON.stringify({message:{content:JSON.stringify({text:'Libra, a new Spanish word may brighten your constellation today.'})}}));};
  try{
   const serve=handler(()=>undefined);
-  const response=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{sun_sign:'Libra',learning_target:'Spanish'}})}));
+  const response=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',ageConfirmed:true,question:'Today’s personal omen',facts:{sun_sign:'Libra',learning_target:'Spanish'}})}));
   assert.equal(response.status,200);assert.equal((await response.json()).kind,'ok');assert.equal(calls,1);
-  const invalid=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{sun_sign:100}})}));assert.equal(invalid.status,400);assert.equal(calls,1);
+  const invalid=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',ageConfirmed:true,question:'Today’s personal omen',facts:{sun_sign:100}})}));assert.equal(invalid.status,400);assert.equal(calls,1);
  }finally{globalThis.fetch=fetch;}
 });
 test('omen repairs invented signs and clipped sentences once, then fails closed',async()=>{
