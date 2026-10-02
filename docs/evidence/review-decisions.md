@@ -27,7 +27,7 @@ The outer executor owns PR publication, the Greptile request, readiness, and sub
 
 Accepted: card/schema failures, unsupported general reasoning, missing topic inputs, wrong learning-goal reuse, inaccessible tab parent, clipping at enlarged text, missing empty-state assertions, missing real general-flow drive, stale screenshots, mismatched share preview, and unmeasured frame cadence. Fixes and fresh evidence live alongside this note.
 
-Some reviewer suggestions conflict with the task contract and are not implemented:
+At that historical review, the following suggestions conflicted with the then-current task contract. The card-count and numerical-flow decisions below are superseded by the [current question-engine contract](../research/question-engine.md):
 
 - Fewer than three follow-up cards: the requested minimum is three. Known-input sessions use new topic-specific context rather than repeating known facts.
 - A fabricated fallback after malformed model output: firstmate explicitly requires one repair, then fail closed. A recoverable error is intentional.
