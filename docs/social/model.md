@@ -32,7 +32,7 @@ flowchart LR
 
 All tables have RLS. Security-definer functions pin an empty search path, explicitly qualify schemas, and revoke public/anon execution. Service-only moderation receipts prevent clients bypassing the AI filter. Public words are rewritten and approved, never the raw question. Every newly published user line passes the local model safety filter; deterministic sensitive-topic rules are shared with the reading engine. Seeds are controlled app content, `synthetic: true`, visibly labeled “Sample stars” and excluded from real counts.
 
-The profile integration reads the account's `sunSign` and `ageBand` fields, owned by the reading-flow worker. The account owns `birthday`; it is not shared or used to override a null `ageBand`. Missing age uses teen safeguards. Both shared draft kinds use teen-audience moderation because the audience can include teens, regardless of sender age. Social code does not collect birthdays, birth time, place or location.
+The profile integration reads the account's `sunSign` and `ageBand` fields, owned by the reading-flow worker. The account owns `birthday`; it is not shared or used to override a null `ageBand`. Missing age uses teen safeguards. Both shared draft kinds use teen-audience moderation because the audience can include teens, regardless of sender age. Social code does not collect birthdays or birth time. See the [school boundary](school.md) for optional school selection, location privacy and school-based visibility.
 
 ## Proof and limits
 

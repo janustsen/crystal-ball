@@ -1,0 +1,99 @@
+
+> crystal-ball@0.1.0 test
+> tsx --test tests/*.test.ts
+
+✔ automatic check-ins use existing permission; manual reminders can request it (62.945083ms)
+✔ forget clears existing and in-flight check-ins, preserving later readings (0.824667ms)
+✔ saved verdicts override the due-date prompt in History (0.243916ms)
+✔ free odds 1/50, Plus 1/10; saved editions survive plan changes and JSON round trips (214.544666ms)
+✔ style entitlement is checked at render time; saved premium choices cannot leak after downgrade (2.134833ms)
+✔ known facts never repeat; each domain keeps Other and 3–10 unique cards (37.837625ms)
+✔ provider repairs once, then rejects malformed JSON (44.707583ms)
+✔ adaptive sports editions and learning targets stay tied to the question (15.784083ms)
+✔ explicit question horizons are preserved instead of asking conflicting defaults (0.746458ms)
+✔ a learned Spanish level never skips a different learning goal (0.761334ms)
+✔ prediction rejects missing topic inputs before generating an outcome (34.447ms)
+✔ creative and zodiac context cannot erase explicit personal harm or illness (2.210958ms)
+✔ multilingual lifespan, self-harm and residency forms retain their safety category (0.697625ms)
+✔ asynchronous semantic rejection gets one repair and never leaks a failed result (6.804625ms)
+✔ server-owned horizon formats the model verdict without inventing an outcome (1.279792ms)
+✔ equivalent written horizons are not repeated in the headline (0.858916ms)
+✔ Why labels assumptions and does not print the same sentence twice (0.938833ms)
+✔ Danish remaining-lifespan wording is death, not self-harm (0.244041ms)
+✔ ordinary word senses do not trigger sensitive-topic phrase rules (0.4085ms)
+✔ general planning does not send unrelated domain memories into model cards (3.014458ms)
+✔ duplicate model cards earn a repair instead of repeating the same question (26.602708ms)
+✔ learning explanation preserves the chosen baseline and conversational target (29.259417ms)
+✔ bounded forecasts never replace the server explanation with extra model fields (121.9935ms)
+✔ general explanations quote an existing input and ignore model-authored factual prose (10.487667ms)
+✔ personal forecast voice normalizes model first-person phrasing (1.06775ms)
+✔ an inferred competition keeps its contenders through later answers (0.241833ms)
+✔ prediction never sends unrelated memories to the safety classifier (2.474417ms)
+✔ unparseable Other answers are re-asked instead of counting as the negative case (1.737292ms)
+✔ an event horizon phrased as later this year is not repeated in the headline (0.6855ms)
+✔ recognized units are converted instead of being read as the card unit (10.78975ms)
+✔ a remembered fact that no longer validates is re-asked instead of breaking the forecast (0.170291ms)
+✔ mocked native notification permission and 30-day schedule boundary (18.303208ms)
+✔ mocked Apple preserves identity and handles unavailable, canceled, missing token and mismatch (0.516708ms)
+✔ friend URL carries only question and flag; mock purchases never configure SDK (2.07175ms)
+✔ voice release during permission dialog never starts recording; denied permission never stops an idle recorder (0.463875ms)
+✔ an animated share card renders without a preexisting project scratch directory (1337.635458ms)
+✔ omen completion publishes after its Home consumer detaches, unless reset invalidates it (21.141167ms)
+✔ cached and failed omens publish, but a cache read crossing reset does not (2.326709ms)
+✔ midnight completion hides expired text without spending the new day quota (2.494834ms)
+✔ Home drops an expired displayed omen while the next day load is pending (1.611ms)
+✔ browser authentication passes credentials through stdin, never process arguments or error output (977.508792ms)
+✔ preview HTTP credentials preserve social identity and allow independent rejection probes (118.098416ms)
+✔ authenticated clients reach the configured engine port through every preview route (397.593791ms)
+✔ preview refuses unauthenticated engine calls and protects the injected-key bundle (164.969458ms)
+✔ preview fails closed without startup secret (5.172875ms)
+✔ preview routes every engine endpoint to ENGINE_PORT and forwards social identity (94.342917ms)
+✔ ball Due date wins; legacy forecasts keep 30 days without a migration (5.318542ms)
+✔ real reminder action passes the reading id and date to native scheduling; web and bad dates never schedule (32.792667ms)
+✔ personal omen claims each local day before generation, caches failures and coalesces callers (4.058708ms)
+✔ reset during generation prevents a private omen from being saved after reset (4.2695ms)
+✔ omen endpoint shares input limits and forwards Sun sign and facts to the real generator (62.892458ms)
+✔ omen repairs invented signs and clipped sentences once, then fails closed (5.553917ms)
+✔ omen token cap leaves existing provider defaults unchanged (3.590083ms)
+✔ forgetting personal data erases omen text without granting a second request that day (8.150875ms)
+✔ forget serializes overlapping cache reads and writes without exposing old text (0.628542ms)
+✔ durable omen erasure rejects failed writes and completes only after retry is stored (0.796042ms)
+✖ social recovery retries current profile before exposing a snapshot (366.64ms)
+✔ sample stars are safe inspiration and never claim to be people (7.508042ms)
+✔ publication fails closed on AI refusal or model failure (1.157375ms)
+✔ social service requires server configuration and authenticated identity before model work (43.522083ms)
+✔ Friend reading repairs an oversized Why with the precise field limit (25.766041ms)
+✔ incoming private seal text is filtered before display (0.407208ms)
+✔ moving phrase policy to the shared module preserves the actual engine function (0.507375ms)
+✔ account profile uses contract fields without promoting an unknown birthday (0.192584ms)
+✔ reading identity preserves friends through history and clears unrelated targets (0.147458ms)
+✔ Circle name entry accepts first names and rejects free questions (7.742542ms)
+✔ shared draft moderation always emits teen audience and refuses unsafe publication (16.335625ms)
+✔ Circle requests reject missing or non-name identity before generation (1.109583ms)
+ℹ tests 68
+ℹ suites 0
+ℹ pass 67
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2269.494042
+
+✖ failing tests:
+
+test at tests/social-recovery.test.ts:4:1
+✖ social recovery retries current profile before exposing a snapshot (366.64ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  10 !== 8
+
+      at TestContext.<anonymous> (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/tests/social-recovery.test.ts:40:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 10,
+    expected: 8,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -14,9 +14,9 @@ cleanup() {
 }
 trap cleanup EXIT
 "$pg_bin/initdb" -D "$cluster/data" -A trust --no-locale -E UTF8 >"$cluster/init.log"
-# Unix socket only: no shared instance, ports, credentials or containers.
-"$pg_bin/pg_ctl" -D "$cluster/data" -l "$cluster/server.log" -o "-k $cluster -p 55439 -c listen_addresses=''" -w start >/dev/null
-export PGHOST="$cluster" PGPORT=55439 PGDATABASE=postgres
+# Disposable loopback cluster; short socket paths are unavailable in long worktree paths.
+"$pg_bin/pg_ctl" -D "$cluster/data" -l "$cluster/server.log" -o "-p ${SOCIAL_PG_PORT:-55439} -c unix_socket_directories='' -c listen_addresses='127.0.0.1'" -w start >/dev/null
+export PGHOST=127.0.0.1 PGPORT="${SOCIAL_PG_PORT:-55439}" PGDATABASE=postgres
 sql=("$pg_bin/psql" -X -v ON_ERROR_STOP=1)
 "${sql[@]}" <<'SQL' >/dev/null
 create role anon nologin;
@@ -37,6 +37,7 @@ for migration in supabase/migrations/*.sql; do
   "${sql[@]}" -f "$migration" >"$cluster/migration.log"
 done
 "${sql[@]}" -f scripts/social-rls.sql
+"${sql[@]}" -f scripts/school-rls.sql
 
 # Two distinct recipients race to open a fresh seal. Exactly one may succeed.
 token=$("${sql[@]}" -Atc "delete from public.social_blocks; update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated; set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; select public.seal_forecast('20000000-0000-0000-0000-000000000001');" | tail -1)

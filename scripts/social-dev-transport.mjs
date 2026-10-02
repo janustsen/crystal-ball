@@ -6,8 +6,8 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 const exec=promisify(execFile),sessions=new Map();
 const quote=value=>value===null?'null':`'${String(value).replaceAll("'","''")}'`;
-const functions={tonights_sky:[],publish_star:['approved_draft'],resonate:['star'],create_circle:[],invite_to_circle:['target'],join_circle:['invite'],leave_circle:['target'],circle_checkin:['activity_theme'],react_in_circle:['target_circle','target_member'],seal_forecast:['approved_draft'],open_forecast:['seal'],circle_people:[],report_star:['star'],block_person:['star','member'],set_friend_consent:['allowed'],authorize_friend_reading:['viewer','target_circle','target_member'],dismiss_friend_notices:[],revoke_forecast:['card'],withdraw_star:['star'],sync_social_profile:['viewer','band','sign','mock_plus']};
-const columns={circles:'id,owner_id',circle_members:'circle_id,user_id,joined_at,consulted_on,theme',circle_reactions:'circle_id,target_id,user_id,day',sealed_forecasts:'id,headline,token,opened_at',sky_stars:'id,theme,wording,day',social_profiles:'user_id,age_band,sun_sign,friends_can_ask,plus',friend_notices:'id,day,seen',social_drafts:'id,user_id,kind,wording,theme'};
+const functions={tonights_sky:['my_school'],set_school:['chosen_school'],school_circle_suggestions:[],publish_star:['approved_draft'],resonate:['star'],create_circle:[],create_school_circle_invite:['previous'],invite_to_circle:['target'],join_circle:['invite'],leave_circle:['target'],circle_checkin:['activity_theme'],react_in_circle:['target_circle','target_member'],seal_forecast:['approved_draft'],open_forecast:['seal'],circle_people:[],report_star:['star'],block_person:['star','member'],set_friend_consent:['allowed'],authorize_friend_reading:['viewer','target_circle','target_member'],dismiss_friend_notices:[],revoke_forecast:['card'],withdraw_star:['star'],sync_social_profile:['viewer','band','sign','mock_plus']};
+const columns={circles:'id,owner_id',circle_members:'circle_id,user_id,joined_at,consulted_on,theme',circle_reactions:'circle_id,target_id,user_id,day',sealed_forecasts:'id,headline,token,opened_at',sky_stars:'id,theme,wording,day',schools:'id,name,city,latitude,longitude',social_profiles:'user_id,age_band,sun_sign,friends_can_ask,plus,school_id',friend_notices:'id,day,seen',social_drafts:'id,user_id,kind,wording,theme'};
 
 async function sql(statement,uid){
  const auth=uid==='service'?'set local role service_role;':uid?`set local role authenticated; select set_config('request.jwt.claim.sub',${quote(uid)},true);`:'';
@@ -24,7 +24,7 @@ function session(uid){
  sessions.set(access_token,result);sessions.set(refresh_token,result);return result;
 }
 const server=createServer(async(req,res)=>{
- const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':'http://localhost:8095','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version,prefer,accept-profile,content-profile','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS'};
+ const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':process.env.APP_ORIGIN||'http://localhost:8095','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version,prefer,accept-profile,content-profile','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS'};
  if(req.method==='OPTIONS'){res.writeHead(204,headers);res.end();return;}
  try{
   const url=new URL(req.url,'http://127.0.0.1:55329');
@@ -45,7 +45,7 @@ const server=createServer(async(req,res)=>{
    else if(url.pathname.startsWith('/rest/v1/rpc/')&&req.method==='POST'){
     const name=url.pathname.split('/').at(-1),args=functions[name];if(!args)throw new Error('Unsupported fixture RPC');
     const call=`public.${name}(${args.map(key=>quote(body[key]??null)).join(',')})`;
-    result=await sql(['tonights_sky','circle_people'].includes(name)?`select coalesce(jsonb_agg(q),'[]') from ${call} q`:`select coalesce(to_jsonb(${call}),'null'::jsonb)`,uid);
+    result=await sql(['tonights_sky','circle_people','school_circle_suggestions'].includes(name)?`select coalesce(jsonb_agg(q),'[]') from ${call} q`:`select coalesce(to_jsonb(${call}),'null'::jsonb)`,uid);
    }else{
     const table=url.pathname.split('/').at(-1);if(!Object.hasOwn(columns,table))throw new Error('Unsupported fixture table');
     const filters=[];
@@ -70,4 +70,5 @@ const server=createServer(async(req,res)=>{
   res.writeHead(200,headers);res.end(JSON.stringify(result));
  }catch(error){res.writeHead(400,headers);res.end(JSON.stringify({message:String(error.message).split('\n').find(line=>line.includes('ERROR:'))?.replace(/^.*ERROR:\s*/,'')||'Verification transport unavailable',code:'verification'}));}
 });
-server.listen(55329,'127.0.0.1',()=>console.log('Verification-only Auth/PostgREST adapter: http://127.0.0.1:55329 (real PostgreSQL RLS)'));
+const port=Number(process.env.SOCIAL_DB_PORT||55329);
+server.listen(port,'127.0.0.1',()=>console.log(`Verification-only Auth/PostgREST adapter: http://127.0.0.1:${port} (real PostgreSQL RLS)`));
