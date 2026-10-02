@@ -8,8 +8,8 @@ const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How set
 const longFact='I practise with a conversation partner after work and review difficult phrases every weekend. '.repeat(4).slice(0,300);
 const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
 const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
-const browser=await chromium.launch({channel:'chrome',headless:true});
 if(process.env.LAYOUT_WIDTH&&![360,390,430].includes(Number(process.env.LAYOUT_WIDTH)))throw new Error('LAYOUT_WIDTH must be 360, 390 or 430');
+const browser=await chromium.launch({channel:'chrome',headless:true});
 const failures=[],checked=[],controls=[];
 async function audit(page,width,name,marker,delay=1300){
  await expect(marker).toBeVisible();
