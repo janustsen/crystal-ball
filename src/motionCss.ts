@@ -61,6 +61,10 @@ export const motionCss = `
 @keyframes orb-glow{0%,100%{opacity:.58;transform:scale(.96)}50%{opacity:1;transform:scale(1.06)}}
 [role="tab"][aria-selected="true"] svg{transform:translateY(-2px);filter:drop-shadow(0 2px 0 #0B0604) drop-shadow(0 0 8px rgba(224,164,88,.55))}
 [role="tab"] svg{transition:transform 260ms ${spring}}
+[data-testid^="sky-theme-"]{animation:star-bob 5.3s ease-in-out infinite}
+[data-testid^="sky-theme-"]:nth-child(2n){animation-duration:6.7s;animation-delay:-2.1s}
+[data-testid^="sky-theme-"]:nth-child(3n){animation-duration:5.9s;animation-delay:-3.7s}
+@keyframes star-bob{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-4px,0)}}
 
 /* Parallax: far stars, mid sky visitors, near embers. Pointer moves set --px/--py; layers also sway on their own. */
 .sky,.embers,.candle{transition:translate 900ms ${ease}}
