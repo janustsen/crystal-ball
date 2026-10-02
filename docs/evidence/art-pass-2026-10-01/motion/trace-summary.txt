@@ -1,0 +1,31 @@
+trace:
+The raw trace data was saved to /Users/janustsen/.treehouse/crystal-ball-6fc41b/4/crystal-ball/.local/motion-audit-1790906894565.json.
+The performance trace has been stopped.
+Emulating viewport: {"deviceScaleFactor":1,"isMobile":true,"hasTouch":true,"isLandscape":false,"width":390,"height":844}
+## Summary of Performance trace findings:
+URL: http://preview:456331ae1dfa4ef8ece70feb5faa37a1d7602eef633a833acd1b88996c096768@localhost:8099/
+Trace bounds: {min: 145556635174µs, max: 145655243947µs}
+CPU throttling: 1x
+Network throttling: none
+
+# Available insight sets
+
+The following is a list of insight sets. An insight set covers a specific part of the trace, split by navigations. The insights within each insight set are specific to that part of the trace. Be sure to consider the insight set id and bounds when calling functions. If no specific insight set or navigation is mentioned, assume the user is referring to the first one.
+
+## insight set id: NO_NAVIGATION
+
+URL: http://preview:456331ae1dfa4ef8ece70feb5faa37a1d7602eef633a833acd1b88996c096768@localhost:8099/
+Bounds: {min: 145556635174µs, max: 145655243947µs}
+Metrics (lab / observed):
+  - CLS: 0.02, event: (eventKey: s-41816, ts: 145562516114)
+Metrics (field / real users): n/a – no data for this page in CrUX
+Available insights:
+  - insight name: CLSCulprits
+    description: Layout shifts occur when elements move absent any user interaction. [Investigate the causes of layout shifts](https://developer.chrome.com/docs/performance/insights/cls-culprit), such as elements being added, removed, or their fonts changing as the page loads.
+    relevant trace bounds: {min: 145562516114µs, max: 145563516114µs}
+    example question: Help me optimize my CLS score
+    example question: How can I prevent layout shifts on this page?
+  - insight name: ForcedReflow
+    ... (truncated, 6875 chars total)
+help[1]:
+  Run `chrome-devtools-axi perf-insight <set-id> <insight-name>` to analyze insights
