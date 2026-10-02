@@ -94,9 +94,12 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
  await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(text(prediction.why)).toBeVisible();
- for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();
  await check('reveal-why',text('Behind the mist'));
+ for(const id of ['answers','assumptions','sources'])await tap(`why-${id}`);
+ for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();
+ await check('reveal-evidence',page.getByTestId('why-sources'));
  await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
+ await tap('share-more');await check('share-options',page.getByTestId('export-animated-story'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
  await tap('tab-history');await check('history-filled',text(prediction.headline));
