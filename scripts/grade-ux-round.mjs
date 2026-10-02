@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 import sharp from 'sharp';
 const round=process.argv[2];if(!/^docs\/ux-loop\/round-\d+$/.test(round||''))throw new Error('Pass docs/ux-loop/round-NN');
 await mkdir(`${round}/sheets`,{recursive:true});
-const names=(await readdir(`${round}/screens`)).filter(n=>n.endsWith('.png')&&(!n.includes('-large')||['ask-large.png','card-other-large.png','paywall-large.png','settings-controls-large.png'].includes(n))&&!n.startsWith('fail-')).sort();
+const names=(await readdir(`${round}/screens`)).filter(n=>n.endsWith('.png')&&!n.startsWith('fail-')).sort();
 const images=[];
 for(let offset=0;offset<names.length;offset+=4){
  const tiles=[];
