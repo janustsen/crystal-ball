@@ -12,4 +12,4 @@ Edit a fact, reload, verify value; forget it, Undo and verify restoration, forge
 ## Gotchas
 Friends never teach the owner bank. Saving an edited fact runs the same validation as its card, so an invalid value (for example a savings runway without months or years) shows an inline message and is not saved. Web reminder is an explicit preview, not a scheduled native notification.
 
-Follow the [onboarding and age-confirmation usage](../../../../README.md) and [profile contract](../../../../SETUP.md#reading-profile-and-birth-chart). Forget everything clears profile data and reading memories, preserving plan/credit accounting.
+Follow the [onboarding and age-confirmation usage](../../../../README.md) and [profile contract](../../../../SETUP.md#reading-profile-and-birth-chart). Verify Forget everything against that usage contract, including retained eligibility and plan/credit accounting.
