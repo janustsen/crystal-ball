@@ -1,0 +1,410 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fddd-c599-7df3-8f2c-b7ced31e04e6
+--------
+user
+Independent blind design comparison. Read-only; no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C for evidence reason, evidence answers and check-in at normal200%. Score all twelve state/variant pairs on six dimensions; null only for genuinely inapplicable prototype behavior. Choose best composition per state; baseline may win. No desired score.
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+Baseline is actual product0fab2f8 with258layout/text states,1572targets,126tests, actual local Ollama reading/PNG/history,480contrast checks,16entrance samples, reduced-motion and isolated60fps/max16.8ms. No physical/native proof. Full content is preserved; baseline reason/answers are long, check-in has complete forecast before outcomes and ambiguous Not quite/Not yet labels. Baseline uses legacy answer labels because its fixture has no original question metadata.
+Alternatives are static HTML proposals, not actual inference/save/accessibility proof. Normal200% screenshots and no-horizontal-overflow checks only. Controls announce Layout study; C can navigate passages; B disclosures can expand. All text doubles. Open mist stays borderless and dark.
+A: complete semantic reason sections, numbered answer groups, full forecast before explicit outcomes. All text immediately exposed, longer scroll.
+B: semantic or numbered section disclosures; check-in provides a brief topic identifier and complete forecast disclosure before outcomes. Easy scanning, extra interaction and less immediately visible context.
+C: one passage at a time with previous/next and position; check-in outcomes precede full forecast. Less initial visual load, greater context/navigation cost.
+Reason prototypes use explicit fixture roles Recorded context/Scenario assumption/Limits. Those roles would have to be supplied by the producer, never guessed from legacy prose; no such data migration is implemented yet. Complete legacy prose would remain accessible. Answer fixtures have only neutral Answer1/2/3 labels, matching baseline unknown keys. Outcome labels Came true/Did not happen/Still waiting are proposed clarifications, with explicit change guidance. No content truncation proposed.
+Only inspect attached screenshots, docs/ux-loop/expansion-30/checks.json and public/concepts/expansion-30.html if needed. No other files/prior grades. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+I’ll compare all twelve compositions at normal and 200% text, separating visible design evidence from unverified interaction behavior.
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat docs/ux-loop/expansion-30/checks.json' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+[
+  {
+    "state": "reason",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "reason",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "reason",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "reason",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "reason",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "reason",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "answers",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "answers",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "answers",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "answers",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "answers",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "answers",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "checkin",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "checkin",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "checkin",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "checkin",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "checkin",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "state": "checkin",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  }
+]
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat public/concepts/expansion-30.html' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open mist · reading navigation</title><style>
+@font-face{font-family:Fell;src:url(study-assets/display.woff2)}@font-face{font-family:Hanken;src:url(study-assets/body.woff2)}*{box-sizing:border-box}body{margin:0;background:#100c09;color:#f1e9dc;font:16px Hanken,system-ui,sans-serif}body.large{font-size:32px}main{max-width:390px;margin:auto;padding:24px 24px 120px;min-height:100vh;background:radial-gradient(ellipse at 90% 100%,#34221466,transparent 70%)}header{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #614c3466;margin-bottom:24px}header span{font-family:Fell;font-size:1.375em}h1{font:1.75em/1.2 Fell;margin:12px 0}h2{font:1.375em/1.3 Fell;margin:12px 0}p{line-height:1.45;margin:12px 0}.muted,label{font-size:.875em;color:#b9ab97;line-height:1.45}.gold{color:#e0a458}button,input,summary{font:inherit;min-height:48px}button{color:#f1e9dc;background:none;border:0;padding:12px 0;cursor:pointer;text-align:left}button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #e0a458;outline-offset:4px}input{display:block;width:100%;background:transparent;color:#f1e9dc;border:0;border-bottom:1px solid #79634a;border-radius:0;padding:12px 0;margin:4px 0 18px}label{display:block}.primary{display:block;width:100%;text-align:center;background:#ebd5b0;color:#120e0b;border-radius:30px;padding:16px;margin:18px 0;font-weight:600}.quiet{display:block;width:100%;color:#c8dfe8;border-bottom:1px solid #614c3466}.row{border-bottom:1px solid #614c3466;padding:16px 0}.row button{display:block;color:#c8dfe8}.error{color:#f1e9dc;border-left:2px solid #e0a458;padding-left:12px;margin:8px 0 16px}.error label{color:#e0a458}.saved{padding:24px 0;border-block:1px solid #614c3466;margin:24px 0}.saved h2{margin-top:8px}.step{color:#e0a458;font-size:.875em}.progress{display:flex;gap:8px;margin:18px 0}.progress i{flex:1;height:2px;background:#614c34}.progress i.on{background:#e0a458}details{border-bottom:1px solid #614c3466;padding:12px 0}summary{cursor:pointer;padding:10px 0;color:#c8dfe8}#study{max-width:390px;margin:auto;padding:20px;font-size:14px;background:#211a13}#study a{display:inline-block;color:#e0a458;padding:10px}#status{color:#e0a458}#status:empty{display:none}.large main{padding-top:16px}.large header{margin-bottom:16px}.large .saved{padding:16px 0;margin:16px 0}.pair{display:flex;justify-content:space-between;gap:12px;align-items:center}.large .pair{display:block}
+footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,390px);height:76px;display:flex;align-items:center;justify-content:space-around;background:#120e0b;border-top:1px solid #614c3466;font-size:.8125em;color:#b9ab97}.large footer{height:96px}footer span{text-align:center}footer i{display:block;font-style:normal;font-size:20px;color:#e0a458;margin-bottom:8px}</style><div id="study"></div><main id="app"></main><footer aria-hidden="true"><span><i>♙</i>Home</span><span><i>✧</i>Sky</span><span><i>◉</i>Ask</span><span><i>⌛</i>History</span><span><i>♧</i>You</span></footer><script>
+const p=new URLSearchParams(location.search),variant=p.get('variant')||'a',state=p.get('state')||'reason',large=p.get('large')==='1';if(large)document.body.classList.add('large');
+const fact='I practise with a conversation partner after work and review difficult phrases every weekend. '.repeat(4).slice(0,300);
+const assumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
+const headline='By spring you will hold a twenty-minute conversation in Spanish';
+const reason=['Recorded context: '+fact,'This scenario assumes '+assumption,'Dated news headlines below add background; they do not verify this prediction.'];
+const answers=[fact,fact,fact];
+const labels=state==='reason'?['Recorded context','Scenario assumption','Limits']:['Answer 1','Answer 2','Answer 3'];
+const bodies=state==='reason'?reason:answers;
+const button=(s,action='study')=>`<button class="quiet" data-action="${action}">${s}</button>`;
+let html='<header><span>Crystal Ball</span></header>'+button('‹ Back to forecast')+'<h1>'+(state==='checkin'?'Check-in':state==='reason'?'Why this forecast':'Your answers')+'</h1>';
+const qualifier='<p class="step">Speculative · moderate confidence</p>';
+if(state==='checkin'){
+ const forecast='<h2>'+headline+'</h2>'+qualifier;
+ const choices='<div id="choices">'+['Came true','Did not happen','Still waiting'].map((s,i)=>button(s,'outcome-'+i)).join('')+'</div><p class="muted">Choose again to change your answer. Still waiting keeps the reminder date.</p>';
+ if(variant==='a')html+=forecast+'<h2>What happened?</h2>'+choices;
+ if(variant==='b')html+='<p class="muted">Your Spanish conversation forecast</p><details><summary>Read the forecast</summary>'+forecast+'</details><h2>What happened?</h2>'+choices;
+ if(variant==='c')html+='<h2>What happened?</h2>'+choices+'<section class="row">'+forecast+'</section>';
+ html+='<p class="muted">Check-in reminder · April 1, 2027</p>'+button('Why this forecast ›')+button('Share this glimpse');
+}else{
+ html+=qualifier;
+ if(variant==='a')html+=bodies.map((s,i)=>'<section class="row"><p class="step">'+labels[i]+'</p><p>'+s+'</p></section>').join('');
+ if(variant==='b')html+='<p class="muted">Choose a section to read.</p>'+bodies.map((s,i)=>'<details><summary>'+labels[i]+'</summary><p>'+s+'</p></details>').join('');
+ if(variant==='c')html+='<p class="step" id="position">1 of 3 · '+labels[0]+'</p><div class="progress">'+bodies.map((_,i)=>'<i class="'+(i===0?'on':'')+'"></i>').join('')+'</div><div id="passage"><p>'+bodies[0]+'</p></div>'+button('Next section ›','next')+button('‹ Previous section','previous');
+}
+html+='<p id="status" role="status"></p>';document.querySelector('#app').innerHTML=html;
+let index=0;document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{if(b.dataset.action==='next'||b.dataset.action==='previous'){index=(index+(b.dataset.action==='next'?1:2))%3;document.querySelector('#position').textContent=`${index+1} of 3 · ${labels[index]}`;document.querySelector('#passage').textContent=bodies[index];document.querySelectorAll('.progress i').forEach((el,i)=>el.classList.toggle('on',i===index));document.querySelector('#position').scrollIntoView({block:'start'})}else document.querySelector('#status').textContent='Layout study only. No reading or outcome saved.'});
+document.querySelector('#study').innerHTML='Open mist · navigation study. Proposed structured data is a fixture; legacy prose cannot be assigned semantic labels by guessing.<br>'+['a','b','c'].map(v=>`<a href="?variant=${v}&state=${state}&large=${large?1:0}">${v.toUpperCase()}</a>`).join('')+['reason','answers','checkin'].map(s=>`<a href="?variant=${variant}&state=${s}&large=${large?1:0}">${s}</a>`).join('')+`<a href="?variant=${variant}&state=${state}&large=${large?0:1}">Text size</a><p>A · open numbered/semantic sections: all content visible, long scroll. B · disclosure overview: fast scanning, extra taps. C · single passage/task first: less initial load, context is farther away.</p>`;if(p.has('capture'))document.querySelector('#study').remove();
+</script></html>
+codex
+{
+  "comparisons": [
+    {
+      "screen": "reason",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3, F=6.5, overall=6.8. Comfortable body typography, but dividers do not explain the distinction between evidence, assumptions and limitations. At 200%, understanding the structure requires substantial scrolling. Components: heading/qualifier [8,8,8,8,null,8]; prose sections [5,8,8,5,null,7]; evidence/back links [6,7,8,7,null,7]."
+    },
+    {
+      "screen": "reason",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7},
+      "finding": "A=7.7, F=7.5, overall=7.6. Best reason composition: meaningful section headings expose the reasoning structure without requiring interaction. Repeating 'Recorded context' in the body is redundant; dense, heavy paragraphs and the large header consume reading space at 200%. Components: heading/qualifier [8,8,8,8,null,8]; semantic sections [8,7,8,8,null,7]."
+    },
+    {
+      "screen": "reason",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Strong overview at both sizes, with descriptive disclosure labels. However, the initial screen answers none of 'why'; even Limits requires expansion. Components: heading/instruction [8,8,8,8,null,8]; disclosure rows [8,8,8,7,6,7]. Feedback score covers visible disclosure affordances only."
+    },
+    {
+      "screen": "reason",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 5, "accessibility": 6},
+      "finding": "A=7.3, F=5.7, overall=6.3. Position is explicit, but separating related reasoning into passages increases comparison and navigation costs. At 200%, passage controls fall below the initial viewport. Source confirms Previous wraps from the first passage to the last without explaining that behavior. Components: position/progress [8,8,8,8,7,7]; passage [7,7,8,7,null,7]; previous/next [6,7,8,5,4,6]."
+    },
+    {
+      "screen": "answers",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.7, F=7.0, overall=7.3. Best visible reading composition: answers remain exposed, and lighter body typography supports long passages. Question-shaped labels aid scanning, but the supplied provenance says they are legacy labels, not recovered original questions; their apparent specificity is not evidence of accuracy. Components: heading/qualifier [8,8,8,8,null,8]; answer groups [7,8,8,7,null,7]; evidence/back links [6,7,8,7,null,7]."
+    },
+    {
+      "screen": "answers",
+      "variant": "A",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3, F=7.0, overall=7.1. Neutral numbering honestly reflects missing question metadata, and all answers remain available in one reading flow. However, heavier paragraphs and generous section spacing add length without improving identification. At 200%, header and section overhead further reduce visible answer content. Components: heading/qualifier [8,8,8,8,null,8]; numbered answer groups [7,7,8,7,null,7]."
+    },
+    {
+      "screen": "answers",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 5, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=6.0, overall=6.7. Tidy at 200%, but 'Answer 1/2/3' gives no basis for deciding which disclosure to open. Hiding every answer turns retrieval into trial and error. Components: heading/instruction [8,8,8,7,null,8]; numbered disclosure rows [7,8,8,5,6,7]. Feedback score covers visible disclosure affordances only."
+    },
+    {
+      "screen": "answers",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 5, "accessibility": 6},
+      "finding": "A=7.3, F=5.3, overall=6.1. Serial navigation offers little benefit for reviewing three answers. Neutral labels provide position but no useful destination preview; 200% text pushes navigation below the visible passage. Components: position/progress [8,8,8,6,7,7]; answer passage [7,7,8,6,null,7]; previous/next [6,7,8,5,4,6]. Unexplained circular navigation adds recovery cost."
+    },
+    {
+      "screen": "checkin",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 5, "accessibility": 7},
+      "finding": "A=7.0, F=6.0, overall=6.4. Full forecast provides essential context, but 'Not quite' and 'Not yet' overlap in meaning. Numerous secondary actions compete with recording an outcome. At 200%, the first option barely fits and the remaining options require scrolling. Components: forecast/reminder [7,7,8,8,null,7]; outcome rows [6,8,8,5,5,7]; secondary actions [5,7,8,6,null,7]."
+    },
+    {
+      "screen": "checkin",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=7.0, overall=7.3. Best check-in composition: full forecast precedes explicit outcomes, with useful correction and reminder guidance. At 200%, the header and forecast push choices below the initial viewport; scrolling remains necessary. Components: forecast/qualifier [8,7,8,9,null,7]; outcome rows [8,8,8,8,6,7]; correction/reminder copy [7,7,8,8,7,7]; secondary links [7,8,8,8,null,7]. No selection or save feedback is demonstrated."
+    },
+    {
+      "screen": "checkin",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Best initial 200% access to outcomes while retaining a topic identifier. However, evaluating success requires opening the forecast to recover its exact duration and deadline; the uncertainty qualifier is hidden too. Components: topic/forecast disclosure [8,8,8,6,6,7]; outcome rows [8,8,8,8,6,7]; correction/reminder copy [7,7,8,8,7,7]; secondary links [7,8,8,8,null,7]."
+    },
+    {
+      "screen": "checkin",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=6.3, overall=6.9. Outcomes are easiest to reach, but the screen asks for judgment before identifying the forecast. At 200%, the forecast only begins near the bottom, increasing the chance of answering without context. Components: outcome rows [8,8,8,6,6,7]; correction copy [7,7,8,8,7,7]; forecast/reminder placement [5,8,8,6,null,7]; secondary links [7,8,8,8,null,7]."
+    }
+  ],
+  "reasonWinner": "A",
+  "answersWinner": "baseline",
+  "checkinWinner": "A",
+  "reason": "Reason A makes the explanation legible through semantic sections without hiding it. Answers baseline offers the strongest continuous reading composition, though its legacy labels must not be mistaken for original question metadata. Check-in A preserves the exact forecast before clearer outcome choices. B's compactness helps at 200%, but disclosure costs matter when the hidden content is needed to make the decision. No composition demonstrates the authorized A>=9 and F>=9 threshold.",
+  "limitations": [
+    "Reviewed only the six attached sheets, checks.json and public/concepts/expansion-30.html. No implementation, delegation, prior ratings or additional files were used.",
+    "Each screen score combines normal and 200% evidence. Component vectors use [hierarchy, typography, surfaces, clarity, feedback, accessibility]. Screen scores are holistic judgments, not component averages. A and F are calculated from unrounded dimension means; overall is rounded to one decimal.",
+    "Shared proposal components across A/B/C: brand header [7,7,8,7,null,7]; Back to forecast [8,8,8,8,null,7]; decorative bottom navigation [6,7,8,5,null,null]. The footer is aria-hidden, noninteractive spans in the supplied source: its navigation behavior is outside this prototype, not accessible navigation proof. Baseline close/account chrome [6,7,8,6,null,7]. No orb, input or modal is present.",
+    "Feedback numbers assess visible state indicators, affordances and recovery instructions only. They do not score unobserved interaction responsiveness. Null denotes passive reading or behavior outside the static proposal's scope; it does not mean an untested behavior passed.",
+    "checks.json records no horizontal overflow in all 18 alternative state/variant/text-size combinations. Source includes minimum 48px button/summary height and focus styling, but neither establishes actual keyboard or assistive-technology usability.",
+    "Fixed proposal footers reduce the visible reading area. Source includes bottom padding, so screenshots alone do not establish permanently obscured or unreachable content. No hard gate is proven by the visible crop.",
+    "Alternative navigation and outcome controls announce a layout study; no actual reading or outcome is saved. Saving is outside this composition comparison. These proposals cannot pass acceptance as delivered product flows.",
+    "Baseline runtime, contrast, reduced-motion and performance evidence was supplied by the user and not independently rerun. Alternative expanded, selected, loading, error, persistence, transition and keyboard states were not demonstrated here. Physical iPhone, VoiceOver and native behavior remain unverified separately from the browser composition grades.",
+    "Fixture repetition and abrupt endings are visible, but do not establish proposed content truncation. Reason A's semantic structure depends on producer-supplied roles; no migration exists. Answer numbering accurately acknowledges unavailable question metadata."
+  ]
+}
+tokens used
+37,090
+{
+  "comparisons": [
+    {
+      "screen": "reason",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3, F=6.5, overall=6.8. Comfortable body typography, but dividers do not explain the distinction between evidence, assumptions and limitations. At 200%, understanding the structure requires substantial scrolling. Components: heading/qualifier [8,8,8,8,null,8]; prose sections [5,8,8,5,null,7]; evidence/back links [6,7,8,7,null,7]."
+    },
+    {
+      "screen": "reason",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7},
+      "finding": "A=7.7, F=7.5, overall=7.6. Best reason composition: meaningful section headings expose the reasoning structure without requiring interaction. Repeating 'Recorded context' in the body is redundant; dense, heavy paragraphs and the large header consume reading space at 200%. Components: heading/qualifier [8,8,8,8,null,8]; semantic sections [8,7,8,8,null,7]."
+    },
+    {
+      "screen": "reason",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Strong overview at both sizes, with descriptive disclosure labels. However, the initial screen answers none of 'why'; even Limits requires expansion. Components: heading/instruction [8,8,8,8,null,8]; disclosure rows [8,8,8,7,6,7]. Feedback score covers visible disclosure affordances only."
+    },
+    {
+      "screen": "reason",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 5, "accessibility": 6},
+      "finding": "A=7.3, F=5.7, overall=6.3. Position is explicit, but separating related reasoning into passages increases comparison and navigation costs. At 200%, passage controls fall below the initial viewport. Source confirms Previous wraps from the first passage to the last without explaining that behavior. Components: position/progress [8,8,8,8,7,7]; passage [7,7,8,7,null,7]; previous/next [6,7,8,5,4,6]."
+    },
+    {
+      "screen": "answers",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.7, F=7.0, overall=7.3. Best visible reading composition: answers remain exposed, and lighter body typography supports long passages. Question-shaped labels aid scanning, but the supplied provenance says they are legacy labels, not recovered original questions; their apparent specificity is not evidence of accuracy. Components: heading/qualifier [8,8,8,8,null,8]; answer groups [7,8,8,7,null,7]; evidence/back links [6,7,8,7,null,7]."
+    },
+    {
+      "screen": "answers",
+      "variant": "A",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3, F=7.0, overall=7.1. Neutral numbering honestly reflects missing question metadata, and all answers remain available in one reading flow. However, heavier paragraphs and generous section spacing add length without improving identification. At 200%, header and section overhead further reduce visible answer content. Components: heading/qualifier [8,8,8,8,null,8]; numbered answer groups [7,7,8,7,null,7]."
+    },
+    {
+      "screen": "answers",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 5, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=6.0, overall=6.7. Tidy at 200%, but 'Answer 1/2/3' gives no basis for deciding which disclosure to open. Hiding every answer turns retrieval into trial and error. Components: heading/instruction [8,8,8,7,null,8]; numbered disclosure rows [7,8,8,5,6,7]. Feedback score covers visible disclosure affordances only."
+    },
+    {
+      "screen": "answers",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 5, "accessibility": 6},
+      "finding": "A=7.3, F=5.3, overall=6.1. Serial navigation offers little benefit for reviewing three answers. Neutral labels provide position but no useful destination preview; 200% text pushes navigation below the visible passage. Components: position/progress [8,8,8,6,7,7]; answer passage [7,7,8,6,null,7]; previous/next [6,7,8,5,4,6]. Unexplained circular navigation adds recovery cost."
+    },
+    {
+      "screen": "checkin",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 5, "accessibility": 7},
+      "finding": "A=7.0, F=6.0, overall=6.4. Full forecast provides essential context, but 'Not quite' and 'Not yet' overlap in meaning. Numerous secondary actions compete with recording an outcome. At 200%, the first option barely fits and the remaining options require scrolling. Components: forecast/reminder [7,7,8,8,null,7]; outcome rows [6,8,8,5,5,7]; secondary actions [5,7,8,6,null,7]."
+    },
+    {
+      "screen": "checkin",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=7.0, overall=7.3. Best check-in composition: full forecast precedes explicit outcomes, with useful correction and reminder guidance. At 200%, the header and forecast push choices below the initial viewport; scrolling remains necessary. Components: forecast/qualifier [8,7,8,9,null,7]; outcome rows [8,8,8,8,6,7]; correction/reminder copy [7,7,8,8,7,7]; secondary links [7,8,8,8,null,7]. No selection or save feedback is demonstrated."
+    },
+    {
+      "screen": "checkin",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Best initial 200% access to outcomes while retaining a topic identifier. However, evaluating success requires opening the forecast to recover its exact duration and deadline; the uncertainty qualifier is hidden too. Components: topic/forecast disclosure [8,8,8,6,6,7]; outcome rows [8,8,8,8,6,7]; correction/reminder copy [7,7,8,8,7,7]; secondary links [7,8,8,8,null,7]."
+    },
+    {
+      "screen": "checkin",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=6.3, overall=6.9. Outcomes are easiest to reach, but the screen asks for judgment before identifying the forecast. At 200%, the forecast only begins near the bottom, increasing the chance of answering without context. Components: outcome rows [8,8,8,6,6,7]; correction copy [7,7,8,8,7,7]; forecast/reminder placement [5,8,8,6,null,7]; secondary links [7,8,8,8,null,7]."
+    }
+  ],
+  "reasonWinner": "A",
+  "answersWinner": "baseline",
+  "checkinWinner": "A",
+  "reason": "Reason A makes the explanation legible through semantic sections without hiding it. Answers baseline offers the strongest continuous reading composition, though its legacy labels must not be mistaken for original question metadata. Check-in A preserves the exact forecast before clearer outcome choices. B's compactness helps at 200%, but disclosure costs matter when the hidden content is needed to make the decision. No composition demonstrates the authorized A>=9 and F>=9 threshold.",
+  "limitations": [
+    "Reviewed only the six attached sheets, checks.json and public/concepts/expansion-30.html. No implementation, delegation, prior ratings or additional files were used.",
+    "Each screen score combines normal and 200% evidence. Component vectors use [hierarchy, typography, surfaces, clarity, feedback, accessibility]. Screen scores are holistic judgments, not component averages. A and F are calculated from unrounded dimension means; overall is rounded to one decimal.",
+    "Shared proposal components across A/B/C: brand header [7,7,8,7,null,7]; Back to forecast [8,8,8,8,null,7]; decorative bottom navigation [6,7,8,5,null,null]. The footer is aria-hidden, noninteractive spans in the supplied source: its navigation behavior is outside this prototype, not accessible navigation proof. Baseline close/account chrome [6,7,8,6,null,7]. No orb, input or modal is present.",
+    "Feedback numbers assess visible state indicators, affordances and recovery instructions only. They do not score unobserved interaction responsiveness. Null denotes passive reading or behavior outside the static proposal's scope; it does not mean an untested behavior passed.",
+    "checks.json records no horizontal overflow in all 18 alternative state/variant/text-size combinations. Source includes minimum 48px button/summary height and focus styling, but neither establishes actual keyboard or assistive-technology usability.",
+    "Fixed proposal footers reduce the visible reading area. Source includes bottom padding, so screenshots alone do not establish permanently obscured or unreachable content. No hard gate is proven by the visible crop.",
+    "Alternative navigation and outcome controls announce a layout study; no actual reading or outcome is saved. Saving is outside this composition comparison. These proposals cannot pass acceptance as delivered product flows.",
+    "Baseline runtime, contrast, reduced-motion and performance evidence was supplied by the user and not independently rerun. Alternative expanded, selected, loading, error, persistence, transition and keyboard states were not demonstrated here. Physical iPhone, VoiceOver and native behavior remain unverified separately from the browser composition grades.",
+    "Fixture repetition and abrupt endings are visible, but do not establish proposed content truncation. Reason A's semantic structure depends on producer-supplied roles; no migration exists. Answer numbering accurately acknowledges unavailable question metadata."
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "comparisons": [
+    {
+      "screen": "reason",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3, F=6.5, overall=6.8. Comfortable body typography, but dividers do not explain the distinction between evidence, assumptions and limitations. At 200%, understanding the structure requires substantial scrolling. Components: heading/qualifier [8,8,8,8,null,8]; prose sections [5,8,8,5,null,7]; evidence/back links [6,7,8,7,null,7]."
+    },
+    {
+      "screen": "reason",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 7},
+      "finding": "A=7.7, F=7.5, overall=7.6. Best reason composition: meaningful section headings expose the reasoning structure without requiring interaction. Repeating 'Recorded context' in the body is redundant; dense, heavy paragraphs and the large header consume reading space at 200%. Components: heading/qualifier [8,8,8,8,null,8]; semantic sections [8,7,8,8,null,7]."
+    },
+    {
+      "screen": "reason",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Strong overview at both sizes, with descriptive disclosure labels. However, the initial screen answers none of 'why'; even Limits requires expansion. Components: heading/instruction [8,8,8,8,null,8]; disclosure rows [8,8,8,7,6,7]. Feedback score covers visible disclosure affordances only."
+    },
+    {
+      "screen": "reason",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 5, "accessibility": 6},
+      "finding": "A=7.3, F=5.7, overall=6.3. Position is explicit, but separating related reasoning into passages increases comparison and navigation costs. At 200%, passage controls fall below the initial viewport. Source confirms Previous wraps from the first passage to the last without explaining that behavior. Components: position/progress [8,8,8,8,7,7]; passage [7,7,8,7,null,7]; previous/next [6,7,8,5,4,6]."
+    },
+    {
+      "screen": "answers",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.7, F=7.0, overall=7.3. Best visible reading composition: answers remain exposed, and lighter body typography supports long passages. Question-shaped labels aid scanning, but the supplied provenance says they are legacy labels, not recovered original questions; their apparent specificity is not evidence of accuracy. Components: heading/qualifier [8,8,8,8,null,8]; answer groups [7,8,8,7,null,7]; evidence/back links [6,7,8,7,null,7]."
+    },
+    {
+      "screen": "answers",
+      "variant": "A",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3, F=7.0, overall=7.1. Neutral numbering honestly reflects missing question metadata, and all answers remain available in one reading flow. However, heavier paragraphs and generous section spacing add length without improving identification. At 200%, header and section overhead further reduce visible answer content. Components: heading/qualifier [8,8,8,8,null,8]; numbered answer groups [7,7,8,7,null,7]."
+    },
+    {
+      "screen": "answers",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 5, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=6.0, overall=6.7. Tidy at 200%, but 'Answer 1/2/3' gives no basis for deciding which disclosure to open. Hiding every answer turns retrieval into trial and error. Components: heading/instruction [8,8,8,7,null,8]; numbered disclosure rows [7,8,8,5,6,7]. Feedback score covers visible disclosure affordances only."
+    },
+    {
+      "screen": "answers",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 5, "accessibility": 6},
+      "finding": "A=7.3, F=5.3, overall=6.1. Serial navigation offers little benefit for reviewing three answers. Neutral labels provide position but no useful destination preview; 200% text pushes navigation below the visible passage. Components: position/progress [8,8,8,6,7,7]; answer passage [7,7,8,6,null,7]; previous/next [6,7,8,5,4,6]. Unexplained circular navigation adds recovery cost."
+    },
+    {
+      "screen": "checkin",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 5, "accessibility": 7},
+      "finding": "A=7.0, F=6.0, overall=6.4. Full forecast provides essential context, but 'Not quite' and 'Not yet' overlap in meaning. Numerous secondary actions compete with recording an outcome. At 200%, the first option barely fits and the remaining options require scrolling. Components: forecast/reminder [7,7,8,8,null,7]; outcome rows [6,8,8,5,5,7]; secondary actions [5,7,8,6,null,7]."
+    },
+    {
+      "screen": "checkin",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=7.0, overall=7.3. Best check-in composition: full forecast precedes explicit outcomes, with useful correction and reminder guidance. At 200%, the header and forecast push choices below the initial viewport; scrolling remains necessary. Components: forecast/qualifier [8,7,8,9,null,7]; outcome rows [8,8,8,8,6,7]; correction/reminder copy [7,7,8,8,7,7]; secondary links [7,8,8,8,null,7]. No selection or save feedback is demonstrated."
+    },
+    {
+      "screen": "checkin",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Best initial 200% access to outcomes while retaining a topic identifier. However, evaluating success requires opening the forecast to recover its exact duration and deadline; the uncertainty qualifier is hidden too. Components: topic/forecast disclosure [8,8,8,6,6,7]; outcome rows [8,8,8,8,6,7]; correction/reminder copy [7,7,8,8,7,7]; secondary links [7,8,8,8,null,7]."
+    },
+    {
+      "screen": "checkin",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.7, F=6.3, overall=6.9. Outcomes are easiest to reach, but the screen asks for judgment before identifying the forecast. At 200%, the forecast only begins near the bottom, increasing the chance of answering without context. Components: outcome rows [8,8,8,6,6,7]; correction copy [7,7,8,8,7,7]; forecast/reminder placement [5,8,8,6,null,7]; secondary links [7,8,8,8,null,7]."
+    }
+  ],
+  "reasonWinner": "A",
+  "answersWinner": "baseline",
+  "checkinWinner": "A",
+  "reason": "Reason A makes the explanation legible through semantic sections without hiding it. Answers baseline offers the strongest continuous reading composition, though its legacy labels must not be mistaken for original question metadata. Check-in A preserves the exact forecast before clearer outcome choices. B's compactness helps at 200%, but disclosure costs matter when the hidden content is needed to make the decision. No composition demonstrates the authorized A>=9 and F>=9 threshold.",
+  "limitations": [
+    "Reviewed only the six attached sheets, checks.json and public/concepts/expansion-30.html. No implementation, delegation, prior ratings or additional files were used.",
+    "Each screen score combines normal and 200% evidence. Component vectors use [hierarchy, typography, surfaces, clarity, feedback, accessibility]. Screen scores are holistic judgments, not component averages. A and F are calculated from unrounded dimension means; overall is rounded to one decimal.",
+    "Shared proposal components across A/B/C: brand header [7,7,8,7,null,7]; Back to forecast [8,8,8,8,null,7]; decorative bottom navigation [6,7,8,5,null,null]. The footer is aria-hidden, noninteractive spans in the supplied source: its navigation behavior is outside this prototype, not accessible navigation proof. Baseline close/account chrome [6,7,8,6,null,7]. No orb, input or modal is present.",
+    "Feedback numbers assess visible state indicators, affordances and recovery instructions only. They do not score unobserved interaction responsiveness. Null denotes passive reading or behavior outside the static proposal's scope; it does not mean an untested behavior passed.",
+    "checks.json records no horizontal overflow in all 18 alternative state/variant/text-size combinations. Source includes minimum 48px button/summary height and focus styling, but neither establishes actual keyboard or assistive-technology usability.",
+    "Fixed proposal footers reduce the visible reading area. Source includes bottom padding, so screenshots alone do not establish permanently obscured or unreachable content. No hard gate is proven by the visible crop.",
+    "Alternative navigation and outcome controls announce a layout study; no actual reading or outcome is saved. Saving is outside this composition comparison. These proposals cannot pass acceptance as delivered product flows.",
+    "Baseline runtime, contrast, reduced-motion and performance evidence was supplied by the user and not independently rerun. Alternative expanded, selected, loading, error, persistence, transition and keyboard states were not demonstrated here. Physical iPhone, VoiceOver and native behavior remain unverified separately from the browser composition grades.",
+    "Fixture repetition and abrupt endings are visible, but do not establish proposed content truncation. Reason A's semantic structure depends on producer-supplied roles; no migration exists. Answer numbering accurately acknowledges unavailable question metadata."
+  ]
+}

@@ -1,0 +1,30 @@
+Independent blind design comparison. Read-only; no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C for evidence reason, evidence answers and check-in at normal200%. Score all twelve state/variant pairs on six dimensions; null only for genuinely inapplicable prototype behavior. Choose best composition per state; baseline may win. No desired score.
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+Baseline is actual product0fab2f8 with258layout/text states,1572targets,126tests, actual local Ollama reading/PNG/history,480contrast checks,16entrance samples, reduced-motion and isolated60fps/max16.8ms. No physical/native proof. Full content is preserved; baseline reason/answers are long, check-in has complete forecast before outcomes and ambiguous Not quite/Not yet labels. Baseline uses legacy answer labels because its fixture has no original question metadata.
+Alternatives are static HTML proposals, not actual inference/save/accessibility proof. Normal200% screenshots and no-horizontal-overflow checks only. Controls announce Layout study; C can navigate passages; B disclosures can expand. All text doubles. Open mist stays borderless and dark.
+A: complete semantic reason sections, numbered answer groups, full forecast before explicit outcomes. All text immediately exposed, longer scroll.
+B: semantic or numbered section disclosures; check-in provides a brief topic identifier and complete forecast disclosure before outcomes. Easy scanning, extra interaction and less immediately visible context.
+C: one passage at a time with previous/next and position; check-in outcomes precede full forecast. Less initial visual load, greater context/navigation cost.
+Reason prototypes use explicit fixture roles Recorded context/Scenario assumption/Limits. Those roles would have to be supplied by the producer, never guessed from legacy prose; no such data migration is implemented yet. Complete legacy prose would remain accessible. Answer fixtures have only neutral Answer1/2/3 labels, matching baseline unknown keys. Outcome labels Came true/Did not happen/Still waiting are proposed clarifications, with explicit change guidance. No content truncation proposed.
+Only inspect attached screenshots, docs/ux-loop/expansion-30/checks.json and public/concepts/expansion-30.html if needed. No other files/prior grades. Return schema JSON.
