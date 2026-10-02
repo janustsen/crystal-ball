@@ -3,7 +3,7 @@ import {Alert} from 'react-native';
 import {forgetCheckIns} from './native';
 import {forgetOmen} from './daily-omen';
 import {updateOmenWidget} from './omen-widget';
-import {restoreProfile,canRead} from './profile';
+import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
 import {mirror,restoreBackup,supabase} from './cloud';
@@ -50,7 +50,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);change(s=>({...initial(),backupOwner:s.backupOwner,plus:s.plus,credits:s.credits,usage:s.usage}))},savePrediction:(prediction)=>change(s=>{
+ return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll:async()=>{if(locked.current)return;await forgetOmen(AsyncStorage);void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[]}))},savePrediction:(prediction)=>change(s=>{
   if(locked.current||!canRead(s))return s;
   if(s.history.some(p=>p.id===prediction.id))return s;
   const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;

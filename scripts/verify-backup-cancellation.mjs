@@ -38,7 +38,7 @@ try{
   try{
    await page.setContent('<div id="root"></div>');
    await page.evaluate(scenario=>{
-    const initial={facts:{practice:'daily'},history:[{id:'reading-1'}],credits:5,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false,backupOwner:'apple-owner'};
+    const initial={sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,facts:{practice:'daily'},history:[{id:'reading-1'}],credits:5,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false,backupOwner:'apple-owner'};
     window.control={disk:scenario==='fresh'?null:JSON.stringify(initial),archive:{facts:initial.facts,history:initial.history},online:true,delay:scenario==='hydration'||scenario==='timeout',failLocal:scenario==='read-error',saves:0,reads:0,uploads:0,auth:0,validDisk:JSON.stringify({...initial,credits:17})};
     if(scenario==='decode-error')window.control.disk='{';
     if(scenario==='invalid-archive')window.control.disk='{}';

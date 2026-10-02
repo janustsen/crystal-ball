@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createClient,type Session} from '@supabase/supabase-js';
 import {anonymousOwner,mirror,restoreBackup} from '../src/cloud.ts';
 import type {AccountState} from '../src/types.ts';
-const empty:AccountState={facts:{},history:[],credits:5,plus:false,usage:{day:'2026-09-30',count:0},reduceMotion:false,largeText:false};
+const empty:AccountState={sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,facts:{},history:[],credits:5,plus:false,usage:{day:'2026-09-30',count:0},reduceMotion:false,largeText:false};
 const reading={id:'12345678-1234-1234-1234-123456789abc',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-30T00:00:00Z',label:'Speculative',why:'Practice',facts:{practice:'daily'},sources:[],assumptions:[],friend:false};
 function archive(){
  const remote={facts:{practice:'daily'} as Record<string,string>,history:[reading],writes:0,failRead:false,hasArchive:true,owner:'apple-owner'};
