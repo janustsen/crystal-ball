@@ -45,7 +45,8 @@ test('authenticated clients reach the configured engine port through every previ
    assert.equal((await originalFetch(base+path,{...init,headers:{origin:'https://other.invalid','x-preview-token':secret}})).status,403);
   }
   const before=forwarded;
-  for(const method of ['GET','POST'])for(const headers of [{},{origin:base,'x-preview-token':secret}]){
+  const headerCases:Record<string,string>[]=[{},{origin:base,'x-preview-token':secret}];
+  for(const method of ['GET','POST'])for(const headers of headerCases){
    const removed=await originalFetch(base+'/engine/share',{method,headers});
    assert.equal(await removed.text(),'public client bundle');
    assert.equal(forwarded,before);
