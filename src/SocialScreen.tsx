@@ -60,7 +60,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
   {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
-   <Txt display style={styles.title}>What if?</Txt><Txt style={styles.caption}>Choose a star to explore a question.</Txt>
+   <Txt display style={styles.title}>What if?</Txt><Txt style={styles.caption}>Choose a theme to explore a question.</Txt>
 
    {!offline?<Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>:null}
    <View testID="tonights-sky" style={{minHeight:state.largeText?0:200,marginVertical:16,backgroundColor:'transparent',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',gap:12}: {})}}>
