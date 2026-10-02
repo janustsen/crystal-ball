@@ -78,7 +78,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('hero-orb');await check('approach',text('The Ball is opening…'),0);
  await check('listening',page.getByTestId('type-instead'));
  await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));
- await tap('question-subject');await tap('ask-about-someone');await page.getByTestId('person-name').fill('Alex');await page.getByTestId('question-input').fill('Will Alex learn Spanish in six months?');await check('ask-person',page.getByTestId('person-name'));await tap('question-subject');await check('ask-person-collapsed',page.getByTestId('question-subject'));await tap('question-subject');await tap('ask-about-myself');await tap('question-subject');await page.getByTestId('question-input').fill(prediction.question);
+ await page.getByTestId('question-input').fill('Will Alex learn Spanish in six months?');await tap('question-subject');await tap('ask-about-someone');await page.getByTestId('person-name').fill('Alex');await check('ask-person',page.getByTestId('person-name'));await tap('save-subject');await check('ask-person-collapsed',page.getByTestId('question-subject'));await tap('question-subject');await tap('ask-about-myself');await tap('save-subject');await page.getByTestId('question-input').fill(prediction.question);
  await tap('look-into-the-future');await check('planning',planning);
  await reply('plan',error);await check('error-plan',text('The mist is too thick.'));
  await tap('try-again');await expect(planning).toBeVisible();await reply('plan',blocked);
@@ -95,7 +95,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
  for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
- await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(text(prediction.why)).toBeVisible();
+ await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(page.getByTestId('reason-passages')).toHaveText(prediction.why);
  await check('reveal-why',page.getByTestId('why-heading'));
  await tap('go-deeper-with-plus');await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');
  await check('reveal-evidence',page.getByTestId('why-reason'));

@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,BackHandler,Linking,Platform,Pressable,View} from 'react-native';
 import {Action,colors,styles,Txt} from './ui';
+import {readingPassages} from './reading-passages';
 import {factLabels} from './questions';
 import {useStore} from './store';
 import type {Prediction} from './types';
@@ -9,9 +10,9 @@ export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction
  const [section,setSection]=useState<string|null>(state.plus?null:'reason');
  const returnFocus=useRef<string|null>(null);
  const groups=[
-  {id:'reason',title:'Why this forecast',detail:'The scenario and its limits',body:<Txt style={{fontSize:17,lineHeight:26,fontWeight:'400'}}>{state.plus?(prediction.deeperWhy||prediction.why):prediction.why}</Txt>},
+  {id:'reason',title:'Why this forecast',detail:'The scenario and its limits',body:<View testID="reason-passages">{readingPassages(state.plus?(prediction.deeperWhy||prediction.why):prediction.why).map((part,index)=><View key={index} style={{paddingBottom:20,marginBottom:20,borderBottomWidth:1,borderColor:'#614C3433'}}><Txt style={{fontSize:17,lineHeight:26,fontWeight:'400'}}>{part+' '}</Txt></View>)}</View>},
   {id:'answers',title:'Your answers',detail:`${Object.keys(prediction.facts).length} details you supplied`,body:Object.entries(prediction.facts).map(([key,value])=><View key={key} style={{marginBottom:24}}><Txt style={[styles.caption,{color:colors.gold,marginBottom:8}]}>{factLabels[key]||key.replaceAll('_',' ')}</Txt><Txt style={{fontSize:17,lineHeight:26}}>{value}</Txt></View>)},
-  {id:'assumptions',title:'Assumptions',detail:`${prediction.assumptions.length} scenario conditions`,body:prediction.assumptions.length?prediction.assumptions.map((assumption,index)=><Txt key={index} style={{marginBottom:20,fontSize:17,lineHeight:26}}>{assumption}</Txt>):<Txt>No additional assumptions recorded.</Txt>},
+  {id:'assumptions',title:'Assumptions',detail:`${prediction.assumptions.length} scenario condition${prediction.assumptions.length===1?'':'s'}`,body:prediction.assumptions.length?prediction.assumptions.map((assumption,index)=><Txt key={index} style={{marginBottom:20,fontSize:17,lineHeight:26}}>{assumption}</Txt>):<Txt>No additional assumptions recorded.</Txt>},
   {id:'sources',title:'Current sources',detail:prediction.sources.length?`${prediction.sources.length} background sources`:'No current sources found',body:prediction.sources.length?prediction.sources.map(source=><Pressable key={source.url} accessibilityRole="link" onPress={()=>Linking.openURL(source.url)} style={{minHeight:48,paddingVertical:12}}><Txt style={{color:colors.ice,fontSize:17,lineHeight:26}}>{source.title}</Txt><Txt style={[styles.caption,{marginTop:8}]}>{new Date(source.date).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} · {source.publisher}</Txt></Pressable>):<Txt>No relevant current sources found.</Txt>}
  ];
  const active=groups.find(group=>group.id===section);

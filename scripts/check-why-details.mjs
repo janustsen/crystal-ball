@@ -8,7 +8,7 @@ try{for(const largeText of [false,true]){
  for(const id of ['reason','answers','assumptions','sources']){
   const button=page.getByTestId(`why-${id}`);await button.focus();await page.keyboard.press('Enter');await expect(page.getByTestId('why-heading')).toBeFocused();await expect(page.getByTestId('why-all-evidence')).toBeInViewport({ratio:1});
   const values=id==='reason'?[prediction.deeperWhy||prediction.why]:id==='answers'?Object.values(prediction.facts):id==='assumptions'?prediction.assumptions:prediction.sources.length?prediction.sources.map(source=>source.title):['No relevant current sources found.'];
-  for(const value of values)await expect(page.getByText(value,{exact:true}).first()).toBeVisible();await page.getByTestId('why-all-evidence').click();await expect(button).toBeFocused();
+  for(const value of values)if(id==='reason')await expect(page.getByTestId('reason-passages')).toHaveText(value);else await expect(page.getByText(value,{exact:true}).first()).toBeVisible();await page.getByTestId('why-all-evidence').click();await expect(button).toBeFocused();
  }
  const scan=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(scan.violations).toEqual([]);await page.getByTestId('why-disclosure').click();await expect(page.getByTestId('why-disclosure')).toBeFocused();await expect(page.getByTestId('why-heading')).toHaveCount(0);log.push({largeText,fullContentPreserved:true,headerFocus:true,compactContextVisible:true,allGroupsKeyboardAccessible:true,returnFocus:true,axeViolations:scan.violations});await context.close();
 }}catch(error){log.push({failure:String(error)});process.exitCode=1}finally{await browser.close();await writeFile(`${out}/why.json`,JSON.stringify(log,null,2));console.log(log)}
