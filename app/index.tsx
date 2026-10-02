@@ -58,6 +58,11 @@ export default function App(){
  const personalFacts={...state.facts,...(state.birthday?{birthday:state.birthday}:{})};
  const lastReading=useRef<{plan:Plan;answers:Facts;question:string}|null>(null);
  const [aiAllowed,setAiAllowed]=useState(false),[privacyOpen,setPrivacyOpen]=useState(false);
+ useEffect(()=>{
+  if(Platform.OS!=='web'||height>=600||flow.stage!=='ask'||tab!=='Ask')return;
+  const frame=requestAnimationFrame(()=>document.querySelector('[data-testid="question-entry"]')?.scrollIntoView({block:'nearest'}));
+  return()=>cancelAnimationFrame(frame);
+ },[height,state.largeText,flow.stage,tab]);
  useEffect(()=>{setLongWait(false);const timer=setTimeout(()=>setLongWait(true),8000);return()=>clearTimeout(timer)},[flow.stage]);
  const controller=useRef<AbortController|null>(null),generation=useRef(0),predicting=useRef(false),reduce=state.reduceMotion||systemReduce;
  useEffect(()=>{if(Platform.OS!=='web')return;const css=document.createElement('style');css.textContent='[role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #5CE1E6!important;outline-offset:3px}';document.head.appendChild(css);return()=>css.remove()},[]);
@@ -134,10 +139,10 @@ export default function App(){
   {!friend?<View style={{borderBottomWidth:1,borderColor:'#614C3466',marginBottom:12}}>
    <Pressable testID="question-subject" accessibilityRole="button" onPress={()=>setPersonDetails(true)} style={{minHeight:56,paddingVertical:14,flexDirection:'row',alignItems:'center',gap:12}}><Txt style={{flex:1}}>About {personMode?(personName.trim()||'someone · first name needed'):'myself'} · change</Txt><Txt aria-hidden style={{color:colors.gold}}>›</Txt></Pressable>
   </View>:null}
-  <Txt style={[styles.caption,{marginBottom:6}]}>Your question</Txt>
-  <Input testID="question-input" accessibilityLabel="Your question" placeholder="What will my life look like next year?" placeholderTextColor={colors.muted} multiline value={question} onChangeText={setQuestion} maxLength={500} style={[styles.input,{fontFamily:fonts.display,minHeight:state.largeText?274:154,textAlignVertical:'top',fontSize:24,lineHeight:30}]}/>
-  <Txt style={[styles.caption,{marginTop:14}]}>For entertainment. Your question and answers are sent to generate a forecast.</Txt>{aiPermission}
-  <Action testID="look-into-the-future" label="Ask the Ball" disabled={question.trim().length<4||(personMode&&!validPersonName(personName.trim()))||!!aiProvider&&!aiAllowed} onPress={begin}/>
+  <Txt style={[styles.caption,{marginBottom:14}]}>For entertainment. Your question and answers are sent to generate a forecast.</Txt>{aiPermission}
+  <View testID="question-entry"><Txt style={[styles.caption,{marginBottom:6}]}>Your question</Txt>
+  <Input testID="question-input" accessibilityLabel="Your question" placeholder="What will my life look like next year?" placeholderTextColor={colors.muted} multiline value={question} onChangeText={setQuestion} maxLength={500} style={[styles.input,{fontFamily:fonts.body,minHeight:height<600?(state.largeText?190:112):(state.largeText?242:138),textAlignVertical:'top',fontSize:18,lineHeight:26,borderWidth:1,borderRadius:12,paddingHorizontal:12}]}/>
+  <Action testID="look-into-the-future" label="Ask the Ball" disabled={question.trim().length<4||(personMode&&!validPersonName(personName.trim()))||!!aiProvider&&!aiAllowed} onPress={begin}/></View>
   {textLink('Speak instead',()=>setFlow({stage:'listening'}))}
  </>;
  if(flow.stage==='planning'||flow.stage==='research')return <View style={{flexGrow:1,justifyContent:'center',paddingTop:28}}>{centeredOrb(240,'research')}<Txt display style={{textAlign:'center',fontFamily:fonts.italic,fontSize:31}}>The mist is gathering…</Txt><Txt accessibilityLiveRegion="polite" style={[styles.muted,{textAlign:'center',marginTop:16}]}>{flow.stage==='planning'?'Checking the question and finding what matters.':'Looking for current context and forming your forecast.'}</Txt><View style={{marginTop:56}}><Txt style={[styles.caption,{textAlign:'center'}]}>{longWait?'Still working. You can cancel safely; no reading is spent on failure.':'This can take up to a minute. No reading is spent unless your forecast arrives.'}</Txt>{textLink('Cancel',()=>{cancel();setTab('Home')})}</View></View>;
