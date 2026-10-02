@@ -1,0 +1,707 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fb61-c73c-7511-97b8-f50f21a72f33
+--------
+user
+You are an independent blind UX evaluator. Read-only evaluation; do not implement, delegate, supervise, browse other task state, or read other graders/previous rounds. Evaluate the attached labeled screenshots of Crystal Ball, a speculative entertainment app. The material direction is borderless dark mist, with a gold illustrated orb as the hero. Sample layout predictions are fixtures and cannot establish model quality. Treat runtime limitations honestly. Never infer functionality from a screenshot. Do not award a desired score to satisfy a target.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+RUNTIME EVIDENCE:
+# Round 02 evidence
+
+Build: Open mist with 200–550ms readable fade/lift transitions, no veils, flips or screen scaling; consistent underlined answer rows; a 650ms automatic approach; compact Sky; contextual available-credit Plans copy; explicit yearly/monthly units; Check back reminder label; outcome controls adjacent to the forecast. 390×844 screenshots are attached in labeled sheets. All text content in the layout sweep is explicitly synthetic fixture data. Do not treat those headlines as successful model output. Transition images are mid-entry samples; settled images follow each.
+
+`npm run check` passed; `npm test` passed all 85 tests. `screens/layout.json` records 144 passing measurements across all 17 states plus variants at 360/390/430, normal and 200% text, zero horizontal overflow. `screens/controls.json` records actual control bounds. Extra screenshots show offline Circles, setting controls, and 20-item synthetic history stress.
+
+The separate real Ollama `real-drive/drive.json` completed a Spanish-learning reading with actual HTTP plan and prediction, all three follow-ups including custom input; Why; actual 1080×1920 PNG export; synthetic export failure recovery; reminder preview; history persistence and outcome; fact forget/Undo; simulated plan purchase/restore notice; real sensitive redirect; recovery and 375px/200% reduced-motion traversal. Axe scans Home, typing, question, custom answer, reveal, plans, sensitive redirect and large-text Home reported zero violations. No page errors. Only export HTTP failure is synthetic. Structural completion does not establish predictive accuracy or all-domain semantic relevance.
+
+Home proportional checks from the preceding commit passed Chrome and WebKit at 390×844 and 430×932 with normal/200% text: 261px orb, separate whisper, one/two-line headline, omen inside its surface. Safari-engine emulation is not a physical iPhone test. WebKit scrolled reduced-motion snapshots need 250ms for the atmospheric canvas to settle, and initial frames were retained.
+
+Unverified: physical iPhone Safari, native Dynamic Type, keyboard safe areas, VoiceOver/TalkBack, microphone hardware, haptics, real payments, real Supabase/Auth backend, OS share sheet. Local HTTP speech can be unavailable. Social backend is unavailable in this preview; sample stars are labeled, circles display offline state. The previous motion trace failed on four transitions; its failure motivated removing full-screen veils, flips and scaling. The current trace is in progress, so no performance pass is claimed. Native/assistive evidence cannot be inferred from these screenshots. Grade functionality provisionally and apply the rubric's certification limits.
+
+
+Current live replay passed all real-drive assertions, including available balance after a simulated pack purchase, outcome save/persistence, credit invariants, edit/forget/Undo and export. A harness selector that expected the removed duplicate Plans button was corrected to read the visible plan balance; the failed drive is preserved. Physical assistive and native limitations above remain.
+
+
+Grade EVERY settled screen and key state represented in the sheets (group its corresponding transition with it, assess visible transition continuity). Include ALL 17 core states and empty, error, loading, expanded, other-input and populated variants. Grade these components individually too: hero orb, tab bar, wordmark/balance header, primary button, secondary action, answer choice, question input, large-text input, settings switch, omen content, sky star/selected question, circle surface, history row, plan option, share preview, notice/recovery, typography, atmospheric background. If evidence is missing, record it and provisional scores; do not invent proof. For each screen and component give six 0–10 dimension scores, evidence and concise concrete findings. Use null only for truly inapplicable dimensions, not missing evidence. Return the required JSON. Keep each evidence field to one sentence and findings to ONE concise, actionable sentence per item. Do not classify intentionally labeled synthetic fixture wording as a production-copy bug; runtime evidence states the boundary. You may inspect ONLY the round's screenshots, controls.json, layout.json and runtime.md if more detail is needed. Do not inspect research.md (contains prior ratings), source, or other files.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+{
+  "screens": [
+    {
+      "name": "Home",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 7},
+      "evidence": "Sheet 07 shows the settled Home and entry sample, with an unavailable omen beneath the dominant orb.",
+      "findings": ["Give the unavailable omen a contextual retry action instead of requiring a return tomorrow."]
+    },
+    {
+      "name": "Approach",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 01 shows consistent orb placement and opening-status copy across the approach pair; the supplied evidence reports automatic progression after 650ms.",
+      "findings": ["Verify that the automatic transition preserves focus and does not require users to finish reading the temporary message."]
+    },
+    {
+      "name": "Ask",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 01–02 show a labeled question field, voice alternative and clear submission button, with a modest entry-position change.",
+      "findings": ["Simplify the question field’s doubled border to a single restrained boundary."]
+    },
+    {
+      "name": "Ask — 200% text",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheet 01 shows the enlarged question and disclosure consuming the viewport while submission controls fall outside the capture.",
+      "findings": ["Reduce decorative height at enlarged text sizes and verify that submission remains easy to discover by scrolling."]
+    },
+    {
+      "name": "Follow-up 1",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 02 shows the question, four evenly separated answer rows and a textual step count across entry and settled states.",
+      "findings": ["Make the answer scale consistent, since progress labels and certainty labels currently describe different things."]
+    },
+    {
+      "name": "Follow-up 2",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 02–03 show a readable obstacle question, four answer rows and the second-step indicator.",
+      "findings": ["Capture the selected predefined answer and ensuing focus position to establish feedback before advancement."]
+    },
+    {
+      "name": "Follow-up 3",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 03 shows the support question and final-step indicator with consistent answer-row styling.",
+      "findings": ["Make the final answer’s transition into prediction generation explicit to keyboard and screen-reader users."]
+    },
+    {
+      "name": "Custom answer",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 04 shows a checked custom choice, labeled empty input and disabled Continue button, while the orb has a conspicuous horizontal cutoff.",
+      "findings": ["Remove the orb cutoff in the compact custom-answer layout."]
+    },
+    {
+      "name": "Custom answer — 200% text",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 6, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheet 03 shows enlarged choices, custom input and disabled Continue, but the question is outside the visible area.",
+      "findings": ["Keep the current question readily recoverable while entering a custom answer at 200% text."]
+    },
+    {
+      "name": "Planning",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 09 shows the planning stage, expected wait, credit protection and Cancel action across entry and settled captures.",
+      "findings": ["Verify that stage announcements and cancellation remain accessible during the full wait."]
+    },
+    {
+      "name": "Research",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 09–10 distinguish research through status copy while retaining the same loading headline and a more prominent mist background.",
+      "findings": ["Give the research stage a distinct concise heading so progress does not depend on reading secondary text."]
+    },
+    {
+      "name": "Reveal",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheets 10–11 show a prominent fixture forecast and grouped actions, with substantially dimmer forecast text in the entry sample.",
+      "findings": ["Keep essential forecast text legible throughout entry and clarify what Ask again does when no daily reading remains."]
+    },
+    {
+      "name": "Reveal — expanded explanation",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 7, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 10 shows the expanded explanation and changed disclosure label, with long synthetic content continuing below the viewport.",
+      "findings": ["Divide long explanations into labeled sections so evidence, assumptions and uncertainty remain scannable."]
+    },
+    {
+      "name": "Check-in",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 04 places outcome choices near the forecast and sharing action; supplied runtime evidence reports outcome persistence.",
+      "findings": ["Show a clear selected and saved outcome state, and distinguish a reminder date from the forecast’s time horizon."]
+    },
+    {
+      "name": "Listening — unavailable voice",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 7, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 08 shows a voice-start failure notice, Start listening and Type instead, while microphone hardware remains unverified.",
+      "findings": ["Change the idle instruction after failure to make retrying or typing the immediate next step."]
+    },
+    {
+      "name": "Planning error",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 05 presents the labeled fixture error with retry, question editing and reassurance that no reading was charged.",
+      "findings": ["Verify that retry failure retains the question and returns focus to an announced error message."]
+    },
+    {
+      "name": "Prediction error",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 05–06 show retry, answer review and question editing with stable content across the transition pair.",
+      "findings": ["Capture a repeated failure and successful retry to establish that answers and credits remain intact."]
+    },
+    {
+      "name": "Sensitive redirect — planning",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 11 shows support, another-question and editing actions with an explicit no-credit and no-memory statement.",
+      "findings": ["Give the support action greater visual priority than returning to another prediction."]
+    },
+    {
+      "name": "Sensitive redirect — prediction",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 11–12 show the same redirect structure over stronger mist; supplied runtime evidence reports a real sensitive redirect.",
+      "findings": ["Keep the support action prominent and its destination understandable before activation."]
+    },
+    {
+      "name": "History — empty",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 07 shows an empty-state explanation, Ask the Ball action and device-storage disclosure with stable entry continuity.",
+      "findings": ["Verify that the understated empty-state action has an adequate target and visible keyboard focus."]
+    },
+    {
+      "name": "History — populated",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 06 shows a dated fixture reading with original question, forecast and Waiting status; runtime evidence reports persistence.",
+      "findings": ["Replace the vague Waiting status with an explicit pending check-in date or outcome state."]
+    },
+    {
+      "name": "History — stress",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 06 shows multiple synthetic entries and a partially visible lower row behind the fixed navigation area.",
+      "findings": ["Verify that the final history row can scroll completely clear of the tab bar and raised orb."]
+    },
+    {
+      "name": "Sky",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 13 shows labeled sample stars, a selected question, tabs and a primary action, with gold identifying Love.",
+      "findings": ["Explain the My school switch and add a non-color indicator for the selected star."]
+    },
+    {
+      "name": "Circles — offline",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 05 shows circle creation and a sharing switch above an offline notice and reconnect action.",
+      "findings": ["Move the offline explanation beside circle creation and explain whether creation is currently available."]
+    },
+    {
+      "name": "Plans",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 08–09 show explicit billing periods, simulated purchase labels and selected yearly pricing, but the settled orb is clipped at the top.",
+      "findings": ["Remove the clipped decorative orb and preserve the pricing hierarchy without the abrupt top-edge fragment."]
+    },
+    {
+      "name": "Plans — 200% text",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 08 shows enlarged plan prices and a visible purchase button, with heavy wrapping in the two-column layout.",
+      "findings": ["Stack price and billing details at 200% text to reduce fragmented reading."]
+    },
+    {
+      "name": "Share",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 12–13 show a story preview and distinct sharing formats; runtime evidence establishes PNG export but not the OS share sheet.",
+      "findings": ["Clarify the audience and access conditions of Private friend link before users choose it."]
+    },
+    {
+      "name": "Story export",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 13–14 show a full story card and export button; supplied runtime evidence reports actual PNG export and synthetic failure recovery.",
+      "findings": ["Provide an accessible export-success message that identifies where the image went."]
+    },
+    {
+      "name": "You — empty memory",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 14 shows plan status, empty memory explanation and settings; runtime evidence separately reports fact deletion and Undo.",
+      "findings": ["Add visual evidence of populated memory, editing and Undo so those important controls can be assessed."]
+    },
+    {
+      "name": "Settings controls",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 12 shows sound, motion and text-size switches with inconsistent off-track colors and no visible textual state.",
+      "findings": ["Standardize switch-state styling and verify accessible names and announced on/off values."]
+    },
+    {
+      "name": "Settings controls — 200% text",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 12 shows enlarged settings labels and a selected large-text switch while the bottom navigation labels remain small.",
+      "findings": ["Verify that navigation labels and switch targets remain usable under the same enlargement preference."]
+    }
+  ],
+  "components": [
+    {
+      "name": "Hero orb",
+      "dimensions": {"hierarchy": 8, "typography": null, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "The orb consistently anchors the screens, but custom-answer and Plans captures show horizontal clipping and Home uses it as an action.",
+      "findings": ["Fix compact-layout clipping and give actionable orbs explicit accessible names and focus treatment."]
+    },
+    {
+      "name": "Tab bar",
+      "dimensions": {"hierarchy": 8, "typography": 6, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheets 05–07 and 12–14 show labeled tabs, gold active styling and a raised central orb with consistently small labels.",
+      "findings": ["Improve label legibility and verify target bounds, selected-state announcements and clearance above the raised orb."]
+    },
+    {
+      "name": "Wordmark and balance header",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Headers consistently pair identity or page title with a small remaining-reading count, and runtime evidence reports balance invariants.",
+      "findings": ["Clarify how daily allowance and purchased credits contribute to the displayed balance."]
+    },
+    {
+      "name": "Primary button",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Cream rounded buttons consistently identify primary actions, with disabled examples visible on custom-answer screens.",
+      "findings": ["Capture focused, pressed and busy states and explain disabled actions without relying on faint button text."]
+    },
+    {
+      "name": "Secondary action",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Gold links and white underlined rows both serve secondary actions across recovery, reveal and settings screens.",
+      "findings": ["Assign consistent styling to navigation, disclosure and retry actions so their roles are easier to distinguish."]
+    },
+    {
+      "name": "Answer choice",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 02–04 show generously spaced underlined choices and a checked gold selected custom option.",
+      "findings": ["Demonstrate predefined selection feedback and verify radio semantics and keyboard operation."]
+    },
+    {
+      "name": "Question input",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 01–02 show a labeled multiline field with readable content and a doubled gold boundary.",
+      "findings": ["Use one field boundary and verify distinct focus, validation and keyboard-visible states."]
+    },
+    {
+      "name": "Large-text input",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheets 01 and 03 show enlarged inputs occupying substantial screen height, with related context or actions outside the capture.",
+      "findings": ["Adapt surrounding decoration and spacing so question context and the next action remain discoverable at 200% text."]
+    },
+    {
+      "name": "Settings switch",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 6, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 12 shows gray and brown off tracks and a teal on track, while switch hit areas and semantics are not visible.",
+      "findings": ["Use a coherent state palette and verify enlarged hit areas and announced state."]
+    },
+    {
+      "name": "Omen content",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "evidence": "Sheet 07 shows the free daily omen section only in an unavailable state.",
+      "findings": ["Provide contextual recovery and capture a successful omen before judging its normal content layout."]
+    },
+    {
+      "name": "Sky star and selected question",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheet 13 connects a gold Love star with a labeled sample question below the constellation.",
+      "findings": ["Add a non-color selection marker and verify that each star has a sufficiently large named target."]
+    },
+    {
+      "name": "Circle surface",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 05 presents privacy copy, creation, sharing preference and offline recovery in one borderless section.",
+      "findings": ["Group the offline status with affected controls and make the sharing switch’s availability explicit."]
+    },
+    {
+      "name": "History row",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 06 shows date, question, forecast and Waiting status separated by restrained horizontal rules.",
+      "findings": ["Make opening a reading and its pending outcome status explicit without adding visual clutter."]
+    },
+    {
+      "name": "Plan option",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 08–09 show a checked yearly option, explicit periods and annual billing details, with substantial wrapping at enlarged text.",
+      "findings": ["Stack pricing at enlarged text sizes and verify selection semantics and focus styling."]
+    },
+    {
+      "name": "Share preview",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 6},
+      "evidence": "Sheets 12–14 show a coherent story composition, but disclosure and branding text are tiny in the compact preview.",
+      "findings": ["Provide an accessible text equivalent and keep the entertainment qualification legible at typical sharing sizes."]
+    },
+    {
+      "name": "Notice and recovery",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Error and voice screens provide explicit failures and recovery actions, while runtime evidence reports synthetic export-failure recovery.",
+      "findings": ["Verify live announcements, focus placement and retained input for every recovery path."]
+    },
+    {
+      "name": "Typography system",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "evidence": "Display serif, script and sans-serif roles are consistent, with small muted metadata and strained enlarged pricing layouts.",
+      "findings": ["Increase secondary-text legibility and adapt multi-column content for enlarged text."]
+    },
+    {
+      "name": "Atmospheric background",
+      "dimensions": {"hierarchy": 7, "typography": null, "surfaces": 7, "clarity": null, "feedback": null, "accessibility": 6},
+      "evidence": "Mist preserves the dark visual direction but varies strongly behind reveal content, and the current motion trace is unfinished.",
+      "findings": ["Constrain mist contrast behind essential text and complete reduced-motion and performance verification."]
+    }
+  ],
+  "limitations": [
+    "All functional scores are provisional: screenshots establish visible presentation, while runtime claims are supplied evidence rather than independently replayed checks.",
+    "Dimension scores use the frozen rubric; derive A, F and overall from each item's numeric dimensions, excluding only null values.",
+    "Null marks genuinely inapplicable dimensions, such as feedback for a static share preview; missing interaction evidence receives provisional numeric scores.",
+    "All labeled settled states and represented variants are included, with their corresponding transition samples assessed together.",
+    "The supplied layout evidence reports 144 passing measurements and zero horizontal overflow, but this does not establish vertical discoverability, keyboard clearance or assistive usability.",
+    "Supplied runtime evidence reports passing checks, 85 tests, real reading completion, credit invariants, persistence, export and selected recovery paths; synthetic layout predictions establish no model quality or predictive accuracy.",
+    "Mid-entry captures show reduced text opacity and position changes, but still images cannot establish smoothness, timing, focus continuity or freedom from distracting layout shifts.",
+    "Current motion-performance verification is unfinished, and the earlier failed trace remains unresolved evidence rather than a pass.",
+    "Physical phones, native text scaling, keyboard safe areas, screen readers, microphone hardware, haptics, payments, social backend and OS sharing remain unverified.",
+    "Clipping and offscreen content are flagged without assuming controls are unreachable; these screenshots alone do not conclusively establish a hard-gate failure.",
+    "No 9/10 certification is supported, and the authorized A >=9 and F >=9 threshold is not met."
+  ],
+  "topFixes": [
+    "Fix the visibly clipped orb on custom-answer and Plans screens.",
+    "Adapt 200% text layouts so decoration yields space to question context, pricing and primary actions.",
+    "Keep essential text readable throughout transitions and complete the outstanding motion trace.",
+    "Clarify offline circle availability, unavailable omen recovery, pending check-ins and zero-balance actions.",
+    "Verify control targets, focus, selection announcements and recovery on physical devices with assistive technology."
+  ]
+}
+tokens used
+49,784
+{
+  "screens": [
+    {
+      "name": "Home",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 7},
+      "evidence": "Sheet 07 shows the settled Home and entry sample, with an unavailable omen beneath the dominant orb.",
+      "findings": ["Give the unavailable omen a contextual retry action instead of requiring a return tomorrow."]
+    },
+    {
+      "name": "Approach",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 01 shows consistent orb placement and opening-status copy across the approach pair; the supplied evidence reports automatic progression after 650ms.",
+      "findings": ["Verify that the automatic transition preserves focus and does not require users to finish reading the temporary message."]
+    },
+    {
+      "name": "Ask",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 01–02 show a labeled question field, voice alternative and clear submission button, with a modest entry-position change.",
+      "findings": ["Simplify the question field’s doubled border to a single restrained boundary."]
+    },
+    {
+      "name": "Ask — 200% text",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheet 01 shows the enlarged question and disclosure consuming the viewport while submission controls fall outside the capture.",
+      "findings": ["Reduce decorative height at enlarged text sizes and verify that submission remains easy to discover by scrolling."]
+    },
+    {
+      "name": "Follow-up 1",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 02 shows the question, four evenly separated answer rows and a textual step count across entry and settled states.",
+      "findings": ["Make the answer scale consistent, since progress labels and certainty labels currently describe different things."]
+    },
+    {
+      "name": "Follow-up 2",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 02–03 show a readable obstacle question, four answer rows and the second-step indicator.",
+      "findings": ["Capture the selected predefined answer and ensuing focus position to establish feedback before advancement."]
+    },
+    {
+      "name": "Follow-up 3",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 03 shows the support question and final-step indicator with consistent answer-row styling.",
+      "findings": ["Make the final answer’s transition into prediction generation explicit to keyboard and screen-reader users."]
+    },
+    {
+      "name": "Custom answer",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 04 shows a checked custom choice, labeled empty input and disabled Continue button, while the orb has a conspicuous horizontal cutoff.",
+      "findings": ["Remove the orb cutoff in the compact custom-answer layout."]
+    },
+    {
+      "name": "Custom answer — 200% text",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 6, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheet 03 shows enlarged choices, custom input and disabled Continue, but the question is outside the visible area.",
+      "findings": ["Keep the current question readily recoverable while entering a custom answer at 200% text."]
+    },
+    {
+      "name": "Planning",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 09 shows the planning stage, expected wait, credit protection and Cancel action across entry and settled captures.",
+      "findings": ["Verify that stage announcements and cancellation remain accessible during the full wait."]
+    },
+    {
+      "name": "Research",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 09–10 distinguish research through status copy while retaining the same loading headline and a more prominent mist background.",
+      "findings": ["Give the research stage a distinct concise heading so progress does not depend on reading secondary text."]
+    },
+    {
+      "name": "Reveal",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheets 10–11 show a prominent fixture forecast and grouped actions, with substantially dimmer forecast text in the entry sample.",
+      "findings": ["Keep essential forecast text legible throughout entry and clarify what Ask again does when no daily reading remains."]
+    },
+    {
+      "name": "Reveal — expanded explanation",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 7, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 10 shows the expanded explanation and changed disclosure label, with long synthetic content continuing below the viewport.",
+      "findings": ["Divide long explanations into labeled sections so evidence, assumptions and uncertainty remain scannable."]
+    },
+    {
+      "name": "Check-in",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 04 places outcome choices near the forecast and sharing action; supplied runtime evidence reports outcome persistence.",
+      "findings": ["Show a clear selected and saved outcome state, and distinguish a reminder date from the forecast’s time horizon."]
+    },
+    {
+      "name": "Listening — unavailable voice",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 7, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 08 shows a voice-start failure notice, Start listening and Type instead, while microphone hardware remains unverified.",
+      "findings": ["Change the idle instruction after failure to make retrying or typing the immediate next step."]
+    },
+    {
+      "name": "Planning error",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 05 presents the labeled fixture error with retry, question editing and reassurance that no reading was charged.",
+      "findings": ["Verify that retry failure retains the question and returns focus to an announced error message."]
+    },
+    {
+      "name": "Prediction error",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 05–06 show retry, answer review and question editing with stable content across the transition pair.",
+      "findings": ["Capture a repeated failure and successful retry to establish that answers and credits remain intact."]
+    },
+    {
+      "name": "Sensitive redirect — planning",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 11 shows support, another-question and editing actions with an explicit no-credit and no-memory statement.",
+      "findings": ["Give the support action greater visual priority than returning to another prediction."]
+    },
+    {
+      "name": "Sensitive redirect — prediction",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 11–12 show the same redirect structure over stronger mist; supplied runtime evidence reports a real sensitive redirect.",
+      "findings": ["Keep the support action prominent and its destination understandable before activation."]
+    },
+    {
+      "name": "History — empty",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheet 07 shows an empty-state explanation, Ask the Ball action and device-storage disclosure with stable entry continuity.",
+      "findings": ["Verify that the understated empty-state action has an adequate target and visible keyboard focus."]
+    },
+    {
+      "name": "History — populated",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 06 shows a dated fixture reading with original question, forecast and Waiting status; runtime evidence reports persistence.",
+      "findings": ["Replace the vague Waiting status with an explicit pending check-in date or outcome state."]
+    },
+    {
+      "name": "History — stress",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 06 shows multiple synthetic entries and a partially visible lower row behind the fixed navigation area.",
+      "findings": ["Verify that the final history row can scroll completely clear of the tab bar and raised orb."]
+    },
+    {
+      "name": "Sky",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 13 shows labeled sample stars, a selected question, tabs and a primary action, with gold identifying Love.",
+      "findings": ["Explain the My school switch and add a non-color indicator for the selected star."]
+    },
+    {
+      "name": "Circles — offline",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 05 shows circle creation and a sharing switch above an offline notice and reconnect action.",
+      "findings": ["Move the offline explanation beside circle creation and explain whether creation is currently available."]
+    },
+    {
+      "name": "Plans",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 6, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 08–09 show explicit billing periods, simulated purchase labels and selected yearly pricing, but the settled orb is clipped at the top.",
+      "findings": ["Remove the clipped decorative orb and preserve the pricing hierarchy without the abrupt top-edge fragment."]
+    },
+    {
+      "name": "Plans — 200% text",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 08 shows enlarged plan prices and a visible purchase button, with heavy wrapping in the two-column layout.",
+      "findings": ["Stack price and billing details at 200% text to reduce fragmented reading."]
+    },
+    {
+      "name": "Share",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 12–13 show a story preview and distinct sharing formats; runtime evidence establishes PNG export but not the OS share sheet.",
+      "findings": ["Clarify the audience and access conditions of Private friend link before users choose it."]
+    },
+    {
+      "name": "Story export",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Sheets 13–14 show a full story card and export button; supplied runtime evidence reports actual PNG export and synthetic failure recovery.",
+      "findings": ["Provide an accessible export-success message that identifies where the image went."]
+    },
+    {
+      "name": "You — empty memory",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 14 shows plan status, empty memory explanation and settings; runtime evidence separately reports fact deletion and Undo.",
+      "findings": ["Add visual evidence of populated memory, editing and Undo so those important controls can be assessed."]
+    },
+    {
+      "name": "Settings controls",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 12 shows sound, motion and text-size switches with inconsistent off-track colors and no visible textual state.",
+      "findings": ["Standardize switch-state styling and verify accessible names and announced on/off values."]
+    },
+    {
+      "name": "Settings controls — 200% text",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 12 shows enlarged settings labels and a selected large-text switch while the bottom navigation labels remain small.",
+      "findings": ["Verify that navigation labels and switch targets remain usable under the same enlargement preference."]
+    }
+  ],
+  "components": [
+    {
+      "name": "Hero orb",
+      "dimensions": {"hierarchy": 8, "typography": null, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "The orb consistently anchors the screens, but custom-answer and Plans captures show horizontal clipping and Home uses it as an action.",
+      "findings": ["Fix compact-layout clipping and give actionable orbs explicit accessible names and focus treatment."]
+    },
+    {
+      "name": "Tab bar",
+      "dimensions": {"hierarchy": 8, "typography": 6, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheets 05–07 and 12–14 show labeled tabs, gold active styling and a raised central orb with consistently small labels.",
+      "findings": ["Improve label legibility and verify target bounds, selected-state announcements and clearance above the raised orb."]
+    },
+    {
+      "name": "Wordmark and balance header",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Headers consistently pair identity or page title with a small remaining-reading count, and runtime evidence reports balance invariants.",
+      "findings": ["Clarify how daily allowance and purchased credits contribute to the displayed balance."]
+    },
+    {
+      "name": "Primary button",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Cream rounded buttons consistently identify primary actions, with disabled examples visible on custom-answer screens.",
+      "findings": ["Capture focused, pressed and busy states and explain disabled actions without relying on faint button text."]
+    },
+    {
+      "name": "Secondary action",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Gold links and white underlined rows both serve secondary actions across recovery, reveal and settings screens.",
+      "findings": ["Assign consistent styling to navigation, disclosure and retry actions so their roles are easier to distinguish."]
+    },
+    {
+      "name": "Answer choice",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 02–04 show generously spaced underlined choices and a checked gold selected custom option.",
+      "findings": ["Demonstrate predefined selection feedback and verify radio semantics and keyboard operation."]
+    },
+    {
+      "name": "Question input",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 01–02 show a labeled multiline field with readable content and a doubled gold boundary.",
+      "findings": ["Use one field boundary and verify distinct focus, validation and keyboard-visible states."]
+    },
+    {
+      "name": "Large-text input",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 7, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheets 01 and 03 show enlarged inputs occupying substantial screen height, with related context or actions outside the capture.",
+      "findings": ["Adapt surrounding decoration and spacing so question context and the next action remain discoverable at 200% text."]
+    },
+    {
+      "name": "Settings switch",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 6, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 12 shows gray and brown off tracks and a teal on track, while switch hit areas and semantics are not visible.",
+      "findings": ["Use a coherent state palette and verify enlarged hit areas and announced state."]
+    },
+    {
+      "name": "Omen content",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "evidence": "Sheet 07 shows the free daily omen section only in an unavailable state.",
+      "findings": ["Provide contextual recovery and capture a successful omen before judging its normal content layout."]
+    },
+    {
+      "name": "Sky star and selected question",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "evidence": "Sheet 13 connects a gold Love star with a labeled sample question below the constellation.",
+      "findings": ["Add a non-color selection marker and verify that each star has a sufficiently large named target."]
+    },
+    {
+      "name": "Circle surface",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 05 presents privacy copy, creation, sharing preference and offline recovery in one borderless section.",
+      "findings": ["Group the offline status with affected controls and make the sharing switch’s availability explicit."]
+    },
+    {
+      "name": "History row",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheet 06 shows date, question, forecast and Waiting status separated by restrained horizontal rules.",
+      "findings": ["Make opening a reading and its pending outcome status explicit without adding visual clutter."]
+    },
+    {
+      "name": "Plan option",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "evidence": "Sheets 08–09 show a checked yearly option, explicit periods and annual billing details, with substantial wrapping at enlarged text.",
+      "findings": ["Stack pricing at enlarged text sizes and verify selection semantics and focus styling."]
+    },
+    {
+      "name": "Share preview",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 6},
+      "evidence": "Sheets 12–14 show a coherent story composition, but disclosure and branding text are tiny in the compact preview.",
+      "findings": ["Provide an accessible text equivalent and keep the entertainment qualification legible at typical sharing sizes."]
+    },
+    {
+      "name": "Notice and recovery",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "evidence": "Error and voice screens provide explicit failures and recovery actions, while runtime evidence reports synthetic export-failure recovery.",
+      "findings": ["Verify live announcements, focus placement and retained input for every recovery path."]
+    },
+    {
+      "name": "Typography system",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "evidence": "Display serif, script and sans-serif roles are consistent, with small muted metadata and strained enlarged pricing layouts.",
+      "findings": ["Increase secondary-text legibility and adapt multi-column content for enlarged text."]
+    },
+    {
+      "name": "Atmospheric background",
+      "dimensions": {"hierarchy": 7, "typography": null, "surfaces": 7, "clarity": null, "feedback": null, "accessibility": 6},
+      "evidence": "Mist preserves the dark visual direction but varies strongly behind reveal content, and the current motion trace is unfinished.",
+      "findings": ["Constrain mist contrast behind essential text and complete reduced-motion and performance verification."]
+    }
+  ],
+  "limitations": [
+    "All functional scores are provisional: screenshots establish visible presentation, while runtime claims are supplied evidence rather than independently replayed checks.",
+    "Dimension scores use the frozen rubric; derive A, F and overall from each item's numeric dimensions, excluding only null values.",
+    "Null marks genuinely inapplicable dimensions, such as feedback for a static share preview; missing interaction evidence receives provisional numeric scores.",
+    "All labeled settled states and represented variants are included, with their corresponding transition samples assessed together.",
+    "The supplied layout evidence reports 144 passing measurements and zero horizontal overflow, but this does not establish vertical discoverability, keyboard clearance or assistive usability.",
+    "Supplied runtime evidence reports passing checks, 85 tests, real reading completion, credit invariants, persistence, export and selected recovery paths; synthetic layout predictions establish no model quality or predictive accuracy.",
+    "Mid-entry captures show reduced text opacity and position changes, but still images cannot establish smoothness, timing, focus continuity or freedom from distracting layout shifts.",
+    "Current motion-performance verification is unfinished, and the earlier failed trace remains unresolved evidence rather than a pass.",
+    "Physical phones, native text scaling, keyboard safe areas, screen readers, microphone hardware, haptics, payments, social backend and OS sharing remain unverified.",
+    "Clipping and offscreen content are flagged without assuming controls are unreachable; these screenshots alone do not conclusively establish a hard-gate failure.",
+    "No 9/10 certification is supported, and the authorized A >=9 and F >=9 threshold is not met."
+  ],
+  "topFixes": [
+    "Fix the visibly clipped orb on custom-answer and Plans screens.",
+    "Adapt 200% text layouts so decoration yields space to question context, pricing and primary actions.",
+    "Keep essential text readable throughout transitions and complete the outstanding motion trace.",
+    "Clarify offline circle availability, unavailable omen recovery, pending check-ins and zero-balance actions.",
+    "Verify control targets, focus, selection announcements and recovery on physical devices with assistive technology."
+  ]
+}
