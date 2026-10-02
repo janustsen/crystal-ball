@@ -25,6 +25,8 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
  if(confirming&&!blocked)return <><Txt display>Are you 13 or older?</Txt><Txt style={styles.caption}>No birthday needed. Teen-safe defaults apply.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
  return <>
   {blocked?<Txt accessibilityRole="alert">Crystal Ball is for ages 13 and up.</Txt>:null}
+  <Txt display style={{marginBottom:16}}>Your forecast. Then check back.</Txt>
+  <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet. The Ball can miss — your story matters either way.</Txt>
   <Txt style={styles.caption}>A little about you · {step+1} of 2</Txt>
   <Txt display style={{marginTop:16}}>{step===0?'When is your birthday?':'What’s on your mind lately?'}</Txt>
   <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>13 and up. Your birthday sets your Sun sign.</Txt>

@@ -13,3 +13,7 @@ Choose an opted-in friend in Circles and enter their first name, or create a fri
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.
 
 Only the 1080×1920 still PNG is exported. Animated/video export and the ffmpeg server route have been removed.
+
+Replay for recording opens a clean 9:16 composition using the existing reveal: headline, check-in date, uncertainty and optional golden label only. Review the headline first; it can include supplied details. Use the device screen recorder; Replay never generates another reading. Close returns to the prior reveal/share state.
+
+`PLAYWRIGHT_BROWSERS_PATH="$PWD/.local/playwright" VERIFY_URL=http://localhost:8112 node scripts/verify-positioning.mjs` drives three fictional live Ollama readings, all outcome choices and History persistence, simulated Plus cancellation, still export and clean replay with zero extra prediction calls. Install recorder support locally with `PLAYWRIGHT_BROWSERS_PATH="$PWD/.local/playwright" npx playwright install ffmpeg`; system `ffmpeg` crops screen recordings to 1080×1920. Sample 3 forces the cosmetic golden flag. Evidence and clips: `docs/evidence/positioning/`. Existing failures must be preserved before reruns.

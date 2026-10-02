@@ -1,0 +1,127 @@
+Checked 360:home
+Checked 360:sky
+Checked 360:history
+Checked 360:you
+Checked 360:paywall
+Checked 360:approach
+Checked 360:listening
+Checked 360:ask
+Checked 360:planning
+Checked 360:error-plan
+Checked 360:sensitive-plan
+Checked 360:card-1
+Checked 360:card-other
+Checked 360:card-2
+Checked 360:card-3
+Checked 360:research
+Checked 360:error-predict
+Checked 360:sensitive-predict
+Checked 360:reveal
+Checked 360:reveal-why
+Checked 360:share
+Checked 360:story
+Checked 360:history-filled
+Checked 360:check-in
+Checked 360:home-large
+Checked 360:sky-large
+Checked 360:history-large
+Checked 360:you-large
+Checked 360:paywall-large
+Checked 360:approach-large
+Checked 360:listening-large
+Checked 360:ask-large
+Checked 360:planning-large
+Checked 360:error-plan-large
+Checked 360:sensitive-plan-large
+Checked 360:card-1-large
+Checked 360:card-other-large
+Checked 360:card-2-large
+Checked 360:card-3-large
+Checked 360:research-large
+Checked 360:error-predict-large
+Checked 360:sensitive-predict-large
+Checked 360:reveal-large
+Checked 360:reveal-why-large
+Checked 360:share-large
+Checked 360:story-large
+Checked 360:history-filled-large
+Checked 360:check-in-large
+Checked 390:home
+Checked 390:sky
+Checked 390:history
+Checked 390:you
+Checked 390:paywall
+Checked 390:approach
+Checked 390:listening
+Checked 390:ask
+Checked 390:planning
+Checked 390:error-plan
+Checked 390:sensitive-plan
+Checked 390:card-1
+Checked 390:card-other
+Checked 390:card-2
+Checked 390:card-3
+Checked 390:research
+Checked 390:error-predict
+Checked 390:sensitive-predict
+Checked 390:reveal
+Checked 390:reveal-why
+Checked 390:share
+Checked 390:story
+Checked 390:history-filled
+Checked 390:check-in
+Checked 390:home-large
+Checked 390:sky-large
+Checked 390:history-large
+Checked 390:you-large
+Checked 390:paywall-large
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toBeInViewport() failed
+
+Locator:  getByRole('radio').first()
+Expected: in viewport
+Received: viewport ratio 0.9478155374526978
+Timeout:  5000ms
+
+Call log:
+  - Expect "toBeInViewport" getByRole('radio').first() with timeout 5000ms
+  - waiting for getByRole('radio').first()
+    13 × locator resolved to <div role="radio" tabindex="0" aria-checked="true" class="css-g5y9jx r-1loqt21 r-1otgn73 r-1cbz1n7 r-6ncur5 r-d045u9 r-747mli r-1wzrnnt r-1pcd2l5">…</div>
+       - unexpected value "viewport ratio 0.9478155374526978"
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBeInViewport (/Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/scripts/check-layout.mjs:68:30 {
+  matcherResult: {
+    message: 'expect(locator).toBeInViewport() failed\n' +
+      '\n' +
+      "Locator:  getByRole('radio').first()\n" +
+      'Expected: in viewport\n' +
+      'Received: viewport ratio 0.9478155374526978\n' +
+      'Timeout:  5000ms\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toBeInViewport" getByRole('radio').first() with timeout 5000ms\n` +
+      "  - waiting for getByRole('radio').first()\n" +
+      '    13 × locator resolved to <div role="radio" tabindex="0" aria-checked="true" class="css-g5y9jx r-1loqt21 r-1otgn73 r-1cbz1n7 r-6ncur5 r-d045u9 r-747mli r-1wzrnnt r-1pcd2l5">…</div>\n' +
+      '       - unexpected value "viewport ratio 0.9478155374526978"\n',
+    pass: false,
+    actual: 'viewport ratio 0.9478155374526978',
+    name: 'toBeInViewport',
+    expected: 'in viewport',
+    log: [
+      `  - Expect "toBeInViewport" getByRole('radio').first() with timeout 5000ms`,
+      "  - waiting for getByRole('radio').first()",
+      '    13 × locator resolved to <div role="radio" tabindex="0" aria-checked="true" class="css-g5y9jx r-1loqt21 r-1otgn73 r-1cbz1n7 r-6ncur5 r-d045u9 r-747mli r-1wzrnnt r-1pcd2l5">…</div>',
+      '       - unexpected value "viewport ratio 0.9478155374526978"'
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- radio "Yearly $39.99 per year $39.99 / year Save 44%" [checked]'
+  }
+}
+
+Node.js v26.10.0

@@ -15,7 +15,7 @@ export function suggestedCheckIn(p:Prediction):string {
 }
 
 export function checkInLabel(p:Prediction,today=localDay()):string {
- return p.outcome==='yes'?'✓ Came true':p.outcome==='no'?'Took another path':p.outcome==='pending'?'◷ Waiting':suggestedCheckIn(p)<=today?'Did it come true?':'◷ Waiting';
+ return p.outcome==='yes'?'Yes':p.outcome==='no'?'Not quite':p.outcome==='pending'?'Not yet':suggestedCheckIn(p)<=today?'Ready to check in':`Check back ${suggestedCheckIn(p)}`;
 }
 
 export function currentOmen(omen:Omen|null,today=localDay()):Omen|null {

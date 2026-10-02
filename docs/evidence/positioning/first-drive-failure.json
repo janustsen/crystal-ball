@@ -1,0 +1,88 @@
+[
+  {
+    "health": {
+      "app": "crystal-ball",
+      "provider": "ollama"
+    },
+    "boundary": "Fictional sample inputs; real Ollama readings. Golden edition forced for sample 3, cosmetic only. Browser recording, not app export."
+  },
+  {
+    "sample": "01-writing",
+    "failure": "Error: expect(locator).toHaveAttribute(expected) failed\n\nLocator:  getByTestId('check-in-yes')\nExpected: \"true\"\nReceived: \"\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveAttribute\" getByTestId('check-in-yes') with timeout 5000ms\n  - waiting for getByTestId('check-in-yes')\n    5 × locator resolved to <button tabindex=\"0\" role=\"button\" type=\"button\" data-testid=\"check-in-yes\" class=\"css-g5y9jx r-1loqt21 r-1otgn73 tap-squash\">…</button>\n      - unexpected value \"null\"\n    9 × locator resolved to <button tabindex=\"0\" role=\"button\" type=\"button\" data-testid=\"check-in-yes\" class=\"css-g5y9jx r-1loqt21 r-1otgn73\">…</button>\n      - unexpected value \"null\"\n",
+    "replies": [
+      {
+        "action": "omen",
+        "response": {
+          "kind": "ok",
+          "value": {
+            "text": "Tonight, a gentle moonbeam whispers kindness to those who listen quietly."
+          }
+        }
+      },
+      {
+        "action": "plan",
+        "response": {
+          "kind": "ok",
+          "value": {
+            "topic": "general",
+            "provided": {
+              "horizon": "this year"
+            },
+            "cards": [
+              {
+                "id": "context_1",
+                "question": "How many pages of your novel have you written so far?",
+                "options": [
+                  "Already wrote 10 pages",
+                  "Already wrote 5 pages",
+                  "Already wrote 2 pages",
+                  "Other"
+                ],
+                "remember": false
+              },
+              {
+                "id": "context_2",
+                "question": "How many hours per day can you dedicate to writing?",
+                "options": [
+                  "3 hours daily to write",
+                  "1 hour daily to write",
+                  "2 hours daily to write",
+                  "Other"
+                ],
+                "remember": false
+              }
+            ]
+          }
+        }
+      },
+      {
+        "action": "predict",
+        "response": {
+          "kind": "ok",
+          "value": {
+            "id": "79aeeeee-e836-4d29-af83-618cd06493f8",
+            "question": "Will I finish my novel this year?",
+            "headline": "You will finish your novel this year.",
+            "dueDate": "2026-12-31",
+            "astrology": "The stars offer a playful lens on your next chapter.",
+            "createdAt": "2026-10-02T20:32:29.676Z",
+            "label": "Speculative forecast · not a guarantee",
+            "why": "Recorded context: How many pages of your novel have you written so far? I write for one hour daily and have finished half a draft.\n\nScenario assumption: You will keep writing for one hour each day.",
+            "deeperWhy": "Recorded context: How many pages of your novel have you written so far? I write for one hour daily and have finished half a draft.\n\nScenario assumption: You will keep writing for one hour each day. No external evidence supports the future outcome; it is a speculative scenario.",
+            "facts": {
+              "horizon": "this year",
+              "context_1": "How many pages of your novel have you written so far? I write for one hour daily and have finished half a draft.",
+              "context_2": "How many hours per day can you dedicate to writing? I write for one hour daily and have finished half a draft."
+            },
+            "sources": [],
+            "assumptions": [
+              "This is a speculative forecast, not a guarantee."
+            ],
+            "friend": false
+          }
+        }
+      }
+    ],
+    "errors": []
+  }
+]
