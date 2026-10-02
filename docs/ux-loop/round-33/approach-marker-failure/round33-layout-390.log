@@ -1,0 +1,64 @@
+Checked 390:onboarding-birthday
+Checked 390:onboarding-age
+Checked 390:onboarding-blocked
+Checked 390:onboarding-correction
+Checked 390:onboarding-focus
+Checked 390:onboarding-focus-selected
+Checked 390:home
+Checked 390:sky
+Checked 390:circles
+Checked 390:history
+Checked 390:you
+Checked 390:you-birthday
+Checked 390:you-birth-details
+Checked 390:paywall
+Checked 390:paywall-monthly
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toBeVisible() failed
+
+Locator: getByText('The Ball is opening…', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('The Ball is opening…', { exact: true }) with timeout 5000ms
+  - waiting for getByText('The Ball is opening…', { exact: true })
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBeVisible (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at audit (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-layout.mjs:17:23)
+    at check (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-layout.mjs:64:35)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-layout.mjs:84:30 {
+  matcherResult: {
+    message: 'expect(locator).toBeVisible() failed\n' +
+      '\n' +
+      "Locator: getByText('The Ball is opening…', { exact: true })\n" +
+      'Expected: visible\n' +
+      'Timeout: 5000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toBeVisible" getByText('The Ball is opening…', { exact: true }) with timeout 5000ms\n` +
+      "  - waiting for getByText('The Ball is opening…', { exact: true })\n",
+    pass: false,
+    actual: undefined,
+    name: 'toBeVisible',
+    expected: 'visible',
+    log: [
+      `  - Expect "toBeVisible" getByText('The Ball is opening…', { exact: true }) with timeout 5000ms`,
+      "  - waiting for getByText('The Ball is opening…', { exact: true })"
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- button "Close": ×\n' +
+      '- text: A question, in your own words. Voice could not start. Check microphone permission or type instead.\n' +
+      '- button "Type your question"\n' +
+      '- button "Try voice again"'
+  }
+}
+
+Node.js v26.10.0
