@@ -1,0 +1,63 @@
+{
+  "comparisons": [
+    {
+      "screen": "birthday",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 6},
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Compact composition keeps both actions visible at 200%. The example inside the empty input clips at 200%; the persistent format label partly compensates. Atmospheric background provides character without substantially obscuring this form. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: heading/instructions [8,7,8,8,null,7]; input [7,6,7,8,null,6]; Continue [8,8,8,8,null,7]; Skip [7,8,8,9,null,7]. Runtime feedback is not established by the supplied baseline evidence."
+    },
+    {
+      "screen": "birthday",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.0; F=7.3; overall=7.6, provisional. Best date composition by a narrow margin: one field, persistent format guidance and a wrapping external example. At 200%, Continue remains fully visible and Skip remains readable near the bottom. Manual ISO entry still requires punctuation and format translation; the extra brand header consumes space. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: heading/instructions [8,8,8,8,null,8]; input/example [8,8,8,8,6,8]; Continue [8,8,8,8,6,8]; Skip [7,8,8,9,6,8]. Study notices honestly disclose non-submission but provide no date validation or recovery."
+    },
+    {
+      "screen": "birthday",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0; F=7.3; overall=7.6, provisional. Explicit Day/Month/Year labels eliminate separator entry and date-order ambiguity. Numeric input hints are present in source. At 200%, the fields stack cleanly, but the example and actions fall below the supplied viewport; completing the task requires more scrolling and focus changes. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: heading/instructions [8,8,8,8,null,8]; date-field group [8,8,8,9,6,7]; Continue [8,8,8,8,6,8]; Skip [7,8,8,9,6,8]. No field-specific error handling is demonstrated."
+    },
+    {
+      "screen": "birthday",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.3; F=6.3; overall=6.7, provisional. The calendar adds substantial space and control count for a remembered birthday. Defaulting to October 2026 is an awkward starting point. At 200%, even the day grid extends below the initial viewport. The grid is a numbered day selector, without weekday alignment or demonstrated month-length handling. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: heading/instructions [8,8,8,8,null,8]; month/year [7,8,8,6,5,7]; day grid [6,7,8,6,7,7]; selected-day status [7,8,8,8,6,6]; Continue [8,8,8,7,6,8]; Skip [7,8,8,9,6,8]. Pressed-state semantics and selection text exist, but the selected-day text is not a live region."
+    },
+    {
+      "screen": "custom answer",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": null, "accessibility": 7},
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Efficient layout keeps the full question, editor and Continue visible at both sizes. The outlined editor has the strongest visible input boundary, and the muted empty-state button communicates inactivity more clearly than the prototypes. However, there is no visible explanation of what enables Continue, and the back chevron plus Choices label makes navigation less explicit. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: question [8,7,8,9,null,8]; editor [8,8,8,7,null,7]; Continue [8,8,7,6,null,6]; navigation/progress [6,7,8,6,null,6]. The screenshot cannot establish disabled semantics or draft recovery."
+    },
+    {
+      "screen": "custom answer",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.0; F=7.7; overall=7.8, provisional. Most efficient answer alternative: explicit Back and progress precede the persistent full question, and the complete editor/helper/action sequence fits at 200%. The question has less visual authority than C. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: navigation/progress [8,8,8,9,6,8]; question [8,8,8,9,null,8]; editor/helper [8,8,8,9,6,8]; Continue [8,8,8,7,5,7]. Source disables Continue while empty but gives it the same strong appearance as an enabled primary button. Back only displays a hypothetical retention notice."
+    },
+    {
+      "screen": "custom answer",
+      "variant": "B",
+      "dimensions": {"hierarchy": 6, "typography": 8, "surfaces": 8, "clarity": 5, "feedback": 6, "accessibility": 7},
+      "finding": "A=7.3; F=6.0; overall=6.5, provisional. The generic heading displaces the actual question into a closed disclosure, adding a prerequisite interaction and memory burden. At 200%, the generic heading consumes substantial space while Back falls below the visible area. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: heading [6,8,8,6,null,8]; question disclosure [5,8,8,5,7,7]; editor/helper [8,8,8,7,6,8]; Continue [8,8,8,7,5,7]; Back [7,8,8,9,6,7]. Native disclosure semantics are useful, but hiding essential context is the wrong tradeoff here."
+    },
+    {
+      "screen": "custom answer",
+      "variant": "C",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.3; F=7.7; overall=7.9, provisional. Best answer composition, narrowly: the actual question leads, the answer region is distinct, and Continue remains visible at 200%. The serif question preserves more product character than A. Back requires scrolling at 200%, and the added section divider is somewhat redundant. Component scores [hierarchy, typography, surfaces, clarity, feedback, accessibility]: question/progress [9,8,8,9,null,8]; editor/helper [8,8,8,9,6,8]; Continue [8,8,8,7,5,7]; Back [7,8,8,9,6,7]. The prominent question is a paragraph in source, not a semantic heading. Empty-state button appearance and simulated recovery remain weaknesses."
+    }
+  ],
+  "dateWinner": "A",
+  "answerWinner": "C",
+  "reason": "Date A wins the numerical tie with B through fewer controls and better action visibility at 200%; B offers clearer segmented entry. Answer C makes the question the strongest element without losing the primary action at 200%; A is preferable for immediate access to Back. Neither winner reaches the authorized A>=9 and F>=9 threshold across screen and components.",
+  "limitations": [
+    "Scores combine normal and 200% evidence. Component vectors use the same six dimensions as screen scores. Null means passive-component feedback is inapplicable or baseline interaction feedback is unobservable; remaining dimensions are normalized.",
+    "Only the supplied screenshots and the two permitted files were inspected. checks.json records no overflow for all 12 alternative/size combinations; it contains no detailed action/result, focus, contrast or error-state observations.",
+    "Prototype source establishes implemented rules, not independently observed runtime outcomes. Feedback scores assess limited study behavior; submission, validation, storage, inference and real Back navigation receive no credit.",
+    "The baseline runtime, contrast and reduced-motion evidence described by the user is acknowledged, but does not establish specific input validation, recovery, keyboard or screen-reader outcomes.",
+    "Offscreen controls are not treated as inaccessible merely because scrolling is required. No production-task hard-gate failure is established by these composition studies; the prototypes cannot be accepted as completed production flows.",
+    "Physical/native and assistive-technology proof remains separate and unverified. No blanket score reduction was applied for that deferred boundary, and no full/native 9/10 certification is made."
+  ]
+}

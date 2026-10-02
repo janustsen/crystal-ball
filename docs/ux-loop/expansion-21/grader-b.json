@@ -1,0 +1,64 @@
+{
+  "comparisons": [
+    {
+      "screen": "date",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":7.5,"feedback":6,"accessibility":6.5},
+      "finding": "A=7.7, F=6.7, overall=7.1. Compact composition keeps both actions visible at 200%. The example placeholder is clipped at enlargement, and the format label wraps awkwardly. The atmospheric background adds identity without overpowering the task. Component scores in H/T/S/C/F/Accessibility order: input 7/6/8/7/6/6; Continue 8/8/8/8/6/7; Skip 7/8/8/8/6/7. Birthday validation and recovery are not demonstrated by these empty-state images."
+    },
+    {
+      "screen": "date",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8,"feedback":6,"accessibility":7.5},
+      "finding": "A=8.0, F=7.2, overall=7.5. External wrapping guidance fixes the baseline's disappearing example. One field keeps enlargement relatively compact, but requires users to construct a formatted date; 'Enter an actual calendar date' adds instruction without showing recovery. Component scores: input 8/8/8/8/6/7; Continue 8/8/8/8/6/8; Skip 7/8/8/9/6/8. Submission and validation remain outside this prototype."
+    },
+    {
+      "screen": "date",
+      "variant": "B",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":8},
+      "finding": "A=8.0, F=7.5, overall=7.7. Best birthday composition. Explicit day/month/year labels and numeric input hints reduce format interpretation. At 200%, fields stack cleanly, although the year field and actions require scrolling. This is a space tradeoff, not evidence of an unreachable action. Component scores: grouped date inputs 8/8/8/9/6/8; Continue 8/8/8/8/6/8; Skip 7/8/8/9/6/8. Impossible-date and age-error recovery are unimplemented."
+    },
+    {
+      "screen": "date",
+      "variant": "C",
+      "dimensions": {"hierarchy":7,"typography":7,"surfaces":8,"clarity":6.5,"feedback":7,"accessibility":7},
+      "finding": "A=7.3, F=6.8, overall=7.0. The day selection has explicit text feedback and a pressed state, but adds substantial scanning and scrolling to birthday entry. The seven-column sequence lacks weekday alignment and is a day matrix rather than a meaningful calendar. Prefilling October 2026 also gives users values they must replace. Component scores: month/year inputs 7/7/8/7/6/7; day grid 6/7/8/6/7/7; Continue 8/8/8/7/6/8; Skip 7/8/8/9/6/8. Selection feedback does not establish valid dates."
+    },
+    {
+      "screen": "answer",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":7.5,"typography":7.5,"surfaces":7.5,"clarity":7.5,"feedback":6.5,"accessibility":7},
+      "finding": "A=7.5, F=7.0, overall=7.2. Efficient at both sizes: the full question, editor and action remain visible. The editor boundary is prominent, and Continue visibly reads as unavailable. However, the lone back chevron and separate 'Choices' text make navigation less explicit; the editor has no visible persistent answer label. Component scores: question 8/8/7/9/null/8; editor 8/7/7/7/7/7; Continue 8/8/7/7/7/7; navigation 6/7/7/6/6/6. The textured surface is distinctive but less calm than the alternatives."
+    },
+    {
+      "screen": "answer",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":7.5},
+      "finding": "A=8.0, F=7.3, overall=7.6. Best answer composition. The complete question stays visible, while explicit Back navigation and progress remain above the editor at both sizes. The compact question preserves room for the action at 200%. Component scores: question 8/8/8/9/null/8; editor 8/8/8/9/7/7; Continue 8/8/8/7/5/7; navigation 8/8/8/9/6/8. The disabled Continue has the same bright styling as an enabled primary button; helper text explains the prerequisite but does not fix that state ambiguity."
+    },
+    {
+      "screen": "answer",
+      "variant": "B",
+      "dimensions": {"hierarchy":7,"typography":8,"surfaces":8,"clarity":5,"feedback":6,"accessibility":7},
+      "finding": "A=7.7, F=6.0, overall=6.7. The generic heading receives strongest emphasis while the essential question is hidden. Requiring disclosure before users can understand what to answer creates a serious clarity issue. Enlargement preserves readable text, but pushes Back below the captured viewport. Component scores: heading 7/8/8/5/null/8; question disclosure 5/8/8/5/7/7; editor 8/8/8/6/7/7; Continue 8/8/8/7/5/7; Back 7/8/8/9/6/7. The disclosure can expose the question, so the evidence does not establish a blocked-task hard gate."
+    },
+    {
+      "screen": "answer",
+      "variant": "C",
+      "dimensions": {"hierarchy":8.5,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":7},
+      "finding": "A=8.2, F=7.2, overall=7.6. Strongest visual emphasis on the actual question, with a distinct answer region and coherent serif treatment. At 200%, the larger question consumes more space and Back falls below the captured viewport. Component scores: question 9/8/8/9/null/8; editor 8/8/8/9/7/7; Continue 8/8/8/7/5/7; Back 7/8/8/9/6/7. It shares A's misleading disabled-button appearance. A wins the rounded-score tie through more immediately available navigation and a more compact enlarged layout."
+    }
+  ],
+  "dateWinner": "B",
+  "answerWinner": "A",
+  "reason": "B makes birthday entry easiest to interpret, accepting extra scrolling at 200%. A keeps the full custom question, editor, progress and explicit return control together efficiently. Baseline remains strongest for compactness and visual atmosphere. Neither winning composition meets the authorized A>=9/F>=9 threshold across screens and components.",
+  "limitations": [
+    "Independent read-only assessment used only the four attached sheets, checks.json and expansion-21.html. No prior grades or other graders were consulted.",
+    "Scores combine normal and 200% evidence. Component tuples use the same six dimensions as screen scores; null applies only to feedback on static text.",
+    "checks.json records no overflow in all 12 prototype combinations, but supplies no detailed action traces, focus results or error-state captures. HTML inspection supports implementation observations, not a claim that I drove those interactions.",
+    "Feedback scores cover visible guidance, state communication and study feedback only. Prototype submission, age validation, storage, inference and actual Back navigation are unimplemented and receive no runtime credit.",
+    "Baseline engine, contrast, reduced-motion and performance evidence is accepted as supplied context; it does not demonstrate every input recovery state or transfer to the alternatives.",
+    "The 200% treatment is a prototype font-size mode. Missing content below a screenshot is not itself proof of clipping or an inaccessible action.",
+    "Native keyboard, physical iPhone, VoiceOver and other assistive-technology behavior remain unverified. Browser scores are provisional; no full/native 9–10 certification is implied."
+  ]
+}

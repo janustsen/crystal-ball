@@ -1,0 +1,2 @@
+import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
+const rows=JSON.parse(await readFile(process.argv[2],'utf8'));const measured=rows.flatMap(row=>row.targets.filter(t=>t.width>0&&t.height>0).map(t=>({screen:row.name,...t})));const small=measured.filter(t=>t.width<44||t.height<44);assert.deepEqual(small,[],'Browser control bounds must be at least44×44');console.log({measured:measured.length,small:small.length,boundary:'Rendered browser dimensions, not native hit testing'});

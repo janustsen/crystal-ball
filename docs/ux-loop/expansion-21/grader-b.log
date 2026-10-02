@@ -1,0 +1,304 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fccc-6041-7462-8efb-8ab3d017e87f
+--------
+user
+Independent blind design comparison. Read-only, no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C for birthday entry and custom answer at normal/200%. Score all eight screen/variant pairs on six dimensions; null only for genuinely inapplicable prototype behavior. Choose best date and answer composition; baseline may win. No desired score. Explain tradeoffs.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Actual unchanged baseline screenshots come from current product's246-layout sweep, real engine/PNG, contrast/reduced-motion and isolated~60fps. They show EMPTY inputs and same full custom question. Alternatives are HTML prototypes: no real answer submission, age validation/storage or inference. Continue reports study only. Calendar only demonstrates selected day, not valid month/day combinations; all actual validation would need implementation. Do not credit prototypes with baseline runtime proof. Controls/overflow driven across12 normal200% combinations. Physical/native remains later, separate.
+
+Date A: one formatted year-month-day field with wrapping external example. B: three labeled numeric fields day/month/year, external example. C: month/year controls and calendar day grid; more controls/space, explicit day selection. None claims a native system picker.
+Answer A: compact Back to choices plus progress above persistent full question, labeled four-line editor and primary Continue. B: In your own words heading, question in disclosure, editor then Back. C: larger persistent question, distinct answer region, Back below. Same question and empty answer; Continue requires nonempty input. Prototype Back reports that draft would be retained without navigating to a real choice screen, so do not infer a implemented return/focus proof.
+
+Only inspect attached images, docs/ux-loop/expansion-21/checks.json and public/concepts/expansion-21.html if needed. No other files/previous grades. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+I’ll compare the supplied images and browser check evidence, separating demonstrated behavior from prototype limits.
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat docs/ux-loop/expansion-21/checks.json' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+[
+  {
+    "screen": "date",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "date",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "date",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "date",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "date",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "date",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "answer",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "answer",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "answer",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "answer",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "answer",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "answer",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  }
+]
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat public/concepts/expansion-21.html' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open mist · clear inputs</title><style>
+@font-face{font-family:Fell;src:url(study-assets/display.woff2)}@font-face{font-family:Hanken;src:url(study-assets/body.woff2)}*{box-sizing:border-box}html{background:#100c09;color:#f1e9dc;font-family:Hanken,sans-serif;font-size:16px}body{margin:0;background:radial-gradient(ellipse at 85% 90%,#4d341c66,transparent 62%);min-height:100vh}body.large{font-size:32px}main{max-width:390px;margin:auto;padding:24px;min-height:100vh}header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 24px;font-size:.875em}header button{min-width:44px}h1,h2,.quote{font-family:Fell,serif;font-weight:400}h1{font-size:1.75em;line-height:1.18;margin:16px 0}h2{font-size:1.35em;line-height:1.3;margin:16px 0}.quote{font-size:1.375em;line-height:1.3;margin:14px 0}p{line-height:1.55;margin:12px 0}button,select,input,textarea{font:inherit;color:inherit}button,a,summary{touch-action:manipulation}button,select{min-height:48px}button{background:none;border:0;cursor:pointer;padding:12px 0;text-align:left}button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e0a458;outline-offset:4px}label{display:block}.small{font-size:.875em;line-height:1.45;color:#b9ab97}.gold{color:#e0a458}.rule{border-bottom:1px solid #614c3466;padding:16px 0}.primary{display:block;text-align:center;width:100%;padding:14px 18px;background:#ebd5b0;color:#120e0b;border-radius:28px;box-shadow:0 3px #7a5527;min-height:54px;font-weight:600;margin:14px 0}.quiet{display:block;width:100%;border-bottom:1px solid #614c3466;margin-top:8px;text-align:center}input,textarea,select{display:block;width:100%;border:0;border-bottom:1px solid #79634a;background:transparent;padding:14px 0;border-radius:0;margin:6px 0 14px}textarea{font-family:Fell,serif;font-size:1.5em;line-height:1.3;resize:vertical;min-height:5.6em}select{appearance:auto}option{background:#120e0b}fieldset{border:0;padding:0;margin:0 0 16px}legend{font-size:.875em;color:#b9ab97;margin-bottom:6px}.choices{display:flex;gap:20px}.choices label{display:flex;align-items:center;gap:10px;flex:1;min-height:52px;border-bottom:1px solid #614c34}.choices input{appearance:none;flex:0 0 20px;width:20px;height:20px;padding:0;margin:0;border:1px solid #79634a;border-radius:50%}.choices input:checked{background:#e0a458;box-shadow:inset 0 0 0 4px #120e0b}.large .choices{flex-direction:column;gap:0}.fixed-action{position:sticky;bottom:0;background:linear-gradient(transparent,#120e0b 14%);padding:14px 0 4px;margin-top:12px}.context{display:flex;align-items:center;gap:12px}.context span{flex:1}.context button{color:#e0a458;flex-shrink:0}details{border-bottom:1px solid #614c3466;padding:14px 0}summary{min-height:48px;cursor:pointer;line-height:1.4}.section-nav{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:16px 0}.section-nav a,.section-nav button{min-width:0;min-height:48px;color:#e0a458;text-decoration:none;border-bottom:1px solid #614c34;padding:12px 0;overflow-wrap:anywhere}.section-nav button[aria-pressed=true]{border-color:#e0a458;color:#f1e9dc}.reader{font-size:1.0625em;line-height:1.5}.reader p{white-space:pre-wrap;overflow-wrap:anywhere}.source{display:block;color:#e0a458;overflow-wrap:anywhere;padding:12px 0;text-decoration:none}.section{padding:8px 0 20px;border-bottom:1px solid #614c3466;scroll-margin-top:12px}.library button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border-bottom:1px solid #614c3466;padding:20px 0}.library strong{font-weight:400}.library small{display:block;color:#b9ab97;font-size:.875em;margin-top:6px}.orb-mark{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#f1e9dc 0 3%,#b2915755 9%,#23190f 52%,#775b36 70%,#140e08 76%);border:1px solid #9c7b4f;flex-shrink:0}#study{max-width:390px;margin:24px auto;padding:16px;color:#b9ab97;font-size:14px}#study a{color:#e0a458;margin-right:10px}#status{line-height:1.4;color:#e0a458}.large .context{flex-wrap:wrap}.large header{margin-bottom:16px}
+
+.sheet{background:#19130e;padding:20px;margin:20px -24px -24px;min-height:50vh}.excerpt{font-size:.875em;color:#b9ab97;line-height:1.4}.passage{margin:24px 0;padding-bottom:24px;border-bottom:1px solid #614c3455}.passage .number{color:#e0a458;font-size:.75em}.reading{font-size:1.0625em;line-height:1.6}.reading p{white-space:pre-wrap}.pager{display:flex;justify-content:space-between;gap:12px}.large .pager{flex-direction:column}body{background:#100c09}.compact textarea{min-height:3em;height:3em}details p{padding:8px 0}#study{padding:20px;background:#211a13}#study a{color:#e0a458;padding:10px;display:inline-block} .date-parts{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:12px}.large .date-parts{grid-template-columns:1fr} .hero-state{margin-top:64px} .large .hero-state{margin-top:20px} .calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.calendar button{text-align:center;min-height:44px;padding:4px;font-size:.875em}.calendar button[aria-pressed=true]{background:#ebd5b0;color:#120e0b;border-radius:50%}.calendar label{grid-column:span 3}.calendar input{font-size:.8em}textarea.answer{font-family:Hanken;font-size:1.125em;min-height:6em}.step{display:flex;justify-content:space-between;align-items:center;gap:12px}.context-text{font-size:1em;line-height:1.4;margin:12px 0 18px}</style><div id="study"></div><main id="app"></main><script>const params=new URLSearchParams(location.search),screen=params.get('screen')||'date',variant=params.get('variant')||'a',large=params.get('large')==='1';if(large)document.body.classList.add('large');const question='How settled is your plan right now, honestly?',header='<header><span>Crystal Ball</span></header>';let answer='',day='',month='',year='';
+const editor='<label class="small" for="answer">Your answer</label><textarea class="answer" id="answer" rows="4" placeholder="Tell the Ball…"></textarea><p class="small">Write a few words to continue.</p><button id="continue" class="primary" disabled>Continue</button><p id="status" role="status"></p>';
+let html=header;if(screen==='answer'){
+ if(variant==='a')html+='<div class="step"><button id="choices" class="gold">‹ Back to choices</button><span class="small">1 of 3</span></div><p class="context-text">'+question+'</p>'+editor;
+ if(variant==='b')html+='<p class="small">1 of 3</p><h1>In your own words</h1><details><summary>View the question</summary><p>'+question+'</p></details>'+editor+'<button id="choices" class="quiet">Back to choices</button>';
+ if(variant==='c')html+='<p class="small">1 of 3 · Your context</p><p class="quote">'+question+'</p><div class="passage">'+editor+'</div><button id="choices" class="quiet">Back to choices</button>';
+}else{
+ html+='<p class="small">A little about you · 1 of 2</p><h1>When is your birthday?</h1><p class="small">Optional. Used for your Sun sign and age-appropriate readings.</p>';
+ if(variant==='a')html+='<label class="small" for="date">Birthday · year-month-day</label><input id="date" placeholder="YYYY-MM-DD"><p class="small">For example, 1995-06-15. Enter an actual calendar date.</p>';
+ if(variant==='b')html+='<div class="date-parts"><label class="small">Day<input id="day" inputmode="numeric" placeholder="DD" maxlength="2"></label><label class="small">Month<input id="month" inputmode="numeric" placeholder="MM" maxlength="2"></label><label class="small">Year<input id="year" inputmode="numeric" placeholder="YYYY" maxlength="4"></label></div><p class="small">For example: day 15, month 6, year 1995.</p>';
+ if(variant==='c')html+='<div class="date-parts"><label class="small">Month<input id="month" type="number" value="10" min="1" max="12"></label><label class="small">Year<input id="year" type="number" value="2026" min="1900" max="2026"></label></div><p class="small">Choose the month and year, then a day.</p><div class="calendar">'+Array.from({length:31},(_,i)=>'<button class="day" aria-label="Day '+(i+1)+'" aria-pressed="false">'+(i+1)+'</button>').join('')+'</div><p id="chosen" class="small">No day selected.</p>';
+ html+='<button id="continue" class="primary">Continue</button><button id="skip" class="quiet">Skip for now</button><p id="status" role="status"></p>';
+}document.querySelector('#app').innerHTML=html;
+document.querySelector('#answer')?.addEventListener('input',e=>{answer=e.target.value;document.querySelector('#continue').disabled=!answer.trim()});document.querySelector('#continue').onclick=()=>document.querySelector('#status').textContent='Layout study only. No answer or birthday was submitted.';document.querySelector('#skip')?.addEventListener('click',()=>document.querySelector('#status').textContent='Layout study only. No age confirmation was changed.');document.querySelector('#choices')?.addEventListener('click',()=>document.querySelector('#status').textContent='Layout study only. Your draft would be retained when returning to choices.');document.querySelectorAll('.day').forEach(el=>el.onclick=()=>{document.querySelectorAll('.day').forEach(n=>n.setAttribute('aria-pressed','false'));el.setAttribute('aria-pressed','true');document.querySelector('#chosen').textContent='Selected day '+el.textContent+'.';});
+document.querySelector('#study').innerHTML='Throwaway Open mist comparison. No request/profile changes.<br>'+['a','b','c'].map(v=>'<a href="?screen='+screen+'&variant='+v+'&large='+(large?1:0)+'">'+v.toUpperCase()+'</a>').join('')+'<a href="?screen='+(screen==='date'?'answer':'date')+'&variant='+variant+'&large='+(large?1:0)+'">Switch task</a><a href="?screen='+screen+'&variant='+variant+'&large='+(large?0:1)+'">Change text size</a>';if(params.has('capture'))document.querySelector('#study').remove();
+</script></html>
+
+codex
+{
+  "comparisons": [
+    {
+      "screen": "date",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":7.5,"feedback":6,"accessibility":6.5},
+      "finding": "A=7.7, F=6.7, overall=7.1. Compact composition keeps both actions visible at 200%. The example placeholder is clipped at enlargement, and the format label wraps awkwardly. The atmospheric background adds identity without overpowering the task. Component scores in H/T/S/C/F/Accessibility order: input 7/6/8/7/6/6; Continue 8/8/8/8/6/7; Skip 7/8/8/8/6/7. Birthday validation and recovery are not demonstrated by these empty-state images."
+    },
+    {
+      "screen": "date",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8,"feedback":6,"accessibility":7.5},
+      "finding": "A=8.0, F=7.2, overall=7.5. External wrapping guidance fixes the baseline's disappearing example. One field keeps enlargement relatively compact, but requires users to construct a formatted date; 'Enter an actual calendar date' adds instruction without showing recovery. Component scores: input 8/8/8/8/6/7; Continue 8/8/8/8/6/8; Skip 7/8/8/9/6/8. Submission and validation remain outside this prototype."
+    },
+    {
+      "screen": "date",
+      "variant": "B",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":8},
+      "finding": "A=8.0, F=7.5, overall=7.7. Best birthday composition. Explicit day/month/year labels and numeric input hints reduce format interpretation. At 200%, fields stack cleanly, although the year field and actions require scrolling. This is a space tradeoff, not evidence of an unreachable action. Component scores: grouped date inputs 8/8/8/9/6/8; Continue 8/8/8/8/6/8; Skip 7/8/8/9/6/8. Impossible-date and age-error recovery are unimplemented."
+    },
+    {
+      "screen": "date",
+      "variant": "C",
+      "dimensions": {"hierarchy":7,"typography":7,"surfaces":8,"clarity":6.5,"feedback":7,"accessibility":7},
+      "finding": "A=7.3, F=6.8, overall=7.0. The day selection has explicit text feedback and a pressed state, but adds substantial scanning and scrolling to birthday entry. The seven-column sequence lacks weekday alignment and is a day matrix rather than a meaningful calendar. Prefilling October 2026 also gives users values they must replace. Component scores: month/year inputs 7/7/8/7/6/7; day grid 6/7/8/6/7/7; Continue 8/8/8/7/6/8; Skip 7/8/8/9/6/8. Selection feedback does not establish valid dates."
+    },
+    {
+      "screen": "answer",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":7.5,"typography":7.5,"surfaces":7.5,"clarity":7.5,"feedback":6.5,"accessibility":7},
+      "finding": "A=7.5, F=7.0, overall=7.2. Efficient at both sizes: the full question, editor and action remain visible. The editor boundary is prominent, and Continue visibly reads as unavailable. However, the lone back chevron and separate 'Choices' text make navigation less explicit; the editor has no visible persistent answer label. Component scores: question 8/8/7/9/null/8; editor 8/7/7/7/7/7; Continue 8/8/7/7/7/7; navigation 6/7/7/6/6/6. The textured surface is distinctive but less calm than the alternatives."
+    },
+    {
+      "screen": "answer",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":7.5},
+      "finding": "A=8.0, F=7.3, overall=7.6. Best answer composition. The complete question stays visible, while explicit Back navigation and progress remain above the editor at both sizes. The compact question preserves room for the action at 200%. Component scores: question 8/8/8/9/null/8; editor 8/8/8/9/7/7; Continue 8/8/8/7/5/7; navigation 8/8/8/9/6/8. The disabled Continue has the same bright styling as an enabled primary button; helper text explains the prerequisite but does not fix that state ambiguity."
+    },
+    {
+      "screen": "answer",
+      "variant": "B",
+      "dimensions": {"hierarchy":7,"typography":8,"surfaces":8,"clarity":5,"feedback":6,"accessibility":7},
+      "finding": "A=7.7, F=6.0, overall=6.7. The generic heading receives strongest emphasis while the essential question is hidden. Requiring disclosure before users can understand what to answer creates a serious clarity issue. Enlargement preserves readable text, but pushes Back below the captured viewport. Component scores: heading 7/8/8/5/null/8; question disclosure 5/8/8/5/7/7; editor 8/8/8/6/7/7; Continue 8/8/8/7/5/7; Back 7/8/8/9/6/7. The disclosure can expose the question, so the evidence does not establish a blocked-task hard gate."
+    },
+    {
+      "screen": "answer",
+      "variant": "C",
+      "dimensions": {"hierarchy":8.5,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":7},
+      "finding": "A=8.2, F=7.2, overall=7.6. Strongest visual emphasis on the actual question, with a distinct answer region and coherent serif treatment. At 200%, the larger question consumes more space and Back falls below the captured viewport. Component scores: question 9/8/8/9/null/8; editor 8/8/8/9/7/7; Continue 8/8/8/7/5/7; Back 7/8/8/9/6/7. It shares A's misleading disabled-button appearance. A wins the rounded-score tie through more immediately available navigation and a more compact enlarged layout."
+    }
+  ],
+  "dateWinner": "B",
+  "answerWinner": "A",
+  "reason": "B makes birthday entry easiest to interpret, accepting extra scrolling at 200%. A keeps the full custom question, editor, progress and explicit return control together efficiently. Baseline remains strongest for compactness and visual atmosphere. Neither winning composition meets the authorized A>=9/F>=9 threshold across screens and components.",
+  "limitations": [
+    "Independent read-only assessment used only the four attached sheets, checks.json and expansion-21.html. No prior grades or other graders were consulted.",
+    "Scores combine normal and 200% evidence. Component tuples use the same six dimensions as screen scores; null applies only to feedback on static text.",
+    "checks.json records no overflow in all 12 prototype combinations, but supplies no detailed action traces, focus results or error-state captures. HTML inspection supports implementation observations, not a claim that I drove those interactions.",
+    "Feedback scores cover visible guidance, state communication and study feedback only. Prototype submission, age validation, storage, inference and actual Back navigation are unimplemented and receive no runtime credit.",
+    "Baseline engine, contrast, reduced-motion and performance evidence is accepted as supplied context; it does not demonstrate every input recovery state or transfer to the alternatives.",
+    "The 200% treatment is a prototype font-size mode. Missing content below a screenshot is not itself proof of clipping or an inaccessible action.",
+    "Native keyboard, physical iPhone, VoiceOver and other assistive-technology behavior remain unverified. Browser scores are provisional; no full/native 9–10 certification is implied."
+  ]
+}
+tokens used
+32,814
+{
+  "comparisons": [
+    {
+      "screen": "date",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":7.5,"feedback":6,"accessibility":6.5},
+      "finding": "A=7.7, F=6.7, overall=7.1. Compact composition keeps both actions visible at 200%. The example placeholder is clipped at enlargement, and the format label wraps awkwardly. The atmospheric background adds identity without overpowering the task. Component scores in H/T/S/C/F/Accessibility order: input 7/6/8/7/6/6; Continue 8/8/8/8/6/7; Skip 7/8/8/8/6/7. Birthday validation and recovery are not demonstrated by these empty-state images."
+    },
+    {
+      "screen": "date",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8,"feedback":6,"accessibility":7.5},
+      "finding": "A=8.0, F=7.2, overall=7.5. External wrapping guidance fixes the baseline's disappearing example. One field keeps enlargement relatively compact, but requires users to construct a formatted date; 'Enter an actual calendar date' adds instruction without showing recovery. Component scores: input 8/8/8/8/6/7; Continue 8/8/8/8/6/8; Skip 7/8/8/9/6/8. Submission and validation remain outside this prototype."
+    },
+    {
+      "screen": "date",
+      "variant": "B",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":8},
+      "finding": "A=8.0, F=7.5, overall=7.7. Best birthday composition. Explicit day/month/year labels and numeric input hints reduce format interpretation. At 200%, fields stack cleanly, although the year field and actions require scrolling. This is a space tradeoff, not evidence of an unreachable action. Component scores: grouped date inputs 8/8/8/9/6/8; Continue 8/8/8/8/6/8; Skip 7/8/8/9/6/8. Impossible-date and age-error recovery are unimplemented."
+    },
+    {
+      "screen": "date",
+      "variant": "C",
+      "dimensions": {"hierarchy":7,"typography":7,"surfaces":8,"clarity":6.5,"feedback":7,"accessibility":7},
+      "finding": "A=7.3, F=6.8, overall=7.0. The day selection has explicit text feedback and a pressed state, but adds substantial scanning and scrolling to birthday entry. The seven-column sequence lacks weekday alignment and is a day matrix rather than a meaningful calendar. Prefilling October 2026 also gives users values they must replace. Component scores: month/year inputs 7/7/8/7/6/7; day grid 6/7/8/6/7/7; Continue 8/8/8/7/6/8; Skip 7/8/8/9/6/8. Selection feedback does not establish valid dates."
+    },
+    {
+      "screen": "answer",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":7.5,"typography":7.5,"surfaces":7.5,"clarity":7.5,"feedback":6.5,"accessibility":7},
+      "finding": "A=7.5, F=7.0, overall=7.2. Efficient at both sizes: the full question, editor and action remain visible. The editor boundary is prominent, and Continue visibly reads as unavailable. However, the lone back chevron and separate 'Choices' text make navigation less explicit; the editor has no visible persistent answer label. Component scores: question 8/8/7/9/null/8; editor 8/7/7/7/7/7; Continue 8/8/7/7/7/7; navigation 6/7/7/6/6/6. The textured surface is distinctive but less calm than the alternatives."
+    },
+    {
+      "screen": "answer",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":7.5},
+      "finding": "A=8.0, F=7.3, overall=7.6. Best answer composition. The complete question stays visible, while explicit Back navigation and progress remain above the editor at both sizes. The compact question preserves room for the action at 200%. Component scores: question 8/8/8/9/null/8; editor 8/8/8/9/7/7; Continue 8/8/8/7/5/7; navigation 8/8/8/9/6/8. The disabled Continue has the same bright styling as an enabled primary button; helper text explains the prerequisite but does not fix that state ambiguity."
+    },
+    {
+      "screen": "answer",
+      "variant": "B",
+      "dimensions": {"hierarchy":7,"typography":8,"surfaces":8,"clarity":5,"feedback":6,"accessibility":7},
+      "finding": "A=7.7, F=6.0, overall=6.7. The generic heading receives strongest emphasis while the essential question is hidden. Requiring disclosure before users can understand what to answer creates a serious clarity issue. Enlargement preserves readable text, but pushes Back below the captured viewport. Component scores: heading 7/8/8/5/null/8; question disclosure 5/8/8/5/7/7; editor 8/8/8/6/7/7; Continue 8/8/8/7/5/7; Back 7/8/8/9/6/7. The disclosure can expose the question, so the evidence does not establish a blocked-task hard gate."
+    },
+    {
+      "screen": "answer",
+      "variant": "C",
+      "dimensions": {"hierarchy":8.5,"typography":8,"surfaces":8,"clarity":8.5,"feedback":6,"accessibility":7},
+      "finding": "A=8.2, F=7.2, overall=7.6. Strongest visual emphasis on the actual question, with a distinct answer region and coherent serif treatment. At 200%, the larger question consumes more space and Back falls below the captured viewport. Component scores: question 9/8/8/9/null/8; editor 8/8/8/9/7/7; Continue 8/8/8/7/5/7; Back 7/8/8/9/6/7. It shares A's misleading disabled-button appearance. A wins the rounded-score tie through more immediately available navigation and a more compact enlarged layout."
+    }
+  ],
+  "dateWinner": "B",
+  "answerWinner": "A",
+  "reason": "B makes birthday entry easiest to interpret, accepting extra scrolling at 200%. A keeps the full custom question, editor, progress and explicit return control together efficiently. Baseline remains strongest for compactness and visual atmosphere. Neither winning composition meets the authorized A>=9/F>=9 threshold across screens and components.",
+  "limitations": [
+    "Independent read-only assessment used only the four attached sheets, checks.json and expansion-21.html. No prior grades or other graders were consulted.",
+    "Scores combine normal and 200% evidence. Component tuples use the same six dimensions as screen scores; null applies only to feedback on static text.",
+    "checks.json records no overflow in all 12 prototype combinations, but supplies no detailed action traces, focus results or error-state captures. HTML inspection supports implementation observations, not a claim that I drove those interactions.",
+    "Feedback scores cover visible guidance, state communication and study feedback only. Prototype submission, age validation, storage, inference and actual Back navigation are unimplemented and receive no runtime credit.",
+    "Baseline engine, contrast, reduced-motion and performance evidence is accepted as supplied context; it does not demonstrate every input recovery state or transfer to the alternatives.",
+    "The 200% treatment is a prototype font-size mode. Missing content below a screenshot is not itself proof of clipping or an inaccessible action.",
+    "Native keyboard, physical iPhone, VoiceOver and other assistive-technology behavior remain unverified. Browser scores are provisional; no full/native 9–10 certification is implied."
+  ]
+}

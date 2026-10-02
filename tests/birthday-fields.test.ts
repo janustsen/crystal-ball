@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {birthdayFromParts,birthdayError} from '../src/profile';
+test('date fields serialize without losing partial edits',()=>{assert.equal(birthdayFromParts('1995','6','15'),'1995-06-15');assert.equal(birthdayFromParts('','6',''),'-6-');assert.equal(birthdayFromParts('','',''),'');});
+test('date validation distinguishes incomplete input from impossible dates',()=>{assert.match(birthdayError('1995--15')||'',/day, month and four-digit year/);assert.match(birthdayError('2020-02-31')||'',/does not exist/);assert.equal(birthdayError('2000-02-29'),undefined);});
