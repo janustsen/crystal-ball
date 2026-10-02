@@ -4,7 +4,7 @@
 
 Birthday Skip requires one “I’m 13 or older” confirmation, including friend-link entry and legacy no-birthday profiles. Declining blocks access and survives reload. Confirmed skippers retain no birthday or Sun sign and use teen-safe defaults. A supplied under-13 birthday overrides confirmation. Focus remains skippable.
 
-`canRead` gates the app, reading saves and cloud mirroring. `restoreProfile` no longer treats old history or remembered facts as proof of age. Successful onboarding sets confirmation and completion before a friend reading can start, so its first save is eligible for mirroring without reload. The API checks age on both actions before model calls; the flag is an explicit self-attestation, not verified identity. Birthday removal requires confirmation again. Reset may clear the previously eligible owner's cloud data, then returns to onboarding.
+`canRead` gates the app, reading saves and cloud mirroring. `restoreProfile` no longer treats old history or remembered facts as proof of age. Successful onboarding sets confirmation and completion before a friend reading can start, so its first save is eligible for mirroring without reload. The API checks age on both actions before model calls; the flag is an explicit self-attestation, not verified identity. The original birthday-removal decision was superseded; see the [profile contract](../../SETUP.md#reading-profile-and-birth-chart). Reset may clear the previously eligible owner's cloud data, then returns to onboarding.
 
 Fractional day/week horizons are rejected alongside fractional months/years at the shared resolver. Person readings ask for clarification when the supplied first name is absent from the question; they neither infer names nor rewrite the question. This lexical consistency check is not semantic identity verification.
 
@@ -17,7 +17,7 @@ Focused review verification passed: `./node_modules/.bin/tsx --test tests/age-co
 Firstmate resolved R3/R4/R5 and their review-N duplicates with these binding decisions. Include them in the reading-flow PR description:
 
 - This branch's acceptance covers reading-flow work. Social features (Tonight's Sky, Circles, sealed forecasts and Friend readings), Daily omens, Golden forecasts and styles belong to separate PRs. School features remain deferred until after social lands.
-- Scheduling Check-ins on the Forecast's Due date is deferred to the cb-retention PR, which consumes `forecast.dueDate`. Due-date display remains part of this branch; the existing manual reminder is not evidence of Due-date scheduling.
+- At this handoff, Due-date scheduling belonged to cb-retention. Retention is now integrated; [README](../../README.md) owns the current Check-in behavior and native verification limits.
 - Global redirects for death, self-harm, illness, pregnancy and legal outcomes remain for everyone, including adult Person readings. “Anything goes for 18+” concerns tone, not removal of these safeguards.
 - Preserve prior pipeline fixes. The remaining code correction covers repeated literal first-name occurrences in follow-up questions and options while retaining modal-verb rejection.
 
