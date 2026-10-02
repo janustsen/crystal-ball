@@ -55,7 +55,7 @@ School features are integrated; the [school boundary](../social/school.md) owns 
 
 ## Apple backup setup and release blockers
 
-`EXPO_PUBLIC_APPLE_LINK_ENABLED` defaults to `false`; set it to `true` only after the configuration below is complete. See [backup usage and replacement semantics](../../README.md) for the user-facing contract. For first-time authentication, Save links the anonymous UID and Restore signs into an existing Apple account. A nonce binds the native token exchange. No name/email scopes are requested. Web displays a clear fallback.
+`EXPO_PUBLIC_APPLE_LINK_ENABLED` defaults to `false`; set it to `true` only after the configuration below is complete. See [backup usage and replacement semantics](../../README.md) for the user-facing contract and [platform availability](../../SETUP.md#known-prototype-boundaries) for when the panel appears. For first-time authentication, Save links the anonymous UID and Restore signs into an existing Apple account. A nonce binds the native token exchange. No name/email scopes are requested.
 
 Apply the ownership migration before enabling clients: predictions use `(user_id,id)` and RLS scopes reads/writes to `auth.uid()`. Offline changes remain local and upload on a later state change or restart. Hydration and manual backup lock state mutations. Failed restore reads leave local data unchanged. See [backup safety evidence](blast-radius.md) for the implementation checks.
 
