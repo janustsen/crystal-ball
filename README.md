@@ -4,7 +4,7 @@ An Expo / React Native oracle prototype: ask a question, answer a few relevant c
 
 - Cosmic glass orb, five tabs, local knowledge/history, editable facts, safe-topic redirects.
 - Local Qwen through Ollama; deterministic numeric scenarios and constrained generation.
-- Local Supabase anonymous mirror with RLS; mock RevenueCat pricing; Apple/native notification wiring.
+- Optional Apple backup to Supabase with RLS; mock RevenueCat pricing; native notification wiring.
 - Private 9:16 still and animated MP4 exports; friend links; Tonight’s Sky and private Circles.
 
 [Run and account setup](SETUP.md) · [Research decisions](docs/research/decisions.md) · [Current design](docs/design/ui-rules.md) · [Verification evidence](docs/evidence/design-2026-09-30/README.md)
@@ -24,5 +24,9 @@ Each reveal shows a fixed Due date. On native builds, saving a forecast automati
 Open Sky to browse anonymous questions by theme or choose Ask this too. Add my star rewrites your latest reading for your approval before publication. In Circles, create a group and invite a friend by private link; recipients choose whether to join. Plus members can ask about an opted-in Circle friend by first name. On a friend forecast, choose Seal for a friend, approve the headline, and share its private link; the recipient taps the ball to open it. Manage sent cards in Circles. See the [social boundary](docs/social/model.md) for privacy, safeguards and limits. Without a social connection, labeled sample stars remain available when My school is off.
 
 In Sky, tap Choose my school to search by name or Find nearby schools once, then select your school. Skip if yours is unavailable; Change school also lets you remove it later. Turn on My school in Tonight’s Sky to filter Stars to your chosen school. In Circles, School Circle suggestions offer Start a school circle for eligible friends; share the resulting private link so they can choose to join. See the [school boundary](docs/social/school.md) for catalog coverage, location privacy and invitation eligibility.
+
+In You, Keep your glimpses offers optional Apple backup on configured iOS builds. Use one device at a time: saving replaces the account archive; confirmed Restore replaces this device’s readings and remembered answers, with newest readings first. Restore uses your linked Apple account without signing in again; if Apple is not linked yet, sign in to choose the backup. Switching accounts is not supported. Credits, Plus and preferences stay local. Startup opens only local storage; if it fails or takes more than ten seconds, Try opening again retries without replacing the unread archive. See [Apple setup and release blockers](docs/launch/app-store.md#apple-backup-setup-and-release-blockers).
+
+When Ask names an AI provider, turn on Allow AI processing before submitting a typed or spoken question. This permits sending your question and relevant answers to that provider and enables your personal omen when you return to Home; avoid sensitive details. The same permission is required to prepare a Star or sealed-card draft and ask about a Circle friend. Turn the switch off to disable submission and hide the omen, or reopen the app to clear the permission. You → Privacy and entertainment explains data use and forgetting saved information.
 
 `npm run check` and `npm test` cover types and engine/native-boundary regressions. The project [verification skill](.agents/skills/verify-crystal-ball/SKILL.md) drives the real local app. Tonight's observed surface is Expo web at 390×844; iOS Simulator, VoiceOver and real billing remain explicitly unverified until Xcode/accounts are configured. No public deployment or App Store submission is included.

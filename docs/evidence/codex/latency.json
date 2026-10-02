@@ -1,0 +1,322 @@
+{
+  "at": "2026-09-30T22:29:26.398Z",
+  "model": "gpt-6-luna",
+  "rows": [
+    {
+      "question": "What will my net worth be in 10 years?",
+      "plan": {
+        "kind": "ok",
+        "value": {
+          "topic": "money",
+          "provided": {
+            "years": "10"
+          },
+          "cards": [
+            {
+              "id": "currency",
+              "question": "Which currency should the Ball use?",
+              "options": [
+                "USD",
+                "EUR",
+                "GBP",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "assets",
+              "question": "What are your assets worth today?",
+              "options": [
+                "0",
+                "25000",
+                "100000",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "debt",
+              "question": "How much debt do you have?",
+              "options": [
+                "0",
+                "10000",
+                "50000",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "monthly_saving",
+              "question": "How much do you save each month?",
+              "options": [
+                "100",
+                "500",
+                "1500",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "return",
+              "question": "Which annual growth assumption fits?",
+              "options": [
+                "3",
+                "5",
+                "7",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "saving_growth",
+              "question": "How much will annual savings grow (%)?",
+              "options": [
+                "0",
+                "2",
+                "5",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "withdrawals",
+              "question": "How much will you withdraw each year?",
+              "options": [
+                "0",
+                "1000",
+                "5000",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "windfall",
+              "question": "Any one-off amount to add now?",
+              "options": [
+                "0",
+                "5000",
+                "20000",
+                "Other"
+              ],
+              "remember": false
+            },
+            {
+              "id": "inflation",
+              "question": "Should the number account for inflation?",
+              "options": [
+                "No, future money",
+                "Yes, assume 2%",
+                "Yes, assume 3%",
+                "Other"
+              ],
+              "remember": false
+            }
+          ]
+        }
+      },
+      "facts": {
+        "currency": "USD",
+        "assets": "0",
+        "debt": "0",
+        "monthly_saving": "100",
+        "return": "3",
+        "saving_growth": "0",
+        "withdrawals": "0",
+        "windfall": "0",
+        "inflation": "No, future money",
+        "years": "10"
+      },
+      "result": {
+        "kind": "ok",
+        "value": {
+          "id": "2c983302-e65d-4bba-8bf5-33c7f3a279cf",
+          "question": "What will my net worth be in 10 years?",
+          "headline": "Your net worth will be $13,757 in 10 years.",
+          "createdAt": "2026-09-30T22:28:44.686Z",
+          "label": "Speculative forecast · not a guarantee",
+          "why": "Starting assets 0 minus debt 0, plus 100 monthly savings, projected for 10 years at your 3% annual growth assumption; annual savings growth 0%, annual withdrawals 0, and initial windfall 0. Inflation treatment: No, future money. No external evidence supports the future outcome; it is a speculative scenario.",
+          "facts": {
+            "currency": "USD",
+            "assets": "0",
+            "debt": "0",
+            "monthly_saving": "100",
+            "return": "3",
+            "saving_growth": "0",
+            "withdrawals": "0",
+            "windfall": "0",
+            "inflation": "No, future money",
+            "years": "10"
+          },
+          "sources": [],
+          "assumptions": [
+            "This is a speculative forecast, not a guarantee.",
+            "Annual compounding; savings and withdrawals applied at year end. All rates are your assumptions, not investment advice."
+          ],
+          "friend": false
+        }
+      },
+      "planningSeconds": 4.197463375,
+      "predictionSeconds": 9.57877975,
+      "totalSeconds": 13.776244666
+    },
+    {
+      "question": "Will I be conversational in Spanish in six months?",
+      "plan": {
+        "kind": "ok",
+        "value": {
+          "topic": "learning",
+          "provided": {
+            "learning_target": "Spanish",
+            "deadline": "In 6 months"
+          },
+          "cards": [
+            {
+              "id": "level",
+              "question": "What is your level now?",
+              "options": [
+                "New beginner",
+                "Know the basics",
+                "Intermediate",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "practice",
+              "question": "How much time can you give it daily?",
+              "options": [
+                "10 minutes",
+                "20 minutes",
+                "45 minutes",
+                "Other"
+              ],
+              "remember": true
+            },
+            {
+              "id": "conversation",
+              "question": "How often can you practice conversation?",
+              "options": [
+                "Rarely",
+                "Weekly",
+                "Daily",
+                "Other"
+              ],
+              "remember": true
+            }
+          ]
+        }
+      },
+      "facts": {
+        "level": "New beginner",
+        "practice": "10 minutes",
+        "conversation": "Rarely",
+        "learning_target": "Spanish",
+        "deadline": "In 6 months"
+      },
+      "result": {
+        "kind": "ok",
+        "value": {
+          "id": "060179a6-cad8-4bc9-acf2-ec096e1a9df5",
+          "question": "Will I be conversational in Spanish in six months?",
+          "headline": "You will still be learning conversational Spanish in 6 months.",
+          "createdAt": "2026-09-30T22:29:00.442Z",
+          "label": "Speculative forecast · not a guarantee",
+          "why": "Your starting level is new beginner. You allow 10 minutes daily, with infrequent conversation practice. This scenario uses 20 minutes daily and weekly conversation practice as its threshold for progress. It assumes continued practice and is not a validated learning threshold. No external evidence supports the future outcome; it is a speculative scenario.",
+          "facts": {
+            "level": "New beginner",
+            "practice": "10 minutes",
+            "conversation": "Rarely",
+            "deadline": "In 6 months"
+          },
+          "sources": [],
+          "assumptions": [
+            "This is a speculative forecast, not a guarantee.",
+            "Practice continues at the frequency you supplied; a basic conversation is not fluency."
+          ],
+          "friend": false
+        }
+      },
+      "planningSeconds": 3.769795459000001,
+      "predictionSeconds": 11.986460415999998,
+      "totalSeconds": 15.756256709
+    },
+    {
+      "question": "Will I finish writing my novel this year?",
+      "plan": {
+        "kind": "ok",
+        "value": {
+          "topic": "general",
+          "provided": {
+            "horizon": "this year"
+          },
+          "cards": [
+            {
+              "id": "context_1",
+              "question": "How much of the novel is drafted?",
+              "options": [
+                "Only an outline",
+                "Some chapters drafted",
+                "Most chapters drafted",
+                "Other"
+              ],
+              "remember": false
+            },
+            {
+              "id": "context_2",
+              "question": "How regularly are you writing currently?",
+              "options": [
+                "Less than weekly",
+                "Several times a week",
+                "Daily or nearly daily",
+                "Other"
+              ],
+              "remember": false
+            },
+            {
+              "id": "context_3",
+              "question": "How much time do you currently set aside for writing?",
+              "options": [
+                "No set time",
+                "A few hours weekly",
+                "Many hours weekly",
+                "Other"
+              ],
+              "remember": false
+            }
+          ]
+        }
+      },
+      "facts": {
+        "context_1": "How much of the novel is drafted? Only an outline",
+        "context_2": "How regularly are you writing currently? Less than weekly",
+        "context_3": "How much time do you currently set aside for writing? No set time",
+        "horizon": "this year"
+      },
+      "result": {
+        "kind": "ok",
+        "value": {
+          "id": "abf49c2b-f5ff-4ab8-a900-da6d3bb7cafa",
+          "question": "Will I finish writing my novel this year?",
+          "headline": "You will not finish writing your novel this year.",
+          "createdAt": "2026-09-30T22:29:26.392Z",
+          "label": "Speculative forecast · not a guarantee",
+          "why": "Recorded context: How regularly are you writing currently? Less than weekly.\n\nScenario assumption: Your writing remains less frequent than weekly. No external evidence supports the future outcome; it is a speculative scenario.",
+          "facts": {
+            "context_1": "How much of the novel is drafted? Only an outline",
+            "context_2": "How regularly are you writing currently? Less than weekly",
+            "context_3": "How much time do you currently set aside for writing? No set time",
+            "horizon": "this year"
+          },
+          "sources": [],
+          "assumptions": [
+            "This is a speculative forecast, not a guarantee."
+          ],
+          "friend": false
+        }
+      },
+      "planningSeconds": 16.280771249999997,
+      "predictionSeconds": 9.670982541000004,
+      "totalSeconds": 25.951754500000003
+    }
+  ]
+}

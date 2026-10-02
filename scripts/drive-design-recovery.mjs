@@ -3,7 +3,8 @@ import {chromium,expect} from '@playwright/test';
 import {writeFile} from 'node:fs/promises';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844}}),page=await context.newPage(),log=[];
-const base='http://localhost:8087';
+const base=process.env.PREVIEW_URL||'http://localhost:8087';
+context.setDefaultTimeout(30000);
 const endpoint=`${base}/engine`;
 const shot=async name=>page.screenshot({path:`docs/evidence/design-2026-09-30/${name}.png`});
 try{

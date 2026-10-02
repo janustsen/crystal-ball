@@ -1,0 +1,102 @@
+[
+  {
+    "runAt": "2026-09-30T22:27:48.671Z"
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "How much of the novel is drafted?",
+            "options": [
+              "Most chapters drafted",
+              "About half drafted",
+              "Just a few pages",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_2",
+            "question": "How often are you currently writing?",
+            "options": [
+              "Daily or nearly daily",
+              "Several times a week",
+              "Less than weekly",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_3",
+            "question": "What is your current writing routine?",
+            "options": [
+              "Scheduled writing sessions",
+              "Flexible writing windows",
+              "No regular routine",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "card": 1,
+    "selected": "Most chapters drafted"
+  },
+  {
+    "card": 2,
+    "selected": "Daily or nearly daily"
+  },
+  {
+    "card": 3,
+    "selected": "Scheduled writing sessions"
+  },
+  {
+    "action": "predict",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "8d2b2669-b49d-442a-9197-4ebd3d7d6d66",
+        "question": "Will I finish writing my novel this year?",
+        "headline": "You will finish writing your novel this year.",
+        "createdAt": "2026-09-30T22:28:16.198Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: How much of the novel is drafted? Most chapters drafted.\n\nScenario assumption: You keep revising and completing the remaining chapters at your current pace. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "horizon": "this year",
+          "context_1": "How much of the novel is drafted? Most chapters drafted",
+          "context_2": "How often are you currently writing? Daily or nearly daily",
+          "context_3": "What is your current writing routine? Scheduled writing sessions"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "creditsBefore": 3,
+    "creditsAfter": 2,
+    "modelAuthoredCardsAndHeadline": true
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "blocked",
+      "category": "self_harm",
+      "message": "This deserves care, not a prediction about harm. If you or someone else may act on these feelings, contact local emergency help or a trusted person now. We can explore a hopeful plan for tomorrow."
+    }
+  }
+]

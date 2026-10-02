@@ -1,8 +1,10 @@
 import {createServer} from 'node:http';
 import {handler} from './handler.ts';
+import {codexProvider} from './codex-provider.ts';
 import {animatedCard} from './share.ts';
-const handle=handler(k=>process.env[k]);
-const port=Number(process.env.ENGINE_PORT||process.env.CRYSTAL_BALL_ENGINE_PORT||8787);
+const env=(key:string)=>process.env[key];
+const handle=handler(env,env('MODEL_PROVIDER')==='codex'?codexProvider(env):undefined);
+const port=Number(process.env.ENGINE_PORT||process.env.CRYSTAL_BALL_ENGINE_PORT||process.env.PORT||8787);
 const server=createServer(async(req,res)=>{
  if(req.url==='/health'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({app:'crystal-ball',provider:process.env.MODEL_PROVIDER||'ollama'}));return;}
  const chunks:Buffer[]=[];let size=0;

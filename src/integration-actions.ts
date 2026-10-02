@@ -2,7 +2,6 @@ import {checkInDate} from './retention';
 export type NativePorts = {
  platform:string;
  notifications:{clear:()=>Promise<void>;permission:(request:boolean)=>Promise<boolean>;schedule:(title:string,body:string,seconds:number,readingId?:string)=>Promise<void>};
- apple:{available:()=>Promise<boolean>;enabled:boolean;owner:()=>Promise<string|null>;signIn:()=>Promise<string|null>;link:(token:string)=>Promise<string|undefined>};
  share:(message:string,url:string)=>Promise<unknown>;
  link:(question:string)=>string;
 };
@@ -22,7 +21,6 @@ export function nativeActions(ports:NativePorts){
    return `Check-back reminder set for ${when}.`;
   }catch{return 'The reminder could not be scheduled. You can still check back from History.';}
  },
- async saveWithApple(){if(ports.platform!=='ios'||!await ports.apple.available())return 'Sign in with Apple needs the configured iOS app. Your readings are saved on this device.';if(!ports.apple.enabled)return 'Apple account saving is not configured yet. Your readings remain on this device.';try{const owner=await ports.apple.owner(),token=await ports.apple.signIn();if(!token)return 'Apple did not return an identity token. Your local readings are safe.';if(await ports.apple.link(token)!==owner)throw new Error('Identity mismatch');return 'Saved with Apple. Your anonymous history stays with you.';}catch{return 'Apple saving was canceled or unavailable. Your local readings remain safe.';}},
  async friendLink(question:string){const url=ports.link(question);await ports.share(`Ask the Crystal Ball for yourself: ${url}`,url);return url;},
 };}
 export async function purchaseOfferings(mode:'mock'|'sandbox',platform:string,key:string|undefined,sdk:{configure:(key:string)=>void;get:()=>Promise<unknown>}){

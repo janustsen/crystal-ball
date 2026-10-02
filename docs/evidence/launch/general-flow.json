@@ -1,0 +1,102 @@
+[
+  {
+    "runAt": "2026-09-30T22:01:43.789Z"
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "topic": "general",
+        "provided": {
+          "horizon": "this year"
+        },
+        "cards": [
+          {
+            "id": "context_1",
+            "question": "How many words do you write daily?",
+            "options": [
+              "Write 500 words daily",
+              "Write 100 words daily",
+              "Write 200 words daily",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_2",
+            "question": "How many chapters have you completed?",
+            "options": [
+              "3 chapters done",
+              "1 chapter done",
+              "0 chapters done",
+              "Other"
+            ],
+            "remember": false
+          },
+          {
+            "id": "context_3",
+            "question": "How often do you update your progress?",
+            "options": [
+              "Update my progress weekly",
+              "Update my progress daily",
+              "Update my progress monthly",
+              "Other"
+            ],
+            "remember": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "card": 1,
+    "selected": "Write 500 words daily"
+  },
+  {
+    "card": 2,
+    "selected": "3 chapters done"
+  },
+  {
+    "card": 3,
+    "selected": "Update my progress weekly"
+  },
+  {
+    "action": "predict",
+    "response": {
+      "kind": "ok",
+      "value": {
+        "id": "95cbf78f-5666-468c-9a81-a41a604d7e03",
+        "question": "Will I finish writing my novel this year?",
+        "headline": "You will finish writing your novel this year.",
+        "createdAt": "2026-09-30T22:02:05.123Z",
+        "label": "Speculative forecast · not a guarantee",
+        "why": "Recorded context: How many words do you write daily? Write 500 words daily.\n\nScenario assumption: You will write 500 words daily and maintain weekly updates. No external evidence supports the future outcome; it is a speculative scenario.",
+        "facts": {
+          "horizon": "this year",
+          "context_1": "How many words do you write daily? Write 500 words daily",
+          "context_2": "How many chapters have you completed? 3 chapters done",
+          "context_3": "How often do you update your progress? Update my progress weekly"
+        },
+        "sources": [],
+        "assumptions": [
+          "This is a speculative forecast, not a guarantee."
+        ],
+        "friend": false
+      }
+    }
+  },
+  {
+    "creditsBefore": 3,
+    "creditsAfter": 2,
+    "modelAuthoredCardsAndHeadline": true
+  },
+  {
+    "action": "plan",
+    "response": {
+      "kind": "blocked",
+      "category": "self_harm",
+      "message": "This deserves care, not a prediction about harm. If you or someone else may act on these feelings, contact local emergency help or a trusted person now. We can explore a hopeful plan for tomorrow."
+    }
+  }
+]

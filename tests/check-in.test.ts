@@ -9,7 +9,7 @@ test('automatic check-ins use existing permission; manual reminders can request 
  const ports:NativePorts={platform:'ios',notifications:{clear:async()=>{},
   permission:async(request)=>{requests.push(request);return granted;},
   schedule:async(...args)=>{scheduled.push(args);},
- },apple:{available:async()=>false,enabled:false,owner:async()=>null,signIn:async()=>null,link:async()=>undefined},share:async()=>{},link:()=>''};
+ },share:async()=>{},link:()=>''};
  const actions=nativeActions(ports),date=localDay(new Date(Date.now()+5*86400000));
  const before=Date.now();
  assert.match(await actions.reminder('A future glimpse','saved-reading',date,false),/reminder set/);
@@ -44,7 +44,7 @@ test('forget clears existing and in-flight check-ins, preserving later readings'
    clear:async()=>{retained.clear();delivered.clear();},
    permission:async()=>{if(pause&&phase==='permission'){entered();await gate;}return true;},
    schedule:async(_title,_body,_seconds,id)=>{if(pause&&phase==='schedule'){entered();await gate;}retained.add(id!);},
-  },apple:{available:async()=>false,enabled:false,owner:async()=>null,signIn:async()=>null,link:async()=>undefined},share:async()=>{},link:()=>''};
+  },share:async()=>{},link:()=>''};
   const actions=nativeActions(ports);
   const pending=actions.reminder('Private forecast','old');
   await started;

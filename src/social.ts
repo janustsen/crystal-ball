@@ -1,5 +1,5 @@
 import {anonymousOwner,supabase} from './cloud';
-import {engineUrl,previewHeaders} from './api';
+import {aiProvider,engineUrl,previewHeaders} from './api';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
 import type {Prediction,FriendTarget} from './types';
 
@@ -25,6 +25,7 @@ async function rpc(name:string,args?:Record<string,unknown>){
  return data;
 }
 async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal):Promise<T>{
+ if((body.action==='draft'||body.action==='friend')&&aiProvider&&body.aiConsent!==aiProvider)throw new Error(`Allow ${aiProvider} AI processing in Ask before sharing a reading or asking about a friend.`);
  const {db}=await client(),session=await db.auth.getSession();
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),120000);
  try{
@@ -33,8 +34,8 @@ async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal)
  }finally{clearTimeout(timeout)}
 }
 export const syncSocialProfile=(profile:SocialProfile)=>socialRequest({action:'profile',...profile});
-export const prepareSocialDraft=(kind:'star'|'seal',text:string)=>socialRequest<SocialDraft>({action:'draft',kind,text});
-export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal)=>socialRequest<Prediction>({action:'friend',question,...target},signal);
+export const prepareSocialDraft=(kind:'star'|'seal',text:string,aiConsent='')=>socialRequest<SocialDraft>({action:'draft',kind,text,aiConsent});
+export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal,aiConsent='')=>socialRequest<Prediction>({action:'friend',question,...target,aiConsent},signal);
 export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise<SocialSnapshot>{
  await syncSocialProfile(account);
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);

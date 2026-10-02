@@ -14,7 +14,7 @@ test('ball Due date wins; legacy forecasts keep 30 days without a migration',()=
 });
 test('real reminder action passes the reading id and date to native scheduling; web and bad dates never schedule',async()=>{
  const scheduled:unknown[][]=[];
- const ports:NativePorts={platform:'ios',notifications:{clear:async()=>{},permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},apple:{available:async()=>false,enabled:false,owner:async()=>null,signIn:async()=>null,link:async()=>undefined},share:async()=>{},link:()=>''};
+ const ports:NativePorts={platform:'ios',notifications:{clear:async()=>{},permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},share:async()=>{},link:()=>''};
  const on=localDay(new Date(Date.now()+86400000*5));
  const before=Date.now();
  assert.match(await nativeActions(ports).reminder(reading.headline,reading.id,on),/reminder set/);
@@ -78,7 +78,7 @@ test('omen token cap leaves existing provider defaults unchanged',async()=>{
   const env=(key:string)=>({MODEL_PROVIDER:'hosted',HOSTED_MODEL_KEY:'test',HOSTED_MODEL_URL:'https://example.invalid',HOSTED_MODEL_NAME:'test'}[key]);
   await provider(env).json('test',{}, {},()=>true);await provider(env,160).json('test',{}, {},()=>true);
   assert.equal(bodies[0].options.num_predict,600);assert.equal(bodies[1].options.num_predict,160);
-  assert.equal('max_tokens'in bodies[2],false);assert.equal(bodies[3].max_tokens,160);
+  assert.equal(bodies[2].max_tokens,1200);assert.equal(bodies[3].max_tokens,160);
  }finally{globalThis.fetch=original;}
 });
 test('forgetting personal data erases omen text without granting a second request that day',async()=>{

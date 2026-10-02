@@ -1,4 +1,4 @@
-import type {ModelProvider} from './provider.ts';
+import {requireAiConsent,type ModelProvider} from './provider.ts';
 import type {Prediction} from '../src/types.ts';
 import {isSkyPrompt,safeSealedHeadline,sunSigns,validFirstName} from '../src/social-policy.ts';
 import {safety} from './safety.ts';
@@ -34,6 +34,7 @@ export function socialHandler(env:(key:string)=>string|undefined,model:ModelProv
    const raw=await request.text();if(raw.length>3000)throw new Error('Please shorten this request.');
    const body=JSON.parse(raw);
    if(!body||typeof body!=='object'||Array.isArray(body))throw new Error('Choose a social action.');
+   if(body.action==='draft'||body.action==='friend')requireAiConsent(env,body.aiConsent);
    if(body.action==='profile'){
     if(![null,'teen','adult'].includes(body.ageBand)||!(body.sunSign===null||sunSigns.some(sign=>sign===body.sunSign)))throw new Error('Please check your profile.');
     const mock=env('SOCIAL_MOCK_ENTITLEMENTS')==='true';

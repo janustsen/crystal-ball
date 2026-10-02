@@ -5,7 +5,7 @@ const context=await browser.newContext({viewport:{width:390,height:844},deviceSc
 const page=await context.newPage();const events=[];
 const shot=async name=>{await page.waitForTimeout(700);await page.screenshot({path:`docs/evidence/${name}.png`});events.push({screen:name,at:new Date().toISOString()});};
 try{
- await page.goto('http://localhost:8087');await page.getByTestId('tab-you').click();await page.getByTestId('edit-level').click();await shot('knowledge-edit');await page.getByLabel('Edit level',{exact:true}).fill('Intermediate');await page.getByTestId('save-fact').click();
+ await page.goto((process.env.APP_URL||'http://localhost:8087'));await page.getByTestId('tab-you').click();await page.getByTestId('edit-level').click();await shot('knowledge-edit');await page.getByLabel('Edit level',{exact:true}).fill('Intermediate');await page.getByTestId('save-fact').click();
  await page.getByTestId('tab-ask').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').waitFor({timeout:65000});
  for(let i=0;i<3;i++){await shot(`known-question-${i+1}`);await page.getByTestId('option-0').click();if(i===2)await context.setOffline(true);await page.getByTestId('answer-next').click()}
  await page.getByTestId('try-again').waitFor({timeout:65000});await shot('network-error');await context.setOffline(false);await page.getByTestId('try-again').click();await page.getByTestId('share-this-glimpse').waitFor({timeout:65000});await shot('retry-reveal');

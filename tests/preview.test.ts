@@ -9,6 +9,7 @@ test('authenticated clients reach the configured engine port through every previ
  const upstream=createServer(async(req,res)=>{
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   const body=Buffer.concat(chunks).toString();
+  if(body&&JSON.parse(body).question==='Today’s personal omen')assert.equal(JSON.parse(body).aiConsent,'Candidate AI');
   res.writeHead(200,{'content-type':'application/json'});
   res.end(JSON.stringify({kind:'ok',value:{text:'Your personal omen'},path:req.url,body:body?JSON.parse(body):null}));
  });
@@ -28,7 +29,7 @@ test('authenticated clients reach the configured engine port through every previ
    const headers=new Headers(init?.headers);headers.set('origin',base);
    return originalFetch(input,{...init,headers});
   };
-  assert.equal(await requestOmen({}),'Your personal omen');
+  assert.equal(await requestOmen({},'Candidate AI'),'Your personal omen');
   for(const action of ['plan','predict'] as const){
    assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
   }
@@ -45,6 +46,31 @@ test('authenticated clients reach the configured engine port through every previ
   globalThis.fetch=originalFetch;
   keys.forEach((key,index)=>{if(previous[index]===undefined)delete process.env[key];else process.env[key]=previous[index]});
   await Promise.all([server,upstream].map(server=>new Promise<void>(resolve=>server.close(()=>resolve()))));
+ }
+});
+test('preview forwards every engine route to the configured port',async()=>{
+ const previousPort=process.env.ENGINE_PORT,secret=randomBytes(32).toString('hex');
+ const engine=createServer(async(req,res)=>{
+  let body='';for await(const chunk of req)body+=chunk;
+  res.writeHead(202,{'content-type':'application/json'});
+  res.end(JSON.stringify({path:req.url,method:req.method,body}));
+ });
+ const server=createServer(bridge((_req:any,res:any)=>res.end('private client bundle'),secret));
+ try{
+  await new Promise<void>(resolve=>engine.listen(0,'127.0.0.1',resolve));
+  process.env.ENGINE_PORT=String((engine.address() as {port:number}).port);
+  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
+  for(const [path,target] of [['/engine','/'],['/engine/share','/share'],['/engine/health','/health']]){
+   const method=path==='/engine/health'?'GET':'POST',body=method==='POST'?'{"question":"hello"}':undefined;
+   const response=await fetch(base+path,{method,body,headers:{'x-preview-token':secret,origin:base}});
+   assert.equal(response.status,202);
+   assert.equal(response.headers.get('content-type'),'application/json');
+   assert.deepEqual(await response.json(),{path:target,method,body:body??''});
+  }
+ }finally{
+  if(previousPort===undefined)delete process.env.ENGINE_PORT;else process.env.ENGINE_PORT=previousPort;
+  await Promise.all([server,engine].map(server=>new Promise<void>(resolve=>server.close(()=>resolve()))));
  }
 });
 test('preview refuses unauthenticated engine calls while the page and bundle load without login',async()=>{
