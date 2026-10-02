@@ -1,0 +1,33 @@
+Independent blind design comparison. Read-only. No implementation/delegation/prior ratings/other graders. Compare actual baseline and A/B/C for blocked age eligibility and birthday editing at normal/200%. Score all eight screen/variant pairs on six dimensions. Use null for genuinely inapplicable prototype behavior, not0. Choose best blocked and birthday composition; baseline can win. Explain tradeoffs, never award a desired score.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Baseline is current actual product with234 browser layouts, real readings/PNG, profile/age-boundary/request checks, contrast/reduced-motion and isolated~60fps proof. Under13 remains blocked after reload and cannot Skip; entering a corrected eligible birthday currently lets onboarding proceed. No real identity/age-verification claim: all age entry is self reported. Candidate changes must preserve every server/client guard and stored eligibility rule.
+
+Alternatives are disposable HTML, controls only. No profile/eligibility/inference changes implemented: actions explicitly report study only. Both sizes drove correction/save and overflow checks. Do not give prototypes baseline runtime credit. Physical/native proof remains later separate gate.
+
+Blocked A: dedicated calm state with explanation and correction action; separate correction screen (also pictured) has date field/check/back. B: always-visible correction form beneath restriction, few steps but greater emphasis on getting past it. C: restriction with expandable correction, compact but hidden field/discovery. All communicate age13minimum, no bypass action or reset.
+Birthday A: inline labeled date form inside existing sky context. B: focused editor, year-month-day label/concrete example, save/cancel and secondary remove disclosure. C: focused editor with separate day/month/year numeric fields, readable-date summary, save/cancel/remove. All initial birthday values identical. Structural prototype feedback only; date validation and persistence not implemented and must be proven if selected. Native date picker is NOT pictured or claimed.
+
+Only inspect attached images, docs/ux-loop/expansion-19/checks.json and public/concepts/expansion-19.html if needed; no other files or prior ratings.

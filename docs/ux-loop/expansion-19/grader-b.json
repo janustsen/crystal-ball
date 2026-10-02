@@ -1,0 +1,64 @@
+{
+  "comparisons": [
+    {
+      "screen": "blocked",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":6,"typography":7,"surfaces":8,"clarity":5,"feedback":7,"accessibility":6},
+      "finding": "A=7.0; F=6.0; overall=6.4. The restriction reads like a notice above ordinary onboarding. Continue and the visible Skip action undermine the blocked-state message, even though supplied runtime evidence says skipping is prevented. Enlargement fits well. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction notice [5,7,8,5,7,7]; birthday input [7,7,8,6,7,6]; Continue [8,8,8,5,7,7]; Skip [5,7,7,4,null,5]. Correction works according to the supplied evidence; the screen does not explain that recovery clearly."
+    },
+    {
+      "screen": "blocked",
+      "variant": "A",
+      "dimensions": {"hierarchy":9,"typography":7,"surfaces":8,"clarity":9,"feedback":null,"accessibility":8},
+      "finding": "A=8.0; F=8.5; overall=8.3, provisional. Best separation of restriction and legitimate correction. Both the initial state and separate correction screen remain comfortably readable at 200%. The extra step is justified by the clearer state distinction. Literal missing spaces in 'ages13' and 'age13' detract from polish. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [9,7,8,9,null,8]; correction action [8,8,8,9,null,8]; correction input and help [8,8,8,8,null,8]; Check [9,8,8,9,null,8]; Back [8,8,8,9,null,8]. Source implements focus placement on opening correction and return focus on Back; actual validation and eligibility recovery remain unimplemented."
+    },
+    {
+      "screen": "blocked",
+      "variant": "B",
+      "dimensions": {"hierarchy":7,"typography":7,"surfaces":8,"clarity":7,"feedback":null,"accessibility":7},
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Fastest access to correction, but the large enabled button makes correction dominate the restriction. 'Access paused' suggests a temporary interruption. At 200%, the form consumes almost the entire viewport and leaves little room for subsequent feedback. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [7,7,8,7,null,8]; correction heading [7,7,8,8,null,8]; input and example [8,8,8,8,null,8]; Check corrected birthday [8,7,8,8,null,7]. The eligible-looking populated date beside an underage message needs clear state context; it must not look like a recommended replacement birthday."
+    },
+    {
+      "screen": "blocked",
+      "variant": "C",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":7,"feedback":null,"accessibility":8},
+      "finding": "A=7.7; F=7.5; overall=7.6, provisional. Restriction stays prominent and the compact layout handles enlargement. Recovery is less discoverable: the question names a possible mistake rather than the corrective action. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [8,7,8,8,null,8]; disclosure [7,8,8,7,null,8]; revealed input/help [null,null,null,8,null,null]; revealed Check [null,null,null,8,null,null]. Native details/summary semantics and a minimum summary height are present in source. Expanded-state visual grades are withheld because that state is not pictured."
+    },
+    {
+      "screen": "birthday",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":6,"typography":6,"surfaces":8,"clarity":6,"feedback":7,"accessibility":6},
+      "finding": "A=6.7; F=6.3; overall=6.5. Editing competes with profile information, plan promotion and persistent navigation. The input lacks a visible dedicated label; 'Close birthday' poorly describes abandoning an edit. At 200%, Save remains visible, but navigation crowds the lower viewport. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: sky context [7,6,8,7,null,7]; input [6,7,8,5,7,5]; Save [8,8,8,8,7,7]; Close [5,7,8,5,null,7]; Forget [6,7,8,7,null,7]; birth-details action [6,7,8,7,null,6]; plan row [5,7,8,7,null,6]; tabs [6,6,8,7,null,6]; central orb [7,7,8,6,null,6]. Feedback credit uses the supplied product-check summary, not an inferred screenshot interaction."
+    },
+    {
+      "screen": "birthday",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":8,"feedback":null,"accessibility":8},
+      "finding": "A=7.7; F=8.0; overall=7.9, provisional. Keeps useful sky context while making the field, Save and Cancel explicit. However, context repeats information and competes with the editing heading; Forget remains conspicuous. All main controls fit at 200%, with removal near the bottom. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: sky context [7,7,8,8,null,8]; editor heading [8,8,8,9,null,8]; input/help [8,8,8,8,null,8]; Save [9,8,8,9,null,8]; Cancel [8,8,8,9,null,8]; Forget [7,8,8,7,null,8]. '15 June1995' needs spacing. Cancel and Forget have no handlers in this prototype."
+    },
+    {
+      "screen": "birthday",
+      "variant": "B",
+      "dimensions": {"hierarchy":9,"typography":8,"surfaces":8,"clarity":9,"feedback":null,"accessibility":8},
+      "finding": "A=8.3; F=8.5; overall=8.4, provisional. Best focused editor: purpose, format, example and Save form a clear sequence. Cancel is distinct and removal stays secondary. At 200%, the input, Save, Cancel and collapsed removal remain visible. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: back control [8,8,8,9,null,8]; heading/purpose [9,8,8,9,null,8]; input/help [9,8,8,8,null,8]; Save [9,8,8,9,null,8]; Cancel [8,8,8,9,null,8]; removal disclosure [8,8,8,8,null,8]. Manual year-month-day entry still requires formatting effort. Back, Cancel and final removal are unwired; the disclosure's explanation of retained eligibility is useful but does not prove that behavior."
+    },
+    {
+      "screen": "birthday",
+      "variant": "C",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":8,"feedback":null,"accessibility":7},
+      "finding": "A=7.7; F=7.5; overall=7.6, provisional. Separate labels remove date-order ambiguity and avoid typing separators. At 200%, stacking three fields pushes Save below the supplied viewport; this adds scrolling, but does not prove the action is unreachable. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: back control [8,8,8,9,null,8]; heading/purpose [9,8,8,9,null,8]; Day [8,8,8,9,null,8]; Month [8,8,8,8,null,8]; Year [8,8,8,9,null,8]; date summary [7,6,8,6,null,7]; Save [8,8,8,9,null,7]; Cancel [8,8,8,9,null,7]; removal disclosure [8,8,8,8,null,7]. The readable-date summary is hardcoded rather than derived from edits, so it cannot earn confirmation-feedback credit. It also contains 'June1995'."
+    }
+  ],
+  "blockedWinner": "A",
+  "birthdayWinner": "B",
+  "reason": "Blocked A communicates a firm restriction and offers a clearly separate correction route. Birthday B gives the strongest task focus and keeps essential controls visible at both sizes. Neither reaches the requested threshold on the demonstrated evidence. Component tuples use the same six dimensions as the screen scores; null means the relevant behavior or visual state cannot meaningfully be graded here. Prototype overall scores normalize over applicable dimensions and therefore measure composition, not production readiness.",
+  "limitations": [
+    "Inspected only the six attached images, checks.json and public/concepts/expansion-19.html. No implementation, delegation or prior ratings.",
+    "checks.json reports no overflow for all 12 candidate screen/size combinations, but contains no detailed action/result, keyboard, contrast, error-state or accessibility assertions. It does not prove vertical controls remain visible.",
+    "Candidate feedback/recovery scores are null for actual task outcomes: correction and Save only announce that this is a layout study. Structural recovery affordances are assessed under hierarchy and clarity. Missing runtime behavior is not treated as successful behavior or scored zero.",
+    "Baseline runtime credit rests on the supplied evidence summary, not a fresh drive. Its broader layout, reading and performance coverage does not establish the quality of every pictured control.",
+    "The prototype's 200% mode uses a CSS class, including explicit field stacking. This demonstrates that layout, not browser zoom, operating-system text scaling or native keyboard behavior.",
+    "No new hard-gate failure is established by the supplied evidence. Birthday C's below-fold action is a scrolling cost, not proof of an inaccessible primary control. Prototype readiness remains unproven.",
+    "Physical iPhone, VoiceOver, native interactions and representative novice use remain separate unverified gates. No full/native 9 or 10 certification is made."
+  ]
+}

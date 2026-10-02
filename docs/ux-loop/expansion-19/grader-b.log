@@ -1,0 +1,307 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fc9f-86a1-7da2-bd8a-aceca1960d01
+--------
+user
+Independent blind design comparison. Read-only. No implementation/delegation/prior ratings/other graders. Compare actual baseline and A/B/C for blocked age eligibility and birthday editing at normal/200%. Score all eight screen/variant pairs on six dimensions. Use null for genuinely inapplicable prototype behavior, not0. Choose best blocked and birthday composition; baseline can win. Explain tradeoffs, never award a desired score.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Baseline is current actual product with234 browser layouts, real readings/PNG, profile/age-boundary/request checks, contrast/reduced-motion and isolated~60fps proof. Under13 remains blocked after reload and cannot Skip; entering a corrected eligible birthday currently lets onboarding proceed. No real identity/age-verification claim: all age entry is self reported. Candidate changes must preserve every server/client guard and stored eligibility rule.
+
+Alternatives are disposable HTML, controls only. No profile/eligibility/inference changes implemented: actions explicitly report study only. Both sizes drove correction/save and overflow checks. Do not give prototypes baseline runtime credit. Physical/native proof remains later separate gate.
+
+Blocked A: dedicated calm state with explanation and correction action; separate correction screen (also pictured) has date field/check/back. B: always-visible correction form beneath restriction, few steps but greater emphasis on getting past it. C: restriction with expandable correction, compact but hidden field/discovery. All communicate age13minimum, no bypass action or reset.
+Birthday A: inline labeled date form inside existing sky context. B: focused editor, year-month-day label/concrete example, save/cancel and secondary remove disclosure. C: focused editor with separate day/month/year numeric fields, readable-date summary, save/cancel/remove. All initial birthday values identical. Structural prototype feedback only; date validation and persistence not implemented and must be proven if selected. Native date picker is NOT pictured or claimed.
+
+Only inspect attached images, docs/ux-loop/expansion-19/checks.json and public/concepts/expansion-19.html if needed; no other files or prior ratings.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+I’ll compare the supplied images and browser-check evidence, separating visual quality from demonstrated behavior and untested prototype behavior.
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat docs/ux-loop/expansion-19/checks.json' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+[
+  {
+    "screen": "blocked",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "blocked",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "blocked",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "blocked",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "blocked",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "blocked",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "birthday",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "birthday",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "birthday",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "birthday",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "birthday",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "birthday",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  }
+]
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat public/concepts/expansion-19.html' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open mist · eligibility and birthday</title><style>
+@font-face{font-family:Fell;src:url(study-assets/display.woff2)}@font-face{font-family:Hanken;src:url(study-assets/body.woff2)}*{box-sizing:border-box}html{background:#100c09;color:#f1e9dc;font-family:Hanken,sans-serif;font-size:16px}body{margin:0;background:radial-gradient(ellipse at 85% 90%,#4d341c66,transparent 62%);min-height:100vh}body.large{font-size:32px}main{max-width:390px;margin:auto;padding:24px;min-height:100vh}header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 24px;font-size:.875em}header button{min-width:44px}h1,h2,.quote{font-family:Fell,serif;font-weight:400}h1{font-size:1.75em;line-height:1.18;margin:16px 0}h2{font-size:1.35em;line-height:1.3;margin:16px 0}.quote{font-size:1.375em;line-height:1.3;margin:14px 0}p{line-height:1.55;margin:12px 0}button,select,input,textarea{font:inherit;color:inherit}button,a,summary{touch-action:manipulation}button,select{min-height:48px}button{background:none;border:0;cursor:pointer;padding:12px 0;text-align:left}button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e0a458;outline-offset:4px}label{display:block}.small{font-size:.875em;line-height:1.45;color:#b9ab97}.gold{color:#e0a458}.rule{border-bottom:1px solid #614c3466;padding:16px 0}.primary{display:block;text-align:center;width:100%;padding:14px 18px;background:#ebd5b0;color:#120e0b;border-radius:28px;box-shadow:0 3px #7a5527;min-height:54px;font-weight:600;margin:14px 0}.quiet{display:block;width:100%;border-bottom:1px solid #614c3466;margin-top:8px;text-align:center}input,textarea,select{display:block;width:100%;border:0;border-bottom:1px solid #79634a;background:transparent;padding:14px 0;border-radius:0;margin:6px 0 14px}textarea{font-family:Fell,serif;font-size:1.5em;line-height:1.3;resize:vertical;min-height:5.6em}select{appearance:auto}option{background:#120e0b}fieldset{border:0;padding:0;margin:0 0 16px}legend{font-size:.875em;color:#b9ab97;margin-bottom:6px}.choices{display:flex;gap:20px}.choices label{display:flex;align-items:center;gap:10px;flex:1;min-height:52px;border-bottom:1px solid #614c34}.choices input{appearance:none;flex:0 0 20px;width:20px;height:20px;padding:0;margin:0;border:1px solid #79634a;border-radius:50%}.choices input:checked{background:#e0a458;box-shadow:inset 0 0 0 4px #120e0b}.large .choices{flex-direction:column;gap:0}.fixed-action{position:sticky;bottom:0;background:linear-gradient(transparent,#120e0b 14%);padding:14px 0 4px;margin-top:12px}.context{display:flex;align-items:center;gap:12px}.context span{flex:1}.context button{color:#e0a458;flex-shrink:0}details{border-bottom:1px solid #614c3466;padding:14px 0}summary{min-height:48px;cursor:pointer;line-height:1.4}.section-nav{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:16px 0}.section-nav a,.section-nav button{min-width:0;min-height:48px;color:#e0a458;text-decoration:none;border-bottom:1px solid #614c34;padding:12px 0;overflow-wrap:anywhere}.section-nav button[aria-pressed=true]{border-color:#e0a458;color:#f1e9dc}.reader{font-size:1.0625em;line-height:1.5}.reader p{white-space:pre-wrap;overflow-wrap:anywhere}.source{display:block;color:#e0a458;overflow-wrap:anywhere;padding:12px 0;text-decoration:none}.section{padding:8px 0 20px;border-bottom:1px solid #614c3466;scroll-margin-top:12px}.library button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border-bottom:1px solid #614c3466;padding:20px 0}.library strong{font-weight:400}.library small{display:block;color:#b9ab97;font-size:.875em;margin-top:6px}.orb-mark{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#f1e9dc 0 3%,#b2915755 9%,#23190f 52%,#775b36 70%,#140e08 76%);border:1px solid #9c7b4f;flex-shrink:0}#study{max-width:390px;margin:24px auto;padding:16px;color:#b9ab97;font-size:14px}#study a{color:#e0a458;margin-right:10px}#status{line-height:1.4;color:#e0a458}.large .context{flex-wrap:wrap}.large header{margin-bottom:16px}
+
+.sheet{background:#19130e;padding:20px;margin:20px -24px -24px;min-height:50vh}.excerpt{font-size:.875em;color:#b9ab97;line-height:1.4}.passage{margin:24px 0;padding-bottom:24px;border-bottom:1px solid #614c3455}.passage .number{color:#e0a458;font-size:.75em}.reading{font-size:1.0625em;line-height:1.6}.reading p{white-space:pre-wrap}.pager{display:flex;justify-content:space-between;gap:12px}.large .pager{flex-direction:column}body{background:#100c09}.compact textarea{min-height:3em;height:3em}details p{padding:8px 0}#study{padding:20px;background:#211a13}#study a{color:#e0a458;padding:10px;display:inline-block} .date-parts{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:12px}.large .date-parts{grid-template-columns:1fr} .hero-state{margin-top:64px} .large .hero-state{margin-top:20px}</style><div id="study"></div><main id="app"></main><script>const params=new URLSearchParams(location.search),screen=params.get('screen')||'blocked',variant=params.get('variant')||'a',large=params.get('large')==='1';if(large)document.body.classList.add('large');
+const header='<header><span>Crystal Ball</span></header>',field='<label class="small" for="birthday">Birthday · year-month-day</label><input id="birthday" value="1995-06-15" inputmode="numeric"><p class="small">For example, 1995-06-15.</p>',correction='<h1>Correct your birthday</h1><p class="small">Enter your actual birthday. Access still requires age13 or older.</p>'+field+'<button id="check" class="primary">Check birthday</button><p role="status" id="status"></p><button id="cancel" class="quiet">Back to age requirement</button>';
+let editing=false;
+function draw(){let html=header;
+if(screen==='blocked'){
+ if(variant==='a')html+=editing?correction:'<section class="hero-state"><p class="small gold">Age requirement</p><h1>For ages13 and up</h1><p>You cannot continue with the age you entered.</p><p class="small">If you entered it incorrectly, you can correct your birthday.</p><button id="correct" class="quiet">Correct my birthday</button></section>';
+ if(variant==='b')html+='<p class="small gold">Access paused</p><h1>For ages13 and up</h1><p>Your entered age is below the minimum.</p><h2>Entered it incorrectly?</h2>'+field+'<button id="check" class="primary">Check corrected birthday</button><p role="status" id="status"></p>';
+ if(variant==='c')html+='<section class="hero-state"><h1>For ages13 and up</h1><p>You cannot continue with the age you entered.</p><details id="correction"><summary>Did you enter it incorrectly?</summary>'+field+'<button id="check" class="primary">Check birthday</button><p role="status" id="status"></p></details></section>';
+}else{
+ if(variant==='a')html+='<h1>Your sky</h1><p>Gemini Sun</p><p class="small">Birthday · 15 June1995</p><section class="passage"><h2>Edit birthday</h2>'+field+'<button id="save" class="primary">Save birthday</button><button class="quiet">Cancel changes</button></section><button class="quiet">Forget birthday</button>';
+ if(variant==='b')html+='<button class="gold">‹ Your sky</button><h1>Edit birthday</h1><p class="small">Used for your Sun sign and age-appropriate readings.</p>'+field+'<button id="save" class="primary">Save birthday</button><button class="quiet">Cancel changes</button><details><summary>Remove birthday</summary><p class="small">Your existing age eligibility stays. Birth chart details are removed.</p><button>Forget birthday</button></details>';
+ if(variant==='c')html+='<button class="gold">‹ Your sky</button><h1>Edit birthday</h1><p class="small">Used for your Sun sign and age-appropriate readings.</p><div class="date-parts"><label>Day<input id="day" value="15" inputmode="numeric"></label><label>Month<input id="month" value="6" inputmode="numeric"></label><label>Year<input id="year" value="1995" inputmode="numeric"></label></div><p class="small">15 June1995</p><button id="save" class="primary">Save birthday</button><button class="quiet">Cancel changes</button><details><summary>Remove birthday</summary><p class="small">Your existing age eligibility stays. Birth chart details are removed.</p><button>Forget birthday</button></details>';
+ html+='<p role="status" id="status"></p>';
+}document.querySelector('#app').innerHTML=html;
+document.querySelector('#correct')?.addEventListener('click',()=>{editing=true;draw();const heading=document.querySelector('h1');heading.tabIndex=-1;heading.focus()});document.querySelector('#cancel')?.addEventListener('click',()=>{editing=false;draw();document.querySelector('#correct').focus()});for(const id of ['check','save'])document.querySelector('#'+id)?.addEventListener('click',()=>document.querySelector('#status').textContent='Layout study only. No age or profile was changed.');
+}draw();document.querySelector('#study').innerHTML='Throwaway Open mist study. No eligibility or profile changes.<br>'+['a','b','c'].map(v=>'<a href="?screen='+screen+'&variant='+v+'&large='+(large?1:0)+'">'+v.toUpperCase()+'</a>').join('')+'<a href="?screen='+(screen==='blocked'?'birthday':'blocked')+'&variant='+variant+'&large='+(large?1:0)+'">Switch task</a><a href="?screen='+screen+'&variant='+variant+'&large='+(large?0:1)+'">Change text size</a>';if(params.has('capture'))document.querySelector('#study').remove();
+</script></html>
+
+codex
+{
+  "comparisons": [
+    {
+      "screen": "blocked",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":6,"typography":7,"surfaces":8,"clarity":5,"feedback":7,"accessibility":6},
+      "finding": "A=7.0; F=6.0; overall=6.4. The restriction reads like a notice above ordinary onboarding. Continue and the visible Skip action undermine the blocked-state message, even though supplied runtime evidence says skipping is prevented. Enlargement fits well. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction notice [5,7,8,5,7,7]; birthday input [7,7,8,6,7,6]; Continue [8,8,8,5,7,7]; Skip [5,7,7,4,null,5]. Correction works according to the supplied evidence; the screen does not explain that recovery clearly."
+    },
+    {
+      "screen": "blocked",
+      "variant": "A",
+      "dimensions": {"hierarchy":9,"typography":7,"surfaces":8,"clarity":9,"feedback":null,"accessibility":8},
+      "finding": "A=8.0; F=8.5; overall=8.3, provisional. Best separation of restriction and legitimate correction. Both the initial state and separate correction screen remain comfortably readable at 200%. The extra step is justified by the clearer state distinction. Literal missing spaces in 'ages13' and 'age13' detract from polish. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [9,7,8,9,null,8]; correction action [8,8,8,9,null,8]; correction input and help [8,8,8,8,null,8]; Check [9,8,8,9,null,8]; Back [8,8,8,9,null,8]. Source implements focus placement on opening correction and return focus on Back; actual validation and eligibility recovery remain unimplemented."
+    },
+    {
+      "screen": "blocked",
+      "variant": "B",
+      "dimensions": {"hierarchy":7,"typography":7,"surfaces":8,"clarity":7,"feedback":null,"accessibility":7},
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Fastest access to correction, but the large enabled button makes correction dominate the restriction. 'Access paused' suggests a temporary interruption. At 200%, the form consumes almost the entire viewport and leaves little room for subsequent feedback. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [7,7,8,7,null,8]; correction heading [7,7,8,8,null,8]; input and example [8,8,8,8,null,8]; Check corrected birthday [8,7,8,8,null,7]. The eligible-looking populated date beside an underage message needs clear state context; it must not look like a recommended replacement birthday."
+    },
+    {
+      "screen": "blocked",
+      "variant": "C",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":7,"feedback":null,"accessibility":8},
+      "finding": "A=7.7; F=7.5; overall=7.6, provisional. Restriction stays prominent and the compact layout handles enlargement. Recovery is less discoverable: the question names a possible mistake rather than the corrective action. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [8,7,8,8,null,8]; disclosure [7,8,8,7,null,8]; revealed input/help [null,null,null,8,null,null]; revealed Check [null,null,null,8,null,null]. Native details/summary semantics and a minimum summary height are present in source. Expanded-state visual grades are withheld because that state is not pictured."
+    },
+    {
+      "screen": "birthday",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":6,"typography":6,"surfaces":8,"clarity":6,"feedback":7,"accessibility":6},
+      "finding": "A=6.7; F=6.3; overall=6.5. Editing competes with profile information, plan promotion and persistent navigation. The input lacks a visible dedicated label; 'Close birthday' poorly describes abandoning an edit. At 200%, Save remains visible, but navigation crowds the lower viewport. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: sky context [7,6,8,7,null,7]; input [6,7,8,5,7,5]; Save [8,8,8,8,7,7]; Close [5,7,8,5,null,7]; Forget [6,7,8,7,null,7]; birth-details action [6,7,8,7,null,6]; plan row [5,7,8,7,null,6]; tabs [6,6,8,7,null,6]; central orb [7,7,8,6,null,6]. Feedback credit uses the supplied product-check summary, not an inferred screenshot interaction."
+    },
+    {
+      "screen": "birthday",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":8,"feedback":null,"accessibility":8},
+      "finding": "A=7.7; F=8.0; overall=7.9, provisional. Keeps useful sky context while making the field, Save and Cancel explicit. However, context repeats information and competes with the editing heading; Forget remains conspicuous. All main controls fit at 200%, with removal near the bottom. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: sky context [7,7,8,8,null,8]; editor heading [8,8,8,9,null,8]; input/help [8,8,8,8,null,8]; Save [9,8,8,9,null,8]; Cancel [8,8,8,9,null,8]; Forget [7,8,8,7,null,8]. '15 June1995' needs spacing. Cancel and Forget have no handlers in this prototype."
+    },
+    {
+      "screen": "birthday",
+      "variant": "B",
+      "dimensions": {"hierarchy":9,"typography":8,"surfaces":8,"clarity":9,"feedback":null,"accessibility":8},
+      "finding": "A=8.3; F=8.5; overall=8.4, provisional. Best focused editor: purpose, format, example and Save form a clear sequence. Cancel is distinct and removal stays secondary. At 200%, the input, Save, Cancel and collapsed removal remain visible. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: back control [8,8,8,9,null,8]; heading/purpose [9,8,8,9,null,8]; input/help [9,8,8,8,null,8]; Save [9,8,8,9,null,8]; Cancel [8,8,8,9,null,8]; removal disclosure [8,8,8,8,null,8]. Manual year-month-day entry still requires formatting effort. Back, Cancel and final removal are unwired; the disclosure's explanation of retained eligibility is useful but does not prove that behavior."
+    },
+    {
+      "screen": "birthday",
+      "variant": "C",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":8,"feedback":null,"accessibility":7},
+      "finding": "A=7.7; F=7.5; overall=7.6, provisional. Separate labels remove date-order ambiguity and avoid typing separators. At 200%, stacking three fields pushes Save below the supplied viewport; this adds scrolling, but does not prove the action is unreachable. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: back control [8,8,8,9,null,8]; heading/purpose [9,8,8,9,null,8]; Day [8,8,8,9,null,8]; Month [8,8,8,8,null,8]; Year [8,8,8,9,null,8]; date summary [7,6,8,6,null,7]; Save [8,8,8,9,null,7]; Cancel [8,8,8,9,null,7]; removal disclosure [8,8,8,8,null,7]. The readable-date summary is hardcoded rather than derived from edits, so it cannot earn confirmation-feedback credit. It also contains 'June1995'."
+    }
+  ],
+  "blockedWinner": "A",
+  "birthdayWinner": "B",
+  "reason": "Blocked A communicates a firm restriction and offers a clearly separate correction route. Birthday B gives the strongest task focus and keeps essential controls visible at both sizes. Neither reaches the requested threshold on the demonstrated evidence. Component tuples use the same six dimensions as the screen scores; null means the relevant behavior or visual state cannot meaningfully be graded here. Prototype overall scores normalize over applicable dimensions and therefore measure composition, not production readiness.",
+  "limitations": [
+    "Inspected only the six attached images, checks.json and public/concepts/expansion-19.html. No implementation, delegation or prior ratings.",
+    "checks.json reports no overflow for all 12 candidate screen/size combinations, but contains no detailed action/result, keyboard, contrast, error-state or accessibility assertions. It does not prove vertical controls remain visible.",
+    "Candidate feedback/recovery scores are null for actual task outcomes: correction and Save only announce that this is a layout study. Structural recovery affordances are assessed under hierarchy and clarity. Missing runtime behavior is not treated as successful behavior or scored zero.",
+    "Baseline runtime credit rests on the supplied evidence summary, not a fresh drive. Its broader layout, reading and performance coverage does not establish the quality of every pictured control.",
+    "The prototype's 200% mode uses a CSS class, including explicit field stacking. This demonstrates that layout, not browser zoom, operating-system text scaling or native keyboard behavior.",
+    "No new hard-gate failure is established by the supplied evidence. Birthday C's below-fold action is a scrolling cost, not proof of an inaccessible primary control. Prototype readiness remains unproven.",
+    "Physical iPhone, VoiceOver, native interactions and representative novice use remain separate unverified gates. No full/native 9 or 10 certification is made."
+  ]
+}
+tokens used
+34,050
+{
+  "comparisons": [
+    {
+      "screen": "blocked",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":6,"typography":7,"surfaces":8,"clarity":5,"feedback":7,"accessibility":6},
+      "finding": "A=7.0; F=6.0; overall=6.4. The restriction reads like a notice above ordinary onboarding. Continue and the visible Skip action undermine the blocked-state message, even though supplied runtime evidence says skipping is prevented. Enlargement fits well. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction notice [5,7,8,5,7,7]; birthday input [7,7,8,6,7,6]; Continue [8,8,8,5,7,7]; Skip [5,7,7,4,null,5]. Correction works according to the supplied evidence; the screen does not explain that recovery clearly."
+    },
+    {
+      "screen": "blocked",
+      "variant": "A",
+      "dimensions": {"hierarchy":9,"typography":7,"surfaces":8,"clarity":9,"feedback":null,"accessibility":8},
+      "finding": "A=8.0; F=8.5; overall=8.3, provisional. Best separation of restriction and legitimate correction. Both the initial state and separate correction screen remain comfortably readable at 200%. The extra step is justified by the clearer state distinction. Literal missing spaces in 'ages13' and 'age13' detract from polish. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [9,7,8,9,null,8]; correction action [8,8,8,9,null,8]; correction input and help [8,8,8,8,null,8]; Check [9,8,8,9,null,8]; Back [8,8,8,9,null,8]. Source implements focus placement on opening correction and return focus on Back; actual validation and eligibility recovery remain unimplemented."
+    },
+    {
+      "screen": "blocked",
+      "variant": "B",
+      "dimensions": {"hierarchy":7,"typography":7,"surfaces":8,"clarity":7,"feedback":null,"accessibility":7},
+      "finding": "A=7.3; F=7.0; overall=7.1, provisional. Fastest access to correction, but the large enabled button makes correction dominate the restriction. 'Access paused' suggests a temporary interruption. At 200%, the form consumes almost the entire viewport and leaves little room for subsequent feedback. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [7,7,8,7,null,8]; correction heading [7,7,8,8,null,8]; input and example [8,8,8,8,null,8]; Check corrected birthday [8,7,8,8,null,7]. The eligible-looking populated date beside an underage message needs clear state context; it must not look like a recommended replacement birthday."
+    },
+    {
+      "screen": "blocked",
+      "variant": "C",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":7,"feedback":null,"accessibility":8},
+      "finding": "A=7.7; F=7.5; overall=7.6, provisional. Restriction stays prominent and the compact layout handles enlargement. Recovery is less discoverable: the question names a possible mistake rather than the corrective action. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: restriction content [8,7,8,8,null,8]; disclosure [7,8,8,7,null,8]; revealed input/help [null,null,null,8,null,null]; revealed Check [null,null,null,8,null,null]. Native details/summary semantics and a minimum summary height are present in source. Expanded-state visual grades are withheld because that state is not pictured."
+    },
+    {
+      "screen": "birthday",
+      "variant": "baseline",
+      "dimensions": {"hierarchy":6,"typography":6,"surfaces":8,"clarity":6,"feedback":7,"accessibility":6},
+      "finding": "A=6.7; F=6.3; overall=6.5. Editing competes with profile information, plan promotion and persistent navigation. The input lacks a visible dedicated label; 'Close birthday' poorly describes abandoning an edit. At 200%, Save remains visible, but navigation crowds the lower viewport. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: sky context [7,6,8,7,null,7]; input [6,7,8,5,7,5]; Save [8,8,8,8,7,7]; Close [5,7,8,5,null,7]; Forget [6,7,8,7,null,7]; birth-details action [6,7,8,7,null,6]; plan row [5,7,8,7,null,6]; tabs [6,6,8,7,null,6]; central orb [7,7,8,6,null,6]. Feedback credit uses the supplied product-check summary, not an inferred screenshot interaction."
+    },
+    {
+      "screen": "birthday",
+      "variant": "A",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":8,"feedback":null,"accessibility":8},
+      "finding": "A=7.7; F=8.0; overall=7.9, provisional. Keeps useful sky context while making the field, Save and Cancel explicit. However, context repeats information and competes with the editing heading; Forget remains conspicuous. All main controls fit at 200%, with removal near the bottom. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: sky context [7,7,8,8,null,8]; editor heading [8,8,8,9,null,8]; input/help [8,8,8,8,null,8]; Save [9,8,8,9,null,8]; Cancel [8,8,8,9,null,8]; Forget [7,8,8,7,null,8]. '15 June1995' needs spacing. Cancel and Forget have no handlers in this prototype."
+    },
+    {
+      "screen": "birthday",
+      "variant": "B",
+      "dimensions": {"hierarchy":9,"typography":8,"surfaces":8,"clarity":9,"feedback":null,"accessibility":8},
+      "finding": "A=8.3; F=8.5; overall=8.4, provisional. Best focused editor: purpose, format, example and Save form a clear sequence. Cancel is distinct and removal stays secondary. At 200%, the input, Save, Cancel and collapsed removal remain visible. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: back control [8,8,8,9,null,8]; heading/purpose [9,8,8,9,null,8]; input/help [9,8,8,8,null,8]; Save [9,8,8,9,null,8]; Cancel [8,8,8,9,null,8]; removal disclosure [8,8,8,8,null,8]. Manual year-month-day entry still requires formatting effort. Back, Cancel and final removal are unwired; the disclosure's explanation of retained eligibility is useful but does not prove that behavior."
+    },
+    {
+      "screen": "birthday",
+      "variant": "C",
+      "dimensions": {"hierarchy":8,"typography":7,"surfaces":8,"clarity":8,"feedback":null,"accessibility":7},
+      "finding": "A=7.7; F=7.5; overall=7.6, provisional. Separate labels remove date-order ambiguity and avoid typing separators. At 200%, stacking three fields pushes Save below the supplied viewport; this adds scrolling, but does not prove the action is unreachable. Components [hierarchy, typography, surfaces, clarity, feedback, accessibility]: back control [8,8,8,9,null,8]; heading/purpose [9,8,8,9,null,8]; Day [8,8,8,9,null,8]; Month [8,8,8,8,null,8]; Year [8,8,8,9,null,8]; date summary [7,6,8,6,null,7]; Save [8,8,8,9,null,7]; Cancel [8,8,8,9,null,7]; removal disclosure [8,8,8,8,null,7]. The readable-date summary is hardcoded rather than derived from edits, so it cannot earn confirmation-feedback credit. It also contains 'June1995'."
+    }
+  ],
+  "blockedWinner": "A",
+  "birthdayWinner": "B",
+  "reason": "Blocked A communicates a firm restriction and offers a clearly separate correction route. Birthday B gives the strongest task focus and keeps essential controls visible at both sizes. Neither reaches the requested threshold on the demonstrated evidence. Component tuples use the same six dimensions as the screen scores; null means the relevant behavior or visual state cannot meaningfully be graded here. Prototype overall scores normalize over applicable dimensions and therefore measure composition, not production readiness.",
+  "limitations": [
+    "Inspected only the six attached images, checks.json and public/concepts/expansion-19.html. No implementation, delegation or prior ratings.",
+    "checks.json reports no overflow for all 12 candidate screen/size combinations, but contains no detailed action/result, keyboard, contrast, error-state or accessibility assertions. It does not prove vertical controls remain visible.",
+    "Candidate feedback/recovery scores are null for actual task outcomes: correction and Save only announce that this is a layout study. Structural recovery affordances are assessed under hierarchy and clarity. Missing runtime behavior is not treated as successful behavior or scored zero.",
+    "Baseline runtime credit rests on the supplied evidence summary, not a fresh drive. Its broader layout, reading and performance coverage does not establish the quality of every pictured control.",
+    "The prototype's 200% mode uses a CSS class, including explicit field stacking. This demonstrates that layout, not browser zoom, operating-system text scaling or native keyboard behavior.",
+    "No new hard-gate failure is established by the supplied evidence. Birthday C's below-fold action is a scrolling cost, not proof of an inaccessible primary control. Prototype readiness remains unproven.",
+    "Physical iPhone, VoiceOver, native interactions and representative novice use remain separate unverified gates. No full/native 9 or 10 certification is made."
+  ]
+}
