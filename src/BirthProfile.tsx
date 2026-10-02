@@ -9,9 +9,11 @@ import {birthChart,findBirthPlaces,type BirthPlace} from './birth-chart';
 
 export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)=>void}){
  const {state,update}=useStore(),[editing,setEditing]=useState(false),[chartOpen,setChartOpen]=useState(false),[birthday,setBirthday]=useState(state.birthday||''),[time,setTime]=useState(state.birthTime||''),[place,setPlace]=useState(''),[places,setPlaces]=useState<BirthPlace[]>([]),[selected,setSelected]=useState<BirthPlace>(),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
+ const wasChartOpen=useRef(false);
  const wasEditing=useRef(false),[removal,setRemoval]=useState(false);
- useEffect(()=>{onEditorChange?.(editing);return()=>onEditorChange?.(false)},[editing,onEditorChange]);
+ useEffect(()=>{onEditorChange?.(editing||chartOpen);return()=>onEditorChange?.(false)},[editing,chartOpen,onEditorChange]);
  useEffect(()=>{if(Platform.OS!=='web'||!editing&&!wasEditing.current)return;wasEditing.current=editing;const target=document.querySelector<HTMLElement>(editing?'[data-testid=birthday-editor-heading]':'[data-testid=edit-birthday]');if(editing)target?.setAttribute('tabindex','-1');target?.focus()},[editing]);
+ useEffect(()=>{if(Platform.OS!=='web'||!chartOpen&&!wasChartOpen.current)return;wasChartOpen.current=chartOpen;const target=document.querySelector<HTMLElement>(chartOpen?'[data-testid=birth-details-heading]':'[data-testid=add-birth-time-and-place]');if(chartOpen)target?.setAttribute('tabindex','-1');target?.focus()},[chartOpen]);
  const request=useRef<AbortController|null>(null);
  useEffect(()=>()=>request.current?.abort(),[]);
  async function search(){
@@ -30,17 +32,12 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   <Action label="Save birthday" onPress={saveBirthday}/><Action testID="cancel-birthday" label="Cancel changes" quiet onPress={()=>{setNotice('');setEditing(false)}}/>
   {state.birthday?<><Pressable testID="remove-birthday-options" accessibilityRole="button" accessibilityState={{expanded:removal}} aria-expanded={removal} onPress={()=>setRemoval(!removal)} style={{minHeight:52,paddingVertical:16}}><Txt style={styles.caption}>Remove birthday {removal?'−':'+'}</Txt></Pressable>{removal?<><Txt style={styles.caption}>Your existing age eligibility stays. Birth chart details are removed.</Txt><Action label="Forget birthday" quiet onPress={()=>{update(s=>updateBirthday(s));setEditing(false);setNotice('Birthday removed.')}}/></>:null}</>:null}
  </View>;
- return <View style={styles.panel}>
-  <Txt display style={styles.title}>Your sky</Txt>
-  <Txt>{state.sunSign?`${state.sunSign[0].toUpperCase()+state.sunSign.slice(1)} Sun`:'Your Sun sign is a mystery'}</Txt>
-  <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
-  {state.birthday?<Txt style={styles.caption}>Birthday · {formatCalendarDate(state.birthday)}</Txt>:null}
-  <Action label="Edit birthday" quiet onPress={()=>{setBirthday(state.birthday||'');setNotice('');setRemoval(false);setEditing(true)}}/>
+ if(state.birthday&&chartOpen)return <View>
+  <Action label="Close birth details" quiet onPress={()=>{request.current?.abort();setBusy(false);setNotice('');setChartOpen(false)}}/>
 
-  {state.moonSign?<Txt>{state.moonSign} Moon · {state.risingSign} rising</Txt>:null}
-  {state.birthday?<Action label={chartOpen?'Close birth details':'Add birth time and place'} quiet onPress={()=>setChartOpen(!chartOpen)}/>:null}
-  {state.birthday&&chartOpen?<>
-   <Txt style={[styles.caption,{marginTop:16}]}>Optional · your Moon and rising</Txt>
+   <Txt testID="birth-details-heading" accessibilityRole="header" display>Birth details</Txt>
+   <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>Optional · find your Moon and rising signs.</Txt>
+   {state.moonSign?<Txt>{state.moonSign} Moon · {state.risingSign} rising</Txt>:null}
    {state.birthPlace?<Txt style={styles.caption}>{state.birthPlace} · {state.birthTime}</Txt>:null}
    <Txt style={styles.caption}>Birth time · local time, HH:MM</Txt>
    <Input accessibilityLabel="Birth time HH:MM" placeholder="14:30" placeholderTextColor={colors.muted} value={time} onChangeText={setTime} style={styles.input} maxLength={5}/>
@@ -49,10 +46,22 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
    <Action label={busy?'Finding your city…':'Find birth city'} quiet disabled={busy||place.trim().length<2} onPress={search}/>
    {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet={selected!==p} onPress={()=>setSelected(p)}/>)}
    <Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{selected?(!time?'Add your local birth time to continue.':`Selected: ${selected.name}. Ready to calculate on this device.`):busy?'Finding matching cities…':places.length?'Select your city from the results above.':place.trim().length<2?'Enter your birth city, then choose Find birth city.':'Choose Find birth city to look up this place.'}</Txt>
+   {notice?<Txt accessibilityRole="alert" style={{marginTop:12}}>{notice}</Txt>:null}
    <Action label="Reveal Moon and rising" disabled={!selected||!time} onPress={()=>{try{if(!selected||!state.birthday)return;const chart=birthChart(state.birthday,time,selected.latitude,selected.longitude);update(s=>({...s,...chart,birthTime:time,birthPlace:selected.name}));setNotice('Calculated on this device.');}catch{setNotice('Check your time and place, then try again.');}}}/>
    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={()=>{update(s=>({...s,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined}));setTime('');setPlace('');setSelected(undefined);setPlaces([])}}/>:null}
    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
-  </>:null}
+
+ </View>;
+ return <View style={styles.panel}>
+  <Txt display style={styles.title}>Your sky</Txt>
+  <Txt>{state.sunSign?`${state.sunSign[0].toUpperCase()+state.sunSign.slice(1)} Sun`:'Your Sun sign is a mystery'}</Txt>
+  <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
+  {state.birthday?<Txt style={styles.caption}>Birthday · {formatCalendarDate(state.birthday)}</Txt>:null}
+  <Action label="Edit birthday" quiet onPress={()=>{setBirthday(state.birthday||'');setNotice('');setRemoval(false);setEditing(true)}}/>
+
+  {state.moonSign?<Txt>{state.moonSign} Moon · {state.risingSign} rising</Txt>:null}
+  {state.birthday?<Action label="Add birth time and place" quiet onPress={()=>{setNotice('');setChartOpen(true)}}/>:null}
+
   {notice?<Txt accessibilityRole="alert">{notice}</Txt>:null}
  </View>;
 }

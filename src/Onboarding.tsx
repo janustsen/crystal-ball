@@ -46,9 +46,9 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   </>:<>
    {sunSign(birthday)?<Txt style={styles.caption}>Your Sun sign · {sunSign(birthday)}</Txt>:null}
    <View style={{marginTop:8}}>{['Work & purpose','Love & friendships','Learning & growth','A fresh start'].map(value=><Pressable key={value} testID={value.toLowerCase().replace(/[^a-z0-9]+/g,'-')} accessibilityRole="button" accessibilityLabel={value} accessibilityState={{selected:focus===value}} aria-pressed={focus===value} onPress={()=>setFocus(value)} style={{minHeight:56,paddingVertical:16,borderBottomWidth:1,borderColor:focus===value?colors.gold:'#614C3466',flexDirection:'row',alignItems:'center',gap:12}}><Txt style={{flex:1,color:focus===value?colors.gold:colors.ivory}}>{value}</Txt><Txt aria-hidden style={{color:colors.gold,width:24}}>{focus===value?'✓':''}</Txt></Pressable>)}</View>
-   <Action label="Meet the Ball" onPress={()=>onFinish({...birthday.trim()?{birthday:birthday.trim()}:{},...focus?{current_focus:focus}:{}})}/>
+   <Action testID="meet-the-ball" label={focus?"Meet the Ball":"Continue without a focus"} onPress={()=>onFinish({...birthday.trim()?{birthday:birthday.trim()}:{},...focus?{current_focus:focus}:{}})}/>
    <Action label="Back" quiet onPress={()=>setStep(0)}/>
   </>}
-  {!blocked?<Action label="Skip for now" quiet onPress={skip}/>:null}
+  {!blocked&&(step===0||!!focus)?<Action testID="skip-for-now" label={step===0?"Skip for now":"Skip focus"} quiet onPress={skip}/>:null}
  </>;
 }

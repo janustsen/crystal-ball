@@ -1,0 +1,23 @@
+import {chromium,expect} from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import {mkdir,writeFile} from 'node:fs/promises';
+const base=process.env.PREVIEW_URL||'http://localhost:8098',out=process.env.UX_EVIDENCE||'.local/birth-details';await mkdir(out,{recursive:true});
+const browser=await chromium.launch({channel:'chrome',headless:true}),checks=[];
+try{for(const largeText of [false,true]){
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ await context.addInitScript(largeText=>{if(!localStorage.getItem('crystal-ball-v1'))localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},birthday:'1995-06-15',sunSign:'gemini',ageBand:'adult',onboardingDone:true,largeText,reduceMotion:true}))},largeText);
+ const page=await context.newPage(),shot=async name=>page.screenshot({path:`${out}/${name}-${largeText?200:100}.png`});
+ const endpoint='https://geocoding-api.open-meteo.com/**';
+ try{
+ await page.goto(base);await page.getByTestId('tab-you').click();await page.getByTestId('add-birth-time-and-place').click();await expect(page.getByTestId('birth-details-heading')).toBeFocused();await expect(page.getByRole('switch',{name:'Large text',exact:true})).toHaveCount(0);await expect(page.getByTestId('edit-birthday')).toHaveCount(0);await shot('initial');
+ const city=page.getByRole('textbox',{name:'Birth city',exact:true}),time=page.getByRole('textbox',{name:'Birth time HH:MM',exact:true}),find=page.getByTestId('find-birth-city');
+ await city.fill('Copenhagen');await find.click();const result=page.getByRole('button',{name:/Copenhagen,/}).first();await expect(result).toBeVisible({timeout:30000});await shot('live-results');await result.click();await time.fill('25:99');await page.getByTestId('reveal-moon-and-rising').click();await expect(page.getByRole('alert')).toContainText('Check your time and place');await shot('invalid-time');
+ await time.fill('14:30');await page.getByTestId('reveal-moon-and-rising').click();await expect(page.getByRole('alert')).toHaveText('Calculated on this device.');await shot('saved');const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));expect(saved.birthPlace).toContain('Copenhagen');expect(saved.moonSign).toBeTruthy();expect(saved.risingSign).toBeTruthy();expect(saved.birthTime).toBe('14:30');
+ await page.getByTestId('close-birth-details').click();await expect(page.getByTestId('add-birth-time-and-place')).toBeFocused();await page.reload();await page.getByTestId('tab-you').click();await expect(page.getByText(`${saved.moonSign} Moon · ${saved.risingSign} rising`,{exact:true})).toBeVisible();await page.getByTestId('add-birth-time-and-place').click();
+ await page.route(endpoint,route=>route.fulfill({status:200,contentType:'application/json',body:'{}'}));await city.fill('No-result fixture');await find.click();await expect(page.getByRole('alert')).toHaveText('No matching city. Try a nearby town.');await shot('controlled-no-results');await page.unroute(endpoint);
+ await page.route(endpoint,route=>route.fulfill({status:503,body:'Unavailable'}));await city.fill('Failure fixture');await find.click();await expect(page.getByRole('alert')).toHaveText('City search is unavailable. Try again later.');await shot('controlled-failure');await page.unroute(endpoint);
+ await city.fill('Copenhagen');await find.click();await expect(result).toBeVisible({timeout:30000});await result.click();await page.getByTestId('reveal-moon-and-rising').click();await expect(page.getByRole('alert')).toHaveText('Calculated on this device.');await shot('live-retry');expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations).toEqual([]);
+ await page.getByTestId('forget-birth-time-and-place').click();const forgotten=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));expect(forgotten.birthPlace).toBeUndefined();expect(forgotten.moonSign).toBeUndefined();expect(forgotten.birthday).toBe('1995-06-15');await shot('forgotten');
+ checks.push({largeText,focusedEditor:true,liveCopenhagenLookup:true,invalidTimeRejected:true,calculationSavedAndReloaded:true,controlledNoResultsAnd503:true,liveRetry:true,forgetKeepsBirthday:true,focusReturned:true,axeViolations:0});
+ }catch(error){await shot('failure');throw error}finally{await context.close()}
+}}finally{await browser.close();await writeFile(`${out}/birth-details.json`,JSON.stringify(checks,null,2))}console.log(checks);
