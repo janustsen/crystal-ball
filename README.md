@@ -7,7 +7,7 @@ An Expo / React Native oracle prototype: ask a question, answer a few relevant c
 - Optional Apple backup to Supabase with RLS; mock RevenueCat pricing; native notification wiring.
 - Private 9:16 still and animated MP4 exports; friend links; Tonight’s Sky and private Circles.
 
-[Run and account setup](SETUP.md) · [Research decisions](docs/research/decisions.md) · [Current design](docs/design/ui-rules.md) · [Verification evidence](docs/evidence/design-2026-09-30/README.md)
+[Run and account setup](SETUP.md) · [Research decisions](docs/research/decisions.md) · [Current design](docs/design/ui-rules.md) · [Art and motion evidence](docs/evidence/art-pass-2026-10-01/README.md)
 
 Tap the orb to move closer and start listening, or choose Type instead. Answer each follow-up by tapping an option; In my own words lets you type an answer. Reveal a forecast, expand Why, then share its story card or revisit it in History.
 

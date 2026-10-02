@@ -1,6 +1,6 @@
 # Art and motion pass, 2026-10-01
 
-Evidence for the illustrated depth, faster orb mist, tap feedback and named transitions described in [the motion language](../../design/motion-language.md), plus the two captain-reported overflow bugs. Browser checks ran at 390×844 against a local preview on this iMac with the real local Ollama engine. They prove layout, frame cadence and reduced-motion behavior, not predictive accuracy.
+Evidence for the illustrated depth, faster orb mist, tap feedback and named transitions described in [the motion language](../../design/motion-language.md), plus the two captain-reported overflow bugs. The motion drive ran at 390×844 against a local preview on this iMac with the real local Ollama engine; the layout audit used synthetic replies at the widths below. These artifacts record layout, frame cadence and reduced-motion observations, including the timing failure below, not predictive accuracy.
 
 ## Overflow bugs (captain screenshots)
 
@@ -10,25 +10,7 @@ Evidence for the illustrated depth, faster orb mist, tap feedback and named tran
 
 Final `scripts/drive-motion.mjs` run (`motion/`, host load average about 15):
 
-| Sample | fps | fog draws/s | p95 ms | max ms | long tasks ms |
-|---|---|---|---|---|---|
-| idle-both-orbs | 60.2 | 60.2 | 16.7 | 16.8 | – |
-| orb-approach-listening | 60.1 | 60.1 | 16.7 | 16.8 | – |
-| listening | 60.0 | 60.0 | 16.7 | 16.8 | – |
-| typing | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| planning-to-question-one | 59.0 | 59.0 | 16.7 | 66.6 | 73 |
-| question-two | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| question-three | 60.1 | 60.1 | 16.7 | 16.8 | – |
-| thinking-to-reveal | 59.9 | 59.9 | 16.8 | 33.3 | – |
-| share | 59.2 | 59.2 | 16.8 | 33.2 | – |
-| return-reveal | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| return-home | 59.8 | 59.8 | 16.8 | 25.3 | – |
-| sky-tab | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| history-tab | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| you-tab | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| ask-tab | 60.1 | 60.1 | 16.8 | 16.8 | – |
-| close-flow | 60.2 | 60.2 | 16.8 | 16.8 | – |
-| ambient-sky | 60.0 | 60.0 | 16.7 | 33.3 | – |
+[Recorded samples](motion/samples.json) own the per-interaction frame rates, fog draw rates, frame durations and long tasks; [trace summary](motion/trace-summary.txt) and [trace provenance](motion/trace-provenance.json) accompany them.
 
 The only budget miss, planning-to-question-one, also fails on main: the same drive on origin/main measured 59.3 fps, max 50.0 ms and a 54 ms long task. In six fixture runs the question-screen mount produced a 50–70 ms long task about one time in three. It is a React render of the first question, not one of the new animations.
 
