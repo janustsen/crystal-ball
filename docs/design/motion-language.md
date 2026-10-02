@@ -8,16 +8,16 @@ The ball is a small atmosphere behind glass, drawn like a premium illustrated ga
 | Levitate | Every web orb | The glass floats 2.2% of its size above the stand on a 6.1s (tab orb 4.7s) sine; its floor shadow narrows and fades as it rises. |
 | Gold breath | Orb halos | A quiet 7.3-second light swell. Opacity and scale only. |
 | Touch ripple | Hero orb only | One fine gold ring for 320ms. Routine actions have no sparks or whole-control distortion. Primary buttons sink 2px while held. |
-| Mist arrival | Tabs, paywall, ordinary screens | 200ms fade from 55% with a 6px lift; no curtain, masking or skew. |
+| Mist arrival | Tabs, paywall, ordinary screens | 200ms 6px lift with fully opaque text; no curtain, masking or skew. |
 | Approach | Ball tap / Ask | 400ms arrival; advances automatically after 650ms, immediately with reduced motion. Instruction remains readable. |
 | Listening / typing | Input modes | 220 / 200ms, 6px lift; task text remains readable. |
 | Question | Follow-ups | 260ms, 8px lift; one consistent full-width choice list. No card flip. |
 | Thinking | Loading | 300ms, 6px lift. Living orb retains its continuous time. |
-| Reveal | Prediction | 550ms, 10px lift; no scaling or shockwave. Headline follows 200ms later. |
+| Reveal | Prediction | 550ms, 10px lift; no scaling or shockwave. Headline shares the same entrance. |
 | Share | Export choices and story | 220ms, 6px lift. No bitmap scale or rotation. |
 | Sky depth | Background | Two seamless star tiles drift at different speeds (140s and 90s per tile, the near one twinkling), the sky sways on a 23s breath, and pointer position shifts sky, candle and embers by different amounts for parallax. Rare gold streak, passing crescent and faint constellation remain the easter eggs. |
 
-`src/motion.ts` owns transition names, durations and two curves: ease cubic-bezier(.2,.75,.2,1) for smoke and glass, spring cubic-bezier(.34,1.56,.64,1) for brass and cards. `src/motionCss.ts` owns the web keyframes and the illustrated depth layer. Native `Enter` uses the same durations and curves through the native driver, with readable fades and short lifts; native taps keep the button lip press and orb scale. Web uses compositor translation and opacity; no full-screen veils cover controls. Constant fog advection uses continuous time rather than easing to a stop.
+`src/motion.ts` owns transition names, durations and two curves: ease cubic-bezier(.2,.75,.2,1) for smoke and glass, spring cubic-bezier(.34,1.56,.64,1) for brass and cards. `src/motionCss.ts` owns the web keyframes and the illustrated depth layer. Native `Enter` uses the same durations and curves through the native driver, with fully opaque text and short lifts; native taps keep the button lip press and orb scale. Web entrances use compositor translation; no full-screen veils cover controls. Constant fog advection uses continuous time rather than easing to a stop.
 
 Ambient rules: no sprite-frame playback, rotating noise plate, visible wrap, time reversal, or countdown. Star tiles translate by exactly one tile period, so their loop has no visible seam. The web renderer survives mood changes; [motion lifecycle](motion.md) defines its display cadence and pause behavior. Native seamless tile endpoints contain the same pixels; differently sized layers and nonmatching periods conceal any combined pose. Escaping native wisps wrap only while fully transparent. Sky discoveries also reset only while invisible. Reduced motion shows a still, readable composition, hides sky visitors, transition veils and tap sparks, and skips squash. Changing that preference must stop motion immediately.
 

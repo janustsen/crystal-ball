@@ -3,7 +3,7 @@
 const spring='cubic-bezier(.34,1.56,.64,1)',ease='cubic-bezier(.2,.75,.2,1)';
 export const motionCss = `
 .motion-enter{position:relative;display:flex;flex-direction:column;min-width:0;animation:mist-arrive 200ms ${ease} both}
-@keyframes mist-arrive{from{opacity:.55;transform:translate3d(0,var(--enter-y,6px),0)}to{opacity:1;transform:none}}
+@keyframes mist-arrive{from{opacity:1;transform:translate3d(0,var(--enter-y,6px),0)}to{opacity:1;transform:none}}
 .tap-burst{position:absolute;width:0;height:0;pointer-events:none;z-index:60}
 .tap-burst b{position:absolute;left:-22px;top:-22px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(242,194,132,.6);animation:tap-ring 320ms ease-out forwards}
 @keyframes tap-ring{from{opacity:.6;transform:scale(.7)}to{opacity:0;transform:scale(1.6)}}

@@ -1,7 +1,7 @@
 # Motion
 
 ## Sub-features
-Continuous cel-shaded fog in hero/Ask orbs, levitating glass, escaping wisps and warm glow; short readable fades and lifts, a longer reveal entrance, and one fine ripple on the hero orb; parallax star layers and ambient sky; reduced motion. Names and timings: docs/design/motion-language.md.
+Continuous cel-shaded fog in hero/Ask orbs, levitating glass, escaping wisps and warm glow; short lifts with fully opaque text, a longer reveal entrance, and one fine ripple on the hero orb; parallax star layers and ambient sky; reduced motion. Names and timings: docs/design/motion-language.md.
 
 ## How to get to it (user POV)
 Home orb or Ask tab starts the reading. Follow a real reading through the returned one or two questions, reveal and Share. You contains Reduce motion and Large text.

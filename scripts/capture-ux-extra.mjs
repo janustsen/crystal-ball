@@ -13,7 +13,7 @@ try{
  await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('Saved on this device.')).toBeVisible();await page.waitForTimeout(800);await page.screenshot({path:`${round}/screens/history-stress.png`});
  // Fixture readings exercise the real save controls and persistence, not forecast quality.
  await page.getByRole('button').filter({hasText:'By spring you may feel more at home'}).first().click();
- for(const [outcome,label] of [['pending','◷ Not yet'],['no',"Didn't come true"],['yes','✓ Came true']]){
+ for(const [outcome,label] of [['pending','◷ Not yet'],['no',"Not quite"],['yes','✓ Came true']]){
   await page.getByTestId(`check-in-${outcome}`).click();await expect(page.getByTestId('check-in-status')).toHaveText(`Saved · ${label}`);await page.waitForTimeout(300);await page.screenshot({path:`${round}/screens/outcome-${outcome}-saved.png`});
  }
  await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('✓ Came true',{exact:true})).toBeVisible();await page.waitForTimeout(400);await page.screenshot({path:`${round}/screens/history-outcome-persisted.png`});
