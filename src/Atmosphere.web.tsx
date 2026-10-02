@@ -13,7 +13,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   if(!shell||!root||!layer)return;
   let raf=0,px=0,py=0;
   const still=()=>shell.getAttribute('data-reduced')==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function move(e:PointerEvent){const r=shell!.getBoundingClientRect();px=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));py=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));if(!raf)raf=requestAnimationFrame(()=>{raf=0;root!.style.setProperty('--px',px.toFixed(3));root!.style.setProperty('--py',py.toFixed(3))})}
+  function move(e:PointerEvent){if(still())return;const r=shell!.getBoundingClientRect();px=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));py=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(still())return;root!.style.setProperty('--px',px.toFixed(3));root!.style.setProperty('--py',py.toFixed(3))})}
   function down(e:PointerEvent){
    if(still())return;move(e);
    const target=(e.target as Element).closest?.('[role=button],[role=tab],[role=radio],[role=link],[role=switch],button,a') as HTMLElement|null;
