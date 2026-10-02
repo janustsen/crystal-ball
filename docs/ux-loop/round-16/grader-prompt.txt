@@ -1,0 +1,63 @@
+You are an independent blind UX evaluator. Read-only evaluation; do not implement, delegate, supervise, browse other task state, or read other graders/previous rounds. Evaluate the attached labeled screenshots of Crystal Ball, a speculative entertainment app. The material direction is borderless dark mist, with a gold illustrated orb as the hero. Sample layout predictions are fixtures and cannot establish model quality. Treat runtime limitations honestly. Never infer functionality from a screenshot. Do not award a desired score to satisfy a target.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+RUNTIME EVIDENCE:
+# Round 16 — provisional browser review
+
+Current product uses Open mist: borderless dark atmospheric content, quiet separators, illustrated gold Home orb and compact supporting copy. Preview needs no page login. Product source970ac56; subsequentf3f7119 changes contrast measurement only.
+
+Screens are the actual implementation at390×844. Full sweep covers38 states across360/390/430, normal and200% text. Original17 core screens plus onboarding, profile forms, explicit person entry, explanation readers, error/loading/expanded variants are represented. Synthetic long fixture predictions stress layouts, not model quality. A synthetic three-card sequence is solely a stress fixture; real adaptive engine asks one or two cards.
+
+This candidate makes question entry primary. A four-line multiline field precedes the About myself/person disclosure. Identity can change without losing the question; a person requires a first name and has explicit privacy guidance. Larger text really doubles the input24→48px, with increased editor height. Why Plus opens a four-category overview, then a dedicated reader with full reason, answers, assumptions or sources. All evidence words remain; free accounts immediately see their brief reason and upgrade action. Reader Back restores category focus; Back to forecast restores the original trigger. These readers scroll for long content. No content was shortened to improve screenshots.
+
+Behavior evidence:
+- compose-read/compose-read.json: normal/200%, at least4 visible editor lines, disclosure state, first-name validation, question retention, all four complete evidence categories, keyboard focus/return and reader Back visibility; free/Plus boundary; zero axe violations. Screens copied from this check include explicit200pct names.
+- entry/entry.json: keyboard focus selection, one selected choice, explicit identity switching and retained question; zero axe violations in both text sizes.
+- input-scale/input-scale.json: seven fields double exactly: onboarding/profile birthdays, birth time/city, fact, person name, question. Shared wrapper also used by social/school fields.
+- forms/large-forms.json: enlarged custom answer including390×500 constrained viewport, retained question, long editable answer, visible Choices/Reveal, focus restored.
+- home-chrome and home-webkit:390×844/430×932 normal/200%; orb about67% of app width, whisper nonoverlap, normal headline at most two lines, omen fit and clear navigation. WebKit is emulation, not physical Safari.
+- orb-clip/clip.json: the atmosphere previously escaped the ScrollView behind the fixed header when enlarged pages scrolled; actual screenshot comparison now finds0 header pixels affected by the scrolled-out Home/composer orb. In-bounds glow and ambient mist remain.
+- why/why.json: recorded real reading, complete reader content, browser focus/return, zero axe violations.
+- real-drive/drive.json: actual local Ollama Spanish forecast, adaptive cards, reveal/free Why, real1080×1920 PNG, export recovery, history/outcome, memory edit/forget/Undo, simulated plans/Restore, sensitive redirect, connection recovery, Sky and preferences; zero axe violations/page errors.
+- reading-flow/reading-flow-drive.json: real invalid/valid onboarding, current-focus edit, Copenhagen geocoding, calculated birth details, actual adaptive dated forecast, brief/deeper Why, PNG, history, simulated purchase, memory Undo, named-person validation, sensitive redirect and large Home; no page errors.
+- export-feedback/feedback.json: two immediate export activations invoke one encode; Preparing disables export while Invite stays usable. Injected failure restores retry, then an actual PNG downloads. Screens show held export and recoverable error.
+- task-contrast-corrected/contrast.json:528 rendered-background checks across48 samples of all Why readers and Share at both sizes, zero failures. Prior failure was a sampler excluding H1 glyphs from background hiding; DOM evidence and failing regression preserved. No threshold lowered.
+- contrast/contrast.json:276 settled text checks, zero failures. Sampling is not every possible animation/native frame.
+- Current typecheck and all118 tests pass. Real model drives preceded the atmosphere clipping-only fix; focused clip/composer and Home checks were repeated after it.
+
+Unchanged verified contracts: Enter/Space advance answer once and move focus; Back retains answer; Other opens multiline with persistent question and Choices restores focus. Labeled preference rows support keyboard, persistence and focus outline. Home approach650ms, immediate reduced motion. Voice fallback makes typing primary. Outcomes save inline and persist. Image-only Share has real artifact, privacy explanation and optional Invite & remind. Simulated plans clearly disclose test mode. Skippable birthday/focus onboarding still requires age confirmation; under13 gates remain. No video.
+
+Supplemental previous-round real SQL/Ollama social verification: isolated PostgreSQL with local auth/REST adapter, Circle joins/replay, consent and Plus friend readings, seals privacy/reactions/leave; school search/coarse location boundary, same-school membership/invites/change/remove/reload. Coordinates not stored/transmitted. This does not certify production Supabase/Auth or native geolocation. Supplemental stack closed; pictured main preview has sample stars/offline Circles.
+
+Scope: provisional browser grades only. Physical iPhone Safari, native Dynamic Type, VoiceOver, real microphone/haptics, payments and OS share delivery remain a separate gate. Actual forecasts establish functioning inference, not predictive accuracy or broad semantic quality. No native certification inferred from browser evidence.
+
+Current transition-contrast/contrast.json passes16 entrance samples with inherited opacity composited. Current motion/reduced-motion.json confirms OS/app preferences stop actual canvas draws and CSS animations, resume restores animation, enlarged Home retains both orbs and approach becomes immediate. Fresh outcome-feedback.json proves all three real save controls persist against an explicitly synthetic history fixture.
+
+Refreshed current-head layout result:228 checks pass, no failures (screens/layout.json). All38 states across the three widths and both text sizes completed.
+
+Current isolated motion/samples.json: every callback and actual WebGL-draw sample passed near60fps, maximum16.8ms, including45seconds of ambient Sky. No concurrent browser checks or graders ran during timing. This is host-browser timing, not iPhone hardware performance.
+
+
+Grade EVERY settled screen and key state represented in the sheets (group its corresponding transition with it, assess visible transition continuity). Include ALL represented core states and empty, error, loading, expanded, other-input and populated variants, including main’s birthday/focus/age-confirmation onboarding, birthday editing, optional birth details and named-person input when pictured. Grade these components individually too: hero orb, tab bar, wordmark/balance header, primary button, secondary action, answer choice, question input, large-text input, settings switch, omen content, sky star/selected question, circle surface, history row, plan option, share preview, notice/recovery, typography, atmospheric background; and, when present, birthday input, age confirmation, focus selection, birth-profile surface, birth-details form, named-person control, evidence disclosure and export status. If evidence is missing, record it and provisional scores; do not invent proof. For each screen and component give six 0–10 dimension scores, evidence and concise concrete findings. Use null only for truly inapplicable dimensions, not missing evidence. Return the required JSON. Keep each evidence field to one sentence and findings to ONE concise, actionable sentence per item. Do not classify intentionally labeled synthetic fixture wording as a production-copy bug; runtime evidence states the boundary. You may inspect ONLY the round's screenshots, controls.json, layout.json and runtime.md if more detail is needed. Do not inspect research.md (contains prior ratings), source, or other files.
