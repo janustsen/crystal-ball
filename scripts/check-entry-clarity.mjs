@@ -1,3 +1,4 @@
+import {fillBirthday} from './fill-birthday.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
@@ -8,7 +9,7 @@ try{for(const largeText of [false,true]){
  await context.addInitScript(largeText=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},largeText,reduceMotion:true})),largeText);
  const page=await context.newPage();const axe=async()=>expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations).toEqual([]);
  try{
-  await page.goto(base);await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();
+  await page.goto(base);await fillBirthday(page,'1995-06-15');await page.getByTestId('continue').click();
   await expect(page.getByText('Choose one, or skip. You can change it later.',{exact:true})).toBeVisible();
   const focus=page.getByTestId('learning-growth');await focus.focus();await page.keyboard.press('Space');await expect(focus).toHaveAttribute('aria-pressed','true');await expect(focus).toContainText('✓');
   const work=page.getByTestId('work-purpose');await work.click();await expect(work).toHaveAttribute('aria-pressed','true');await expect(focus).toHaveAttribute('aria-pressed','false');await focus.click();await page.screenshot({path:`${out}/focus-selected-${largeText?200:100}.png`});await axe();

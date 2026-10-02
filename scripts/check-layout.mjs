@@ -1,3 +1,4 @@
+import {fillBirthday} from './fill-birthday.mjs';
 // Layout regression: no screen may overflow the phone shell horizontally at 360/390/430px.
 // Engine replies are a labeled layout fixture (not a model pass) so every screen is reachable without Ollama.
 import {chromium,expect} from '@playwright/test';
@@ -15,9 +16,10 @@ async function audit(page,width,name,marker,delay=1300){
  await expect(marker).toBeVisible();
  if(process.env.UX_CAPTURE&&width===390&&!name.endsWith('-large')){
   await page.waitForTimeout(90);await page.screenshot({path:`${evidence}/${name}-transition.png`});
-  controls.push({name,targets:await page.locator('[role=button],[role=tab],[role=radio],[role=switch],input,textarea').evaluateAll(elements=>elements.map(el=>{const r=el.getBoundingClientRect();return {role:el.getAttribute('role'),label:el.getAttribute('aria-label')||el.textContent?.slice(0,80),width:r.width,height:r.height}}))});
+
  }
  await page.waitForTimeout(delay);
+  controls.push({name,width,targets:await page.locator('[role=button],[role=tab],[role=radio],[role=switch],input,textarea').evaluateAll(elements=>elements.map(el=>{const r=el.getBoundingClientRect();return {role:el.getAttribute('role'),label:el.getAttribute('aria-label')||el.textContent?.slice(0,80),width:r.width,height:r.height}}))});
  const bad=await marker.evaluate(marker=>{
   if(!marker.isConnected||!marker.getBoundingClientRect().height)throw new Error('Expected screen disappeared before measurement');
   const shell=document.querySelector('[data-testid="app-shell"]').getBoundingClientRect(),out=[];
@@ -61,12 +63,12 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
- await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await tap('decline-age');await check('onboarding-blocked',page.getByTestId('age-restriction'));await tap('correct-birthday');await check('onboarding-correction',page.getByTestId('age-correction-heading'));await page.getByTestId('onboarding-birthday').fill('1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('learning-growth');await check('onboarding-focus-selected',page.getByTestId('learning-growth'));await tap('meet-the-ball');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
+ await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await tap('decline-age');await check('onboarding-blocked',page.getByTestId('age-restriction'));await tap('correct-birthday');await check('onboarding-correction',page.getByTestId('age-correction-heading'));await fillBirthday(page,'1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('learning-growth');await check('onboarding-focus-selected',page.getByTestId('learning-growth'));await tap('meet-the-ball');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
  await tap('tab-you');await check('you',text('What the Ball remembers'));
- await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday YYYY-MM-DD'}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');
+ await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday day',exact:true}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');

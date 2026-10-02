@@ -1,3 +1,4 @@
+import {fillBirthday} from './fill-birthday.mjs';
 import {httpCredentials,previewFetch as fetch} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -14,7 +15,7 @@ const dismiss=async()=>{if(await page.getByTestId('dismiss-notice').count())awai
 async function ask(q){await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(q);await page.getByTestId('look-into-the-future').click()}
 async function answerAll(){let cards=0;while(cards<2){await Promise.race([page.getByTestId('option-0').waitFor({timeout:65000}),page.getByTestId('share-this-glimpse').waitFor({timeout:65000})]);if(await page.getByTestId('share-this-glimpse').count())return cards;const card=await page.getByTestId('option-0').innerText();await page.getByTestId('option-0').click();cards++;await page.waitForTimeout(800);log.push({answer:card})}await page.getByTestId('share-this-glimpse').waitFor({timeout:65000});return cards}
 try{
- await page.goto(base);await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();await page.getByTestId('tab-history').click();await expect(page.getByText('Your first glimpse belongs here.')).toBeVisible();await page.getByTestId('tab-you').click();await expect(page.getByText('Learning & growth',{exact:true})).toBeVisible();
+ await page.goto(base);await fillBirthday(page,'1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();await page.getByTestId('tab-history').click();await expect(page.getByText('Your first glimpse belongs here.')).toBeVisible();await page.getByTestId('tab-you').click();await expect(page.getByText('Learning & growth',{exact:true})).toBeVisible();
  await page.getByTestId('view-plans').click();await page.getByTestId('5-readings-1-99-simulate').click();await dismiss();await close();
  await ask('Will I be conversational in Spanish in six months?');await answerAll();await close();
  await page.getByTestId('tab-you').click();await expect(page.getByTestId('edit-current_focus')).toBeVisible();await page.getByRole('button',{name:'Forget current_focus',exact:true}).click();await dismiss();await expect(page.getByText('Learning & growth',{exact:true})).toHaveCount(0);log.push({onboardingMemoryForget:true});

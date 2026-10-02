@@ -2,6 +2,18 @@ import type {AccountState} from './types.ts';
 export function validBirthday(value:string):boolean {
  return /^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value&&value<='9999-12-31'&&value>='1900-01-01'&&value<=new Date().toISOString().slice(0,10);
 }
+export function birthdayFromParts(year:string,month:string,day:string):string {
+ if(!year&&!month&&!day)return '';
+ if(year.length!==4||!month||!day)return `${year}-${month}-${day}`;
+ return `${year}-${month?month.padStart(2,'0'):''}-${day?day.padStart(2,'0'):''}`;
+}
+export function birthdayError(value:string):string|undefined {
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return 'Enter a day, month and four-digit year.';
+ const date=new Date(value);
+ if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==value)return 'That calendar date does not exist. Check the day and month.';
+ if(value<'1900-01-01'||value>new Date().toISOString().slice(0,10))return 'Enter a birthday from 1900 through today.';
+ return undefined;
+}
 export function ageGroup(birthday?:string,today=new Date().toISOString().slice(0,10)):'unknown'|'under13'|'teen'|'adult' {
  if(!birthday||!validBirthday(birthday))return 'unknown';
  const age=Number(today.slice(0,4))-Number(birthday.slice(0,4))-(today.slice(5)<birthday.slice(5)?1:0);
@@ -20,7 +32,7 @@ export function astrologyLine(birthday?:string):string {
 export function birthdayProfile(birthday?:string,ageConfirmed=false){
  const group=ageGroup(birthday);
  if(group==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
- if(birthday&&!validBirthday(birthday))throw new Error('Use a valid birthday: YYYY-MM-DD.');
+ if(birthday&&!validBirthday(birthday))throw new Error(birthdayError(birthday));
  return {birthday,ageConfirmed:group==='unknown'?ageConfirmed:true,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?(ageConfirmed?'teen' as const:null):group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined};
 }
 

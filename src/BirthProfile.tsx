@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {Platform,Pressable,View} from 'react-native';
 import {Input,Action,Txt,styles,colors} from './ui';
 import {useStore} from './store';
+import {BirthdayInput} from './BirthdayInput';
 import {ageGroup,updateBirthday} from './profile';
 import {birthChart,findBirthPlaces,type BirthPlace} from './birth-chart';
 
@@ -23,9 +24,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
  if(editing)return <View>
   <Txt testID="birthday-editor-heading" accessibilityRole="header" display style={{fontSize:28,lineHeight:34,marginBottom:16}}>Edit birthday</Txt>
   <Txt style={[styles.caption,{marginBottom:24}]}>Used for your Sun sign and age-appropriate readings.</Txt>
-  <Txt style={styles.caption}>Birthday · year-month-day</Txt>
-  <Input accessibilityLabel="Birthday YYYY-MM-DD" placeholder="1995-06-15" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} style={styles.input} maxLength={10}/>
-  <Txt style={styles.caption}>For example, 1995-06-15.</Txt>
+  <BirthdayInput value={birthday} onChange={setBirthday}/>
   {notice?<Txt accessibilityRole="alert" style={{marginTop:12}}>{notice}</Txt>:null}
   <Action label="Save birthday" onPress={saveBirthday}/><Action testID="cancel-birthday" label="Cancel changes" quiet onPress={()=>{setNotice('');setEditing(false)}}/>
   {state.birthday?<><Pressable testID="remove-birthday-options" accessibilityRole="button" accessibilityState={{expanded:removal}} aria-expanded={removal} onPress={()=>setRemoval(!removal)} style={{minHeight:52,paddingVertical:16}}><Txt style={styles.caption}>Remove birthday {removal?'−':'+'}</Txt></Pressable>{removal?<><Txt style={styles.caption}>Your existing age eligibility stays. Birth chart details are removed.</Txt><Action label="Forget birthday" quiet onPress={()=>{update(s=>updateBirthday(s));setEditing(false);setNotice('Birthday removed.')}}/></>:null}</>:null}

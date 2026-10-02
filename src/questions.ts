@@ -1,5 +1,5 @@
 import {forecastDueDate} from './due-date.ts';
-import {validBirthday} from './profile.ts';
+import {birthdayError,validBirthday} from './profile.ts';
 import type { Card, Facts, Plan, Topic } from './types.ts';
 const card=(id:string,question:string,options:string[],remember=true):Card=>({id,question,options:[...options,'Other'],remember});
 export const registry: Record<Topic,Card[]> = {
@@ -22,7 +22,7 @@ export function topicFor(question:string):Topic {
  return 'general';
 }
 export function validateFact(id:string,value:string):void {
- if(id==='birthday'&&!validBirthday(value))throw new Error('Use a valid birthday: YYYY-MM-DD.');
+ if(id==='birthday'&&!validBirthday(value))throw new Error(birthdayError(value));
  const topic=(Object.keys(registry) as Topic[]).find(t=>registry[t].some(c=>c.id===id));
  if(topic)validateAnswer(topic,id,value);
 }

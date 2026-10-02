@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import {AccessibilityInfo,BackHandler,Platform,Pressable,View} from 'react-native';
-import {Input,Action,Txt,styles,colors} from './ui';
+import {BirthdayInput} from './BirthdayInput';
+import {Action,Txt,styles,colors} from './ui';
 import {ageGroup,sunSign} from './profile';
 import {validateFact} from './questions';
 import type {Facts} from './types';
@@ -37,8 +38,9 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   <Txt testID={blocked&&step===0?'age-correction-heading':undefined} accessibilityRole="header" display style={{marginTop:16,fontSize:30,lineHeight:36}}>{blocked&&step===0?'Correct your birthday':step===0?'When is your birthday?':'What’s on your mind lately?'}</Txt>
   <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>{blocked&&step===0?'Enter your actual birthday. Access still requires age 13 or older.':step===0?'13 and up. Your birthday sets your Sun sign.':'Choose one, or skip. You can change it later.'}</Txt>
   {step===0?<>
-   <Txt style={styles.caption}>Birthday{blocked?'':' · optional'} · YYYY-MM-DD</Txt>
-   <Input testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="For example, 1995-06-15" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
+   <Txt style={[styles.caption,{marginBottom:12}]}>Birthday{blocked?'':' · optional'}</Txt>
+   <BirthdayInput testID="onboarding-birthday" value={birthday} onChange={setBirthday}/>
+
    {error?<Txt accessibilityRole="alert">{error}</Txt>:null}
    <Action testID="continue" label={blocked?"Check birthday":"Continue"} onPress={next}/>{blocked?<Action label="Back to age requirement" quiet onPress={()=>setCorrecting(false)}/>:null}
   </>:<>

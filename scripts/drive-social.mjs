@@ -1,3 +1,4 @@
+import {fillBirthday} from './fill-birthday.mjs';
 import {chromium} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -8,7 +9,7 @@ async function run(name,script){
  let native=sessions.get(name);
  if(!native){
   const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true});native=await context.newPage();sessions.set(name,native);
-  await native.goto(base);await native.getByTestId('onboarding-birthday').fill('1995-06-15');await native.getByTestId('continue').click();await native.getByTestId('skip-for-now').click();
+  await native.goto(base);await fillBirthday(native,'1995-06-15');await native.getByTestId('continue').click();await native.getByTestId('skip-for-now').click();
  }
  const page={open:url=>native.goto(url),click:selector=>native.locator(selector).click(),fill:(selector,value)=>native.locator(selector).fill(value),eval:fn=>native.evaluate(fn),wait:(value,timeout=30000)=>typeof value==='number'?native.waitForTimeout(value):native.locator(value).waitFor({timeout})};
  let output='';await new Function('page','console',`return (async()=>{${script}})()`)(page,{log:value=>{output+=String(value)}});

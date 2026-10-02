@@ -1,3 +1,4 @@
+import {fillBirthday} from './fill-birthday.mjs';
 import {chromium,expect} from '@playwright/test';
 import {writeFile,mkdir} from 'node:fs/promises';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -6,7 +7,7 @@ const page=await context.newPage();const log=[{runAt:new Date().toISOString()}];
 await mkdir('docs/evidence',{recursive:true});
 const shot=async name=>{await page.waitForTimeout(700);await page.screenshot({path:`docs/evidence/${name}.png`});log.push({screen:name,url:page.url(),at:new Date().toISOString()});};
 try{
- const cold=Date.now();await page.goto((process.env.APP_URL||'http://localhost:8087'));await page.getByTestId('tab-ask').waitFor();log.push({coldLoadToControlsMs:Date.now()-cold});const cadence=await page.evaluate(()=>new Promise(resolve=>{const times=[];let last=performance.now();function frame(now){times.push(now-last);last=now;if(times.length<120)requestAnimationFrame(frame);else resolve({frames:times.length,meanMs:times.reduce((a,b)=>a+b)/times.length,maxMs:Math.max(...times),jsResourceBytes:performance.getEntriesByType('resource').filter(r=>r.name.includes('.bundle')).reduce((n,r)=>n+r.transferSize,0)})}requestAnimationFrame(frame)}));log.push({rafCadence:cadence});await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();await shot('home');
+ const cold=Date.now();await page.goto((process.env.APP_URL||'http://localhost:8087'));await page.getByTestId('tab-ask').waitFor();log.push({coldLoadToControlsMs:Date.now()-cold});const cadence=await page.evaluate(()=>new Promise(resolve=>{const times=[];let last=performance.now();function frame(now){times.push(now-last);last=now;if(times.length<120)requestAnimationFrame(frame);else resolve({frames:times.length,meanMs:times.reduce((a,b)=>a+b)/times.length,maxMs:Math.max(...times),jsResourceBytes:performance.getEntriesByType('resource').filter(r=>r.name.includes('.bundle')).reduce((n,r)=>n+r.transferSize,0)})}requestAnimationFrame(frame)}));log.push({rafCadence:cadence});await fillBirthday(page,'1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();await shot('home');
  await page.getByTestId('tab-ask').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await shot('ask');
  const start=Date.now();await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').waitFor({timeout:65000});
  for(let i=0;i<2;i++){

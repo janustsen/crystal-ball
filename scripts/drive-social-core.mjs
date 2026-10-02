@@ -25,7 +25,7 @@ async function shot(name){
 }
 try{
  openAuthenticatedPreview(base,env);
- await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="onboarding-birthday"]');await page.fill('[data-testid="onboarding-birthday"]','1995-06-15');${click('continue')}${click('learning-growth')}${click('meet-the-ball')}await page.wait('[data-testid="tab-ask"]');`);
+ await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="onboarding-birthday"]');await page.fill('[aria-label="Birthday day"]','15');await page.fill('[aria-label="Birthday month"]','06');await page.fill('[aria-label="Birthday year"]','1995');${click('continue')}${click('learning-growth')}${click('meet-the-ball')}await page.wait('[data-testid="tab-ask"]');`);
  await exec('chrome-devtools-axi',['emulate','--viewport','390x844x1,mobile,touch'],{env});
  await run(`${click('tab-sky')}if(!/sample stars/i.test(await page.eval(()=>document.body.innerText)))throw Error('Missing sample label');${click('sky-theme-money')}${click('ask-this-too')}if(!(await page.eval(()=>document.querySelector('[data-testid="question-input"]').value)).includes('savings'))throw Error('Sample prompt not copied');`);
  await run(`await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}await page.wait('[data-testid="option-0"]',65000);`);
