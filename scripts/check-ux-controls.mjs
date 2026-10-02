@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -5,7 +6,7 @@ const base=process.env.PREVIEW_URL||'http://localhost:8098',out=process.env.UX_E
 await mkdir(out,{recursive:true});const browser=await chromium.launch({channel:'chrome',headless:true}),log=[];
 try{
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();
- await page.goto(base);await page.getByTestId('tab-you').click();
+ await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('tab-you').click();
  for(const name of ['Ambient sound','Reduce motion','Large text']){
   const control=page.getByRole('switch',{name,exact:true});await control.scrollIntoViewIfNeeded();const box=await control.boundingBox();log.push({name,...box});expect(box.width).toBeGreaterThanOrEqual(44);expect(box.height).toBeGreaterThanOrEqual(44);
  }

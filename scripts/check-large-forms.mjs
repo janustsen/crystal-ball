@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 // Synthetic planning response and reduced viewport simulate layout constraints, not a native keyboard.
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -8,7 +9,7 @@ try{
  await context.addInitScript(()=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},largeText:true,reduceMotion:true})));
  const page=await context.newPage();
  await page.route('**/engine',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(route.request().postDataJSON()?.action==='plan'?{kind:'ok',value:{topic:'general',provided:{},cards:[{id:'context_a',question:'What matters most to you?',options:['Time','Money','Support','Other'],remember:false}]}}:{kind:'error',message:'Synthetic layout boundary.'})}));
- await page.goto(base);await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I start learning pottery this winter?');
+ await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I start learning pottery this winter?');
  await page.setViewportSize({width:390,height:500});await page.getByTestId('look-into-the-future').scrollIntoViewIfNeeded();await expect(page.getByTestId('look-into-the-future')).toBeInViewport({ratio:1});await page.screenshot({path:`${out}/typing-constrained-viewport.png`});
  await page.setViewportSize({width:390,height:844});await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-3').click();await expect(page.getByTestId('option-0')).toHaveCount(0);await expect(page.getByText('What matters most to you?',{exact:true})).toBeInViewport();
  await page.getByTestId('other-input').fill('A steady creative practice');await page.screenshot({path:`${out}/custom-answer-context.png`});

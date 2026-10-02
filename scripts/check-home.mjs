@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 // Phone layout proof. Omen copy is a fixture, not a model-quality claim.
 import {chromium,webkit,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -10,7 +11,7 @@ try {
   await context.addInitScript(large=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText:large})),largeText);
   const page=await context.newPage();
   await page.route('**/engine',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({kind:'ok',value:{text:'Tonight, the moon hints at a door you have not tried yet.'}})}));
-  await page.goto(base);await expect(page.getByTestId('hero-orb')).toBeVisible();await page.waitForTimeout(1000);
+  await page.goto(base);await skipPreviewOnboarding(page);await expect(page.getByTestId('hero-orb')).toBeVisible();await page.waitForTimeout(1000);
   const metrics=await page.evaluate(()=>{
    const orb=document.querySelector('[data-testid="hero-orb"]').getBoundingClientRect();
    const headline=[...document.querySelectorAll('div')].find(e=>e.textContent==='Touch the ball. Ask what’s ahead.');

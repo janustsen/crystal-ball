@@ -25,6 +25,6 @@ if(screen==='share'){
  if(v==='c')contents='<h1>Behind the mist</h1><nav aria-label="Explanation sections"><a href="#reason">Reasoning</a><a href="#answers">Answers</a><a href="#assumptions">Assumptions</a></nav><div class="steps">'+sections+'</div><div class="rule"><p class="slim">'+title+'</p><button class="quiet">Back to prediction</button></div>';
 }
 document.querySelector('#app').innerHTML='<header><button aria-label="Back">‹ Back</button><span>Crystal Ball</span></header>'+contents;
-document.querySelector('#study').innerHTML='Throwaway layout study · '+screen+' · '+v.toUpperCase()+'<br><a href="?screen='+screen+'&variant=a">A</a> · <a href="?screen='+screen+'&variant=b">B</a> · <a href="?screen='+screen+'&variant=c">C</a> · <a href="?screen='+(screen==='share'?'why':'share')+'&variant='+v+'">'+(screen==='share'?'Explanation':'Share')+'</a> · <a href="?screen='+screen+'&variant='+v+'&large=1">200% text</a>';
+document.querySelector('#study').innerHTML='Historical pre-rebase layout study (current app has no video) · '+screen+' · '+v.toUpperCase()+'<br><a href="?screen='+screen+'&variant=a">A</a> · <a href="?screen='+screen+'&variant=b">B</a> · <a href="?screen='+screen+'&variant=c">C</a> · <a href="?screen='+(screen==='share'?'why':'share')+'&variant='+v+'">'+(screen==='share'?'Explanation':'Share')+'</a> · <a href="?screen='+screen+'&variant='+v+'&large=1">200% text</a>';
 if(q.get('capture'))document.querySelector('#study').remove();
 </script></html>

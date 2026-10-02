@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 // Shared navigation must respect the app text preference and reserve measured space above its raised orb.
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -7,7 +8,7 @@ try{
  for(const width of [360,390,430])for(const large of [false,true]){
   const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true});
   await context.addInitScript(large=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText:large})),large);
-  const page=await context.newPage();await page.goto(base);await page.getByTestId('tab-history').waitFor();await page.waitForTimeout(600);
+  const page=await context.newPage();await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('tab-history').waitFor();await page.waitForTimeout(600);
   const metrics=await page.evaluate(()=>{
    const tabs=[...document.querySelectorAll('[role=tab]')].map(tab=>{const el=tab.lastElementChild,range=document.createRange();range.selectNodeContents(el);const r=range.getBoundingClientRect(),b=tab.getBoundingClientRect();return {name:el.textContent,font:parseFloat(getComputedStyle(el).fontSize),lineHeight:parseFloat(getComputedStyle(el).lineHeight),height:r.height,contained:r.left>=b.left&&r.right<=b.right&&r.bottom<=b.bottom}});
    let clip=document.querySelector('[data-testid="daily-omen"]').parentElement;while(clip&&!/auto|scroll/.test(getComputedStyle(clip).overflowY))clip=clip.parentElement;

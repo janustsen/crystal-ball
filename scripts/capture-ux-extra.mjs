@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 import {chromium,expect} from '@playwright/test';
 import {writeFile} from 'node:fs/promises';
 const round=process.argv[2],base=process.env.PREVIEW_URL||'http://localhost:8098';
@@ -5,7 +6,7 @@ if(!/^docs\/ux-loop\/round-\d+$/.test(round||''))throw new Error('Pass round pat
 const browser=await chromium.launch({channel:'chrome',headless:true});
 try{
  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
- await page.goto(base);await page.getByTestId('hero-orb').click();await page.getByTestId('type-instead').waitFor();await page.waitForTimeout(90);await page.screenshot({path:`${round}/screens/listening-transition.png`});await page.waitForTimeout(600);await page.screenshot({path:`${round}/screens/listening.png`});await page.getByTestId('close-flow').click();await page.getByTestId('tab-sky').click();await page.getByTestId('social-section-circles').click();await page.waitForTimeout(1600);await page.screenshot({path:`${round}/screens/circles-offline.png`});
+ await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('hero-orb').click();await page.getByTestId('type-instead').waitFor();await page.waitForTimeout(90);await page.screenshot({path:`${round}/screens/listening-transition.png`});await page.waitForTimeout(600);await page.screenshot({path:`${round}/screens/listening.png`});await page.getByTestId('close-flow').click();await page.getByTestId('tab-sky').click();await page.getByTestId('social-section-circles').click();await page.waitForTimeout(1600);await page.screenshot({path:`${round}/screens/circles-offline.png`});
  await page.getByTestId('tab-you').click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).scrollIntoViewIfNeeded();await page.waitForTimeout(800);await page.screenshot({path:`${round}/screens/settings-controls.png`});
  await page.getByRole('switch',{name:'Large text',exact:true}).click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).scrollIntoViewIfNeeded();await page.waitForTimeout(400);await page.screenshot({path:`${round}/screens/settings-controls-large.png`});
  // Deliberate list-stress fixture, not real readings or a model-quality claim.

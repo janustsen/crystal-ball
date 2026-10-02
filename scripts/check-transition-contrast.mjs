@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 // Freeze CSS entrances at sampled times; composite text opacity against actual rendered backgrounds.
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -5,7 +6,7 @@ import {measureTextContrast} from './measure-text-contrast.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8098',out=process.env.UX_EVIDENCE||'.local/transition-contrast';await mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true}),samples=[];
 try{
- const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await page.goto(base);await page.getByTestId('hero-orb').waitFor();
+ const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('hero-orb').waitFor();
  for(const screen of ['you','history','sky','plans']){
   if(screen==='plans')await page.getByTestId('view-plans').click();else await page.getByTestId(`tab-${screen}`).click();
   for(const phase of [0,.25,.5,1]){

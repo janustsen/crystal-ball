@@ -11,3 +11,5 @@ The video-specific duplicate guard was dropped. A separate repro on the rebased 
 The layout sweep now includes actual birthday/focus/age-confirmation screens. It opens the real simulated Plus option to inspect gated facts, assumptions and sources, while keeping the free brief explanation as its own capture. Grading will include the new main screens/components and identify subscription behavior.
 
 Browser-only scores remain provisional. Per inbox004, the phone/VoiceOver pass comes after all browser scores reach nine; missing physical evidence must not be described as certification or used as an indefinite reason to stop local improvement.
+
+Image-only correction passed: one held encode for a double activation, pending label/disabled image action, unaffected friend tool, recoverable injected canvas failure, successful real PNG retry. Removed all video-specific production handling. The final rebased source passes typecheck and all118 tests; full runtime validation follows on its committed head.

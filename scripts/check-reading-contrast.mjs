@@ -1,3 +1,4 @@
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {measureTextContrast} from './measure-text-contrast.mjs';
@@ -6,7 +7,7 @@ const browser=await chromium.launch({channel:'chrome',headless:true}),samples=[]
 try{
  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  await page.addInitScript(()=>{const d=new Date(),day=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('crystal-ball-personal-omen-v1',JSON.stringify({day,text:'Tonight, the moon whispers kindness to all who listen gently.'}))});
- await page.goto(base);await page.getByTestId('hero-orb').waitFor();
+ await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('hero-orb').waitFor();
  for(const screen of ['home','you','history','sky','plans','ask']){
   if(screen==='plans')await page.getByTestId('view-plans').click();else if(screen==='ask'){await page.getByTestId('close-flow').click();await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click()}else await page.getByTestId('tab-'+screen).click();
   await page.waitForTimeout(1400);
