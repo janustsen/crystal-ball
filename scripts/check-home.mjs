@@ -15,12 +15,16 @@ try {
    const orb=document.querySelector('[data-testid="hero-orb"]').getBoundingClientRect();
    const headline=[...document.querySelectorAll('div')].find(e=>e.textContent==='Touch the ball. Ask what’s ahead.');
    const hs=getComputedStyle(headline),hr=headline.getBoundingClientRect();
+   const omen=document.querySelector('[data-testid="daily-omen"]'),panel=omen.getBoundingClientRect();
+   const omenFits=[...omen.children].every(child=>{const r=child.getBoundingClientRect();return r.left>=panel.left&&r.right<=panel.right&&r.top>=panel.top&&r.bottom<=panel.bottom});
    const whisper=document.querySelector('[data-testid="home-whisper"]')?.getBoundingClientRect();
-   return {orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
+   return {omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
   });
   results.push({width,height,largeText,...metrics});
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}.png`});
-  if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
+  if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
+  await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(250);
+  await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}-omen.png`});
   await context.close();
  }
 }finally{await browser.close();await writeFile(`${out}/metrics.json`,JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2))}
