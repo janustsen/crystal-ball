@@ -1,0 +1,85 @@
+Checked 360:onboarding-birthday
+Checked 360:onboarding-age
+Checked 360:onboarding-blocked
+Checked 360:onboarding-correction
+Checked 360:onboarding-focus
+Checked 360:onboarding-focus-selected
+Checked 360:home
+Checked 360:sky
+Checked 360:circles
+Checked 360:history
+Checked 360:you
+Checked 360:you-birthday
+Checked 360:you-birth-details
+Checked 360:paywall
+Checked 360:approach
+Checked 360:listening
+Checked 360:ask
+Checked 360:ask-person
+Checked 360:ask-person-collapsed
+Checked 360:planning
+Checked 360:error-plan
+Checked 360:sensitive-plan
+Checked 360:card-1
+Checked 360:card-other
+Checked 360:card-2
+Checked 360:card-3
+Checked 360:research
+Checked 360:error-predict
+Checked 360:sensitive-predict
+Checked 360:reveal
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toHaveText(expected) failed
+
+Locator:  getByTestId('reason-passages')
+Expected: "Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction."
+Received: "Passage 1Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. Passage 2I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. Passage 3You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction. "
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveText" getByTestId('reason-passages') with timeout 5000ms
+  - waiting for getByTestId('reason-passages')
+    14 × locator resolved to <div class="css-g5y9jx" data-testid="reason-passages">…</div>
+       - unexpected value "Passage 1Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. Passage 2I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. Passage 3You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction. "
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toHaveText (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-layout.mjs:103:137 {
+  matcherResult: {
+    name: 'toHaveText',
+    expected: 'Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction.',
+    message: 'expect(locator).toHaveText(expected) failed\n' +
+      '\n' +
+      "Locator:  getByTestId('reason-passages')\n" +
+      'Expected: "Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction."\n' +
+      'Received: "Passage 1Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. Passage 2I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. Passage 3You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction. "\n' +
+      'Timeout:  5000ms\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toHaveText" getByTestId('reason-passages') with timeout 5000ms\n` +
+      "  - waiting for getByTestId('reason-passages')\n" +
+      '    14 × locator resolved to <div class="css-g5y9jx" data-testid="reason-passages">…</div>\n' +
+      '       - unexpected value "Passage 1Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. Passage 2I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. Passage 3You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction. "\n',
+    pass: false,
+    actual: 'Passage 1Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. Passage 2I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. Passage 3You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction. ',
+    log: [
+      `  - Expect "toHaveText" getByTestId('reason-passages') with timeout 5000ms`,
+      "  - waiting for getByTestId('reason-passages')",
+      '    14 × locator resolved to <div class="css-g5y9jx" data-testid="reason-passages">…</div>',
+      '       - unexpected value "Passage 1Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend. Passage 2I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a  This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes. Passage 3You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction. "'
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- heading "Passage 1" [level=1]\n' +
+      '- text: "Recorded context: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a conversation partner after work and review difficult phrases every weekend."\n' +
+      '- heading "Passage 2" [level=1]\n' +
+      '- text: I practise with a conversation partner after work and review difficult phrases every weekend. I practise with a This scenario assumes You keep making time for regular practice and feedback even when your weekly schedule changes.\n' +
+      '- heading "Passage 3" [level=1]\n' +
+      '- text: You keep making time for regular practice and feedback even when your weekly schedule changes. You keep m Dated news headlines below add background; they do not verify this prediction.'
+  }
+}
+
+Node.js v26.10.0
