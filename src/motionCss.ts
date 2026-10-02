@@ -20,7 +20,7 @@ export const motionCss = `
 @keyframes card-flip{0%{opacity:0;transform:perspective(1000px) rotateY(var(--flip,-62deg)) translate3d(0,var(--enter-y,28px),-80px) scale(var(--enter-scale,.92))}40%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes inhale{0%{opacity:0;transform:scale(var(--enter-scale,1.12)) rotate(-3deg)}100%{opacity:1;transform:none}}
 @keyframes glimpse-burst{0%{opacity:0;transform:scale(var(--enter-scale,.55))}45%{opacity:1;transform:scale(1.05,.95)}68%{transform:scale(.97,1.04)}86%{transform:scale(1.01,.99)}100%{opacity:1;transform:none}}
-@keyframes card-deal{0%{opacity:0;transform:translate3d(0,var(--enter-y,80px),0) rotate(8deg) scale(var(--enter-scale,.9))}35%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes card-deal{0%{opacity:0;transform:translate3d(0,var(--enter-y,80px),0) rotate(8deg)}35%{opacity:1}100%{opacity:1;transform:none}}
 .screen-veil::after{content:'';position:absolute;pointer-events:none;z-index:20;opacity:0;animation:inherit;animation-delay:0ms}
 .smoke-wipe.screen-veil::after{top:-12%;bottom:-12%;left:-60%;width:120%;background:radial-gradient(70px 90px at 86% 14%,rgba(232,212,178,.55),transparent 70%),radial-gradient(80px 110px at 92% 36%,rgba(214,190,152,.6),transparent 70%),radial-gradient(70px 90px at 84% 58%,rgba(232,212,178,.5),transparent 70%),radial-gradient(90px 120px at 91% 80%,rgba(214,190,152,.55),transparent 70%),radial-gradient(70px 80px at 85% 98%,rgba(232,212,178,.5),transparent 70%),linear-gradient(90deg,rgba(14,9,6,0),rgba(14,9,6,.94) 45%,rgba(30,21,13,.96) 76%,rgba(30,21,13,0) 96%);animation-name:veil-sweep;animation-timing-function:cubic-bezier(.45,0,.35,1)}
 @keyframes veil-sweep{0%{opacity:1;transform:translate3d(-10%,0,0)}60%{opacity:1}100%{opacity:0;transform:translate3d(150%,0,0) scale(1.15)}}
@@ -28,7 +28,7 @@ export const motionCss = `
 .ripple-in.screen-veil::after{--veil-y:24%;border-width:2px}
 .glimpse-burst.screen-veil::after{--veil-y:26%;border-width:4px}
 @keyframes veil-ring{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(4.2)}}
-.card-flip.screen-veil::after,.inhale.screen-veil::after,.ink-settle.screen-veil::after,.card-deal.screen-veil::after{left:50%;top:40%;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;background:radial-gradient(circle,rgba(236,214,180,.34),rgba(150,110,70,.16) 38%,rgba(40,28,18,0) 66%);animation-name:veil-puff;animation-timing-function:ease-out}
+.card-flip.screen-veil::after,.inhale.screen-veil::after,.ink-settle.screen-veil::after{left:50%;top:40%;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;background:radial-gradient(circle,rgba(236,214,180,.34),rgba(150,110,70,.16) 38%,rgba(40,28,18,0) 66%);animation-name:veil-puff;animation-timing-function:ease-out}
 .inhale.screen-veil::after{animation-name:veil-gather}
 @keyframes veil-puff{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.7)}}
 @keyframes veil-gather{0%{opacity:0;transform:scale(1.8)}40%{opacity:.9}100%{opacity:0;transform:scale(.3)}}

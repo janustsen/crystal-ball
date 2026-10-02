@@ -15,7 +15,7 @@ The ball is a small atmosphere behind glass, drawn like a premium illustrated ga
 | Card flip | Follow-up questions | 780ms spring flip through 62° around the vertical axis, alternating direction per question, through a puff of mist. |
 | Inhale | Thinking | 900ms. The screen arrives from 112% with a slight counter-turn while the mist gathers inward. |
 | Glimpse burst | Prediction | 1,000ms. Content pops from 55% with one squash, one stretch and a settle; a thick gold shockwave leaves the orb. Headline text follows 200ms later. |
-| Card deal | Share | 720ms spring. The story card is dealt up from 80px, rotated 8°, landing square. |
+| Card deal | Share | 720ms spring. The story card is dealt up from 80px, rotated 8°, landing square. No scale or veil: the share preview is a large image layer, and a scale change re-rasterizes it on landing. |
 | Sky depth | Background | Two seamless star tiles drift at different speeds (140s and 90s per tile, the near one twinkling), the sky sways on a 23s breath, and pointer position shifts sky, candle and embers by different amounts for parallax. Rare gold streak, passing crescent and faint constellation remain the easter eggs. |
 
 `src/motion.ts` owns transition names, durations and two curves: ease cubic-bezier(.2,.75,.2,1) for smoke and glass, spring cubic-bezier(.34,1.56,.64,1) for brass and cards. `src/motionCss.ts` owns the web keyframes and the illustrated depth layer. Native `Enter` uses the same durations and curves through the native driver, including the question flip; native taps keep the button lip press and orb scale. Web uses compositor transforms and opacity; the orb portal additionally animates a clip-path for one second. Constant fog advection uses continuous time rather than easing to a stop.

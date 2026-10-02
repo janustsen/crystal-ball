@@ -10,6 +10,6 @@ export const entrances={
  question:{duration:780,y:28,scale:.92,name:'card-flip'},
  thinking:{duration:900,y:6,scale:1.12,name:'inhale'},
  reveal:{duration:1000,y:18,scale:.55,name:'glimpse-burst'},
- share:{duration:720,y:80,scale:.9,name:'card-deal'},
+ share:{duration:720,y:80,scale:1,name:'card-deal'},
 } as const;
 export type MotionKind=keyof typeof entrances;
