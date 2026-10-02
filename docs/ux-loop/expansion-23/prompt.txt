@@ -1,0 +1,32 @@
+Independent blind design comparison. Read-only, no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C for question composition, check-in and evidence navigation at normal/200%. Score all twelve screen/variant pairs on six dimensions; null only for genuinely inapplicable prototype behavior. Choose best composition per task; baseline may win. No desired score. Explain tradeoffs.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Current baseline from246-layout sweep plus actual engine/PNG, contrast/reduced-motion and isolated60fps evidence. Baseline and alternatives use the same forecast headline; baseline question screenshot has longer editing field. Alternatives are structural HTML prototypes: no actual inference, eligibility, persistence or evidence reader data. Never transfer baseline proof to prototypes. Eighteen normal200% combinations checked for horizontal overflow; actual editing/cancel/save in C, local selected outcome state and status, evidence category placeholder responses and document-anchor navigation exercised. Native/physical proof remains separate.
+
+Compose A: labeled two-line expanding editor, compact person context before question, primary action immediately after. B: dedicated writing area with person context after editor and sticky submission dock. C: explicit read/edit modes, editable dedicated page, Save/Cancel return to question review before submission; adds a step. Both label and actual user content scale200%.
+Forecast A: check-in first with concise original forecast context, qualification and outcome task before subdued Why/Share. B: separate Forecast and Check-in tabs (initial image shows Forecast; alternate check-in is in screens if needed), adds navigation. C: full forecast then initially open Record outcome disclosure, Why/Share inside More details disclosure. Outcomes only select local prototype state, never claim saved history.
+Evidence A: category index first, original forecast under Which forecast disclosure. B: forecast disclosure, category tabs and reader below. C: anchor navigation and all sections in one continuous document. Bodies are clearly structural placeholders; do not infer semantic parsing, complete evidence or shortened actual content. No alternative is credited as native/fully functional.
+
+Only inspect attached images, docs/ux-loop/expansion-23/screens, checks.json and public/concepts/expansion-23.html if needed. No other files/previous grades. Return schema JSON.

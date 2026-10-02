@@ -1,0 +1,91 @@
+{
+  "comparisons": [
+    {
+      "screen": "compose",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 6},
+      "finding": "A=7.3; F=7.0; overall=7.1. Clearly labeled editing, explicit submission and useful disclosure. The large field, decorative header and disclosure push submission below the captured viewport at 200%; scrolling accessibility is unproven. Component scores (hierarchy/typography/surfaces/clarity/feedback/accessibility): decorative orb 6/NA/8/NA/NA/NA; input 8/7/8/8/NA/7; person control 7/7/8/8/NA/7; submit 8/8/8/8/NA/6; disclosure 7/7/7/8/NA/7; close 7/7/8/8/NA/6. Stronger visible field boundary than the alternatives."
+    },
+    {
+      "screen": "compose",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.0; F=8.0; overall=8.0. Best composition: person context, labeled editor and submission form a short, coherent sequence at both sizes. The complete enlarged question and primary action remain visible. The understated input boundary is less obvious than baseline, and the reassuring qualification does not replace baseline's data-use disclosure. Components: input 8/8/8/9/7/8; person control 8/8/8/8/6/8; submit 9/8/8/9/7/8; qualification 8/8/8/8/NA/8; close 7/7/8/7/NA/8. Feedback credit covers resizing and explicitly qualified preview status only."
+    },
+    {
+      "screen": "compose",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 5},
+      "finding": "A=7.0; F=6.3; overall=6.6. The writing area gives focus at normal size, but separates question, context and submission excessively. At 200%, the captured editor cuts off much of the question while retaining the dock. No horizontal overflow does not establish usable vertical editing. Components: input 7/5/8/7/6/5; person control 7/7/8/8/6/7; submission dock 8/8/8/8/7/7; title 6/7/8/7/NA/8; close 7/7/8/7/NA/8. Whether internal scrolling reliably exposes the entire draft remains unresolved; an inaccessible draft would trigger the essential-content gate."
+    },
+    {
+      "screen": "compose",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.0; F=7.7; overall=7.8. Excellent question review and explicit edit affordance, with the complete question visible at 200%. Separate editing adds a step to the composition task, and person context has no visible change action. Save/Cancel and returning focus to Edit provide concrete recovery within the prototype. Components: question review 9/8/8/8/NA/8; edit control 8/8/8/9/8/8; editor 8/8/8/8/8/8; Save/Cancel 8/8/8/9/8/8; submit 9/8/8/8/7/8; person context 7/8/8/6/NA/8; close 7/7/8/7/NA/8. Editor-state visual scores are provisional because that state is not in the attached sheets."
+    },
+    {
+      "screen": "forecast",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 5, "surfaces": 8, "clarity": 6, "feedback": null, "accessibility": 5},
+      "finding": "A=6.3; F=5.5; overall=5.8. Strong atmosphere and forecast emphasis, but weak for checking in: orb and headline dominate while outcomes receive little emphasis. At 200%, oversized headline wrapping consumes the viewport before the task appears. Components: orb 5/NA/8/NA/NA/NA; headline 6/4/8/7/NA/5; qualification/date 7/7/8/7/NA/6; outcome controls 5/7/8/7/NA/5; Why 6/7/8/8/NA/6; Share 8/8/8/8/NA/7; close 7/7/8/8/NA/6. Offscreen content alone does not prove an inaccessible control; runtime reachability remains unverified."
+    },
+    {
+      "screen": "forecast",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.0; F=8.0; overall=8.0. Best for the requested check-in task: concise forecast context leads directly to the outcome question and full-width choices. At 200%, lower choices require scrolling, but text reflows coherently. Omitting the check-back date weakens temporal context. Components: forecast context 8/8/8/8/NA/8; qualification 8/8/8/9/NA/8; outcome group/options 9/8/8/9/7/8; Why/Share 7/8/8/8/6/8; close 7/7/8/7/NA/8. Selected checkmark, aria-pressed and qualified status support local feedback; 'Save how this forecast turned out' overstates what this prototype does."
+    },
+    {
+      "screen": "forecast",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 5, "accessibility": 7},
+      "finding": "A=7.7; F=6.3; overall=6.9. Best separation for reading a forecast, but checking in requires navigation from the initial view. The 200% forecast is legible and compact. Switching tabs rebuilds the controls, removes focus and resets the local outcome selection when revisiting Check-in. Components: tabs 7/8/8/8/5/6; forecast/date 8/8/8/8/NA/8; qualification 8/8/8/9/NA/8; outcome group/options 8/8/8/8/5/7; Why/Share 8/8/8/8/6/8; close 7/7/8/7/NA/8. The reset undermines continuity even within a nonpersistent prototype."
+    },
+    {
+      "screen": "forecast",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 8},
+      "finding": "A=7.7; F=7.3; overall=7.5. Preserves full forecast and date alongside outcomes, but repeats the task through 'Record the outcome' and 'Did it happen?'. At 200%, check-in choices begin near the viewport bottom; Why/Share require another disclosure. Components: forecast/date 8/8/8/8/NA/8; qualification 8/8/8/9/NA/8; outcome disclosure 7/8/8/7/8/8; outcome group/options 8/8/8/8/7/8; More details disclosure 6/8/8/6/8/8; Why/Share 6/8/8/7/6/8; close 7/7/8/7/NA/8. Native disclosure behavior is useful, but the additional nesting has little benefit for this task."
+    },
+    {
+      "screen": "evidence",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 6},
+      "finding": "A=7.3; F=7.0; overall=7.1. Best visible category descriptions: counts and explanatory subtitles help people predict what each destination contains. However, repeated forecast context pushes categories far down at 200%, and Back sits after the index. Components: forecast context 6/6/8/8/NA/6; category rows 8/8/8/9/NA/7; subtitle/counts 8/7/8/9/NA/7; Back 6/7/8/8/NA/6; close 7/7/8/8/NA/6. More informative than A, but slower to scan and reach."
+    },
+    {
+      "screen": "evidence",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.3; F=7.3; overall=7.7. Best evidence navigation: Back, title and four full-width categories remain readily visible at both sizes. Moving forecast context into a disclosure reduces repetition. Removing baseline's subtitles/counts makes destinations less informative. Components: category index/rows 9/8/8/8/6/8; forecast disclosure 8/8/8/8/8/8; Back 9/8/8/9/6/8; title 9/8/8/8/NA/8; close 7/7/8/7/NA/8. Category activation only announces a placeholder; this is a strong index composition, not a demonstrated evidence reader."
+    },
+    {
+      "screen": "evidence",
+      "variant": "B",
+      "dimensions": {"hierarchy": 6, "typography": 6, "surfaces": 8, "clarity": 6, "feedback": 4, "accessibility": 6},
+      "finding": "A=6.7; F=5.3; overall=5.9. Tabs promise an efficient reader, but expand into a long vertical menu at 200%, delaying the content. More seriously, category clicks announce a placeholder without updating the selected tab or reader heading/body; the visible selection remains 'Why this forecast'. Components: category tabs 6/6/8/6/4/6; reader 7/7/8/6/NA/7; forecast disclosure 7/8/8/8/8/8; title 8/8/8/8/NA/8; close 7/7/8/7/NA/8. Placeholder content is expected; the contradictory selection model is still a prototype feedback defect."
+    },
+    {
+      "screen": "evidence",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 5},
+      "finding": "A=7.0; F=6.3; overall=6.6. Continuous sections support scanning and document search without category switching. At 200%, the two-column navigation splits 'Assumptions' midword and consumes substantial space before the first section. Long actual evidence would increase scrolling considerably. Components: anchor navigation 7/4/8/7/7/5; section headings 8/8/8/8/NA/8; placeholder bodies 7/7/8/7/NA/7; Back 5/8/8/8/6/6; title 8/8/8/8/NA/8; close 7/7/8/7/NA/8. Working anchors earn navigation credit; they do not establish reader completeness or keyboard focus continuity."
+    }
+  ],
+  "composeWinner": "A",
+  "forecastWinner": "A",
+  "evidenceWinner": "A",
+  "reason": "A puts each requested task first with the least navigation and strongest enlarged-text composition. C offers better explicit editing recovery; baseline evidence offers better destination descriptions; B forecast better separates reading from checking in. Scores combine normal and 200% evidence, retaining defects from either. Component tuples use the same six-dimension order as screen scores. Overall uses unrounded A and F with 40/60 weighting. No variant demonstrates the required A>=9 and F>=9 across every screen and component.",
+  "limitations": [
+    "Inspected only supplied images, checks.json and the permitted prototype HTML. No implementation, delegation, prior ratings or other graders were consulted.",
+    "Baseline feedback is null because the supplied material does not establish its interactive feedback/recovery. Assigning a number would invent evidence; this is an evidence gap, not a claim that baseline feedback is inapplicable. Component NA otherwise denotes an inapplicable dimension or unavailable interaction evidence.",
+    "Prototype behavior scores use the user's reported exercises and inspected handlers, not a fresh browser drive. checks.json records 18 alternative screen/size overflow checks only; it does not prove target reachability, contrast, focus behavior or complete accessibility.",
+    "Prototype inference, eligibility, persistence and real evidence content are outside the demonstrated scope. These omissions are not treated as failed implemented features or credited as successful ones. Full task completion remains uncertified.",
+    "All prototype Close buttons lack a handler. Their visual/accessibility scores cover presentation and declared sizing only; no dismissal credit is awarded. Navigation-looking study buttons generally announce status rather than navigate.",
+    "The composition B capture shows a vertically truncated draft despite automatic-resize code. Without a runtime check, its full-draft reachability remains unresolved. Content below a screenshot boundary is not automatically classified as inaccessible.",
+    "No confirmed hard-gate failure is established within the limited structural task scope. The rubric's gates still apply if full-task completion or inaccessible essential content is demonstrated.",
+    "Baseline contrast, reduced-motion and engine proof was reported but not independently inspected here, and was not transferred to alternatives. Native/physical accessibility proof remains separate. Browser scores were not capped solely because that proof is deferred.",
+    "Meaningful supplied components are scored individually or grouped where their treatment is identical. No modal is shown. Empty/error/loading states, representative long evidence, real-phone keyboard behavior and assistive-technology outcomes remain unverified."
+  ]
+}

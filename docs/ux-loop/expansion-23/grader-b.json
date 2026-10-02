@@ -1,0 +1,90 @@
+{
+  "comparisons": [
+    {
+      "screen": "compose",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 6, "accessibility": 6},
+      "finding": "A=7.0, F=6.7, overall=6.8. Clear labeled editor and strong submission button. At 200%, the disclosure pushes submission below the captured viewport; reachability is unverified. Orb and atmospheric background add identity but compete with writing. Components [H,T,S,C,Fb,Ac]: editor [8,7,7,8,6,7]; person control [7,7,7,7,6,6]; submit [8,8,8,8,6,6]; decorative orb [6, null,7,null,null,null]."
+    },
+    {
+      "screen": "compose",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Best composition: context, labeled question and submission form a short, coherent sequence at both sizes. The underline makes the editor less obvious than the baseline box, but its label compensates. Source provides expansion, focus styling and a truthful preview announcement; no inference behavior is credited. Components: editor [9,8,8,9,7,8]; context/change [8,8,8,9,6,8]; submit [9,8,8,9,7,8]."
+    },
+    {
+      "screen": "compose",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 5},
+      "finding": "A=7.0, F=6.3, overall=6.6. Generous writing space at normal size becomes a visibly clipped question at 200%. No horizontal overflow does not establish that the editor displays its content adequately. Sticky submission is prominent, but the distant person context weakens the sequence. Components: editor [7,5,8,6,7,5]; context/change [6,7,8,7,6,7]; submission dock [8,8,8,8,7,7]. Internal scrolling and keyboard obstruction remain unverified."
+    },
+    {
+      "screen": "compose",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.0, F=7.7, overall=7.8. Excellent question review at both sizes, with explicit editing and source-supported Save/Cancel focus return. Adds a step to the central writing task and removes the visible person-change action. Components: review text [9,8,8,8,null,8]; Edit question [8,8,8,8,8,8]; edit/save/cancel flow [8,8,8,8,8,8]; submit [8,8,8,8,7,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 5, "surfaces": 7, "clarity": 6, "feedback": 6, "accessibility": 5},
+      "finding": "A=6.0, F=5.7, overall=5.8. Strong reveal atmosphere, weak check-in priority. The orb and oversized centered headline displace outcomes; at 200%, even the headline is not fully visible and its long word breaks awkwardly. Share is more prominent than recording an outcome. Components: decorative orb [5,null,8,null,null,null]; headline/context [6,4,7,7,null,5]; outcome options [6,7,7,7,6,5]; Why/Share [7,7,8,8,6,6]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Best for check-in: compact forecast context leads directly into the outcome task, with secondary actions below. Large text requires scrolling but preserves a sensible reading order. Source supports pressed state, a checkmark and a local-only status announcement. 'Save how this forecast turned out' still overstates the prototype's capability. Components: context [9,8,8,9,null,8]; outcome options [9,8,8,9,7,8]; Why/Share [8,8,8,8,6,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Clean forecast presentation at both sizes, but check-in requires changing tabs. Source rerenders the tab buttons without restoring focus and recreates outcomes as unselected when returning to Check-in. This weakens keyboard continuity and local selection continuity. Components: tabs [8,8,8,7,5,6]; forecast/context [8,8,8,8,null,8]; outcome options [8,8,8,8,6,7]; Why/Share [8,8,8,8,6,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A=7.7, F=7.3, overall=7.5. Forecast and check-in coexist without tab switching. However, the full headline, date, disclosure title and repeated task heading delay outcomes substantially at 200%. Why/Share are concealed behind a vague secondary disclosure. Components: forecast/context [8,8,8,8,null,8]; outcome disclosure [7,8,8,8,7,7]; outcome options [8,8,8,8,7,8]; More details [6,8,8,6,7,7]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 6, "accessibility": 6},
+      "finding": "A=7.0, F=6.7, overall=6.8. Best visible category descriptions: counts and explanatory subtitles help users choose. But the repeated forecast consumes most of the enlarged view, pushing categories and return navigation down. Components: forecast/context [6,6,7,8,null,6]; category rows [8,8,7,9,6,7]; Back to forecast [6,7,7,8,6,6]. Baseline reader and navigation behavior were not independently observed."
+    },
+    {
+      "screen": "evidence",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.3, F=7.3, overall=7.7. Best navigation composition: return action and all four categories remain visible at 200%, while forecast context is available through disclosure. Loses the baseline's useful descriptions and counts. Category buttons announce placeholder responses rather than opening readers; no completed evidence-reading task is credited. Components: category index [9,8,8,8,6,8]; forecast disclosure [8,8,8,8,8,8]; return action [8,8,8,9,6,8]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "B",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 4, "accessibility": 6},
+      "finding": "A=7.0, F=5.0, weighted overall=5.8; gated overall=4.0 for broken category switching. At 200%, wrapped tabs become a tall menu ahead of the reader. Source category handlers announce a response but never update the active tab or reader heading: selecting Assumptions leaves Why this forecast selected and displayed. This is a navigation defect independent of placeholder content. Components: tabs [5,6,8,4,3,5]; forecast disclosure [8,8,8,8,8,8]; placeholder reader [6,7,8,5,null,7]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "finding": "A=7.0, F=7.0, overall=7.0. Continuous sections and real document anchors offer straightforward browsing without category switching. At 200%, the two-column navigation splits 'Assumptions' midword and consumes substantial space. Long real evidence could make the bottom return action expensive to reach. Components: anchor navigation [7,5,8,8,7,5]; section headings/body [8,8,8,8,null,8]; return action [6,8,8,8,6,7]. Placeholder brevity is not credited as real evidence readability."
+    }
+  ],
+  "composeWinner": "A",
+  "forecastWinner": "A",
+  "evidenceWinner": "A",
+  "reason": "A wins each specified task through direct ordering and better enlarged-text layouts, for different reasons: immediate writing/submission, immediate check-in, and immediate category navigation. C offers stronger explicit editing recovery; baseline evidence offers richer category cues. None meets the authorized all-screen/all-component A>=9 and F>=9 threshold. Component vectors use [hierarchy, typography, surfaces, clarity, feedback, accessibility]; null denotes an inapplicable component dimension. Screen scores combine normal and 200% observations without averaging away enlargement defects.",
+  "limitations": [
+    "Inspected only the six attached sheets, checks.json and the permitted prototype HTML. No prior ratings, other graders, implementation changes or delegation.",
+    "Grades are provisional screenshot and source assessments, not a fresh browser interaction certification. Baseline feedback scores concern visible affordances only; runtime recovery remains unverified.",
+    "checks.json establishes no horizontal overflow for 18 alternative captures. It does not establish absence of internal clipping, vertical obstruction, keyboard problems or inaccessible content.",
+    "Prototype feedback receives credit only for implemented local announcements, selection, disclosure and editing behavior. Inference, eligibility, persistence, actual readers and sharing receive no functional credit.",
+    "The evidence B gate concerns its implemented category-control mismatch, not its intentionally absent real evidence. Other below-viewport content is not assumed unreachable from a screenshot alone.",
+    "Empty/loading/error states, representative long content, browser assistive technology and full keyboard traversal are not demonstrated by these materials. Source focus styles and minimum sizes provide partial evidence only.",
+    "Reported baseline engine, contrast, reduced-motion and performance checks were not independently inspected and were not transferred to alternatives. Physical iPhone, VoiceOver and native behavior remain separate and uncertified.",
+    "No modal is shown. Decorative orb typography and task behavior, and feedback for static text, are genuinely inapplicable."
+  ]
+}

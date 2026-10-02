@@ -1,0 +1,416 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fd05-ed01-7712-ae4e-0a1209b04a11
+--------
+user
+Independent blind design comparison. Read-only, no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C for question composition, check-in and evidence navigation at normal/200%. Score all twelve screen/variant pairs on six dimensions; null only for genuinely inapplicable prototype behavior. Choose best composition per task; baseline may win. No desired score. Explain tradeoffs.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+Current baseline from246-layout sweep plus actual engine/PNG, contrast/reduced-motion and isolated60fps evidence. Baseline and alternatives use the same forecast headline; baseline question screenshot has longer editing field. Alternatives are structural HTML prototypes: no actual inference, eligibility, persistence or evidence reader data. Never transfer baseline proof to prototypes. Eighteen normal200% combinations checked for horizontal overflow; actual editing/cancel/save in C, local selected outcome state and status, evidence category placeholder responses and document-anchor navigation exercised. Native/physical proof remains separate.
+
+Compose A: labeled two-line expanding editor, compact person context before question, primary action immediately after. B: dedicated writing area with person context after editor and sticky submission dock. C: explicit read/edit modes, editable dedicated page, Save/Cancel return to question review before submission; adds a step. Both label and actual user content scale200%.
+Forecast A: check-in first with concise original forecast context, qualification and outcome task before subdued Why/Share. B: separate Forecast and Check-in tabs (initial image shows Forecast; alternate check-in is in screens if needed), adds navigation. C: full forecast then initially open Record outcome disclosure, Why/Share inside More details disclosure. Outcomes only select local prototype state, never claim saved history.
+Evidence A: category index first, original forecast under Which forecast disclosure. B: forecast disclosure, category tabs and reader below. C: anchor navigation and all sections in one continuous document. Bodies are clearly structural placeholders; do not infer semantic parsing, complete evidence or shortened actual content. No alternative is credited as native/fully functional.
+
+Only inspect attached images, docs/ux-loop/expansion-23/screens, checks.json and public/concepts/expansion-23.html if needed. No other files/previous grades. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+I’ll compare the normal and 200% views using the frozen rubric, keeping prototype behavior and unverified native behavior separate.
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat docs/ux-loop/expansion-23/checks.json' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+[
+  {
+    "screen": "compose",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "compose",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "compose",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "compose",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "compose",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "compose",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "forecast",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "forecast",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "forecast",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "forecast",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "forecast",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "forecast",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "evidence",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "evidence",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "evidence",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "evidence",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "evidence",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true
+  },
+  {
+    "screen": "evidence",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true
+  }
+]
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat public/concepts/expansion-23.html' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open mist · task hierarchy</title><style>
+@font-face{font-family:Fell;src:url(study-assets/display.woff2)}@font-face{font-family:Hanken;src:url(study-assets/body.woff2)}*{box-sizing:border-box}html{background:#100c09;color:#f1e9dc;font-family:Hanken,sans-serif;font-size:16px}body{margin:0;background:radial-gradient(ellipse at 85% 90%,#4d341c66,transparent 62%);min-height:100vh}body.large{font-size:32px}main{max-width:390px;margin:auto;padding:24px;min-height:100vh}header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 24px;font-size:.875em}header button{min-width:44px}h1,h2,.quote{font-family:Fell,serif;font-weight:400}h1{font-size:1.75em;line-height:1.18;margin:16px 0}h2{font-size:1.35em;line-height:1.3;margin:16px 0}.quote{font-size:1.375em;line-height:1.3;margin:14px 0}p{line-height:1.55;margin:12px 0}button,select,input,textarea{font:inherit;color:inherit}button,a,summary{touch-action:manipulation}button,select{min-height:48px}button{background:none;border:0;cursor:pointer;padding:12px 0;text-align:left}button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e0a458;outline-offset:4px}label{display:block}.small{font-size:.875em;line-height:1.45;color:#b9ab97}.gold{color:#e0a458}.rule{border-bottom:1px solid #614c3466;padding:16px 0}.primary{display:block;text-align:center;width:100%;padding:14px 18px;background:#ebd5b0;color:#120e0b;border-radius:28px;box-shadow:0 3px #7a5527;min-height:54px;font-weight:600;margin:14px 0}.quiet{display:block;width:100%;border-bottom:1px solid #614c3466;margin-top:8px;text-align:center}input,textarea,select{display:block;width:100%;border:0;border-bottom:1px solid #79634a;background:transparent;padding:14px 0;border-radius:0;margin:6px 0 14px}textarea{font-family:Fell,serif;font-size:1.5em;line-height:1.3;resize:vertical;min-height:5.6em}select{appearance:auto}option{background:#120e0b}fieldset{border:0;padding:0;margin:0 0 16px}legend{font-size:.875em;color:#b9ab97;margin-bottom:6px}.choices{display:flex;gap:20px}.choices label{display:flex;align-items:center;gap:10px;flex:1;min-height:52px;border-bottom:1px solid #614c34}.choices input{appearance:none;flex:0 0 20px;width:20px;height:20px;padding:0;margin:0;border:1px solid #79634a;border-radius:50%}.choices input:checked{background:#e0a458;box-shadow:inset 0 0 0 4px #120e0b}.large .choices{flex-direction:column;gap:0}.fixed-action{position:sticky;bottom:0;background:linear-gradient(transparent,#120e0b 14%);padding:14px 0 4px;margin-top:12px}.context{display:flex;align-items:center;gap:12px}.context span{flex:1}.context button{color:#e0a458;flex-shrink:0}details{border-bottom:1px solid #614c3466;padding:14px 0}summary{min-height:48px;cursor:pointer;line-height:1.4}.section-nav{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:16px 0}.section-nav a,.section-nav button{min-width:0;min-height:48px;color:#e0a458;text-decoration:none;border-bottom:1px solid #614c34;padding:12px 0;overflow-wrap:anywhere}.section-nav button[aria-pressed=true]{border-color:#e0a458;color:#f1e9dc}.reader{font-size:1.0625em;line-height:1.5}.reader p{white-space:pre-wrap;overflow-wrap:anywhere}.source{display:block;color:#e0a458;overflow-wrap:anywhere;padding:12px 0;text-decoration:none}.section{padding:8px 0 20px;border-bottom:1px solid #614c3466;scroll-margin-top:12px}.library button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border-bottom:1px solid #614c3466;padding:20px 0}.library strong{font-weight:400}.library small{display:block;color:#b9ab97;font-size:.875em;margin-top:6px}.orb-mark{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#f1e9dc 0 3%,#b2915755 9%,#23190f 52%,#775b36 70%,#140e08 76%);border:1px solid #9c7b4f;flex-shrink:0}#study{max-width:390px;margin:24px auto;padding:16px;color:#b9ab97;font-size:14px}#study a{color:#e0a458;margin-right:10px}#status{line-height:1.4;color:#e0a458}.large .context{flex-wrap:wrap}.large header{margin-bottom:16px}
+
+.sheet{background:#19130e;padding:20px;margin:20px -24px -24px;min-height:50vh}.excerpt{font-size:.875em;color:#b9ab97;line-height:1.4}.passage{margin:24px 0;padding-bottom:24px;border-bottom:1px solid #614c3455}.passage .number{color:#e0a458;font-size:.75em}.reading{font-size:1.0625em;line-height:1.6}.reading p{white-space:pre-wrap}.pager{display:flex;justify-content:space-between;gap:12px}.large .pager{flex-direction:column}body{background:#100c09}.compact textarea{min-height:3em;height:3em}details p{padding:8px 0}#study{padding:20px;background:#211a13}#study a{color:#e0a458;padding:10px;display:inline-block} .date-parts{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:12px}.large .date-parts{grid-template-columns:1fr} .hero-state{margin-top:64px} .large .hero-state{margin-top:20px} .calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.calendar button{text-align:center;min-height:44px;padding:4px;font-size:.875em}.calendar button[aria-pressed=true]{background:#ebd5b0;color:#120e0b;border-radius:50%}.calendar label{grid-column:span 3}.calendar input{font-size:.8em}textarea.answer{font-family:Hanken;font-size:1.125em;min-height:6em}.step{display:flex;justify-content:space-between;align-items:center;gap:12px}.context-text{font-size:1em;line-height:1.4;margin:12px 0 18px}
+header{margin:16px 0 18px;min-height:44px}.compose{min-height:0;height:auto;line-height:1.4;font-size:1.5em;padding:12px 0;margin:4px 0 16px}.large h1{font-size:1.25em}.large main{padding-top:12px}h1{font-size:1.75em}.context-line{display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:1px solid #614c3466}.edit-cue{color:#e0a458}.dock{position:sticky;bottom:0;padding:12px 0;background:#100c09}.writing{min-height:55vh;display:flex;flex-direction:column}.writing textarea{flex:1}.large .writing{min-height:0}.task{padding:18px 0;border-block:1px solid #614c3466}.task button{display:block;width:100%;border-bottom:1px solid #614c3455}.task button[aria-pressed=true]{color:#e0a458}.task button[aria-pressed=true]::before{content:'✓ ';}.compact-title{font-size:1.1em;line-height:1.45;margin:12px 0}.sections button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border-bottom:1px solid #614c3466}.tabs{display:flex;flex-wrap:wrap;gap:16px}.tabs button{color:#b9ab97;border-bottom:2px solid transparent}.tabs button[aria-pressed=true]{color:#f1e9dc;border-color:#e0a458}.top-action{display:block;width:100%;color:#e0a458;border-bottom:1px solid #614c3466}summary{color:#e0a458}label.small{margin-top:16px}.editor-title{font-family:Hanken;font-size:1em}.large .primary{border-radius:36px}#status:empty{display:none}.reading p{margin:12px 0}.meta{color:#e0a458;font-size:.875em;line-height:1.5}.large .context-line{flex-wrap:wrap}.section-label{font-size:.875em;color:#b9ab97;text-transform:none}.subtle-orb{height:56px;width:56px;margin:12px auto;border-radius:50%;background:radial-gradient(circle at 25% 30%,#e5cf9b,#5d4427 30%,#21180d 65%,#b48f50 69%,#130d08 74%)}
+</style><div id="study"></div><main id="app"></main><script>
+const params=new URLSearchParams(location.search),screen=params.get('screen')||'compose',variant=params.get('variant')||'a',large=params.get('large')==='1';if(large)document.body.classList.add('large');
+const question='Will I be conversational in Spanish in six months?',headline='By spring you will hold a twenty-minute conversation in Spanish';let draft=question,editing=false,tab='forecast';
+const header='<header><button aria-label="Close study">×</button><span class="small">Plus · test</span></header>',qualification='<p class="meta">Speculative forecast · not a guarantee</p>',status='<p id="status" role="status"></p>';
+const field=()=>'<label for="question" class="small">Your question</label><textarea id="question" class="compose" rows="2">'+draft+'</textarea>';
+const submit='<button class="primary" id="submit">Look into the future</button>';
+const task=()=>'<section class="task"><h2>Did it happen?</h2><p class="small">Save how this forecast turned out.</p>'+['Yes','Not quite','Not yet'].map(x=>'<button class="outcome" aria-label="'+x+'" aria-pressed="false">'+x+'</button>').join('')+'</section>';
+const forecast=()=>qualification+'<h1>'+headline+'</h1><p class="small">Check back · Apr 2, 2027</p>';
+const links='<button class="quiet" data-study="Evidence">Why this forecast ›</button><button class="quiet" data-study="Share">Share this glimpse ↗</button>';
+const categories=['Why this forecast','Your answers','Assumptions','Current sources'];
+const categoryList=()=>'<div class="sections">'+categories.map(x=>'<button data-category="'+x+'"><span>'+x+'</span><span aria-hidden="true" class="gold">›</span></button>').join('')+'</div>';
+function render(){let html=header;
+if(screen==='compose'){
+ if(variant==='a')html+='<div class="context-line"><span class="small">About myself</span><button data-study="Person editor" class="gold">Change</button></div>'+field()+submit+'<p class="small">A glimpse, not a promise.</p>';
+ if(variant==='b')html+='<h1 class="editor-title">Ask the Ball</h1><div class="writing">'+field()+'<button data-study="Person editor" class="gold">About myself · Change</button></div><div class="dock">'+submit+'</div>';
+ if(variant==='c')html+=editing?'<h1 class="editor-title">Edit your question</h1>'+field()+'<button id="save" class="primary">Save question</button><button id="cancel" class="quiet">Cancel changes</button>':'<p class="small">About myself</p><h1>'+draft+'</h1><button id="edit" class="top-action">Edit question ↗</button>'+submit;
+}
+if(screen==='forecast'){
+ if(variant==='a')html+='<p class="small">Check-in</p><p class="compact-title">'+headline+'</p>'+qualification+task()+links;
+ if(variant==='b')html+='<div class="tabs"><button id="forecast-tab" aria-pressed="'+(tab==='forecast')+'">Forecast</button><button id="check-tab" aria-pressed="'+(tab==='check')+'">Check-in</button></div>'+(tab==='forecast'?forecast()+links:'<p class="compact-title">'+headline+'</p>'+task());
+ if(variant==='c')html+=forecast()+'<details id="check-disclosure" open><summary>Record the outcome</summary>'+task()+'</details><details><summary>More about this forecast</summary>'+links+'</details>';
+}
+if(screen==='evidence'){
+ if(variant==='a')html+='<button data-study="Forecast" class="gold">‹ Back to forecast</button><h1>Behind the mist</h1>'+categoryList()+'<details><summary>Which forecast?</summary><p>'+headline+'</p>'+qualification+'</details>';
+ if(variant==='b')html+='<h1>Behind the mist</h1><details><summary>View forecast</summary><p>'+headline+'</p>'+qualification+'</details><div class="tabs">'+categories.map((x,i)=>'<button data-category="'+x+'" aria-pressed="'+(i===0)+'">'+x+'</button>').join('')+'</div><section class="reading"><h2>Why this forecast</h2><p>Your recorded context and the scenario’s limits appear here unchanged.</p></section>';
+ if(variant==='c')html+='<h1>Behind the mist</h1><nav class="section-nav">'+categories.map((x,i)=>'<a href="#section-'+i+'">'+x+'</a>').join('')+'</nav>'+categories.map((x,i)=>'<section class="section" id="section-'+i+'"><h2>'+x+'</h2><p class="small">'+['The recorded explanation appears here unchanged.','Your original stored answers appear here unchanged.','The recorded scenario conditions appear here unchanged.','Background sources appear here; they do not verify the forecast.'][i]+'</p></section>').join('')+'<button data-study="Forecast" class="quiet">Back to forecast</button>';
+}
+document.querySelector('#app').innerHTML=html+status;bind();}
+function announce(text){document.querySelector('#status').textContent=text+' · layout study only; no forecast or stored data changed.'}
+function bind(){const field=document.querySelector('#question');if(field){const resize=()=>{field.style.height='auto';field.style.height=field.scrollHeight+'px'};field.addEventListener('input',resize);document.fonts.ready.then(resize)}document.querySelector('#question')?.addEventListener('input',e=>{if(variant!=='c')draft=e.target.value});document.querySelector('#submit')?.addEventListener('click',()=>announce('Submission preview'));document.querySelector('#edit')?.addEventListener('click',()=>{editing=true;render();document.querySelector('#question').focus()});document.querySelector('#save')?.addEventListener('click',()=>{draft=document.querySelector('#question').value;editing=false;render();document.querySelector('#edit').focus()});document.querySelector('#cancel')?.addEventListener('click',()=>{editing=false;render();document.querySelector('#edit').focus()});document.querySelector('#forecast-tab')?.addEventListener('click',()=>{tab='forecast';render()});document.querySelector('#check-tab')?.addEventListener('click',()=>{tab='check';render()});document.querySelectorAll('.outcome').forEach(b=>b.onclick=()=>{document.querySelectorAll('.outcome').forEach(e=>e.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');announce('Selected '+b.textContent)});document.querySelectorAll('[data-study]').forEach(b=>b.onclick=()=>announce(b.dataset.study));document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>announce(b.dataset.category+' reader'));}
+render();document.querySelector('#study').innerHTML='Open mist hierarchy studies. Structural prototypes; no inference or persistence.<br>'+['a','b','c'].map(v=>'<a href="?screen='+screen+'&variant='+v+'&large='+(large?1:0)+'">'+v.toUpperCase()+'</a>').join('')+['compose','forecast','evidence'].map(s=>'<a href="?screen='+s+'&variant='+variant+'&large='+(large?1:0)+'">'+s+'</a>').join('')+'<a href="?screen='+screen+'&variant='+variant+'&large='+(large?0:1)+'">Change text size</a>';if(params.has('capture'))document.querySelector('#study').remove();
+</script></html>
+codex
+{
+  "comparisons": [
+    {
+      "screen": "compose",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 6, "accessibility": 6},
+      "finding": "A=7.0, F=6.7, overall=6.8. Clear labeled editor and strong submission button. At 200%, the disclosure pushes submission below the captured viewport; reachability is unverified. Orb and atmospheric background add identity but compete with writing. Components [H,T,S,C,Fb,Ac]: editor [8,7,7,8,6,7]; person control [7,7,7,7,6,6]; submit [8,8,8,8,6,6]; decorative orb [6, null,7,null,null,null]."
+    },
+    {
+      "screen": "compose",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Best composition: context, labeled question and submission form a short, coherent sequence at both sizes. The underline makes the editor less obvious than the baseline box, but its label compensates. Source provides expansion, focus styling and a truthful preview announcement; no inference behavior is credited. Components: editor [9,8,8,9,7,8]; context/change [8,8,8,9,6,8]; submit [9,8,8,9,7,8]."
+    },
+    {
+      "screen": "compose",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 5},
+      "finding": "A=7.0, F=6.3, overall=6.6. Generous writing space at normal size becomes a visibly clipped question at 200%. No horizontal overflow does not establish that the editor displays its content adequately. Sticky submission is prominent, but the distant person context weakens the sequence. Components: editor [7,5,8,6,7,5]; context/change [6,7,8,7,6,7]; submission dock [8,8,8,8,7,7]. Internal scrolling and keyboard obstruction remain unverified."
+    },
+    {
+      "screen": "compose",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.0, F=7.7, overall=7.8. Excellent question review at both sizes, with explicit editing and source-supported Save/Cancel focus return. Adds a step to the central writing task and removes the visible person-change action. Components: review text [9,8,8,8,null,8]; Edit question [8,8,8,8,8,8]; edit/save/cancel flow [8,8,8,8,8,8]; submit [8,8,8,8,7,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 5, "surfaces": 7, "clarity": 6, "feedback": 6, "accessibility": 5},
+      "finding": "A=6.0, F=5.7, overall=5.8. Strong reveal atmosphere, weak check-in priority. The orb and oversized centered headline displace outcomes; at 200%, even the headline is not fully visible and its long word breaks awkwardly. Share is more prominent than recording an outcome. Components: decorative orb [5,null,8,null,null,null]; headline/context [6,4,7,7,null,5]; outcome options [6,7,7,7,6,5]; Why/Share [7,7,8,8,6,6]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Best for check-in: compact forecast context leads directly into the outcome task, with secondary actions below. Large text requires scrolling but preserves a sensible reading order. Source supports pressed state, a checkmark and a local-only status announcement. 'Save how this forecast turned out' still overstates the prototype's capability. Components: context [9,8,8,9,null,8]; outcome options [9,8,8,9,7,8]; Why/Share [8,8,8,8,6,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Clean forecast presentation at both sizes, but check-in requires changing tabs. Source rerenders the tab buttons without restoring focus and recreates outcomes as unselected when returning to Check-in. This weakens keyboard continuity and local selection continuity. Components: tabs [8,8,8,7,5,6]; forecast/context [8,8,8,8,null,8]; outcome options [8,8,8,8,6,7]; Why/Share [8,8,8,8,6,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A=7.7, F=7.3, overall=7.5. Forecast and check-in coexist without tab switching. However, the full headline, date, disclosure title and repeated task heading delay outcomes substantially at 200%. Why/Share are concealed behind a vague secondary disclosure. Components: forecast/context [8,8,8,8,null,8]; outcome disclosure [7,8,8,8,7,7]; outcome options [8,8,8,8,7,8]; More details [6,8,8,6,7,7]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 6, "accessibility": 6},
+      "finding": "A=7.0, F=6.7, overall=6.8. Best visible category descriptions: counts and explanatory subtitles help users choose. But the repeated forecast consumes most of the enlarged view, pushing categories and return navigation down. Components: forecast/context [6,6,7,8,null,6]; category rows [8,8,7,9,6,7]; Back to forecast [6,7,7,8,6,6]. Baseline reader and navigation behavior were not independently observed."
+    },
+    {
+      "screen": "evidence",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.3, F=7.3, overall=7.7. Best navigation composition: return action and all four categories remain visible at 200%, while forecast context is available through disclosure. Loses the baseline's useful descriptions and counts. Category buttons announce placeholder responses rather than opening readers; no completed evidence-reading task is credited. Components: category index [9,8,8,8,6,8]; forecast disclosure [8,8,8,8,8,8]; return action [8,8,8,9,6,8]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "B",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 4, "accessibility": 6},
+      "finding": "A=7.0, F=5.0, weighted overall=5.8; gated overall=4.0 for broken category switching. At 200%, wrapped tabs become a tall menu ahead of the reader. Source category handlers announce a response but never update the active tab or reader heading: selecting Assumptions leaves Why this forecast selected and displayed. This is a navigation defect independent of placeholder content. Components: tabs [5,6,8,4,3,5]; forecast disclosure [8,8,8,8,8,8]; placeholder reader [6,7,8,5,null,7]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "finding": "A=7.0, F=7.0, overall=7.0. Continuous sections and real document anchors offer straightforward browsing without category switching. At 200%, the two-column navigation splits 'Assumptions' midword and consumes substantial space. Long real evidence could make the bottom return action expensive to reach. Components: anchor navigation [7,5,8,8,7,5]; section headings/body [8,8,8,8,null,8]; return action [6,8,8,8,6,7]. Placeholder brevity is not credited as real evidence readability."
+    }
+  ],
+  "composeWinner": "A",
+  "forecastWinner": "A",
+  "evidenceWinner": "A",
+  "reason": "A wins each specified task through direct ordering and better enlarged-text layouts, for different reasons: immediate writing/submission, immediate check-in, and immediate category navigation. C offers stronger explicit editing recovery; baseline evidence offers richer category cues. None meets the authorized all-screen/all-component A>=9 and F>=9 threshold. Component vectors use [hierarchy, typography, surfaces, clarity, feedback, accessibility]; null denotes an inapplicable component dimension. Screen scores combine normal and 200% observations without averaging away enlargement defects.",
+  "limitations": [
+    "Inspected only the six attached sheets, checks.json and the permitted prototype HTML. No prior ratings, other graders, implementation changes or delegation.",
+    "Grades are provisional screenshot and source assessments, not a fresh browser interaction certification. Baseline feedback scores concern visible affordances only; runtime recovery remains unverified.",
+    "checks.json establishes no horizontal overflow for 18 alternative captures. It does not establish absence of internal clipping, vertical obstruction, keyboard problems or inaccessible content.",
+    "Prototype feedback receives credit only for implemented local announcements, selection, disclosure and editing behavior. Inference, eligibility, persistence, actual readers and sharing receive no functional credit.",
+    "The evidence B gate concerns its implemented category-control mismatch, not its intentionally absent real evidence. Other below-viewport content is not assumed unreachable from a screenshot alone.",
+    "Empty/loading/error states, representative long content, browser assistive technology and full keyboard traversal are not demonstrated by these materials. Source focus styles and minimum sizes provide partial evidence only.",
+    "Reported baseline engine, contrast, reduced-motion and performance checks were not independently inspected and were not transferred to alternatives. Physical iPhone, VoiceOver and native behavior remain separate and uncertified.",
+    "No modal is shown. Decorative orb typography and task behavior, and feedback for static text, are genuinely inapplicable."
+  ]
+}
+tokens used
+38,493
+{
+  "comparisons": [
+    {
+      "screen": "compose",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 6, "accessibility": 6},
+      "finding": "A=7.0, F=6.7, overall=6.8. Clear labeled editor and strong submission button. At 200%, the disclosure pushes submission below the captured viewport; reachability is unverified. Orb and atmospheric background add identity but compete with writing. Components [H,T,S,C,Fb,Ac]: editor [8,7,7,8,6,7]; person control [7,7,7,7,6,6]; submit [8,8,8,8,6,6]; decorative orb [6, null,7,null,null,null]."
+    },
+    {
+      "screen": "compose",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Best composition: context, labeled question and submission form a short, coherent sequence at both sizes. The underline makes the editor less obvious than the baseline box, but its label compensates. Source provides expansion, focus styling and a truthful preview announcement; no inference behavior is credited. Components: editor [9,8,8,9,7,8]; context/change [8,8,8,9,6,8]; submit [9,8,8,9,7,8]."
+    },
+    {
+      "screen": "compose",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 5},
+      "finding": "A=7.0, F=6.3, overall=6.6. Generous writing space at normal size becomes a visibly clipped question at 200%. No horizontal overflow does not establish that the editor displays its content adequately. Sticky submission is prominent, but the distant person context weakens the sequence. Components: editor [7,5,8,6,7,5]; context/change [6,7,8,7,6,7]; submission dock [8,8,8,8,7,7]. Internal scrolling and keyboard obstruction remain unverified."
+    },
+    {
+      "screen": "compose",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 8, "accessibility": 8},
+      "finding": "A=8.0, F=7.7, overall=7.8. Excellent question review at both sizes, with explicit editing and source-supported Save/Cancel focus return. Adds a step to the central writing task and removes the visible person-change action. Components: review text [9,8,8,8,null,8]; Edit question [8,8,8,8,8,8]; edit/save/cancel flow [8,8,8,8,8,8]; submit [8,8,8,8,7,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 6, "typography": 5, "surfaces": 7, "clarity": 6, "feedback": 6, "accessibility": 5},
+      "finding": "A=6.0, F=5.7, overall=5.8. Strong reveal atmosphere, weak check-in priority. The orb and oversized centered headline displace outcomes; at 200%, even the headline is not fully visible and its long word breaks awkwardly. Share is more prominent than recording an outcome. Components: decorative orb [5,null,8,null,null,null]; headline/context [6,4,7,7,null,5]; outcome options [6,7,7,7,6,5]; Why/Share [7,7,8,8,6,6]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 7, "accessibility": 8},
+      "finding": "A=8.3, F=8.0, overall=8.1. Best for check-in: compact forecast context leads directly into the outcome task, with secondary actions below. Large text requires scrolling but preserves a sensible reading order. Source supports pressed state, a checkmark and a local-only status announcement. 'Save how this forecast turned out' still overstates the prototype's capability. Components: context [9,8,8,9,null,8]; outcome options [9,8,8,9,7,8]; Why/Share [8,8,8,8,6,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 6, "accessibility": 7},
+      "finding": "A=8.0, F=6.7, overall=7.2. Clean forecast presentation at both sizes, but check-in requires changing tabs. Source rerenders the tab buttons without restoring focus and recreates outcomes as unselected when returning to Check-in. This weakens keyboard continuity and local selection continuity. Components: tabs [8,8,8,7,5,6]; forecast/context [8,8,8,8,null,8]; outcome options [8,8,8,8,6,7]; Why/Share [8,8,8,8,6,8]."
+    },
+    {
+      "screen": "forecast",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 7},
+      "finding": "A=7.7, F=7.3, overall=7.5. Forecast and check-in coexist without tab switching. However, the full headline, date, disclosure title and repeated task heading delay outcomes substantially at 200%. Why/Share are concealed behind a vague secondary disclosure. Components: forecast/context [8,8,8,8,null,8]; outcome disclosure [7,8,8,8,7,7]; outcome options [8,8,8,8,7,8]; More details [6,8,8,6,7,7]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 7, "clarity": 8, "feedback": 6, "accessibility": 6},
+      "finding": "A=7.0, F=6.7, overall=6.8. Best visible category descriptions: counts and explanatory subtitles help users choose. But the repeated forecast consumes most of the enlarged view, pushing categories and return navigation down. Components: forecast/context [6,6,7,8,null,6]; category rows [8,8,7,9,6,7]; Back to forecast [6,7,7,8,6,6]. Baseline reader and navigation behavior were not independently observed."
+    },
+    {
+      "screen": "evidence",
+      "variant": "A",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 6, "accessibility": 8},
+      "finding": "A=8.3, F=7.3, overall=7.7. Best navigation composition: return action and all four categories remain visible at 200%, while forecast context is available through disclosure. Loses the baseline's useful descriptions and counts. Category buttons announce placeholder responses rather than opening readers; no completed evidence-reading task is credited. Components: category index [9,8,8,8,6,8]; forecast disclosure [8,8,8,8,8,8]; return action [8,8,8,9,6,8]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "B",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 4, "accessibility": 6},
+      "finding": "A=7.0, F=5.0, weighted overall=5.8; gated overall=4.0 for broken category switching. At 200%, wrapped tabs become a tall menu ahead of the reader. Source category handlers announce a response but never update the active tab or reader heading: selecting Assumptions leaves Why this forecast selected and displayed. This is a navigation defect independent of placeholder content. Components: tabs [5,6,8,4,3,5]; forecast disclosure [8,8,8,8,8,8]; placeholder reader [6,7,8,5,null,7]."
+    },
+    {
+      "screen": "evidence",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 6, "surfaces": 8, "clarity": 8, "feedback": 7, "accessibility": 6},
+      "finding": "A=7.0, F=7.0, overall=7.0. Continuous sections and real document anchors offer straightforward browsing without category switching. At 200%, the two-column navigation splits 'Assumptions' midword and consumes substantial space. Long real evidence could make the bottom return action expensive to reach. Components: anchor navigation [7,5,8,8,7,5]; section headings/body [8,8,8,8,null,8]; return action [6,8,8,8,6,7]. Placeholder brevity is not credited as real evidence readability."
+    }
+  ],
+  "composeWinner": "A",
+  "forecastWinner": "A",
+  "evidenceWinner": "A",
+  "reason": "A wins each specified task through direct ordering and better enlarged-text layouts, for different reasons: immediate writing/submission, immediate check-in, and immediate category navigation. C offers stronger explicit editing recovery; baseline evidence offers richer category cues. None meets the authorized all-screen/all-component A>=9 and F>=9 threshold. Component vectors use [hierarchy, typography, surfaces, clarity, feedback, accessibility]; null denotes an inapplicable component dimension. Screen scores combine normal and 200% observations without averaging away enlargement defects.",
+  "limitations": [
+    "Inspected only the six attached sheets, checks.json and the permitted prototype HTML. No prior ratings, other graders, implementation changes or delegation.",
+    "Grades are provisional screenshot and source assessments, not a fresh browser interaction certification. Baseline feedback scores concern visible affordances only; runtime recovery remains unverified.",
+    "checks.json establishes no horizontal overflow for 18 alternative captures. It does not establish absence of internal clipping, vertical obstruction, keyboard problems or inaccessible content.",
+    "Prototype feedback receives credit only for implemented local announcements, selection, disclosure and editing behavior. Inference, eligibility, persistence, actual readers and sharing receive no functional credit.",
+    "The evidence B gate concerns its implemented category-control mismatch, not its intentionally absent real evidence. Other below-viewport content is not assumed unreachable from a screenshot alone.",
+    "Empty/loading/error states, representative long content, browser assistive technology and full keyboard traversal are not demonstrated by these materials. Source focus styles and minimum sizes provide partial evidence only.",
+    "Reported baseline engine, contrast, reduced-motion and performance checks were not independently inspected and were not transferred to alternatives. Physical iPhone, VoiceOver and native behavior remain separate and uncertified.",
+    "No modal is shown. Decorative orb typography and task behavior, and feedback for static text, are genuinely inapplicable."
+  ]
+}
