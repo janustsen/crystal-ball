@@ -80,8 +80,9 @@ export function inferFacts(question:string,topic:Topic):Facts {
  const provided:Facts={};
  const years=q.match(/(?:in|over|next)\s+(\d+)\s+years?/);
  const months=q.match(/(?:in|within|next)\s+(\d+)\s+months?/);
+ const calendarYear=q.match(/\b(?:this|next) year\b/);
  if(topic==='money'&&years)provided.years=years[1];
- if(topic==='learning'){provided.learning_target=learningTarget(question).target;if(months)provided.deadline=`In ${months[1]} month${months[1]==='1'?'':'s'}`;else if(years)provided.deadline=`In ${years[1]} year${years[1]==='1'?'':'s'}`;else if(/this year|next year/.test(q))provided.deadline='In 1 year';}
+ if(topic==='learning'){provided.learning_target=learningTarget(question).target;if(months)provided.deadline=`In ${months[1]} month${months[1]==='1'?'':'s'}`;else if(years)provided.deadline=`In ${years[1]} year${years[1]==='1'?'':'s'}`;else if(calendarYear)provided.deadline=calendarYear[0];}
  if(topic==='general'){const horizon=q.match(/\b(?:this|next) (?:year|month|week)|\b(?:in|within) \d+ (?:years?|months?|weeks?)|\bby 20\d{2}/)?.[0];if(horizon)provided.horizon=horizon;}
  if(topic==='sports'){const edition=q.match(/\b20\d{2}\b/)?.[0];if(edition)provided.edition=edition;if(/nba/.test(q))provided.competition='NBA championship';else if(/women.*world cup/.test(q))provided.competition='Women’s World Cup';else if(/men.*world cup/.test(q))provided.competition='Men’s World Cup';const team=question.match(/\b(Lakers|Celtics|Thunder|Argentina|Spain|Brazil|France)\b/i)?.[0];if(team)provided.team=team[0].toUpperCase()+team.slice(1).toLowerCase();}
  return provided;

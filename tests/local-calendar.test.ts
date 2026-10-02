@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateAnswer,validateFact} from '../src/questions.ts';
+import {inferFacts,validateAnswer,validateFact} from '../src/questions.ts';
 import {forecastDueDate} from '../src/due-date.ts';
 import {request} from '../src/api.ts';
 import {handler} from '../server/handler.ts';
+import {makePlan,predict} from '../server/engine.ts';
+import {validatedProvider} from '../server/provider.ts';
 import type {Prediction} from '../src/types.ts';
 
 test('answer validation and forecast generation share the local year boundary',async t=>{
@@ -43,4 +45,40 @@ test('answer validation and forecast generation share the local year boundary',a
    }
   }
  }finally{globalThis.fetch=originalFetch;if(oldTZ===undefined)delete process.env.TZ;else process.env.TZ=oldTZ;}
+});
+
+
+test('learning calendar years survive planning and typed or general forecasts',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-10-01T12:00:00Z')});
+ const known={learning_target:'Spanish',level:'Intermediate',practice:'20 minutes',conversation:'Weekly'};
+ const model=validatedProvider(async(messages)=>{
+  const input=JSON.parse(messages[1].content);
+  return JSON.stringify(input.choices?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Regular practice continues.'}):{category:'allow'});
+ });
+ for(const [phrase,deadline,expected] of [
+  ['this year','this year','2026-12-31'],
+  ['next year','next year','2027-12-31'],
+  ['in a year','In 1 year','2027-10-01'],
+  ['in six months','In 6 months','2027-04-01'],
+ ]){
+  const question=`Will I learn Spanish ${phrase}?`,horizon=deadline.toLowerCase();
+  const plan=await makePlan(question,known,model);
+  assert.equal(plan.kind,'ok',JSON.stringify(plan));
+  if(plan.kind==='ok'){
+   assert.equal(plan.value.topic,'learning');
+   assert.equal(plan.value.provided.deadline,deadline);
+   assert.ok(!plan.value.cards.some(card=>card.id==='deadline'));
+  }
+  assert.equal(inferFacts(question,'general').horizon,horizon);
+  assert.doesNotThrow(()=>validateAnswer('learning','deadline',deadline));
+  for(const facts of [known,{context_1:'Daily practice'}]){
+   const result=await predict(question,facts,false,model,{localDate:'2026-10-01'});
+   assert.equal(result.kind,'ok',JSON.stringify(result));
+   if(result.kind==='ok'){
+    assert.equal(result.value.dueDate,expected);
+    assert.equal(result.value.facts.horizon,horizon);
+    assert.ok(result.value.headline.endsWith(`${horizon}.`),result.value.headline);
+   }
+  }
+ }
 });
