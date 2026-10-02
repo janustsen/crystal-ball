@@ -62,7 +62,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    <Txt display>A sky full of what-ifs.</Txt>
    <View style={styles.row}><Txt>My school</Txt><Switch accessibilityLabel="My school" value={schoolOnly} disabled={!data?.profile?.school_id} onValueChange={setSchoolOnly}/></View>
    <Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>
-   <View testID="tonights-sky" style={{minHeight:state.largeText?0:380,marginVertical:20,borderRadius:22,backgroundColor:'#150F0A',borderWidth:2,borderColor:colors.outline,boxShadow:'0 6px 0 rgba(0,0,0,.5), inset 0 0 0 1px rgba(224,164,88,.3), inset 0 3px 0 rgba(0,0,0,.45)',padding:state.largeText?16:0}}>
+   <View testID="tonights-sky" style={{minHeight:state.largeText?0:240,marginVertical:16,backgroundColor:'transparent',padding:state.largeText?8:0}}>
     {templates.map(([key,prompt])=>{
      const live=stars.filter(star=>star.theme===key),points=live.length?live:schoolOnly?[]:sampleStars.filter(star=>star.theme===key);
      return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>

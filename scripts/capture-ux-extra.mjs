@@ -1,0 +1,13 @@
+import {chromium,expect} from '@playwright/test';
+const round=process.argv[2],base=process.env.PREVIEW_URL||'http://localhost:8098';
+if(!/^docs\/ux-loop\/round-\d+$/.test(round||''))throw new Error('Pass round path');
+const browser=await chromium.launch({channel:'chrome',headless:true});
+try{
+ const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ await page.goto(base);await page.getByTestId('tab-sky').click();await page.getByTestId('social-section-circles').click();await page.waitForTimeout(1600);await page.screenshot({path:`${round}/screens/circles-offline.png`});
+ await page.getByTestId('tab-you').click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).scrollIntoViewIfNeeded();await page.waitForTimeout(800);await page.screenshot({path:`${round}/screens/settings-controls.png`});
+ await page.getByRole('switch',{name:'Large text',exact:true}).click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).scrollIntoViewIfNeeded();await page.waitForTimeout(400);await page.screenshot({path:`${round}/screens/settings-controls-large.png`});
+ // Deliberate list-stress fixture, not real readings or a model-quality claim.
+ await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));state.largeText=false;state.history=Array.from({length:20},(_,i)=>({id:`stress-${i}`,question:'Will I make time to practise Spanish with a friend every week?',headline:'By spring you may feel more at home in a new conversation.',createdAt:new Date(Date.now()-i*86400000).toISOString(),label:'Speculative · layout fixture',why:'Fixture only',facts:{},sources:[],assumptions:[],friend:false}));localStorage.setItem('crystal-ball-v1',JSON.stringify(state))});
+ await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('Saved on this device.')).toBeVisible();await page.waitForTimeout(800);await page.screenshot({path:`${round}/screens/history-stress.png`});
+}finally{await browser.close()}

@@ -9,9 +9,13 @@ const longFact='I practise with a conversation partner after work and review dif
 const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
 const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
 const browser=await chromium.launch({channel:'chrome',headless:true});
-const failures=[],checked=[];
+const failures=[],checked=[],controls=[];
 async function audit(page,width,name,marker,delay=1300){
  await expect(marker).toBeVisible();
+ if(process.env.UX_CAPTURE&&width===390&&!name.endsWith('-large')){
+  await page.screenshot({path:`${evidence}/${name}-transition.png`});
+  controls.push({name,targets:await page.locator('[role=button],[role=tab],[role=radio],[role=switch],input,textarea').evaluateAll(elements=>elements.map(el=>{const r=el.getBoundingClientRect();return {role:el.getAttribute('role'),label:el.getAttribute('aria-label')||el.textContent?.slice(0,80),width:r.width,height:r.height}}))});
+ }
  await page.waitForTimeout(delay);
  const bad=await marker.evaluate(marker=>{
   if(!marker.isConnected||!marker.getBoundingClientRect().height)throw new Error('Expected screen disappeared before measurement');
@@ -100,6 +104,7 @@ for(const width of [360,390,430])for(const large of [false,true]){
 }
 }finally{
  await browser.close();
+ await writeFile(`${evidence}/controls.json`,JSON.stringify(controls,null,1));
  await writeFile(`${evidence}/layout.json`,JSON.stringify({base,fixture:'Synthetic engine layout replies; no model or predictive-accuracy claim.',checked,failures},null,1)+'\n');
 }
 console.log(JSON.stringify({checked:checked.length,failures},null,1));
