@@ -23,7 +23,7 @@ try{
    await page.getByTestId(accept?'confirm-age':'decline-age').click();
    await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).onboardingBlocked)).toBe(!accept);
    await page.reload();
-   if(!accept){await expect(page.getByTestId('skip-for-now')).toBeDisabled();await expect(page.getByTestId('tab-ask')).toHaveCount(0);expect(requests).toHaveLength(0);}
+   if(!accept){await expect(page.getByTestId('age-restriction')).toBeVisible();await expect(page.getByTestId('skip-for-now')).toHaveCount(0);await expect(page.getByTestId('tab-ask')).toHaveCount(0);expect(requests).toHaveLength(0);}
    else{
     const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
     expect(saved.ageConfirmed).toBe(true);expect(saved.ageBand).toBe('teen');expect(saved.sunSign).toBeNull();expect(saved.birthday).toBeUndefined();expect(saved.onboardingDone).toBe(true);

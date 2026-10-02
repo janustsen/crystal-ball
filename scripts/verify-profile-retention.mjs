@@ -2,7 +2,7 @@ import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 const base=process.env.VERIFY_URL||'http://localhost:8087';
-const evidence=`.local/profile-retention-${Date.now()}`;await mkdir(evidence,{recursive:true});
+const evidence=process.env.DESIGN_EVIDENCE||`.local/profile-retention-${Date.now()}`;await mkdir(evidence,{recursive:true});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const context=await browser.newContext({httpCredentials,timezoneId:'America/Los_Angeles',viewport:{width:390,height:844}});
 const page=await context.newPage(),requests=[],log=[];
@@ -20,7 +20,7 @@ try{
  await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));Object.assign(state,{birthTime:'14:30',birthPlace:'Copenhagen',moonSign:'aries',risingSign:'leo',history:[{id:'birthday-fixture',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-01T12:00:00Z',label:'Speculative',why:'Practice continues.',facts:{birthday:'1995-06-15',level:'Beginner'},sources:[],assumptions:[],friend:false}]});localStorage.setItem('crystal-ball-v1',JSON.stringify(state));}); // test fixture, no user-controlled data; nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
  await page.reload();await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await page.getByTestId('save-birthday').click();
  await expect(page.getByText('aries Moon · leo rising')).toBeVisible();expect((await stored()).birthTime).toBe('14:30');
- await page.getByTestId('edit-birthday').click();await page.getByTestId('forget-birthday').click();
+ await page.getByTestId('edit-birthday').click();await page.getByTestId('remove-birthday-options').click();await page.getByTestId('forget-birthday').click();
  await expect(page.getByText('Your Sun sign is a mystery')).toBeVisible();
  await expect.poll(async()=> (await stored()).birthday).toBeUndefined();
  for(const reload of [false,true]){

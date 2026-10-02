@@ -61,12 +61,12 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
- await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await page.reload();await page.getByTestId('onboarding-birthday').fill('1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('learning-growth');await check('onboarding-focus-selected',page.getByTestId('learning-growth'));await tap('skip-for-now');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
+ await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await tap('decline-age');await check('onboarding-blocked',page.getByTestId('age-restriction'));await tap('correct-birthday');await check('onboarding-correction',page.getByTestId('age-correction-heading'));await page.getByTestId('onboarding-birthday').fill('1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('learning-growth');await check('onboarding-focus-selected',page.getByTestId('learning-growth'));await tap('meet-the-ball');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
  await tap('tab-you');await check('you',text('What the Ball remembers'));
- await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday YYYY-MM-DD'}));await tap('close-birthday');await tap('add-birth-time-and-place');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');
+ await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday YYYY-MM-DD'}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');

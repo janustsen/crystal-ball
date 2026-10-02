@@ -65,7 +65,7 @@ Run `VERIFY_URL=http://localhost:8092 node scripts/drive-reading-flow.mjs`, `VER
 
 ## Age confirmation (captain decision, 2026-10-01)
 
-Before a reading, users without a birthday must choose “I’m 13 or older” after Skip. This includes friend links and legacy profiles. Declining remains blocked after reload. Confirmed skippers have teen-safe defaults and no Sun sign. Birthday and focus remain optional; global sensitive-topic redirects still apply to adults.
+Before a reading, users without a birthday must choose “I’m 13 or older” after Skip. This includes friend links and legacy profiles. Declining opens a dedicated age-restriction state and remains blocked after reload. Correct my birthday opens validation; blocked users have no Skip path. You’s birthday editor isolates save/cancel and puts removal behind Remove birthday. scripts/check-age-editor.mjs covers correction, invalid input, cancellation, persistence and focus at both text sizes. Confirmed skippers have teen-safe defaults and no Sun sign. Birthday and focus remain optional; global sensitive-topic redirects still apply to adults.
 
 Run `VERIFY_URL=http://localhost:8092 node scripts/verify-age-confirmation.mjs` for fresh/friend/legacy confirmation, decline, reload and friend-reading persistence. This driver explicitly fixtures the engine boundary and saves uniquely named success/failure evidence; it does not replace live Qwen proof. Then run the existing live reading-flow/extras and migration drivers, updated for confirmation. The owning pipeline runs `npm run check`, `npm test` and native export. Browser success does not verify native storage, accessibility or sharing; physical-device checks remain unavailable in this review phase.
 
