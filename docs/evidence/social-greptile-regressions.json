@@ -1,0 +1,22 @@
+{
+  "sqlBefore": "FAIL: statement was allowed: select public.resonate('1d193df9-2b43-4759-86db-b1c1b60000a1')\nCONTEXT:  PL/pgSQL function proof.reject(text,text) line 8 at RAISE",
+  "sqlAfter": "PASS: SQL privacy invariants; real PostgreSQL RLS and concurrent claims",
+  "invitationBefore": "AssertionError: join-this-circle: invitation reappeared on remount (1 !== 0)",
+  "invitationAfter": {
+    "results": [
+      {
+        "action": "join-this-circle",
+        "remount": true,
+        "reload": true,
+        "routeConsumed": true
+      },
+      {
+        "action": "decline-invitation",
+        "remount": true,
+        "reload": true,
+        "routeConsumed": true
+      }
+    ]
+  },
+  "boundary": "Disposable actual PostgreSQL policies; simulated local Auth/PostgREST; isolated Playwright Chrome with real app; no native verification"
+}

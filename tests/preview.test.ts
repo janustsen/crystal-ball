@@ -53,7 +53,7 @@ test('preview refuses unauthenticated engine calls and protects the injected-key
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
  const address=server.address() as {port:number},base=`http://127.0.0.1:${address.port}`;
  try{
-  for(const path of ['/engine','/engine/share']){
+  for(const path of ['/engine','/engine/share','/engine/social']){
    assert.equal((await fetch(base+path,{method:'POST',body:'{}'})).status,401);
    assert.equal((await fetch(base+path,{method:'POST',headers:{origin:base},body:'{}'})).status,401);
    assert.equal((await fetch(base+path,{method:'POST',headers:{'x-preview-token':secret},body:'{}'})).status,401);
@@ -64,6 +64,10 @@ test('preview refuses unauthenticated engine calls and protects the injected-key
   assert.equal(authenticated.status,200);assert.equal(await authenticated.text(),'private client bundle');
   assert.equal((await fetch(base+'/engine',{headers:{'x-preview-token':secret,origin:base}})).status,405);
   assert.equal((await fetch(base+'/engine',{method:'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'},body:'{}'})).status,403);
+  for(const path of ['/engine','/engine/share','/engine/social','/engine/health']){
+   assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'POST':'GET',headers:{'x-preview-token':secret,origin:base}})).status,405);
+   assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'GET':'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'}})).status,403);
+  }
   assert.equal((await fetch(base+'/',{headers:{authorization:'é'.repeat(94)}})).status,401);
  }finally{await new Promise<void>(resolve=>server.close(()=>resolve()))}
 });
@@ -71,4 +75,31 @@ test('preview fails closed without startup secret',async()=>{
  const server=createServer(bridge((_req:any,res:any)=>res.end('not public'),undefined));
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
  try{assert.equal((await fetch(`http://127.0.0.1:${(server.address() as {port:number}).port}/`)).status,401)}finally{await new Promise<void>(resolve=>server.close(()=>resolve()))}
+});
+
+test('preview routes every engine endpoint to ENGINE_PORT and forwards social identity',async()=>{
+ const secret=randomBytes(32).toString('hex'),previousPort=process.env.ENGINE_PORT;
+ const upstream=createServer(async(req,res)=>{
+  let body='';for await(const chunk of req)body+=chunk;
+  res.writeHead(202,{'content-type':'application/json'});
+  res.end(JSON.stringify({path:req.url,method:req.method,authorization:req.headers.authorization??null,previewToken:req.headers['x-preview-token']??null,body}));
+ });
+ const server=createServer(bridge((_req:any,res:any)=>res.end('bundle'),secret));
+ await new Promise<void>(resolve=>upstream.listen(0,'127.0.0.1',resolve));
+ process.env.ENGINE_PORT=String((upstream.address() as {port:number}).port);
+ try{
+  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
+  for(const [path,target] of [['/engine','/'],['/engine/share','/share'],['/engine/social','/social'],['/engine/health','/health']]){
+   const method=target==='/health'?'GET':'POST',body=method==='POST'?'{"action":"profile"}':undefined;
+   for(const authorization of [undefined,'Bearer social-user']){
+    const response=await fetch(base+path,{method,headers:{'x-preview-token':secret,origin:base,...(authorization?{authorization}:{})},body});
+    assert.equal(response.status,202);
+    assert.deepEqual(await response.json(),{path:target,method,authorization:authorization??null,previewToken:null,body:body??''});
+   }
+  }
+ }finally{
+  if(previousPort===undefined)delete process.env.ENGINE_PORT;else process.env.ENGINE_PORT=previousPort;
+  await Promise.all([new Promise<void>(resolve=>server.close(()=>resolve())),new Promise<void>(resolve=>upstream.close(()=>resolve()))]);
+ }
 });

@@ -10,7 +10,7 @@ All images here are **listing marketing screens**, not installed-app onboarding,
 | Same, overall | Consistent monochrome editorial identity | Crystal Ball should be equally consistent, but use the brief's cosmic palette. |
 | [Pattern](evidence/pattern.jpeg), preview 1 | Layered cards around a personal home screen | Too many independent cards could overwhelm our one-purpose app; give Ask visual priority. |
 | Same, preview 2 | Two portraits and a strong relationship-result banner | Make the outcome easy to scan; do not copy relationship certainty claims. |
-| Same, preview 3 | Community comments and avatars around shared experiences | Seeded Explore should be labeled editorial examples; do not simulate an audience. |
+| Same, preview 3 | Community comments and avatars around shared experiences | Follow the [social boundary](../social/model.md) for sample-star labeling; do not simulate an audience. |
 | [Nebula](evidence/nebula.jpeg), preview 1 | Orbit motif connects several guidance categories | Borrow cosmic coherence, avoid adding unrelated capabilities. |
 | Same, preview 2 | Daily focus chips and content categories | Use suggested questions to make the empty input approachable. |
 | Same, preview 3 | Compatibility panel sits over the main screen | Reveal can be a focused layer with a clear return path. |

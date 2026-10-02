@@ -1,0 +1,73 @@
+// Local verification adapter only. Real migrations/RLS, simulated Auth/PostgREST.
+// Started by SOCIAL_DB_SERVE=1 bash scripts/verify-social-db.sh; never deployed.
+import {createServer} from 'node:http';
+import {randomUUID} from 'node:crypto';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+const exec=promisify(execFile),sessions=new Map();
+const quote=value=>value===null?'null':`'${String(value).replaceAll("'","''")}'`;
+const functions={tonights_sky:[],publish_star:['approved_draft'],resonate:['star'],create_circle:[],invite_to_circle:['target'],join_circle:['invite'],leave_circle:['target'],circle_checkin:['activity_theme'],react_in_circle:['target_circle','target_member'],seal_forecast:['approved_draft'],open_forecast:['seal'],circle_people:[],report_star:['star'],block_person:['star','member'],set_friend_consent:['allowed'],authorize_friend_reading:['viewer','target_circle','target_member'],dismiss_friend_notices:[],revoke_forecast:['card'],withdraw_star:['star'],sync_social_profile:['viewer','band','sign','mock_plus']};
+const columns={circles:'id,owner_id',circle_members:'circle_id,user_id,joined_at,consulted_on,theme',circle_reactions:'circle_id,target_id,user_id,day',sealed_forecasts:'id,headline,token,opened_at',sky_stars:'id,theme,wording,day',social_profiles:'user_id,age_band,sun_sign,friends_can_ask,plus',friend_notices:'id,day,seen',social_drafts:'id,user_id,kind,wording,theme'};
+
+async function sql(statement,uid){
+ const auth=uid==='service'?'set local role service_role;':uid?`set local role authenticated; select set_config('request.jwt.claim.sub',${quote(uid)},true);`:'';
+ const {stdout}=await exec(`${process.env.PG_BIN}/psql`,['-X','-At','-v','ON_ERROR_STOP=1','-c',`begin; ${auth} ${statement}; commit;`]);
+ const lines=stdout.trim().split('\n').filter(line=>!['BEGIN','SET','COMMIT',uid].includes(line));
+ return lines.length?JSON.parse(lines.at(-1)):null;
+}
+function session(uid){
+ const user={id:uid,aud:'authenticated',role:'authenticated',is_anonymous:true,app_metadata:{provider:'anonymous',providers:[]},user_metadata:{},created_at:new Date().toISOString()};
+ const header=Buffer.from(JSON.stringify({alg:'none',typ:'JWT'})).toString('base64url');
+ const claims=Buffer.from(JSON.stringify({sub:uid,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url');
+ const access_token=`${header}.${claims}.verification-only`,refresh_token=randomUUID();
+ const result={access_token,refresh_token,token_type:'bearer',expires_in:3600,user};
+ sessions.set(access_token,result);sessions.set(refresh_token,result);return result;
+}
+const server=createServer(async(req,res)=>{
+ const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':'http://localhost:8095','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version,prefer,accept-profile,content-profile','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS'};
+ if(req.method==='OPTIONS'){res.writeHead(204,headers);res.end();return;}
+ try{
+  const url=new URL(req.url,'http://127.0.0.1:55329');
+  const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>20000)throw new Error('Too large');chunks.push(chunk)}
+  const body=chunks.length?JSON.parse(Buffer.concat(chunks).toString()):{};
+  let result;
+  if(url.pathname==='/auth/v1/signup'&&req.method==='POST'){
+   const uid=randomUUID();await sql(`insert into auth.users values(${quote(uid)}); select 'null'::json`);result=session(uid);
+  }else if(url.pathname==='/auth/v1/token'&&req.method==='POST'){
+   const old=sessions.get(body.refresh_token);if(!old)throw new Error('Unknown fixture session');result=session(old.user.id);
+  }else{
+   const bearer=req.headers.authorization?.replace(/^Bearer /i,'');
+   const service=bearer==='verification-service-only';
+   const current=sessions.get(bearer);
+   if(!current&&!service)throw new Error('Unknown fixture session');
+   const uid=service?'service':current.user.id;
+   if(url.pathname==='/auth/v1/user')result=current?.user;
+   else if(url.pathname.startsWith('/rest/v1/rpc/')&&req.method==='POST'){
+    const name=url.pathname.split('/').at(-1),args=functions[name];if(!args)throw new Error('Unsupported fixture RPC');
+    const call=`public.${name}(${args.map(key=>quote(body[key]??null)).join(',')})`;
+    result=await sql(['tonights_sky','circle_people'].includes(name)?`select coalesce(jsonb_agg(q),'[]') from ${call} q`:`select coalesce(to_jsonb(${call}),'null'::jsonb)`,uid);
+   }else{
+    const table=url.pathname.split('/').at(-1);if(!Object.hasOwn(columns,table))throw new Error('Unsupported fixture table');
+    const filters=[];
+    for(const [key,value] of url.searchParams){
+     if(['id','user_id','day','expires_at','revoked','withdrawn','seen'].includes(key)){
+      const op=value.startsWith('eq.')?'=':value.startsWith('gt.')?'>':null;
+      if(!op)throw new Error('Unsupported filter');filters.push(`${key}${op}${quote(value.slice(3))}`);
+     }
+    }
+    const where=filters.length?`where ${filters.join(' and ')}`:'';
+    if(req.method==='POST'&&service&&table==='social_drafts'){
+     const keys=['user_id','kind','wording','theme'];
+     result=await sql(`with inserted as (insert into public.social_drafts(${keys.join(',')}) values(${keys.map(key=>quote(body[key])).join(',')}) returning *) select jsonb_agg(inserted) from inserted`,uid);
+    }else if(req.method==='DELETE'&&['sky_stars','sealed_forecasts'].includes(table)&&filters.length){
+     result=await sql(`delete from public.${table} ${where}; select 'null'::json`,uid);
+    }else if(req.method==='GET'){
+     const order=table==='circle_members'?'order by joined_at':'';
+     result=await sql(`select coalesce(jsonb_agg(q),'[]') from (select ${columns[table]} from public.${table} ${where} ${order}) q`,uid);
+    }else throw new Error('Unsupported fixture request');
+   }
+  }
+  res.writeHead(200,headers);res.end(JSON.stringify(result));
+ }catch(error){res.writeHead(400,headers);res.end(JSON.stringify({message:String(error.message).split('\n').find(line=>line.includes('ERROR:'))?.replace(/^.*ERROR:\s*/,'')||'Verification transport unavailable',code:'verification'}));}
+});
+server.listen(55329,'127.0.0.1',()=>console.log('Verification-only Auth/PostgREST adapter: http://127.0.0.1:55329 (real PostgreSQL RLS)'));

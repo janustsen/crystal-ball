@@ -23,7 +23,7 @@ try{
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
  sample('planning-to-question-one','look-into-the-future',2200,'option-0');sample('question-two','option-0');sample('question-three','option-1');sample('thinking-to-reveal','option-1',2200,'share-this-glimpse');
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');
- for(const tab of ['explore','history','you'])sample(tab+'-tab','tab-'+tab);
+ for(const tab of ['sky','history','you'])sample(tab+'-tab','tab-'+tab);
  sample('ask-tab','tab-ask');sample('close-flow','close-flow');sample('ambient-sky',null,45000);
  const samples=evaluate('()=>motionAudit.finish()');writeFileSync(out+'/samples.json',JSON.stringify({url:evaluate('()=>location.href'),viewport:{width:390,height:844},samples},null,2)+'\n');
  writeFileSync(out+'/trace-summary.txt',cli('perf-stop','--file',raw));tracing=false;

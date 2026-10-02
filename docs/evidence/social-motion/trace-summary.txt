@@ -1,0 +1,33 @@
+trace:
+The raw trace data was saved to /Users/janustsen/.treehouse/crystal-ball-6fc41b/5/crystal-ball/.local/motion-audit-1790834936120.json.
+The performance trace has been stopped.
+Emulating viewport: {"deviceScaleFactor":1,"isMobile":true,"hasTouch":true,"isLandscape":false,"width":390,"height":844}
+## Summary of Performance trace findings:
+URL: http://localhost:8095/
+Trace bounds: {min: 73616271676µs, max: 73743904009µs}
+CPU throttling: 1x
+Network throttling: none
+
+# Available insight sets
+
+The following is a list of insight sets. An insight set covers a specific part of the trace, split by navigations. The insights within each insight set are specific to that part of the trace. Be sure to consider the insight set id and bounds when calling functions. If no specific insight set or navigation is mentioned, assume the user is referring to the first one.
+
+## insight set id: NO_NAVIGATION
+
+URL: http://localhost:8095/
+Bounds: {min: 73616271676µs, max: 73743904009µs}
+Metrics (lab / observed):
+  - CLS: 0.00, event: (eventKey: s-316057, ts: 73674445005)
+Metrics (field / real users): n/a – no data for this page in CrUX
+Available insights:
+  - insight name: CLSCulprits
+    description: Layout shifts occur when elements move absent any user interaction. [Investigate the causes of layout shifts](https://developer.chrome.com/docs/performance/insights/cls-culprit), such as elements being added, removed, or their fonts changing as the page loads.
+    relevant trace bounds: {min: 73674445005µs, max: 73675445005µs}
+    example question: Help me optimize my CLS score
+    example question: How can I prevent layout shifts on this page?
+  - insight name: ThirdParties
+    description: 3rd party code can significantly impact load performance. [Reduce and defer loading of 3rd party code](https://developer.chrome.com/docs/performance/insights/third-parties) to prioritize your page’s content.
+    relevant trace bounds: {min: 73656344433µs, max: 73674666614µs}
+    ... (truncated, 7141 chars total)
+help[1]:
+  Run `chrome-devtools-axi perf-insight <set-id> <insight-name>` to analyze insights

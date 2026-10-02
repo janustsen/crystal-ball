@@ -2,9 +2,12 @@ import { makePlan, predict } from './engine.ts';
 import {personalOmen} from './omen.ts';
 import { provider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
+import {socialHandler} from './social.ts';
 export function handler(env:(key:string)=>string|undefined) {
  const model=provider(env),omenModel=provider(env,160);
+ const social=socialHandler(env,model);
  return async(request:Request):Promise<Response>=>{
+  if(new URL(request.url).pathname.endsWith('/social'))return social(request);
   const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':env('APP_ORIGIN')||'http://localhost:8087','Access-Control-Allow-Headers':'content-type, authorization, apikey','Access-Control-Allow-Methods':'POST, OPTIONS'};
   if(request.method==='OPTIONS')return new Response(null,{headers});
   if(request.method!=='POST')return new Response(JSON.stringify({kind:'error',message:'Use POST.'}),{status:405,headers});
