@@ -4,13 +4,21 @@ import type {AccountState} from './types';
 import {validFacts,validPrediction} from './backup';
 const url=process.env.EXPO_PUBLIC_SUPABASE_URL,key=process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 export const supabase=url&&key?createClient(url,key,{auth:{storage:AsyncStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null;
+const pendingOwners=new WeakMap<SupabaseClient,Promise<string>>();
 export async function anonymousOwner(client:SupabaseClient|null=supabase){
  if(!client)return null;
- const {data,error}=await client.auth.getSession();if(error)throw error;
- if(data.session)return data.session.user.id;
- const result=await client.auth.signInAnonymously();
- if(result.error||!result.data.user)throw result.error||new Error('Anonymous session unavailable');
- return result.data.user.id;
+ let pending=pendingOwners.get(client);
+ if(!pending){
+  pending=(async()=>{
+   const {data,error}=await client.auth.getSession();if(error)throw error;
+   if(data.session)return data.session.user.id;
+   const result=await client.auth.signInAnonymously();
+   if(result.error||!result.data.user)throw result.error||new Error('Anonymous session unavailable');
+   return result.data.user.id;
+  })().finally(()=>pendingOwners.delete(client));
+  pendingOwners.set(client,pending);
+ }
+ return pending;
 }
 export async function restoreBackup(state:AccountState,client:SupabaseClient|null=supabase){
  if(!client)return state;

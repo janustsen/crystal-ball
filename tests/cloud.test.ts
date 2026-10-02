@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createClient,type Session} from '@supabase/supabase-js';
-import {mirror,restoreBackup} from '../src/cloud.ts';
+import {anonymousOwner,mirror,restoreBackup} from '../src/cloud.ts';
 import type {AccountState} from '../src/types.ts';
 const empty:AccountState={facts:{},history:[],credits:5,plus:false,usage:{day:'2026-09-30',count:0},reduceMotion:false,largeText:false};
 const reading={id:'12345678-1234-1234-1234-123456789abc',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-30T00:00:00Z',label:'Speculative',why:'Practice',facts:{practice:'daily'},sources:[],assumptions:[],friend:false};
@@ -81,4 +81,48 @@ test('missing archive is rejected without changing local data; saved empty archi
  remote.hasArchive=true;remote.facts={};
  const restored=await restoreBackup(local,client);
  assert.deepEqual(restored.history,[]);assert.deepEqual(restored.facts,{});
+});
+
+
+test('concurrent owner requests share signup and observe the subsequent Apple session',async()=>{
+ let signups=0,release!:()=>void,started!:()=>void;
+ const pending=new Promise<void>(resolve=>{release=resolve}),signupStarted=new Promise<void>(resolve=>{started=resolve});
+ const client=createClient('https://identity.invalid','test-key',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async(input)=>{
+  const url=new URL(String(input));
+  if(url.pathname.endsWith('/signup')){signups++;started();await pending;}
+  else assert.equal(url.searchParams.get('grant_type'),'id_token');
+  const apple=url.pathname.endsWith('/token');
+  return Response.json({access_token:'test-token',refresh_token:'test-refresh',expires_in:3600,token_type:'bearer',user:{id:apple?'apple-owner':'anonymous-owner',is_anonymous:!apple}});
+ }}});
+ const owners=Array.from({length:8},()=>anonymousOwner(client));
+ const apple=anonymousOwner(client).then(async owner=>{
+  assert.equal(owner,'anonymous-owner');
+  const result=await client.auth.signInWithIdToken({provider:'apple',token:'test-apple-token'});
+  assert.equal(result.error,null);
+ });
+ await signupStarted;
+ await new Promise<void>(resolve=>setImmediate(resolve));
+ const inFlightSignups=signups;release();
+ assert.deepEqual(await Promise.all(owners),Array(8).fill('anonymous-owner'));
+ await apple;
+ assert.equal(inFlightSignups,1);assert.equal(signups,1);
+ assert.equal(await anonymousOwner(client),'apple-owner');
+ assert.equal(signups,1);
+});
+
+test('failed owner signup is shared then cleared for retry',async()=>{
+ let signups=0;
+ const client=createClient('https://retry-identity.invalid','test-key',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async()=>{
+  signups++;
+  if(signups===1)return Response.json({msg:'Signup unavailable',code:'signup_disabled'},{status:400});
+  return Response.json({access_token:'test-token',refresh_token:'test-refresh',expires_in:3600,token_type:'bearer',user:{id:'retried-owner',is_anonymous:true}});
+ }}});
+ const failures=await Promise.allSettled(Array.from({length:4},()=>anonymousOwner(client)));
+ assert.ok(failures.every(result=>result.status==='rejected'));
+ assert.equal(signups,1);
+ assert.equal(await anonymousOwner(client),'retried-owner');
+ assert.equal(signups,2);
+ assert.equal(await anonymousOwner(client),'retried-owner');
+ assert.equal(signups,2);
+ assert.equal(await anonymousOwner(null),null);
 });
