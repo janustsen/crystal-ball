@@ -1,0 +1,3 @@
+# Expansion32 selection
+
+Both blind reviewers prefer A slightly at full height and C at500px, and explicitly choose C as the coherent overall direction. B adds a review step without resolving the constrained weaknesses. Implement C’s notice-before-field grouping and18/26 sans outlined functional input, four visible lines normally/three below600px, with exact200% scaling. Keep current header and ordinary scrolling so disclosure/recipient/Close remain reachable; no prototype header clipping transfers. Preserve complete draft, provider consent, identity validation and submit handler. This is a composition selection, not product acceptance.

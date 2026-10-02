@@ -1,0 +1,120 @@
+{
+  "comparisons": [
+    {
+      "screen": "390×844, normal and 200% text",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 6
+      },
+      "finding": "A=7.3, F=7.0, overall=7.1. Direct task with a clear Ask button and adjacent disclosure. The large serif input competes with the action; its doubled outline is visually heavy. At 200%, the question remains readable, but Speak instead clips at the viewport bottom. Component concerns: input typography/spacing 6; secondary-action accessibility 5. Scrolling and focus recovery are not demonstrated."
+    },
+    {
+      "screen": "390×844, normal and 200% text",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "A=8.0, F=7.5, overall=7.7. Best composition at this height. The sans input, restrained outline and clear primary button establish consistent roles. At 200%, the question, complete disclosure, Ask and Speak remain visible. The disclosure separates input from submission, but usefully explains the action immediately before commitment. Component concerns: close glyph has weak visual prominence; its hit area is unverified. The reading count appears unchanged in size between text settings."
+    },
+    {
+      "screen": "390×844, normal and 200% text",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "A=7.7, F=7.0, overall=7.3. Entry repeats Your question as both heading and label and adds a step to a short task. Review is a strong standalone composition: exact question, Edit, full disclosure and Ask remain visible at both text sizes. Review hierarchy and clarity score 8 each. Its benefit is outweighed here by navigation overhead and unproven draft/focus recovery; Edit reloads the prototype."
+    },
+    {
+      "screen": "390×844, normal and 200% text",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "A=8.0, F=7.5, overall=7.7. Question and Ask form a strong contiguous group. At 200%, all task content remains visible, although Speak sits close to the bottom. Moving the disclosure above entry makes the initial scan less direct than A and places more distance between disclosure and commitment. Input and primary-button visual hierarchy score 8 each; close-target and reading-count enlargement concerns remain."
+    },
+    {
+      "screen": "390×500, normal and 200% text",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 5,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 5,
+        "feedback": null,
+        "accessibility": 4
+      },
+      "finding": "A=6.3, F=4.5, overall=5.2. Normal text preserves question, disclosure and Ask, but Speak is absent from the captured viewport. At 200%, bringing Ask into view leaves only the field's bottom edge: neither question nor label is readable alongside submission. Input visibility/accessibility scores 4 in this state. Supplied evidence establishes reachable submission and retained value, so this is a serious context/reflow defect, not evidence of data loss or an unreachable primary action."
+    },
+    {
+      "screen": "390×500, normal and 200% text",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 6
+      },
+      "finding": "A=7.7, F=6.5, overall=7.0. Normal text provides a clean complete composition. At 200%, the full current question, disclosure, Ask and Speak remain visible together, a substantial improvement over baseline. Recipient, field label and close control are outside the captured view. The enlarged disclosure creates a sizeable gap between question and action. Input clarity scores 8 for the visible value, but contextual accessibility scores 6."
+    },
+    {
+      "screen": "390×500, normal and 200% text",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 5
+      },
+      "finding": "A=7.0, F=6.0, overall=6.4. At 200%, entry spends scarce height repeating the heading and label; header content clips and Speak is outside the view. Review restores question/disclosure/submission context, but its close control and reading count clip at the top and Ask reaches the bottom edge. Review clarity scores 8; constrained review accessibility scores 5. The extra screen does not establish a superior constrained flow without proven navigation, focus and draft retention."
+    },
+    {
+      "screen": "390×500, normal and 200% text",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "A=8.0, F=7.5, overall=7.7. Best constrained composition. At 200%, field label, complete current question, Ask and Speak remain visible together. Input/button grouping scores 8 for hierarchy and clarity. The disclosure is partially above the viewport, with recipient and close controls also out of view; disclosure visibility scores 5 in this captured state. This is a tradeoff, not proof of inaccessible disclosure or permission to omit required consent."
+    }
+  ],
+  "normalWinner": "A at 390×844; tied numerically with C, preferred for complete disclosure immediately before Ask.",
+  "constrainedWinner": "C at 390×500; strongest visible question-to-submission context at 200% text.",
+  "reason": "Choose C as the coherent direction overall. It preserves the field label, current question and primary action together in the condition that most exposes baseline's weakness, without B's additional review step. A is slightly better composed at full height. No candidate demonstrates the required browser A≥9 and F≥9 threshold.",
+  "limitations": [
+    "Read-only assessment of attached images and supplied evidence; no implementation, delegation, prior ratings or other graders consulted.",
+    "Each pair's scores cover normal and 200% text, with enlargement defects reflected rather than averaged away. A averages the three aesthetic dimensions; F averages applicable functional dimensions.",
+    "Feedback is null because submission feedback, validation, loading, errors and recovery states are not shown. Baseline's supplied runtime evidence is acknowledged but does not provide state-specific feedback quality for scoring.",
+    "Component observations cover input, primary and secondary actions, header controls, disclosure and B review. Unmentioned component dimensions inherit the pair's visual assessment; interactions remain ungraded. No orb, tabs or modal are shown.",
+    "Static proposals do not establish working submission, persistence, consent, semantic labels, target sizes, keyboard behavior, focus handling or reduced motion. B's displayed review value does not prove retained-draft editing.",
+    "Clipped or offscreen content is a demonstrated visibility defect, but these stills do not establish whether scrolling can recover it. No irreversible loss or inaccessible primary-action hard gate is proven.",
+    "The 500px views are synthetic reduced viewports; surrounding contact-sheet letterboxing is excluded. Physical iPhone, native keyboard and assistive-technology proof remain missing, separately from these provisional browser judgments."
+  ]
+}

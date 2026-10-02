@@ -1,0 +1,102 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "screen": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hierarchy": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "typography": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "surfaces": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "clarity": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "feedback": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "accessibility": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "hierarchy",
+              "typography",
+              "surfaces",
+              "clarity",
+              "feedback",
+              "accessibility"
+            ]
+          },
+          "finding": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "screen",
+          "variant",
+          "dimensions",
+          "finding"
+        ]
+      }
+    },
+    "normalWinner": {
+      "type": "string"
+    },
+    "constrainedWinner": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "comparisons",
+    "normalWinner",
+    "constrainedWinner",
+    "reason",
+    "limitations"
+  ]
+}
