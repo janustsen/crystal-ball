@@ -1,0 +1,10 @@
+[
+  {
+    "largeText": false,
+    "failure": "Error: expect(locator).toBeFocused() failed\n\nLocator:  getByRole('heading', { name: 'What’s on your mind lately?', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeFocused\" getByRole('heading', { name: 'What’s on your mind lately?', exact: true }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'What’s on your mind lately?', exact: true })\n    14 × locator resolved to <h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1\">What’s on your mind lately?</h1>\n       - unexpected value \"inactive\"\n"
+  },
+  {
+    "largeText": true,
+    "failure": "Error: expect(locator).toBeInViewport() failed\n\nLocator:  getByRole('heading', { name: 'What’s on your mind lately?', exact: true })\nExpected: in viewport\nReceived: viewport ratio 0.35648149251937866\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeInViewport\" getByRole('heading', { name: 'What’s on your mind lately?', exact: true }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'What’s on your mind lately?', exact: true })\n    14 × locator resolved to <h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1\">What’s on your mind lately?</h1>\n       - unexpected value \"viewport ratio 0.35648149251937866\"\n"
+  }
+]
