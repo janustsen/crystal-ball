@@ -1,3 +1,4 @@
+import {measureTextContrast} from './measure-text-contrast.mjs';
 import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 // Phone layout proof. Omen copy is a fixture, not a model-quality claim.
 import {chromium,webkit,expect} from '@playwright/test';
@@ -24,7 +25,8 @@ try {
    const navigationClear=!!clip&&!!ask&&clip.getBoundingClientRect().bottom<=ask.top;
    return {navigationClear,omenFits,orbWidth:orb.width,orbCenter:orb.y+orb.height/2,headlineSize:hs.fontSize,headlineLines:hr.height/parseFloat(hs.lineHeight),whisperClear:!!whisper&&(whisper.bottom<=orb.top||whisper.top>=orb.bottom),overflow:document.documentElement.scrollWidth>innerWidth};
   });
-  results.push({width,height,largeText,...metrics});
+  let contrastChecks=0;for(let phase=0;phase<3;phase++){const samples=await measureTextContrast(page);contrastChecks+=samples.length;expect(samples.filter(sample=>sample.contrast<sample.required)).toEqual([]);await page.waitForTimeout(200)}
+  results.push({width,height,largeText,...metrics,contrastChecks});
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}.png`});
   if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||!metrics.navigationClear||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
   await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(250);
