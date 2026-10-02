@@ -11,6 +11,8 @@ const bundle=await build({stdin:{contents:`
  window.mount=()=>{window.store=null;root=createRoot(document.getElementById('root'));root.render(<Store><Probe/></Store>)};
  window.unmount=()=>root.unmount();window.mount();
 `,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.NODE_ENV':'"development"'},plugins:[{name:'backup-boundaries',setup(b){
+ b.onResolve({filter:/^(react-native|\.\/native|\.\/omen-widget)$/},args=>({path:args.path,namespace:'native'}));
+ b.onLoad({filter:/.*/,namespace:'native'},()=>({contents:'export const Alert={alert:()=>{}};export const forgetCheckIns=async()=>{};export const updateOmenWidget=()=>{}'}));
  b.onResolve({filter:/^\.\/cloud$/},()=>({path:'cloud',namespace:'boundary'}));
  b.onResolve({filter:/^@react-native-async-storage\/async-storage$/},()=>({path:'storage',namespace:'boundary'}));
  b.onLoad({filter:/.*/,namespace:'boundary'},({path})=>({contents:path==='cloud'?`

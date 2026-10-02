@@ -57,3 +57,20 @@ Use the [authoritative backup usage and replacement contract](../../README.md) w
 Two regressions were reproduced before their fix: a missing Apple archive could replace local data with an empty result, and reauthentication during Restore could switch accounts before a failed read. Restore now rejects an absent archive and reuses the existing Apple-linked session. A deliberately saved empty archive is still valid. `tests/cloud.test.ts` and `node scripts/verify-apple-restore.mjs` prove these behaviors; the latter drives the real panel/store with mocked native boundaries, not a configured Apple device.
 
 Deferred by Firstmate: replace history-sized deletion URLs with bounded reconciliation, and propagate reading cancellation through the server/model transport. These remain launch follow-ups. Real Apple developer configuration and device verification remain uncompleted.
+
+## Linked-account Restore clarification
+
+Restore mode and its destructive confirmation now explicitly name the linked Apple account. Existing linked sessions are reused; first-time Apple linking remains available. Account switching and reauthentication are deferred to a separate PR.
+
+Focused Test-phase verification on the working changes over `9e5a743eff969524e9deda245c8b6b19bb0b91ae`:
+- `node scripts/verify-apple-restore.mjs`: the new rendered-copy assertion first failed with `0 !== 1` before the copy fix. It then passed, including confirmation text, no archive read before confirmation, failed-restore local-data/session preservation, subsequent uploads, and first-time linking.
+- `node scripts/verify-backup-cancellation.mjs`: all ten scenarios passed, including hydration errors/timeouts/retry, forgotten data on restart, fresh restore, failed restore and cancellation.
+- `./node_modules/.bin/tsx --test tests/cloud.test.ts tests/preview.test.ts tests/retention.test.ts`: 19 passed, zero failures or skips.
+
+The two previously unfinished driver changes stub notification/widget native imports now reached by Store; they leave the real panel, Store, and existing assertions active. Both drivers execute React in a browser with native/auth/storage boundaries mocked. They do not establish configured Apple-device verification. This focused repair did not repeat full-suite/static checks, real-model golden/omen drives, or motion traces; earlier evidence and accepted native/motion limitations remain distinct from these results. The outer executor owns published-head verification and delivery.
+
+Earlier assertion changes, individually explained for owner disposition (unchanged in this repair):
+- Preview omen call now supplies `Candidate AI`, and the upstream HTTP handler asserts that exact consent value. The existing returned-omen assertion remains; this adds transport coverage for integrated omen consent.
+- Preview's added configurable-port test asserts HTTP status, content type, route, method and body for all three engine routes. It adds coverage without removing the authentication checks.
+- Retention reminder ports no longer include the obsolete Apple adapter. Reminder scheduling/date assertions remain; the real Apple backup behavior is exercised by the panel driver above.
+- Retention's ordinary hosted-request assertion changed from absent `max_tokens` to exactly `1200`, matching the launch provider's explicit cap. The separate omen cap still asserts `160`; this is an intentional changed request contract, not an exemption inherited from the obsolete saveWithApple assertion.
