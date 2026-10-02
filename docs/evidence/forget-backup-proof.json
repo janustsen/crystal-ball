@@ -1,0 +1,75 @@
+{
+  "change": "Serialize forgetAll and backup on the same per-Store queue, flush prior writes, and persist/mirror the cleared archive before releasing the lock.",
+  "safetyFact": "Forget waits for an in-flight backup; a backup queued after forget cannot observe the pre-forget archive. UI mutations stay locked until the final queued operation finishes.",
+  "proofLevel": "Real running Store in isolated Chrome; authentication held and cancelled at the external boundary.",
+  "regression": "scripts/verify-forget-backup.mjs",
+  "before": [
+    {
+      "order": "forget-first",
+      "before": {
+        "current_focus": "private race fixture"
+      },
+      "atAuthentication": {
+        "current_focus": "private race fixture"
+      },
+      "during": {
+        "facts": {},
+        "backupBusy": true,
+        "forgetFinished": true
+      },
+      "after": {},
+      "stored": {
+        "current_focus": "private race fixture"
+      },
+      "ageConfirmed": true
+    }
+  ],
+  "after": [
+    {
+      "order": "forget-first",
+      "before": {
+        "current_focus": "private race fixture"
+      },
+      "atAuthentication": {},
+      "during": {
+        "facts": {},
+        "backupBusy": true,
+        "forgetFinished": true
+      },
+      "after": {},
+      "stored": {},
+      "ageConfirmed": true
+    },
+    {
+      "order": "backup-first",
+      "before": {
+        "current_focus": "private race fixture"
+      },
+      "atAuthentication": {
+        "current_focus": "private race fixture"
+      },
+      "during": {
+        "facts": {
+          "current_focus": "private race fixture"
+        },
+        "backupBusy": true,
+        "forgetFinished": false
+      },
+      "after": {},
+      "stored": {},
+      "ageConfirmed": true
+    }
+  ],
+  "checks": [
+    "npm run check passed",
+    "npm test: 116 passed, 0 failed"
+  ],
+  "cleared": [
+    "Both operation orderings preserve age confirmation and erase facts durably across reload.",
+    "The existing owner-checked mirror is used for the cleared archive; production identity checks are unchanged."
+  ],
+  "limitations": [
+    "Remote Apple authentication and Supabase persistence were not exercised by this race probe. Existing mirror boundary tests cover owner-scoped deletion.",
+    "Native storage, device frame rate, and Apple sign-in remain unverified."
+  ]
+}

@@ -10,7 +10,8 @@ async function run(script){
  return await new Promise((resolve,reject)=>{const child=spawn('chrome-devtools-axi',['run'],{env});let out='';child.stdout.on('data',c=>out+=c);child.stderr.on('data',c=>out+=c);child.on('error',reject);child.on('close',code=>code?reject(Error(out)):resolve(out));child.stdin.end(script)});
 }
 const click=id=>`await page.click('[data-testid="${id}"]');`;
-const expect=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing ${text}`)});`;
+const expect=text=>`if(!(await page.eval(()=>document.body.innerText.replaceAll('\u00a0',' '))).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing ${text}`)});`;
+const expectForecastHorizon=String.raw`if(!/\b(?:6|six)\s+months\b/i.test(await page.eval(()=>document.querySelector('[data-testid="app-shell"] [aria-live="polite"] > :first-child')?.textContent||'')))throw Error('Forecast missing six-month horizon');`;
 async function shot(name){
  const path=`${process.cwd()}/docs/evidence/social-${name}.png`;await rm(path,{force:true});
  try{await exec('chrome-devtools-axi',['screenshot',path],{env})}catch(error){
@@ -21,24 +22,24 @@ async function shot(name){
 }
 try{
  openAuthenticatedPreview(base,env);
- await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-ask"]');`);
+ await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="onboarding-birthday"]');await page.fill('[data-testid="onboarding-birthday"]','1995-06-15');${click('continue')}${click('learning-growth')}${click('meet-the-ball')}await page.wait('[data-testid="tab-ask"]');`);
  await exec('chrome-devtools-axi',['emulate','--viewport','390x844x1,mobile,touch'],{env});
  await run(`${click('tab-sky')}if(!/sample stars/i.test(await page.eval(()=>document.body.innerText)))throw Error('Missing sample label');${click('sky-theme-money')}${click('ask-this-too')}if(!(await page.eval(()=>document.querySelector('[data-testid="question-input"]').value)).includes('savings'))throw Error('Sample prompt not copied');`);
  await run(`await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}await page.wait('[data-testid="option-0"]',65000);`);
- for(let i=0;i<3;i++)await run(`${click(i===1?'option-3':'option-0')}${i===1?`await page.fill('[data-testid="other-input"]','30 minutes');${click('answer-next')}`:''}${i<2?`await page.wait('[data-testid="option-0"]');`:''}`);
- await run(`await page.wait('[data-testid="share-this-glimpse"]',65000);${click('why-disclosure')}${expect('6 months')}${expect('Behind the mist')}${expect('not a guarantee')}if((await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent))!=='0 readings')throw Error('Credit count');`);
- await shot('core-why');evidence.push({realReading:true,otherAnswer:true,horizon:true,why:true,exactlyOneCredit:true});
+ const cardCount=JSON.parse(await run(`let count=0;for(;count<2;){const last=(await page.eval(()=>document.body.innerText)).includes((count+1)+' of '+(count+1));${click('option-3')}await page.fill('[data-testid="other-input"]','I am a beginner and practice for thirty minutes every day');${click('answer-next')}count++;if(last)break;await page.wait(800);await page.wait('[data-testid="option-0"]');}console.log(JSON.stringify(count));`));
+ await run(`await page.wait('[data-testid="share-this-glimpse"]',65000);${click('why-disclosure')}${expectForecastHorizon}${expect('Behind the mist')}${expect('not a guarantee')}if((await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent))!=='0 readings')throw Error('Credit count');`);
+ await shot('core-why');evidence.push({realReading:true,adaptiveCards:cardCount,otherAnswer:true,horizon:true,why:true,exactlyOneCredit:true});
  // Capture the actual browser export without changing its implementation.
  await run(`${click('share-this-glimpse')}await page.eval(()=>{window.__downloads=[];const click=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){window.__downloads.push({name:this.download,href:this.href});if(!this.download)return click.call(this)}});${click('export-story-card')}await page.wait(1500);`);
  const raw=await run(`console.log(JSON.stringify(await page.eval(()=>window.__downloads.find(d=>d.name.endsWith('.png')))));`),download=JSON.parse(raw);
  if(!download?.href?.startsWith('data:image/png;base64,'))throw Error('No actual PNG export');
  await writeFile('docs/evidence/social-export.png',Buffer.from(download.href.split(',')[1],'base64'));
  const sharp=(await import('sharp')).default,meta=await sharp('docs/evidence/social-export.png').metadata();if(meta.width!==1080||meta.height!==1920)throw Error('PNG dimensions');
- await run(`await page.eval(()=>{window.__realFetch=window.fetch;window.fetch=(input,init)=>String(input).endsWith('/share')?Promise.resolve(new Response('Injected failure',{status:500})):window.__realFetch(input,init)});${click('export-animated-story')}await page.wait(1200);${expect('Animation could not be exported')}await page.eval(()=>{window.fetch=window.__realFetch});`);
- await shot('export-error');evidence.push({actualPngDimensions:[meta.width,meta.height],shareFailureInjection:'HTTP 500',recoveryCopy:true});
- await run(`${click('close-flow')}${click('close-flow')}${click('tab-history')}await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-history"]');${click('tab-history')}${expect('6 months')}await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.includes('Spanish')).click());await page.wait('[data-testid="why-disclosure"]');`);
+ await run(`if(await page.eval(()=>!!document.querySelector('[data-testid="export-animated-story"]')))throw Error('Video export still present');await page.eval(()=>{window.__canvasBlob=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(callback){callback(null)}});${click('export-story-card')}await page.wait(1200);${expect('The card could not be exported')}await page.eval(()=>{HTMLCanvasElement.prototype.toBlob=window.__canvasBlob});`);
+ await shot('export-error');evidence.push({actualPngDimensions:[meta.width,meta.height],shareFailureInjection:'canvas encoding failure',recoveryCopy:true});
+ await run(`${click('close-flow')}${click('close-flow')}${click('tab-history')}await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-history"]');${click('tab-history')}await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.includes('Spanish')).click());await page.wait('[data-testid="why-disclosure"]');${expectForecastHorizon}`);
  evidence.push({historyPersistedAndReopened:true});
- await run(`${click('close-flow')}${click('tab-you')}${click('edit-level')}await page.fill('[aria-label="Edit level"]','Intermediate');${click('save-fact')}${expect('Intermediate')}await page.click('[aria-label="Forget level"]');${expect('Forgot')} ${click('undo-forget')}${expect('Fact restored')}${click('dismiss-notice')}${click('view-plans')}${expect('Test mode')}${click('5-readings-1-99-simulate')}${expect('No payment was taken')}`);
+ await run(`${click('close-flow')}${click('tab-you')}${click('edit-current_focus')}await page.fill('[aria-label="Edit current_focus"]','Intermediate');${click('save-fact')}${expect('Intermediate')}await page.click('[aria-label="Forget current_focus"]');${expect('Forgot')} ${click('undo-forget')}${expect('Fact restored')}${click('dismiss-notice')}${click('view-plans')}${expect('Test mode')}${click('5-readings-1-99-simulate')}${expect('No payment was taken')}`);
  evidence.push({knowledgeEditedForgottenRestored:true,mockPack:true});
  await run(`${click('close-flow')}${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}await page.fill('[data-testid="question-input"]','When will I die?');${click('look-into-the-future')}await page.wait(1000);${expect('This one isn’t for the Ball.')}if(!(await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent)).includes('5 readings'))throw Error('Sensitive question spent credit');`);
  evidence.push({sensitiveRedirect:true,noCreditSpent:true});

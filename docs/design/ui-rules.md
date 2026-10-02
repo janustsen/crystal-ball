@@ -28,8 +28,8 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
 5–7. Follow-ups: shrinking orb above a borderless question; centered, staggered and left-aligned answer arrangements. Each real question uses the next arrangement. Standard answers advance immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
 8. Thinking: smoke, status, longer-wait message and Cancel; no credit is spent yet.
-9. Reveal: actual engine headline and speculative label; Why expands actual facts, assumptions and dated source leads. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
-10. Share: compact actual export preview and image/video/friend/reminder actions.
+9. Reveal: actual engine headline and speculative label; see [Short, personal readings](#short-personal-readings) for Due date and Why disclosure. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
+10. Share: compact actual export preview and image/friend/reminder actions.
 11. Story: full 9:16 preview and 1080×1920 PNG export.
 12. Error: retry, retained answers where available, and edit. No fabricated successful output.
 13. Sensitive redirect: real engine classification, no credit spent or history entry; self-harm exposes support.
@@ -42,8 +42,12 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 
 The real engine still owns cards and predictions. Known facts are skipped; friend readings never teach the owner's memory. Back preserves prior answers and truncates later dependent answers. Invalid Other input cannot advance. Cancel aborts the request. Failed generation keeps answers and spends no reading. The decoder still repairs once then fails closed. Do not describe structural correctness as semantic or predictive accuracy.
 
-The story image includes the headline, speculative label and branding, never private questions, answers or Why. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Story video needs ffmpeg and exposes a recoverable error if it is absent. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
+The story image includes the headline, speculative label and branding, never private questions, answers or Why. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
 
 ## Verification
 
 The project verify-crystal-ball skill owns the executable gate. Current evidence is docs/evidence/design-2026-09-30/, including all 17 screens, actual engine responses, accessibility scans, small-screen/large-text checks and preserved failed rounds. Earlier violet/A4 evidence is historical. Match the exported reference visually while using live data; do not seed personal facts or successful readings merely to reproduce reference copy.
+
+## Short, personal readings
+
+See [usage](../../README.md) for onboarding, age confirmation, Person readings, Due date and Why disclosure, and the [question policy](../research/question-engine.md) for card selection and qualitative forecasts.

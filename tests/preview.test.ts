@@ -6,7 +6,9 @@ import {randomBytes} from 'node:crypto';
 const bridge=createRequire(import.meta.url)('../server/preview.cjs');
 test('authenticated clients reach the configured engine port through every preview route',async()=>{
  const secret=randomBytes(32).toString('hex');
+ let forwarded=0;
  const upstream=createServer(async(req,res)=>{
+  forwarded++;
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   const body=Buffer.concat(chunks).toString();
   if(body&&JSON.parse(body).question==='Today’s personal omen')assert.equal(JSON.parse(body).aiConsent,'Candidate AI');
@@ -29,11 +31,11 @@ test('authenticated clients reach the configured engine port through every previ
    const headers=new Headers(init?.headers);headers.set('origin',base);
    return originalFetch(input,{...init,headers});
   };
-  assert.equal(await requestOmen({},'Candidate AI'),'Your personal omen');
+  assert.equal(await requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI'),'Your personal omen');
   for(const action of ['plan','predict'] as const){
    assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
   }
-  for(const [path,target] of [['/engine','/'],['/engine/share','/share'],['/engine/health','/health']]){
+  for(const [path,target] of [['/engine','/'],['/engine/social','/social'],['/engine/health','/health']]){
    const init={method:path.endsWith('health')?'GET':'POST',headers:{origin:base,'x-preview-token':secret},...(path.endsWith('health')?{}:{body:JSON.stringify({action:'omen'})})};
    const response=await originalFetch(base+path,init);
    assert.equal(response.status,200);
@@ -41,6 +43,13 @@ test('authenticated clients reach the configured engine port through every previ
    assert.deepEqual(result.body,path.endsWith('health')?null:{action:'omen'});
    assert.equal((await originalFetch(base+path,{...init,headers:{origin:base}})).status,401);
    assert.equal((await originalFetch(base+path,{...init,headers:{origin:'https://other.invalid','x-preview-token':secret}})).status,403);
+  }
+  const before=forwarded;
+  const headerCases:Record<string,string>[]=[{},{origin:base,'x-preview-token':secret}];
+  for(const method of ['GET','POST'])for(const headers of headerCases){
+   const removed=await originalFetch(base+'/engine/share',{method,headers});
+   assert.equal(await removed.text(),'public client bundle');
+   assert.equal(forwarded,before);
   }
  }finally{
   globalThis.fetch=originalFetch;
@@ -50,7 +59,9 @@ test('authenticated clients reach the configured engine port through every previ
 });
 test('preview forwards every engine route to the configured port',async()=>{
  const previousPort=process.env.ENGINE_PORT,secret=randomBytes(32).toString('hex');
+ let forwarded=0;
  const engine=createServer(async(req,res)=>{
+  forwarded++;
   let body='';for await(const chunk of req)body+=chunk;
   res.writeHead(202,{'content-type':'application/json'});
   res.end(JSON.stringify({path:req.url,method:req.method,body}));
@@ -61,13 +72,16 @@ test('preview forwards every engine route to the configured port',async()=>{
   process.env.ENGINE_PORT=String((engine.address() as {port:number}).port);
   await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
   const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
-  for(const [path,target] of [['/engine','/'],['/engine/share','/share'],['/engine/health','/health']]){
+  for(const [path,target] of [['/engine','/'],['/engine/social','/social'],['/engine/health','/health']]){
    const method=path==='/engine/health'?'GET':'POST',body=method==='POST'?'{"question":"hello"}':undefined;
    const response=await fetch(base+path,{method,body,headers:{'x-preview-token':secret,origin:base}});
    assert.equal(response.status,202);
    assert.equal(response.headers.get('content-type'),'application/json');
    assert.deepEqual(await response.json(),{path:target,method,body:body??''});
   }
+  const removed=await fetch(base+'/engine/share',{method:'POST',headers:{'x-preview-token':secret,origin:base}});
+  assert.equal(await removed.text(),'private client bundle');
+  assert.equal(forwarded,3);
  }finally{
   if(previousPort===undefined)delete process.env.ENGINE_PORT;else process.env.ENGINE_PORT=previousPort;
   await Promise.all([server,engine].map(server=>new Promise<void>(resolve=>server.close(()=>resolve()))));
@@ -79,7 +93,7 @@ test('preview refuses unauthenticated engine calls while the page and bundle loa
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
  const address=server.address() as {port:number},base=`http://127.0.0.1:${address.port}`;
  try{
-  for(const path of ['/engine','/engine/share','/engine/social']){
+  for(const path of ['/engine','/engine/social']){
    assert.equal((await fetch(base+path,{method:'POST',body:'{}'})).status,401);
    assert.equal((await fetch(base+path,{method:'POST',headers:{origin:base},body:'{}'})).status,401);
    assert.equal((await fetch(base+path,{method:'POST',headers:{'x-preview-token':secret},body:'{}'})).status,401);
@@ -95,7 +109,7 @@ test('preview refuses unauthenticated engine calls while the page and bundle loa
   assert.equal(authenticated.status,200);assert.equal(await authenticated.text(),'public client bundle');
   assert.equal((await fetch(base+'/engine',{headers:{'x-preview-token':secret,origin:base}})).status,405);
   assert.equal((await fetch(base+'/engine',{method:'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'},body:'{}'})).status,403);
-  for(const path of ['/engine','/engine/share','/engine/social','/engine/health']){
+  for(const path of ['/engine','/engine/social','/engine/health']){
    assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'POST':'GET',headers:{'x-preview-token':secret,origin:base}})).status,405);
    assert.equal((await fetch(base+path,{method:path.endsWith('/health')?'GET':'POST',headers:{'x-preview-token':secret,origin:'https://other.invalid'}})).status,403);
   }
@@ -121,7 +135,7 @@ test('preview routes every engine endpoint to ENGINE_PORT and forwards social id
  try{
   await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
   const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
-  for(const [path,target] of [['/engine','/'],['/engine/share','/share'],['/engine/social','/social'],['/engine/health','/health']]){
+  for(const [path,target] of [['/engine','/'],['/engine/social','/social'],['/engine/health','/health']]){
    const method=target==='/health'?'GET':'POST',body=method==='POST'?'{"action":"profile"}':undefined;
    for(const authorization of [undefined,'Bearer social-user']){
     const response=await fetch(base+path,{method,headers:{'x-preview-token':secret,origin:base,...(authorization?{authorization}:{})},body});

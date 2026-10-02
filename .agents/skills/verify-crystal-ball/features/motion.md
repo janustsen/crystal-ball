@@ -4,7 +4,7 @@
 Continuous cel-shaded fog in hero/Ask orbs, levitating glass, escaping wisps and warm glow; named transitions (smoke wipe, orb portal, ripple in, ink settle, card flip, inhale, glimpse burst, card deal); squash-and-spark tap feedback on every tappable; parallax star layers and ambient sky; reduced motion. Names and timings: docs/design/motion-language.md.
 
 ## How to get to it (user POV)
-Home orb or Ask tab starts the reading. Follow a real reading through three questions, reveal and Share. You contains Reduce motion and Large text.
+Home orb or Ask tab starts the reading. Follow a real reading through the returned one or two questions, reveal and Share. You contains Reduce motion and Large text.
 
 ## Driving it
 Run `node scripts/drive-motion.mjs` serially after functional drives. It creates its own Chrome session, records a DevTools trace and actual WebGL draw cadence at 390×844, then closes only that browser. `node scripts/check-motion-accessibility.mjs` proves OS/app reduced motion, resume, large text and skipped approach delay.

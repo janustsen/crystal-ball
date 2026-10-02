@@ -1,5 +1,6 @@
 import {createClient,type SupabaseClient} from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {canRead} from './profile';
 import type {AccountState} from './types';
 import {validFacts,validPrediction} from './backup';
 const url=process.env.EXPO_PUBLIC_SUPABASE_URL,key=process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -42,7 +43,7 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  return {...state,facts:remembered,history,backupOwner:user_id};
 }
 export async function mirror(state:AccountState,client:SupabaseClient|null=supabase){
- if(!client)return;
+ if(!client||!canRead(state))return;
  const {data,error}=await client.auth.getSession();if(error)throw error;
  const user_id=data.session?.user.id;
  if(!user_id||data.session?.user.is_anonymous||state.backupOwner!==user_id)throw new Error('Backup account changed. Sign in before uploading.');

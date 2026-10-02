@@ -1,0 +1,34 @@
+page:
+  title: Crystal Ball
+  url: "http://localhost:8092"
+  refs: 17
+snapshot:
+uid=g5:5_0 RootWebArea "Crystal Ball" url="http://localhost:8092/"
+  uid=g5:5_1 StaticText "Crystal Ball"
+  uid=g5:5_2 button "View plans"
+  uid=g5:5_3 StaticText "A little about you · "
+  uid=g5:5_4 StaticText "1"
+  uid=g5:5_5 StaticText " of 2"
+  uid=g5:5_6 StaticText "When is your birthday?"
+  uid=g5:5_7 StaticText "13 and up. Your birthday sets your Sun sign."
+  uid=g5:5_8 StaticText "Birthday · YYYY-MM-DD"
+  uid=g5:5_9 textbox "Birthday YYYY-MM-DD"
+  uid=g5:5_10 button "Continue"
+  uid=g5:5_11 button "Skip for now"
+  uid=g5:5_12 tab "Home" selectable selected
+  uid=g5:5_13 tab "Explore" selectable
+  uid=g5:5_14 tab "Ask the crystal ball" selectable
+  uid=g5:5_15 tab "History" selectable
+  uid=g5:5_16 tab "You" selectable
+help[4]:
+  Run `chrome-devtools-axi fill @g5:5_9 "text"` to fill the "Birthday YYYY-MM-DD" field
+  Run `chrome-devtools-axi click @g5:5_2` to click the "View plans" button
+  Run `chrome-devtools-axi scroll down` to scroll down
+  Use `chrome-devtools-axi eval <expr>` for JS expressions. For multi-statement code, pass a function: `eval "() => { ...; return result }"`
+
+emulated:
+  viewport: "390x844x1,mobile,touch"
+
+Onboarding date validation and You facts passed
+
+Error: Command failed: chrome-devtools-axi screenshot --format jpeg /Users/janustsen/.treehouse/crystal-ball-6fc41b/2/crystal-ball/docs/evidence/reading-onboarding-facts.jpg

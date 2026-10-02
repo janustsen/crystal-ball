@@ -1,0 +1,43 @@
+import {httpCredentials} from './preview-auth.mjs';
+import {chromium,expect} from '@playwright/test';
+import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
+import sharp from 'sharp';
+const url=process.env.VERIFY_URL||'http://localhost:8087';
+await mkdir('.local',{recursive:true});await mkdir('docs/evidence',{recursive:true});
+const profile=await mkdtemp(`${process.cwd()}/.local/reading-browser-`);
+const context=await chromium.launchPersistentContext(profile,{httpCredentials,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,acceptDownloads:true});
+const page=await context.newPage(),log=[],errors=[];
+page.on('pageerror',error=>errors.push(error.message));
+page.on('response',async response=>{if(response.request().method()==='POST'&&response.url().startsWith(process.env.VERIFY_ENGINE_URL||`${url}/engine`))try{log.push({request:response.request().postDataJSON(),response:await response.json()})}catch{}});
+const shot=async name=>{await page.waitForTimeout(1000);await page.screenshot({path:`docs/evidence/reading-${name}.png`});};
+async function answerCards(){
+ let count=0;await page.getByTestId('option-0').waitFor({timeout:65000});
+ for(;count<2;count++){
+  await shot(`card-${count+1}`);
+  const progress=await page.locator('body').innerText(),last=progress.includes(`${count+1} of ${count+1}`);
+  if(count===0){await page.getByRole('radio',{name:'✧ In my own words'}).click();await page.getByTestId('other-input').fill('I write for an hour every day and have finished half the draft');await page.getByTestId('answer-next').click();}
+  else await page.getByTestId('option-0').click();
+  if(last){count++;break;}await page.waitForTimeout(800);
+ }
+ await page.getByTestId('share-this-glimpse').waitFor({timeout:65000});return count;
+}
+async function home(){while(await page.getByTestId('close-flow').count())await page.getByTestId('close-flow').click();}
+async function type(){await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();}
+
+try{
+ await page.goto(url);await page.getByTestId('onboarding-birthday').fill('2001-02-29');await page.getByTestId('continue').click();await expect(page.getByText('Use a valid birthday: YYYY-MM-DD.')).toBeVisible();
+ await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await expect(page.getByText('Your Sun sign · gemini')).toBeVisible();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();await page.getByTestId('tab-you').click();await expect(page.getByText('Birthday · 1995-06-15')).toBeVisible();await expect(page.getByText('Learning & growth',{exact:true})).toBeVisible();await shot('onboarding-facts');
+ await page.reload();await page.getByTestId('tab-you').click();await page.getByTestId('edit-current_focus').click();await page.getByLabel('Edit current_focus',{exact:true}).fill('Writing a novel');await page.getByTestId('save-fact').click();
+ await page.getByTestId('add-birth-time-and-place').click();await page.getByLabel('Birth time HH:MM').fill('12:30');await page.getByLabel('Birth city',{exact:true}).fill('Copenhagen');await page.getByTestId('find-birth-city').click();await page.getByRole('button').filter({hasText:/Copenhagen.*Denmark/}).first().click({timeout:20000});await page.getByTestId('reveal-moon-and-rising').click();await expect(page.getByText('capricorn Moon · virgo rising')).toBeVisible();await shot('birth-chart');
+ await type();await page.getByTestId('question-input').fill('Will I finish writing my novel this year?');await page.getByTestId('look-into-the-future').click();const count=await answerCards();await expect(page.getByTestId('forecast-due-date')).toContainText('Dec 31, '+new Date().getFullYear());await expect(page.getByTestId('view-plans')).toHaveText('0 readings');await page.getByTestId('why-disclosure').click();await expect(page.getByText(/Under your Gemini Sun/)).toBeVisible();await expect(page.getByTestId('go-deeper-with-plus')).toBeVisible();await expect(page.getByText('Your answers',{exact:true})).toHaveCount(0);await shot('short-why');log.push({adaptiveCards:count,freeWhy:await page.locator('body').innerText()});
+ await page.getByTestId('share-this-glimpse').click();await expect(page.getByTestId('export-animated-story')).toHaveCount(0);const download=page.waitForEvent('download');await page.getByTestId('export-story-card').click();await(await download).saveAs('docs/evidence/reading-exported-card.png');const meta=await sharp('docs/evidence/reading-exported-card.png').metadata();expect([meta.width,meta.height]).toEqual([1080,1920]);await shot('still-share');
+ await home();await page.getByTestId('tab-history').click();await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByRole('button').filter({hasText:'Will I finish writing my novel this year?'})).toHaveCount(1);
+ await page.getByTestId('view-plans').click();await page.getByTestId('5-readings-1-99-simulate').click();await expect(page.getByTestId('view-plans')).toHaveText('5 readings');await page.getByRole('button',{name:'Restore purchases',exact:true}).click();await expect(page.getByText(/Test mode has no App Store purchases/)).toBeVisible();
+ await page.getByRole('radio').filter({hasText:'Monthly'}).click();await page.getByTestId('continue-with-plus-simulate').click();await home();await page.getByTestId('tab-history').click();await page.getByRole('button').filter({hasText:'Will I finish writing my novel this year?'}).click();await page.getByTestId('why-disclosure').click();await expect(page.getByText('Your answers',{exact:true})).toBeVisible();await expect(page.getByText('Assumptions',{exact:true})).toBeVisible();await shot('deeper-why');
+ await home();await page.getByTestId('tab-you').click();await page.getByLabel('Forget current_focus',{exact:true}).click();await expect(page.getByText('Writing a novel',{exact:true})).toHaveCount(0);await page.getByTestId('undo-forget').click();await expect(page.getByText('Writing a novel',{exact:true})).toBeVisible();
+ await page.getByTestId('tab-sky').click();await shot('sky');await type();await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex Smith');await page.getByTestId('question-input').fill('Will Alex and I become friends this year?');await expect(page.getByTestId('look-into-the-future')).toBeDisabled();await page.getByTestId('person-name').fill('Alex');await expect(page.getByTestId('look-into-the-future')).toBeEnabled();await shot('person-entry');
+ await page.getByTestId('ask-about-myself').click();await page.getByTestId('question-input').fill('Will my IVF succeed?');const before=await page.getByTestId('view-plans').innerText();await page.getByTestId('look-into-the-future').click();await page.getByText('This one isn’t for the Ball.').waitFor({timeout:65000});await expect(page.getByTestId('view-plans')).toHaveText(before);await shot('safety');
+ await home();await page.getByTestId('tab-you').click();await page.getByLabel('Reduce motion',{exact:true}).click();await page.getByLabel('Large text',{exact:true}).click();await page.getByTestId('tab-home').click();await page.setViewportSize({width:375,height:667});for(const id of ['home','sky','ask','history','you'])await expect(page.getByTestId(`tab-${id}`)).toBeInViewport();await shot('large-home');
+ const saved=await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {birthday:state.birthday,sunSign:state.sunSign,ageBand:state.ageBand,birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign,dueDate:state.history[0].dueDate};});expect(saved.sunSign).toBe('gemini');expect(saved.ageBand).toBe('adult');log.push({persistedProfile:saved,pageErrors:errors});expect(errors).toEqual([]);
+ console.log('PASS: adaptive live forecast, profile, birth chart, free/Plus Why, due date, still export, history, purchases, safety and large text.');
+}catch(error){log.push({failure:String(error),pageErrors:errors});await shot('failure');throw error;}finally{await writeFile('docs/evidence/reading-flow-drive.json',JSON.stringify(log,null,2));await context.close();}

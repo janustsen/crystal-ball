@@ -1,4 +1,4 @@
-import {previewSecret} from './preview-auth.mjs';
+import {openAuthenticatedPreview,previewSecret} from './preview-auth.mjs';
 // Real Chrome trace + frame/draw counters. No model fixtures; own isolated profile.
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
@@ -16,21 +16,29 @@ const sample=(name,id=null,duration=2200,until=null)=>{const r=evaluate(`async()
 const shot=name=>{const path=resolve(out,name+'.png');try{cli('screenshot',path)}catch(error){if(!existsSync(path))throw error}};
 const raw=resolve(`.local/motion-audit-${Date.now()}.json`);let tracing=false;
 try{
+ openAuthenticatedPreview(process.env.PREVIEW_URL||'http://localhost:8087',env);
  cli('open',redact(process.env.PREVIEW_URL||'http://localhost:8087'));cli('emulate','--viewport','390x844x1,mobile,touch');
  evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
+ evaluate('()=>{document.querySelector("[data-testid=skip-for-now]")?.click();return true}');
+ evaluate('()=>{document.querySelector("[data-testid=confirm-age]")?.click();return true}');
  shot('fog-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
  cli('perf-start','--no-reload','--no-auto-stop','--file',raw);tracing=true;
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');
  sample('idle-both-orbs');sample('orb-approach-listening','hero-orb');sample('listening');sample('typing','type-instead');
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
- sample('planning-to-question-one','look-into-the-future',2200,'option-0');sample('question-two','option-0');sample('question-three','option-1');sample('thinking-to-reveal','option-1',2200,'share-this-glimpse');
+ sample('planning-to-question-one','look-into-the-future',2200,'option-0');const total=evaluate('()=>Number(document.body.innerText.match(/1 of (\\d)/)[1])');for(let i=0;i<total;i++)sample(i===total-1?'thinking-to-reveal':'question-two','option-0',2200,i===total-1?'share-this-glimpse':'option-0');
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');
  for(const tab of ['sky','history','you'])sample(tab+'-tab','tab-'+tab);
  sample('ask-tab','tab-ask');sample('close-flow','close-flow');sample('ambient-sky',null,45000);
  const samples=evaluate('()=>motionAudit.finish()');writeEvidence('samples.json',JSON.stringify({url:evaluate('()=>location.href'),viewport:{width:390,height:844},samples},null,2)+'\n');
- writeEvidence('trace-summary.txt',cli('perf-stop','--file',raw));tracing=false;
+ let traceSummary;try{traceSummary=cli('perf-stop','--file',raw)}catch(error){traceSummary=`AXI trace export returned an error; checking the completed artifact: ${String(error)}\n`;}
+ writeEvidence('trace-summary.txt',traceSummary);
  // Keep the raw trace locally; publish a compact timing-only excerpt without network/auth data.
- const rawBytes=readFileSync(raw),trace=JSON.parse(rawBytes),names=new Set(['thread_name','process_name','RunTask','FireAnimationFrame','FunctionCall','DrawFrame','BeginFrame','DroppedFrame','Layout','Paint','CompositeLayers']);
+ const rawBytes=readFileSync(raw),trace=JSON.parse(rawBytes);
+ // The bridge can time out after writing its file; accept only a complete current trace.
+ if(!trace.traceEvents.some(e=>e.name==='ambient-sky-end'))throw new Error('Incomplete motion trace: final ambient marker missing');
+ tracing=false;
+ const names=new Set(['thread_name','process_name','RunTask','FireAnimationFrame','FunctionCall','DrawFrame','BeginFrame','DroppedFrame','Layout','Paint','CompositeLayers']);
  const excerpt={traceEvents:trace.traceEvents.filter(e=>names.has(e.name)||e.cat==='blink.user_timing').map(e=>({...e,args:e.ph==='M'?e.args:{}}))};
  writeFileSync(out+'/timing-trace.json.gz',gzipSync(redact(JSON.stringify(excerpt))));
  writeEvidence('trace-provenance.json',JSON.stringify({rawPath:raw,sha256:createHash('sha256').update(rawBytes).digest('hex'),note:'Published excerpt keeps timing events and marks, omits network and profiler payloads.'},null,2)+'\n');

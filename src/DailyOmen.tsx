@@ -14,11 +14,11 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
   const refresh=()=>{
    if(AppState.currentState==='background'||AppState.currentState==='inactive')return;
    setOmen(previous=>currentOmen(previous));
-   void loadDailyOmen(AsyncStorage,state.facts,facts=>requestOmen(facts,aiConsent)).then(next=>{if(mounted)setOmen(currentOmen(next))}).catch(()=>{if(mounted)setOmen({day:localDay(),text:null})});
+   void loadDailyOmen(AsyncStorage,state.facts,facts=>requestOmen(facts,state,aiConsent)).then(next=>{if(mounted)setOmen(currentOmen(next))}).catch(()=>{if(mounted)setOmen({day:localDay(),text:null})});
   };
   refresh();const timer=setInterval(refresh,60000),listener=AppState.addEventListener('change',state=>{if(state==='active')refresh()});
   return()=>{mounted=false;clearInterval(timer);listener.remove()};
- },[state.facts,aiConsent]);
+ },[state.facts,state.sunSign,state.birthday,state.ageConfirmed,aiConsent]);
  const current=currentOmen(omen);
  return <View testID="daily-omen" accessibilityState={{busy:!current}} style={styles.panel}><Txt style={[styles.caption,{color:colors.gold}]}>Today’s omen · free</Txt><Txt accessibilityLiveRegion="polite" display style={{fontSize:26,lineHeight:31,marginTop:8}}>{current?(current.text??'The stars are quiet today. Come back tomorrow.'):'A little starlight is finding you…'}</Txt></View>;
 }

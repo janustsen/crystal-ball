@@ -7,6 +7,7 @@ const rules: [SafetyCategory, RegExp][] = [
  ['death', /\b(when will .{0,35}(die|death)|last breath|pass away|how long does .{0,25}have left|will .{0,25}survive this year|morir\w*|fallecer|hvornår dør|skal jeg dø)\b/i],
 ];
 export const redirects: Record<SafetyCategory,string> = {
+ person: 'Let’s keep this kind. We can imagine a shared experience, but cannot know another person’s private feelings.',
  self_harm: 'This deserves care, not a prediction about harm. If you or someone else may act on these feelings, contact local emergency help or a trusted person now. We can explore a hopeful plan for tomorrow.',
  death: 'Some moments deserve care rather than a prediction. Let’s explore something you can look forward to instead.',
  illness: 'Your health deserves real support. A qualified clinician can help with this question. Let’s look at a gentle personal goal instead.',
@@ -23,7 +24,7 @@ export function safeContext(question:string){
  text=text.replace(/\b(?:legal|immigration|medical|visa|court|paralegal)\s+(?:receptionist|assistant|caseworker|clerk|section|certification|exam|career|job)\b/gi,'professional work');
  text=text.replace(/\b(?:public defender|hospice chaplain|criminal lawyer|immigration lawyer|oncologist|psychiatrist)\b/gi,'professional');
  text=text.replace(/\bdeath metal\b/gi,'music');
- if(!clinical&&/\b(zodiac|horoscope|star sign)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
+ if(!clinical&&/\b(zodiac|horoscope|star sign|sun sign)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
  return text;
 }
 export function phraseSafety(question: string): SafetyCategory | undefined {

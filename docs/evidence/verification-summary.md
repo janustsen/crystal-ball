@@ -1,6 +1,8 @@
-# Current verification evidence
+# Historical verification evidence — 2026-09-29
 
-This prototype is verified on Expo web at 390×844 and 375×667 under firstmate's explicit Xcode waiver. iOS JavaScript/assets export succeeds; simulator/device execution is not claimed. The tenth and final capped reviews are complete; docs/grades/status.md records the unmet 9/10 bar. The full UI sequence passed; an engine-restart interruption in the general drive was preserved and then successfully retried with the service stable. Read each JSON's timestamp and outcome rather than interpreting older failure captures as current acceptance evidence.
+This records the pre-reading-flow prototype. For current verification coverage, see the [verification skill](../../.agents/skills/verify-crystal-ball/SKILL.md); the MP4 evidence below predates video removal.
+
+This prototype was verified on Expo web at 390×844 and 375×667 under firstmate's explicit Xcode waiver. iOS JavaScript/assets export succeeds; simulator/device execution is not claimed. The tenth and final capped reviews are complete; docs/grades/status.md records the unmet 9/10 bar. The full UI sequence passed; an engine-restart interruption in the general drive was preserved and then successfully retried with the service stable. Read each JSON's timestamp and outcome rather than interpreting older failure captures as current acceptance evidence.
 
 The latest actual engine replay is engine-bakeoff.json: 20/20 completed. Total median 4.44 s / p95 6.96 s; planning median 2.57 s / p95 4.98 s; prediction median 1.88 s / p95 3.01 s. Inference ran sequentially before the browser drive. generation-review.md inspects all eleven general cases and records remaining semantic defects; completion is not predictive accuracy. Factual basis text is now server-quoted, and the unreliable future-consistency reviewer was removed after its false rejections were reproduced. Sensitive-topic checks remain unchanged.
 
