@@ -1,0 +1,64 @@
+{
+  "comparisons": [
+    {
+      "screen": "Home / populated",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 9, "clarity": 8, "feedback": 8, "accessibility": 7},
+      "finding": "A=8.0; F=7.7; overall=7.8. Strongest illustrated depth and clearest normal-size navigation. At 200%, the orb is partly obscured by the header and the question disappears; the complete omen remains visible. Component scores [H,T,S,C,F,Ac]: orb [9,8,9,8,8,7]; instruction [8,8,9,9,null,8]; omen [8,7,9,8,8,8]; tabs [8,7,9,9,8,7]; quota [7,6,8,8,8,7]."
+    },
+    {
+      "screen": "Home / populated",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "finding": "A=8.0; F=7.0; overall=7.4. Best balance of central orb and immediately available daily content across both sizes. The smaller sans instruction loses some ritual character. Zero readings beside an invitation to touch needs an explained outcome. Component scores [H,T,S,C,F,Ac]: orb [9,8,8,7,null,null]; instruction [7,8,8,8,null,8]; omen [8,8,8,9,8,8]; tabs [6,5,6,4,null,5]; quota [7,8,8,7,7,8]."
+    },
+    {
+      "screen": "Home / populated",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 6, "accessibility": 5},
+      "finding": "A=7.7; F=5.7; overall=6.5. Strong hero composition while collapsed, but it achieves that by hiding the daily content. Expanded 200% capture cuts off the omen at navigation; the disclosure adds effort without showing an enlarged-content solution. Component scores [H,T,S,C,F,Ac]: orb [9,8,8,7,null,null]; instruction [9,8,9,9,null,8]; omen/disclosure [6,6,8,6,6,5]; tabs [6,5,6,4,null,5]; quota [7,8,8,7,7,8]."
+    },
+    {
+      "screen": "Home / populated",
+      "variant": "C",
+      "dimensions": {"hierarchy": 6, "typography": 7, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 6},
+      "finding": "A=7.0; F=6.7; overall=6.8. Excellent immediate omen visibility, but its placement makes Home feel led by the message rather than the crystal ball. At 200%, the disclaimer falls outside the visible content area. Component scores [H,T,S,C,F,Ac]: orb [6,7,8,7,null,null]; instruction [7,7,9,8,null,6]; omen [8,8,8,9,8,8]; tabs [6,5,6,4,null,5]; quota [7,8,8,7,7,8]."
+    },
+    {
+      "screen": "Home / unavailable",
+      "variant": "baseline",
+      "dimensions": {"hierarchy": 8, "typography": 6, "surfaces": 9, "clarity": 7, "feedback": 6, "accessibility": 5},
+      "finding": "A=7.7; F=6.0; overall=6.7. Normal-size copy usefully separates status from recovery, and the available reading supports the suggested next action. At 200%, the status is cut off and the recovery text is outside the visible area. Component scores [H,T,S,C,F,Ac]: orb [9,8,9,8,8,7]; instruction [8,8,9,9,null,8]; omen/status [7,5,8,6,5,4]; tabs [8,7,9,9,8,7]; quota [7,6,8,8,8,7]."
+    },
+    {
+      "screen": "Home / unavailable",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 7, "feedback": 7, "accessibility": 7},
+      "finding": "A=8.0; F=7.0; overall=7.4. Best unavailable composition: complete status and recovery remain visible at 200% without displacing the orb. Combining both sentences into serif body text weakens their distinction. 'Ask the Ball' conflicts with the unexplained zero-reading state. Component scores [H,T,S,C,F,Ac]: orb [9,8,8,7,null,null]; instruction [7,8,8,8,null,8]; omen/status [8,8,8,7,7,8]; tabs [6,5,6,4,null,5]; quota [7,8,8,6,6,8]."
+    },
+    {
+      "screen": "Home / unavailable",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 7, "surfaces": 8, "clarity": 5, "feedback": 4, "accessibility": 5},
+      "finding": "A=7.3; F=4.7; overall=4.0 after gate. The collapsed 'Today’s omen · read' presents the same apparent content availability as the populated state, concealing failure until opened. That is an error-disguised-as-success presentation. Expanded 200% also cuts off the recovery. Component scores [H,T,S,C,F,Ac]: orb [9,8,8,7,null,null]; instruction [9,8,9,9,null,8]; omen/disclosure [5,6,8,4,3,4]; tabs [6,5,6,4,null,5]; quota [7,8,8,6,6,8]."
+    },
+    {
+      "screen": "Home / unavailable",
+      "variant": "C",
+      "dimensions": {"hierarchy": 5, "typography": 7, "surfaces": 8, "clarity": 6, "feedback": 7, "accessibility": 5},
+      "finding": "A=6.7; F=6.0; overall=6.3. Makes failure the dominant experience. The complete recovery copy is readable, but at 200% the ball instruction and disclaimer fall outside the visible area. Component scores [H,T,S,C,F,Ac]: orb [5,6,8,6,null,null]; instruction [5,6,9,6,null,4]; omen/status [7,8,8,7,7,8]; tabs [6,5,6,4,null,5]; quota [7,8,8,6,6,8]."
+    }
+  ],
+  "populatedWinner": "A",
+  "unavailableWinner": "A",
+  "reason": "A is the strongest composition across both text sizes and both states: the ball remains central, daily content stays open, and enlarged recovery copy fits. Baseline earns the higher populated screen score through its stronger artwork, navigation and supplied runtime evidence; A wins composition rather than implementation readiness. The coherent direction is A’s content arrangement with baseline’s illustrated depth and labeled navigation. No candidate meets the authorized threshold.",
+  "limitations": [
+    "Independent assessment used only the attached images and supplied facts; no implementation, other ratings or runtime inspection.",
+    "Screen scores combine normal and 200% observations. Component vectors use hierarchy, typography/spacing, surfaces/color, clarity, feedback/recovery and accessibility; component averages normalize nulls using the same formula.",
+    "Null marks inapplicable typography-independent behavior or undemonstrated interactive prototype behavior, not a passing score. Prototype orb and tab interactions receive no inferred runtime credit; visible status and disclosure feedback remain assessable.",
+    "Baseline runtime evidence is accepted as supplied, not independently reproduced. It is not transferred to alternatives.",
+    "Content cutoffs are demonstrated viewport defects. Screenshots do not establish whether scrolling can recover that content, so no additional unreachable-content hard gate is asserted.",
+    "Prototype footer icons are ambiguous at normal size; enlarged labels crowd the available width. Navigation styling is assessed visually, while target sizes, semantics and activation remain unverified.",
+    "Physical iPhone, VoiceOver and native behavior remain unverified. These are provisional browser/design grades, not native certification; missing physical proof alone did not impose a numeric ceiling."
+  ]
+}

@@ -1,0 +1,420 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a0fdff-d3b3-7c32-bec9-e7b094ea21bc
+--------
+user
+Independent blind design comparison. Read-only; no implementation/delegation/prior ratings/other graders. Compare baseline and A/B/C Home at normal200%, populated/unavailable omen. Score all eight state/variant pairs on six dimensions; null only where prototype behavior is genuinely inapplicable. Choose best composition per state and coherent direction overall. Baseline may win. No desired score.
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+Baseline is actual current Home unchanged since round29:261.3px orb, exact200% text, default headlineone line, whisper outsideorb, first200%omenline above navigation. Current browser evidence includes264layout/text states,1644targets,127tests,real local-model flow,492contrast checks,16entrances,reduced-motion and isolated60fps/max16.8ms. These are supplied facts, not prototype proof. Physical/native evidence separate.
+Alternatives are static HTML proposals using existing production SVG orb artwork, no new raster or replacement art. Orb width261.3px/67%viewport throughout. Same complete omen fixture in all; unavailable copy combines current two sentences. Prototype navigation/footer is illustrative, not interactive proof. Orb activation only announces Layout study. No actual reading, daily request/cache, persistence, sound, focus lifecycle or animation/performance claim. All task text doubles; graphic wordmark and decorative whisper do not. Twelve initial captures plus four B expanded captures, no horizontaloverflow. Do not transfer current runtime proof to unimplemented behavior.
+A: quiet ritual with compact16px sans instruction and16px serif omen body, both32px at200%. Decorative example question omitted at200%; full omen remains open. More immediately readable daily content, smaller base typography and higher orb position.
+B: current serif instruction and19px omen body retained, complete omen behind Today’s omen · read disclosure. Decorative question remains outsideorb; expanded screenshots included. Better hero space, one extra reading interaction, potential content discoverability cost.
+C: full omen before hero, same19px serif body and instruction. Decorative question omitted at200%. Immediate daily content but orb moves down and the daily message competes with the ritual.
+Captain intent: crystal ball central attention, minimal text, mysterious dark smoky gold-glass illustrated depth. Judge the composition against that intent and useful enlarged text; do not shrink/crop content or pretend an interactive prototype is a tested app. Read only attached images, docs/ux-loop/expansion-31/checks.json and public/concepts/expansion-31.html if needed. Return schema JSON.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+codex
+I’ll compare the eight pairs across both text sizes, keeping the supplied baseline evidence separate from what the static proposals demonstrate.
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat docs/ux-loop/expansion-31/checks.json' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+[
+  {
+    "state": "populated",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "populated",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "populated",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "populated",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "populated",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "populated",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "unavailable",
+    "variant": "a",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "unavailable",
+    "variant": "a",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "unavailable",
+    "variant": "b",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "unavailable",
+    "variant": "b",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "unavailable",
+    "variant": "c",
+    "large": 0,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  },
+  {
+    "state": "unavailable",
+    "variant": "c",
+    "large": 1,
+    "overflow": false,
+    "prototypeOnly": true,
+    "orbWidth": 261.296875
+  }
+]
+hook: PreToolUse
+hook: PreToolUse Completed
+exec
+/bin/zsh -lc 'cat public/concepts/expansion-31.html' in /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+ succeeded in 0ms:
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open mist · Home hierarchy</title><link rel="stylesheet" href="study-assets/orb.css"><style>
+@font-face{font-family:Fell;src:url(study-assets/display.woff2)}@font-face{font-family:Hanken;src:url(study-assets/body.woff2)}*{box-sizing:border-box}body{margin:0;background:#100c09;color:#f1e9dc;font:16px Hanken,system-ui,sans-serif}body.large{font-size:32px}main{max-width:390px;margin:auto;padding:24px 24px 120px;min-height:100vh;background:radial-gradient(ellipse at 90% 100%,#34221466,transparent 70%)}header{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #614c3466;margin-bottom:24px}header span{font-family:Fell;font-size:1.375em}h1{font:1.75em/1.2 Fell;margin:12px 0}h2{font:1.375em/1.3 Fell;margin:12px 0}p{line-height:1.45;margin:12px 0}.muted,label{font-size:.875em;color:#b9ab97;line-height:1.45}.gold{color:#e0a458}button,input,summary{font:inherit;min-height:48px}button{color:#f1e9dc;background:none;border:0;padding:12px 0;cursor:pointer;text-align:left}button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #e0a458;outline-offset:4px}input{display:block;width:100%;background:transparent;color:#f1e9dc;border:0;border-bottom:1px solid #79634a;border-radius:0;padding:12px 0;margin:4px 0 18px}label{display:block}.primary{display:block;width:100%;text-align:center;background:#ebd5b0;color:#120e0b;border-radius:30px;padding:16px;margin:18px 0;font-weight:600}.quiet{display:block;width:100%;color:#c8dfe8;border-bottom:1px solid #614c3466}.row{border-bottom:1px solid #614c3466;padding:16px 0}.row button{display:block;color:#c8dfe8}.error{color:#f1e9dc;border-left:2px solid #e0a458;padding-left:12px;margin:8px 0 16px}.error label{color:#e0a458}.saved{padding:24px 0;border-block:1px solid #614c3466;margin:24px 0}.saved h2{margin-top:8px}.step{color:#e0a458;font-size:.875em}.progress{display:flex;gap:8px;margin:18px 0}.progress i{flex:1;height:2px;background:#614c34}.progress i.on{background:#e0a458}details{border-bottom:1px solid #614c3466;padding:12px 0}summary{cursor:pointer;padding:10px 0;color:#c8dfe8}#study{max-width:390px;margin:auto;padding:20px;font-size:14px;background:#211a13}#study a{display:inline-block;color:#e0a458;padding:10px}#status{color:#e0a458}#status:empty{display:none}.large main{padding-top:16px}.large header{margin-bottom:16px}.large .saved{padding:16px 0;margin:16px 0}.pair{display:flex;justify-content:space-between;gap:12px;align-items:center}.large .pair{display:block}
+footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,390px);height:76px;display:flex;align-items:center;justify-content:space-around;background:#120e0b;border-top:1px solid #614c3466;font-size:.8125em;color:#b9ab97}.large footer{height:96px}footer span{text-align:center}footer i{display:block;font-style:normal;font-size:20px;color:#e0a458;margin-bottom:8px}</style><style>main{padding-top:0}header{height:96px;margin:0;border:0}header span{font:italic 26px Fell}header button{font-size:.8125em;text-align:center;color:#e0a458}.hero{display:flex;flex-direction:column;align-items:center;padding-top:48px}.orb-study{--s:261.3px;width:261.3px;height:293.96px}.orb-study .orb{--s:261.3px}.whisper{font:15px/20px Fell;text-align:center;color:#b9ab97;margin:0 0 22px;max-width:260px}.invitation{font:italic 20px/26px Fell;text-align:center;margin:16px 0 8px}.qualifier{font-size:.75em;text-align:center;margin:0 0 12px}.omen{border-top:1px solid #614c3433;padding:16px 0;margin:12px 0}.omen .step{margin:0 0 8px}.omen .copy{font:19px/26px Fell;margin:0}.large .hero{padding-top:0}.large .invitation{font-size:40px;line-height:52px}.large .omen .copy{font-size:38px;line-height:52px}.large .qualifier{line-height:36px}.large .a .whisper{display:none}.a .invitation{font:16px/22px Hanken}.large .a .invitation{font-size:32px;line-height:44px;margin-top:8px}.a .omen .copy{font-size:16px;line-height:22px}.large .a .omen .copy{font-size:32px;line-height:44px}.b .omen summary{font-size:.875em;color:#e0a458;padding:0}.large .b .omen{padding:12px 0;margin-top:12px}.c .hero{padding-top:8px}.c .omen{margin-top:0}.large .c .whisper{display:none}.orb-study button{padding:0;margin:0;display:block}.orb-study .orb{pointer-events:none}.large header{margin:0}.large footer{height:136px}.large main{padding-bottom:180px}#status{font-size:14px}#study{position:relative;z-index:2}</style><div id="study"></div><main id="app"></main><footer aria-hidden="true"><span><i>♙</i>Home</span><span><i>✧</i>Sky</span><span><i>◉</i>Ask</span><span><i>⌛</i>History</span><span><i>♧</i>You</span></footer><script type="module">
+const p=new URLSearchParams(location.search),variant=p.get('variant')||'a',state=p.get('state')||'populated',large=p.get('large')==='1';if(large)document.body.classList.add('large');
+const copy=state==='populated'?'Tonight, the moon hints at a door you have not tried yet.':'Today’s omen is unavailable. Ask the Ball, or return tomorrow.';
+const body='<p class="copy">'+copy+'</p>';
+const omen=variant==='b'?'<details class="omen"><summary>Today’s omen · read</summary>'+body+'</details>':'<section class="omen"><p class="step">Today’s omen · free</p>'+body+'</section>';
+const art=await(await fetch('study-assets/orb.json')).json();
+const hero='<div class="hero"><p class="whisper">What will my net worth be in 10 years?</p><button class="orb-study" aria-label="Ask the Ball">'+art+'</button></div><p class="invitation">Touch the ball.</p><p class="qualifier">For fun. Not a guarantee.</p>';
+document.querySelector('#app').className=variant;
+document.querySelector('#app').innerHTML='<header><span>Crystal Ball</span><button>0 readings left</button></header>'+(variant==='c'?omen+hero:hero+omen)+'<p id="status" role="status"></p>';
+document.querySelector('.orb-study').onclick=()=>document.querySelector('#status').textContent='Layout study only. No reading requested.';
+document.querySelector('#study').innerHTML='Open mist · Home composition prototype. Existing orb artwork; no real omen/request/navigation.<br>'+['a','b','c'].map(v=>`<a href="?variant=${v}&state=${state}&large=${large?1:0}">${v.toUpperCase()}</a>`).join('')+['populated','unavailable'].map(s=>`<a href="?variant=${variant}&state=${s}&large=${large?1:0}">${s}</a>`).join('')+`<a href="?variant=${variant}&state=${state}&large=${large?0:1}">Text size</a><p>A · quiet ritual/open omen: fewer decorative words, smaller base omen type. B · ritual/disclosed omen: preserves hero space, adds a reading tap. C · omen first: immediate daily content, moves the orb downward.</p>`;if(p.has('capture'))document.querySelector('#study').remove();
+</script></html>
+codex
+{
+  "comparisons": [
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 9,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "A=8.3, F=7.7, overall=7.9. Strongest illustrated depth and clearest normal-size navigation. The orb dominates appropriately, although the miniature navigation orb competes with it. At 200%, the balance wraps and only the beginning of the omen is visible above navigation. Component scores: header [7,7,8,8,null,7]; orb/instruction [9,8,9,9,8,8]; omen [7,8,8,8,8,6]; tabs [8,8,9,9,8,8]."
+    },
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=8.3, F=7.0, overall=7.5. Best composition across sizes: the orb remains central and the complete enlarged omen fits above navigation. The smaller normal-size instruction sacrifices some ritual character. Zero readings alongside an unconditional invitation needs explanation. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,8,9,7,null,8]; omen [8,8,8,9,7,8]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 6.5,
+        "feedback": 6,
+        "accessibility": 6.5
+      },
+      "finding": "A=8.3, F=6.3, overall=7.1. Excellent quiet hero when collapsed, but the daily value requires discovery and another action. Expanded 200% evidence puts the end of the omen below the visible content area; collapsing it does not solve enlarged reading. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,9,9,7,null,8]; omen/disclosure [7,8,8,6,6,6]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 6.5
+      },
+      "finding": "A=7.8, F=6.8, overall=7.2. The omen is immediately readable, but becomes the leading subject. At 200%, the orb instruction approaches navigation and the qualifier leaves the initial viewport. This weakens the intended crystal-ball focus. Component scores: header [8,8,8,6,null,8]; orb/instruction [6,8,9,7,null,6]; omen [8,8,8,9,7,8]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7.5,
+        "surfaces": 9,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 6.5
+      },
+      "finding": "A=8.2, F=7.5, overall=7.8. Separate status and recovery sentences work well at normal size, and one remaining reading supports the suggested alternative. At 200%, the unavailable message is incomplete in the initial viewport and recovery is out of view. Component scores: header [7,7,8,8,null,7]; orb/instruction [9,8,9,9,8,8]; omen/status [7,7,8,8,8,5]; tabs [8,8,9,9,8,8]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7.5,
+        "accessibility": 7
+      },
+      "finding": "A=8.3, F=7.2, overall=7.6. Best composition: the complete status and recovery copy remain visible at 200% without displacing the hero. Combining the sentences reduces their distinction, and suggesting Ask the Ball while showing zero readings leaves recovery uncertain. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,8,9,7,null,8]; omen/status [8,8,8,7,7.5,8]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 5,
+        "feedback": 4,
+        "accessibility": 6
+      },
+      "finding": "A=8.3, F=5.0, overall=6.3. The collapsed disclosure presents the same read invitation despite unavailable content. It hides the useful status until an extra action; expanded 200% evidence also leaves recovery below navigation. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,9,9,7,null,8]; omen/disclosure [6,8,8,4,4,5]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 6.5,
+        "typography": 7.5,
+        "surfaces": 8.5,
+        "clarity": 6.5,
+        "feedback": 7.5,
+        "accessibility": 6
+      },
+      "finding": "A=7.5, F=6.7, overall=7.0. Status is prominent and complete, but a large failure message becomes the screen's main event. At 200%, the orb sits low and its instruction and qualifier are outside the visible content area. Component scores: header [8,8,8,6,null,8]; orb/instruction [5,7,9,6,null,5]; omen/status [7,8,8,7,7.5,8]; illustrative tabs [6,6,7,5,null,5]."
+    }
+  ],
+  "populatedWinner": "A",
+  "unavailableWinner": "A",
+  "reason": "Choose A as the coherent composition direction: it keeps the crystal ball dominant while exposing the complete daily message at both sizes. Baseline retains stronger illustrated depth, navigation and supplied runtime evidence, hence its higher overall provisional scores. Preserve those strengths when considering A. B hides useful content and unavailable status; C gives the omen too much priority. No variant meets the requested threshold across every screen and component.",
+  "limitations": [
+    "Component tuples use hierarchy, typography/spacing, surfaces/color, task clarity, feedback/recovery, accessibility. They cover both text sizes; material enlarged-text weaknesses are retained rather than averaged away.",
+    "Reviewed only supplied images, checks.json and expansion-31.html. No implementation, delegation, prior ratings or other graders were consulted.",
+    "Feedback scores for proposals assess visible content and state communication only. Orb runtime feedback and illustrative tab interaction are inapplicable to these composition prototypes and marked null. Static header feedback is also inapplicable. No reading, recovery action, focus lifecycle or disclosure interaction was independently driven.",
+    "Baseline runtime evidence is accepted as supplied and is not transferred to proposals. Different reading balances and orb appearance limit direct visual equivalence.",
+    "Checks establish consistent 261.3px proposal orbs and no horizontal overflow in twelve initial states. Source provides native disclosure semantics, focus styling and bottom padding, but does not prove scrolling, focus visibility or assistive-technology outcomes. Content below the initial viewport is not automatically unreachable.",
+    "Proposal navigation is illustrative and aria-hidden in source. Scores concern visible composition only: normal captures lack visible labels, and enlarged labels crowd the edges. These are not tested navigation controls.",
+    "No confirmed task-blocking hard gate is inferred from intentionally absent prototype functionality. Below-viewport content remains an untested reachability boundary, not a certified pass. Browser grades are provisional; physical iPhone, VoiceOver and native behavior remain unverified."
+  ]
+}
+tokens used
+34,540
+{
+  "comparisons": [
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 9,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "A=8.3, F=7.7, overall=7.9. Strongest illustrated depth and clearest normal-size navigation. The orb dominates appropriately, although the miniature navigation orb competes with it. At 200%, the balance wraps and only the beginning of the omen is visible above navigation. Component scores: header [7,7,8,8,null,7]; orb/instruction [9,8,9,9,8,8]; omen [7,8,8,8,8,6]; tabs [8,8,9,9,8,8]."
+    },
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "A=8.3, F=7.0, overall=7.5. Best composition across sizes: the orb remains central and the complete enlarged omen fits above navigation. The smaller normal-size instruction sacrifices some ritual character. Zero readings alongside an unconditional invitation needs explanation. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,8,9,7,null,8]; omen [8,8,8,9,7,8]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 6.5,
+        "feedback": 6,
+        "accessibility": 6.5
+      },
+      "finding": "A=8.3, F=6.3, overall=7.1. Excellent quiet hero when collapsed, but the daily value requires discovery and another action. Expanded 200% evidence puts the end of the omen below the visible content area; collapsing it does not solve enlarged reading. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,9,9,7,null,8]; omen/disclosure [7,8,8,6,6,6]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — populated, normal and 200%",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 6.5
+      },
+      "finding": "A=7.8, F=6.8, overall=7.2. The omen is immediately readable, but becomes the leading subject. At 200%, the orb instruction approaches navigation and the qualifier leaves the initial viewport. This weakens the intended crystal-ball focus. Component scores: header [8,8,8,6,null,8]; orb/instruction [6,8,9,7,null,6]; omen [8,8,8,9,7,8]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "baseline",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7.5,
+        "surfaces": 9,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 6.5
+      },
+      "finding": "A=8.2, F=7.5, overall=7.8. Separate status and recovery sentences work well at normal size, and one remaining reading supports the suggested alternative. At 200%, the unavailable message is incomplete in the initial viewport and recovery is out of view. Component scores: header [7,7,8,8,null,7]; orb/instruction [9,8,9,9,8,8]; omen/status [7,7,8,8,8,5]; tabs [8,8,9,9,8,8]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7.5,
+        "accessibility": 7
+      },
+      "finding": "A=8.3, F=7.2, overall=7.6. Best composition: the complete status and recovery copy remain visible at 200% without displacing the hero. Combining the sentences reduces their distinction, and suggesting Ask the Ball while showing zero readings leaves recovery uncertain. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,8,9,7,null,8]; omen/status [8,8,8,7,7.5,8]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 5,
+        "feedback": 4,
+        "accessibility": 6
+      },
+      "finding": "A=8.3, F=5.0, overall=6.3. The collapsed disclosure presents the same read invitation despite unavailable content. It hides the useful status until an extra action; expanded 200% evidence also leaves recovery below navigation. Component scores: header [8,8,8,6,null,8]; orb/instruction [9,9,9,7,null,8]; omen/disclosure [6,8,8,4,4,5]; illustrative tabs [6,6,7,5,null,5]."
+    },
+    {
+      "screen": "Home — unavailable, normal and 200%",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 6.5,
+        "typography": 7.5,
+        "surfaces": 8.5,
+        "clarity": 6.5,
+        "feedback": 7.5,
+        "accessibility": 6
+      },
+      "finding": "A=7.5, F=6.7, overall=7.0. Status is prominent and complete, but a large failure message becomes the screen's main event. At 200%, the orb sits low and its instruction and qualifier are outside the visible content area. Component scores: header [8,8,8,6,null,8]; orb/instruction [5,7,9,6,null,5]; omen/status [7,8,8,7,7.5,8]; illustrative tabs [6,6,7,5,null,5]."
+    }
+  ],
+  "populatedWinner": "A",
+  "unavailableWinner": "A",
+  "reason": "Choose A as the coherent composition direction: it keeps the crystal ball dominant while exposing the complete daily message at both sizes. Baseline retains stronger illustrated depth, navigation and supplied runtime evidence, hence its higher overall provisional scores. Preserve those strengths when considering A. B hides useful content and unavailable status; C gives the omen too much priority. No variant meets the requested threshold across every screen and component.",
+  "limitations": [
+    "Component tuples use hierarchy, typography/spacing, surfaces/color, task clarity, feedback/recovery, accessibility. They cover both text sizes; material enlarged-text weaknesses are retained rather than averaged away.",
+    "Reviewed only supplied images, checks.json and expansion-31.html. No implementation, delegation, prior ratings or other graders were consulted.",
+    "Feedback scores for proposals assess visible content and state communication only. Orb runtime feedback and illustrative tab interaction are inapplicable to these composition prototypes and marked null. Static header feedback is also inapplicable. No reading, recovery action, focus lifecycle or disclosure interaction was independently driven.",
+    "Baseline runtime evidence is accepted as supplied and is not transferred to proposals. Different reading balances and orb appearance limit direct visual equivalence.",
+    "Checks establish consistent 261.3px proposal orbs and no horizontal overflow in twelve initial states. Source provides native disclosure semantics, focus styling and bottom padding, but does not prove scrolling, focus visibility or assistive-technology outcomes. Content below the initial viewport is not automatically unreachable.",
+    "Proposal navigation is illustrative and aria-hidden in source. Scores concern visible composition only: normal captures lack visible labels, and enlarged labels crowd the edges. These are not tested navigation controls.",
+    "No confirmed task-blocking hard gate is inferred from intentionally absent prototype functionality. Below-viewport content remains an untested reachability boundary, not a certified pass. Browser grades are provisional; physical iPhone, VoiceOver and native behavior remain unverified."
+  ]
+}
