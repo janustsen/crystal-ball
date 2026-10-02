@@ -12,7 +12,7 @@ export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C
 export const fonts={display:'IMFellEnglish',italic:'IMFellEnglishItalic',body:'HankenGrotesk'};
 export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){const {state}=useStore();const scale=state.largeText&&props.allowFontScaling!==false?2:1;const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?38:16,lineHeight:display?42:24},display&&styles.inked,style]);return <Text {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}>{children}</Text>}
 
-export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:'600',color:disabled?colors.muted:quiet?colors.ivory:colors.ink,textAlign:'center'}}>{label}</Txt></Pressable>}
+export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:'600',color:quiet?colors.ivory:colors.ink,textAlign:'center'}}>{label}</Txt></Pressable>}
 export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;reduce?:boolean;onPress?:()=>void;phase?:'idle'|'research'|'reveal'}){
  const {state}=useStore();
  const ballStyle=selectedStyle(state,'ball'),skin=skinColors[ballStyle];
@@ -38,7 +38,7 @@ export const styles=StyleSheet.create({
  input:{fontFamily:fonts.body,fontSize:16,color:colors.ivory,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#79634A',borderRadius:0,paddingVertical:16,paddingHorizontal:0,minHeight:56},
  panel:{backgroundColor:'transparent',borderRadius:0,paddingVertical:22,paddingHorizontal:0,borderWidth:0,borderBottomWidth:1,borderColor:'#614C3466',marginTop:16},
  row:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12},
- caption:{fontSize:13,lineHeight:19,color:colors.muted},muted:{color:colors.muted},title:{fontSize:28,lineHeight:34,marginBottom:12},gap:{height:20}
+ caption:{fontSize:14,lineHeight:20,color:colors.muted},muted:{color:colors.muted},title:{fontSize:28,lineHeight:34,marginBottom:12},gap:{height:20}
 });
 
 // SvgXml camel-cases XML attributes; keep ARIA on the component instead.

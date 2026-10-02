@@ -9,7 +9,7 @@ try{
   await context.addInitScript(large=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText:large})),large);
   const page=await context.newPage();await page.goto(base);await page.getByTestId('tab-history').waitFor();await page.waitForTimeout(600);
   const metrics=await page.evaluate(()=>{
-   const tabs=[...document.querySelectorAll('[role=tab]')].map(tab=>{const el=tab.lastElementChild,r=el.getBoundingClientRect(),b=tab.getBoundingClientRect();return {name:el.textContent,font:parseFloat(getComputedStyle(el).fontSize),height:r.height,contained:r.left>=b.left&&r.right<=b.right&&r.bottom<=b.bottom}});
+   const tabs=[...document.querySelectorAll('[role=tab]')].map(tab=>{const el=tab.lastElementChild,range=document.createRange();range.selectNodeContents(el);const r=range.getBoundingClientRect(),b=tab.getBoundingClientRect();return {name:el.textContent,font:parseFloat(getComputedStyle(el).fontSize),height:r.height,contained:r.left>=b.left&&r.right<=b.right&&r.bottom<=b.bottom}});
    let clip=document.querySelector('[data-testid="daily-omen"]').parentElement;while(clip&&!/auto|scroll/.test(getComputedStyle(clip).overflowY))clip=clip.parentElement;
    const orb=document.querySelector('[data-testid="tab-ask"] .orb').getBoundingClientRect();
    return {tabs,navigationClear:clip.getBoundingClientRect().bottom<=orb.top};
