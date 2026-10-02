@@ -76,7 +76,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
     {!message&&chartStatus!=='time-error'?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{busy?'Finding matching cities…':selected?(validBirthTime(time)?'Ready to calculate and save.':'Add your local birth time to continue.'):places.length?'Select your city from the results above.':'Find and select your birth city to continue.'}</Txt>:null}
     <Action testID="reveal-moon-and-rising" label="Calculate and save" disabled={!selected||!time} onPress={calculate}/>
     {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={forgetChart}/>:null}
-    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
+    <Txt style={[styles.caption,{marginTop:16}]}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
    </>}
   </View>;
  }

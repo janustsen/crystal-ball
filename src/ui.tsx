@@ -41,7 +41,7 @@ export const styles=StyleSheet.create({
  disabled:{opacity:.55,boxShadow:'none'},
  chip:{backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#614C34',borderRadius:0},
  inked:{textShadowColor:'rgba(0,0,0,.4)',textShadowOffset:{width:0,height:1},textShadowRadius:2},
- input:{fontFamily:fonts.body,fontSize:16,color:colors.ivory,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#79634A',borderRadius:0,paddingVertical:16,paddingHorizontal:0,minHeight:56},
+ input:{marginVertical:6,fontFamily:fonts.body,fontSize:16,color:colors.ivory,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#79634A',borderRadius:0,paddingVertical:16,paddingHorizontal:0,minHeight:56},
  panel:{backgroundColor:'transparent',borderRadius:0,paddingVertical:22,paddingHorizontal:0,borderWidth:0,borderBottomWidth:1,borderColor:'#614C3466',marginTop:16},
  row:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12},
  caption:{fontSize:14,lineHeight:20,color:colors.muted},muted:{color:colors.muted},title:{fontSize:28,lineHeight:34,marginBottom:12},gap:{height:20}
