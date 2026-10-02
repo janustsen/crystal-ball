@@ -50,7 +50,7 @@ test('social recovery retries current profile before exposing a snapshot',async 
  assert.deepEqual([partial.owner,partial.schools,partial.schoolSuggestions],['viewer',[],[]]);
  const target={circle:'circle',member:'friend',firstName:'Alex'},signal=new AbortController().signal;
  for(const aiConsent of ['', 'Other AI']){
-  const before=writes.length;
+  const before:number=writes.length;
   await assert.rejects(prepareSocialDraft('star','Will I learn Spanish?',aiConsent),/Allow Candidate AI/);
   await assert.rejects(prepareSocialDraft('seal','A creative opportunity may arrive.',aiConsent),/Allow Candidate AI/);
   await assert.rejects(friendForecast('What lies ahead for Alex?',target,signal,aiConsent),/Allow Candidate AI/);
