@@ -11,6 +11,6 @@ export function readingAnswers(prediction:Prediction){
   const stored=prediction.answerQuestions?.[key],question=typeof stored==='string'?stored:undefined;
   // General readings include the original card question in their fact value.
   // Remove only that exact, separately displayed prefix, never infer a question.
-  return {key,label:question||factLabels[key]||`Answer ${index+1}`,answer:question&&value.startsWith(question+' ')?value.slice(question.length+1):value};
+  return {key,label:question||(Object.hasOwn(factLabels,key)?factLabels[key]:`Answer ${index+1}`),answer:question&&value.startsWith(question+' ')?value.slice(question.length+1):value};
  });
 }

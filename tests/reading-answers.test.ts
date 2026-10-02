@@ -10,6 +10,7 @@ test('saved question metadata preserves original facts and only names answered f
 });
 test('legacy unknown keys remain readable without inventing original questions',()=>{
  assert.deepEqual(readingAnswers(prediction)[0],{key:'context_a',label:'Answer 1',answer:prediction.facts.context_a});
+ assert.equal(readingAnswers({...prediction,facts:{constructor:'A supplied answer'}})[0].label,'Answer 1');
  const different={...prediction,answerQuestions:{context_a:'A different question?'}};
  assert.equal(readingAnswers(different)[0].answer,prediction.facts.context_a);
 });

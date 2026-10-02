@@ -1,0 +1,34 @@
+✔ saved question metadata preserves original facts and only names answered facts (1.1085ms)
+✖ legacy unknown keys remain readable without inventing original questions (0.76725ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.785958
+
+✖ failing tests:
+
+test at tests/reading-answers.test.ts:11:1
+✖ legacy unknown keys remain readable without inventing original questions (0.76725ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + [Function: Object]
+  - 'Answer 1'
+  
+      at TestContext.<anonymous> (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/tests/reading-answers.test.ts:13:9)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    expected: 'Answer 1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
