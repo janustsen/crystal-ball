@@ -1,9 +1,9 @@
 // Phone layout proof. Omen copy is a fixture, not a model-quality claim.
-import {chromium,expect} from '@playwright/test';
+import {chromium,webkit,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 const base=process.env.PREVIEW_URL||'http://localhost:8098',out=process.env.HOME_EVIDENCE||'.local/home';
 await mkdir(out,{recursive:true});
-const browser=await chromium.launch({channel:'chrome',headless:true}),results=[],failures=[];
+const browser=await (process.env.HOME_BROWSER==='webkit'?webkit.launch({headless:true}):chromium.launch({channel:'chrome',headless:true})),results=[],failures=[];
 try {
  for(const [width,height] of [[390,844],[430,932]])for(const largeText of [false,true]){
   const context=await browser.newContext({viewport:{width,height},isMobile:true,hasTouch:true});

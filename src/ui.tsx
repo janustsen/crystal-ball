@@ -14,7 +14,7 @@ export function Txt({children,display=false,style,...props}:React.ComponentProps
 
 export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:'600',color:disabled?colors.muted:quiet?colors.ivory:colors.ink,textAlign:'center'}}>{label}</Txt></Pressable>}
 export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;reduce?:boolean;onPress?:()=>void;phase?:'idle'|'research'|'reveal'}){
- const {state}=useStore();if(state.largeText)size=Math.min(size,96);
+ const {state}=useStore();
  const ballStyle=selectedStyle(state,'ball'),skin=skinColors[ballStyle];
  const press=useRef(new Animated.Value(1)).current;
  const art=<Animated.View style={{width:size,height:size*1.125,transform:[{scale:press}]}}><OrbVisual size={size} phase={phase} reduce={reduce}/>{ballStyle!=='classic'?<View testID="orb-skin" pointerEvents="none" style={{position:'absolute',left:0,top:0,width:size,height:size,borderRadius:size/2,backgroundColor:skin.fill,borderWidth:1,borderColor:skin.rim}}/>:null}</Animated.View>;
