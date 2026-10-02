@@ -1,0 +1,25 @@
+# Round28 — provisional browser review, product399ccbd
+
+Open mist remains borderless dark atmosphere with the illustrated gold Home hero, restrained separators, quiet task screens and exact200% text scaling. Every captured normal/enlarged/transition UI state is included. Long layout readings are explicit geometry fixtures; actual local Ollama readings are separate and do not establish predictive accuracy.
+
+Current changes: empty birth time now shows HH:MM;14:30 appears only in example helper text. City errors/no-results appear directly between city input and retry/search. The saved-result flow, precise time validation and honest forgotten confirmation remain. Onboarding resets scroll to the top and focuses the matching state heading, preserving both step indicator and full heading; Back restores birthday-heading focus. Dates say Check-in reminder in the forecast and upcoming History row, distinguishing the reminder from the predicted horizon without changing stored dates/outcomes.
+
+Current evidence:
+-126tests/typecheck pass. Date-label and field/entry regression failures preserved separately before fix. No eligibility, persistence or engine/provider format changes.
+- onboarding-entry: normal200%, full step indicator/heading in viewport, heading focus, Back focus, select focus then explicitly Skip focus, birthday and adult eligibility kept with no stored skipped focus. Before, enlarged heading viewport ratio was0.35648; after it is fully visible.
+- age-editor: normal200%, under13 restriction survives reload, correction still rejects under13, eligible correction reaches explicit no-focus continuation, invalid date rejected, Cancel unchanged, valid save/reload/focus, contrast and zero axe.
+- birth-feedback: normal200%, forgotten chart fields absent, birthday kept, time value empty and HH:MM placeholder, explicit deletion acknowledgment.
+- birth-details: normal200% real Copenhagen lookup, field-specific invalid-time focus/aria-invalid, selected city retained, calculation/save/reload, controlled no-results/503 next to city field with explicit retry, live retry, saved result and forgetting; zero axe. Invalid/saved/forgotten contrast samples pass. Controlled failures are labeled; success and retry use the real public service. City query only is sent; calculation remains local and coordinates are not persisted.
+- task-hierarchy: composer submit and first check-in choice visible normal200%, outcomes before Why/Share, pending reminder guidance, evidence index and full forecast context retained.
+- reading-flow: actual local Ollama adaptive reading, original asked question metadata/label after reload, live chart/profile, free/Plus Why, real PNG/history/plans/memory/safety and enlarged Home; no page errors.
+- profile-migration: both legacy-storage fixtures retain history/credits/facts and stored dates, open legacy explanation, show the new reminder label and preserve eligibility semantics.
+
+Unchanged previous proof: round27 current normal200% export encoder held/double activation starts once/one Preparing status/other tools usable/null-image failure/explicit retry/real PNG download/completion; screenshots labeled previous-round27 are retained because export code is unchanged. Round27 full four-reader/identity/freePlus/keyboard focus/Axe,11fields exactly2x, constrained390×500200% custom-answer/draft/Back/submit; browser resize is not a native keyboard. Round26 choice acknowledgement180ms/check/status normal200%, stable geometry, duplicate prevention/cancel/immediate reduced motion; current real pointer flow also runs. Round25 original question labels through local and actual Supabase-client HTTP transport; legacy unknown keys remain neutral Answer N. Round24 Chrome/WebKit Home390×844/430×932 normal200%,~67%orb, nonoverlapping whisper/defaultheadline<=2 and omen/nav fit. Prior60sec timeout/cancel, profile retention and separate local social/PostgreSQL journeys remain prior proof. Main preview Circles is offline and Sky uses samples; no production cloud/Auth certification.
+
+Stage boundary: full numeric provisional browser assessment. Physical iPhone Safari, native Dynamic Type/VoiceOver/hardware timing, microphone/haptics, actual payments and OS share delivery remain separate unverified gates. No novice-user study claimed. Browser downloads do not prove native delivery; working inference does not establish predictive accuracy.
+
+Background-only contrast diagnostic PNGs are excluded: the sampler hides text to measure backing pixels, so they are not user states. Only actual visible UI captures are in the review deck.
+
+Current real-drive also passes actual local Ollama/adaptive cards, PNG/recovery, history/outcomes/memory/plans/sensitive request and large Home, no page errors. Task contrast54samples/432checks and16 entrance samples pass; OS/app reduced-motion/resume checks pass.
+
+Current full246-layout/visible-text sweep passes across360/390/430 normal200%;1470 measured nonzero controls all>=44×44. Isolated motion on399ccbd passes near60fps/max16.8ms including45seconds ambient Sky, no concurrent browser drivers/graders and no host-load exception.
