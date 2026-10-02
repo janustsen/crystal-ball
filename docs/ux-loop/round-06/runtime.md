@@ -1,0 +1,21 @@
+# Round 06 — frozen candidate 9360d70
+
+This candidate uses Open mist: an illustrated gold orb with borderless content, quiet dividers, readable fade/lift entrances and dim utility backgrounds. It includes wide labeled preference switches, contextual Plans copy, Check back dates, an outcome prompt adjacent to saved results, compact Sky, stacked enlarged plan pricing, custom-answer entry with a Change control and multiline input, explicit Type your question / Try voice again fallback, and checkmarked Sky selection.
+
+The attached labeled sheets cover all 17 core states plus empty, loading, error, custom, expanded, populated, offline, enlarged, focused and transition variants. screens/layout.json contains 144 passing checks across 360/390/430, normal and 200% text. Engine replies for that sweep are explicitly synthetic; fixture wording is not release copy or evidence of model quality. All captures and checks below were refreshed on this candidate. Home omen wording in home-omen-fixture.png is explicitly synthetic layout copy.
+
+This candidate also reserves 28px more scroll clearance above the raised Ask orb and dims background mist/particles while preserving the inside-orb shader.
+
+Current-head checks completed BEFORE this grading request:
+- contrast/contrast.json: 264 rendered-background samples across six screens and three animation phases passed WCAG text thresholds; this includes gradients and canvas pixels beneath visible text rectangles, excludes clipped or partly opaque text, and does not certify every animation frame or native rendering.
+- home/metrics.json: 390×844 and 430×932, normal/200% text, orb60–70% width, whisper separation, default heading <=2 lines, omen containment and scroll clipping above the raised Ask orb all passed.
+- Typecheck passed and all 85 tests passed.
+- real-drive/drive.json: actual Ollama Spanish-learning plan and prediction, three follow-ups/custom input, reveal/Why, real 1080×1920 PNG export, injected export-error recovery, reminder preview, history persistence/outcome, fact edit/forget/Undo, simulated purchase/restore, real sensitive redirect, connection recovery and small 200%/reduced-motion traversal. Axe scans in this drive reported zero violations; no page errors. The export HTTP failure is synthetic, not an actual outage. Test billing is explicitly simulated.
+- controls/controls.json: preference targets 342×52px; label, Space and Enter activation; preference persistence; visible keyboard focus outline; zero settings axe violations; offline circle creation disabled.
+- forms/large-forms.json: 200% typed input retains its question context, preserves text after changing choices, and permits fully visible submission at a synthetic 390×500 keyboard-constrained viewport. This is not a physical keyboard test.
+- motion/samples.json: every current-head sample passed displayed-frame AND WebGL-draw ~60fps, p95 <=20ms, maximum <50ms, no long main-thread tasks. This includes approach, input, questions, thinking/reveal, share, tab navigation and 45-second ambient sample. Prior failures remain in earlier evidence, not replaced.
+- motion/reduced-motion.json: OS/app preference stops actual canvas draws and CSS animations; motion resumes; large-text Home keeps both orbs visible.
+
+Interaction facts: approach advances automatically after 650ms (immediately in reduced motion); normal answers advance immediately; custom entry retains typed text; a visible Change control returns to choices. Voice errors preserve transcription and elevate typing instead of asking the person to speak into an unavailable microphone. Selection is expressed by a checkmark as well as color. Check back is a reminder label, not a second forecast horizon.
+
+Unverified: physical iPhone Safari, native Dynamic Type, physical keyboard safe areas, VoiceOver/TalkBack, microphone hardware, native haptics, real payments, configured Supabase/Auth and OS share delivery. Shared social backend is unavailable here: sample stars and offline circles are explicitly disclosed and creation disabled. No predictive-accuracy or all-domain semantic-quality claim. Browser evidence supports browser behavior only; the rubric's physical/assistive certification limit remains in force. Every grade is provisional against those boundaries.
