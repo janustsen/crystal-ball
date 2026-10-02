@@ -61,7 +61,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
- await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
+ await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await page.reload();await page.getByTestId('onboarding-birthday').fill('1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('skip-for-now');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
@@ -95,11 +95,12 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
  await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(text(prediction.why)).toBeVisible();
  await check('reveal-why',text('Behind the mist'));
+ await tap('go-deeper-with-plus');await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');
  for(const id of ['answers','assumptions','sources'])await tap(`why-${id}`);
  for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();
  await check('reveal-evidence',page.getByTestId('why-sources'));
  await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
- await tap('share-more');await check('share-options',page.getByTestId('export-animated-story'));
+ await tap('share-more');await check('share-options',page.getByTestId('share-friend-link'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
  await tap('tab-history');await check('history-filled',text(prediction.headline));
