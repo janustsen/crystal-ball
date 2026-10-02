@@ -42,3 +42,7 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number):M
 
  });
 }
+
+export function requireAiConsent(env:(key:string)=>string|undefined,consent:unknown){
+ if(env('MODEL_PROVIDER')==='hosted'&&(!env('HOSTED_MODEL_DISCLOSURE')||consent!==env('HOSTED_MODEL_DISCLOSURE')))throw new Error('Please allow sharing with the named AI provider before asking.');
+}
