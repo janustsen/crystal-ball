@@ -1,6 +1,6 @@
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
-import {httpCredentials,previewFetch,previewSecret} from './preview-auth.mjs';
+import {previewFetch,previewSecret} from './preview-auth.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 for(const path of ['/engine','/engine/share']){
  assert.equal((await fetch(base+path,{method:'POST',body:'{}'})).status,401);
@@ -8,12 +8,14 @@ for(const path of ['/engine','/engine/share']){
  assert.equal((await fetch(base+path,{method:'POST',headers:{'x-preview-token':previewSecret},body:'{}'})).status,401);
 }
 const shell=await fetch(base+'/').then(r=>r.text());assert.ok(!shell.includes(previewSecret));
-assert.equal((await fetch(base+'/node_modules/expo-router/entry.bundle?platform=web')).status,401);
+// Owner-approved login removal: the bundle is public; engine guards still apply.
+const bundle=await fetch(base+'/node_modules/expo-router/entry.bundle?platform=web');
+assert.equal(bundle.status,200);assert.equal(bundle.headers.get('www-authenticate'),null);
 assert.equal((await fetch(base+'/engine/health',{headers:{'x-preview-token':previewSecret}})).status,401);
 assert.equal((await previewFetch(base+'/engine/health').then(r=>r.json())).provider,'ollama');
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:false});
 try{
- const page=await browser.newPage({httpCredentials,reducedMotion:'reduce',viewport:{width:390,height:844}});page.setDefaultTimeout(15000);
+ const page=await browser.newPage({reducedMotion:'reduce',viewport:{width:390,height:844}});page.setDefaultTimeout(15000);
  await page.addInitScript(()=>{const uniform=WebGLRenderingContext.prototype.uniform4f;WebGLRenderingContext.prototype.uniform4f=function(location,...values){window.lastMood=values;return uniform.call(this,location,...values)};window.rafCalls=0;const raf=window.requestAnimationFrame;window.requestAnimationFrame=cb=>raf.call(window,t=>{window.rafCalls++;cb(t)})});
  await page.goto(base);await page.getByTestId('tab-you').waitFor();
  async function callbacks(label,paused){await page.waitForTimeout(600);const before=await page.evaluate(()=>window.rafCalls);await page.waitForTimeout(600);const count=await page.evaluate(()=>window.rafCalls)-before;if(paused)expect(count,label).toBe(0);else expect(count,label).toBeGreaterThan(10);console.log(label,count,'callbacks / 600ms')}
@@ -30,5 +32,5 @@ try{
  let predictions=0;await page.route('**/engine',async route=>{if(route.request().postDataJSON()?.action==='predict'){predictions++;await route.abort()}else await route.continue()});
  await page.getByTestId('option-0').evaluate(node=>{node.click();node.click()});await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(1);
  await page.getByRole('button',{name:'Try again',exact:true}).click();await page.getByRole('button',{name:'Try again',exact:true}).waitFor();expect(predictions).toBe(2);
- console.log('PASS: authenticated app, protected bridge/assets, paused callbacks, single final submit, and retry after failure.');
+ console.log('PASS: login-free app, guarded bridge, paused callbacks, single final submit, and retry after failure.');
 }finally{await browser.close()}
