@@ -1,0 +1,50 @@
+You are an independent blind UX evaluator. Read-only evaluation; do not implement, delegate, supervise, browse other task state, or read other graders/previous rounds. Evaluate the attached labeled screenshots of Crystal Ball, a speculative entertainment app. The material direction is borderless dark mist, with a gold illustrated orb as the hero. Sample layout predictions are fixtures and cannot establish model quality. Treat runtime limitations honestly. Never infer functionality from a screenshot. Do not award a desired score to satisfy a target.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+
+RUNTIME EVIDENCE:
+# Round32 — provisional browser assessment, product98b1b92f
+
+Question entry now places the full entertainment/data notice and any configured provider consent before the field. Label, question and Ask are one contiguous group.18/26 sans input scales exactly36/52 at200%, with four visible lines at normal heights and three below600px. A functional outline remains when unfocused. There is no extra review step, truncated stored value or changed submit handler. Recipient controls and full disclosure remain in ordinary scroll content above the group; the actual app header/Close remains fixed.
+
+A web-only effect brings the group into view on entry/viewport/text-size changes below600px without moving focus. It does not run on every keystroke or recipient-editor return. Actual source retains permission guards, identity validation,500-character maximum, private-data handling and one request per action. No model/safety/storage/payment contract change.
+
+Current evidence:
+-127tests/typecheck pass.
+- large-forms-complete:390x844→390x500 at200%, visible Your question label,>=90%input and reachable submit together, exact500-character draft survives resize/recipient edits, recipient return focus stays visible, complete notice can be retrieved, custom-answer context/long answer/Back retained. These are synthetic height constraints, not a native keyboard drive. Screens named form-*-constrained are500px high and are letterboxed outside their viewport in contact sheets.
+- compose-read: four visible question lines at normal height, self/person subject editing/retained question, full legacy reason/answers/assumptions/sources, keyboard entry/return focus, free/Plus boundaries and zero axe at normal200%.
+- input-scale: all11input types exactly double. identity: empty-name disabled state, valid/cancel/save/self transitions, exact retained question and visible return focus at normal200%, zero axe.
+- consent-test captures use a separate owned8097 build with Test provider configured and controlled local responses. At390x500 normal200%, submit disabled and zero requests before opt-in, full named-provider disclosure reachable, then one exact question request with matching consent after opt-in; zero axe. No real provider call. That temporary preview is stopped; main8098 is still the actual local-Ollama build.
+- actual local-Ollama reading-flow passes adaptive questions, full authored explanation/labels, live chart, free/Plus Why, due date, real PNG/history/plans/safety/large Home with no page errors. Predictive accuracy is not claimed.
+
+Images beginning retained31 are explicitly previous-round captures of unchanged Home, birth details, authored reason, outcomes and export recovery. No product source for those screens changed this round. Their retained proof: Home Chrome/WebKit390x844/430x932 normal200%, complete populated/unavailable omen, unchanged261.3px orb/default placement and compact enlarged composition; actual birth lookup/save/invalid/no-results/failure/retry/forget/focus/Axe; held/failed/retried actual canvas export and truthful completion at both text sizes; complete authored bodies and persisted/correctable outcomes. Current layout captures cover those screens again; retained images add deeper state coverage without claiming fresh inference.
+
+Long layout text is explicitly synthetic stress content; current label matches engine output. Historical outcome/reader fixtures may retain old confidence wording, not current calibrated confidence. Legacy prose is preserved with neutral Passage headings; authored readings have producer-defined context/assumption/limits. Prior actual60-second cancellation/retry, local social/PostgreSQL and backup transport proof remain historical. Circles is offline here; no production Auth claim.
+
+Browser provisional scores may use the full numeric range; physical iPhone Safari/native Dynamic Type/VoiceOver, actual keyboard, microphone/haptics, payments and OS share remain separate unverified gates. No novice study or predictive-accuracy certification. Do not award a requested score to end the loop. Background-only contrast sampling and original failures are preserved outside the UI review deck.
+
+Final current proof on98b1b92f:270layout/text states pass at360/390/430 normal200%;1686rendered controls meet44×44; full real-drive passes with zero page errors.60text contrast samples492checks,16entrances and reduced-motion/resume pass. Isolated exact-head motion near60fps/max16.8ms includes45seconds ambient Sky, with no concurrent browser/grade jobs and no host-load exception.
+
+
+Grade EVERY settled screen and key state represented in the sheets (group its corresponding transition with it, assess visible transition continuity). Include ALL represented core states and empty, error, loading, expanded, other-input and populated variants, including main’s birthday/focus/age-confirmation onboarding, birthday editing, optional birth details and named-person input when pictured. Grade these components individually too: hero orb, tab bar, wordmark/balance header, primary button, secondary action, answer choice, question input, large-text input, settings switch, omen content, sky star/selected question, circle surface, history row, plan option, share preview, notice/recovery, typography, atmospheric background; and, when present, birthday input, age confirmation, focus selection, birth-profile surface, birth-details form, named-person control, evidence disclosure and export status. If evidence is missing, record it and provisional scores; do not invent proof. For each screen and component give six 0–10 dimension scores, evidence and concise concrete findings. Use null only for truly inapplicable dimensions, not missing evidence. Return the required JSON. Keep each evidence field to one sentence and findings to ONE concise, actionable sentence per item. Do not classify intentionally labeled synthetic fixture wording as a production-copy bug; runtime evidence states the boundary. You may inspect ONLY the round's screenshots, controls.json, layout.json and runtime.md if more detail is needed. Do not inspect research.md (contains prior ratings), source, or other files.
