@@ -4,7 +4,7 @@ import {chromium} from '@playwright/test';import {readFileSync} from 'node:fs';
 const plainCss='.motion-enter{animation-name:smoke-wipe!important;animation-timing-function:cubic-bezier(.2,.75,.2,1)!important}.screen-veil::after,.screen-veil::before{display:none!important}.orb .gb{animation:none!important}.tap-burst{display:none!important}.tap-squash{animation:none!important}';
 const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How settled is your plan right now, honestly?',options:['Barely started','Halfway there','Nearly certain','Other'],remember:false}]};
 const prediction={id:'ab',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:'Fixture.',facts:{},sources:[],assumptions:['Fixture.'],friend:false};
-const b=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--enable-gpu','--ignore-gpu-blocklist']});
+const b=await chromium.launch({channel:'chrome',headless:true,args:['--enable-gpu','--ignore-gpu-blocklist']});
 const rows=[];
 for(let round=0;round<3;round++)for(const variant of ['art','plain']){
  const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();

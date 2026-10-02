@@ -4,8 +4,11 @@ import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',evidence=process.env.LAYOUT_EVIDENCE||'.local/layout';
 const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How settled is your plan right now, honestly?',options:['Barely started','Halfway there','Nearly certain','Other'],remember:false},{id:'context_b',question:'What usually gets in your way?',options:['Time','Money','Nerve','Other'],remember:false},{id:'context_c',question:'Who can help you keep going?',options:['A friend','A teacher','Just me','Other'],remember:false}]};
-const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:'Layout fixture text.',facts:{context_a:'Halfway there'},sources:[],assumptions:['Layout fixture assumption.'],friend:false};
-const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
+// Facts and assumptions exercise their 300/200-character input limits; news titles are unbounded.
+const longFact='I practise with a conversation partner after work and review difficult phrases every weekend. '.repeat(4).slice(0,300);
+const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
+const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
+const browser=await chromium.launch({channel:'chrome',headless:true});
 const failures=[],checked=[];
 async function audit(page,width,name,marker,delay=1300){
  await expect(marker).toBeVisible();
@@ -85,7 +88,9 @@ for(const width of [360,390,430])for(const large of [false,true]){
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
  for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
- await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await check('reveal-why',text('Behind the mist'));
+ await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(text(prediction.why)).toBeVisible();
+ for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();
+ await check('reveal-why',text('Behind the mist'));
  await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
  await tap('preview-story-card');await check('story',page.getByTestId('back-to-sharing'));
  await tap('back-to-sharing');await tap('close-flow');await tap('close-flow');
