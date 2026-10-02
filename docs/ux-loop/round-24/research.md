@@ -1,0 +1,9 @@
+# Round24 — readable roles after expansion24
+
+Both blind graders selected Reveal B, History A, Error A. Shared display default38/42 becomes28/34; explicit forecast and history headlines use22/30. Every role still doubles at200%. Home orb/headline dimensions unchanged. Recovery drops its decorative orb; actual engine message/retry/review/edit routes retained. Reading/error/sensitive atmosphere becomes quiet utility only when those stages are actually visible in Ask, not when their stale flow state survives a tab switch.
+
+The reveal is a reading-first result with qualification above full unchanged headline, readable Check back date, Why and Share. A small64px signature/Golden metadata remains after actions; no heroic orb delaying reading. History entries stack full localized date, question, complete forecast, existing outcome/date status and explicit Open check-in cue.
+
+Causal proof: original72px headline splits conversation into2lines at200%; no characters were outside the342px container. Unrelated wrap CSS changed nothing and was not applied. Reflow test now passes all360/390/430 normal200% with ordinary words and October labels intact. Main layout audit now measures each direct text node’s line rectangles against its text element, supplementing element bounds. This can detect real overflow rather than infer it from a viewport cutoff.
+
+Blast radius: shared Txt default affects headings with no explicit size and line-height fallbacks of explicitly sized headings. Existing field scaling, Home roles and raster share export are separately sized. Full246screen audit/contrast covers default and fallback roles;123tests plus real engine/retry/history/export prove behavior. Native typography remains unverified. Direct hierarchy test preserves visible composer submission, check-in before Why/Share and full evidence disclosure content. No model/schema/date-storage changes.
