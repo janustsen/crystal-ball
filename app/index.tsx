@@ -35,8 +35,8 @@ export default function App(){
  useEffect(()=>{if(flow.stage!=='approach')return;const timer=setTimeout(()=>setFlow({stage:'listening'}),state.reduceMotion||systemReduce?0:1100);return()=>clearTimeout(timer)},[flow.stage,state.reduceMotion,systemReduce]);
  useDelight({enabled:!!state.ambientSound,listening:flow.stage==='approach'||flow.stage==='listening',thinking:flow.stage==='planning'||flow.stage==='research',revealId:flow.stage==='reveal'&&!reviewing?flow.prediction.id:undefined});
  const [{friend,friendTarget},setReadingIdentity]=useState(()=>readingIdentity({friend:false}));
- const socialProfile=accountSocialProfile(state);
- useEffect(()=>{if(ready)void syncSocialProfile(socialProfile).catch(()=>{})},[ready,socialProfile.sunSign,socialProfile.ageBand,socialProfile.plus]);
+ const socialProfile=accountSocialProfile(state),socialReady=ready&&canRead(state);
+ useEffect(()=>{if(socialReady)void syncSocialProfile(socialProfile).catch(()=>{})},[socialReady,socialProfile.sunSign,socialProfile.ageBand,socialProfile.plus]);
  useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.history.find(p=>p.id===id);if(reading)showPrediction(reading);else{cancel();setPaywall(false);setShare(false);setTab('History')}})},[ready,state.history]);
  const [personMode,setPersonMode]=useState(false),[personName,setPersonName]=useState('');
  const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined};

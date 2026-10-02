@@ -16,7 +16,7 @@ export type SkyStar = {id:string;theme:SkyPrompt;wording:string;resonances:numbe
 export const sampleStars:SkyStar[]=Object.entries(skyPrompts).map(([theme,prompt])=>({id:`sample-${theme}`,theme:theme as SkyPrompt,wording:prompt.question,resonances:0,resonated:false,mine:false,synthetic:true}));
 export const sunSigns=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'] as const;
 export type SocialProfile={sunSign:string|null;ageBand:'teen'|'adult'|null;plus:boolean};
-export function accountSocialProfile(account:Pick<AccountState,'plus'|'sunSign'|'ageBand'|'birthday'>):SocialProfile {
+export function accountSocialProfile(account:Pick<AccountState,'plus'>&Partial<Pick<AccountState,'sunSign'|'ageBand'|'birthday'>>):SocialProfile {
  return {sunSign:account.sunSign??null,ageBand:account.ageBand??null,plus:account.plus};
 }
 export function activityTheme(question:string):SkyPrompt {
