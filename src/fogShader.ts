@@ -36,17 +36,30 @@ void main(){
     vec2 l = (fc - orb.xy) / orb.z;
     float dist = length(l);
     if (dist >= 1.6) continue;
-    // Advect through a warped noise field. Never rotate, reverse time or wrap a pose.
-    vec2 lp = l * 1.6 + vec2(T * 0.027, -T * 0.043);
-    vec2 q2 = vec2(fbm(lp + vec2(0.0, T * 0.05)), fbm(lp + vec2(3.1, 7.7) - vec2(T * 0.037, -T * 0.019)));
-    float f2 = fbm(lp + 2.8 * q2);
+    // Advect through a doubly warped field. Never rotate, reverse time or wrap a pose.
+    vec2 flow = vec2(T * 0.07, -T * 0.16);
+    vec2 lp = l * 1.1 + flow;
+    vec2 q2 = vec2(fbm(lp + vec2(0.0, T * 0.21)), fbm(lp + vec2(3.1, 7.7) + vec2(T * 0.13, -T * 0.05)));
+    vec2 r2 = vec2(fbm(lp + 2.6 * q2 + vec2(1.7, 9.2) + T * 0.17), fbm(lp + 2.6 * q2 + vec2(8.3, 2.8) - T * 0.14));
+    float f2 = fbm(lp + 2.2 * r2);
     float fil2 = 1.0 - abs(f2 * 2.0 - 1.0);
-    float body = smoothstep(0.3, 0.78, f2) * 0.55 + smoothstep(0.58, 1.0, fil2) * 0.32;
-    float inside = clamp(body * 1.05, 0.0, 1.0) * (1.0 - smoothstep(0.88, 1.0, dist)) * uMood.w;
-    vec3 c2 = mix(vec3(0.82, 0.78, 0.74), vec3(1.0, 0.97, 0.92), smoothstep(0.55, 0.9, f2));
-    c2 = mix(c2, vec3(1.0, 0.74, 0.46), (1.0 - smoothstep(-1.0, 0.3, l.y)) * 0.55 * flick);
-    float escaped = smoothstep(.9, 1.05, dist) * (1.0 - smoothstep(1.05, 1.55, dist));
-    escaped *= smoothstep(-.1, .65, l.y) * smoothstep(.68, .96, fil2) * .4;
+    // Cel-shaded smoke over dark glass: soft-edged tone bands, one inked contour, lit by the candle below.
+    float dens = smoothstep(0.38, 0.8, f2) * 0.85 + smoothstep(0.7, 1.0, fil2) * 0.3;
+    float shadowBand = smoothstep(0.2, 0.26, dens), midBand = smoothstep(0.46, 0.52, dens), lightBand = smoothstep(0.74, 0.8, dens);
+    float ink = 1.0 - smoothstep(0.0, 0.04, abs(dens - 0.46));
+    float edge = 1.0 - smoothstep(0.9, 1.0, dist);
+    float inside = clamp(0.5 + shadowBand * 0.12 + midBand * 0.3 + ink * 0.1, 0.0, 1.0) * edge * uMood.w;
+    vec3 c2 = mix(vec3(0.1, 0.06, 0.04), vec3(0.34, 0.21, 0.13), shadowBand);
+    c2 = mix(c2, vec3(0.9, 0.75, 0.55), midBand);
+    c2 = mix(c2, vec3(1.0, 0.96, 0.86), lightBand);
+    c2 = mix(c2, vec3(0.13, 0.07, 0.04), ink * 0.7);
+    float under = 1.0 - smoothstep(-1.0, 0.25, l.y);
+    c2 = mix(c2, vec3(1.0, 0.66, 0.34), under * flick * (0.18 + 0.5 * midBand));
+    c2 += vec3(1.0, 0.8, 0.5) * exp(-dist * 2.6) * 0.14 * flick;
+    c2 += vec3(1.0, 0.82, 0.55) * smoothstep(0.7, 0.98, dist) * midBand * 0.25;
+    float escaped = smoothstep(.9, 1.05, dist) * (1.0 - smoothstep(1.05, 1.5, dist));
+    escaped *= smoothstep(-.1, .65, l.y) * smoothstep(.72, .96, fil2) * .3;
+    c2 = mix(c2, vec3(0.88, 0.76, 0.6), step(1.0, dist));
     float oa = clamp(max(inside, escaped), 0.0, 0.92);
     vec3 pm = c2 * oa + col * a * (1.0 - oa);
     a = oa + a * (1.0 - oa);

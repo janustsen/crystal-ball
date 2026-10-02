@@ -6,7 +6,7 @@ Implementation was checked in the isolated `fm/cb-launch` worktree on 2026-09-30
 - `npm test`: 36 pass, zero skipped with worktree-local FFmpeg on PATH.
 - `npx expo export --platform ios --output-dir .local/ios-export`: pass; this is a JS bundle, not a signed/native device run.
 - All four project drivers pass against this checkout at app 8096 / engine 8796: primary, extended, states, general. Real local Ollama supplies the forecasts. Primary flow measured 10.073 seconds. The general-flow accessibility scans report zero violations.
-- `scripts/drive-launch.mjs`: Home entertainment text and no initial login; You optional backup fallback, privacy disclosure and 200% text. A separate 8097 build with a synthetic named AI provider proves opt-in/revocation gating without making any model call.
+- `scripts/drive-launch.mjs`: launch controls and 200% text; see the [verification skill](../../.agents/skills/verify-crystal-ball/SKILL.md#evidence) for current assertions. A separate 8097 build with a synthetic named AI provider proves opt-in/revocation gating without making any model call.
 - `scripts/verify-backup-db.mjs`: production migrations pass ownership/RLS proof in isolated PostgreSQL via PGlite. Not a shared Supabase deployment.
 - Production Supabase query-builder tests prove current-session ownership, fresh-device restoration, preserved local entitlements and rejection of malformed cloud history. Apple UI/token exchange remains unverified on device.
 

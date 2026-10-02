@@ -16,7 +16,7 @@ The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority
 | Borders | #614C34 / #79634A |
 | Display / body | IM Fell English / Hanken Grotesk |
 
-The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. The wordmark and tab labels retain their graphic size; task text scales. Touch targets remain at least 44 pt. Primary buttons are ivory, secondary actions are plain text or outlined. Smoke and embers are decorative and cannot intercept input. Reduced motion stops the shader animation and CSS motion.
+The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark and tab labels retain their graphic size; task text scales. Touch targets remain at least 44 pt. Surfaces are illustrated rather than flat: a near-black #0B0604 ink outline, a thin gold inner rim, a hard drop shadow and soft ambient shadow. Primary buttons are warm ivory on a brass lip that sinks when pressed; secondary buttons are dark glass on an ink lip; answer options are inked chips. The [motion language](motion-language.md) owns these finishes alongside movement. Smoke and embers are decorative and cannot intercept input. Reduced motion stops the shader animation and CSS motion.
 
 ## Navigation and the 17 states
 
