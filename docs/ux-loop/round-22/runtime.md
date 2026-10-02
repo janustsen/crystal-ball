@@ -1,0 +1,30 @@
+# Round22 — provisional browser review, product8693662 / driver133ef15
+
+Current Open mist implementation: borderless dark atmospheric surfaces, quiet separators, illustrated gold Home orb and compact supporting copy. Actual phone screenshots at normal and200% text. Optional birthday/focus onboarding, eligibility gates, named-person editing, one/two adaptive cards, free brief/Plus dedicated evidence readers and PNG-only sharing remain. Layout predictions are deliberately synthetic long-content stress fixtures; their three cards stress geometry and do not establish actual adaptive count or model quality.
+
+Current changes: calendar dates are human-readable with explicit Check back labels; stored dates/reminders unchanged. Header says reading(s) left. Birth-city instructions follow actual search/selection state. Check-in keeps one persistent polite Saved status rather than also showing a bottom notice. Voice failure appears beside recovery controls. Circles has one offline retry instruction. Sources explicitly state that background material does not verify the forecast.
+
+Share preview now occupies68% of content width. Downloaded1080×1920 PNG qualification increased42→56px and brand tagline36→44px; inspected actual exported image. Preparing image is one polite inline status beside a disabled action. Failure labels the action Try download again. Private questions/facts/reasoning are excluded. Tap to enlarge still opens full-width image plus scalable full-text transcript with focus entry/return.
+
+Current evidence:
+- Typecheck and all123 tests pass, including calendar date formatting, stored due dates/reminders and lossless reader prose.
+- screens/layout.json:246 states across360/390/430 normal200%, zero failures. control-targets.txt:1530 nonzero rendered button/tab/radio/switch/input bounds all>=44×44. Browser dimensions are not native hit-testing.
+- home-chrome and home-webkit:390×844/430×932 normal200%, orb~67% width, whisper clear, default headline<=2 lines, omen fits and navigation clearance passes. Desktop WebKit is not physical iPhone Safari.
+- real-drive/drive.json: actual local Ollama reading, adaptive questions, PNG and recovery, history/outcomes/memory/plans, sensitive redirect and large-text Home; no page errors.
+- reading-flow/reading-flow-drive.json: actual local Ollama forecast, invalid/valid onboarding, focus update, live Copenhagen geocoding/calculated birth chart, free/Plus Why, readable due date, actual PNG, history, simulated purchases, memory Undo, person validation, sensitive redirect and enlarged Home. An old ISO birthday test expectation failed; DOM showed correct readable birthday. Assertion corrected and complete flow passed; failure preserved.
+- export-feedback/feedback.json: held canvas encoding, double activation creates one encode, exactly one Preparing image status, disabled action, unrelated invite usable, injected failure and explicit retry, actual PNG downloaded. Held/recovery screenshots are current.
+- share-inspection: exact forecast/qualification accessible image, Enter opens transcript, focus moves to inspection heading and returns to preview.
+- migration: both legacy profile/history fixtures preserve storage and show readable check-in date.
+- task-contrast:54 samples across all free/Plus readers, Share, full inspection/options at both sizes;429 rendered-background text checks, zero failures. Raster image text is not DOM contrast proof.
+- transition-contrast:16 composited entrance samples, zero failures. motion/reduced-motion.json: OS/app preferences stop actual canvas/CSS, resume, large-text orbs remain and approach is immediate.
+- outcome-feedback.json: actual persisted Yes/No/Pending outcomes using explicitly synthetic history, each with one local saved status.
+
+Earlier unchanged behavior, not rerun this round: round21 input-scale proves all11fields exactly double, including six date parts; large-forms proves full question/editor/return/submission at390×844 and constrained390×500 with draft/focus retention; age-editor proves normal200% blocked/correction, no bypass, invalid/cancel/save/reload/focus and zero axe; age-confirmation proves fresh/friend/legacy eligibility acceptance/decline/reload; retention proves birthday removal preserves eligibility/history/credits boundaries. Round18 identity editor proves Cancel preserves Alex while editing Blair and Save/self retain original question. Round20 navigation proves visible free Back and isolated quiet reader controls. Existing date-field storage serializes YYYY-MM-DD; no native calendar is offered. Browser resized viewport does not prove native keyboard behavior.
+
+Other retained previous proof: real60-second timeout/cancel recovery, no credit spent on failed/sensitive requests; settings keyboard/focus/storage; scrolled-out orb contributes zero header pixels; separate local PostgreSQL/social+Ollama journeys verify circle/school eligibility, consent and no coordinates stored/transmitted. Main preview Circles is offline and Sky has samples. Separate local adapter tests do not certify production Supabase/Auth.
+
+Stage boundary: full numeric provisional browser assessment, not native certification. Physical iPhone Safari, native Dynamic Type/VoiceOver/hardware timing, microphone/haptics, actual payments and OS share delivery are separate unverified gates. Browser downloads do not establish native delivery. Working inference does not establish predictive accuracy.
+
+Current compose-read verifies full question retention, dedicated identity editor, all four complete reader categories, free/Plus boundaries and keyboard/focus return; zero axe violations at both sizes. Current reading-extras repeats skipped onboarding/eligibility, under13 reload, real teen named-person forecast, injected failure without credit loss, successful retry and voice fallback.
+
+Current isolated motion/samples.json passes callback and actual WebGL-draw targets near60fps, maximum16.8ms, including45seconds ambient Sky. No concurrent browser drivers or graders. No host-load exception taken.
