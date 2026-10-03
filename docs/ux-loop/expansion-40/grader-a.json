@@ -1,0 +1,92 @@
+{
+  "comparisons": [
+    {
+      "scene": "Evidence, 390px, normal and 200% text",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 6.5,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 6.5
+      },
+      "finding": "Continuous reading preserves context, but repeated return links and separators add clutter. At 200%, the two-column index crowds labels and separates arrows from text; reaching answers leaves neighboring sections competing for attention."
+    },
+    {
+      "scene": "Evidence, 390px, normal and 200% text",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 7.5,
+        "feedback": null,
+        "accessibility": 7.5
+      },
+      "finding": "Accordion rows and expanded indicators organize sections clearly. The initially expanded long reason pushes other choices far down at 200%; the answers state is focused, but Sources falls below the initial viewport."
+    },
+    {
+      "scene": "Evidence, 390px, normal and 200% text",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 9,
+        "typography": 8.5,
+        "surfaces": 8.5,
+        "clarity": 9,
+        "feedback": null,
+        "accessibility": 8.5
+      },
+      "finding": "Strongest evidence composition: every section is immediately discoverable at both sizes, and the answers reader remains spacious and legible. Separate forecast and section returns preserve orientation, with an extra navigation step when comparing sections."
+    },
+    {
+      "scene": "Sharing, all five supplied states, normal and 200% text",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 7.5,
+        "surfaces": 8,
+        "clarity": 6.5,
+        "feedback": 6.5,
+        "accessibility": 6
+      },
+      "finding": "The thumbnail and Download button dominate even after error or invitation states. At 200%, retry is partly below the initial viewport, invitation copy is below it, and the reminder qualification requires scrolling. Outcome copy is readable once reached."
+    },
+    {
+      "scene": "Sharing, all five supplied states, normal and 200% text",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 9,
+        "typography": 8.5,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": 8.5,
+        "accessibility": 8.5
+      },
+      "finding": "Strongest sharing composition: dedicated result sheets make each outcome unmistakable. Retry, invitation controls, reminder limitations and Done remain visible at 200%. The sheet interrupts forecast context, and the ready-state thumbnail is too small to inspect meaningfully."
+    },
+    {
+      "scene": "Sharing, all five supplied states, normal and 200% text",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8.5,
+        "surfaces": 8.5,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "Excellent compact ready state and coherent inline outcomes. Retry and invitation copy remain initially visible at 200%, but persistent headings and forecast text lengthen result states. Image inspection requires disclosure; returning to the forecast requires upward scrolling from the bottom."
+    }
+  ],
+  "evidenceWinner": "C",
+  "shareWinner": "B",
+  "reason": "C makes evidence sections easiest to find and isolates the selected reading. B gives sharing outcomes and recovery controls the clearest priority across text sizes. Neither establishes the complete A≥9/F≥9 threshold.",
+  "limitations": [
+    "Scores are provisional screenshot judgments across supplied states; accessibility scores cover visible enlargement and layout only.",
+    "Sharing feedback scores assess presented messages and recovery affordances, not successful actions. Evidence feedback is null because meaningful runtime feedback was not established.",
+    "Download, copy and share controls are inert. Export validity, clipboard delivery, persistence, scheduling, focus, screen readers and native behavior are unverified.",
+    "The evidence reader's long-reason detail in C and expanded image disclosure are not shown. Synthetic content cannot establish evidence provenance or predictive quality.",
+    "No source, other reviews or previous rounds inspected. No complete functional or component-level acceptance certification is supported."
+  ]
+}

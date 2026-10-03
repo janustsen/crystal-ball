@@ -1,0 +1,92 @@
+{
+  "comparisons": [
+    {
+      "scene": "evidence",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 6
+      },
+      "finding": "Continuous reading exposes all sections, but repeated return links and dividers add clutter. At 200%, the two-column section navigation crowds Assumptions against Sources; the answers view carries unrelated sections into the reading task."
+    },
+    {
+      "scene": "evidence",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "Accordion arrows clearly distinguish open and closed sections, and answers retain surrounding navigation. The initially expanded long reason pushes other sections far down at 200%; Sources remains below the initial answers viewport."
+    },
+    {
+      "scene": "evidence",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 9,
+        "typography": 9,
+        "surfaces": 8,
+        "clarity": 9,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "The single-column index makes all four destinations immediately discoverable at both sizes. The answers reader isolates the requested content with an explicit return. Costs one opening action and return navigation between sections; the long reason reader is not shown."
+    },
+    {
+      "scene": "sharing",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": 7,
+        "accessibility": 6
+      },
+      "finding": "Thumbnail and Download retain priority even during error, invitation and reminder states. At 200%, retry is partly below the initial viewport and invitation copy is below it. Outcome copy is readable after scrolling, but duplicate download/retry emphasis weakens recovery."
+    },
+    {
+      "scene": "sharing",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 9,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 9,
+        "feedback": 9,
+        "accessibility": 8
+      },
+      "finding": "Dedicated result sheets prioritize each outcome, with retry and invitation controls fully visible at 200% and a consistently reachable Done. Reminder copy explicitly denies scheduling. The ready screen retains the thumbnail and readable transcript. Sheet interruption removes forecast context; Done competes somewhat with retry."
+    },
+    {
+      "scene": "sharing",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 9,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "The ready screen is compact and readable at 200%, with a prominent Download and optional image disclosure. Inline outcomes preserve context and keep retry/copy initially visible, but repeated forecast text lengthens result screens and pushes image inspection below the fold. Actual artwork requires an extra action."
+    }
+  ],
+  "evidenceWinner": "C",
+  "shareWinner": "B",
+  "reason": "C gives evidence the clearest section discovery and focused reading composition. B gives sharing the strongest outcome hierarchy and least scrolling to recovery or completion at 200%. Scores assess visible composition, supplied states and stated prototype navigation only; no complete functional aggregate or threshold pass is established.",
+  "limitations": [
+    "Accessibility scores cover visible enlargement and layout only. Focus, semantics, screen readers, measured contrast, reduced motion and physical/native behavior are unverified.",
+    "Sharing feedback scores assess displayed messages and recovery affordances, not successful exports, clipboard operations, delivery or scheduling; those controls are inert.",
+    "Evidence feedback is null because action announcements and focus feedback are not established. C's long reason reader and expanded share-image disclosure are not supplied.",
+    "Thumbnail text is too small for comfortable reading in A/B; readable forecast text is provided separately. Full export fidelity and privacy exclusion are unverified.",
+    "Synthetic content establishes neither provenance nor predictive quality. Component observations are included in findings; images alone cannot certify every component or the A>=9/F>=9 threshold."
+  ]
+}
