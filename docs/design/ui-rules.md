@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home has no explanatory headline or primary button competing with the orb. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
+The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home keeps the orb central, with the forecast/check-back introduction and a due-check-in action when applicable. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
@@ -20,9 +20,9 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 ## Navigation and the 17 states
 
-Home, Sky, raised Ask orb, History and You are the five destinations. The tab orb uses exactly the Home orb artwork. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes sharing or plans first; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
+Home, Sky, raised Ask orb, History and You are the five destinations. The tab orb uses exactly the Home orb artwork. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
-1. Home: orb, one italic instruction, Daily omen panel and decorative fog whispers; see [motion](motion.md#orb-delight) for their animation and input behavior.
+1. Home: orb, italic forecast/check-back headline, return-visit guidance, due-check-in action, Daily omen panel and decorative fog whispers; see [motion](motion.md#orb-delight) for their animation and input behavior.
 2. Approach: larger orb and “Come closer…” before voice.
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
 4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
@@ -42,7 +42,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 
 The real engine still owns cards and predictions. Known facts are skipped; friend readings never teach the owner's memory. Back preserves prior answers and truncates later dependent answers. Invalid Other input cannot advance. Cancel aborts the request. Failed generation keeps answers and spends no reading. The decoder still repairs once then fails closed. Do not describe structural correctness as semantic or predictive accuracy.
 
-The story image includes the headline, speculative label and branding, never private questions, answers or Why. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
+See [sharing usage](../../README.md) for story-image and recording contents and the headline privacy warning. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
 
 ## Verification
 
