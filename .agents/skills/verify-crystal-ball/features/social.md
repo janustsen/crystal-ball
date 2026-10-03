@@ -11,3 +11,10 @@ Sky → Tonight’s Sky or Circles. Add my star rewrites the latest private read
 
 ## Gotchas
 Samples are labeled and never counted as people. Unknown/teen ages cannot enable Friend-reading consent. No raw private question or author identity appears in the Sky projection. The AI draft expires after 15 minutes; invitations after seven days; sealed cards remain available until revoked. Free seals are one per UTC calendar week, including revoked cards. The real Supabase transport and native link delivery remain separate verification prerequisites.
+
+
+## Social v2 drive
+
+`SOCIAL_APP_URL=http://localhost:8099 SOCIAL_DB_URL=http://127.0.0.1:55339 SOCIAL_PG_PORT=55449 node scripts/drive-social-v2.mjs` drives fresh named chrome-devtools-axi sessions against the isolated adapter. It covers real profile entry and handle search, silent decline/accept, a real Ollama group forecast, one Reading debited only to the asker, shared due-date votes, fixed reactions, glow/moments, consented Friend reading, targeted and browser seals, competing claims, ownership transfer and leaving. The driver explicitly advances the group due date in its disposable PostgreSQL cluster and records synthetic activity via the real RPC; those are timing/activity fixtures, not model output. Failed evidence is preserved. Set up the matching ports per the parent skill. The legacy social drive assumes superseded onboarding and unlimited Circle behavior; use this drive for v2 social coverage and the current reading-flow/core drives for private readings.
+
+New navigation: Circles → save @handle/name/avatar → create Circle → search @handle → request invitation. The recipient accepts in Circles. Each Circle has a warned group-question composer; publishing costs one Reading and shows the question/forecast to members. Sealed links skip onboarding on web, reveal only after tapping, and offer installation when `EXPO_PUBLIC_INSTALL_URL` is configured. Native push delivery needs EAS credentials and the trusted scheduler from SETUP.md; local queue tests and mocked Expo transport do not prove APNs/FCM delivery.

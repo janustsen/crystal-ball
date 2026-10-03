@@ -4,6 +4,7 @@ create function public.set_social_identity(chosen_handle text,chosen_name text,c
  language plpgsql security definer set search_path='' as $$
  begin
   if auth.uid() is null then raise exception 'Sign in first'; end if;
+  if chosen_handle is null or chosen_name is null or chosen_avatar is null then raise exception 'Choose a handle, name and avatar'; end if;
   insert into public.social_profiles(user_id,handle,display_name,avatar) values(auth.uid(),lower(trim(chosen_handle)),trim(chosen_name),chosen_avatar)
    on conflict(user_id) do update set handle=excluded.handle,display_name=excluded.display_name,avatar=excluded.avatar;
  end;
@@ -63,6 +64,8 @@ create or replace function public.leave_circle(target uuid) returns void
    select user_id into successor from public.circle_members where circle_id=target and user_id<>auth.uid() order by joined_at,user_id limit 1;
    if successor is null then delete from public.circles where id=target; return; end if;
    update public.circles set owner_id=successor where id=target;
+   delete from public.circle_invites where circle_id=target;
+   update public.circle_requests set status='declined' where circle_id=target and status='pending';
   end if;
   delete from public.circle_members where circle_id=target and user_id=auth.uid();
  end;
@@ -139,6 +142,7 @@ create table public.circle_glows(circle_id uuid not null references public.circl
 create or replace function public.circle_checkin(activity_theme text) returns void
  language plpgsql security definer set search_path='' as $$
  begin
+  perform 1 from public.circles where social_private.member(id) order by id for update;
   update public.circle_members set consulted_on=(now() at time zone 'UTC')::date,theme=activity_theme where user_id=auth.uid();
   insert into public.circle_glows select c.id,(now() at time zone 'UTC')::date from public.circles c
    where social_private.member(c.id) and not exists(select 1 from public.circle_members m where m.circle_id=c.id and m.consulted_on is distinct from (now() at time zone 'UTC')::date) on conflict do nothing;
@@ -212,13 +216,13 @@ $$;
 alter table public.sealed_forecasts add column intended_recipient uuid references auth.users on delete cascade;
 create function public.send_sealed_forecast(approved_draft uuid,target_circle uuid,target_member uuid) returns uuid
  language plpgsql security definer set search_path='' as $$
- declare token uuid; card_id uuid;
+ declare sealed_token uuid; card_id uuid;
  begin
   if target_member=auth.uid() or social_private.blocked(target_member) or not social_private.member(target_circle) or not exists(select 1 from public.circle_members where circle_id=target_circle and user_id=target_member) then raise exception 'Choose a Circle member'; end if;
-  token:=public.seal_forecast(approved_draft);
-  update public.sealed_forecasts s set intended_recipient=target_member where s.token=token returning id into card_id;
+  sealed_token:=public.seal_forecast(approved_draft);
+  update public.sealed_forecasts s set intended_recipient=target_member where s.token=sealed_token returning id into card_id;
   insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id) values(target_member,auth.uid(),target_circle,'seal',card_id);
-  return token;
+  return sealed_token;
  end;
 $$;
 create function public.sealed_inbox() returns table(token uuid,opened_at timestamptz)
@@ -254,3 +258,80 @@ create policy visible_forecasts on public.circle_forecasts for select to authent
 revoke all on function social_private.discoverable(uuid),social_private.membership_limit(),social_private.join_notice() from public,anon,authenticated;
 revoke all on function public.set_social_identity(text,text,text),public.search_handles(text),public.block_handle(text),public.manage_circle(uuid,uuid,text),public.request_circle_invite(uuid,text),public.circle_inbox(),public.answer_circle_invite(uuid,boolean),public.circle_people(),public.share_circle_moment(uuid,text),public.react_in_circle(uuid,uuid,text),public.publish_circle_forecast(uuid),public.vote_circle_forecast(uuid,text),public.circle_vote_tallies(),public.send_sealed_forecast(uuid,uuid,uuid),public.sealed_inbox() from public,anon;
 grant execute on function public.set_social_identity(text,text,text),public.search_handles(text),public.block_handle(text),public.manage_circle(uuid,uuid,text),public.request_circle_invite(uuid,text),public.circle_inbox(),public.answer_circle_invite(uuid,boolean),public.circle_people(),public.share_circle_moment(uuid,text),public.react_in_circle(uuid,uuid,text),public.publish_circle_forecast(uuid),public.vote_circle_forecast(uuid,text),public.circle_vote_tallies(),public.send_sealed_forecast(uuid,uuid,uuid),public.sealed_inbox() to authenticated;
+
+create table public.social_push_tokens(user_id uuid primary key references auth.users on delete cascade,token text not null unique check(token ~ '^(Expo|Exponent)PushToken\[[A-Za-z0-9_-]+\]$'));
+alter table public.social_push_tokens enable row level security;
+revoke all on public.social_push_tokens from public,anon,authenticated;
+create function public.set_social_push(push_token text) returns void language plpgsql security definer set search_path='' as $$
+ begin
+  if auth.uid() is null then raise exception 'Sign in first'; end if;
+  if push_token is null then delete from public.social_push_tokens where user_id=auth.uid();
+  else insert into public.social_push_tokens values(auth.uid(),push_token) on conflict(user_id) do update set token=excluded.token; end if;
+ end;
+$$;
+alter table public.social_notifications add column claimed_until timestamptz;
+create function public.claim_social_pushes() returns table(id uuid,token text,kind text,circle_id uuid)
+ language plpgsql security definer set search_path='' as $$
+ begin
+  return query with pending as (
+   select n.id,t.token from public.social_notifications n join public.social_push_tokens t on t.user_id=n.user_id
+   where n.delivered_at is null and n.deliver_after<=now() and (n.claimed_until is null or n.claimed_until<now())
+   and not exists(select 1 from public.social_blocks b where (b.user_id=n.user_id and b.blocked_id=n.actor_id) or (b.blocked_id=n.user_id and b.user_id=n.actor_id))
+   and ((n.kind='invite' and exists(select 1 from public.circle_requests r where r.id=n.reference_id and r.status='pending' and r.expires_at>now()))
+    or (n.kind='seal' and exists(select 1 from public.sealed_forecasts s where s.id=n.reference_id and not s.revoked and s.opened_at is null))
+    or (n.kind in ('joined','forecast','vote') and exists(select 1 from public.circle_members m where m.circle_id=n.circle_id and m.user_id=n.user_id)))
+   order by n.deliver_after limit 100 for update of n skip locked
+  ), claimed as (update public.social_notifications n set claimed_until=now()+interval '5 minutes' from pending p where n.id=p.id returning n.id,n.kind,n.circle_id)
+  select c.id,p.token,c.kind,c.circle_id from claimed c join pending p on p.id=c.id;
+ end;
+$$;
+create function public.finish_social_push(notification uuid) returns void language sql security definer set search_path='' as $$
+ update public.social_notifications set delivered_at=now() where id=notification;
+$$;
+revoke all on function public.set_social_push(text) from public,anon;
+grant execute on function public.set_social_push(text) to authenticated;
+revoke all on function public.claim_social_pushes(),public.finish_social_push(uuid) from public,anon,authenticated;
+grant execute on function public.claim_social_pushes(),public.finish_social_push(uuid) to service_role;
+
+-- Ownership can now transfer, so current ownership no longer proves who invited whom.
+create table public.circle_connections(
+ circle_id uuid not null,inviter_id uuid not null,invitee_id uuid not null,
+ primary key(circle_id,inviter_id,invitee_id),check(inviter_id<>invitee_id),
+ foreign key(circle_id,inviter_id) references public.circle_members(circle_id,user_id) on delete cascade,
+ foreign key(circle_id,invitee_id) references public.circle_members(circle_id,user_id) on delete cascade
+);
+alter table public.circle_connections enable row level security;
+revoke all on public.circle_connections from public,anon,authenticated;
+-- Before this migration only the original creator could own and invite.
+insert into public.circle_connections select c.id,c.owner_id,m.user_id from public.circles c join public.circle_members m on m.circle_id=c.id and m.user_id<>c.owner_id;
+create or replace function social_private.join_notice() returns trigger language plpgsql security definer set search_path='' as $$
+ begin
+  insert into public.circle_connections select new.circle_id,c.owner_id,new.user_id from public.circles c where c.id=new.circle_id and c.owner_id<>new.user_id on conflict do nothing;
+  insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id)
+   select user_id,new.user_id,new.circle_id,'joined',gen_random_uuid() from public.circle_members where circle_id=new.circle_id and user_id<>new.user_id;
+  return new;
+ end;
+$$;
+create or replace function public.school_circle_suggestions() returns table(circle_id uuid,user_id uuid)
+ language sql stable security definer set search_path='' as $$
+ select distinct edge.circle_id,peer.user_id from public.circle_connections edge
+ join public.social_profiles mine on mine.user_id=auth.uid()
+ join public.social_profiles peer on peer.user_id=case when edge.inviter_id=auth.uid() then edge.invitee_id else edge.inviter_id end and peer.school_id=mine.school_id
+ where auth.uid() in (edge.inviter_id,edge.invitee_id) and social_private.member(edge.circle_id) and not social_private.blocked(peer.user_id)
+ order by edge.circle_id,peer.user_id;
+$$;
+-- Pending links belong to the old owner's invitation authority; transfer invalidates them.
+create or replace function public.manage_circle(target uuid,person uuid,operation text) returns void
+ language plpgsql security definer set search_path='' as $$
+ begin
+  perform 1 from public.circles where id=target and owner_id=auth.uid() for update;
+  if not found then raise exception 'Only the owner can manage this Circle'; end if;
+  if person=auth.uid() or not exists(select 1 from public.circle_members where circle_id=target and user_id=person) then raise exception 'Choose another member'; end if;
+  if operation='transfer' then
+   update public.circles set owner_id=person where id=target;
+   delete from public.circle_invites where circle_id=target;
+   update public.circle_requests set status='declined' where circle_id=target and status='pending';
+  elsif operation='remove' then delete from public.circle_members where circle_id=target and user_id=person;
+  else raise exception 'Choose remove or transfer'; end if;
+ end;
+$$;

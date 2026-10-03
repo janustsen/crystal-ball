@@ -68,7 +68,19 @@ select public.vote_circle_forecast('40000000-0000-0000-0000-000000000001','pendi
 select proof.assert((select yes=1 and pending=1 and mine='pending' from public.circle_vote_tallies()),'members see tally and own vote');
 select proof.reject(format('select public.manage_circle(%L,%L,''remove'')',:'c','00000000-0000-0000-0000-000000000001'),'P0001');
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.invite_to_circle(:'c') as transfer_invite \gset
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
+select public.join_circle(:'transfer_invite');
+select public.set_school('sfusd-lowell');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.set_school('sfusd-lowell');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.manage_circle(:'c','00000000-0000-0000-0000-000000000002','transfer');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select proof.assert(not exists(select 1 from public.school_circle_suggestions() where user_id='00000000-0000-0000-0000-000000000004'),'ownership transfer does not invent a direct invitation relationship');
+select public.manage_circle(:'c','00000000-0000-0000-0000-000000000004','remove');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+
 select public.leave_circle(:'c');
 select proof.assert((select count(*)=0 from public.circle_forecasts),'leaving removes forecast visibility');
 select proof.assert((select count(*)=0 from public.circle_vote_tallies()),'leaving removes tally');
@@ -84,6 +96,39 @@ update public.social_profiles set plus=true where user_id='00000000-0000-0000-00
 set role authenticated;
 do $$ begin for i in 1..5 loop perform public.create_circle(); end loop; end $$;
 select proof.reject('select public.create_circle()','P0001');
+reset role;
+-- Targeted cards cannot be claimed by a different Circle member or link visitor.
+delete from public.social_blocks;
+update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001';
+insert into public.circle_members(circle_id,user_id) values(:'c','00000000-0000-0000-0000-000000000001');
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.send_sealed_forecast('20000000-0000-0000-0000-000000000001',:'c','00000000-0000-0000-0000-000000000002') as direct_seal \gset
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
+select proof.reject(format('select public.open_forecast(%L)',:'direct_seal'),'P0001');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select proof.assert((select count(*)=1 from public.sealed_inbox()),'inbox exposes tokens without headlines');
+select proof.assert(public.open_forecast(:'direct_seal')='Your next chapter will bring a new skill.','intended recipient opens targeted card');
+select public.set_social_push('ExpoPushToken[fixture]');
+select proof.reject('select public.claim_social_pushes()','42501');
+reset role;
+set role service_role;
+select proof.assert((select count(*)>0 from public.claim_social_pushes()),'trusted worker can lease allowed notifications');
+select proof.assert((select count(*)=0 from public.claim_social_pushes()),'active delivery lease prevents duplicate concurrent claims');
+reset role;
+-- Twenty pending requests per sender/day; a decline releases one pending slot.
+insert into auth.users select ('60000000-0000-0000-0000-'||lpad(i::text,12,'0'))::uuid from generate_series(1,21) i;
+insert into public.social_profiles(user_id,age_band,handle,display_name) select id,'adult','limit_'||right(id::text,2),'Limit user' from auth.users where id::text like '60000000%';
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select set_config('proof.circle',:'c',false);
+do $$ begin for i in 1..20 loop perform public.request_circle_invite(current_setting('proof.circle')::uuid,'limit_'||lpad(i::text,2,'0')); end loop; end $$;
+select proof.reject(format('select public.request_circle_invite(%L,''limit_21'')',:'c'),'P0001');
+set request.jwt.claim.sub='60000000-0000-0000-0000-000000000001';
+select id as limit_request from public.circle_inbox() \gset
+select public.answer_circle_invite(:'limit_request',false);
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select public.request_circle_invite(:'c','limit_21');
 set role anon;
 select proof.reject('select public.search_handles(''adult'')','42501');
 select proof.reject('select * from public.circle_forecasts','42501');

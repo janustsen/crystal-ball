@@ -8,7 +8,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  const snapshot={owner:'A',profile:{school_id:'school',age_band:'teen'},stars:[],schoolOnly:false,
   circles:[{id:'occupied',owner_id:'A'}],members:[{circle_id:'occupied',user_id:'A'}],
   schoolSuggestions:[{circle_id:'occupied',user_id:'C'},{circle_id:'occupied',user_id:'D'}],
-  schools:[],reactions:[],seals:[]};
+  schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,created=0,reads=0;
  const invited:string[]=[],checked:(string|undefined)[]=[];
@@ -31,7 +31,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  };
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
-  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},'./SchoolPicker':{},
+  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),

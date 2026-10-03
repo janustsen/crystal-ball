@@ -40,11 +40,11 @@ test('social recovery retries current profile before exposing a snapshot',async 
  offline=false;
  assert.equal((await loadSocial(plus)).owner,'viewer');
  assert.deepEqual(writes,[{action:'profile',...plus}]);
- assert.equal(reads,10);
+ assert.equal(reads,16);
  const unknown={plus:false,ageBand:null,sunSign:null};
  await loadSocial(unknown);
  assert.deepEqual(writes,[{action:'profile',...plus},{action:'profile',...unknown}]);
- assert.equal(reads,20);
+ assert.equal(reads,32);
  failSchool=true;
  const partial=await loadSocial(plus);
  assert.deepEqual([partial.owner,partial.schools,partial.schoolSuggestions],['viewer',[],[]]);

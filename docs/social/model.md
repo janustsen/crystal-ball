@@ -10,7 +10,7 @@ flowchart LR
   Draft -->|asker approves wording| Sky[Today's anonymous Star]
   Sky --> Report[Report or block]
   Report --> Hide[3 distinct reports hide the Star]
-  Reading --> Activity[Circle sees day + theme + sun sign]
+  Reading --> Activity[Circle sees activity + shared group forecasts]
   Invite[Single-use link: 7 days] -->|explicit Join| Circle[Private Circle: up to 20]
   Circle --> Consent[Adult friend opts in; default off]
   Consent --> Friend[Plus Friend reading: first name, sign and shared themes only]
@@ -26,7 +26,7 @@ flowchart LR
 | `social_drafts` | Trusted moderation service writes only; clients cannot insert or edit. Contains rewritten wording, theme and owner, never the original question. A draft is scoped to star/seal, its owner and a 15-minute lifetime. |
 | `sky_stars`, `sky_resonances` | One Star per person/UTC day. Public RPC exposes wording, theme, resonance counts and own flags; no author ID. A second publication that day is refused, including after withdrawal; existing wording, resonance and reports stay attached to the original Star. |
 | `star_reports`, `social_blocks` | One report per account/Star; three accounts auto-hide. Block resolves a public Star's author server-side, keeping identity out of the public response. Blocking applies both directions to social visibility and Friend reading authorization. |
-| `circles`, `circle_members`, `circle_invites`, `circle_reactions` | Up to 20 members, all by single-use 7-day invitation. Joining consents to sharing future consultation day/theme and sun sign. No question or forecast. Fixed star reactions only. Leaving removes access. The creator can close the Circle. |
+| `circles`, `circle_members`, `circle_invites`, `circle_reactions` | Up to 20 members, by single-use links or accepted handle requests. Joining consents to sharing future consultation day/theme and sun sign. Personal questions stay private; explicitly approved Circle forecasts are shared. Fixed emoji reactions only. Leaving removes access; ownership transfers to a remaining member. |
 | `friend_notices` | Recipient alone sees that someone asked, and the day; no asker or question stored. Friend consent, membership, blocking and Plus are checked at generation time. |
 | `sealed_forecasts` | Moderated headline only; never question, answers or Why. Sender can revoke. Recipient claims by tapping; row lock allows only one claimant. Free: one per UTC calendar week, including revoked cards. Plus: unlimited. Cards do not expire; only invitations expire after seven days. |
 
@@ -51,3 +51,17 @@ The requester enters a local nickname for a selected Circle member. It is not a 
 Age is client-declared in v1, not independently verified. Onboarding and its birthday gate belong to the reading-flow feature. Friend consent stays off unless the profile is adult; output moderation follows the [safety policy](../research/safety-policy.md).
 
 Blocking prevents either account from resonating with or reporting the other's Stars, even with a retained Star ID. Existing reactions and reports stay stored for audit but do not affect public totals across that block. A handled invitation is removed from the route after join or decline so navigation and reload cannot replay the prompt.
+
+## Social v2
+
+Profiles add unique lowercase handles (3–24 letters, digits or underscores), display names and a fixed avatar choice. `search_handles` exposes exactly handle/name/avatar. Adults are searchable by authenticated accounts. Teens and unknown ages are searchable only by other teen/unknown accounts with the same non-null chosen school. Blocks hide both directions. Circle-only member projections add identity while keeping sun signs inside shared membership.
+
+Handle invitations are seven-day requests: recipients accept or silently decline; a sender may have at most 20 pending requests created that UTC day. Membership insertion enforces 5 Circles per free account or 10 with Plus, and 20 members per Circle. Owners remove members or transfer ownership. Leaving as owner passes ownership to the earliest remaining member; leaving the last place deletes the Circle.
+
+The feed adds content-free check-in moments and golden draws. Fixed reactions are ✦, ❤️, 🌙 and ✨. Consultation updates record a glow when everyone consulted that UTC day. Recorded glow days remain; nothing breaks or resets. These activities never queue pushes.
+
+Circle forecasts are the explicit exception to private questions: the asker sees a warning and approves a question/headline/due-date receipt after both lines pass teen-audience AI moderation. Only the trusted service can write receipts. Publishing serializes on the Circle and permits one forecast with a future due date; retrying the same receipt is idempotent. It uses the existing device-local Reading balance and saves one Reading by receipt ID. Billing and entitlements retain the prototype boundary, not server-verified purchases. Current members can vote Yes / Not quite / Not yet on or after the due date; the RPC returns the tally and the caller’s vote. Leaving immediately removes shared access.
+
+Targeted seals use the same weekly quota and moderation gate as links. The inbox reveals only the token and opened state; the headline still requires the intended recipient’s ball tap. Link cards allow one anonymous browser claimant. Blocking and revocation apply at claim time.
+
+`social_notifications` accepts only seal/invite/join/forecast/vote events. A service-only leased queue dispatches generic Expo messages. See SETUP.md for native credentials, the install URL, scheduler setup and delivery limits. Browser proof does not establish native push delivery.
