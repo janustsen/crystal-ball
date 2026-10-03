@@ -186,8 +186,8 @@ create function public.publish_circle_forecast(approved_draft uuid) returns publ
  declare draft public.circle_forecast_drafts; result public.circle_forecasts;
  begin
   select * into draft from public.circle_forecast_drafts where id=approved_draft and user_id=auth.uid() and expires_at>now();
-  if draft.id is null or not social_private.member(draft.circle_id) then raise exception 'Approve a fresh Circle forecast first'; end if;
   perform 1 from public.circles where id=draft.circle_id for update;
+  if draft.id is null or not social_private.member(draft.circle_id) then raise exception 'Approve a fresh Circle forecast first'; end if;
   select * into result from public.circle_forecasts where id=draft.id;
   if result.id is not null then return result; end if;
   if exists(select 1 from public.circle_forecasts where circle_id=draft.circle_id and due_date>(now() at time zone 'UTC')::date) then raise exception 'This Circle already has an open forecast'; end if;
@@ -203,6 +203,7 @@ $$;
 create function public.vote_circle_forecast(forecast uuid,answer text) returns void
  language plpgsql security definer set search_path='' as $$
  begin
+  perform 1 from public.circles where id=(select circle_id from public.circle_forecasts where id=forecast) for update;
   if not exists(select 1 from public.circle_forecasts where id=forecast and social_private.member(circle_id) and due_date<=(now() at time zone 'UTC')::date and not social_private.blocked(asker_id)) then raise exception 'This check-in is unavailable'; end if;
   insert into public.circle_votes values(forecast,auth.uid(),answer) on conflict(forecast_id,user_id) do update set vote=excluded.vote;
  end;
@@ -218,6 +219,8 @@ create function public.send_sealed_forecast(approved_draft uuid,target_circle uu
  language plpgsql security definer set search_path='' as $$
  declare sealed_token uuid; card_id uuid;
  begin
+  perform 1 from public.social_profiles where user_id=auth.uid() for update;
+  perform 1 from public.circles where id=target_circle for update;
   if target_member=auth.uid() or social_private.blocked(target_member) or not social_private.member(target_circle) or not exists(select 1 from public.circle_members where circle_id=target_circle and user_id=target_member) then raise exception 'Choose a Circle member'; end if;
   sealed_token:=public.seal_forecast(approved_draft);
   update public.sealed_forecasts s set intended_recipient=target_member where s.token=sealed_token returning id into card_id;
