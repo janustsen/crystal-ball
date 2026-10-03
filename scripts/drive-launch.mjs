@@ -13,7 +13,7 @@ try{
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
  results.push('Home has entertainment disclosure and no sign-in prompt');
  await page.getByTestId('tab-you').click();
- await expect(page.getByText('What the Ball remembers',{exact:true})).toBeVisible();
+ await expect(page.getByText('Memory',{exact:true})).toBeVisible();
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
@@ -23,7 +23,7 @@ try{
  results.push('You hides unavailable Apple backup and shows readable privacy details');
  await page.getByRole('switch',{name:'Large text',exact:true}).click();
  await page.setViewportSize({width:375,height:667});
- await page.getByText('What the Ball remembers',{exact:true}).scrollIntoViewIfNeeded();
+ await page.getByText('Memory',{exact:true}).scrollIntoViewIfNeeded();
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);

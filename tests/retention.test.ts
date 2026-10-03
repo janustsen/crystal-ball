@@ -22,7 +22,7 @@ test('real reminder action passes the reading id and date to native scheduling; 
  assert.ok(Math.abs(Number(scheduled[0][2])-((checkInDate(on)!.getTime()-before)/1000))<2);
  await nativeActions(ports).reminder('',reading.id,'2026-02-30');assert.equal(scheduled.length,2);
  assert.match(await nativeActions(ports).reminder('',reading.id,'2000-01-01'),/ready for a Check-in/);assert.equal(scheduled.length,2);
- ports.platform='web';assert.match(await nativeActions(ports).reminder('',reading.id,on),/Native reminder preview/);assert.equal(scheduled.length,2);
+ ports.platform='web';assert.match(await nativeActions(ports).reminder('',reading.id,on),/No reminder scheduled in this browser/);assert.equal(scheduled.length,2);
 });
 
 import {loadDailyOmen,invalidateOmen,omenKey} from '../src/daily-omen';

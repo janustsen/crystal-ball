@@ -57,8 +57,8 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
    {saved?<>
     <Txt accessibilityLiveRegion="polite" style={[styles.caption,{color:colors.gold,marginTop:16}]}>Calculated and saved on this device.</Txt>
     <Txt display style={{fontSize:24,lineHeight:32,marginVertical:16}}>{state.moonSign&&state.moonSign[0].toUpperCase()+state.moonSign.slice(1)} Moon · {state.risingSign&&state.risingSign[0].toUpperCase()+state.risingSign.slice(1)} rising</Txt>
-    <Action label="Done" onPress={closeChart}/>
     <Txt style={[styles.caption,{marginTop:12}]}>{state.birthPlace} · {state.birthTime}</Txt>
+    <Action label="Done" onPress={closeChart}/>
     <Action label="Edit birth details" quiet onPress={()=>{setChartStep('time');setChartStatus('idle');setTime(state.birthTime||'');setPlace('');setSelected(undefined);setPlaces([])}}/>
     <Action label="Forget birth time and place" quiet onPress={forgetChart}/>
    </>:<>
@@ -79,10 +79,10 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
      <Input ref={cityInput} accessibilityLabel="Birth city" placeholder="City" placeholderTextColor={colors.muted} value={place} onChangeText={value=>{request.current?.abort();setChartStatus('idle');setPlace(value);setPlaces([])}} style={styles.input} maxLength={100}/>
      {chartStatus==='no-results'||chartStatus==='search-error'?<Txt accessibilityRole="alert" style={{marginVertical:8}}>{message}</Txt>:null}
      <Action testID="find-birth-city" label={busy?'Finding your city…':chartStatus==='search-error'?'Retry city search':'Find birth city'} disabled={busy||place.trim().length<2} onPress={search}/>
-     {places.length?<Txt style={styles.caption}>Select your birth city</Txt>:null}
+     {places.length?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:20}]}>Select your birth city</Txt>:null}
      {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet onPress={()=>{setSelected(p);setPlaces([]);setChartStatus('idle')}}/>)}
     </>}
-    {!message&&chartStatus!=='time-error'?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{busy?'Finding matching cities…':selected?(validBirthTime(time)?'Ready to calculate and save.':'Add your local birth time to continue.'):places.length?'Select your city from the results above.':'Find and select your birth city to continue.'}</Txt>:null}
+    {!message&&chartStatus!=='time-error'?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{busy?'Finding matching cities…':selected?(validBirthTime(time)?'Ready to calculate and save.':'Add your local birth time to continue.'):places.length?'':'Find and select your birth city to continue.'}</Txt>:null}
     {chartStatus==='calculation-error'?<Txt accessibilityRole="alert" style={{marginTop:12}}>{message}</Txt>:null}
     {selected?<Action testID="reveal-moon-and-rising" label="Calculate and save" disabled={!time} onPress={calculate}/>:null}
     <Txt style={[styles.caption,{marginTop:16}]}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>

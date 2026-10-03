@@ -8,7 +8,7 @@ import {useStore} from './store';
 import type {Prediction} from './types';
 export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction;onClose:()=>void;onUpgrade:()=>void}){
  const {state}=useStore();
- const [linkError,setLinkError]=useState(''),[contextOpen,setContextOpen]=useState(false),[section,setSection]=useState<string|null>(null);
+ const [linkError,setLinkError]=useState(''),[section,setSection]=useState<string|null>(null);
  const previousSection=useRef<string|null>(null);
  const assumptions=readingAssumptions(prediction);
  const groups=[
@@ -23,16 +23,16 @@ export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction
   previousSection.current=section;
  },[section]);
  return <>
-  <View testID="why-top"><Pressable testID="why-disclosure" accessibilityRole="button" accessibilityLabel="Back to forecast" onPress={onClose} style={{minHeight:48,justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ Back to forecast</Txt></Pressable><Txt testID="why-heading" accessibilityRole="header" display style={{fontSize:22,lineHeight:28,marginVertical:12}}>{state.plus?'Reading details':'Why this forecast'}</Txt><Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.label}</Txt></View>
+  <View testID="why-top">{state.plus&&section!==null?<Pressable testID="back-to-reading-sections" accessibilityRole="button" onPress={()=>setSection(null)} style={{minHeight:48,justifyContent:'center',paddingVertical:12}}><Txt style={{color:colors.ice}}>‹ Reading details</Txt></Pressable>:<Pressable testID="why-disclosure" accessibilityRole="button" accessibilityLabel="Back to forecast" onPress={onClose} style={{minHeight:48,justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ Back to forecast</Txt></Pressable>}<Txt testID="why-heading" accessibilityRole="header" display style={{fontSize:22,lineHeight:28,marginVertical:12}}>{state.plus?(section?groups.find(group=>group.id===section)!.title:'Reading details'):'Why this forecast'}</Txt>{!state.plus?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.label}</Txt>:null}</View>
+
   {state.plus&&section===null?<View testID="reading-sections">{groups.map(group=><Pressable key={group.id} testID={`open-why-${group.id}`} accessibilityRole="button" onPress={()=>{setLinkError('');setSection(group.id)}} style={{minHeight:56,paddingVertical:16,borderBottomWidth:1,borderColor:'#614C3466'}}><Txt style={{color:colors.ice}}>{group.title} ›</Txt></Pressable>)}</View>:<>
-   {state.plus?<Pressable testID="back-to-reading-sections" accessibilityRole="button" onPress={()=>setSection(null)} style={{minHeight:48,justifyContent:'center',paddingVertical:12}}><Txt style={{color:colors.ice}}>‹ Reading sections</Txt></Pressable>:null}
-   {(state.plus?groups.filter(group=>group.id===section):groups.slice(0,1)).map(group=><View key={group.id} testID={`why-${group.id}`} style={{paddingVertical:16,borderTopWidth:1,borderColor:'#614C3466'}}>{state.plus?<Txt accessibilityRole="header" display style={{fontSize:20,lineHeight:28,marginBottom:12}}>{group.title}</Txt>:null}{group.id==='reason'&&prediction.astrology?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.astrology}</Txt>:null}{group.id==='sources'?<Txt style={[styles.caption,{marginBottom:16}]}>Background only. These sources do not verify the forecast.</Txt>:null}{group.body}</View>)}
+
+   {(state.plus?groups.filter(group=>group.id===section):groups.slice(0,1)).map(group=><View key={group.id} testID={`why-${group.id}`} style={{paddingVertical:16,borderTopWidth:1,borderColor:'#614C3466'}}>{group.id==='sources'?<Txt style={[styles.caption,{marginBottom:16}]}>Background only. These sources do not verify the forecast.</Txt>:null}{group.body}{group.id==='reason'&&prediction.astrology?<Txt style={[styles.caption,{color:colors.gold,marginTop:16}]}>{prediction.astrology}</Txt>:null}</View>)}
    {state.plus?<Action testID="reading-section-end" label="Back to sections" quiet onPress={()=>setSection(null)}/>:null}
   </>}
 
   {linkError?<Txt accessibilityRole="alert">{linkError}</Txt>:null}
   {!state.plus?<Action label="Go deeper with Plus" quiet onPress={onUpgrade}/>:null}
-  <Pressable testID="why-context" accessibilityRole="button" aria-expanded={contextOpen} accessibilityState={{expanded:contextOpen}} onPress={()=>setContextOpen(!contextOpen)} style={{minHeight:48,justifyContent:'center',paddingVertical:12}}><Txt style={{color:colors.ice}}>Read the forecast {contextOpen?'⌃':'⌄'}</Txt></Pressable>{contextOpen?<><Txt>{prediction.headline}</Txt><Txt style={[styles.caption,{marginTop:8}]}>{prediction.label}</Txt></>:null}
-  <Action testID="reading-details-back" label="Back to forecast" quiet onPress={onClose}/>
+  {!state.plus?<Action testID="reading-details-back" label="Back to forecast" quiet onPress={onClose}/>:null}
  </>;
 }

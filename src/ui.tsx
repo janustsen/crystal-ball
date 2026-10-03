@@ -31,14 +31,14 @@ export function RadioGroup({testID,...props}:React.ComponentProps<typeof View>&{
  return <View {...props} testID={testID} accessibilityRole="radiogroup"/>;
 }
 
-export function Input({style,...props}:React.ComponentPropsWithRef<typeof TextInput>){
+export function Input({style,fill=false,...props}:React.ComponentPropsWithRef<typeof TextInput>&{fill?:boolean}){
  const {state}=useStore(),scale=state.largeText&&props.allowFontScaling!==false?2:1;
  const [contentHeight,setContentHeight]=useState(0),[height,setHeight]=useState(0),[offset,setOffset]=useState(0);
  const composed:TextStyle=StyleSheet.flatten([styles.input,style]);
  const input=<TextInput {...props} onLayout={event=>{setHeight(event.nativeEvent.layout.height);props.onLayout?.(event)}} onContentSizeChange={event=>{setContentHeight(event.nativeEvent.contentSize.height);props.onContentSizeChange?.(event)}} onScroll={event=>{setOffset(Platform.OS==='web'?(event.currentTarget as unknown as HTMLTextAreaElement).scrollTop:event.nativeEvent.contentOffset.y);props.onScroll?.(event)}} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}/>;
  if(!props.multiline)return input;
  const track=Math.max(0,height-32),thumb=Math.max(16,track*height/Math.max(1,contentHeight)),progress=Math.max(0,Math.min(1,offset/Math.max(1,contentHeight-height)));
- return <View style={{position:'relative'}}>{input}{height>0&&contentHeight>height+2?<View testID={`${props.testID||'input'}-scroll-cue`} pointerEvents="none" accessible={false} style={{position:'absolute',right:5,top:22,width:3,height:track,borderRadius:2,backgroundColor:'#E0A45833'}}><View style={{width:3,height:Math.min(track,thumb),borderRadius:2,backgroundColor:colors.gold,transform:[{translateY:progress*Math.max(0,track-thumb)}]}}/></View>:null}</View>;
+ return <View style={{position:'relative',flex:fill?1:undefined,minHeight:fill?0:undefined}}>{input}{height>0&&contentHeight>height+2?<View testID={`${props.testID||'input'}-scroll-cue`} pointerEvents="none" accessible={false} style={{position:'absolute',right:5,top:22,width:3,height:track,borderRadius:2,backgroundColor:'#E0A45833'}}><View style={{width:3,height:Math.min(track,thumb),borderRadius:2,backgroundColor:colors.gold,transform:[{translateY:progress*Math.max(0,track-thumb)}]}}/></View>:null}</View>;
 }
 
 export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:quiet?'400':'600',color:quiet?colors.ice:colors.ink,textAlign:quiet?'left':'center'}}>{label}</Txt></Pressable>}

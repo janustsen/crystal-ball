@@ -30,7 +30,7 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   setConfirming(true);
  }
  if(blocked&&!correcting)return <View style={{paddingTop:32}}><Txt style={[styles.caption,{color:colors.gold}]}>Age requirement</Txt><Txt testID="age-restriction" accessibilityRole="header" display style={{fontSize:30,lineHeight:36,marginVertical:16}}>Crystal Ball is for ages 13 and up.</Txt><Txt>You cannot continue with the age you entered.</Txt><Txt style={[styles.caption,{marginTop:16}]}>If you entered it incorrectly, you can correct your birthday.</Txt><Action testID="correct-birthday" label="Correct my birthday" quiet onPress={()=>{setBirthday('');setError('');setStep(0);setCorrecting(true)}}/></View>;
- if(confirming&&!blocked)return <><Txt testID="age-confirmation-heading" accessibilityRole="header" display>Are you 13 or older?</Txt><Txt style={[styles.caption,{marginTop:12}]}>No birthday needed. Readings use the limits for ages 13–17.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
+ if(confirming&&!blocked)return <><Txt testID="age-confirmation-heading" accessibilityRole="header" display>Are you 13 or older?</Txt><Txt style={[styles.caption,{marginTop:12}]}>No birthday needed. We avoid predictions about other people’s private feelings.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
  return <>
   <Txt display style={{marginBottom:16}}>Your forecast. Then check back.</Txt>
   <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet. The Ball can miss — your story matters either way.</Txt>
@@ -43,7 +43,7 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
 
    <Action testID="continue" label={blocked?"Check birthday":"Continue"} onPress={next}/>{blocked?<Action label="Back to age requirement" quiet onPress={()=>setCorrecting(false)}/>:null}
   </>:<>
-   {sunSign(birthday)?<Txt style={styles.caption}>Your Sun sign · {sunSign(birthday)}</Txt>:null}
+   {sunSign(birthday)?<Txt style={styles.caption}>Your Sun sign · {sunSign(birthday)?.replace(/^./,letter=>letter.toUpperCase())}</Txt>:null}
    <View style={{marginTop:8}}>{['Work & purpose','Love & friendships','Learning & growth','A fresh start'].map(value=><Pressable key={value} testID={value.toLowerCase().replace(/[^a-z0-9]+/g,'-')} accessibilityRole="button" accessibilityLabel={value} accessibilityState={{selected:focus===value}} aria-pressed={focus===value} onPress={()=>setFocus(value)} style={{minHeight:56,paddingVertical:16,borderBottomWidth:1,borderColor:focus===value?colors.gold:'#614C3466',flexDirection:'row',alignItems:'center',gap:12}}><Txt style={{flex:1,color:focus===value?colors.gold:colors.ivory}}>{value}</Txt><Txt aria-hidden style={{color:colors.gold,width:24}}>{focus===value?'✓':''}</Txt></Pressable>)}</View>
    <Action testID="meet-the-ball" label={focus?"Meet the Ball":"Skip focus"} onPress={()=>onFinish({...birthday.trim()?{birthday:birthday.trim()}:{},...focus?{current_focus:focus}:{}})}/>
    <Action label="Back" quiet onPress={()=>setStep(0)}/>

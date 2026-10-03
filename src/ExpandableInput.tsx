@@ -2,11 +2,10 @@ import {useRef,useState} from 'react';
 import {KeyboardAvoidingView,Modal,Platform,Pressable,TextInput,View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Input,Txt,colors,fonts,styles} from './ui';
-import {useStore} from './store';
 
 export function ExpandableInput({editorTitle,...props}:React.ComponentProps<typeof Input>&{editorTitle:string}){
- const {state}=useStore(),insets=useSafeAreaInsets(),field=useRef<TextInput>(null);
- const [draft,setDraft]=useState<string|null>(null),scale=state.largeText?2:1;
+ const insets=useSafeAreaInsets(),field=useRef<TextInput>(null);
+ const [draft,setDraft]=useState<string|null>(null);
  function close(save:boolean){if(save&&draft!==null)props.onChangeText?.(draft);setDraft(null);}
  return <>
   <Input {...props}/>
@@ -16,7 +15,7 @@ export function ExpandableInput({editorTitle,...props}:React.ComponentProps<type
     <View style={{flex:1,width:'100%',maxWidth:430,alignSelf:'center',paddingHorizontal:24}}>
      <View style={{flexDirection:'row',justifyContent:'space-between',gap:16}}>{(['Cancel','Done'] as const).map(label=><Pressable key={label} testID={`editor-${label.toLowerCase()}`} accessibilityRole="button" onPress={()=>close(label==='Done')} style={{minHeight:48,minWidth:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>{label}</Txt></Pressable>)}</View>
      <Txt accessibilityRole="header" style={[styles.caption,{marginVertical:12}]}>{editorTitle}</Txt>
-     <TextInput ref={field} testID="expanded-input" accessibilityLabel={props.accessibilityLabel||editorTitle} multiline value={draft||''} onChangeText={setDraft} maxLength={props.maxLength} placeholder={props.placeholder} placeholderTextColor={colors.muted} style={[styles.input,{flex:1,minHeight:80,fontFamily:fonts.body,fontSize:18*scale,lineHeight:26*scale,textAlignVertical:'top',marginBottom:12}]}/>
+     <Input fill ref={field} testID="expanded-input" accessibilityLabel={props.accessibilityLabel||editorTitle} multiline value={draft||''} onChangeText={setDraft} maxLength={props.maxLength} placeholder={props.placeholder} placeholderTextColor={colors.muted} style={[styles.input,{flex:1,minHeight:80,fontFamily:fonts.body,fontSize:18,lineHeight:26,textAlignVertical:'top',marginBottom:12}]}/>
     </View>
    </KeyboardAvoidingView>
   </Modal>

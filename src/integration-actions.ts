@@ -19,7 +19,7 @@ export function nativeActions(ports:NativePorts){
   if(on&&!date)return 'The Due date is unavailable. You can still check in from History.';
   if(date&&date.getTime()<=Date.now())return 'This forecast is ready for a Check-in. Open it from History.';
   const when=date?date.toLocaleDateString():'30 days';
-  if(ports.platform==='web')return `Native reminder preview: check back ${when}. Local notifications need an iOS or Android build.`;
+  if(ports.platform==='web')return `No reminder scheduled in this browser. Check back ${when}. Use the iOS or Android app for local notifications.`;
   try{if(!await ports.notifications.permission(requestPermission))return 'Notifications are off. You can still check back from History.';
    await serialize(async()=>{
     if(version!==generation||(readingId&&answered.has(readingId)))throw new Error('Reading forgotten or answered');

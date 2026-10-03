@@ -15,7 +15,7 @@ await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).fin
 const due=await page.eval(()=>document.querySelector('[data-testid="forecast-due-date"]').textContent);
 assert(/^Check back · \d{4}-\d{2}-\d{2}$/.test(due),'Check-back date missing');
 await page.click('[data-testid="remind-me-to-check-back"]');
-assert(await page.eval(()=>document.body.innerText.includes('Native reminder preview')),'web fallback missing');
+assert(await page.eval(()=>document.body.innerText.includes('No reminder scheduled in this browser')),'web fallback missing');
 await page.click('[data-testid="dismiss-notice"]');
 for(const [outcome,label] of [['no','Took another path'],['pending','◷ Waiting'],['yes','Came true']]){
  await page.click(`[data-testid="check-in-${outcome}"]`);
