@@ -61,7 +61,7 @@ New forecasts include `dueDate` as `YYYY-MM-DD`; it is optional only for older s
 
 ## Social v2 delivery
 
-Apply `202610030030_social_v2.sql` with the earlier migrations. It adds @handle discovery, Circle requests/limits, moderated group forecasts, votes, feed moments and targeted sealed cards. Run `bash scripts/verify-social-db.sh` for real PostgreSQL authorization, quota and single-claim checks.
+Apply all migrations in `supabase/migrations` in filename order, including `202610030030_social_v2.sql` and `202610030040_circle_charges.sql`. The latter supplies the charge marker and asker-only RPC required by Circle publication and recovery. See the [social contract](docs/social/model.md#social-v2) for feature behavior. Run `bash scripts/verify-social-db.sh` for real PostgreSQL authorization, quota and single-claim checks.
 
 Set `EXPO_PUBLIC_WEB_ORIGIN` to the deployed HTTPS web origin for sealed links, including native builds. Development web previews default to their current origin and may use HTTP; native previews must configure their reachable preview origin explicitly. Both new and redisplayed seals use this browser URL. Existing incoming seal routing still handles its query parameter; native universal-link association requires deployment configuration.
 

@@ -34,7 +34,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 12. Error: retry, retained answers where available, and edit. No fabricated successful output.
 13. Sensitive redirect: real engine classification, no credit spent or history entry; self-harm exposes support.
 14. Plans: subscription selection per [prototype pricing](../research/pricing.md#paywall-rules-and-test), packs and Restore. All purchases explicitly say test/simulate; no real money moves.
-15. Sky: Tonight’s Sky has clearly labeled synthetic samples and approved anonymous Stars; Circles contains invitation-only activity, consented Friend readings and sealed cards.
+15. Sky: Tonight’s Sky has clearly labeled synthetic samples and approved anonymous Stars; Circles follows the [social visibility and interaction contract](../social/model.md#social-v2).
 16. History: date, question, real saved headline and outcome.
 17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound and style controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
 
