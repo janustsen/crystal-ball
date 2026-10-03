@@ -9,6 +9,18 @@ const quote=value=>value===null?'null':`'${String(value).replaceAll("'","''")}'`
 const functions={mark_circle_charged:['forecast'],set_social_identity:['chosen_handle','chosen_name','chosen_avatar'],search_handles:['prefix'],block_handle:['target_handle'],request_circle_invite:['target','target_handle'],circle_inbox:[],answer_circle_invite:['request_id','accept'],manage_circle:['target','person','operation'],share_circle_moment:['reading','moment'],publish_circle_forecast:['approved_draft'],vote_circle_forecast:['forecast','answer'],circle_vote_tallies:[],send_sealed_forecast:['approved_draft','target_circle','target_member'],sealed_inbox:[],tonights_sky:['my_school'],set_school:['chosen_school'],school_circle_suggestions:[],publish_star:['approved_draft'],resonate:['star'],create_circle:[],create_school_circle_invite:['previous'],invite_to_circle:['target'],join_circle:['invite'],leave_circle:['target'],circle_checkin:['activity_theme'],react_in_circle:['target_circle','target_member','reaction'],seal_forecast:['approved_draft'],open_forecast:['seal'],circle_people:[],report_star:['star'],block_person:['star','member'],set_friend_consent:['allowed'],authorize_friend_reading:['viewer','target_circle','target_member'],dismiss_friend_notices:[],revoke_forecast:['card'],withdraw_star:['star'],sync_social_profile:['viewer','band','sign','mock_plus']};
 const columns={circle_moments:'id,circle_id,user_id,kind,day',circle_glows:'circle_id,day',circle_forecasts:'id,circle_id,asker_id,charged_at,question,headline,due_date,created_at',circle_forecast_drafts:'id,user_id,circle_id,question,headline,due_date',circles:'id,owner_id',circle_members:'circle_id,user_id,joined_at,consulted_on,theme',circle_reactions:'circle_id,target_id,user_id,day,emoji',sealed_forecasts:'id,headline,token,opened_at',sky_stars:'id,theme,wording,day',schools:'id,name,city,latitude,longitude',social_profiles:'user_id,age_band,sun_sign,friends_can_ask,plus,school_id,handle,display_name,avatar',friend_notices:'id,day,seen',social_drafts:'id,user_id,kind,wording,theme'};
 
+function pageSql(url,fields,defaultOrder=''){
+ const order=url.searchParams.get('order')||defaultOrder;
+ const sorting=order?order.split(',').map(term=>{
+  const [column,direction='asc',extra]=term.split('.');
+  if(!fields.includes(column)||!['asc','desc'].includes(direction)||extra)throw Error('Unsupported order');
+  return `${column} ${direction}`;
+ }).join(','):'';
+ const offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||1000);
+ if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<0)throw Error('Unsupported range');
+ return `${sorting?`order by ${sorting}`:''} limit ${Math.min(limit,1000)} offset ${offset}`;
+}
+
 async function sql(statement,uid){
  const auth=uid==='service'?'set local role service_role;':uid?`set local role authenticated; select set_config('request.jwt.claim.sub',${quote(uid)},true);`:'';
  const {stdout}=await exec(`${process.env.PG_BIN}/psql`,['-X','-At','-v','ON_ERROR_STOP=1','-c',`begin; ${auth} ${statement}; commit;`]);
@@ -45,7 +57,7 @@ const server=createServer(async(req,res)=>{
    else if(url.pathname.startsWith('/rest/v1/rpc/')&&req.method==='POST'){
     const name=url.pathname.split('/').at(-1),args=functions[name];if(!args)throw new Error('Unsupported fixture RPC');
     const call=`public.${name}(${args.filter(key=>Object.hasOwn(body,key)).map(key=>`${key} => ${quote(body[key])}`).join(',')})`;
-    result=await sql(['tonights_sky','circle_people','school_circle_suggestions','search_handles','circle_inbox','circle_vote_tallies','sealed_inbox'].includes(name)?`select coalesce(jsonb_agg(q),'[]') from ${call} q`:`select coalesce(to_jsonb(${call}),'null'::jsonb)`,uid);
+    result=await sql(['tonights_sky','circle_people','school_circle_suggestions','search_handles','circle_inbox','circle_vote_tallies','sealed_inbox'].includes(name)?`select coalesce(jsonb_agg(q),'[]') from (select * from ${call} ${pageSql(url,({circle_inbox:['id'],circle_vote_tallies:['forecast_id'],sealed_inbox:['token']})[name]||[])}) q`:`select coalesce(to_jsonb(${call}),'null'::jsonb)`,uid);
    }else{
     const table=url.pathname.split('/').at(-1);if(!Object.hasOwn(columns,table))throw new Error('Unsupported fixture table');
     const filters=[];
@@ -62,7 +74,7 @@ const server=createServer(async(req,res)=>{
     }else if(req.method==='DELETE'&&['sky_stars','sealed_forecasts'].includes(table)&&filters.length){
      result=await sql(`delete from public.${table} ${where}; select 'null'::json`,uid);
     }else if(req.method==='GET'){
-     const order=table==='circle_members'?'order by joined_at':'';
+     const order=pageSql(url,columns[table].split(','),table==='circle_members'?'joined_at.asc':'');
      result=await sql(`select coalesce(jsonb_agg(q),'[]') from (select ${columns[table]} from public.${table} ${where} ${order}) q`,uid);
     }else throw new Error('Unsupported fixture request');
    }

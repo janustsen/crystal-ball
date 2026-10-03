@@ -1,3 +1,4 @@
+import {allRows} from './social-pagination';
 import {anonymousOwner,supabase} from './cloud';
 import {aiProvider,engineUrl,previewHeaders} from './api';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
@@ -47,11 +48,11 @@ export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);
  const [sky,own,circles,members,reactions,seals,profile,notices,schools,suggestions,requests,moments,glows,forecasts,votes,receivedSeals]=await Promise.all([
   db.rpc('tonights_sky',{my_school:schoolOnly}),db.from('sky_stars').select('id').eq('day',day),db.from('circles').select('id,owner_id'),
-  db.rpc('circle_people'),db.from('circle_reactions').select('circle_id,target_id,user_id,day,emoji').eq('day',day),
-  db.from('sealed_forecasts').select('id,headline,token,opened_at').eq('revoked',false),
-  db.from('social_profiles').select('age_band,friends_can_ask,school_id,handle,display_name,avatar'),db.from('friend_notices').select('id').eq('seen',false),
-  db.from('schools').select('id,name,city,latitude,longitude'),db.rpc('school_circle_suggestions'),
-  db.rpc('circle_inbox'),db.from('circle_moments').select('id,circle_id,user_id,kind,day'),db.from('circle_glows').select('circle_id,day'),db.from('circle_forecasts').select('id,asker_id,charged_at,circle_id,question,headline,due_date,created_at'),db.rpc('circle_vote_tallies'),db.rpc('sealed_inbox'),
+  db.rpc('circle_people'),allRows<CircleReaction>((from,to)=>db.from('circle_reactions').select('circle_id,target_id,user_id,day,emoji').eq('day',day).order('circle_id').order('target_id').order('user_id').order('day').range(from,to)),
+  allRows<SentSeal>((from,to)=>db.from('sealed_forecasts').select('id,headline,token,opened_at').eq('revoked',false).order('id').range(from,to)),
+  db.from('social_profiles').select('age_band,friends_can_ask,school_id,handle,display_name,avatar'),allRows<{id:string}>((from,to)=>db.from('friend_notices').select('id').eq('seen',false).order('id').range(from,to)),
+  allRows<School>((from,to)=>db.from('schools').select('id,name,city,latitude,longitude').order('id').range(from,to)),db.rpc('school_circle_suggestions'),
+  allRows<CircleInvite>((from,to)=>db.rpc('circle_inbox').order('id').range(from,to)),allRows<CircleMoment>((from,to)=>db.from('circle_moments').select('id,circle_id,user_id,kind,day').order('id').range(from,to)),allRows<{circle_id:string;day:string}>((from,to)=>db.from('circle_glows').select('circle_id,day').order('circle_id').order('day').range(from,to)),allRows<CircleForecast>((from,to)=>db.from('circle_forecasts').select('id,asker_id,charged_at,circle_id,question,headline,due_date,created_at').order('id').range(from,to)),allRows<CircleTally>((from,to)=>db.rpc('circle_vote_tallies').order('forecast_id').range(from,to)),allRows<{token:string;opened_at:string|null}>((from,to)=>db.rpc('sealed_inbox').order('token').range(from,to)),
  ]);
  // School data is optional: its failure leaves Sky and Circles working with an empty catalog.
  for(const result of [sky,own,circles,members,reactions,seals,profile,notices,requests,moments,glows,forecasts,votes,receivedSeals])if(result.error)throw new Error(socialUnavailable);
