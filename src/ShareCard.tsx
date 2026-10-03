@@ -30,7 +30,7 @@ export function ShareCard({prediction,onClose,onNotice,onRecord}:{prediction:Pre
  const [result,setResult]=useState<'export'|'invite'|'reminder'|null>(null),[resultMessage,setResultMessage]=useState(''),[inviteUrl,setInviteUrl]=useState(''),[linkVisible,setLinkVisible]=useState(false),[copyFeedback,setCopyFeedback]=useState('');
  const resultTrigger=useRef('export-story-card');
  function closeResult(){setResult(null);}
- function restoreResultFocus(){if(Platform.OS==='web')requestAnimationFrame(()=>document.querySelector<HTMLElement>(`[data-testid="${resultTrigger.current}"]`)?.focus());}
+ function restoreResultFocus(){if(Platform.OS==='web')document.querySelector<HTMLElement>(`[data-testid="${resultTrigger.current}"]`)?.focus();}
  function focusResult(){if(Platform.OS==='web'){const heading=document.querySelector<HTMLElement>('[data-testid="share-result-heading"]');heading?.setAttribute('tabindex','-1');heading?.focus();}}
  const [more,setMore]=useState(false),[feedback,setFeedback]=useState(''),[exporting,setExporting]=useState(false),[exportFailed,setExportFailed]=useState(false),exportBusy=useRef(false);
  useEffect(()=>{if(Platform.OS==='web')void stillImage().then(setPreview).catch(()=>setNotice('Preview could not load. Please reopen this card.'))},[prediction.id,cardStyle,ballStyle]);

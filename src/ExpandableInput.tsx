@@ -7,7 +7,7 @@ import {useStore} from './store';
 export function ExpandableInput({editorTitle,...props}:React.ComponentProps<typeof Input>&{editorTitle:string}){
  const {state}=useStore(),insets=useSafeAreaInsets(),field=useRef<TextInput>(null);
  const [draft,setDraft]=useState<string|null>(null),scale=state.largeText?2:1;
- function close(save:boolean){if(save&&draft!==null)props.onChangeText?.(draft);setDraft(null);if(Platform.OS==='web')requestAnimationFrame(()=>document.querySelector<HTMLElement>(`[data-testid="${props.testID}-expand"]`)?.focus());}
+ function close(save:boolean){if(save&&draft!==null)props.onChangeText?.(draft);setDraft(null);}
  return <>
   <Input {...props}/>
   <Pressable testID={`${props.testID}-expand`} accessibilityRole="button" accessibilityLabel={`Expand ${editorTitle.toLowerCase()}`} onPress={()=>setDraft(props.value||'')} style={{minHeight:44,justifyContent:'center',paddingVertical:8}}><Txt style={[styles.caption,{color:colors.ice}]}>Expand editor ↗</Txt></Pressable>
