@@ -31,6 +31,8 @@ try {
   if(metrics.orbWidth<width*.6||metrics.orbWidth>width*.7||!metrics.whisperClear||metrics.overflow||!metrics.omenFits||!metrics.omenVisible||!metrics.navigationClear||(!largeText&&metrics.headlineLines>2))failures.push({width,largeText,...metrics});
   await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(250);
   await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}-omen.png`});
+  if(process.env.HOME_OMEN_UNAVAILABLE==='1'){await page.getByTestId('omen-daily-limit').click();const policy=page.getByText('The Ball tries once a day, even when no omen is saved. Today’s attempt is used. Next attempt: tomorrow.',{exact:true});await policy.scrollIntoViewIfNeeded();await expect(policy).toBeInViewport({ratio:1});const bounds=await policy.boundingBox(),tabs=await page.getByRole('tablist').boundingBox();expect(bounds.y+bounds.height).toBeLessThanOrEqual(tabs.y);await page.screenshot({path:`${out}/${width}-${largeText?'large':'normal'}-policy.png`});}
+
   await context.close();
  }
 }finally{await browser.close();await writeFile(`${out}/metrics.json`,JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2))}

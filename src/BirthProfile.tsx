@@ -44,8 +44,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
  if(editing)return <View>
   <Txt testID="birthday-editor-heading" accessibilityRole="header" display style={{fontSize:28,lineHeight:34,marginBottom:16}}>Edit birthday</Txt>
   <Txt style={[styles.caption,{marginBottom:12}]}>Used for your Sun sign and age-appropriate readings.</Txt>
-  <BirthdayInput value={birthday} onChange={setBirthday}/>
-  {notice?<Txt accessibilityRole="alert" style={{marginTop:12}}>{notice}</Txt>:null}
+  <BirthdayInput testID="profile-birthday" error={notice} value={birthday} onChange={setBirthday}/>
   <Action label="Save birthday" onPress={saveBirthday}/><Action testID="cancel-birthday" label="Cancel changes" quiet onPress={()=>{setNotice('');setEditing(false)}}/>
   {state.birthday?<><Pressable testID="remove-birthday-options" accessibilityRole="button" accessibilityState={{expanded:removal}} aria-expanded={removal} onPress={()=>setRemoval(!removal)} style={{minHeight:52,paddingVertical:16}}><Txt style={styles.caption}>Remove birthday {removal?'⌃':'⌄'}</Txt></Pressable>{removal?<><Txt style={styles.caption}>Your existing age eligibility stays. Birth chart details are removed.</Txt><Action label="Forget birthday" quiet onPress={()=>{update(s=>updateBirthday(s));setEditing(false);setNotice('Birthday removed.')}}/></>:null}</>:null}
  </View>;
@@ -69,8 +68,8 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
     {chartStep==='time'?<>
     <Txt style={styles.caption}>Birth time · local, 24-hour clock</Txt>
     <Input ref={timeInput} testID="birth-time" accessibilityLabel="Birth time HH:MM" aria-invalid={chartStatus==='time-error'} aria-describedby="birth-time-help" placeholder="HH:MM" placeholderTextColor={colors.muted} value={time} onChangeText={value=>{setTime(value);setChartStatus(current=>current==='searching'?current:'idle')}} style={styles.input} maxLength={5}/>
-    <Txt nativeID="birth-time-help" accessibilityRole={chartStatus==='time-error'?'alert':undefined} style={[styles.caption,{color:chartStatus==='time-error'?colors.gold:colors.muted,marginBottom:16}]}>{chartStatus==='time-error'?'Enter a time from 00:00 to 23:59.':'14:30 is 2:30 pm. If you don’t know the time, return to You.'}</Txt>
-    <Action testID="continue-to-birth-city" label="Continue to city" onPress={nextCity}/>
+    <Txt nativeID="birth-time-help" accessibilityRole={chartStatus==='time-error'?'alert':undefined} style={[styles.caption,{color:chartStatus==='time-error'?colors.gold:colors.muted,marginBottom:16}]}>{chartStatus==='time-error'?'Enter a time from 00:00 to 23:59.':'14:30 is 2:30 pm. Use the local time where you were born.'}</Txt>
+    <Action testID="continue-to-birth-city" label="Continue to city" onPress={nextCity}/><Action testID="unknown-birth-time" label="I don’t know my birth time" quiet onPress={closeChart}/>
     </>:<>
     {selected?<>
      <Txt style={styles.caption}>Selected birth city</Txt><Txt>{selected.name}</Txt>

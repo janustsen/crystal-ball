@@ -8,7 +8,7 @@ import {useStore} from './store';
 import type {Prediction} from './types';
 export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction;onClose:()=>void;onUpgrade:()=>void}){
  const {state}=useStore();
- const [linkError,setLinkError]=useState('');
+ const [linkError,setLinkError]=useState(''),[contextOpen,setContextOpen]=useState(false);
  const assumptions=readingAssumptions(prediction);
  const groups=[
   {id:'reason',title:'Why this forecast',detail:'The scenario and its limits',body:<View testID="reason-passages">{!prediction.reasonSections?<Txt style={[styles.caption,{marginBottom:16}]}>Preserved explanation · this reading did not record separate reasoning sections.</Txt>:null}{(prediction.reasonSections||readingPassages(state.plus?(prediction.deeperWhy||prediction.why):prediction.why).map((body,index)=>({title:`Passage ${index+1}`,body}))).map(({title,body},index)=><View key={index} style={{paddingBottom:20,marginBottom:20,borderBottomWidth:1,borderColor:'#614C3433'}}><Txt accessibilityRole="header" style={[styles.caption,{color:colors.gold,marginBottom:8}]}>{title}</Txt><Txt testID="reason-body" style={{fontSize:17,lineHeight:26,fontWeight:'400'}}>{body+' '}</Txt></View>)}</View>},
@@ -25,6 +25,7 @@ export function WhyDetails({prediction,onClose,onUpgrade}:{prediction:Prediction
   {(state.plus?groups:groups.slice(0,1)).map(group=><View key={group.id} testID={`why-${group.id}`} style={{paddingVertical:16,borderTopWidth:1,borderColor:'#614C3466'}}><Txt accessibilityRole="header" display style={{fontSize:20,lineHeight:28,marginBottom:12}}>{group.title}</Txt>{group.id==='reason'&&prediction.astrology?<Txt style={[styles.caption,{color:colors.gold,marginBottom:16}]}>{prediction.astrology}</Txt>:null}{group.id==='sources'?<Txt style={[styles.caption,{marginBottom:16}]}>Background only. These sources do not verify the forecast.</Txt>:null}{group.body}</View>)}
   {linkError?<Txt accessibilityRole="alert">{linkError}</Txt>:null}
   {!state.plus?<Action label="Go deeper with Plus" quiet onPress={onUpgrade}/>:null}
+  <Pressable testID="why-context" accessibilityRole="button" aria-expanded={contextOpen} accessibilityState={{expanded:contextOpen}} onPress={()=>setContextOpen(!contextOpen)} style={{minHeight:48,justifyContent:'center',paddingVertical:12}}><Txt style={{color:colors.ice}}>Read the forecast {contextOpen?'⌃':'⌄'}</Txt></Pressable>{contextOpen?<><Txt>{prediction.headline}</Txt><Txt style={[styles.caption,{marginTop:8}]}>{prediction.label}</Txt></>:null}
   <Action testID="reading-details-back" label="Back to forecast" quiet onPress={onClose}/>
  </>;
 }
