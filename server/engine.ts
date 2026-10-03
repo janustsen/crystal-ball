@@ -74,7 +74,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
   let sources=publicQuery?await research(publicQuery).catch(()=>[]):[];
   if(subject==='sports'&&facts.team)sources=sources.filter(source=>(facts.team||'').split(',').some(team=>source.title.toLowerCase().includes(team.trim().toLowerCase())));
   if(topic==='world'&&/\bev|electric vehicles/i.test(question))sources=sources.filter(source=>/\bevs?\b|electric (?:vehicle|car)/i.test(source.title));
-  const assumptions=['This is a speculative forecast, not a guarantee.',...(sources.length?['News headlines are context leads, not proof of a future result.']:[])];
+  const assumptions:string[]=[];
   let reasoning='The outcome is a model-generated speculative choice using your context.';
   let choices:string[];
   let horizon=facts.horizon||inferFacts(question,'general').horizon||'within 3 months';
@@ -141,7 +141,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
     return true;
    });
   const headline=formatForecast(result.prediction,horizon,context.personName);
-  if(!choices.length&&result.basis&&result.assumption)reasoning=explainScenario(`Recorded context: ${facts[result.basis]}`,result.assumption);
+  if(!choices.length&&result.basis&&result.assumption){reasoning=explainScenario(`Recorded context: ${facts[result.basis]}`,result.assumption);assumptions.push(result.assumption);}
   const outputCategory=await safety(`${headline} ${reasoning}`,model,true);if(outputCategory)return {kind:'blocked',category:outputCategory,message:outputCategory==='self_harm'?redirects.self_harm:outputCategory==='person'?redirects.person:'Let’s explore a gentler personal goal instead.'};
   const limits=sources.length?'Dated news headlines below add background; they do not verify this prediction.':'No external evidence supports the future outcome; it is a speculative scenario.';
   const reasonSections=!choices.length&&result.basis&&result.assumption
