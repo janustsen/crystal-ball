@@ -1,0 +1,70 @@
+{
+  "comparisons": [
+    {
+      "scene": "editor",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 7.5},
+      "finding": "Best balance of compact entry and generous expanded editing. At 500px/200%, Ask and Expand require page scrolling; both appear at the bottom. Expanded Cancel/Done remain visible. Component scores: input [8,8,8,8,null,7]; Expand [8,8,8,9,null,7]; Ask [9,8,9,9,null,8]; expanded editor [9,8,8,9,null,8]."
+    },
+    {
+      "scene": "editor",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8, "typography": 7.5, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 7},
+      "finding": "Persistent Ask offers the strongest immediate action reachability. However, at 500px/200%, the heading and repeated question labels leave approximately two visible input lines. The tall normal-size field also feels disproportionate to this short question. Component scores: input [7,7,8,8,null,6]; Ask [9,8,9,9,null,8]; header [7,7,8,8,null,7]."
+    },
+    {
+      "scene": "editor",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7, "typography": 7.5, "surfaces": 8.5, "clarity": 7.5, "feedback": null, "accessibility": 6.5},
+      "finding": "Prompts dominate an already populated question. At 500px/200%, neither the input nor Ask appears initially; scrolling restores access. Its expanded editor is as strong as A's, but reaching it requires more scanning and scrolling. Component scores: prompts [6,7,8,7,null,7]; input [7,8,8,8,null,7]; Expand [8,8,8,9,null,7]; Ask [9,8,9,9,null,8]; expanded editor [9,8,8,9,null,8]."
+    },
+    {
+      "scene": "evidence",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "Strongest reading sequence: explanation, recorded answers, assumptions, sources. Headings and separators make the complete account discoverable without choosing a control. Enlarged text creates substantial scrolling but remains legible in the supplied endpoints. Component scores: explanation [9,8,8,9,null,8]; answers [8,8,8,8,null,8]; assumptions/sources sections [8,8,8,9,null,8]."
+    },
+    {
+      "scene": "evidence",
+      "variant": "B",
+      "dimensions": {"hierarchy": 7, "typography": 8, "surfaces": 8, "clarity": 6.5, "feedback": null, "accessibility": 7.5},
+      "finding": "The focused reader is spacious, but opening on absent assumptions gives little explanation of the forecast. Other sections and their scope remain hidden inside the selector. Component scores: selector [7,8,8,7,null,7]; reader [7,8,8,7,null,8]. Selector operation and alternative section states are not demonstrated."
+    },
+    {
+      "scene": "evidence",
+      "variant": "C",
+      "dimensions": {"hierarchy": 7.5, "typography": 8.5, "surfaces": 8.5, "clarity": 7.5, "feedback": null, "accessibility": 8},
+      "finding": "Visible disclosure labels provide a better section overview than B. However, the empty-assumption status receives more prominence than the explanation and answers. All three disclosure rows fit at 200%; their expanded reading layouts are unseen. Component scores: assumption status [7,8,8,8,null,8]; disclosure rows [8,8,8,8,null,8]."
+    },
+    {
+      "scene": "share",
+      "variant": "A",
+      "dimensions": {"hierarchy": 8, "typography": 7.5, "surfaces": 9, "clarity": 8, "feedback": null, "accessibility": 6.5},
+      "finding": "Best direct view of the portrait and its visual identity. At 200%, text inside the portrait stays small while surrounding text enlarges, and Download requires scrolling. No separate enlarged transcript is shown. Component scores: portrait/orb [9,7,9,8,null,6]; Download [8,8,9,9,null,8]; inclusion note [8,8,8,9,null,8]."
+    },
+    {
+      "scene": "share",
+      "variant": "B",
+      "dimensions": {"hierarchy": 8.5, "typography": 8, "surfaces": 8.5, "clarity": 8.5, "feedback": null, "accessibility": 8},
+      "finding": "Strongest combined composition: visible portrait identity, early Download, and an exact transcript that enlarges. At 200%, Download wraps cleanly to two lines; the full-image route sits below the initial viewport. The thumbnail conveys appearance rather than readable content. Component scores: thumbnail/orb [8,6,9,7,null,6]; Download [9,8,9,9,null,8]; transcript [9,8,8,9,null,8]; full-image route [8,8,8,8,null,8]."
+    },
+    {
+      "scene": "share",
+      "variant": "C",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8, "clarity": 8, "feedback": null, "accessibility": 8},
+      "finding": "Cleanest enlarged reading and full-width Download presentation. However, the initial screen gives no visual preview of the exported portrait; users must open a disclosure to understand its appearance. Component scores: transcript [9,8,8,9,null,8]; Download [9,8,9,9,null,8]; image disclosure [8,8,8,8,null,8]. Expanded preview is not shown."
+    }
+  ],
+  "editorWinner": "A",
+  "evidenceWinner": "A",
+  "shareWinner": "B",
+  "reason": "A gives editing a compact starting point with a useful expanded workspace. A presents evidence in the clearest reading order. B combines sharing identity, readable content and an immediately visible action. Component vectors use hierarchy/typography/surfaces/clarity/feedback/accessibility. Accessibility scores assess visible layout only; feedback remains unscored. These are provisional comparisons, not threshold acceptance.",
+  "limitations": [
+    "Reviewed only supplied images and accompanying descriptions; no source, other reviews or runtime inspection.",
+    "Initial and bottom captures establish visible endpoints, not successful navigation, scrolling mechanics, keyboard behavior or focus management.",
+    "Prototype draft preservation was reported, but persistence, recovery and production behavior are not established by these captures.",
+    "Exports, disclosure operation, selector operation, loading/error states, reduced motion, measured contrast, target dimensions and assistive technology remain unverified.",
+    "The portrait is identical across sharing variants; scores concern its presentation, not differences in downloaded output. Synthetic evidence establishes neither provenance nor predictive quality.",
+    "No complete functional mean or overall certification is assigned with feedback unestablished. No screen or component is certified to meet the authorized A>=9 and F>=9 threshold."
+  ]
+}

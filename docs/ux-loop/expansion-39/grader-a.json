@@ -1,0 +1,134 @@
+{
+  "comparisons": [
+    {
+      "scene": "editor",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "Clear input–Expand–Ask sequence. Helper copy adds height; at 500px/200%, Expand and Ask require page scrolling. Expanded editor provides substantially more writing space with visible Done/Cancel controls."
+    },
+    {
+      "scene": "editor",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": 7.5
+      },
+      "finding": "Strongest direct writing composition: generous input and visible Ask in every supplied configuration. At 500px/200%, heading and duplicate question labels leave only about two visible input lines; reclaiming that space would improve editing."
+    },
+    {
+      "scene": "editor",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 6.5,
+        "typography": 7.5,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 6
+      },
+      "finding": "Prompt rows compete with the populated input. At 500px/200%, neither input nor Ask appears initially; both are reachable in the bottom capture. Expanded editor is as strong visually as A, but the entry composition creates unnecessary scrolling."
+    },
+    {
+      "scene": "evidence",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "Strongest explanation-first reading order. Section headings, answer labels and dividers distinguish content without extra controls. At 200%, the document grows substantially, but supplied bottom views show readable assumptions and sources."
+    },
+    {
+      "scene": "evidence",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 6.5,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "Selector and focused text are visually clean, including at 200%. Starting with absent assumptions gives little explanatory value and conceals the other section names until the selector is opened. Selection behavior is not demonstrated."
+    },
+    {
+      "scene": "evidence",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 7.5,
+        "feedback": null,
+        "accessibility": 7.5
+      },
+      "finding": "Disclosure rows expose available sections more clearly than B's closed selector and remain visible at 200%. However, the largest content block describes missing assumptions while the useful explanation is collapsed. Expanded reading states are absent."
+    },
+    {
+      "scene": "share",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 7,
+        "surfaces": 8.5,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 6.5
+      },
+      "finding": "Full portrait best communicates the orb, branding and complete visual composition. Its embedded text does not enlarge with surrounding text; at 200%, Download requires scrolling. No separate enlarged transcript is shown."
+    },
+    {
+      "scene": "share",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "Best balance of visual identity, immediately visible Download and scalable forecast/qualifier text. Thumbnail establishes the portrait's appearance without dominating. At 200%, the button wraps cleanly; the full-image route needs a short scroll and its result is unshown."
+    },
+    {
+      "scene": "share",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8.5,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "Most straightforward enlarged-text composition: forecast, qualifier, full-width Download and disclosure remain visible at 200%. Hiding the entire portrait weakens understanding of the visual artifact being shared; the expanded preview is unshown."
+    }
+  ],
+  "editorWinner": "B",
+  "evidenceWinner": "A",
+  "shareWinner": "B",
+  "reason": "B makes writing and submission most direct across the constrained views. A presents the explanation and supporting sections in a coherent reading order. B combines sharing identity, readable content and action reachability. No composition demonstrates the authorized threshold across every dimension and component.",
+  "limitations": [
+    "Provisional visual assessment of supplied images and stated prototype checks only; no source, other reviews or runtime inspection.",
+    "Component observations cover visible inputs, buttons, editor overlay, prompts, headings, selector, disclosures and portrait. They do not establish component interaction performance.",
+    "Feedback scores are null: the stated prototype draft-preservation exercise does not establish comprehensive feedback, recovery or production persistence.",
+    "Accessibility scores assess visible enlargement and layout only. Keyboard access, focus behavior, screen readers, measured contrast, target sizes and reduced motion remain unverified.",
+    "Exports, navigation, disclosure results and evidence provenance are not proven. The unchanged exported portrait is not graded as a different artifact across variants.",
+    "No demonstrated hard-gate failure: offscreen actions appear in supplied bottom views. This does not establish all interaction paths or native behavior.",
+    "No full/native 9–10 certification or loop acceptance is supported; physical iPhone and assistive-technology validation remain outstanding."
+  ]
+}
