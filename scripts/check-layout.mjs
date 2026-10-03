@@ -104,8 +104,8 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await check('reveal',page.getByTestId('why-disclosure'));await tap('reading-more');await check('reveal-actions',page.getByRole('button',{name:'Edit question',exact:true}));await tap('reading-more');await tap('why-disclosure');expect((await page.getByTestId('reason-body').allTextContents()).join(' ').replace(/\s+/g,' ').trim()).toBe(prediction.why.replace(/\s+/g,' ').trim());
  await check('reveal-why',page.getByTestId('why-heading'));
  await tap('go-deeper-with-plus');await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');
- await check('reveal-evidence',page.getByTestId('why-reason'));
- for(const id of ['reason','answers','assumptions','sources']){await page.getByTestId(`why-${id}`).scrollIntoViewIfNeeded();if(id==='sources')for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();await check(`evidence-${id}`,page.getByTestId(`why-${id}`));}
+ await check('reveal-evidence',page.getByTestId('reading-sections'));
+ for(const id of ['reason','answers','assumptions','sources']){await tap(`open-why-${id}`);if(id==='sources')for(const source of prediction.sources)await expect(text(source.title)).toBeVisible();await check(`evidence-${id}`,page.getByTestId(`why-${id}`));await tap('back-to-reading-sections');}
  await tap('why-disclosure');await tap('share-this-glimpse');await check('share',page.getByTestId('preview-story-card'));
  await tap('preview-story-card');await check('share-inspection',page.getByTestId('share-image-text'));await tap('inspection-read-text');await expect(page.getByTestId('share-preview-heading')).toHaveText('Image text');await page.getByRole('button',{name:'Back to sharing',exact:true}).click();
  await tap('share-read-text');await check('share-text',page.getByTestId('share-image-text'));await tap('back-to-sharing');
