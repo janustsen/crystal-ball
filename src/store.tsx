@@ -1,5 +1,6 @@
 import React,{createContext,useContext,useEffect,useState,useRef} from 'react';
-import {saveReading} from './reading-history';
+import {saveReading,settleCircleReading} from './reading-history';
+import {markCircleCharged,type CircleForecast} from './social';
 import {Alert} from 'react-native';
 import {forgetCheckIns,reopenCheckIn,cancelCheckIn} from './native';
 import {forgetOmen} from './daily-omen';
@@ -11,7 +12,7 @@ import {mirror,restoreBackup,supabase} from './cloud';
 let writes:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction)=>void;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction)=>void;settleCircle:(forecast:CircleForecast,saveToHistory?:boolean)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
@@ -67,8 +68,20 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
+ async function settleCircle(forecast:CircleForecast,saveToHistory=false){
+  if(forecast.charged_at!==null)return;
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});
+   await settleCircleReading(current.current,forecast,async next=>{
+    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+   },markCircleCharged,saveToHistory);
+   if(current.current.backupOwner&&canRead(current.current))await mirror(current.current);
+  });
+ }
+
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction:(prediction)=>change(s=>locked.current?s:saveReading(s,prediction))}}>{children}</Context.Provider>;
+ return <Context.Provider value={{state,ready,hydrationError,settleCircle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner,circleCharges:s.circleCharges}))},forgetAll,savePrediction:(prediction)=>change(s=>locked.current?s:saveReading(s,prediction))}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

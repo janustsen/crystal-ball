@@ -1,6 +1,6 @@
 import type {AccountState,Prediction} from './types';
-import type {CircleForecast,SocialSnapshot} from './social';
-import {canRead} from './profile';
+import type {CircleForecast} from './social';
+import {canRead} from './profile.ts';
 
 export function saveReading(state:AccountState,prediction:Prediction,day=new Date().toISOString().slice(0,10)):AccountState{
  if(!canRead(state)||state.history.some(p=>p.id===prediction.id))return state;
@@ -10,6 +10,14 @@ export function saveReading(state:AccountState,prediction:Prediction,day=new Dat
 export function circleReading(forecast:CircleForecast):Prediction{
  return {id:forecast.id,question:forecast.question,headline:forecast.headline,dueDate:forecast.due_date,createdAt:forecast.created_at,label:'For fun · Circle forecast',why:'A speculative glimpse shared with your Circle.',facts:{},sources:[],assumptions:[],friend:false,circleId:forecast.circle_id};
 }
-export function reconcileCircleReadings(state:AccountState,snapshot:Pick<SocialSnapshot,'owner'|'forecasts'>,day=new Date().toISOString().slice(0,10)):AccountState{
- return snapshot.forecasts.filter(f=>f.asker_id===snapshot.owner&&f.due_date>day).reduce((next,f)=>saveReading(next,circleReading(f),day),state);
+export async function settleCircleReading(state:AccountState,forecast:CircleForecast,persist:(next:AccountState)=>Promise<void>,mark:(id:string)=>Promise<unknown>,saveToHistory=false):Promise<void>{
+ if(forecast.charged_at!==null)return;
+ if(!canRead(state))throw new Error('Finish onboarding before charging a Circle reading.');
+ if(!state.circleCharges?.includes(forecast.id)){
+  const saved=state.history.some(p=>p.id===forecast.id);
+  const charged=saved?state:saveReading(state,circleReading(forecast));
+  const next={...charged,history:saveToHistory?charged.history:state.history,circleCharges:[...(state.circleCharges??[]),forecast.id]};
+  await persist(next);
+ }
+ await mark(forecast.id);
 }

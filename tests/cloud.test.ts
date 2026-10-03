@@ -1,3 +1,4 @@
+import {settleCircleReading} from '../src/reading-history';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createClient,type Session} from '@supabase/supabase-js';
@@ -125,4 +126,15 @@ test('failed owner signup is shared then cleared for retry',async()=>{
  assert.equal(await anonymousOwner(client),'retried-owner');
  assert.equal(signups,2);
  assert.equal(await anonymousOwner(null),null);
+});
+
+test('older backup restore preserves local Circle charge receipts',async()=>{
+ const {remote,client}=archive();remote.history=[];
+ const local={...empty,onboardingDone:true,ageConfirmed:true,circleCharges:['circle-reading']};
+ const restored=await restoreBackup(local,client);
+ assert.deepEqual(restored.circleCharges,['circle-reading']);
+ let writes=0,marks=0;
+ await settleCircleReading(restored,{id:'circle-reading',circle_id:'circle',asker_id:'apple-owner',charged_at:null,question:'Will we learn together?',headline:'A skill awaits.',due_date:'2099-01-01',created_at:'2026-10-03T00:00:00Z'},async()=>{writes++},async()=>{marks++});
+ assert.equal(writes,0);assert.equal(marks,1);
+ assert.equal(restored.credits,local.credits);assert.deepEqual(restored.history,[]);
 });

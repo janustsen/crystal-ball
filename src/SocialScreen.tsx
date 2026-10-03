@@ -3,7 +3,6 @@ import {Platform,Pressable,Share,Switch,TextInput,View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {Action,colors,Orb,styles,Txt} from './ui';
 import {sealedLink} from './social-links';
-import {reconcileCircleReadings} from './reading-history';
 import {useStore} from './store';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
 import {SocialPush} from './SocialPush';
@@ -34,7 +33,7 @@ export function SealedCard({token,reduce}:{token:string;reduce:boolean}){
 }
 
 export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCircles=false,aiConsent=''}:{showCircles?:boolean;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
- const {state,update,backupBusy}=useStore();
+ const {state,settleCircle}=useStore();
  const profile=accountSocialProfile(state);
  const [schoolOnly,setSchoolOnly]=useState(false);
  const schoolInvites=useRef(new Map<string,string>());
@@ -45,10 +44,10 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
  useEffect(()=>{if(showCircles)setSection('circles')},[showCircles]);
  useEffect(()=>{
   let active=true;
-  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){update(current=>reconcileCircleReadings(current,snapshot));setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
+  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){for(const forecast of snapshot.forecasts){if(forecast.asker_id===snapshot.owner&&forecast.charged_at===null)await settleCircle(forecast)}if(active){setData(snapshot);setOffline(false)}}}catch{if(active){setData(null);setOffline(true)}}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   return()=>{active=false;clearInterval(timer)};
- },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly,backupBusy]);
+ },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
  async function act(operation:()=>Promise<unknown>,message=''){
   if(busy)return;setBusy(true);setNotice('');
   try{await operation();setNotice(message)}catch(error){setNotice(error instanceof Error?error.message:'The sky could not be reached. Try again.')}finally{setBusy(false);setVersion(v=>v+1)}
