@@ -1,0 +1,25 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(received).toBe(expected) // Object.is equality
+
+Expected: "What will my life look like next year?"
+Received: "What%20will%20my%20life%20look%20like%20next%20year%3F"
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBe (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-share-options.mjs:2:1458 {
+  matcherResult: {
+    actual: 'What%20will%20my%20life%20look%20like%20next%20year%3F',
+    expected: 'What will my life look like next year?',
+    message: 'expect(received).toBe(expected) // Object.is equality\n' +
+      '\n' +
+      'Expected: "What will my life look like next year?"\n' +
+      'Received: "What%20will%20my%20life%20look%20like%20next%20year%3F"',
+    name: 'toBe',
+    pass: false
+  }
+}
+
+Node.js v26.10.0

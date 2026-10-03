@@ -1,0 +1,33 @@
+trace:
+The raw trace data was saved to /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/.local/motion-audit-1791067036688.json.
+The performance trace has been stopped.
+Emulating viewport: {"deviceScaleFactor":1,"isMobile":true,"hasTouch":true,"isLandscape":false,"width":390,"height":844}
+## Summary of Performance trace findings:
+URL: http://localhost:8098/
+Trace bounds: {min: 305694596967µs, max: 305786674628µs}
+CPU throttling: 1x
+Network throttling: none
+
+# Available insight sets
+
+The following is a list of insight sets. An insight set covers a specific part of the trace, split by navigations. The insights within each insight set are specific to that part of the trace. Be sure to consider the insight set id and bounds when calling functions. If no specific insight set or navigation is mentioned, assume the user is referring to the first one.
+
+## insight set id: NO_NAVIGATION
+
+URL: http://localhost:8098/
+Bounds: {min: 305694596967µs, max: 305786674628µs}
+Metrics (lab / observed):
+  - CLS: 0.10, event: (eventKey: s-46681, ts: 305701331474)
+Metrics (field / real users): n/a – no data for this page in CrUX
+Available insights:
+  - insight name: CLSCulprits
+    description: Layout shifts occur when elements move absent any user interaction. [Investigate the causes of layout shifts](https://developer.chrome.com/docs/performance/insights/cls-culprit), such as elements being added, removed, or their fonts changing as the page loads.
+    relevant trace bounds: {min: 305701331474µs, max: 305702347508µs}
+    example question: Help me optimize my CLS score
+    example question: How can I prevent layout shifts on this page?
+
+## Details on call tree & network request formats:
+Information on performance traces may contain main thread activity represented as call frames and network requests.
+    ... (truncated, 6287 chars total)
+help[1]:
+  Run `chrome-devtools-axi perf-insight <set-id> <insight-name>` to analyze insights

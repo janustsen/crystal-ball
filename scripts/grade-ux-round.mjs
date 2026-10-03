@@ -31,8 +31,8 @@ await Promise.all(['a','b'].map(async grader=>{
   const args=['exec','--ephemeral','-s','read-only','-m','gpt-6-astra','-c','model_reasoning_effort="medium"','--output-schema',resolve(`${round}/grade-schema.json`),'-o',output];
   for(const path of images)args.push('-i',path);
   args.push('-');
-  const child=spawn('codex',args,{stdio:['pipe','pipe','pipe']});child.stdout.pipe(log);child.stderr.pipe(log);child.stdin.end(prompt);
-  child.on('error',fail);child.on('close',code=>{log.end();code===0?done():fail(new Error(`grader ${grader} exit ${code}`))});
+  const child=spawn('codex',args,{stdio:['pipe','pipe','pipe']});const timeout=setTimeout(()=>child.kill('SIGTERM'),30*60*1000);child.stdout.pipe(log);child.stderr.pipe(log);child.stdin.end(prompt);
+  child.on('error',error=>{clearTimeout(timeout);fail(error)});child.on('close',code=>{clearTimeout(timeout);log.end();code===0?done():fail(new Error(`grader ${grader} exit ${code}`))});
  });
  console.log(`Grader ${grader} finished`);
 }));
