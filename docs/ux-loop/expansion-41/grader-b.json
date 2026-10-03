@@ -1,0 +1,133 @@
+{
+  "comparisons": [
+    {
+      "scene": "Reading details",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8.5,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "Strongest dedicated reader: clear section heading, full-width text and an explicit return at the end. At 200%, the wrapped heading costs space but preserves orientation. Index rows remain readable. A=8.3; F=8.3; overall=8.3."
+    },
+    {
+      "scene": "Reading details",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 7.5,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "Selector gives compact access and slightly less reader overhead at 200%, but hides the section inventory and weakens the content heading. Long-reason bottom has no local navigation; switching requires returning to the top. A=7.5; F=7.0; overall=7.2."
+    },
+    {
+      "scene": "Reading details",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7.5
+      },
+      "finding": "Disclosure triangles clearly distinguish open and closed sections. Short answers integrate well, but the page heading plus expanded-section label delays long reading; at 200%, the open control is far behind by the reason's end. Following sections remain conveniently available below. A=8.0; F=7.8; overall=7.9."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": 7.5,
+        "accessibility": 7.5
+      },
+      "finding": "Exact forecast, radio choices, status and Save form a coherent sequence. Selection uses both a radio mark and color. At 200%, Save requires scrolling but is visible at the supplied bottom. Saved text is clear, although the unchanged Save button leaves completion ambiguous. A=8.0; F=7.8; overall=7.9."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8.5,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7.5,
+        "accessibility": 8
+      },
+      "finding": "Strongest enlarged-text outcome composition: all three choices, adjacent status and Save fit together at 200%. The extra step hides the exact forecast behind a disclosure, imposing a recall cost. Saved confirmation still competes with an unchanged Save action. A=8.3; F=7.8; overall=8.0."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7.5,
+        "typography": 8,
+        "surfaces": 7.5,
+        "clarity": 8,
+        "feedback": 7.5,
+        "accessibility": 6.5
+      },
+      "finding": "Exact forecast stays in the outcome step and fixed Save remains prominent. At 200%, the footer substantially reduces the visible choice area: the initial selected view cuts into the second option. Bottom evidence shows all options can be exposed, but comparison requires scrolling. A=7.7; F=7.3; overall=7.5."
+    },
+    {
+      "scene": "Home",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": 8,
+        "accessibility": 7.5
+      },
+      "finding": "Strongest direct explanation: unavailable, attempt used and tomorrow are readable without opening another surface. Orb retains visual prominence; the labeled disclosure makes policy discoverable. At 200%, expanded policy reaches close to the tab bar, increasing scroll cost. 'Touch the ball' promises an action absent from this prototype. A=8.3; F=8.0; overall=8.1."
+    },
+    {
+      "scene": "Home",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 6,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7.5,
+        "accessibility": 6
+      },
+      "finding": "At 200%, the status/Details split compresses status into a narrow, fragmented column. Generic Details gives little indication of the policy behind it. The focused policy sheet and prominent Done button read well, but do not repair the Home layout. Orb and tabs retain consistent styling. A=7.0; F=6.8; overall=6.9."
+    },
+    {
+      "scene": "Home",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8.5,
+        "surfaces": 8,
+        "clarity": 7.5,
+        "feedback": 7.5,
+        "accessibility": 8
+      },
+      "finding": "Full-width status destination wraps cleanly at 200% and the policy sheet offers a clear Done action. However, 'Unavailable · try tomorrow' sounds like a status rather than a destination explaining consumed attempts; that explanation is less immediate than A. Orb remains prominent and tabs remain legible. A=8.2; F=7.7; overall=7.9."
+    }
+  ],
+  "evidenceWinner": "A",
+  "checkinWinner": "B",
+  "homeWinner": "A",
+  "reason": "A provides the most focused long-form reader and clearest Home failure explanation. B best keeps check-in choices, status and Save together at 200%, with the tradeoff of disclosing the forecast. These are provisional visual judgments; none demonstrates the complete acceptance threshold.",
+  "limitations": [
+    "Scores cover supplied screenshots and visible component composition only. Accessibility scores describe visible text enlargement and layout, not verified accessibility conformance.",
+    "Reading-details feedback is null: screenshots establish content arrangements but not focus, announcements, navigation continuity or recovery behavior.",
+    "Check-in feedback scores assess visible selection and prototype confirmation only; actual persistence and production success are unverified.",
+    "No keyboard, screen reader, focus restoration, target-size measurement, contrast measurement, reduced-motion, physical iPhone or native behavior proof was supplied.",
+    "Synthetic content and a decorative orb do not establish model quality, generation behavior or production semantics. Loading and broader error/recovery states are unshown.",
+    "Averages normalize over non-null dimensions. They do not certify untested functionality or erase component defects; no full/native 9–10 certification is made."
+  ]
+}

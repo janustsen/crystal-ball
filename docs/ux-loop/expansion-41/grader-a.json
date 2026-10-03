@@ -1,0 +1,133 @@
+{
+  "comparisons": [
+    {
+      "scene": "reading details",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8.5,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "Strongest long-reading composition. Dedicated heading establishes context; minimal reader overhead and a bottom return support completion at 200%. Index rows remain legible. Switching sections requires returning to the index."
+    },
+    {
+      "scene": "reading details",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": null,
+        "accessibility": 7
+      },
+      "finding": "Selector is compact, but hides available sections and gives the page title weak emphasis. At the long reason's 200% bottom, neither selector nor return is visible. Body text itself wraps cleanly."
+    },
+    {
+      "scene": "reading details",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 7.5
+      },
+      "finding": "Disclosure arrows clearly distinguish open and closed sections. Subsequent sections are available after the reason, but heading plus disclosure creates more reader overhead. At 200%, collapsing the long reason requires returning to its top."
+    },
+    {
+      "scene": "check-in",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8.5,
+        "feedback": 7.5,
+        "accessibility": 8
+      },
+      "finding": "Strongest contextual decision flow: exact forecast, options, status and Save stay in reading order. Save needs scrolling at 200% but is fully shown at the bottom. Selected radio has a non-color cue. Saved text changes, while the unchanged Save label leaves completion slightly ambiguous."
+    },
+    {
+      "scene": "check-in",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8.5,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7.5,
+        "accessibility": 8
+      },
+      "finding": "All choices, status and Save fit together at 200%, giving the outcome step excellent scanability. However, the exact claim being judged is hidden behind View forecast. Saved feedback remains adjacent to Save, whose label does not change."
+    },
+    {
+      "scene": "check-in",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7.5,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7.5,
+        "accessibility": 6
+      },
+      "finding": "Exact forecast and fixed Save preserve context and action visibility. At 200%, the footer cuts across the options in selected/saved views; scrolling reveals them, but substantially less space remains for evaluating choices. Status is separated from the options by a large gap at normal size."
+    },
+    {
+      "scene": "Home",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 8.5,
+        "feedback": 8,
+        "accessibility": 7.5
+      },
+      "finding": "Strongest explanation of failure: unavailable, attempt used and tomorrow are explicit together. Orb retains prominence; full-width status avoids narrow wrapping. Expanded policy adds substantial scrolling at 200%, and its final line sits close to the tab bar. Touch the ball reads as an action despite the decorative prototype orb."
+    },
+    {
+      "scene": "Home",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 6,
+        "surfaces": 8.5,
+        "clarity": 7,
+        "feedback": 7.5,
+        "accessibility": 6.5
+      },
+      "finding": "The status/Details split becomes a narrow, five-line status column at 200%, increasing scroll cost. Details is less informative than A's disclosure label. The focused policy sheet has readable full-width copy and a prominent Done button."
+    },
+    {
+      "scene": "Home",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8.5,
+        "typography": 8,
+        "surfaces": 8.5,
+        "clarity": 7.5,
+        "feedback": 7.5,
+        "accessibility": 8
+      },
+      "finding": "Most compact Home composition, with clean full-width wrapping and a readable policy sheet. However, Unavailable · try tomorrow looks like a retry destination rather than an explanation link. Used-attempt text is below the initial 200% viewport. Orb and tabs retain consistent visual roles."
+    }
+  ],
+  "evidenceWinner": "A",
+  "checkinWinner": "A",
+  "homeWinner": "A",
+  "reason": "A best preserves the task's context: a focused long reader with an explicit return, the exact forecast beside its outcome choices, and a direct explanation of the unavailable omen. B's compact check-in and C's compact Home offer advantages, but conceal context or weaken destination clarity.",
+  "limitations": [
+    "Scores are provisional judgments of supplied screenshots at normal and 200% text. Accessibility scores cover visible enlargement and layout only.",
+    "Reading-details feedback is null because screenshots establish content states, not navigation feedback or recovery behavior.",
+    "Check-in feedback scores assess visible selection and prototype-saved messages only; persistence and production success are unproven.",
+    "No interaction, target-size, contrast measurement, focus restoration, keyboard, screen-reader, reduced-motion or physical/native verification was performed.",
+    "Orb action, animation, real generation, model quality and production semantics are not established. Reported font/error/overflow checks were not independently repeated.",
+    "No composition demonstrates the required A≥9 and F≥9 threshold for every screen and meaningful component."
+  ]
+}
