@@ -26,6 +26,9 @@ test('loadSocial includes every capped collection and recovers an unpaid forecas
   }
   if(context.parentURL?.includes('/src/')&&specifier.startsWith('./')&&!specifier.endsWith('.ts'))return next(new URL(specifier+'.ts',context.parentURL).href,context);
   return next(specifier,context);
+ },load(url,context,next){
+  if(url.startsWith('data:text/javascript,'))return {format:'module',source:url.slice('data:text/javascript,'.length),shortCircuit:true};
+  return next(url,context);
  }});
  t.after(()=>{hooks.deregister();delete (globalThis as any).socialPaginationDb});
  t.mock.method(globalThis,'fetch',async()=>Response.json({ok:true}));

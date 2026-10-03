@@ -22,6 +22,9 @@ test('social refresh recovers lost publication responses and charges each Readin
  t.mock.method(supabase.auth,'getSession',async()=>({data:{session:{access_token:'test-token',user:{id:'viewer'}}},error:null}));
  const {loadSocial,syncSocialProfile,prepareSocialDraft,friendForecast,publishCircleForecast}=await import('../src/social');
  let offline=true,reads=0;
+ // Keep the original ten snapshot reads covered separately from the six new collections.
+ const extraCollections=['circle_inbox','circle_moments','circle_glows','circle_forecasts','circle_vote_tallies','sealed_inbox'].sort();
+ const collectionReads:string[]=[];
  let failSchool=false;
  const writes:unknown[]=[];
  const day=new Date().toISOString().slice(0,10),forecast={id:'published-receipt',asker_id:'viewer',charged_at:null as string|null,circle_id:'circle',question:'Will we learn together?',headline:'A shared skill may bring you together.',due_date:'9999-12-31',created_at:new Date().toISOString()};
@@ -38,7 +41,8 @@ test('social refresh recovers lost publication responses and charges each Readin
    return Response.json([Object.fromEntries(Object.entries(forecast).filter(([key])=>fields.includes(key)))]);
   }
   assert.ok(writes.length>0,'snapshot reads must follow successful profile synchronization');
-  reads++;
+  const collection=new URL(String(input)).pathname.split('/').at(-1)!;
+  if(extraCollections.includes(collection))collectionReads.push(collection);else reads++;
   if(failSchool&&/\/(schools|rpc\/school_circle_suggestions)\b/.test(String(input)))return Response.json({message:'unavailable'},{status:500});
   return Response.json([]);
  });
@@ -46,14 +50,17 @@ test('social refresh recovers lost publication responses and charges each Readin
  await assert.rejects(syncSocialProfile(plus),/Engine offline/);
  await assert.rejects(loadSocial(plus),/Engine offline/);
  assert.equal(reads,0);
+ assert.deepEqual(collectionReads,[]);
  offline=false;
  assert.equal((await loadSocial(plus)).owner,'viewer');
  assert.deepEqual(writes,[{action:'profile',...plus}]);
- assert.equal(reads,16);
+ assert.equal(reads,10);
+ assert.deepEqual([...collectionReads].sort(),extraCollections);
  const unknown={plus:false,ageBand:null,sunSign:null};
  await loadSocial(unknown);
  assert.deepEqual(writes,[{action:'profile',...plus},{action:'profile',...unknown}]);
- assert.equal(reads,32);
+ assert.equal(reads,20);
+ assert.deepEqual([...collectionReads].sort(),extraCollections.flatMap(collection=>[collection,collection]));
  failSchool=true;
  const partial=await loadSocial(plus);
  assert.deepEqual([partial.owner,partial.schools,partial.schoolSuggestions],['viewer',[],[]]);
