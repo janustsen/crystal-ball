@@ -1,0 +1,17 @@
+[
+  { largeText: false, heldImageEncodes: 1, videoAbsent: true },
+  {
+    failure: 'Error: expect(locator).toBeFocused() failed\n' +
+      '\n' +
+      "Locator:  getByTestId('export-story-card')\n" +
+      'Expected: focused\n' +
+      'Received: inactive\n' +
+      'Timeout:  5000ms\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toBeFocused" getByTestId('export-story-card') with timeout 5000ms\n` +
+      "  - waiting for getByTestId('export-story-card')\n" +
+      '    14 × locator resolved to <button tabindex="0" role="button" type="button" aria-label="Download image" data-testid="export-story-card" class="css-g5y9jx r-1loqt21 r-1otgn73 r-155wkch r-3m7vz9 r-qxtw8h r-rs99b7 r-m1jxl3 r-1777fci r-l71dzp r-vdqesa r-1ml3abn r-h0bjfv">…</button>\n' +
+      '       - unexpected value "inactive"\n'
+  }
+]

@@ -1,0 +1,51 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toHaveValue(expected) failed
+
+Locator:  getByTestId('other-input')
+Expected: "A regular creative practice"
+Received: ""
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveValue" getByTestId('other-input') with timeout 5000ms
+  - waiting for getByTestId('other-input')
+    14 × locator resolved to <textarea dir="auto" maxlength="300" autocorrect="on" autocomplete="on" spellcheck="true" data-testid="other-input" autocapitalize="sentences" placeholder="Tell the Ball…" virtualkeyboardpolicy="auto" class="css-11aywtz r-6taxm2" aria-label="Your answer to: What matters most to you?"></textarea>
+       - unexpected value ""
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toHaveValue (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/docs/ux-loop/round-40/editor-stress.mjs:5:449 {
+  matcherResult: {
+    name: 'toHaveValue',
+    expected: 'A regular creative practice',
+    message: 'expect(locator).toHaveValue(expected) failed\n' +
+      '\n' +
+      "Locator:  getByTestId('other-input')\n" +
+      'Expected: "A regular creative practice"\n' +
+      'Received: ""\n' +
+      'Timeout:  5000ms\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toHaveValue" getByTestId('other-input') with timeout 5000ms\n` +
+      "  - waiting for getByTestId('other-input')\n" +
+      '    14 × locator resolved to <textarea dir="auto" maxlength="300" autocorrect="on" autocomplete="on" spellcheck="true" data-testid="other-input" autocapitalize="sentences" placeholder="Tell the Ball…" virtualkeyboardpolicy="auto" class="css-11aywtz r-6taxm2" aria-label="Your answer to: What matters most to you?"></textarea>\n' +
+      '       - unexpected value ""\n',
+    pass: false,
+    actual: '',
+    log: [
+      `  - Expect "toHaveValue" getByTestId('other-input') with timeout 5000ms`,
+      "  - waiting for getByTestId('other-input')",
+      '    14 × locator resolved to <textarea dir="auto" maxlength="300" autocorrect="on" autocomplete="on" spellcheck="true" data-testid="other-input" autocapitalize="sentences" placeholder="Tell the Ball…" virtualkeyboardpolicy="auto" class="css-11aywtz r-6taxm2" aria-label="Your answer to: What matters most to you?"></textarea>',
+      '       - unexpected value ""'
+    ],
+    timeout: 5000,
+    ariaSnapshot: `- 'textbox "Your answer to: What matters most to you?"':\n` +
+      '  - /placeholder: Tell the Ball…'
+  }
+}
+
+Node.js v26.10.0
