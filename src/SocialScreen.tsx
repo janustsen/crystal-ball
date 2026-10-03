@@ -2,6 +2,8 @@ import React,{useEffect,useRef,useState} from 'react';
 import {Platform,Pressable,Share,Switch,TextInput,View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {Action,colors,Orb,styles,Txt} from './ui';
+import {sealedLink} from './social-links';
+import {reconcileCircleReadings} from './reading-history';
 import {useStore} from './store';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
 import {SocialPush} from './SocialPush';
@@ -21,7 +23,7 @@ export function SealForecast({prediction,aiConsent=''}:{prediction:Prediction;ai
  const [recipients,setRecipients]=useState<SocialSnapshot|null>(null);
  if(!prediction.friend)return null;
  async function prepare(){setBusy(true);setNotice('');try{setDraft(await prepareSocialDraft('seal',prediction.headline,aiConsent));setRecipients(await loadSocial(accountSocialProfile(state)))}catch(error){setNotice(error instanceof Error?error.message:'This forecast could not be sealed.')}finally{setBusy(false)}}
- return <View style={{marginTop:12}}><Action label={busy?'Checking the wording…':'Seal for a friend'} quiet disabled={busy} onPress={()=>void prepare()}/>{draft?<View style={styles.panel}><Txt display style={styles.title}>A glimpse, just for them.</Txt><Txt>{draft.wording}</Txt><Txt style={[styles.caption,{marginTop:12}]}>Only this headline is sent. Your question and answers stay private.</Txt><Txt style={styles.caption}>{state.plus?'Plus · unlimited seals':'One free sealed forecast per week'}</Txt>{recipients?.members.filter((member,index,all)=>member.user_id!==recipients.owner&&all.findIndex(m=>m.user_id===member.user_id)===index).map(member=><Action key={member.user_id} label={`Send sealed forecast to ${member.display_name||member.handle||'Circle friend'}`} disabled={busy||!!url} onPress={()=>{setBusy(true);void sendSeal(draft,member.circle_id,member.user_id).then(()=>{setDraft(null);setNotice('Sealed forecast delivered.')}).catch(error=>setNotice(error.message)).finally(()=>setBusy(false))}}/>)}<Action label="Create sealed link" disabled={busy||!!url} onPress={()=>{setBusy(true);setNotice('');void sealForecast(draft).then(token=>setUrl(Linking.createURL('/',{queryParams:{seal:token}}))).catch(error=>setNotice(error instanceof Error?error.message:'The card could not be sealed.')).finally(()=>setBusy(false));}}/></View>:null}{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}{url?<LinkCard url={url} onClose={()=>setUrl('')}/>:null}</View>;
+ return <View style={{marginTop:12}}><Action label={busy?'Checking the wording…':'Seal for a friend'} quiet disabled={busy} onPress={()=>void prepare()}/>{draft?<View style={styles.panel}><Txt display style={styles.title}>A glimpse, just for them.</Txt><Txt>{draft.wording}</Txt><Txt style={[styles.caption,{marginTop:12}]}>Only this headline is sent. Your question and answers stay private.</Txt><Txt style={styles.caption}>{state.plus?'Plus · unlimited seals':'One free sealed forecast per week'}</Txt>{recipients?.members.filter((member,index,all)=>member.user_id!==recipients.owner&&all.findIndex(m=>m.user_id===member.user_id)===index).map(member=><Action key={member.user_id} label={`Send sealed forecast to ${member.display_name||member.handle||'Circle friend'}`} disabled={busy||!!url} onPress={()=>{setBusy(true);void sendSeal(draft,member.circle_id,member.user_id).then(()=>{setDraft(null);setNotice('Sealed forecast delivered.')}).catch(error=>setNotice(error.message)).finally(()=>setBusy(false))}}/>)}<Action label="Create sealed link" disabled={busy||!!url} onPress={()=>{setBusy(true);setNotice('');void Promise.resolve().then(()=>{sealedLink('');return sealForecast(draft)}).then(token=>setUrl(sealedLink(token))).catch(error=>setNotice(error instanceof Error?error.message:'The card could not be sealed.')).finally(()=>setBusy(false));}}/></View>:null}{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}{url?<LinkCard url={url} onClose={()=>setUrl('')}/>:null}</View>;
 }
 
 export function SealedCard({token,reduce}:{token:string;reduce:boolean}){
@@ -32,7 +34,7 @@ export function SealedCard({token,reduce}:{token:string;reduce:boolean}){
 }
 
 export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCircles=false,aiConsent=''}:{showCircles?:boolean;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
- const {state}=useStore();
+ const {state,update,backupBusy}=useStore();
  const profile=accountSocialProfile(state);
  const [schoolOnly,setSchoolOnly]=useState(false);
  const schoolInvites=useRef(new Map<string,string>());
@@ -43,10 +45,10 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
  useEffect(()=>{if(showCircles)setSection('circles')},[showCircles]);
  useEffect(()=>{
   let active=true;
-  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
+  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){update(current=>reconcileCircleReadings(current,snapshot));setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   return()=>{active=false;clearInterval(timer)};
- },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
+ },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly,backupBusy]);
  async function act(operation:()=>Promise<unknown>,message=''){
   if(busy)return;setBusy(true);setNotice('');
   try{await operation();setNotice(message)}catch(error){setNotice(error instanceof Error?error.message:'The sky could not be reached. Try again.')}finally{setBusy(false);setVersion(v=>v+1)}
@@ -73,7 +75,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    {schoolOnly&&!themeStars.length?<View style={styles.panel}><Txt>No school stars in {skyPrompts[selected].label.toLowerCase()} yet.</Txt><Txt style={styles.caption}>Prom, exams, a crush — ask the Ball and choose whether to share an anonymous Star.</Txt></View>:null}
    {!schoolOnly&&!themeStars.length?<View style={styles.panel}><Txt style={styles.caption}>{skyPrompts[selected].label} · sample question</Txt><Txt display style={[styles.title,{marginTop:12}]}>{skyPrompts[selected].question}</Txt><Action label="Ask this too" onPress={()=>onAsk(skyPrompts[selected].question)}/></View>:null}
    {themeStars.map((star,index)=><View key={star.id} style={styles.panel}><Txt style={styles.caption}>{star.mine?'Your star':'Anonymous star'} · {star.resonances} resonance{star.resonances===1?'':'s'}</Txt><Txt display style={[styles.title,{marginTop:12}]}>{star.wording}</Txt><Action label={`Ask this too${index?` · ${index+1}`:''}`} onPress={()=>onAsk(star.wording)}/><Action label={star.resonated?'✦ Resonated':`✦ This resonates${index?` · ${index+1}`:''}`} quiet disabled={busy||star.resonated} onPress={()=>void act(()=>resonate(star.id))}/>{!star.mine?<View><Action label="Report this star" quiet disabled={busy} onPress={()=>void act(()=>reportStar(star.id),'Reported. Repeated reports hide a star automatically.')}/><Action label="Block this person" quiet disabled={busy} onPress={()=>void act(()=>blockStarAuthor(star.id),'This person is blocked. Their stars and activity are hidden.')}/></View>:null}</View>)}
-   <Action label={busy?'The Ball is checking…':'Add my star'} quiet disabled={busy||!!ownStar} onPress={()=>{if(!data?.profile?.handle){setSection('circles');setNotice('Choose your @handle before sharing a Star.');return;}const reading=state.history[0];if(!reading){onAsk('');return;}void act(async()=>{const next=await prepareSocialDraft('star',reading.question,aiConsent);setDraft(next);setSelected(next.theme)})}}/>
+   <Action label={busy?'The Ball is checking…':'Add my star'} quiet disabled={busy||!!ownStar} onPress={()=>{const reading=state.history[0];if(!reading){onAsk('');return;}void act(async()=>{const next=await prepareSocialDraft('star',reading.question,aiConsent);setDraft(next);setSelected(next.theme)})}}/>
    {draft?<View style={styles.panel}><Txt>Approve your anonymous wording</Txt><Txt style={[styles.caption,{marginTop:8}]}>{draft.wording}</Txt><Txt style={[styles.caption,{marginTop:12}]}>Rewritten from your latest reading. No name, original question or answers. Visible today (UTC). One star per day.</Txt><Action label="Publish anonymous star" disabled={busy||!!ownStar} onPress={()=>void act(async()=>{await publishStar(draft);setDraft(null)},'Your star is in tonight’s sky.')}/><Action label="Keep it private" quiet onPress={()=>setDraft(null)}/></View>:null}
    {ownStar?<Action label="Remove my star" quiet disabled={busy} onPress={()=>void act(()=>removeStar(ownStar),'Your star was removed.')}/>:null}
   </>:<>
@@ -98,7 +100,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    {data?.notices?<View style={styles.panel}><Txt>Someone asked about you.</Txt><Txt style={styles.caption}>Their question and forecast stay private.</Txt><Action label="Got it" quiet onPress={()=>void act(()=>dismissFriendNotices())}/></View>:null}
    {friendEntry?<View style={styles.panel}><Txt>What is this friend’s first name?</Txt><TextInput accessibilityLabel="Friend’s first name" value={firstName} onChangeText={setFirstName} maxLength={40} style={styles.input}/><Action label="Ask about this friend" disabled={busy||!validFirstName(firstName.trim())||!data?.members.some(m=>m.circle_id===friendEntry.circle&&m.user_id===friendEntry.member&&m.can_ask)} onPress={()=>{const name=firstName.trim();if(!validFirstName(name))return;if(!state.plus){onPlus();return;}onAsk(`What lies ahead for ${name}?`,true,{...friendEntry,firstName:name})}}/><Txt style={styles.caption}>Only their sun sign and shared themes inform the reading. They are told someone asked, never what.</Txt></View>:null}
    {data?.receivedSeals.map(card=><SealedCard key={card.token} token={card.token} reduce={reduce}/>)}
-   {data?.seals.map(card=><View key={card.id} style={styles.panel}><Txt>{card.opened_at?'Opened':'Sealed'} · {card.headline}</Txt><Action label="Show sealed link" quiet onPress={()=>setLink(Linking.createURL('/',{queryParams:{seal:card.token}}))}/><Action label="Revoke this card" quiet disabled={busy} onPress={()=>void act(()=>revokeSeal(card.id),'Card revoked.')}/></View>)}
+   {data?.seals.map(card=><View key={card.id} style={styles.panel}><Txt>{card.opened_at?'Opened':'Sealed'} · {card.headline}</Txt><Action label="Show sealed link" quiet onPress={()=>{try{setLink(sealedLink(card.token))}catch(error){setNotice(error instanceof Error?error.message:'The card could not be shared.')}}}/><Action label="Revoke this card" quiet disabled={busy} onPress={()=>void act(()=>revokeSeal(card.id),'Card revoked.')}/></View>)}
   </>}
   {link?<LinkCard url={link} onClose={()=>setLink('')}/>:null}
   {notice?<View style={styles.panel}><Txt accessibilityLiveRegion="polite">{notice}</Txt><Action label="Dismiss social notice" quiet onPress={()=>setNotice('')}/></View>:null}

@@ -1,4 +1,5 @@
 import React,{createContext,useContext,useEffect,useState,useRef} from 'react';
+import {saveReading} from './reading-history';
 import {Alert} from 'react-native';
 import {forgetCheckIns,reopenCheckIn,cancelCheckIn} from './native';
 import {forgetOmen} from './daily-omen';
@@ -67,12 +68,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction:(prediction)=>change(s=>{
-  if(locked.current||!canRead(s))return s;
-  if(s.history.some(p=>p.id===prediction.id))return s;
-  const count=s.usage.day===day?s.usage.count:0,allowance=s.plus?10:1;
-  return {...s,history:[prediction,...s.history],usage:{day,count:count+1},credits:count>=allowance?Math.max(0,s.credits-1):s.credits};
- })}}>{children}</Context.Provider>;
+ return <Context.Provider value={{state,ready,hydrationError,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction:(prediction)=>change(s=>locked.current?s:saveReading(s,prediction))}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

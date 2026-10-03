@@ -6,7 +6,7 @@ import type {Prediction,FriendTarget} from './types';
 export type Identity={handle:string;display_name:string;avatar:string};
 export type CircleInvite=Identity&{id:string;circle_id:string};
 export type CircleMoment={id:string;circle_id:string;user_id:string;kind:'yes'|'no'|'pending'|'golden';day:string};
-export type CircleForecast={id:string;circle_id:string;question:string;headline:string;due_date:string;created_at:string};
+export type CircleForecast={id:string;asker_id:string;circle_id:string;question:string;headline:string;due_date:string;created_at:string};
 export type CircleForecastDraft=Pick<CircleForecast,'id'|'circle_id'|'question'|'headline'|'due_date'>;
 export type CircleTally={forecast_id:string;yes:number;no:number;pending:number;mine:'yes'|'no'|'pending'|null};
 export type School = {id:string;name:string;city:string;latitude:number;longitude:number};
@@ -51,7 +51,7 @@ export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise
   db.from('sealed_forecasts').select('id,headline,token,opened_at').eq('revoked',false),
   db.from('social_profiles').select('age_band,friends_can_ask,school_id,handle,display_name,avatar'),db.from('friend_notices').select('id').eq('seen',false),
   db.from('schools').select('id,name,city,latitude,longitude'),db.rpc('school_circle_suggestions'),
-  db.rpc('circle_inbox'),db.from('circle_moments').select('id,circle_id,user_id,kind,day'),db.from('circle_glows').select('circle_id,day'),db.from('circle_forecasts').select('id,circle_id,question,headline,due_date,created_at'),db.rpc('circle_vote_tallies'),db.rpc('sealed_inbox'),
+  db.rpc('circle_inbox'),db.from('circle_moments').select('id,circle_id,user_id,kind,day'),db.from('circle_glows').select('circle_id,day'),db.from('circle_forecasts').select('id,asker_id,circle_id,question,headline,due_date,created_at'),db.rpc('circle_vote_tallies'),db.rpc('sealed_inbox'),
  ]);
  // School data is optional: its failure leaves Sky and Circles working with an empty catalog.
  for(const result of [sky,own,circles,members,reactions,seals,profile,notices,requests,moments,glows,forecasts,votes,receivedSeals])if(result.error)throw new Error(socialUnavailable);

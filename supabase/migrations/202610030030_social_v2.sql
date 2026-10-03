@@ -13,7 +13,7 @@ create function social_private.discoverable(person uuid) returns boolean
  language sql stable security definer set search_path='' as $$
  select auth.uid() is not null and person<>auth.uid() and not social_private.blocked(person) and exists(
   select 1 from public.social_profiles p where p.user_id=person and p.handle is not null and
-  (p.age_band='adult' or (p.school_id is not null and exists(select 1 from public.social_profiles v where v.user_id=auth.uid() and v.age_band<>'adult' and v.school_id=p.school_id))));
+  (p.age_band='adult' or (p.age_band='teen' and p.school_id is not null and exists(select 1 from public.social_profiles v where v.user_id=auth.uid() and v.age_band='teen' and v.school_id=p.school_id))));
 $$;
 create function public.search_handles(prefix text) returns table(handle text,display_name text,avatar text)
  language sql stable security definer set search_path='' as $$
@@ -50,7 +50,10 @@ create function public.manage_circle(target uuid,person uuid,operation text) ret
   perform 1 from public.circles where id=target and owner_id=auth.uid() for update;
   if not found then raise exception 'Only the owner can manage this Circle'; end if;
   if person=auth.uid() or not exists(select 1 from public.circle_members where circle_id=target and user_id=person) then raise exception 'Choose another member'; end if;
-  if operation='transfer' then update public.circles set owner_id=person where id=target;
+  if operation='transfer' then
+   update public.circles set owner_id=person where id=target;
+   delete from public.circle_invites where circle_id=target;
+   update public.circle_requests set status='declined' where circle_id=target and status='pending';
   elsif operation='remove' then delete from public.circle_members where circle_id=target and user_id=person;
   else raise exception 'Choose remove or transfer'; end if;
  end;
@@ -117,8 +120,19 @@ create function public.answer_circle_invite(request_id uuid,accept boolean) retu
   update public.circle_requests set status=case when accept then 'accepted' else 'declined' end where id=request_id;
  end;
 $$;
+create table public.circle_connections(
+ circle_id uuid not null,inviter_id uuid not null,invitee_id uuid not null,
+ primary key(circle_id,inviter_id,invitee_id),check(inviter_id<>invitee_id),
+ foreign key(circle_id,inviter_id) references public.circle_members(circle_id,user_id) on delete cascade,
+ foreign key(circle_id,invitee_id) references public.circle_members(circle_id,user_id) on delete cascade
+);
+alter table public.circle_connections enable row level security;
+revoke all on public.circle_connections from public,anon,authenticated;
+-- Before this migration only the original creator could own and invite.
+insert into public.circle_connections select c.id,c.owner_id,m.user_id from public.circles c join public.circle_members m on m.circle_id=c.id and m.user_id<>c.owner_id;
 create function social_private.join_notice() returns trigger language plpgsql security definer set search_path='' as $$
  begin
+  insert into public.circle_connections select new.circle_id,c.owner_id,new.user_id from public.circles c where c.id=new.circle_id and c.owner_id<>new.user_id on conflict do nothing;
   insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id)
    select user_id,new.user_id,new.circle_id,'joined',gen_random_uuid() from public.circle_members where circle_id=new.circle_id and user_id<>new.user_id;
   return new;
@@ -296,25 +310,6 @@ grant execute on function public.set_social_push(text) to authenticated;
 revoke all on function public.claim_social_pushes(),public.finish_social_push(uuid) from public,anon,authenticated;
 grant execute on function public.claim_social_pushes(),public.finish_social_push(uuid) to service_role;
 
--- Ownership can now transfer, so current ownership no longer proves who invited whom.
-create table public.circle_connections(
- circle_id uuid not null,inviter_id uuid not null,invitee_id uuid not null,
- primary key(circle_id,inviter_id,invitee_id),check(inviter_id<>invitee_id),
- foreign key(circle_id,inviter_id) references public.circle_members(circle_id,user_id) on delete cascade,
- foreign key(circle_id,invitee_id) references public.circle_members(circle_id,user_id) on delete cascade
-);
-alter table public.circle_connections enable row level security;
-revoke all on public.circle_connections from public,anon,authenticated;
--- Before this migration only the original creator could own and invite.
-insert into public.circle_connections select c.id,c.owner_id,m.user_id from public.circles c join public.circle_members m on m.circle_id=c.id and m.user_id<>c.owner_id;
-create or replace function social_private.join_notice() returns trigger language plpgsql security definer set search_path='' as $$
- begin
-  insert into public.circle_connections select new.circle_id,c.owner_id,new.user_id from public.circles c where c.id=new.circle_id and c.owner_id<>new.user_id on conflict do nothing;
-  insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id)
-   select user_id,new.user_id,new.circle_id,'joined',gen_random_uuid() from public.circle_members where circle_id=new.circle_id and user_id<>new.user_id;
-  return new;
- end;
-$$;
 create or replace function public.school_circle_suggestions() returns table(circle_id uuid,user_id uuid)
  language sql stable security definer set search_path='' as $$
  select distinct edge.circle_id,peer.user_id from public.circle_connections edge
@@ -322,19 +317,4 @@ create or replace function public.school_circle_suggestions() returns table(circ
  join public.social_profiles peer on peer.user_id=case when edge.inviter_id=auth.uid() then edge.invitee_id else edge.inviter_id end and peer.school_id=mine.school_id
  where auth.uid() in (edge.inviter_id,edge.invitee_id) and social_private.member(edge.circle_id) and not social_private.blocked(peer.user_id)
  order by edge.circle_id,peer.user_id;
-$$;
--- Pending links belong to the old owner's invitation authority; transfer invalidates them.
-create or replace function public.manage_circle(target uuid,person uuid,operation text) returns void
- language plpgsql security definer set search_path='' as $$
- begin
-  perform 1 from public.circles where id=target and owner_id=auth.uid() for update;
-  if not found then raise exception 'Only the owner can manage this Circle'; end if;
-  if person=auth.uid() or not exists(select 1 from public.circle_members where circle_id=target and user_id=person) then raise exception 'Choose another member'; end if;
-  if operation='transfer' then
-   update public.circles set owner_id=person where id=target;
-   delete from public.circle_invites where circle_id=target;
-   update public.circle_requests set status='declined' where circle_id=target and status='pending';
-  elsif operation='remove' then delete from public.circle_members where circle_id=target and user_id=person;
-  else raise exception 'Choose remove or transfer'; end if;
- end;
 $$;

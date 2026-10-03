@@ -18,12 +18,53 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
 select public.set_social_identity('teen_unknown','Unknown','✦');
 select proof.assert((select count(*)=0 from public.search_handles('teen')),'no-school viewer cannot discover teens');
 select public.set_school('sfusd-lowell');
-select proof.assert((select count(*)=1 from public.search_handles('@teen')),'unknown age gets teen same-school discovery');
+select proof.assert((select count(*)=0 from public.search_handles('@teen')),'unknown age cannot discover teens at the same school');
+reset role;
+update public.social_profiles set age_band='teen' where user_id='00000000-0000-0000-0000-000000000004';
+set role authenticated;
+select proof.assert((select count(*)=1 from public.search_handles('@teen')),'explicit teens can discover teens at the same school');
 select proof.assert((select array_agg(k order by k)=array['avatar','display_name','handle'] from public.search_handles('teen') s,lateral jsonb_object_keys(to_jsonb(s)) k),'search exposes only identity, never sign or ID');
 select public.set_school(null);
+reset role;
+update public.social_profiles set age_band='unknown' where user_id='00000000-0000-0000-0000-000000000004';
+set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select proof.assert((select count(*)=0 from public.search_handles('teen')),'adult at school cannot discover teens');
 select proof.reject(format('select public.request_circle_invite(%L,''teen_one'')',:'c'),'P0001');
+reset role;
+savepoint discovery_matrix;
+do $$
+declare viewer_age text; target_age text; school text; target_school text; allowed boolean; target_circle uuid;
+begin
+ perform set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000004',true);
+ target_circle:=public.create_circle();
+ foreach viewer_age in array array['adult','teen','unknown'] loop
+  foreach target_age in array array['adult','teen','unknown'] loop
+   foreach school in array array['sfusd-lowell','sfusd-washington',null] loop
+   foreach target_school in array array['sfusd-lowell','sfusd-washington',null] loop
+    update public.social_profiles set age_band=viewer_age,school_id=school where user_id=auth.uid();
+    update public.social_profiles set age_band=target_age,school_id=target_school where handle='teen_one';
+    allowed:=target_age='adult' or (target_age='teen' and viewer_age='teen' and coalesce(school=target_school,false));
+    perform proof.assert((select count(*) from public.search_handles('teen_one'))=case when allowed then 1 else 0 end,'age/school search matrix');
+    if allowed then
+     perform public.request_circle_invite(target_circle,'teen_one');
+     perform proof.assert(exists(select 1 from public.circle_requests where circle_id=target_circle),'discoverable target receives invitation');
+     delete from public.circle_requests where circle_id=target_circle;
+     perform public.block_handle('teen_one');
+     perform proof.assert((select count(*)=0 from public.search_handles('teen_one')),'block hides discoverable target');
+     delete from public.social_blocks where user_id=auth.uid();
+    else
+     perform proof.reject(format('select public.request_circle_invite(%L,''teen_one'')',target_circle),'P0001');
+     perform proof.reject('select public.block_handle(''teen_one'')','P0001');
+    end if;
+   end loop;
+   end loop;
+  end loop;
+ end loop;
+end;
+$$;
+rollback to discovery_matrix;
+set role authenticated;
 select public.request_circle_invite(:'c','adult_two');
 select proof.reject('select * from public.circle_requests','42501');
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
