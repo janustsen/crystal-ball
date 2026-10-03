@@ -139,3 +139,18 @@ test('Circle requests reject missing or non-name identity before generation',asy
  }
  assert.equal(modelCalls,0);assert.equal(authorized,0);
 });
+
+
+test('social moderation emits the same safety policy for every age and surface',async()=>{
+ const systems:string[]=[];
+ let allow=true;
+ const model:ModelProvider={async json<T>(system:string){systems.push(system);return {safe:allow} as T;}};
+ for(const teen of [true,false])for(const kind of ['star','seal'] as const){
+  allow=true;
+  await moderateSocialLine('A creative opportunity may bring a brighter chapter.',kind,teen,model);
+  allow=false;
+  await assert.rejects(moderateSocialLine('Alex will secretly fall in love with you.',kind,teen,model),/cannot be shared/);
+ }
+ assert.equal(systems.length,8);
+ for(const system of systems)assert.equal(system,systems[0],'age and surface must not weaken the emitted moderation policy');
+});

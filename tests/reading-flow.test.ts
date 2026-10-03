@@ -82,19 +82,21 @@ test('HTTP boundary rejects under-13 readings and full names before model calls'
  }finally{globalThis.fetch=original;}
 });
 
-test('teen and unknown output is screened for private-feelings claims; adults retain for-fun label',async()=>{
+test('all ages screen private-feelings output and allow kind activities',async()=>{
  const original=globalThis.fetch;
+ let prediction='Alex will paint with you.';
  globalThis.fetch=async(_url,init)=>{
-  const body=JSON.parse(String(init?.body));const teenOutput=body.messages[0].content.includes('Return person for any cruel');
-  const content=body.format.properties.prediction?{prediction:'Alex will fall in love with you.',basis:'context_1',assumption:'You continue spending time together.'}:{category:teenOutput?'person':'allow'};
+  const body=JSON.parse(String(init?.body));const generatedOutput=body.messages[0].content.startsWith('Classify this generated forecast');
+  const content=body.format.properties.prediction?{prediction,basis:'context_1',assumption:'You continue spending time together.'}:{category:generatedOutput&&prediction.includes('love')?'person':'allow'};
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
-  for(const viewerBirthday of [undefined,'2010-01-01']){
-   const result=await predict('Will Alex fall in love?',{context_1:'We talk every day',horizon:'within 3 months'},false,provider(()=>undefined),{viewerBirthday,personName:'Alex'});
+  for(prediction of ['Alex will fall in love with you.','Alex will not secretly fall in love with you.'])for(const viewerBirthday of [undefined,'2010-01-01','1990-01-01']){
+   const result=await predict('Will Alex secretly fall in love with me this year?',{context_1:'Alex and I attend a weekly painting class.',horizon:'this year'},false,provider(()=>undefined),{viewerBirthday,personName:'Alex'});
    assert.equal(result.kind,'blocked');if(result.kind==='blocked')assert.equal(result.category,'person');
   }
-  const adult=await predict('Will Alex fall in love?',{context_1:'We talk every day',horizon:'within 3 months'},false,provider(()=>undefined),{viewerBirthday:'1990-01-01',personName:'Alex'});
+  prediction='Alex will paint with you.';
+  const adult=await predict('Will Alex paint with me?',{context_1:'We talk every day',horizon:'within 3 months'},false,provider(()=>undefined),{viewerBirthday:'1990-01-01',personName:'Alex'});
   assert.equal(adult.kind,'ok');if(adult.kind==='ok'){assert.match(adult.value.label,/For fun/);assert.match(adult.value.dueDate!,/^\d{4}-\d{2}-\d{2}$/);assert.ok(adult.value.astrology);assert.ok(adult.value.deeperWhy);}
  }finally{globalThis.fetch=original;}
 });

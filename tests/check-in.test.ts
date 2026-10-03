@@ -65,9 +65,9 @@ import type {Prediction} from '../src/types.ts';
 test('saved verdicts override the due-date prompt in History',()=>{
  const reading:Prediction={id:'reading',createdAt:'2026-09-01T12:00:00',question:'Will I finish?',headline:'You will finish.',label:'Speculative',why:'',facts:{},sources:[],assumptions:[],friend:false};
  for(const dueDate of ['2026-09-29','2026-09-30','2026-10-01']){
-  assert.equal(checkInLabel({...reading,dueDate,outcome:'pending'},'2026-09-30'),'◷ Waiting');
-  assert.equal(checkInLabel({...reading,dueDate,outcome:'yes'},'2026-09-30'),'✓ Came true');
-  assert.equal(checkInLabel({...reading,dueDate,outcome:'no'},'2026-09-30'),'Took another path');
-  assert.equal(checkInLabel({...reading,dueDate},'2026-09-30'),dueDate<='2026-09-30'?'Did it come true?':'◷ Waiting');
+  assert.equal(checkInLabel({...reading,dueDate,outcome:'pending'},'2026-09-30'),'Not yet');
+  assert.equal(checkInLabel({...reading,dueDate,outcome:'yes'},'2026-09-30'),'Yes');
+  assert.equal(checkInLabel({...reading,dueDate,outcome:'no'},'2026-09-30'),'Not quite');
+  assert.equal(checkInLabel({...reading,dueDate},'2026-09-30'),dueDate<='2026-09-30'?'Ready to check in':`Check back ${dueDate}`);
  }
 });

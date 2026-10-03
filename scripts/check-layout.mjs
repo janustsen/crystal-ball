@@ -53,10 +53,10 @@ for(const width of [360,390,430])for(const large of [false,true]){
  const text=value=>page.getByText(value,{exact:true});
  const check=(name,marker,delay)=>audit(page,width,name+tag,marker,delay);
  const planning=text('Checking the question and finding what matters.');
- const research=text('Looking for current context and forming your prediction.');
+ const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
- await page.goto(base,{timeout:120000});await page.getByTestId('tab-ask').waitFor();
+ await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
@@ -64,11 +64,11 @@ for(const width of [360,390,430])for(const large of [false,true]){
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');
-  await cards.first().locator('..').evaluate(element=>element.scrollIntoView({block:'center'}));
+  await cards.first().evaluate(element=>element.scrollIntoView({block:'start'}));
   await expect(cards.nth(0)).toBeInViewport({ratio:1});await expect(cards.nth(1)).toBeInViewport({ratio:1});
   await page.screenshot({path:`${evidence}/paywall${tag}.png`});
  }
- await tap('close-flow');await tap('tab-home');
+ await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');await tap('tab-home');
  await tap('hero-orb');await check('approach',text('Come closer…'),0);
  await check('listening',page.getByTestId('type-instead'));
  await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));

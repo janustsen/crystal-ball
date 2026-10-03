@@ -14,7 +14,7 @@ A pessimistic $0.03 total cost/prediction, 300 monthly Plus predictions and a mo
 
 ## Paywall rules and test
 
-Show monthly and annual totals, exact daily cap, cancel/restore routes, privacy and terms, packs as a separate “No subscription” option, and a visible close action. No fake urgency or preselected free trial. Tonight every CTA says “Test”; it changes a local mock balance and charges nothing. Production prices must come from RevenueCat offerings. Server receipt/webhook credit accounting is required before real commerce.
+Show monthly and annual totals, exact daily cap, cancel/restore routes, privacy and terms, packs as a separate “No subscription” option, and a visible close action. No fake urgency or preselected free trial. Prototype purchase actions say “simulate”; they change a local mock balance and charge nothing. Production prices must come from RevenueCat offerings. Server receipt/webhook credit accounting is required before real commerce.
 
 Evaluate $5.99 versus $7.99 only after users can complete the core flow. Track paid conversion, 7-day return, successful generations, per-user variable cost, refunds, share completion and cancellations without collecting question text. Guardrails: <$0.01 normal generation cost and no charged failed predictions. These are targets, not observed results.
 
