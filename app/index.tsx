@@ -1,3 +1,4 @@
+import {ExpandableInput} from '../src/ExpandableInput';
 import {RevealOpening} from '../src/RevealOpening';
 import {CheckInForecast} from '../src/CheckInForecast';
 import React,{useCallback,useEffect,useRef,useState} from 'react';
@@ -147,7 +148,7 @@ export default function App(){
   </View>:null}
   <Txt style={[styles.caption,{marginBottom:8}]}>For entertainment. Your question and answers are sent to generate a forecast.</Txt>
   <View style={{minHeight:height<600?height:undefined}}><View testID="question-entry"><Txt style={[styles.caption,{marginBottom:6}]}>Your question</Txt>
-  <Input testID="question-input" accessibilityLabel="Your question" placeholder="What will my life look like next year?" placeholderTextColor={colors.muted} multiline value={question} onChangeText={setQuestion} maxLength={500} style={[styles.input,{fontFamily:fonts.body,minHeight:height<600?(state.largeText?190:112):(state.largeText?242:138),textAlignVertical:'top',fontSize:18,lineHeight:26,borderWidth:1,borderRadius:12,paddingHorizontal:12}]}/>
+  <ExpandableInput editorTitle="Your question" testID="question-input" accessibilityLabel="Your question" placeholder="What will my life look like next year?" placeholderTextColor={colors.muted} multiline value={question} onChangeText={setQuestion} maxLength={500} style={[styles.input,{fontFamily:fonts.body,minHeight:height<600?(state.largeText?190:112):(state.largeText?242:138),textAlignVertical:'top',fontSize:18,lineHeight:26,borderWidth:1,borderRadius:12,paddingHorizontal:12}]}/>
   <Action testID="look-into-the-future" label={aiProvider&&!aiAllowed?'Review AI consent':'Ask the Ball'} disabled={!(aiProvider&&!aiAllowed)&&(question.trim().length<4||(personMode&&!validPersonName(personName.trim())))} onPress={()=>aiProvider&&!aiAllowed?setConsentOpen(true):void begin()}/></View>
   {textLink('Speak instead',()=>setFlow({stage:'listening'}))}{aiProvider&&aiAllowed?textLink('AI permission',()=>setConsentOpen(true),'review-ai-permission'):null}</View>
  </>;
@@ -162,7 +163,7 @@ export default function App(){
    <Txt testID="question-heading" accessibilityRole="header" display={height>=600} style={{fontSize:height<600?16:22,lineHeight:height<600?22:28,marginBottom:12}}>{card.question}</Txt>
    {choice==='Other'?<>
     <Txt style={[styles.caption,{marginBottom:6}]}>Your answer</Txt>
-    <Input testID="other-input" accessibilityLabel={`Your answer to: ${card.question}`} multiline autoFocus placeholder="Tell the Ball…" placeholderTextColor={colors.muted} value={other} onChangeText={setOther} maxLength={300} style={[styles.input,{fontFamily:fonts.body,fontSize:18,lineHeight:26,minHeight:state.largeText?(height<600?126:190):112,textAlignVertical:'top'}]}/>
+    <ExpandableInput editorTitle={card.question} testID="other-input" accessibilityLabel={`Your answer to: ${card.question}`} multiline autoFocus placeholder="Tell the Ball…" placeholderTextColor={colors.muted} value={other} onChangeText={setOther} maxLength={300} style={[styles.input,{fontFamily:fonts.body,fontSize:18,lineHeight:26,minHeight:state.largeText?(height<600?126:190):112,textAlignVertical:'top'}]}/>
     {!other.trim()?<Txt style={[styles.caption,{marginTop:8}]}>Write a few words to continue.</Txt>:null}
    </>:<>
     <Txt style={styles.caption}>Choose one, then {flow.index+1===flow.plan.cards.length?'reveal your forecast':'continue'}.</Txt>
