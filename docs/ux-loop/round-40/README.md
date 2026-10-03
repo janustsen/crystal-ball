@@ -13,3 +13,7 @@ Diagnostic background images and actual PNG exports are not phone screenshots an
 ## Reproduced blocker
 
 A targeted repeat of the exact360px normal-text editor sequence failed again on repetition5 at500px height: after Cancel, other-input was empty instead of “A regular creative practice”. Four earlier repetitions and the separate24-combination recheck passed. This now has two observed failures; the passing run does not clear it. Product editor source is unchanged in this round. Cause is not established and no host-load explanation is claimed. Full-app grading is held. Per brief rule5, report to Firstmate and stop; inbox010 only exempts repeated layout overflow, not draft loss. Reproduction: node docs/ux-loop/round-40/editor-stress.mjs. Logs: editor-stress/failure.log and expanded-editor/failure.log.
+
+## Resolution
+
+Firstmate inbox011 authorizes fixing in-scope bugs. Instrumentation traced the reproduced failure to duplicate deferred focus restoration, not Cancel applying a stale snapshot. Commit f210f47a removes the redundant editor callback and makes sharing dismissal focus synchronous. The regression goes red before and passes20 repetitions /80 checks after; the full24-combination editor and both sharing-focus checks pass. See editor-race.md for decisive event order. Grading may resume.
