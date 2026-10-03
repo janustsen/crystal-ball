@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import {reconcileCircleReadings} from '../src/reading-history';
+import type {AccountState} from '../src/types';
 
 test('school invitations never reuse filtered circles or another suggestion’s invitation',async()=>{
  const snapshot={owner:'A',profile:{school_id:'school',age_band:'teen'},stars:[],schoolOnly:false,
   circles:[{id:'occupied',owner_id:'A'}],members:[{circle_id:'occupied',user_id:'A'}],
   schoolSuggestions:[{circle_id:'occupied',user_id:'C'},{circle_id:'occupied',user_id:'D'}],
-  schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[]};
+  schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,created=0,reads=0;
  const invited:string[]=[],checked:(string|undefined)[]=[];
@@ -29,9 +31,11 @@ test('school invitations never reuse filtered circles or another suggestion’s 
    if(!slots[index]||deps.some((value,i)=>value!==slots[index][i])){slots[index]=deps;effects.push(effect)}
   },
  };
+ let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false};
  const imports:Record<string,any>={
+  './reading-history':{reconcileCircleReadings},
   react,'react-native':{},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
-  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
+  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false,update:(fn:(s:AccountState)=>AccountState)=>{state=fn(state)}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),
