@@ -1,0 +1,133 @@
+{
+  "comparisons": [
+    {
+      "scene": "Reading details",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "Strongest reader. Dedicated titles identify the content; full-width paragraphs and a clear bottom return support long reading. At 200%, the wrapped heading adds overhead but answers remain immediately accessible."
+    },
+    {
+      "scene": "Reading details",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 5,
+        "typography": 7,
+        "surfaces": 7,
+        "clarity": 2,
+        "feedback": 2,
+        "accessibility": null
+      },
+      "finding": "The selector is legible, but no selected content appears in either reason or answers captures at either size. The supplied pictures leave the core reading task unanswered: overall capped at 4."
+    },
+    {
+      "scene": "Reading details",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": 7,
+        "accessibility": 6
+      },
+      "finding": "Clear disclosure indicators and readable paragraphs. However, the answers capture retains the expanded reason above answers, contrary to the stated single-open behavior. At 200%, the requested answers are entirely below the viewport; section switching carries substantial scroll cost."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "Best immediate connection between forecast and evaluation. Radio selection, status and Save form a coherent sequence. At 200%, Save requires scrolling; the saved capture leaves it below the viewport. Saved feedback is explicit, but the unchanged Save label weakens completion."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "Strongest across both sizes: all choices, adjacent status and Save fit at 200%. The overview establishes the forecast, although collapsing it during evaluation adds recall burden. Saved wording communicates completion, but Save remains visually unchanged."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 5
+      },
+      "finding": "Fixed Save stays prominent and the exact forecast remains visible. At 200%, the footer cuts across the options area; the saved message increases its height until only the first choice is visible. Reachability of the remaining choices within the claimed scrollable sheet is not demonstrated."
+    },
+    {
+      "scene": "Home",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 8
+      },
+      "finding": "Strongest coherent Home. The orb retains prominence while unavailable status, consumed attempt and tomorrow are plainly stated. The descriptive disclosure preserves context; the complete policy remains readable at 200%, with added scrolling."
+    },
+    {
+      "scene": "Home",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 5,
+        "surfaces": 6,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 6
+      },
+      "finding": "At 200%, the split status/Details row squeezes the status into five short lines. Details is less descriptive than A's disclosure. The policy sheet is readable with a prominent Done button, but the isolated orb pedestal distracts from its content."
+    },
+    {
+      "scene": "Home",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 6,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "Full-width status wraps better than B and preserves the hero. However, 'Unavailable · try tomorrow ›' ambiguously combines status, instruction and navigation. The used-attempt summary starts below the initial 200% viewport. The policy sheet retains the distracting detached pedestal."
+    }
+  ],
+  "evidenceWinner": "A",
+  "checkinWinner": "B",
+  "homeWinner": "A",
+  "reason": "A gives reading details a focused destination and Home a clear explanation in context. B gives check-in the strongest enlarged-text composition, keeping choices, feedback and Save together. Scores cover visible screen and component composition; none establishes the requested 9/9 threshold.",
+  "limitations": [
+    "Screenshot-only provisional assessment. Feedback scores concern visible selection, disclosure and status changes, not verified interaction semantics or persistence.",
+    "Evidence B's described selected content is absent from the supplied images; evidence C's answers state visibly retains the expanded reason.",
+    "No proof of keyboard operation, focus restoration, screen-reader announcements, target hit areas, measured contrast, reduced motion or native behavior.",
+    "Check-in C's lower-choice reachability at 200% is unestablished; the pictures show footer occlusion but cannot establish whether scrolling resolves it.",
+    "No production persistence, generation, provenance or predictive accuracy is established. Orb action and animation are inapplicable to these decorative prototypes.",
+    "Assumption and absent-source content, intermediate scroll states, and loading/recovery interactions are not pictured. Reported font/error/overflow checks were not independently inspected."
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "comparisons": [
+    {
+      "scene": "Reading details",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": null,
+        "accessibility": 8
+      },
+      "finding": "Strongest reader composition. Clear index, focused section title and explicit return at the end. At 200%, the wrapping title adds overhead, but answers remain immediately identifiable and long prose has a clean reading column."
+    },
+    {
+      "scene": "Reading details",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 5,
+        "typography": 7,
+        "surfaces": 7,
+        "clarity": 2,
+        "feedback": null,
+        "accessibility": null
+      },
+      "finding": "The selector is legible, but no selected content appears in either reason or answers captures at either size. The supplied views leave the reading task materially unanswered: overall cap 4. The stated intended content cannot substitute for visible evidence."
+    },
+    {
+      "scene": "Reading details",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 6,
+        "feedback": null,
+        "accessibility": 6
+      },
+      "finding": "Clear disclosure indicators and restrained separators. Expanded prose pushes sibling sections far down. In the answers captures, the reason remains expanded; at 200%, answers are entirely outside the visible viewport. This contradicts the stated one-expanded-section behavior and weakens orientation."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "Best immediate evaluation context: exact forecast, mutually exclusive choices, status and Save share one flow. At 200%, Save requires scrolling; the initial bottom capture shows it reachable. Selection uses both a radio mark and color. Saved feedback is explicit, but the unchanged Save button leaves completion less decisive."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 7,
+        "accessibility": 8
+      },
+      "finding": "Strongest composition across both text sizes. The focused outcome step keeps all three choices, status and Save visible at 200%. The tradeoff is hiding the exact forecast behind View forecast, requiring recall or another disclosure. Saved feedback remains adjacent to Save, whose label does not change."
+    },
+    {
+      "scene": "Check-in",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 7,
+        "typography": 7,
+        "surfaces": 8,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 5
+      },
+      "finding": "Exact forecast and fixed Save work well at normal size. At 200%, the footer consumes substantial space: the selected capture cuts into the second option, and the saved capture shows only the first option above it. Access to the remaining choices inside the claimed scrollable sheet is not established by these views."
+    },
+    {
+      "scene": "Home",
+      "variant": "A",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 8,
+        "clarity": 8,
+        "feedback": 8,
+        "accessibility": 7
+      },
+      "finding": "Strongest coherent Home. The signature orb dominates while unavailable status, consumed attempt and tomorrow are stated directly. Full-width policy text wraps naturally at 200% and is visible in the supplied scrolled view. Expansion costs scrolling but preserves context without an additional surface."
+    },
+    {
+      "scene": "Home",
+      "variant": "B",
+      "dimensions": {
+        "hierarchy": 6,
+        "typography": 5,
+        "surfaces": 6,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 5
+      },
+      "finding": "The status/Details split becomes a narrow, nearly word-per-line column at 200%, adding avoidable scroll cost. The policy sheet has clear text and Done, but an orphaned orb pedestal remains behind the content and meets the final text line at 200%, weakening surface separation."
+    },
+    {
+      "scene": "Home",
+      "variant": "C",
+      "dimensions": {
+        "hierarchy": 8,
+        "typography": 8,
+        "surfaces": 6,
+        "clarity": 7,
+        "feedback": 7,
+        "accessibility": 7
+      },
+      "finding": "Compact unavailable/tomorrow destination wraps well, with the used-attempt summary readable at page bottom. Its label does not clearly promise policy details. The focused sheet retains the same distracting pedestal artifact as B, so the complete composition is weaker than A."
+    }
+  ],
+  "evidenceWinner": "A",
+  "checkinWinner": "B",
+  "homeWinner": "A",
+  "reason": "A gives reading details a focused destination and Home a direct explanation with consistent context. B makes check-in choices and Save easiest to inspect together at 200%, despite hiding the forecast in a disclosure. None demonstrates the required 9/9 threshold across screens and critical components.",
+  "limitations": [
+    "Scores assess supplied screenshot compositions across normal and 200% text; accessibility scores cover visible layout only. Null means the relevant functionality was not established.",
+    "Component observations include the reader, selector, disclosures, radio options, status messages, buttons, orb, tabs and sheets; these images do not establish their complete interaction behavior.",
+    "Reading-details B shows no body content, and C's answers views retain the expanded reason. These failed observations remain part of the assessment despite the intended behavior described.",
+    "Prototype saved messages establish visible feedback only, not persistence, successful production saving or recovery.",
+    "Keyboard operation, focus handling, screen-reader semantics, target hit areas, measured contrast, reduced motion and native behavior are unverified. Reported font/error/overflow checks do not establish those properties.",
+    "No production model results, generation, orb interaction, animation or physical iPhone/VoiceOver behavior is proven."
+  ]
+}
