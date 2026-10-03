@@ -14,3 +14,5 @@ test('legacy unknown keys remain readable without inventing original questions',
  const different={...prediction,answerQuestions:{context_a:'A different question?'}};
  assert.equal(readingAnswers(different)[0].answer,prediction.facts.context_a);
 });
+
+test('inferred horizon has a semantic label without a saved question',()=>{assert.equal(readingAnswers(prediction)[1].label,'Time horizon')});

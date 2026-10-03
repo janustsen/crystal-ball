@@ -1,0 +1,83 @@
+✔ known facts never repeat; each domain keeps Other and 3–10 unique cards (4.57475ms)
+✔ provider repairs once, then rejects malformed JSON (10.208583ms)
+✔ adaptive sports editions and learning targets stay tied to the question (2.859792ms)
+✔ explicit question horizons are preserved instead of asking conflicting defaults (0.122625ms)
+✔ a learned Spanish level never skips a different learning goal (0.136583ms)
+✔ prediction rejects missing topic inputs before generating an outcome (8.0545ms)
+✔ creative and zodiac context cannot erase explicit personal harm or illness (0.445375ms)
+✔ multilingual lifespan, self-harm and residency forms retain their safety category (0.131208ms)
+✔ asynchronous semantic rejection gets one repair and never leaks a failed result (0.3665ms)
+✔ server-owned horizon formats the model verdict without inventing an outcome (0.598625ms)
+✔ equivalent written horizons are not repeated in the headline (0.142ms)
+✔ Why labels assumptions and does not print the same sentence twice (0.159375ms)
+✔ Danish remaining-lifespan wording is death, not self-harm (0.041542ms)
+✔ ordinary word senses do not trigger sensitive-topic phrase rules (0.079291ms)
+✔ general planning does not send unrelated domain memories into model cards (1.216166ms)
+✔ duplicate model cards earn a repair instead of repeating the same question (0.716709ms)
+✔ learning explanation preserves the chosen baseline and conversational target (1.156958ms)
+✔ bounded forecasts never replace the server explanation with extra model fields (12.903875ms)
+✖ general explanations quote an existing input and ignore model-authored factual prose (1.724875ms)
+✔ personal forecast voice normalizes model first-person phrasing (0.149541ms)
+✔ an inferred competition keeps its contenders through later answers (0.084208ms)
+✔ prediction never sends unrelated memories to the safety classifier (0.54575ms)
+✔ unparseable Other answers are re-asked instead of counting as the negative case (0.6535ms)
+✔ an event horizon phrased as later this year is not repeated in the headline (0.100959ms)
+✔ recognized units are converted instead of being read as the card unit (1.478959ms)
+✔ a remembered fact that no longer validates is re-asked instead of breaking the forecast (0.119625ms)
+✔ saved question metadata preserves original facts and only names answered facts (0.858583ms)
+✔ legacy unknown keys remain readable without inventing original questions (0.102459ms)
+✖ inferred horizon has a semantic label without a saved question (0.701334ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 27
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 254.557916
+
+✖ failing tests:
+
+test at tests/engine.test.ts:71:1
+✖ general explanations quote an existing input and ignore model-authored factual prose (1.724875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'This is a speculative forecast, not a guarantee.'
+  -   'Your writing routine continues.'
+    ]
+  
+      at TestContext.<anonymous> (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/tests/engine.test.ts:74:425)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'This is a speculative forecast, not a guarantee.' ],
+    expected: [ 'Your writing routine continues.' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/reading-answers.test.ts:18:1
+✖ inferred horizon has a semantic label without a saved question (0.701334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Answer 2'
+  - 'Time horizon'
+  
+      at TestContext.<anonymous> (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/tests/reading-answers.test.ts:18:83)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Answer 2',
+    expected: 'Time horizon',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
