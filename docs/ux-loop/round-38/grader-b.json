@@ -1,0 +1,510 @@
+{
+  "screens": [
+    {
+      "name": "Home — available omen, 390/430, Chrome/WebKit",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 28–35 show the orb-led home at both text scales and widths, with reported browser contrast and layout checks.",
+      "findings": ["Increase the normal-size example question’s prominence so it reads as useful inspiration above the dominant orb."]
+    },
+    {
+      "name": "Home — omen loading",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheet 58 shows Finding your omen beneath the available primary interaction.",
+      "findings": ["Demonstrate the omen loading status announcement and its transition to success or unavailability."]
+    },
+    {
+      "name": "Home — unavailable omen and expanded daily limit",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 30–36 show no saved omen, tomorrow’s next attempt and an expanded explanation of the consumed attempt.",
+      "findings": ["Expose the consumed-attempt explanation beside the unavailable status so users need not expand Daily limit to understand it."]
+    },
+    {
+      "name": "Home — constrained-height large text",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "evidence": "Sheets 56 and 61 show the large-text omen section continuing below the visible area above the tab bar.",
+      "findings": ["Reduce decorative hero space at short heights to bring more omen content into the initial viewport."]
+    },
+    {
+      "name": "Question entry — type or speak",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 3–4, 36 and 58 show a consistent orb, title and primary typing action across settled and transition captures.",
+      "findings": ["Demonstrate keyboard focus and activation for the secondary speaking action."]
+    },
+    {
+      "name": "Question composer — myself and named person",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4–6, 16, 56 and 58 show labeled questions, subject switching and submission, supported by draft and explicit-send checks.",
+      "findings": ["Shorten the repeated explanatory paragraph to keep the question visually dominant at 200% text."]
+    },
+    {
+      "name": "Question composer — constrained height and long question",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 37–38 show scrolling question fields with submission retained in the simulated 500px viewport.",
+      "findings": ["Make the availability of content above the focused field more apparent when the subject and disclosure have scrolled away."]
+    },
+    {
+      "name": "Named-person selection — selected and editing",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheet 5 shows Someone selected, a labeled Alex field, privacy explanation and explicit confirmation.",
+      "findings": ["Keep Cancel changes readily discoverable at 200% text alongside the confirmation action."]
+    },
+    {
+      "name": "Voice entry — start failure",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8},
+      "evidence": "Sheets 38 and 58 show a microphone-start failure with typing and retry recovery, while speech boundaries are explicitly mocked.",
+      "findings": ["Demonstrate distinct permission-denied and unavailable-browser recovery states before treating voice recovery as complete."]
+    },
+    {
+      "name": "Adaptive cards — unanswered first, middle and final steps",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 7–9, 55 and 61 show compact questions, progress, unselected radios and disabled Continue or Reveal.",
+      "findings": ["Retain the explicit instruction and disabled-action relationship for variable-length generated questions."]
+    },
+    {
+      "name": "Adaptive cards — selected, keyboard focus and restored answers",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 3, 10, 24–26 and 62 show selected and focused choices, supported by keyboard, restoration and single-advance checks.",
+      "findings": ["Preserve the separate selected and focus indicators when extending the answer controls."]
+    },
+    {
+      "name": "Custom answer — empty",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 9 shows the complete question, Your answer label, Back to choices and an explanation for disabled submission.",
+      "findings": ["Clarify the distinction between the top back arrow and Back to choices if they lead to different destinations."]
+    },
+    {
+      "name": "Custom answer — populated and constrained long answer",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 36–37 show populated scrolling answers with the question and Reveal retained at constrained height.",
+      "findings": ["Verify that field scrolling and page scrolling remain distinguishable with browser keyboard navigation at 200% text."]
+    },
+    {
+      "name": "AI consent — review action before permission",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 19 shows Review AI consent replacing submission, with reported zero requests before a separate Ask action.",
+      "findings": ["Retain the explicit permission-review action and draft preservation across both consent decisions."]
+    },
+    {
+      "name": "AI consent — disclosure and grant/decline",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show provider, input categories, purpose and grant/decline within the scrollable consent flow.",
+      "findings": ["Replace the terse Permission only sentence with a direct statement that allowing access does not submit the question."]
+    },
+    {
+      "name": "Onboarding — age confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 39 shows explicit age choices and explains that skipped birthdays use limits for ages 13–17.",
+      "findings": ["Explain the practical meaning of age-appropriate limits without requiring users to interpret policy terminology."]
+    },
+    {
+      "name": "Onboarding — optional birthday",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 39–40 show optionality, adjacent Skip and date fields reflowing into two rows at 200%.",
+      "findings": ["Retain the nearby Skip action and full date labels through validation and text enlargement."]
+    },
+    {
+      "name": "Age restriction — onboarding and birthday editor",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8.5, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 1 and 40–41 show a clear restriction and birthday correction path, supported by under-13 rejection checks.",
+      "findings": ["Use a consistent accessible focus treatment for the restriction heading across entry paths."]
+    },
+    {
+      "name": "Onboarding — birthday correction",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheet 41 shows actual-birthday guidance, labeled fields and Check birthday, with the return action below the large-text viewport.",
+      "findings": ["Reduce introductory spacing so the return path is easier to discover at 200% text."]
+    },
+    {
+      "name": "Onboarding — focus unselected, skipped and selected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 2 and 42–43 show optional choices, a selected checkmark and the primary action changing from Skip focus to Meet the Ball.",
+      "findings": ["Capitalize Gemini consistently with the birth-profile presentation."]
+    },
+    {
+      "name": "Birthday editor — populated",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 79 shows populated fields, Save, Cancel and removal disclosure, supported by save/reload and cancellation checks.",
+      "findings": ["Preserve the clear separation between saving, cancelling and removing birthday data."]
+    },
+    {
+      "name": "Birthday editor — invalid and incomplete drafts",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 1–2 show retained invalid and incomplete drafts with specific messages but visually unchanged field borders.",
+      "findings": ["Associate each validation message with the affected fields and add a visible invalid-field cue beyond the general message."]
+    },
+    {
+      "name": "Birth details — time entry and forgotten confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 8, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 6 and 78–79 show optional time entry, 24-hour guidance and confirmation that time/place were forgotten while birthday remains.",
+      "findings": ["Add a direct I don’t know my birth time action instead of instructing users to return to You."]
+    },
+    {
+      "name": "Birth details — city entry",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8, "accessibility": 8.5},
+      "evidence": "Sheets 77–78 show an empty labeled city field, disabled search and a clear statement of what is sent.",
+      "findings": ["Supply visible search-loading, no-results and failure examples to complete assessment of city recovery."]
+    },
+    {
+      "name": "Birth profile — calculated Moon and rising",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheet 55 shows a calculated result, local-storage statement, location/time and edit/forget actions.",
+      "findings": ["Show this completed profile at 200% text to establish the same readable hierarchy as its entry forms."]
+    },
+    {
+      "name": "Planning and research — loading",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 53–54, 59 and 62–63 distinguish checking the question from forming the forecast and retain cancellation and credit reassurance.",
+      "findings": ["Keep the stage-specific explanation visually prominent when the decorative orb is removed at large text."]
+    },
+    {
+      "name": "Recovery — prolonged wait and timeout",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheet 62 shows a changed long-wait message and explicit timeout recovery, supported by a reported real 60-second timeout test.",
+      "findings": ["Demonstrate announcement of the long-wait and timeout changes without requiring users to refocus the page."]
+    },
+    {
+      "name": "Recovery — planning and prediction errors",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 20–21 and 60 show retry, question editing and prediction-stage answer review, with retained answers reported.",
+      "findings": ["Carry the explicit no-reading-spent reassurance into the real connection-error variant."]
+    },
+    {
+      "name": "Sensitive question — support referral and general redirection",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 57, 60 and 66–67 show both direct support referral and a general redirection with no-credit/no-memory reassurance.",
+      "findings": ["Put the humane explanation before the support button so its purpose is understood before activation."]
+    },
+    {
+      "name": "Forecast opening — normal and golden",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 43–47 show intact-orb charge, fracture and forecast settling, supported by reported timing, frame-rate and interruption checks.",
+      "findings": ["Keep forecast text sharper and more stable during the settle phase visible in the intermediate captures."]
+    },
+    {
+      "name": "Forecast opening — reduced motion, skip and interrupted paths",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 43, 45 and 48 show settled reduced, skipped and interrupted paths, supported by single-save and no-replay checks.",
+      "findings": ["Retain equivalent final content and direct access when the opening animation is bypassed."]
+    },
+    {
+      "name": "Forecast — settled and expanded actions",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 63–66 show prominent forecast text, qualification, reminder and progressively disclosed actions at both scales.",
+      "findings": ["Make the reminder’s relationship to the forecast horizon explicit when its date precedes the predicted outcome."]
+    },
+    {
+      "name": "Check-in — initial and unsaved selection",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 11–13 and 49 show original questions and outcome radios, with reported nonmutating drafts and all initial choices visible.",
+      "findings": ["Replace Choose again in the initial state with Select an outcome, then save."]
+    },
+    {
+      "name": "Check-in — saved yes, no and waiting",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 12 and 50–51 show distinct saved outcomes and disabled unchanged submission, supported by persistence and correction checks.",
+      "findings": ["Retain the explicit Saved label so disabled submission is not mistaken for a failed save."]
+    },
+    {
+      "name": "Check-in — forecast and additional actions expanded",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 10–11, 48–49 and 54–55 show disclosures below the outcome controls and credit-dependent additional actions.",
+      "findings": ["Add spacing around focused disclosure rows so their focus outline does not crowd the preceding helper text."]
+    },
+    {
+      "name": "Evidence — overview",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 8.5, "accessibility": 9},
+      "evidence": "Sheets 17 and 64 show four clearly separated evidence destinations with explanatory subtitles and return navigation.",
+      "findings": ["Use a more explicit overview title alongside Behind the mist so the destination is immediately recognizable."]
+    },
+    {
+      "name": "Evidence — answers, long fixtures and real recorded context",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8.5, "clarity": 8, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 15, 21–22 and 56 show separated answers, original question labels where available and an unexplained Answer 3 in the real-flow view.",
+      "findings": ["Label the real-flow Answer 3 value as its actual context type when known, or explicitly mark its original label as unavailable."]
+    },
+    {
+      "name": "Evidence — assumptions",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8.5, "clarity": 7.5, "feedback": 8, "accessibility": 8.5},
+      "evidence": "Sheets 16, 22 and 55 include long fixture assumptions and a real-flow Assumptions screen containing only a generic speculative disclaimer.",
+      "findings": ["State that no separate assumptions were recorded when the available content is only a disclaimer."]
+    },
+    {
+      "name": "Evidence — full reasoning and legacy passages",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8.5, "clarity": 8, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 17, 23 and 65–66 show preserved legacy reasoning under neutral Passage labels rather than invented semantic headings.",
+      "findings": ["Identify legacy text as an unstructured explanation so Passage numbering does not imply meaningful analytical sections."]
+    },
+    {
+      "name": "Evidence — short Why and limits",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 57 and 59 separate recorded context, scenario assumption and limits in real-flow explanations.",
+      "findings": ["Provide a 200% capture of this structured real-flow explanation to verify its enlarged reading experience."]
+    },
+    {
+      "name": "Evidence — background sources",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 8.5, "clarity": 9, "feedback": 8, "accessibility": 8.5},
+      "evidence": "Sheets 18 and 23–24 clearly distinguish background material from forecast verification and show dated source entries.",
+      "findings": ["Demonstrate external-link destination and failure handling without treating synthetic source fixtures as evidence quality."]
+    },
+    {
+      "name": "History — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 9},
+      "evidence": "Sheets 27–28 and 73–74 show a concise empty state, local-storage explanation and Ask the Ball action with stable transitions.",
+      "findings": ["Retain the direct first-reading action and concise local-storage explanation."]
+    },
+    {
+      "name": "History — populated, stress and persisted outcomes",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 26–27 and 61 show dated questions, forecasts, check-in links and persisted outcome markers.",
+      "findings": ["Reduce headline dominance at 200% text so a history entry’s date, status and opening action are easier to scan together."]
+    },
+    {
+      "name": "Sky — sample stars and selected question",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 57, 60 and 72–76 show selected themes, sample questions and an accessible large-text grid replacing the constellation layout.",
+      "findings": ["Bring the selected question closer to the theme controls at 200% text so the effect of selection is immediately visible."]
+    },
+    {
+      "name": "Circles — offline and retry failure",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sheets 13–15 show explicit unavailability, retry and changed failure feedback while authenticated social behavior remains unconfigured.",
+      "findings": ["Shorten the secondary promotional section at large text so recovery remains the clear focus."]
+    },
+    {
+      "name": "Plans — yearly, monthly and exhausted allowance",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 52–53, 60 and 74–75 show selected billing periods, total prices, pack alternatives and explicit simulation labels.",
+      "findings": ["Keep the test-mode explanation and plan identity easily retrievable when enlarged options fill the viewport."]
+    },
+    {
+      "name": "You — populated and empty memory",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 56, 61 and 76–80 show profile facts, allowance, memory states and edit/forget actions.",
+      "findings": ["Reduce repeated vertical separators and spacing so profile, plan and memory sections remain easier to scan at 200%."]
+    },
+    {
+      "name": "You — display, sound and saved-data controls",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheet 68 shows labeled switches, large-text selection and links to privacy, plans and data removal.",
+      "findings": ["Demonstrate keyboard focus and announced state changes for each switch, including ambient sound."]
+    },
+    {
+      "name": "Share — preview and expanded invitation options",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 59 and 68–72 show a portrait preview, image-text alternative, download action and privacy explanation.",
+      "findings": ["Reduce preview height at 200% text to expose the download action sooner."]
+    },
+    {
+      "name": "Share — preparing, completed and failed export",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 57, 68 and 70 show preparing, download-started and retry states supported by held-encoding and actual-export checks.",
+      "findings": ["Retain Download started rather than implying that the browser has confirmed the file was saved."]
+    },
+    {
+      "name": "Share — enlarged image and direct image text",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 9},
+      "evidence": "Sheets 59, 69 and 71–73 show enlarged portrait cards and a separate readable text view containing forecast and qualification.",
+      "findings": ["Keep the image-text route prominent because text inside the fixed-format artwork remains small in preview."]
+    }
+  ],
+  "components": [
+    {
+      "name": "Hero orb",
+      "dimensions": {"hierarchy": 9, "typography": null, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Home and opening captures show the illustrated orb as the main visual anchor, with reported animation and reduced-motion checks.",
+      "findings": ["Scale the hero down further in short viewports to protect task content."]
+    },
+    {
+      "name": "Tab bar",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Core tab screens show persistent labels, selected gold underlines and a raised Ask orb at both text scales.",
+      "findings": ["Verify that focused content near the bottom remains fully visible above the raised Ask orb and fixed bar."]
+    },
+    {
+      "name": "Wordmark and balance header",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets show a protected graphic wordmark and balance labels that wrap into two lines at 200%.",
+      "findings": ["Give the balance’s plans affordance a clearer cue than an underline alone."]
+    },
+    {
+      "name": "Primary button",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Cream primary actions have consistent geometry, wrapping labels and visible disabled/busy variants with reported target checks.",
+      "findings": ["Preserve content-driven height and explicit disabled-state explanations."]
+    },
+    {
+      "name": "Secondary action",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 8.5, "clarity": 8.5, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Gold text actions recur beside gold informational labels, sometimes differentiated only by placement or a fine rule.",
+      "findings": ["Use a consistent non-color affordance to distinguish actionable gold text from informational gold text."]
+    },
+    {
+      "name": "Answer choice",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Selected radios, focus outlines and explicit submission are shown with reported Space, arrow, Home/End and roving-Tab behavior.",
+      "findings": ["Retain selection without automatic advancement across every adaptive-card variant."]
+    },
+    {
+      "name": "Question input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Composer captures show persistent labels, readable entered text and distinct focus borders with reported draft preservation.",
+      "findings": ["Keep the persistent label and focus ring when text overflows the field."]
+    },
+    {
+      "name": "Large-text scrolling input",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Sheets 37–38 show shortened, internally scrolling fields retaining explicit submission in a 500px viewport.",
+      "findings": ["Demonstrate keyboard traversal between the internally scrolling field and the surrounding scrollable page."]
+    },
+    {
+      "name": "Settings switch",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8},
+      "evidence": "Sheet 68 shows labeled on/off switches but no focused switch or switch-specific keyboard evidence.",
+      "findings": ["Show focus, keyboard activation and exposed checked state for every settings switch."]
+    },
+    {
+      "name": "Omen content",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Home captures include successful, loading, unavailable and expanded daily-limit omen states.",
+      "findings": ["Explain the unavailable attempt directly in the status instead of relying on a separate disclosure."]
+    },
+    {
+      "name": "Sky stars and selected question",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Sky captures use a selected checkmark and gold star, replacing the constellation with a text grid at 200%.",
+      "findings": ["Keep the selection result near the controls in the enlarged layout."]
+    },
+    {
+      "name": "Circle surface",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Circles captures expose unavailability and retry results without representing a working authenticated service.",
+      "findings": ["Prioritize recovery over the large secondary marketing heading."]
+    },
+    {
+      "name": "History row",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Populated history captures separate date, original question, forecast, reminder/outcome and opening action.",
+      "findings": ["Keep row metadata and its opening action closer to oversized forecast text."]
+    },
+    {
+      "name": "Plan option",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Yearly and monthly states show checkmarks, billing totals and selected rules with reported shared-radio keyboard checks.",
+      "findings": ["Maintain the total annual charge beside the monthly equivalent at every text scale."]
+    },
+    {
+      "name": "Share preview card",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 8.5, "feedback": 8.5, "accessibility": 9},
+      "evidence": "Share captures show portrait artwork, enlargement and a full text alternative, with an actual 1080×1920 export reported.",
+      "findings": ["Increase the preview’s forecast and qualification prominence relative to the orb."]
+    },
+    {
+      "name": "Notice and recovery",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 8.5},
+      "evidence": "Error, timeout, offline and safety captures provide explicit recovery choices and state-specific reassurance.",
+      "findings": ["Demonstrate live announcement of newly appearing notices across the recovery paths."]
+    },
+    {
+      "name": "Typography and spacing",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": null, "accessibility": 8.5},
+      "evidence": "Fraunces headings and Manrope body text remain coherent across sheets, with several large-text views dominated by headings or long explanatory copy.",
+      "findings": ["Tighten large-text vertical spacing around supporting copy while preserving the full text scale."]
+    },
+    {
+      "name": "Atmospheric background",
+      "dimensions": {"hierarchy": 8.5, "typography": null, "surfaces": 9, "clarity": null, "feedback": null, "accessibility": 9},
+      "evidence": "Mist and bronze gradients provide consistent borderless surfaces, supported by reported contrast and reduced-motion checks.",
+      "findings": ["Keep the strongest mist texture away from dense reading sections."]
+    },
+    {
+      "name": "Birthday input group",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Birthday captures show labeled day/month/year inputs, responsive reflow and retained invalid drafts.",
+      "findings": ["Add field-specific visible invalid cues and verify error associations."]
+    },
+    {
+      "name": "Age confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Age confirmation and restriction captures are backed by reported rejection, correction and no-bypass checks.",
+      "findings": ["Explain the user-facing effect of teen-safe limits in plain language."]
+    },
+    {
+      "name": "Focus selection",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Focus captures show optionality, selected checkmarks and explicit completion without forcing a preference.",
+      "findings": ["Keep the selected indicator independent of color."]
+    },
+    {
+      "name": "Birth-profile surface",
+      "dimensions": {"hierarchy": 8.5, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "You and birth-chart captures show saved facts, local calculation/storage statements and edit/forget actions.",
+      "findings": ["Verify the completed chart and its forget confirmation at 200% text."]
+    },
+    {
+      "name": "Birth-details form",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 8, "accessibility": 8.5},
+      "evidence": "Time and city forms show optional steps, format guidance and search disclosure but no pictured search results or errors.",
+      "findings": ["Provide direct unknown-time recovery and visible city-search result/error states."]
+    },
+    {
+      "name": "Named-person control",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Named-person captures show selected Someone, a persistent First name label and an explicit Use this person action.",
+      "findings": ["Demonstrate empty-name validation and cancellation with an existing question draft."]
+    },
+    {
+      "name": "Evidence disclosure",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 8.5, "accessibility": 8.5},
+      "evidence": "Forecast and evidence captures show disclosure chevrons, separate overview routes and visible focused expansion states.",
+      "findings": ["Ensure disclosure chevrons describe expansion consistently when similar-looking links instead navigate to another screen."]
+    },
+    {
+      "name": "Export status",
+      "dimensions": {"hierarchy": 9, "typography": 8.5, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Preparing, download-started and retry statuses are pictured and supported by held-encoding, single-flight and real-export evidence.",
+      "findings": ["Preserve distinct busy, initiated-download and failed-export wording."]
+    },
+    {
+      "name": "Outcome selector and save status",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Outcome captures and runtime evidence distinguish unsaved choice, unchanged saved value and each persisted outcome.",
+      "findings": ["Use initial-state instructions until an outcome has actually been saved."]
+    },
+    {
+      "name": "AI permission surface",
+      "dimensions": {"hierarchy": 8.5, "typography": 8.5, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Consent captures show categorized disclosure and grant/decline, with reported preserved draft/focus and no permission-triggered requests.",
+      "findings": ["Make the separation between granting permission and submitting the question explicit in one plain sentence."]
+    },
+    {
+      "name": "Step progress and back navigation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 8.5, "feedback": 9, "accessibility": 9},
+      "evidence": "Question cards show numeric progress and step marks, with restoration on Back reported.",
+      "findings": ["Distinguish previous-step navigation from returning to answer choices in custom-answer mode."]
+    }
+  ],
+  "limitations": [
+    "All scores are provisional browser assessments; the supplied runtime account was considered but not independently rerun.",
+    "The browser threshold is not met: multiple screens and components have A or F below 9.",
+    "A is the mean of hierarchy, typography and surfaces; F is the mean of clarity, feedback and accessibility, excluding genuinely inapplicable nulls.",
+    "Corresponding normal, enlarged and transition captures are grouped; sampled transitions support visual continuity but do not independently establish motion quality.",
+    "Content extending beyond a screenshot is not treated as unreachable where scrolling is reported; no hard-gate failure is established by this material.",
+    "Physical iPhone, VoiceOver, native Dynamic Type, actual keyboard, haptics, microphone hardware and native sharing remain unverified.",
+    "The 500px captures simulate constrained height and do not demonstrate a native keyboard.",
+    "Authenticated Circles and real payments are not demonstrated; the pictured offline and explicitly simulated states are assessed on their own merits.",
+    "Synthetic long-form content and layout predictions do not establish model quality, source quality or predictive accuracy.",
+    "City search results/errors, focused settings-switch states and several completed birth-detail states lack full pictured coverage.",
+    "No previous-round comparison or independently observed before/after change is available; these scores do not certify improvement over prior rounds.",
+    "Reported automated contrast, target-size and axe results support browser assessment but do not replace representative assistive-technology use."
+  ],
+  "topFixes": [
+    "Make the real Assumptions view explicitly acknowledge absent recorded assumptions instead of presenting a disclaimer as an assumption.",
+    "Replace unexplained real-flow evidence labels such as Answer 3 with known context labels or an explicit unavailable-label statement.",
+    "Correct initial check-in instructions from Choose again to Select an outcome, then save.",
+    "Reduce decorative space and supporting-copy height in constrained and 200% layouts, especially Home, History and Share.",
+    "Add visible field-specific birthday errors and demonstrate their accessible associations.",
+    "Clarify secondary-action affordances and distinguish disclosure expansion from navigation.",
+    "Expose the consumed omen-attempt explanation directly in its unavailable state.",
+    "Complete browser evidence for switch keyboard behavior, dynamic-status announcements, city-search recovery and empty named-person validation."
+  ]
+}
