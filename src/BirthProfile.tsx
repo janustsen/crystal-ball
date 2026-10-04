@@ -43,7 +43,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   try{const next=updateBirthday(state,birthday.trim()||undefined);update(()=>next);setEditing(false);setNotice('Birthday saved.');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
  }
  if(editing)return <View>
-  <Txt testID="birthday-editor-heading" accessibilityRole="header" display style={{fontSize:28,lineHeight:34,marginBottom:16}}>Edit birthday</Txt>
+  <Txt testID="birthday-editor-heading" accessibilityRole="header" display style={{fontSize:22,lineHeight:28,marginBottom:12}}>Edit birthday</Txt>
   <Txt style={[styles.caption,{marginBottom:12}]}>Used for your Sun sign and age-appropriate readings.</Txt>
   <BirthdayInput testID="profile-birthday" error={notice} value={birthday} onChange={setBirthday}/>
   <Action label="Save birthday" onPress={saveBirthday}/><Action testID="cancel-birthday" label="Cancel changes" quiet onPress={()=>{setNotice('');setEditing(false)}}/>
@@ -56,10 +56,10 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
    <Pressable testID="close-birth-details" accessibilityRole="button" accessibilityLabel={chartStep==='city'&&!saved?'Back to birth time':'Back to You'} onPress={backChart} style={{alignSelf:'center',minHeight:44,minWidth:44,justifyContent:'center',marginBottom:8}}><Txt style={{color:colors.ice}}>{chartStep==='city'&&!saved?'‹ Birth time':'‹ You'}</Txt></Pressable>
    <Txt testID="birth-details-heading" accessibilityRole="header" display style={{fontSize:22,lineHeight:28}}>{saved?'Your Moon and rising':chartStep==='time'?'Your birth time':'Your birth city'}</Txt>
    {saved?<>
-    <Txt accessibilityLiveRegion="polite" style={[styles.caption,{color:colors.gold,marginTop:16}]}>Calculated and saved on this device.</Txt>
-    <Txt display style={{fontSize:24,lineHeight:32,marginVertical:16}}>{state.moonSign&&state.moonSign[0].toUpperCase()+state.moonSign.slice(1)} Moon · {state.risingSign&&state.risingSign[0].toUpperCase()+state.risingSign.slice(1)} rising</Txt>
+    <Paper style={{marginTop:12}}><Txt accessibilityLiveRegion="polite" style={[styles.caption,{color:colors.gold,marginTop:16}]}>Calculated and saved on this device.</Txt>
+    <Txt display style={{fontSize:20,lineHeight:27,marginVertical:10}}>{state.moonSign&&state.moonSign[0].toUpperCase()+state.moonSign.slice(1)} Moon · {state.risingSign&&state.risingSign[0].toUpperCase()+state.risingSign.slice(1)} rising</Txt>
     <Txt style={[styles.caption,{marginTop:12}]}>{state.birthPlace} · {state.birthTime}</Txt>
-    <Action label="Done" onPress={closeChart}/>
+    </Paper><Action label="Done" onPress={closeChart}/>
     <Action label="Edit birth details" quiet onPress={()=>{setChartStep('time');setChartStatus('idle');setTime(state.birthTime||'');setPlace('');setSelected(undefined);setPlaces([])}}/>
     <Action label="Forget birth time and place" quiet onPress={forgetChart}/>
    </>:<>
@@ -94,7 +94,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   </View>;
  }
  return <Paper style={[styles.panel,state.largeText&&{paddingTop:8,marginTop:0}]}>
-  <Txt display style={[styles.title,{fontSize:22,lineHeight:28}]}>Your sky</Txt>
+  <Txt display style={{fontSize:20,lineHeight:26,marginBottom:8}}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign[0].toUpperCase()+state.sunSign.slice(1)} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · readings for ages 13–17':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · readings for ages 13–17'}</Txt>
   {state.birthday?<Txt style={styles.caption}>Birthday · {formatCalendarDate(state.birthday)}</Txt>:null}

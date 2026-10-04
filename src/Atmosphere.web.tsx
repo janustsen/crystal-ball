@@ -14,9 +14,9 @@ const css=`
 .room-dust{position:absolute;inset:0;overflow:hidden}.room-dust i{position:absolute;left:var(--x);bottom:8%;width:2px;height:2px;background:#ffdfa7;border-radius:50%;opacity:0;animation:room-dust 19s linear var(--delay) infinite}
 @keyframes room-dust{10%,70%{opacity:.25}100%{transform:translate(18px,-650px);opacity:0}}@keyframes candle-breathe{50%{opacity:.65}}
 [data-testid=app-shell] [role=heading][tabindex="-1"]{outline:none}
-[data-material=parchment],[data-material=wood]{clip-path:polygon(1% 3%,25% 0,52% 1%,78% 0,99% 2%,100% 31%,99% 67%,100% 98%,75% 100%,49% 99%,26% 100%,0 98%,1% 66%,0 30%)}
+[data-material=parchment]>div:first-child,[data-material=wood]>div:first-child{clip-path:polygon(1% 3%,25% 0,52% 1%,78% 0,99% 2%,100% 31%,99% 67%,100% 98%,75% 100%,49% 99%,26% 100%,0 98%,1% 66%,0 30%)}
 [data-material=parchment]:focus-visible,[data-testid=app-shell] [data-material=parchment][role]:focus-visible{outline:2px solid #70401b!important;outline-offset:-7px!important}
-[data-testid=app-shell] [data-material=wood]{isolation:isolate}[data-testid=app-shell] [data-material=wood]>div:first-child{z-index:-1}[data-testid=app-shell] [data-material=wood][role]:focus-visible{outline-offset:-7px!important}[data-testid=app-shell] [data-material=parchment]{isolation:isolate;filter:drop-shadow(0 5px 5px #09040060)}
+[data-testid=app-shell] [data-material=wood]{isolation:isolate;filter:drop-shadow(0 5px 4px #09040080)}[data-testid=app-shell] [data-material=wood]>div:first-child{z-index:-1}[data-testid=app-shell] [data-material=wood][role]:focus-visible{outline-offset:-7px!important}[data-testid=app-shell] [data-material=parchment]{isolation:isolate;filter:drop-shadow(0 5px 5px #09040060)}
 [data-testid=app-shell] [data-material=parchment]>div:first-child{z-index:-1}
 [data-testid=app-shell] [data-testid=room-table]{transform:perspective(550px) rotateX(18deg);transform-origin:50% 100%;box-shadow:0 12px 0 #29190f,0 20px 22px #0009}
 [data-testid=app-shell] [role=tablist]{background-image:linear-gradient(#22150980,#100907e0),url('/concepts/witch-assets/wood-table.jpg');border:0!important;box-shadow:0 -5px 20px #080400aa}

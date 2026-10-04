@@ -1,0 +1,15 @@
+# Round50 — physical support and centered reading groups
+
+Round49 remained below threshold (minimum7.83, median8.83). Both full reviews are preserved, and every finding is carried forward verbatim in findings-carried.md. The repeated concerns were dense centered explanations, physical panel support, scene continuity and oversized supporting-copy stacks.
+
+The independent expansion compared floating pages, a narrow supporting desk lip and a wooden recess, at normal/200%. The recess was heavier and narrowed the writing space. The desk showed that depth belongs outside the readable paper. Raw-panel texture was rejected and preserved; the study switched to a byte-for-byte copy of the existing processed paper asset. No new images were generated.
+
+A real-browser red test established the clipped-shadow defect: zero visible shadow pixels below the actual plan parchment. Moving the cut edge to the painted layer while keeping the control itself unclipped produces1033 shadow pixels below the edge with identical bounds. This avoids extra layout wrappers. Wood also keeps its shading on the painted layer, with the external shadow free to reach the room. Plan selection uses its check mark and weight instead of a flat selected rectangle.
+
+A separate animation-frame probe tested the alleged sphere settling before implementation. Every measured x/y/width/height extent was0 during Home→Approach and back at both scales with motion enabled. Thus this pass does not claim to fix sphere movement; the observed reviewer concern is retained as scene-composition feedback. The probe is complementary to sampled filmstrips, not a replacement for aesthetic judgment.
+
+Dense authored paragraphs now split at sentence endings while preserving every word and authored paragraph boundary. A red unit test previously returned2 long blocks instead of4; the new implementation passes all172 tests. Expanded explanation/answer/condition content sits on readable parchment with smaller body type and grouped spacing. No source, assumption, question or answer is truncated. Check-in places the exact forecast, all three outcome choices and live status on one sheet, while preserving explicit Save, correction guidance, original-question disclosure, date and persistence.
+
+The question-context preamble is shorter but still states what is sent and when; saved answers, age/birthday and recipient-specific information remain present. The saved birth result has one information surface and a smaller heading. Share uses a larger centered preview and a gentle dark gradient behind exported text; canvas text colors are restored after drawing the gradient, and no private answer is added to the image.
+
+Close/back targets were measured rather than assumed:44×44 normal,44×48 enlarged, keyboard :focus-visible and2px outline. These were already functional; this is new browser evidence, not a claimed bug fix. Every device/native limitation remains explicit. The next two blind reviews determine which findings remain open.

@@ -1,0 +1,13 @@
+# Reading surfaces and grouping expansion
+
+This study runs independently while the round49 production packet is frozen. It compares floating paper, a page supported by a narrow wood desk lip, and a wooden recess at390px with normal/200% text. The interactive study is /concepts/apothecary-reading-desk.html. It is not a purchase flow, production implementation or accessibility pass.
+
+The desk is the strongest candidate: an unclipped shadow wrapper and narrow support give the same readable paper a physical contact plane without reducing its writing width. The recess makes a convincing wooden object, but adds another rectangular frame and shrinks the text area; at enlarged text that tradeoff is poor. Floating paper stays light but retains the disconnected-panel problem.
+
+The first study used the raw generated panel. Its mottled center visibly interfered with the ink. Those screenshots are preserved under raw-panel/. The current study copies the existing processed assets/apothecary/paper.webp to public/concepts/witch-assets/paper-readable.webp byte-for-byte; no new image was generated or edited. Material depth should come from an external support/shadow, not added noise beneath words.
+
+Grouping the forecast and its outcome choices on one sheet distinguishes the object being checked from the action that saves it. This is a candidate hierarchy change, not permission to remove dirty/saved guidance, radio keyboard behavior, original-question access, dates or persistence. The prototype's simplified date/copy and basic click handlers do not establish those production contracts.
+
+The production paper already uses nine-slice art on web. A follow-up should not claim that stretching is the root cause. Its drop shadow currently lives on the same clipped element; an outside wrapper is worth measuring against real caller layout, focus and scroll behavior before applying it broadly. Do not add a thick frame to every control or reintroduce texture to input ink areas. Await the current blind reviews before choosing the next implementation scope.
+
+An isolated real-page experiment now measures that boundary. Moving the *same* computed shadow from the clipped plan paper to an external wrapper leaves x24/y304/width342/height264 unchanged and changes199 pixels below the paper by more than8 RGB levels. See shadow.json and before/wrapper images. The initial stronger-shadow experiment is preserved separately because it changed two variables and cannot isolate clipping. This supports investigating external composition; it does not prove every caller, focus state or native layout is safe.
