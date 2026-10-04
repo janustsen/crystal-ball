@@ -68,6 +68,6 @@ test('saved verdicts override the due-date prompt in History',()=>{
   assert.equal(checkInLabel({...reading,dueDate,outcome:'pending'},'2026-09-30'),'Not yet');
   assert.equal(checkInLabel({...reading,dueDate,outcome:'yes'},'2026-09-30'),'Yes');
   assert.equal(checkInLabel({...reading,dueDate,outcome:'no'},'2026-09-30'),'Not quite');
-  assert.equal(checkInLabel({...reading,dueDate},'2026-09-30'),dueDate<='2026-09-30'?'Ready to check in':`Check-in reminder · ${new Date(dueDate+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}`);
+  assert.equal(checkInLabel({...reading,dueDate},'2026-09-30'),dueDate<='2026-09-30'?'Ready to check in':`Suggested check-in · ${new Date(dueDate+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}`);
  }
 });

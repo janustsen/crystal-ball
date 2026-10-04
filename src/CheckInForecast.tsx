@@ -19,6 +19,6 @@ export function CheckInForecast({prediction}:{prediction:Prediction}){
   {saved?<Txt testID="check-in-guidance" style={[styles.caption,{marginTop:8}]}>Choose again to change your answer, then save.</Txt>:null}
   <Pressable testID="check-in-forecast" accessibilityRole="button" accessibilityState={{expanded:open}} aria-expanded={open} onPress={()=>setOpen(!open)} style={{minHeight:48,paddingVertical:12,borderBottomWidth:1,borderColor:'#614C3466'}}><Txt style={{color:colors.ice}}>Original question {open?'⌃':'⌄'}</Txt></Pressable>
   {open?<View testID="check-in-question"><Txt style={{marginTop:12}}>{prediction.question}</Txt></View>:null}
-  <Txt testID="forecast-due-date" style={[styles.caption,{marginTop:12}]}>Check-in reminder · {formatCalendarDate(suggestedCheckIn(prediction))}</Txt>
+  <Txt testID="forecast-due-date" style={[styles.caption,{marginTop:12}]}>Suggested check-in · {formatCalendarDate(suggestedCheckIn(prediction))}</Txt>
  </View>;
 }
