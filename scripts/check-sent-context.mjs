@@ -12,7 +12,7 @@ try{for(const largeText of [false,true])for(const person of [false,true]){
  try{
   await page.goto(process.env.PREVIEW_URL||'http://localhost:8098');await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
   if(person){await page.getByTestId('question-subject').click();await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex');await page.getByTestId('save-subject').click();}
-  await page.getByTestId('question-input').fill('Will this pottery habit continue?');
+  await page.getByTestId('question-input').fill(person?'Will Alex keep practising pottery?':'Will this pottery habit continue?');
   const disclosure=page.getByTestId('sent-context-toggle');await disclosure.click();await expect(disclosure).toHaveAttribute('aria-expanded','true');
   const body=page.getByTestId('sent-context');await expect(body).toContainText('Jun 15, 1995');
   if(person){await expect(body).toContainText('Alex');await expect(body).not.toContainText(facts.goal);await expect(body).not.toContainText(facts.location);}else for(const value of Object.values(facts))await expect(body).toContainText(value);
