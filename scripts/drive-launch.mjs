@@ -1,3 +1,4 @@
+import {fillBirthday} from './fill-birthday.mjs';
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
 import {writeFile} from 'node:fs/promises';
@@ -6,10 +7,10 @@ const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844
 const results=[];
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
- await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
+ await fillBirthday(page,'1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
  await expect(page.locator('[ariahidden]')).toHaveCount(0);
  await expect(page.locator('[role=tab] > svg[aria-hidden="true"]')).toHaveCount(4);
- await expect(page.getByText(/For entertainment\. Never a guarantee/)).toBeVisible();
+ await expect(page.getByText('For entertainment',{exact:true})).toBeVisible();
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
  results.push('Home has entertainment disclosure and no sign-in prompt');
  await page.getByTestId('tab-you').click();
@@ -32,7 +33,10 @@ try{
  results.push('Unavailable backup stays absent at 375px and 200% text; navigation remains visible');
  await page.getByTestId('tab-ask').click();
  await page.getByTestId('type-instead').click();
- await expect(page.getByText('For entertainment. Questions and answers go to your prediction engine.')).toBeVisible();
+ await page.getByTestId('sent-context-toggle').click();
+ await expect(page.getByTestId('sent-context')).toBeVisible();
+ await expect(page.getByTestId('sent-context').getByText('Sent when you ask: your question and follow-up answers.',{exact:true})).toBeVisible();
+ await page.getByTestId('sent-context-toggle').click();
  if(process.env.CHECK_AI_CONSENT==='1'){
   await page.getByTestId('question-input').fill('Will I learn Spanish?');
   const ask=page.getByTestId('look-into-the-future');
