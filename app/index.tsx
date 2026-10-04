@@ -1,7 +1,7 @@
 import {ExpandableInput} from '../src/ExpandableInput';
 import {RevealOpening} from '../src/RevealOpening';
 import {CheckInForecast} from '../src/CheckInForecast';
-import React,{useCallback,useEffect,useRef,useState} from 'react';
+import React,{useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,Alert,BackHandler,Linking,Platform,Pressable,ScrollView,View,useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
@@ -46,6 +46,9 @@ export default function App(){
  useDelight({enabled:!!state.ambientSound,listening:flow.stage==='approach'||flow.stage==='listening',thinking:flow.stage==='planning'||flow.stage==='research',revealId:flow.stage==='reveal'&&!reviewing?flow.prediction.id:undefined});
  const activeQuestion=flow.stage==='cards'?flow.plan.cards[flow.index]?.question:null;
  useEffect(()=>{if(!activeQuestion||share||paywall)return;if(Platform.OS==='web'){const heading=document.querySelector<HTMLElement>('[data-testid="question-heading"]');heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});}else AccessibilityInfo.announceForAccessibility(activeQuestion)},[activeQuestion,share,paywall]);
+ useLayoutEffect(()=>{
+  if(Platform.OS==='web')document.querySelector<HTMLElement>('[role="switch"][aria-label="Large text"]')?.scrollIntoView({block:'nearest'});
+ },[state.largeText]);
  const [navigationHeight,setNavigationHeight]=useState(120);
  const answerCommitted=useRef(false);
  useEffect(()=>{answerCommitted.current=false},[flow,paywall]);
