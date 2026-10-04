@@ -10,4 +10,4 @@ Home orb or raised Ask tab; see [Sky and Circles](social.md) for suggested-quest
 Home orb opens the approach animation and voice. Type instead opens Your question; Ask the Ball submits. Standard options immediately advance; In my own words opens a typed answer and Continue / Reveal my forecast. Back returns to the prior card; Close exits to Home. Capture the one or two returned follow-ups, thinking, reveal and Why. Repeat with a sensitive request. scripts/drive-design.mjs and scripts/drive-design-recovery.mjs cover the flow, cancel, retained answers and actual 60-second timeout.
 
 ## Gotchas
-Real Ollama required. Errors spend no credit. The engine selects one or two cards, skips known typed values and uses qualitative generation when numeric inputs are incomplete.
+Real Ollama required. Check interruption and retry behavior against [user guidance](../../../../README.md). The engine selects one or two cards, skips known typed values and uses qualitative generation when numeric inputs are incomplete.

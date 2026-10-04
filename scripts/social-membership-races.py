@@ -20,7 +20,7 @@ def fixture():
         delete from public.circles where id='{CIRCLE}';
         delete from public.sealed_forecasts where sender_id in ('{OWNER}','{MEMBER}');
         insert into auth.users values ('{OWNER}'),('{MEMBER}') on conflict do nothing;
-        insert into public.social_profiles(user_id,plus) values ('{OWNER}',true),('{MEMBER}',true) on conflict do nothing;
+        insert into public.social_profiles(user_id,plus_until) values ('{OWNER}','infinity'),('{MEMBER}','infinity') on conflict do nothing;
         insert into public.circles(id,owner_id) values ('{CIRCLE}','{OWNER}');
         insert into public.circle_members(circle_id,user_id) values ('{CIRCLE}','{OWNER}'),('{CIRCLE}','{MEMBER}');
         insert into public.circle_forecast_drafts(id,user_id,circle_id,question,headline,due_date)

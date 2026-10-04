@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {registerHooks} from 'node:module';
 import {allRows} from '../src/social-pagination.ts';
-import {settleCircleReading} from '../src/reading-history.ts';
 import type {AccountState} from '../src/types.ts';
 
 test('loadSocial includes every capped collection and recovers an unpaid forecast after row 1000',async t=>{
@@ -41,10 +40,6 @@ test('loadSocial includes every capped collection and recovers an unpaid forecas
  assert.equal(snapshot.glows.filter(g=>g.day===day).length,10);
  const unpaid=snapshot.forecasts.filter(f=>f.asker_id===snapshot.owner&&f.charged_at===null);
  assert.deepEqual(unpaid.map(f=>f.id),['1009']);
- let state:AccountState={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false};
- const marked:string[]=[];
- for(const forecast of unpaid)await settleCircleReading(state,forecast,async next=>{state=next},async id=>{marked.push(id)});
- assert.equal(state.credits,1);assert.deepEqual(state.history,[]);assert.deepEqual(marked,['1009']);
 
  const selected:string[]=[];let release!:()=>void;
  const first=new Promise<void>(resolve=>{release=resolve});

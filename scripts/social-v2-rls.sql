@@ -2,7 +2,7 @@
 begin;
 delete from public.circles;
 delete from public.social_blocks;
-update public.social_profiles set plus=false,school_id=null;
+update public.social_profiles set plus=false,plus_until=null,school_id=null;
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.set_social_identity('adult_one','Adult One','☀️');
@@ -97,21 +97,12 @@ insert into public.circle_forecast_drafts(id,user_id,circle_id,question,headline
  ('40000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000001',:'c','Will we travel together?','A new place may spark shared curiosity.',current_date+1);
 set role authenticated;
 select public.publish_circle_forecast('40000000-0000-0000-0000-000000000001');
-select proof.assert((select charged_at is null from public.circle_forecasts where id='40000000-0000-0000-0000-000000000001'),'new forecast is unpaid');
+select proof.assert((select charged_at is not null from public.circle_forecasts where id='40000000-0000-0000-0000-000000000001'),'publication is charged server-side');
 select proof.reject('update public.circle_forecasts set charged_at=now()','42501');
-set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
-select proof.reject('select public.mark_circle_charged(''40000000-0000-0000-0000-000000000001'')','P0001');
-set role anon;
-select proof.reject('select public.mark_circle_charged(''40000000-0000-0000-0000-000000000001'')','42501');
-set role authenticated;
-set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
-select public.mark_circle_charged('40000000-0000-0000-0000-000000000001');
+select proof.reject('select public.mark_circle_charged(''40000000-0000-0000-0000-000000000001'')','42883');
 reset role;
-update public.circle_forecasts set charged_at='2026-01-01T00:00:00Z' where id='40000000-0000-0000-0000-000000000001';
+select proof.assert((select count(*)=1 from public.reading_charges where user_id='00000000-0000-0000-0000-000000000001' and reading_id='40000000-0000-0000-0000-000000000001'),'publication charged the asker one reading');
 set role authenticated;
-select charged_at as first_charge from public.circle_forecasts where id='40000000-0000-0000-0000-000000000001' \gset
-select public.mark_circle_charged('40000000-0000-0000-0000-000000000001');
-select proof.assert((select charged_at=:'first_charge'::timestamptz from public.circle_forecasts where id='40000000-0000-0000-0000-000000000001'),'marking charge is idempotent');
 
 select public.publish_circle_forecast('40000000-0000-0000-0000-000000000001');
 select proof.reject('select public.publish_circle_forecast(''40000000-0000-0000-0000-000000000002'')','P0001');
@@ -149,14 +140,14 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
 do $$ begin for i in 1..5 loop perform public.create_circle(); end loop; end $$;
 select proof.reject('select public.create_circle()','P0001');
 reset role;
-update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000003';
+update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000003';
 set role authenticated;
 do $$ begin for i in 1..5 loop perform public.create_circle(); end loop; end $$;
 select proof.reject('select public.create_circle()','P0001');
 reset role;
 -- Targeted cards cannot be claimed by a different Circle member or link visitor.
 delete from public.social_blocks;
-update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001';
+update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001';
 insert into public.circle_members(circle_id,user_id) values(:'c','00000000-0000-0000-0000-000000000001');
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';

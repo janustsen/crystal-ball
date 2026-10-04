@@ -1,7 +1,7 @@
 # Plans
 
 ## Sub-features
-Free daily allowance; Plus/credit mock purchase; Restore; optional Apple backup/restore availability; entertainment/privacy disclosure; named hosted-AI opt-in.
+Free daily allowance; Plus/pack purchase (labeled mock in the preview, real App Store purchases in EAS `store` builds); Restore; Manage or cancel subscription link; optional Apple backup/restore availability; entertainment/privacy disclosure; named hosted-AI opt-in.
 
 ## How to get to it (user POV)
 View plans in header or You.
@@ -11,5 +11,7 @@ Observe balance, confirm Weekly is preselected, then select Weekly/Monthly/Yearl
 
 Run `VERIFY_URL=http://localhost:8104 node scripts/verify-core-pricing.mjs` on an isolated live Ollama preview for exact prices and cancellation copy, weekly default, permanent packs, simulated Plus, bounded check-in, persisted answers and stacked plan cards at 200% text. It uses a named chrome-devtools-axi session. Screenshots and logs live under docs/evidence/core-pricing/.
 
+With local Supabase plus `SOCIAL_MOCK_ENTITLEMENTS=true`, mock purchases and every reading go through the real server ledger (`/engine/billing`); without Supabase the preview counts on-device. `scripts/billing-rls.sql` (run by `scripts/verify-social-db.sh`) proves the ledger, store reconciliation and Circle publication charges on real PostgreSQL; `tests/billing.test.ts` proves engine metering, webhook auth and local-only simulation. A web build with `EXPO_PUBLIC_REVENUECAT_MODE=store` must show the iOS-only notice with disabled purchase buttons. See [billing](../../../../docs/launch/billing.md).
+
 ## Gotchas
-No real purchases. Native Apple/account/notification flows need configured accounts and a development build.
+No real purchases in the preview; sandbox purchases need a signed iOS build and the accounts in docs/launch/billing.md. Native Apple/account/notification flows need configured accounts and a development build.

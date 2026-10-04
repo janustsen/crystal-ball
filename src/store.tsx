@@ -1,6 +1,8 @@
 import React,{createContext,useContext,useEffect,useState,useRef} from 'react';
-import {saveReading,settleCircleReading} from './reading-history';
-import {markCircleCharged,publishCircleForecast,type CircleForecast} from './social';
+import {saveReading,saveCircleReading,withBalance} from './reading-history';
+import {publishCircleForecast,type CircleForecast} from './social';
+import {loadBalance,serverMetered} from './api';
+import type {Balance} from './billing';
 import {Alert} from 'react-native';
 import {forgetCheckIns,reopenCheckIn,cancelCheckIn} from './native';
 import {forgetOmen} from './daily-omen';
@@ -8,30 +10,42 @@ import {updateOmenWidget} from './omen-widget';
 import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
-import {mirror,restoreBackup,supabase} from './cloud';
+import {mirror,restoreBackup,supabase,anonymousOwner} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts)=>Promise<void>;settleCircle:(forecast:CircleForecast|string)=>Promise<CircleForecast>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
- const locked=useRef(true),current=useRef(state);
+ const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
+ const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
  const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
+ async function balanced(state:AccountState,balance:Balance){
+  const owner=await anonymousOwner(),previous=state.balanceSnapshot;
+  if(balance.owner!==owner||(previous?.owner===owner&&balance.asOf<=previous.asOf))return state;
+  return withBalance(state,balance);
+ }
  function withArchiveLock<T>(action:()=>Promise<T>){
   locked.current=true;setBackupBusy(true);
   const work=archiveWork.current.catch(()=>{}).then(action);
   archiveWork.current=work;
   return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
  }
- useEffect(()=>{const timer=setInterval(()=>{if(!locked.current)change(s=>{const day=new Date().toISOString().slice(0,10);return s.usage.day===day?s:{...s,usage:{day,count:0}}})},60000);return()=>clearInterval(timer)},[]);
+ // Server-metered days belong to the server: a new device day refreshes the balance instead of resetting it locally.
+ useEffect(()=>{const timer=setInterval(()=>{const day=new Date().toISOString().slice(0,10);if(serverMetered){if(ready&&day>current.current.usage.day)void loadBalance().then(applyBalance).catch(()=>{});return}if(!locked.current)change(s=>s.usage.day===day?s:{...s,usage:{day,count:0}})},60000);return()=>clearInterval(timer)},[ready]);
  useEffect(()=>{
   let active=true;
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);
   void (async()=>{
    let loaded=initial();const raw=await AsyncStorage.getItem(key);
    if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');loaded=restoreProfile({...initial(),...s})}
+   if(!active)return;
+   clearTimeout(timer);
+   if(serverMetered){
+    try{loaded=await balanced(loaded,await loadBalance())}catch{console.warn('Reading balance unavailable; showing the last saved balance.')}
+   }
    if(active){change(()=>loaded);locked.current=false;setReady(true)}
   })().catch(()=>{if(active)setHydrationError('Could not open your saved readings. Your archive has not been changed.')}).finally(()=>clearTimeout(timer));
   return()=>{active=false;clearTimeout(timer)};
@@ -47,7 +61,15 @@ export function Store({children}:React.PropsWithChildren){
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
-   await writes.catch(()=>{});await uploads.catch(()=>{});await authenticate();
+   await writes.catch(()=>{});await uploads.catch(()=>{});
+   accountVersion.current++;
+   try{await authenticate()}finally{
+    if(serverMetered){
+     const owner=await anonymousOwner();
+     if(current.current.balanceSnapshot?.owner!==owner)change(s=>({...s,balanceSnapshot:undefined,plus:false,credits:0,usage:{day:new Date().toISOString().slice(0,10),count:0}}));
+     const next=await balanced(current.current,await loadBalance());change(()=>next);
+    }
+   }
    let next:AccountState;
    if(mode==='restore')next=await restoreBackup(current.current);
    else {
@@ -71,31 +93,39 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
- async function savePrediction(prediction:Prediction,facts:Facts={}){
+ async function applyBalance(balance:Balance){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});
+   const next=await balanced(current.current,balance);
+   await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+  });
+ }
+ async function savePrediction(prediction:Prediction,facts:Facts={},balance?:Balance){
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});
+   if(version!==accountVersion.current)throw new Error('Your account changed. Please ask again.');
    const saved=saveReading(current.current,prediction);
-   const next={...saved,facts:{...saved.facts,...facts}};
+   const next={...(balance?await balanced({...saved,plus:current.current.plus,credits:current.current.credits,usage:current.current.usage},balance):saved),facts:{...saved.facts,...facts}};
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
   });
  }
 
- async function settleCircle(input:CircleForecast|string):Promise<CircleForecast>{
-  if(typeof input!=='string'&&input.charged_at!==null)return input;
+ async function publishCircle(draft:string):Promise<CircleForecast>{
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});
-   const forecast=typeof input==='string'?await publishCircleForecast(input):input;
-   await settleCircleReading(current.current,forecast,async next=>{
-    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
-   },markCircleCharged,typeof input==='string');
+   const forecast=await publishCircleForecast(draft);
+   const balance=serverMetered?await loadBalance().catch(()=>null):null;
+   const saved=saveCircleReading(current.current,forecast),next=balance?await balanced(saved,balance):saved;
+   await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
    return forecast;
   });
  }
 
- const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,settleCircle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner,circleCharges:s.circleCharges}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
+ return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

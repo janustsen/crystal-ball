@@ -20,9 +20,9 @@ def fixture(alone=False):
     sql(f"""
     delete from public.circles where id='{CIRCLE}';
     insert into auth.users values ('{OWNER}'),('{SUCCESSOR}'),('{RECIPIENT}') on conflict do nothing;
-    insert into public.social_profiles(user_id,handle,age_band,plus) values
-      ('{OWNER}','raceowner','adult',true),('{SUCCESSOR}','racesuccessor','adult',true),
-      ('{RECIPIENT}','racerecipient','adult',true) on conflict do nothing;
+    insert into public.social_profiles(user_id,handle,age_band,plus_until) values
+      ('{OWNER}','raceowner','adult','infinity'),('{SUCCESSOR}','racesuccessor','adult','infinity'),
+      ('{RECIPIENT}','racerecipient','adult','infinity') on conflict do nothing;
     insert into public.circles(id,owner_id) values ('{CIRCLE}','{OWNER}');
     insert into public.circle_members(circle_id,user_id) values ('{CIRCLE}','{OWNER}');
     """)
@@ -155,7 +155,7 @@ print('PASS: acceptance and invalidation follow Circle-first ordering without st
 for kind in ('link', 'handle'):
     for allowance in (5, 10):
         fixture()
-        sql(f"delete from public.circles where owner_id='{RECIPIENT}'; update public.social_profiles set plus={'true' if allowance == 10 else 'false'} where user_id='{RECIPIENT}';")
+        sql(f"delete from public.circles where owner_id='{RECIPIENT}'; update public.social_profiles set plus_until=case when {allowance}=10 then 'infinity'::timestamptz else null end where user_id='{RECIPIENT}';")
         for _ in range(allowance):
             sql(auth(RECIPIENT) + 'select public.create_circle();')
         issued = sql(issue(kind))
