@@ -35,7 +35,12 @@ export function Store({children}:React.PropsWithChildren){
   void (async()=>{
    let loaded=initial();const raw=await AsyncStorage.getItem(key);
    if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');loaded=restoreProfile({...initial(),...s})}
-   if(active){change(()=>loaded);locked.current=false;setReady(true);if(serverMetered)void loadBalance().then(applyBalance).catch(()=>console.warn('Reading balance unavailable; showing the last saved balance.'))}
+   if(!active)return;
+   clearTimeout(timer);
+   if(serverMetered){
+    try{loaded=withBalance(loaded,await loadBalance())}catch{console.warn('Reading balance unavailable; showing the last saved balance.')}
+   }
+   if(active){change(()=>loaded);locked.current=false;setReady(true)}
   })().catch(()=>{if(active)setHydrationError('Could not open your saved readings. Your archive has not been changed.')}).finally(()=>clearTimeout(timer));
   return()=>{active=false;clearTimeout(timer)};
  },[hydrationAttempt]);

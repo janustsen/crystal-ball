@@ -136,12 +136,12 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
   './native':{reopenCheckIn:()=>{}},
  },warnings);
  const render=()=>h.render(()=>store.Store({})).props.value;
- render();await tick();const earlier=render();await tick();
+ render();await tick();assert.equal(render().ready,false);
+ finishHydration(oldBalance);await tick();const earlier=render();await tick();
  assert.equal(earlier.remaining,0);
  const backup=earlier.backup(mode,async()=>{owner='paid'});
  if(restoreFails)await assert.rejects(backup,/backup offline/);else await backup;
  let current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- finishHydration(oldBalance);await tick();
  earlier.applyBalance(oldBalance);
  await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
  current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
@@ -168,4 +168,30 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
  assert.equal(render().filter(n=>n.children.includes(label)).length,1);
  render().find(n=>n.props.testID==='tab-you').props.onPress();
  assert.equal(render().filter(n=>n.children.includes(label)).length,2);
+});
+
+for(const fails of [false,true])test(`initial balance settles before purchases are admitted (failure=${fails})`,async()=>{
+ const h=hooks(),warnings:string[]=[],day=new Date().toISOString().slice(0,10);
+ const exhausted={plus:false,plusUntil:null,packs:0,used:1,day};
+ let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
+ let finish!:(b:typeof exhausted)=>void,fail!:(error:Error)=>void;
+ const pending=new Promise<typeof exhausted>((resolve,reject)=>{finish=resolve;fail=reject});
+ const store=load('../src/store.tsx',{
+  react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
+  './api':{serverMetered:true,loadBalance:()=>pending},
+  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  './native':{reopenCheckIn:()=>{}},
+ },warnings);
+ const render=()=>h.render(()=>store.Store({})).props.value;
+ render();await tick();
+ const opening=render();assert.equal(opening.ready,false);assert.equal(opening.backupBusy,true);
+ await assert.rejects(opening.savePrediction({id:'premature'}),/wait for your archive/);
+ await assert.rejects(opening.publishCircle('premature'),/wait for your archive/);
+ await assert.rejects(opening.backup('restore',async()=>{}),/wait for your archive/);
+ opening.applyBalance({...exhausted,packs:5});assert.equal(render().state.credits,0);
+ if(fails)fail(new Error('offline'));else finish(exhausted);
+ await tick();const ready=render();assert.equal(ready.ready,true);assert.equal(ready.remaining,0);
+ ready.applyBalance({...exhausted,packs:5});
+ render();await tick();assert.equal(render().remaining,5);assert.equal(JSON.parse(disk).credits,5);
+ assert.equal(warnings.length,fails?1:0);
 });
