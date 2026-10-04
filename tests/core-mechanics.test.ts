@@ -59,3 +59,18 @@ test('answer while permission or scheduling is pending leaves no reminder',async
   assert.equal(queued.size,0,phase);
  }
 });
+
+test('restored unanswered readings reopen reminders without clearing other saved answers',async()=>{
+ for(const platform of ['ios','web']){
+  const scheduled:unknown[][]=[];
+  const actions=nativeActions({platform,notifications:{clear:async()=>{},cancel:async()=>{},permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},share:async()=>{},link:()=>''});
+  await actions.cancelCheckIn('restored');await actions.cancelCheckIn('still-answered');
+  assert.match(await actions.reminder('','restored'),/check-in is saved/);
+  actions.reopenCheckIn('restored');
+  assert.match(await actions.reminder('','restored'),platform==='ios'?/reminder set/:/Native reminder preview/);
+  assert.equal(scheduled.length,platform==='ios'?2:0);
+  assert.match(await actions.reminder('','still-answered'),/check-in is saved/);
+  await actions.cancelCheckIn('restored');
+  assert.match(await actions.reminder('','restored'),/check-in is saved/);
+ }
+});

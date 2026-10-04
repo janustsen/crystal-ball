@@ -10,6 +10,7 @@ export function nativeActions(ports:NativePorts){
  let generation=0,writes:Promise<void>=Promise.resolve();
  function serialize(operation:()=>Promise<void>){const work=writes.then(operation);writes=work.catch(()=>{});return work;}
  return {
+ reopenCheckIn(readingId:string){answered.delete(readingId);},
  cancelCheckIn(readingId:string){answered.add(readingId);return ports.platform==='web'?Promise.resolve():serialize(()=>ports.notifications.cancel(readingId));},
  forgetCheckIns(){generation++;return ports.platform==='web'?Promise.resolve():serialize(()=>ports.notifications.clear());},
  async reminder(_headline:string,readingId?:string,on?:string,requestPermission=true){

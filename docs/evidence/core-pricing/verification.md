@@ -15,3 +15,9 @@ Safety depends on preserving forecast horizons independently of the check-in dat
 Notification routing retains the original reading ID in both payloads. The Expo notification adapter adds a separate identifier for the follow-up; notification bodies contain no forecast text. Forget-all's existing queued cleanup tests remain green. Social Circle readings still use their existing 30-day fallback, within the requested range; their payload format is unchanged.
 
 Native delivery is a mocked boundary in the fake-clock tests, not a device pass. No iOS/Android device or real billing was exercised. The browser proves behavior, not predictive accuracy. Existing unrelated motion/social/full-design suites were not re-driven for this focused change.
+
+## Single Greptile fix round
+
+Greptile identified stale reminder suppression when an older backup restores a reading without its previously saved answer. `scripts/verify-restored-reminders.mjs` failed before the fix with “Restored unanswered reading is still suppressed” ([failure](restore-before.txt)). The Store now reopens reminder eligibility for each currently unanswered reading, without clearing other saved answers. The same driver passes after the fix ([result](restore-after.txt)); it fixtures only the restored payload and exercises the real Store, answer UI and reminder action. This does not claim Apple/Supabase transport or native notification delivery.
+
+TypeScript and all 125 tests passed after the fix, including the original in-flight cancellation tests and a new native/web eligibility check. The regression script was committed before the fix. The partial-scheduling and repeated-cleanup P2 findings remain follow-ups in https://github.com/janustsen/crystal-ball/issues/18 and https://github.com/janustsen/crystal-ball/issues/19.
