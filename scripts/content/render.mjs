@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {parseArgs} from 'node:util';
 import {httpCredentials,previewFetch} from '../preview-auth.mjs';
-import {assertSafe,forecasts,profileBirthday,receipts,signs} from './hooks.mjs';
+import {assertSafe,forecasts,profileBirthday,receiptExamples,signs} from './hooks.mjs';
 
 const {values:opt}=parseArgs({options:{day:{type:'string',default:new Date().toLocaleDateString('en-CA')},a:{type:'string',default:'2'},b:{type:'string',default:'1'},c:{type:'string',default:'2'},out:{type:'string',default:process.env.CONTENT_OUT||'.local/content'}}});
 const base=process.env.VERIFY_URL||'http://localhost:8087',out=resolve(opt.out,opt.day),label='AI-generated';
@@ -27,8 +27,8 @@ html,body{margin:0;width:1080px;height:1920px;background:transparent;overflow:hi
 .cta{position:absolute;left:60px;right:60px;bottom:420px;font:60px Fell;text-align:center;background:rgba(18,14,11,.85);border:2px solid rgba(242,194,132,.55);border-radius:32px;padding:26px}`;
 
 let canvas;
-async function still(html,path,{opaque=false}={}){
- await canvas.setContent(`<style>${css}</style>${html}<div class="label">${label}</div>`);
+async function still(html,path,{opaque=false,label:stamp=label}={}){
+ await canvas.setContent(`<style>${css}</style>${html}<div class="label">${stamp}</div>`);
  await canvas.evaluate(()=>document.fonts.ready);
  await canvas.screenshot({path,omitBackground:!opaque});return path;
 }
@@ -127,8 +127,8 @@ async function receiptVideo(browser,state,item,file,dir){
  await page.goto(base);await ask(page,item.question);
  const reading=await latest(page),asked=await page.context().storageState();await page.context().close();
  // The app runs at noon on the due date, so History offers the real check-in.
- const due=new Date(`${reading.dueDate}T12:00:00`),when=due.toLocaleDateString('en-US',{month:'short',day:'numeric'});
- const hook=assertSafe(`It told me “${reading.headline}” Check back ${when}.\nIt’s ${when}.`);
+ const due=new Date(`${reading.dueDate}T12:00:00`);
+ const hook=assertSafe(item.hook);
  page=await session(browser,{state:asked,clock:due});const stop=await record(page,dir);
  try{
   await page.goto(base);await page.getByTestId('tab-history').waitFor();const start=now()+.3;await page.waitForTimeout(1500);
@@ -136,8 +136,8 @@ async function receiptVideo(browser,state,item,file,dir){
   await page.getByRole('button').filter({hasText:item.question}).first().click();
   const choice=page.getByTestId(`check-in-${item.outcome}`);await choice.waitFor();await page.waitForTimeout(2200);
   await choice.click();await page.waitForTimeout(3000);const end=now(),frames=await stop();
-  const seconds=await encode(frames,[[start,end]],[[await still(`<div class="hook">${esc(hook)}</div>`,join(dir,'hook.png')),start,end],[await still('',join(dir,'label.png')),start,end]],file,dir);
-  return {hook,question:item.question,headline:reading.headline,dueDate:reading.dueDate,outcome:item.outcome,seconds};
+  const seconds=await encode(frames,[[start,end]],[[await still(`<div class="hook">${esc(hook)}</div>`,join(dir,'hook.png'),{label:item.label}),start,end]],file,dir);
+  return {hook,label:item.label,question:item.question,headline:reading.headline,dueDate:reading.dueDate,outcome:item.outcome,seconds};
  }finally{await page.context().close()}
 }
 
@@ -180,7 +180,7 @@ const manifest={day:opt.day,base,provider:health.provider,label,videos:[],failur
 try{
  canvas=await (await browser.newContext({viewport:{width:1080,height:1920}})).newPage();
  const state=await profile(browser);
- const jobs=[...pick(forecasts,+opt.a).map((item,i)=>['A',i,item.category,item]),...pick(receipts,+opt.b).map((item,i)=>['B',i,item.category,item]),
+ const jobs=[...pick(forecasts,+opt.a).map((item,i)=>['A',i,item.category,item]),...receiptExamples(dayIndex,+opt.b).map((item,i)=>['B',i,item.category,item]),
   ...Array.from({length:+opt.c},(_,i)=>['C',i,i%2?'libra-pisces':'aries-virgo',i%2])];
  for(const [format,i,slug,item] of jobs){
   const name=`${format}-${String(i+1).padStart(2,'0')}-${slug}.mp4`,dir=await mkdtemp(join(work,'v-'));

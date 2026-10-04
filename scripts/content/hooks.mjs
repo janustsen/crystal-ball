@@ -20,21 +20,24 @@ export const forecasts=[
  {category:'new-city',hook:'I asked the ball if I make a real friend in my new city',question:'Will I make a close friend in my new city within three months?'},
 ];
 
-// Format B: check-in receipts. The hook is built from the real reading; `outcome` is the check-in tapped (yes | no | pending). Misses included on purpose.
 export const receipts=[
- {category:'package',question:'Will my package arrive this week?',outcome:'yes'},
- {category:'reading',question:'Will I finish the book I am reading this week?',outcome:'no'},
- {category:'landlord',question:'Will my landlord fix the heater this week?',outcome:'pending'},
- {category:'cooking',question:'Will I stick to cooking at home this week?',outcome:'yes'},
- {category:'pub-quiz',question:'Will my team win the pub quiz next week?',outcome:'no'},
- {category:'interview',question:'Will I get a callback for the second interview within two weeks?',outcome:'yes'},
- {category:'5k',question:'Will I finish a 5k run this month?',outcome:'pending'},
- {category:'inbox',question:'Will I answer all my unread emails this week?',outcome:'no'},
- {category:'bread',question:'Will my sourdough loaf rise properly this week?',outcome:'yes'},
- {category:'early-riser',question:'Will I wake up before 7 every day this week?',outcome:'no'},
- {category:'concert',question:'Will the concert tickets go on sale this month?',outcome:'yes'},
- {category:'side-project',question:'Will I ship the first version of my side project this month?',outcome:'pending'},
+ {category:'package',question:'Will my package arrive this week?'},
+ {category:'reading',question:'Will I finish the book I am reading this week?'},
+ {category:'landlord',question:'Will my landlord fix the heater this week?'},
+ {category:'cooking',question:'Will I stick to cooking at home this week?'},
+ {category:'pub-quiz',question:'Will my team win the pub quiz next week?'},
+ {category:'interview',question:'Will I get a callback for the second interview within two weeks?'},
+ {category:'5k',question:'Will I finish a 5k run this month?'},
+ {category:'inbox',question:'Will I answer all my unread emails this week?'},
+ {category:'bread',question:'Will my sourdough loaf rise properly this week?'},
+ {category:'early-riser',question:'Will I wake up before 7 every day this week?'},
+ {category:'concert',question:'Will the concert tickets go on sale this month?'},
+ {category:'side-project',question:'Will I ship the first version of my side project this month?'},
 ];
+
+export function receiptExamples(dayIndex,count){
+ return Array.from({length:count},(_,i)=>({...receipts[(dayIndex*count+i)%receipts.length],hook:'How a check-in works',label:'AI-generated demo',outcome:['yes','no','pending'][(dayIndex+i)%3]}));
+}
 
 // Format C: daily-omen slideshow. Adult birthdays mid-sign; the engine writes each omen live.
 export const signs=[
