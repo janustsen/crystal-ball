@@ -1,0 +1,40 @@
+# Reveal videos
+
+`render.mjs` films short vertical videos (1080×1920, 30 fps, H.264, no audio) from the real web app and the live engine, then burns in the hook text and a visible **AI-generated** label. Videos are output only; never commit them.
+
+| Format | What it films | Length |
+| --- | --- | --- |
+| A · sealed-forecast reveal | Home → tap the Ask ball → type the hook's question → real follow-up cards → reveal with due date. Model thinking time is cut. The hook shows until the reveal. | 10–15 s (enforced) |
+| B · check-in receipt | A real reading made off camera, then the app reopened with its clock fixed to noon on the due date: Home → History → the reading → the hook's Yes / Not quite / Not yet. Hook: `It told me “<headline>” Check back <date>. It’s <date>.` | ~8 s |
+| C · daily-omen slideshow | Live engine omens for six signs (Aries–Virgo or Libra–Pisces) over the app's own background art, then the real Home with today's omen. Faceless. | 8 slides, ~22 s |
+
+## Render a day's batch
+
+1. Start the engine and preview as in the verify-crystal-ball skill (`npm run server`, `npm run web -- --no-dev --minify`), with Ollama serving.
+2. Run:
+
+   ```sh
+   VERIFY_URL=http://localhost:8087 node scripts/content/render.mjs --day 2026-10-05 --a 2 --b 1 --c 2
+   ```
+
+   `--a/--b/--c` are per-format counts. `--day` rotates which hooks are used, so consecutive days differ. `--out` (or `CONTENT_OUT`) sets the output root, default `.local/content` (gitignored). The full bank goes outside git: `--a 12 --b 10 --c 8 --out /Users/janustsen/dev/archive/crystal-ball-content`.
+3. Read `<out>/<day>/manifest.json`. It lists each video's hook, question, the model's headline and due date, the B outcome, and the C omens. Use it for captions. Failures are listed with their error (including the screen text when a reading stalls), and the command exits non-zero. Re-run the batch for that day. The engine fails closed on some questions, so the driver uses the app's own Try again up to twice.
+
+A full run takes about a minute per video.
+
+## Content rules
+
+Every hook comes from `hooks.mjs`, and `assertSafe` checks every caption and omen at render time (`tests/content-hooks.test.ts` covers the list):
+
+- Hooks name a category, never a real person. Mid-sentence capitalized words must be on the allowlist.
+- No minors, school or teen framing. Readings use an adult profile (`profileBirthday`).
+- No accuracy claims, soulmate drawings, "reveal who" mechanics, psychic personas or ratings for rewards.
+- No faces, fake reactions or invented users. B outcomes are chosen in `hooks.mjs` and include misses. The footage is a labeled demo, not a real person's result.
+
+Before adding a question, run it through the live engine once. Small local models reject some phrasings, such as "inbox to zero".
+
+## Boundaries
+
+- Drive through stable testIDs (`tab-*`, `type-instead`, `question-input`, `option-0`, `record-reveal`, `check-in-*`, `daily-omen`), Action labels (`continue`, `meet-the-ball`, `try-again`) and the History row's question text. After a UI change, render a small batch and check each format before rendering the bank.
+- The C background hides everything in the app shell except `.atmosphere`. Without that layer, it falls back to the darkened Home screen.
+- Capture uses a CDP screencast at device pixels. Playwright's `recordVideo` would upscale a 360×640 capture.
