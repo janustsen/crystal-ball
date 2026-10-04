@@ -11,7 +11,7 @@ import {assertSafe,forecasts,profileBirthday,receiptExamples,signs} from './hook
 const {values:opt}=parseArgs({options:{day:{type:'string',default:new Date().toLocaleDateString('en-CA')},a:{type:'string',default:'2'},b:{type:'string',default:'1'},c:{type:'string',default:'2'},out:{type:'string',default:process.env.CONTENT_OUT||'.local/content'}}});
 const base=process.env.VERIFY_URL||'http://localhost:8087',out=resolve(opt.out,opt.day),label='AI-generated';
 const dayIndex=Math.round(Date.parse(opt.day)/864e5);
-// Each day starts further along each list, so consecutive batches use different hooks.
+// Offset by the batch size; full-list batches repeat the same question order each day.
 const pick=(list,n)=>Array.from({length:n},(_,i)=>list[(dayIndex*n+i)%list.length]);
 const now=()=>Date.now()/1000,esc=s=>s.replace(/[&<>"]/g,c=>`&#${c.charCodeAt(0)};`);
 
