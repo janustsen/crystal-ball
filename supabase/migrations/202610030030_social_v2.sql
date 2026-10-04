@@ -97,6 +97,25 @@ create or replace function public.invite_to_circle(target uuid) returns uuid
   return result;
  end;
 $$;
+create or replace function public.join_circle(invite uuid) returns uuid
+ language plpgsql security definer set search_path='' as $$
+ declare target uuid;
+ begin
+  if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
+  select circle_id into target from public.circle_invites where token=invite;
+  if target is null then raise exception 'This invitation has expired or was used'; end if;
+  insert into public.social_profiles(user_id) values(auth.uid()) on conflict do nothing;
+  perform 1 from public.social_profiles where user_id=auth.uid() for update;
+  perform 1 from public.circles where id=target for update;
+  perform 1 from public.circle_invites where token=invite and circle_id=target and expires_at>now() for update;
+  if not found then raise exception 'This invitation has expired or was used'; end if;
+  if social_private.member(target) then raise exception 'You already belong to this circle'; end if;
+  if exists(select 1 from public.circle_members where circle_id=target and social_private.blocked(user_id)) then raise exception 'This invitation is unavailable'; end if;
+  insert into public.circle_members(circle_id,user_id) values(target,auth.uid());
+  delete from public.circle_invites where token=invite;
+  return target;
+ end;
+$$;
 create function public.request_circle_invite(target uuid,target_handle text) returns void
  language plpgsql security definer set search_path='' as $$
  declare person uuid; request_id uuid;
@@ -120,9 +139,14 @@ create function public.circle_inbox() returns table(id uuid,circle_id uuid,handl
 $$;
 create function public.answer_circle_invite(request_id uuid,accept boolean) returns void
  language plpgsql security definer set search_path='' as $$
- declare invitation public.circle_requests;
+ declare invitation public.circle_requests; target uuid;
  begin
-  select * into invitation from public.circle_requests where id=request_id and recipient_id=auth.uid() and status='pending' and expires_at>now() for update;
+  select circle_id into target from public.circle_requests where id=request_id and recipient_id=auth.uid();
+  if target is null then raise exception 'This invitation is unavailable'; end if;
+  insert into public.social_profiles(user_id) values(auth.uid()) on conflict do nothing;
+  perform 1 from public.social_profiles where user_id=auth.uid() for update;
+  perform 1 from public.circles where id=target for update;
+  select * into invitation from public.circle_requests where id=request_id and circle_id=target and recipient_id=auth.uid() and status='pending' and expires_at>now() for update;
   if invitation.id is null or social_private.blocked(invitation.sender_id) then raise exception 'This invitation is unavailable'; end if;
   if accept then
    if not exists(select 1 from public.circles where id=invitation.circle_id and owner_id=invitation.sender_id) or exists(select 1 from public.circle_members where circle_id=invitation.circle_id and social_private.blocked(user_id)) then raise exception 'This invitation is unavailable'; end if;
