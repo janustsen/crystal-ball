@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
-export type OpeningProps=React.PropsWithChildren<{active:boolean;reduce:boolean;golden:boolean;onShown:()=>void}>;
+export type OpeningProps=React.PropsWithChildren<{active:boolean;reduce:boolean;golden:boolean;onShown:()=>void;orbSize?:number}>;
 export function useOpening({active,reduce,golden,onShown}:OpeningProps){
  // Marking a reading shown changes the parent's entry policy, not this mounted animation.
  const enabled=useRef(active).current;

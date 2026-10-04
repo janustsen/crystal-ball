@@ -4,7 +4,9 @@ import {useOpening,type OpeningProps} from './useOpening';
 import type {CSSProperties} from 'react';
 const css=`
 .opening-content{display:flex;flex-direction:column;min-width:0}
-.opening-stage{position:relative;min-height:420px;display:flex;flex-direction:column;justify-content:center;align-items:center;isolation:isolate}
+/* The opening orb sits where the settled reveal's orb will be, so the ball never leaves the screen. */
+.opening-stage{position:relative;min-height:420px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;isolation:isolate}
+.opening-scale{transform-origin:50% 0}
 .opening-object{position:relative;width:240px;height:270px;animation:orb-charge var(--release) ease-in-out both}
 .opening-object .halo,.opening-object .pool,.opening-object .orb::before{display:none}
 .opening-object .gb{animation:none!important}
@@ -13,9 +15,9 @@ const css=`
 .opening-ring{position:absolute;inset:30px 10px 50px;border:2px solid var(--accent);border-radius:50%;animation:opening-ring 450ms ease-out var(--charge) both;pointer-events:none}
 .opening-ember{position:absolute;left:50%;top:45%;width:3px;height:6px;border-radius:50%;background:var(--accent);animation:opening-ember 450ms ease-out var(--charge) both;pointer-events:none}
 .opening-skip{display:flex;flex-direction:column;width:100%;max-width:260px;margin-top:28px}
-.opening-payoff{animation:forecast-settle 700ms cubic-bezier(.2,.75,.2,1) both;transform-origin:50% 25%}
-.opening-payoff.calm{animation:forecast-calm 180ms ease-out both}
-@keyframes orb-charge{0%{transform:scale(1);opacity:1}12%{transform:scale(1.025,.975)}24%{transform:scale(.99,1.01) rotate(-.6deg)}40%{transform:rotate(.9deg)}54%{transform:rotate(-1.3deg)}66%{transform:rotate(1.8deg)}77%{transform:rotate(-2.5deg) scale(.98,1.02)}82%{transform:rotate(0) scale(1.035,.975);opacity:1}100%{transform:scale(1.07);opacity:0}}
+.opening-payoff>*:not(:first-child){animation:forecast-settle 700ms cubic-bezier(.2,.75,.2,1) both;transform-origin:50% 25%}
+.opening-payoff.calm>*:not(:first-child){animation:forecast-calm 180ms ease-out both}
+@keyframes orb-charge{0%{transform:scale(1);opacity:1}12%{transform:scale(1.025,.975)}24%{transform:scale(.99,1.01) rotate(-.6deg)}40%{transform:rotate(.9deg)}54%{transform:rotate(-1.3deg)}66%{transform:rotate(1.8deg)}77%{transform:rotate(-2.5deg) scale(.98,1.02)}82%{transform:rotate(0) scale(1.035,.975);opacity:1}100%{transform:scale(1);opacity:1}}
 @keyframes seam-charge{0%,25%{opacity:0;transform:scaleY(.2)}80%{opacity:.85;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1.08)}}
 @keyframes mist-release{0%,55%{opacity:0;transform:scale(.6)}82%{opacity:.6}100%{opacity:0;transform:scale(1.25)}}
 @keyframes opening-ring{0%{opacity:0;transform:scale(.75)}15%{opacity:.55}100%{opacity:0;transform:scale(1.45)}}
@@ -25,9 +27,9 @@ const css=`
 @media(prefers-reduced-motion:reduce){.opening-object,.opening-fracture,.opening-mist,.opening-ring,.opening-ember{animation:none!important}.opening-ring,.opening-ember,.opening-fracture,.opening-mist{display:none}.opening-payoff{animation:forecast-calm 180ms ease-out both}}
 `;
 export function RevealOpening(props:OpeningProps){
- const {phase,finish}=useOpening(props),{golden,reduce,children}=props;
+ const {phase,finish}=useOpening(props),{golden,reduce,children,orbSize=240}=props,scale=orbSize/240;
  return <><style>{css}</style>{phase==='opening'?<div data-testid="reveal-opening" className="opening-stage" style={{'--charge':`${golden?1150:900}ms`,'--release':`${golden?1350:1100}ms`,'--accent':golden?'#F2C284':'#C49B68'} as CSSProperties}>
-  <div aria-hidden="true" className="opening-object"><Orb size={240} reduce/><div className="opening-fracture"><Image source={require('../assets/apothecary/smoke.webp')} style={{width:'100%',height:'100%',opacity:.7}}/></div><div className="opening-mist"/><div className="opening-ring"/>{Array.from({length:golden?12:8},(_,i)=>{const angle=i*Math.PI*2/(golden?12:8);return <i key={i} className="opening-ember" style={{'--x':`${Math.cos(angle)*130}px`,'--y':`${Math.sin(angle)*110}px`} as CSSProperties}/>})}</div>
+  <div className="opening-scale" style={{transform:`scale(${scale})`,height:270*scale,marginBottom:-18}}><div aria-hidden="true" className="opening-object"><Orb size={240} reduce/><div className="opening-fracture"><Image source={require('../assets/apothecary/smoke.webp')} style={{width:'100%',height:'100%',opacity:.7}}/></div><div className="opening-mist"/><div className="opening-ring"/>{Array.from({length:golden?12:8},(_,i)=>{const angle=i*Math.PI*2/(golden?12:8);return <i key={i} className="opening-ember" style={{'--x':`${Math.cos(angle)*130}px`,'--y':`${Math.sin(angle)*110}px`} as CSSProperties}/>})}</div></div>
   <div className="opening-skip"><Action testID="skip-reveal" label="Show forecast" quiet onPress={finish}/></div>
  </div>:<div data-testid="reveal-content" className={`opening-content${phase==='payoff'?` opening-payoff${reduce?' calm':''}`:''}`}>{children}</div>}</>;
 }
