@@ -83,7 +83,7 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');await tap('tab-home');
  await tap('hero-orb');await check('approach',text('Your question.'),0);
  await tap('speak-question');await check('listening',page.getByTestId('type-instead'));
- await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));
+ await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));await tap('sent-context-toggle');await check('ask-context',page.getByTestId('sent-context'));await tap('sent-context-toggle');
  await page.getByTestId('question-input').fill('Will Alex learn Spanish in six months?');await tap('question-subject');await tap('ask-about-someone');await page.getByTestId('person-name').fill('Alex');await check('ask-person',page.getByTestId('person-name'));await tap('save-subject');await check('ask-person-collapsed',page.getByTestId('question-subject'));await tap('question-subject');await tap('ask-about-myself');await tap('save-subject');await page.getByTestId('question-input').fill(prediction.question);
  await tap('look-into-the-future');await check('planning',planning);
  await reply('plan',error);await check('error-plan',text('The mist is too thick.'));
