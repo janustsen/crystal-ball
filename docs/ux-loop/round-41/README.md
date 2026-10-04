@@ -1,0 +1,7 @@
+# Round41
+
+Implements the corrected expansion41 comparison: slim readers and direct omen status were selected by both independent reviewers. Check-in split between forecast-first and a separate choice step; forecast-first keeps the evaluated claim visible without a recall burden. The defective initial prototype comparison is retained under expansion-41/before and not treated as a fair decision.
+
+Product revision ebccc18e. Removes repeated reader navigation; presents forecast before check-in choices and status beside Save; makes the used free omen attempt and tomorrow visible; clarifies no browser reminder is scheduled and hiding preparation continues it. Denied-copy fallback scrolls into view. Expanded editors reuse the shared input scroll cue. Smaller persistent headers retain complete accessible balance names. History, memory and birth-chart grouping follow the reviewed task hierarchy.
+
+130 tests/typecheck pass. Focused checks cover complete reading content, all persisted check-in outcomes, Home scrolling, clipboard fallback, active-export dismissal and the20-repeat editor regression. Current evidence includes312 layout states and1962 control targets, the actual Ollama reading/design/recovery drives, named-provider permission boundaries, and Chrome/WebKit Home with both omen outcomes. See runtime.md for exact coverage and separate mocked/native boundaries. The answer-feedback clock lifecycle diagnosis and failed observations are preserved; production animation was not changed. Physical iPhone/native assistive technology remains a separate boundary.

@@ -1,0 +1,60 @@
+{
+  "failedSample": {
+    "label": "share",
+    "ms": 2212.300000000003,
+    "frames": 122,
+    "fps": 55.1462279076074,
+    "shaderFps": 55.1462279076074,
+    "p95": 16.700000000004366,
+    "max": 200,
+    "over25": 1,
+    "longTasks": []
+  },
+  "gpuTask": {
+    "args": {},
+    "cat": "disabled-by-default-devtools.timeline",
+    "dur": 220014,
+    "name": "RunTask",
+    "ph": "X",
+    "pid": 86784,
+    "tdur": 329,
+    "tid": 38320432,
+    "ts": 311356096298,
+    "tts": 2174567
+  },
+  "rendererLargestDurations": [
+    {
+      "name": "v8.callFunction",
+      "durationUs": 18946
+    },
+    {
+      "name": "FunctionCall",
+      "durationUs": 18926
+    },
+    {
+      "name": "RunTask",
+      "durationUs": 16051
+    },
+    {
+      "name": "v8.callFunction",
+      "durationUs": 13839
+    },
+    {
+      "name": "FunctionCall",
+      "durationUs": 12172
+    },
+    {
+      "name": "RunTask",
+      "durationUs": 9379
+    },
+    {
+      "name": "RunTask",
+      "durationUs": 6740
+    },
+    {
+      "name": "RunMicrotasks",
+      "durationUs": 6720
+    }
+  ],
+  "interpretation": "The gap overlaps a GPU-thread wall-time stall with very little thread CPU. No renderer long task. The trace does not identify host scheduling versus GPU synchronization; do not label a proven host-load cause."
+}
