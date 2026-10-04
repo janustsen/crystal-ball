@@ -37,10 +37,7 @@ SQL
 for migration in supabase/migrations/*.sql; do
   "${sql[@]}" -f "$migration" >"$cluster/migration.log"
 done
-if [[ "${BILLING_ONLY:-0}" == 1 ]]; then
-  "${sql[@]}" -f scripts/billing-expiry.sql
-  exit
-fi
+"${sql[@]}" -f scripts/billing-expiry.sql
 if [[ "${SOCIAL_INVITATIONS_ONLY:-0}" == 1 ]]; then
   PG_BIN="$pg_bin" python3 scripts/social-invitation-races.py
   exit

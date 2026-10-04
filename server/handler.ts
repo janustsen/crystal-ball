@@ -5,8 +5,7 @@ import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
-import {billing,billingHandler,BillingError,noReadings} from './billing.ts';
-import {readingsLeft} from '../src/billing.ts';
+import {billing,billingHandler,BillingError} from './billing.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
  const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160);
  const meter=billing(env),social=socialHandler(env,model,meter),store=billingHandler(env);
@@ -39,9 +38,9 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     // A signed-in app expects metering; an engine without billing config must not serve it free.
     if(!meter&&request.headers.get('authorization'))throw new BillingError('Readings are unavailable right now. Please try again later.',503);
     const viewer=meter?await meter.user(request):null;
-    if(viewer&&readingsLeft(await meter!.balance(viewer))<=0)throw new BillingError(noReadings,402);
+    const charge=viewer?await meter!.authorizeCharge(viewer,'requestId' in body?body.requestId:undefined):null;
     const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);
-    return new Response(JSON.stringify(viewer&&result.kind==='ok'?{...result,balance:await meter!.charge(viewer,result.value.id)}:result),{headers});
+    return new Response(JSON.stringify(viewer&&result.kind==='ok'?{...result,balance:await meter!.charge(viewer,charge!)}:result),{headers});
    }
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});

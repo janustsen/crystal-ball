@@ -6,8 +6,8 @@ export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
 export const engineUrl=process.env.EXPO_PUBLIC_ENGINE_URL||(typeof window!=='undefined'&&window.location?.protocol.startsWith('http')?`${window.location.origin}/engine`:'http://127.0.0.1:8787');
 export const previewHeaders:Record<string,string>=process.env.EXPO_PUBLIC_PREVIEW_SECRET?{'x-preview-token':process.env.EXPO_PUBLIC_PREVIEW_SECRET}:{};
 // A metered forecast returns the server's balance after its charge.
-export async function request<T extends Plan|Prediction>(action:'plan'|'predict',question:string,facts:Facts,friend:boolean,signal:AbortSignal,context:ReadingContext={},aiConsent=''):Promise<Result<T>&{balance?:Balance}>{
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...action==='predict'?await sessionHeader():{}},body:JSON.stringify({action,question,facts,friend,...context,localDate:localDay(),aiConsent}),signal});
+export async function request<T extends Plan|Prediction>(action:'plan'|'predict',question:string,facts:Facts,friend:boolean,signal:AbortSignal,context:ReadingContext={},aiConsent='',requestId?:string):Promise<Result<T>&{balance?:Balance}>{
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...action==='predict'?await sessionHeader():{}},body:JSON.stringify({action,question,facts,friend,...context,localDate:localDay(),aiConsent,requestId}),signal});
  const result=await response.json();
  if(!result||!['ok','blocked','error'].includes(result.kind))throw new Error('The mist is too thick. Please try again.');
  return result;

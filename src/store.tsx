@@ -14,7 +14,7 @@ import {mirror,restoreBackup,supabase} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>void;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
@@ -86,7 +86,15 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
- function applyBalance(balance:Balance){if(version===accountVersion.current&&!locked.current)change(s=>withBalance(s,balance))}
+ async function applyBalance(balance:Balance){
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});
+   if(version!==accountVersion.current)throw new Error('Your account changed. Please refresh your balance.');
+   const next=withBalance(current.current,balance);
+   await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+  });
+ }
  async function savePrediction(prediction:Prediction,facts:Facts={},balance?:Balance){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{

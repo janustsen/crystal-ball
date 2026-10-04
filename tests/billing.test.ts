@@ -6,23 +6,29 @@ import {readingsLeft} from '../src/billing.ts';
 import {saveCircleReading,withBalance,circleReading} from '../src/reading-history.ts';
 import type {AccountState} from '../src/types.ts';
 
+const requestId='11111111-1111-4111-8111-111111111111';
 const viewer='0f0e0d0c-0b0a-4908-8706-050403020100';
 const balance=(over:object={})=>({plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04',...over});
 
 // A fake Supabase/RevenueCat/Ollama boundary that records every billing call.
 function boundary(t:any,left:object){
- const calls:{path:string;body:any}[]=[];let modelCalls=0;
+ const calls:{path:string;body:any}[]=[];let modelCalls=0;const charged=new Set<string>();
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
   if(body?.messages){
    modelCalls++;
-   const content=body.format.properties.prediction?{prediction:'You will make progress.',basis:'context_1',assumption:'Practice continues.'}:{category:'allow'};
+   const fields=body.format.properties;
+   const content=fields.prediction?{prediction:'You will make progress.',basis:'context_1',assumption:'Practice continues.'}:fields.headline?{headline:'A creative opportunity may arrive.',why:'A playful nudge from a sun sign and shared themes.'}:fields.safe?{safe:true}:{category:'allow'};
    return Response.json({message:{content:JSON.stringify(content)}});
   }
   calls.push({path:url.pathname,body});
   if(url.pathname==='/auth/v1/user')return init?.headers&&new Headers(init.headers).get('authorization')==='Bearer user-token'?Response.json({id:viewer}):Response.json({},{status:401});
-  if(url.pathname==='/rest/v1/rpc/reading_balance')return Response.json(balance(left));
-  if(url.pathname==='/rest/v1/rpc/charge_reading'||url.pathname==='/rest/v1/rpc/apply_store_entitlements')return Response.json(balance({used:1}));
+  if(url.pathname==='/rest/v1/reading_charges')return Response.json(charged.has(url.searchParams.get('reading_id')!.slice(3))?[{reading_id:url.searchParams.get('reading_id')!.slice(3)}]:[]);
+  if(url.pathname==='/rest/v1/social_profiles')return Response.json([{age_band:'adult'}]);
+  if(url.pathname==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'leo',themes:['growth']});
+  if(url.pathname==='/rest/v1/rpc/reading_balance')return Response.json(balance({used:charged.size,...left}));
+  if(url.pathname==='/rest/v1/rpc/charge_reading'){charged.add(body.reading);return Response.json(balance({used:charged.size}))}
+  if(url.pathname==='/rest/v1/rpc/apply_store_entitlements')return Response.json(balance({used:1}));
   if(url.hostname==='api.revenuecat.com')return Response.json({subscriber:{entitlements:{plus:{expires_date:'2099-01-01T00:00:00Z'}},non_subscriptions:{cb_pack_5:[{id:'txn-1'}]}}});
   throw new Error(`Unexpected URL: ${url}`);
  });
@@ -32,7 +38,7 @@ const env=(over:Record<string,string>={}):(key:string)=>string|undefined=>{
  const values:Record<string,string>={SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only',REVENUECAT_SECRET_KEY:'sk_test_only',REVENUECAT_WEBHOOK_AUTH:'Bearer webhook-test-only',...over};
  return key=>values[key];
 };
-const predict=(authorization?:string)=>new Request('http://localhost/',{method:'POST',headers:authorization?{authorization}:{},body:JSON.stringify({action:'predict',question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month'},ageConfirmed:true})});
+const predict=(authorization?:string)=>new Request('http://localhost/',{method:'POST',headers:authorization?{authorization}:{},body:JSON.stringify({action:'predict',requestId,question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month'},ageConfirmed:true})});
 
 test('a metered forecast is charged once, after success, with the server balance returned',async t=>{
  const b=boundary(t,{});
@@ -40,7 +46,7 @@ test('a metered forecast is charged once, after success, with the server balance
  const result=await response.json();
  assert.equal(result.kind,'ok',JSON.stringify(result));
  const charges=b.calls.filter(c=>c.path.endsWith('/charge_reading'));
- assert.deepEqual(charges.map(c=>c.body),[{viewer,reading:result.value.id}]);
+ assert.deepEqual(charges.map(c=>c.body),[{viewer,reading:`ask:${requestId}`}]);
  assert.deepEqual(result.balance,balance({used:1}));
 });
 
@@ -114,4 +120,23 @@ test('the StoreKit test configuration matches the store catalog and trial',async
  for(const item of [...plans,...packs])assert.equal(`$${products.find((p:any)=>p.productID===item.product)?.displayPrice}`,item.price,item.product);
  assert.deepEqual(subscriptions.filter((s:any)=>s.introductoryOffer).map((s:any)=>[s.productID,s.introductoryOffer.paymentMode,s.introductoryOffer.subscriptionPeriod]),[[trialProduct,'free','P3D']]);
  assert.ok(kit.products.every((p:any)=>p.type==='Consumable'));
+});
+
+for(const friend of [false,true])test(`${friend?'friend':'personal'} retry after a lost response spends only one reading`,async t=>{
+ const b=boundary(t,{}),serve=handler(env());
+ const send=(id=requestId)=>friend?serve(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',requestId:id,question:'What lies ahead for Alex?',firstName:'Alex',circle:'circle',member:'member'})})):serve(new Request('http://localhost/',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'predict',requestId:id,question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month'},ageConfirmed:true})}));
+ const lost=await send();assert.equal(lost.status,200);await lost.body?.cancel();
+ const retry=await send();assert.equal(retry.status,200);
+ assert.equal((await retry.json()).balance.used,1);
+ assert.deepEqual(b.calls.filter(c=>c.path.endsWith('/charge_reading')).map(c=>c.body),[{viewer,reading:`ask:${requestId}`},{viewer,reading:`ask:${requestId}`}]);
+ assert.equal((await send('22222222-2222-4222-8222-222222222222')).status,402);
+});
+
+test('metered predictions require a valid client ask key before inference',async t=>{
+ const b=boundary(t,{}),serve=handler(env());
+ for(const requestId of [undefined,'not-a-key']){
+  const response=await serve(new Request('http://localhost/',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'predict',question:'Will I finish my course?',ageConfirmed:true,requestId})}));
+  assert.equal(response.status,400);
+ }
+ assert.equal(b.models(),0);assert.ok(!b.calls.some(c=>c.path.endsWith('/charge_reading')));
 });

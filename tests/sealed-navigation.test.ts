@@ -34,7 +34,7 @@ function app(onboardingDone=true,history:any[]=[]){
   '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
  };
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
  return {params,render};

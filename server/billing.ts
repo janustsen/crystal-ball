@@ -1,4 +1,4 @@
-import {packReadings,packs,plans,plusEntitlement,validBalance,type Balance} from '../src/billing.ts';
+import {packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
 type Env=(key:string)=>string|undefined;
 export class BillingError extends Error{constructor(message:string,readonly status:number){super(message)}}
 export const noReadings='No readings left today. Choose Plus or a reading pack to keep going.';
@@ -41,6 +41,15 @@ export function billing(env:Env){
   if(typeof value?.id!=='string')throw new BillingError('Your session expired. Please try again.',401);
   return value.id as string;
  }
+ async function authorizeCharge(viewer:string,key:unknown){
+  if(typeof key!=='string'||!uuid.test(key))throw new BillingError('Please start this question again.',400);
+  const reading=`ask:${key}`;
+  const response=await fetch(`${base}/rest/v1/reading_charges?user_id=eq.${encodeURIComponent(viewer)}&reading_id=eq.${encodeURIComponent(reading)}&select=reading_id`,{headers:service,signal:AbortSignal.timeout(5000)});
+  const charges=await response.json();
+  if(!response.ok||!Array.isArray(charges))throw new Error('Your reading balance is unavailable. Please try again.');
+  if(!charges.length&&readingsLeft(await rpc('reading_balance',{viewer}))<=0)throw new BillingError(noReadings,402);
+  return reading;
+ }
  async function reconcile(viewer:string){
   const secret=env('REVENUECAT_SECRET_KEY');if(!secret)throw new BillingError('Store purchases are not connected yet.',503);
   const response=await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(viewer)}`,{headers:{authorization:`Bearer ${secret}`},signal:AbortSignal.timeout(8000)});
@@ -55,7 +64,7 @@ export function billing(env:Env){
   const entitled_until=plan?new Date(Date.now()+periodDays[plan.period]*86400000).toISOString():kind==='off'?null:(await rpc('reading_balance',{viewer})).plusUntil;
   return rpc('apply_store_entitlements',{viewer,entitled_until,purchases:pack?[{id:`mock:${crypto.randomUUID()}`,readings:pack.readings}]:[]});
  }
- return {user,reconcile,simulate,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
+ return {user,reconcile,simulate,authorizeCharge,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }
 export type Billing=NonNullable<ReturnType<typeof billing>>;
 

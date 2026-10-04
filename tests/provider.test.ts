@@ -46,6 +46,7 @@ test('social inference requires current provider consent while profile sync stay
   if(url.includes('/social_profiles?'))return Response.json([{age_band:'adult'}]);
   if(url.endsWith('/rpc/sync_social_profile'))return Response.json({});
   if(url.endsWith('/rpc/authorize_friend_reading'))return Response.json({sun_sign:'leo',themes:['growth']});
+  if(url.includes('/reading_charges?'))return Response.json([]);
   if(url.endsWith('/rpc/reading_balance')||url.endsWith('/rpc/charge_reading'))return Response.json({plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04'});
   if(url.endsWith('/social_drafts'))return Response.json([{id:'draft',...JSON.parse(String(init?.body))}]);
   throw new Error(`Unexpected URL: ${url}`);
@@ -56,7 +57,7 @@ test('social inference requires current provider consent while profile sync stay
   return ('safe' in fields?{safe:true}:'wording' in fields?{wording:'Will a creative opportunity arrive?',theme:'growth'}:'headline' in fields?{headline:'A creative opportunity may arrive.',why:'A playful nudge from a sun sign and shared themes.'}:{category:'allow'}) as T;
  }});
  const send=(body:unknown)=>serve(new Request('http://localhost/social',{method:'POST',headers:{Authorization:'Bearer test-only'},body:JSON.stringify(body)}));
- const actions=[{action:'draft',kind:'star',text:'Will I find a creative opportunity?'},{action:'draft',kind:'seal',text:'A creative opportunity may arrive.'},{action:'friend',firstName:'Alex',question:'What lies ahead for Alex?',circle:'circle',member:'member'}];
+ const actions=[{action:'draft',kind:'star',text:'Will I find a creative opportunity?'},{action:'draft',kind:'seal',text:'A creative opportunity may arrive.'},{action:'friend',requestId:'11111111-1111-4111-8111-111111111111',firstName:'Alex',question:'What lies ahead for Alex?',circle:'circle',member:'member'}];
  for(const action of actions){
   for(const aiConsent of [undefined,'','Other AI',true]){
    const before=calls,response=await send({...action,aiConsent});

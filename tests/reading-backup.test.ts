@@ -21,7 +21,7 @@ function hooks(effectsEnabled=true){
 function load(path:string,imports:Record<string,any>,warnings:string[]){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{}),AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)}});
  return module.exports;
 }
 async function fixture(earlierUpload=false){
@@ -43,9 +43,11 @@ async function fixture(earlierUpload=false){
  return {render,card,warnings,uploads,state:()=>JSON.parse(disk),fail:()=>{blocking=false;fail(new Error('backup offline'))}};
 }
 
-for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal survives backup failure after local commit`,async()=>{
+for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps its ask key and survives backup failure`,async()=>{
  const f=await fixture(),h=hooks(false),params:any={};
  const reading={...readings.circleReading(f.card),circleId:undefined,friend};
+ const keys:string[]=[];
+ const attempt=(key:string)=>{keys.push(key);if(keys.length===1)throw new Error('response lost');return reading};
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -54,9 +56,9 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal surv
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=> 'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
-  '../src/social':{friendForecast:async()=>reading,checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
+  '../src/social':{friendForecast:async(_q:string,_target:any,_signal:any,_consent:string,key:string)=>attempt(key),checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
   '../src/questions':{validateAnswer:()=>{},factLabels:{}},
-  '../src/api':{request:async(action:string)=>({kind:'ok',value:action==='predict'?reading:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
+  '../src/api':{request:async(action:string,_q:string,_facts:any,_friend:boolean,_signal:any,_context:any,_consent:string,key:string)=>({kind:'ok',value:action==='predict'?attempt(key):{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
@@ -64,6 +66,8 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal surv
  render().find(n=>n.type==='Social').props.onAsk('Will we learn?',friend,friend?{id:'friend'}:undefined);
  void render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
  if(!friend){render().find(n=>n.props.testID==='option-0').props.onPress();await tick()}
+ render().find(n=>n.props.label==='Try again').props.onPress();await tick();
+ assert.equal(keys.length,2);assert.equal(keys[0],keys[1]);assert.match(keys[0],/^[0-9a-f-]{36}$/);
  const revealed=render();await tick();
  assert.ok(revealed.some(n=>n.props.testID==='forecast-due-date'));
  assert.equal(f.state().credits,1);assert.equal(f.state().history.length,1);
@@ -142,10 +146,10 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
  const backup=earlier.backup(mode,async()=>{owner='paid'});
  if(restoreFails)await assert.rejects(backup,/backup offline/);else await backup;
  let current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- earlier.applyBalance(oldBalance);
+ await assert.rejects(earlier.applyBalance(oldBalance),/account changed/);
  await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
  current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- current.applyBalance({...paidBalance,used:2});
+ await current.applyBalance({...paidBalance,used:2});
  current=render();assert.equal(current.remaining,13);
  await tick();assert.equal(JSON.parse(disk).plus,true);
 });
@@ -188,10 +192,20 @@ for(const fails of [false,true])test(`initial balance settles before purchases a
  await assert.rejects(opening.savePrediction({id:'premature'}),/wait for your archive/);
  await assert.rejects(opening.publishCircle('premature'),/wait for your archive/);
  await assert.rejects(opening.backup('restore',async()=>{}),/wait for your archive/);
- opening.applyBalance({...exhausted,packs:5});assert.equal(render().state.credits,0);
+ await assert.rejects(opening.applyBalance({...exhausted,packs:5}),/wait for your archive/);assert.equal(render().state.credits,0);
  if(fails)fail(new Error('offline'));else finish(exhausted);
  await tick();const ready=render();assert.equal(ready.ready,true);assert.equal(ready.remaining,0);
- ready.applyBalance({...exhausted,packs:5});
+ await ready.applyBalance({...exhausted,packs:5});
  render();await tick();assert.equal(render().remaining,5);assert.equal(JSON.parse(disk).credits,5);
  assert.equal(warnings.length,fails?1:0);
+});
+
+test('purchase balance waits for unrelated archive work instead of being discarded',async()=>{
+ const f=await fixture(true),store=f.render();
+ const forgetting=store.forgetAll();await tick();
+ let applied=false;
+ const applying=store.applyBalance({plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)}).then(()=>{applied=true});
+ await tick();assert.equal(applied,false);
+ f.fail();await forgetting;await applying;
+ assert.equal(f.render().remaining,5);assert.equal(f.state().credits,5);
 });

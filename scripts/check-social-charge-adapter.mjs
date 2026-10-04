@@ -25,6 +25,16 @@ try{
  const again=await request('/rest/v1/rpc/publish_circle_forecast',token,{approved_draft:draft.id});assert.equal(again.charged_at,paid.charged_at);
  const balance=await request('/rest/v1/rpc/reading_balance','verification-service-only',{viewer:session.user.id});
  assert.equal(balance.used,1);
+ await request('/rest/v1/rpc/apply_store_entitlements','verification-service-only',{viewer:session.user.id,entitled_until:null,purchases:[{id:'retry-pack',readings:5}]});
+ const reading='ask:11111111-1111-4111-8111-111111111111';
+ const lookup=`/rest/v1/reading_charges?user_id=eq.${session.user.id}&reading_id=eq.${reading}&select=reading_id`;
+ assert.deepEqual(await request(lookup,'verification-service-only'),[]);
+ const first=await request('/rest/v1/rpc/charge_reading','verification-service-only',{viewer:session.user.id,reading});
+ const retry=await request('/rest/v1/rpc/charge_reading','verification-service-only',{viewer:session.user.id,reading});
+ assert.equal(first.packs,4);assert.deepEqual(retry,first);
+ assert.equal((await request(lookup,'verification-service-only')).length,1);
+ assert.deepEqual(await request(lookup.replace(reading,'ask:22222222-2222-4222-8222-222222222222'),'verification-service-only'),[]);
+ console.log('PASS: retrying an ask spends one pack reading and is discoverable by its key');
 
  execFileSync(`${process.env.PG_BIN}/psql`,['-X','-v','ON_ERROR_STOP=1','-c',`
  insert into public.circle_forecast_drafts(id,user_id,circle_id,question,headline,due_date)
