@@ -18,16 +18,18 @@ try{
   store().update(s=>({...s,history:[reading]}));
  });
  await page.wait(200);await click('tab-history');
- await page.eval(()=>[...document.querySelectorAll('[role=button]')].find(x=>x.textContent.includes('Will I finish my novel?')).click());
- await click('check-in-pending');await click('share-this-glimpse');await click('share-reminder');
+ await page.eval(()=>[...document.querySelectorAll('[role=button]')].find(x=>x.textContent.includes('You will finish your novel.')).click());
+ await click('check-in-pending');
+ if(await page.eval(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history[0].outcome))throw Error('Selection saved without confirmation');
+ await click('save-outcome');await click('share-this-glimpse');await click('share-more');await click('share-reminder');
  if(!await page.eval(()=>document.body.innerText.includes('Your check-in is saved.')))throw Error('Answered reading must suppress reminders');
- console.log('PASS answer suppresses reminder');
+ console.log('PASS answer suppresses reminder');await click('share-result-done');
  // Fixture the older backup payload at the Store boundary; do not claim remote Apple/Supabase restoration.
  await page.eval(()=>window.reminderTestStore().update(s=>({...s,history:[window.unansweredBackupReading]})));
  await page.wait(200);await click('share-reminder');
  const text=await page.eval(()=>document.body.innerText);
- if(!text.includes('Native reminder preview:'))throw Error('Restored unanswered reading is still suppressed: '+text.slice(-650));
- console.log('PASS restoring an unanswered payload through Store reopens reminders without a reload');
+ if(!text.includes('No reminder scheduled in this browser.'))throw Error('Restored unanswered reading is still suppressed: '+text.slice(-650));
+ console.log('PASS restoring an unanswered payload through Store reopens reminders without a reload');await click('share-result-done');
  console.log('BOUNDARY: synthetic backup payload; real Store, answer UI and reminder action; native OS delivery and remote backup are not exercised.');
  `});
  writeFileSync(`${evidence}/result.txt`,output);console.log(output);

@@ -20,15 +20,15 @@ try{
   const replies=[],errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('response',async r=>{if(r.url()===`${base}/engine`&&r.request().method()==='POST')try{replies.push({action:r.request().postDataJSON().action,response:await r.json()})}catch{}});
   try{
-   await page.goto(base);await expect(page.getByText('Your forecast. Then check back.',{exact:true})).toBeVisible();
+   await page.goto(base);await expect(page.getByTestId('onboarding-birthday-heading')).toHaveText('Your birthday');
    if(sample===samples[0])await page.screenshot({path:`${out}/onboarding.png`});
    await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
-   await expect(page.getByText('Your forecast. Then check back.',{exact:true})).toBeVisible();
+   await expect(page.getByTestId('home-invitation')).toHaveText('Touch the Ball.');
    if(sample===samples[0]){
     await page.screenshot({path:`${out}/home.png`});
     await page.getByTestId('view-plans').click();
     await expect(page.getByText(/Free includes 1 reading a day/)).toBeVisible();
-    await expect(page.getByText(/Prototype only: no charge/)).toBeAttached();
+    await expect(page.getByText(/Demo only: no charge/)).toBeAttached();
     await page.getByTestId('continue-with-plus-simulate').click();
     await page.getByTestId('turn-off-simulated-plus').click();
     await expect(page.getByText('Simulated Plus is off. No subscription or payment to cancel.')).toBeVisible();
@@ -40,28 +40,36 @@ try{
    for(let i=0;i<3;i++){
     await page.getByTestId('option-0').waitFor({timeout:65000});
     const body=await page.locator('body').innerText(),last=body.includes(`${i+1} of ${i+1}`);
-    await page.getByRole('radio',{name:'✧ In my own words'}).click();await page.getByTestId('other-input').fill(sample.answer);await page.getByTestId('answer-next').click();
+    await page.getByRole('button',{name:'In my own words',exact:true}).click();await page.getByTestId('other-input').fill(sample.answer);await page.getByTestId('answer-next').click();
     if(last)break;
    }
    await page.getByTestId('record-reveal').waitFor({timeout:65000});
-   await expect(page.getByTestId('forecast-due-date')).toContainText('Check back');
-   await expect(page.getByTestId('view-plans')).toHaveText('0 readings');
+   const headline=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history[0].headline);
+   const expectedDate=await page.evaluate(()=>{const p=JSON.parse(localStorage.getItem('crystal-ball-v1')).history[0];return new Date(p.dueDate+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})});
+   await expect(page.getByTestId('forecast-due-date')).toHaveText('Suggested check-in · '+expectedDate);
+   await expect(page.getByTestId('view-plans')).toHaveText('0 readings left');
    await page.screenshot({path:`${out}/${sample.name}-reveal.png`});
    await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
-   await page.getByRole('button').filter({hasText:sample.question}).click();
+   await page.getByRole('button').filter({hasText:headline}).click();
    for(const [id,label] of [['yes','Yes'],['no','Not quite'],['pending','Not yet']]){
+    if(id!=='yes')await page.getByTestId('change-outcome').click();
+    const previous=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history[0].outcome);
     await page.getByTestId(`check-in-${id}`).click();
-    await expect(page.getByTestId(`check-in-${id}`)).toHaveText(`✓ ${label}`);
-    await page.getByTestId('dismiss-notice').click();
+    await expect(page.getByTestId(`check-in-${id}`)).toHaveAttribute('aria-checked','true');
+    expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history[0].outcome)).toBe(previous);
+    await page.getByTestId('save-outcome').click();
+    await expect(page.getByTestId('check-in-status')).toHaveText(`Saved · ${label}`);
    }
-   await page.getByTestId('check-in-no').click();await page.getByTestId('dismiss-notice').click();
+   await page.getByTestId('change-outcome').click();await page.getByTestId('check-in-no').click();await page.getByTestId('save-outcome').click();
    await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
    await expect(page.getByText('Not quite',{exact:true})).toBeVisible();
    await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('Not quite',{exact:true})).toBeVisible();
    const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
    const reading=state.history[0];log.push({sample:sample.name,reading,replies});
    if(sample.golden){await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.history[0].golden=true;localStorage.setItem('crystal-ball-v1',JSON.stringify(s));});await page.reload();await page.getByTestId('tab-history').click();}
-   await page.getByRole('button').filter({hasText:sample.question}).click();
+   await page.getByRole('button').filter({hasText:headline}).click();
+   await page.getByTestId('why-disclosure').click();
+   await expect(page.getByTestId('why-heading')).toBeVisible();
    await page.getByTestId('why-disclosure').click();
    await page.getByTestId('share-this-glimpse').click();
    if(sample===samples[0]){
@@ -77,7 +85,8 @@ try{
    await expect(page.getByTestId('view-plans')).toHaveCount(0);
    if(sample.golden)await expect(page.getByText('Golden edition · same uncertainty')).toBeVisible();
    const box=await page.getByTestId('capture-reveal').boundingBox();expect(Math.abs(box.width/box.height-9/16)).toBeLessThan(.001);
-   expect(await page.locator('.orb .gb').evaluate(el=>getComputedStyle(el).position)).not.toBe('static');
+   await expect(page.getByTestId('capture-reveal').getByTestId('painted-orb')).toBeVisible();
+   await expect(page.getByTestId('capture-reveal').getByTestId('painted-smoke')).toHaveCSS('position','absolute');
    await page.waitForTimeout(2000);await page.getByTestId('replay-capture').click();await page.waitForTimeout(11000);
    await page.screenshot({path:`${out}/${sample.name}-capture.png`});
    expect(replies.filter(r=>r.action==='predict').length).toBe(before);expect(errors).toEqual([]);

@@ -40,8 +40,8 @@ export function ShareCard({prediction,onClose,onNotice,onRecord}:{prediction:Pre
   // Keep export pixels on the CPU to avoid a synchronous GPU readback.
   // The on-screen preview needs fewer pixels; downloads retain the full story size.
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=width*16/9;const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error();ctx.scale(width/1080,width/1080);
-  const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,cardCenter);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
-  const room=new Image();room.src=Asset.fromModule(require('../assets/apothecary/room.webp')).uri;await room.decode();ctx.drawImage(room,0,0,1080,1920);ctx.fillStyle='#140b09b8';ctx.fillRect(0,0,1080,1920);
+  const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,cardCenter);gradient.addColorStop(1,colors.ink);
+  const room=new Image();room.src=Asset.fromModule(require('../assets/apothecary/room.webp')).uri;await room.decode();ctx.drawImage(room,0,0,1080,1920);ctx.fillStyle=gradient;ctx.globalAlpha=.72;ctx.fillRect(0,0,1080,1920);ctx.globalAlpha=1;
   for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   const orb=new Image();orb.src=Asset.fromModule(require('../assets/apothecary/orb.png')).uri;await orb.decode();ctx.drawImage(orb,270,280,540,608);
