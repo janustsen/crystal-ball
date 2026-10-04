@@ -7,6 +7,7 @@ import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
 
+const stamp=(n:number)=>`2026-10-04T00:00:00.${String(n).padStart(6,'0')}Z`;
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function hooks(effectsEnabled=true){
  const slots:any[]=[],effects:(()=>void)[]=[];let cursor=0;
@@ -33,7 +34,7 @@ async function fixture(earlierUpload=false,api:Record<string,unknown>={}){
  const h=hooks();
  const storeModule=load('../src/store.tsx',{
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
-  './cloud':{mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
+  './cloud':{anonymousOwner:async()=>'owner',mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
   './api':api,
   './social':{publishCircleForecast:async()=>card},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
@@ -128,15 +129,15 @@ for(const mode of ['private','publish'])for(const replacement of ['forget','rest
 
 for(const mode of ['save','restore'] as const)for(const restoreFails of [false,true])test(`${mode} refreshes account balance and rejects stale responses (failure=${restoreFails})`,async()=>{
  const h=hooks(),warnings:string[]=[],day=new Date().toISOString().slice(0,10);
- const oldBalance={plus:false,plusUntil:null,packs:0,used:1,day};
- const paidBalance={plus:true,plusUntil:'2099-01-01',packs:5,used:0,day};
+ const oldBalance={owner:'anonymous',asOf:stamp(10),plus:false,plusUntil:null,packs:0,used:1,day};
+ const paidBalance={owner:'paid',asOf:stamp(1),plus:true,plusUntil:'2099-01-01',packs:5,used:0,day};
  let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
  let owner='anonymous',finishHydration!:(b:typeof oldBalance)=>void;
  const pending=new Promise<typeof oldBalance>(resolve=>{finishHydration=resolve});
  const store=load('../src/store.tsx',{
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './api':{serverMetered:true,loadBalance:()=>owner==='anonymous'?pending:Promise.resolve(paidBalance)},
-  './cloud':{mirror:async()=>{if(restoreFails)throw new Error('backup offline')},restoreBackup:async(s:any)=>{if(restoreFails)throw new Error('backup offline');return {...s,backupOwner:owner}},supabase:{auth:{getSession:async()=>({data:{session:{user:{id:owner,is_anonymous:false}}}})}}},
+  './cloud':{anonymousOwner:async()=>owner,mirror:async()=>{if(restoreFails)throw new Error('backup offline')},restoreBackup:async(s:any)=>{if(restoreFails)throw new Error('backup offline');return {...s,backupOwner:owner}},supabase:{auth:{getSession:async()=>({data:{session:{user:{id:owner,is_anonymous:false}}}})}}},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './native':{reopenCheckIn:()=>{}},
  },warnings);
@@ -147,10 +148,10 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
  const backup=earlier.backup(mode,async()=>{owner='paid'});
  if(restoreFails)await assert.rejects(backup,/backup offline/);else await backup;
  let current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- await assert.rejects(earlier.applyBalance(oldBalance,0),/account changed/);
+ await earlier.applyBalance(oldBalance);
  await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
  current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- await current.applyBalance({...paidBalance,used:2},current.beginBalance());
+ await current.applyBalance({...paidBalance,asOf:stamp(2),used:2});
  current=render();assert.equal(current.remaining,13);
  await tick();assert.equal(JSON.parse(disk).plus,true);
 });
@@ -177,13 +178,14 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
 
 for(const fails of [false,true])test(`initial balance settles before purchases are admitted (failure=${fails})`,async()=>{
  const h=hooks(),warnings:string[]=[],day=new Date().toISOString().slice(0,10);
- const exhausted={plus:false,plusUntil:null,packs:0,used:1,day};
+ const exhausted={owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:0,used:1,day};
  let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
  let finish!:(b:typeof exhausted)=>void,fail!:(error:Error)=>void;
  const pending=new Promise<typeof exhausted>((resolve,reject)=>{finish=resolve;fail=reject});
  const store=load('../src/store.tsx',{
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './api':{serverMetered:true,loadBalance:()=>pending},
+  './cloud':{anonymousOwner:async()=>'owner'},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './native':{reopenCheckIn:()=>{}},
  },warnings);
@@ -193,10 +195,10 @@ for(const fails of [false,true])test(`initial balance settles before purchases a
  await assert.rejects(opening.savePrediction({id:'premature'}),/wait for your archive/);
  await assert.rejects(opening.publishCircle('premature'),/wait for your archive/);
  await assert.rejects(opening.backup('restore',async()=>{}),/wait for your archive/);
- await assert.rejects(opening.applyBalance({...exhausted,packs:5},0),/wait for your archive/);assert.equal(render().state.credits,0);
+ await assert.rejects(opening.applyBalance({...exhausted,packs:5}),/wait for your archive/);assert.equal(render().state.credits,0);
  if(fails)fail(new Error('offline'));else finish(exhausted);
  await tick();const ready=render();assert.equal(ready.ready,true);assert.equal(ready.remaining,0);
- await ready.applyBalance({...exhausted,packs:5},ready.beginBalance());
+ await ready.applyBalance({...exhausted,asOf:stamp(2),packs:5});
  render();await tick();assert.equal(render().remaining,5);assert.equal(JSON.parse(disk).credits,5);
  assert.equal(warnings.length,fails?1:0);
 });
@@ -205,7 +207,7 @@ test('purchase balance waits for unrelated archive work instead of being discard
  const f=await fixture(true),store=f.render();
  const forgetting=store.forgetAll();await tick();
  let applied=false;
- const applying=store.applyBalance({plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)},store.beginBalance()).then(()=>{applied=true});
+ const applying=store.applyBalance({owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)}).then(()=>{applied=true});
  await tick();assert.equal(applied,false);
  f.fail();await forgetting;await applying;
  assert.equal(f.render().remaining,5);assert.equal(f.state().credits,5);
@@ -213,38 +215,50 @@ test('purchase balance waits for unrelated archive work instead of being discard
 
 for(const older of ['purchase','reading'])test(`newer balance survives a delayed ${older} response`,async()=>{
  const f=await fixture(),store=f.render(),day=new Date().toISOString().slice(0,10);
- const before=store.beginBalance(),after=store.beginBalance();
- const oldBalance={plus:false,plusUntil:null,packs:5,used:1,day};
- const newBalance={...oldBalance,packs:4};
+ const oldBalance={owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:5,used:1,day};
+ const newBalance={...oldBalance,asOf:stamp(2),packs:4};
  const reading={...readings.circleReading(f.card),circleId:undefined};
  if(older==='purchase'){
-  await store.savePrediction(reading,{},newBalance,after);
-  await store.applyBalance(oldBalance,before);
+  await store.savePrediction(reading,{},newBalance);
+  await store.applyBalance(oldBalance);
  }else{
-  await store.applyBalance(newBalance,after);
-  await store.savePrediction(reading,{},oldBalance,before);
+  await store.applyBalance(newBalance);
+  await store.savePrediction(reading,{},oldBalance);
  }
  assert.equal(f.state().credits,4);assert.equal(f.state().usage.count,1);
  assert.equal(f.state().history.length,1);
  f.render();await tick();f.fail();await tick();
 });
 
-test('balance requests superseded while queued cannot overwrite the latest balance',async()=>{
+test('queued snapshots retain the newest database timestamp',async()=>{
  const f=await fixture(true),store=f.render();
  const forgetting=store.forgetAll();await tick();
- const balance={plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)};
- const older=store.applyBalance(balance,store.beginBalance());
- const newer=store.applyBalance({...balance,packs:4},store.beginBalance());
+ const balance={owner:'owner',asOf:stamp(2),plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)};
+ const older=store.applyBalance(balance);
+ const newer=store.applyBalance({...balance,asOf:stamp(3),packs:4});
  f.fail();await forgetting;await older;await newer;
  assert.equal(f.state().credits,4);assert.equal(f.render().remaining,4);
 });
 
 test('Circle publication supersedes an older purchase balance',async()=>{
- const balance={plus:false,plusUntil:null,packs:4,used:1,day:new Date().toISOString().slice(0,10)};
+ const balance={owner:'owner',asOf:stamp(2),plus:false,plusUntil:null,packs:4,used:1,day:new Date().toISOString().slice(0,10)};
  const f=await fixture(false,{serverMetered:true,loadBalance:async()=>balance}),store=f.render();
- const request=store.beginBalance();
  await store.publishCircle('draft');
- await store.applyBalance({...balance,packs:5},request);
+ await store.applyBalance({...balance,asOf:stamp(1),packs:5});
  assert.equal(f.state().credits,4);assert.equal(f.state().history.length,1);
  f.render();await tick();f.fail();await tick();
+});
+
+test('database snapshot time wins over request order and ignores other owners',async()=>{
+ const f=await fixture(),store=f.render();
+ const snapshot={owner:'owner',asOf:stamp(2),plus:false,plusUntil:null,packs:0,used:1,day:new Date().toISOString().slice(0,10)};
+ await store.applyBalance(snapshot);
+ await store.applyBalance({...snapshot,asOf:stamp(1),packs:9});
+ assert.equal(f.state().credits,0);
+ await store.applyBalance({...snapshot,asOf:stamp(3),packs:5});
+ assert.equal(f.state().credits,5);
+ await store.applyBalance({...snapshot,asOf:stamp(3),packs:9});
+ await store.applyBalance({...snapshot,owner:'other-owner',asOf:stamp(99),packs:20});
+ assert.equal(f.state().credits,5);
+ assert.equal(f.state().balanceSnapshot.asOf,stamp(3));
 });

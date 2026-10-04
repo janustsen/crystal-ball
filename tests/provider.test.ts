@@ -47,7 +47,7 @@ test('social inference requires current provider consent while profile sync stay
   if(url.endsWith('/rpc/sync_social_profile'))return Response.json({});
   if(url.endsWith('/rpc/authorize_friend_reading'))return Response.json({sun_sign:'leo',themes:['growth']});
   if(url.includes('/reading_charges?'))return Response.json([]);
-  if(url.endsWith('/rpc/reading_balance')||url.endsWith('/rpc/charge_reading'))return Response.json({plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04'});
+  if(url.endsWith('/rpc/reading_balance')||url.endsWith('/rpc/charge_reading'))return Response.json({owner:'viewer',asOf:'2026-10-04T00:00:00.000001Z',plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04'});
   if(url.endsWith('/social_drafts'))return Response.json([{id:'draft',...JSON.parse(String(init?.body))}]);
   throw new Error(`Unexpected URL: ${url}`);
  });

@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {handler} from '../server/handler.ts';
 import {billing,storeEntitlements,webhookUsers} from '../server/billing.ts';
-import {readingsLeft} from '../src/billing.ts';
+import {readingsLeft,validBalance} from '../src/billing.ts';
 import {saveCircleReading,withBalance,circleReading} from '../src/reading-history.ts';
 import type {AccountState} from '../src/types.ts';
 
 const requestId='11111111-1111-4111-8111-111111111111';
 const viewer='0f0e0d0c-0b0a-4908-8706-050403020100';
-const balance=(over:object={})=>({plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04',...over});
+const balance=(over:object={})=>({owner:viewer,asOf:'2026-10-04T00:00:00.000001Z',plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04',...over});
 
 // A fake Supabase/RevenueCat/Ollama boundary that records every billing call.
 function boundary(t:any,left:object){
@@ -109,7 +109,7 @@ test('a published Circle forecast is saved once and the server balance replaces 
  assert.deepEqual(saved.history,[circleReading(forecast)]);assert.equal(saved.credits,2);
  assert.strictEqual(saveCircleReading(saved,forecast),saved);
  assert.strictEqual(saveCircleReading({...state,onboardingDone:false,ageConfirmed:false},forecast).history.length,0);
- assert.deepEqual(withBalance(saved,balance({plus:true,packs:7,used:3})),{...saved,plus:true,credits:7,usage:{day:'2026-10-04',count:3}});
+ assert.deepEqual(withBalance(saved,balance({plus:true,packs:7,used:3})),{...saved,balanceSnapshot:{owner:viewer,asOf:'2026-10-04T00:00:00.000001Z'},plus:true,credits:7,usage:{day:'2026-10-04',count:3}});
 });
 
 test('the StoreKit test configuration matches the store catalog and trial',async()=>{
@@ -170,4 +170,9 @@ test('every ask identity field participates in the server ledger key',async t=>{
   assert.equal((await meter.charge(viewer,key)).used,keys.size);
  }
  assert.equal(await meter.authorizeCharge(viewer,requestId,{friend:false,question:'  Will I finish my course?  '}),first);
+});
+
+test('balances require an owner and a database timestamp with microsecond precision',()=>{
+ assert.equal(validBalance(balance()),true);
+ for(const patch of [{owner:undefined},{owner:''},{asOf:undefined},{asOf:'not a date'},{asOf:'2026-10-04T00:00:00.001Z'},{asOf:'2026-10-04T99:00:00.000001Z'}])assert.equal(validBalance(balance(patch)),false);
 });

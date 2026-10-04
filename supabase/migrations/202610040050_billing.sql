@@ -20,14 +20,20 @@ revoke all on public.pack_purchases,public.reading_charges from public,anon,auth
 
 -- Free: 1 reading per UTC day; Plus: 10. Packs cover readings beyond the daily allowance and never expire.
 create function public.reading_balance(viewer uuid) returns jsonb
- language sql stable security definer set search_path='' as $$
- select jsonb_build_object(
+ language plpgsql volatile security definer set search_path='' as $$
+ begin
+ insert into public.social_profiles(user_id) values(viewer) on conflict do nothing;
+ perform 1 from public.social_profiles where user_id=viewer for update;
+ return (select jsonb_build_object(
+  'owner',viewer,
+  'asOf',to_char(clock_timestamp() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'),
   'plus',coalesce(p.plus_until>now(),false),
   'plusUntil',p.plus_until,
   'packs',coalesce(p.packs,0),
   'used',(select count(*) from public.reading_charges c where c.user_id=viewer and c.day=(now() at time zone 'UTC')::date),
   'day',(now() at time zone 'UTC')::date)
- from (select viewer) v left join public.social_profiles p on p.user_id=v.viewer;
+ from public.social_profiles p where p.user_id=viewer);
+ end;
 $$;
 
 -- Idempotent per reading: retrying the same reading never charges twice.

@@ -14,11 +14,11 @@ export const trialProduct='cb_plus_weekly',plusEntitlement='plus';
 export const manageSubscriptionsUrl='https://apps.apple.com/account/subscriptions';
 export const packReadings=(product:string)=>packs.find(p=>p.product===product)?.readings;
 // Server-owned reading balance. The client only displays it.
-export type Balance={plus:boolean;plusUntil:string|null;packs:number;used:number;day:string};
+export type Balance={owner:string;asOf:string;plus:boolean;plusUntil:string|null;packs:number;used:number;day:string};
 export function validBalance(value:unknown):value is Balance{
  if(!value||typeof value!=='object')return false;
  const b=value as Record<string,unknown>;
- return typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day);
+ return typeof b.owner==='string'&&b.owner.length>0&&typeof b.asOf==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(b.asOf)&&Number.isFinite(Date.parse(b.asOf))&&typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day);
 }
 export const dailyReadings=(plus:boolean)=>plus?10:1;
 export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'>)=>Math.max(0,dailyReadings(b.plus)-b.used)+b.packs;

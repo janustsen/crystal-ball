@@ -35,7 +35,7 @@ type Tab='Home'|'Sky'|'Ask'|'History'|'You';
 const storeNotice='Purchases are available in the Crystal Ball iOS app.';
 const suggestions=['What will my net worth be in 10 years?','Will I be conversational in Spanish in six months?','Where will I live next year?'];
 export default function App(){
- const {state,ready,backupBusy,hydrationError,retryHydration,update,remaining,savePrediction,forgetAll,beginBalance,applyBalance}=useStore(),insets=useSafeAreaInsets(),{height}=useWindowDimensions();
+ const {state,ready,backupBusy,hydrationError,retryHydration,update,remaining,savePrediction,forgetAll,applyBalance}=useStore(),insets=useSafeAreaInsets(),{height}=useWindowDimensions();
  const params=useLocalSearchParams<{social?:string;question?:string;friend?:string;circle?:string;seal?:string}>();
  const [tab,setCurrentTab]=useState<Tab>('Home'),[flow,setFlow]=useState<Flow>({stage:'ask'}),[question,setQuestion]=useState(''),[choice,setChoice]=useState(''),[other,setOther]=useState(''),[notice,setNotice]=useState(''),[undoFact,setUndoFact]=useState<{key:string;value:string}|null>(null),[why,setWhy]=useState(false),[reviewing,setReviewing]=useState(false),[share,setShare]=useState(false),[capture,setCapture]=useState(false),[paywall,setPlansVisible]=useState(false),[systemReduce,setSystemReduce]=useState(false),[edit,setEdit]=useState<string|null>(null),[editValue,setEditValue]=useState(''),[longWait,setLongWait]=useState(false),[planChoice,setPlanChoice]=useState<PlanKind>('weekly'),[offers,setOffers]=useState<Offer[]|null>(null),[buying,setBuying]=useState(false);
  function setTab(next:Tab){router.setParams({seal:undefined});setCurrentTab(next)}
@@ -70,21 +70,21 @@ export default function App(){
  async function begin(){
   const issue=personQuestionIssue(question,personMode?personName.trim():undefined);if(issue){setNotice(issue);return;}
   if(!question.trim()||!ready||backupBusy||aiProvider&&!aiAllowed||!canRead(state))return;if(remaining<=0&&!askIds.current.has(askIdentity(question))){setPaywall(true);return;}
-  const identity=askIdentity(question),requestId=askId(identity),balanceRequest=friendTarget?beginBalance():undefined;
+  const identity=askIdentity(question),requestId=askId(identity);
   const id=++generation.current;controller.current?.abort();const abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);
   setFlow({stage:'planning',question});setNotice('');
-  try{if(friendTarget){const {balance,...result}=await friendForecast(question,friendTarget,abort.signal,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;const reading=assignEdition(result,state.plus);lastReading.current=null;await savePrediction(reading,{},balance,balanceRequest);askIds.current.delete(identity);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(question)).catch(()=>{});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);return;}const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
+  try{if(friendTarget){const {balance,...result}=await friendForecast(question,friendTarget,abort.signal,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;const reading=assignEdition(result,state.plus);lastReading.current=null;await savePrediction(reading,{},balance);askIds.current.delete(identity);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(question)).catch(()=>{});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);return;}const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
    if(result.kind==='ok'){setFlow({stage:'cards',question,plan:result.value,answers:{},index:0});setChoice('');setOther('')}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question,message:result.message});
   }catch{if(id===generation.current)setFlow({stage:'error',question,message:abort.signal.aborted?'The Ball took too long. A reading may have been used; retry this question without another reading charge.':'The mist is too thick. A reading may have been used; retry this question without another reading charge.'})}finally{clearTimeout(timeout)}
  }
  async function reveal(plan:Plan,answers:Facts,q:string){
   if(!ready||!canRead(state)||predicting.current)return;if(remaining<=0&&!askIds.current.has(askIdentity(q))){setPaywall(true);return;}
-  const identity=askIdentity(q),requestId=askId(identity),balanceRequest=beginBalance();
+  const identity=askIdentity(q),requestId=askId(identity);
   predicting.current=true;lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
   try{const result=await request<Prediction>('predict',q,{...(friend||personMode?{}:personalFacts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
-   if(result.kind==='ok'){const reading=assignEdition(result.value,state.plus);await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance,balanceRequest);askIds.current.delete(identity);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
+   if(result.kind==='ok'){const reading=assignEdition(result.value,state.plus);await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance);askIds.current.delete(identity);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});
   }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:abort.signal.aborted?'The Ball took too long. Your answers are kept. A reading may have been used; retry without another reading charge.':'The mist is too thick. Your answers are kept. A reading may have been used; retry without another reading charge.',retry:{plan,answers}})}finally{clearTimeout(timeout);if(id===generation.current)predicting.current=false}
  }
@@ -99,21 +99,21 @@ export default function App(){
    const offer=offers?.find(o=>o.kind===kind);if(!offer){setNotice('This option is not available from the App Store yet. Please try again shortly.');return}
    setBuying(true);
    try{if(await buy(offer)==='cancelled'){setBuying(false);return}}catch{setNotice('The purchase could not be confirmed. Check your App Store purchases, then tap Restore purchases.');setBuying(false);return}
-   try{const request=beginBalance();await applyBalance(await syncStoreBalance(),request);setNotice(done)}catch{setNotice('Your purchase went through. Your readings will appear shortly; tap Restore purchases if they do not.')}finally{setBuying(false)}
+   try{await applyBalance(await syncStoreBalance());setNotice(done)}catch{setNotice('Your purchase went through. Your readings will appear shortly; tap Restore purchases if they do not.')}finally{setBuying(false)}
    return;
   }
   if(purchaseMode!=='mock'){setNotice(storeNotice);return}
   if(!serverMetered){update(s=>({...s,plus:pack?s.plus:true,credits:s.credits+(pack?.readings??0)}));setNotice('Test purchase complete. No payment was taken.');return}
-  setBuying(true);try{const request=beginBalance();await applyBalance(await simulatePurchase(kind),request);setNotice('Test purchase complete. No payment was taken.')}catch(error){setNotice(error instanceof Error?error.message:'The test purchase failed.')}finally{setBuying(false)}
+  setBuying(true);try{await applyBalance(await simulatePurchase(kind));setNotice('Test purchase complete. No payment was taken.')}catch(error){setNotice(error instanceof Error?error.message:'The test purchase failed.')}finally{setBuying(false)}
  }
  async function restorePurchases(){
   if(purchaseMode==='mock'){setNotice('Test mode has no App Store purchases to restore. Your local preview balance is already loaded.');return}
   if(!storeAvailable){setNotice(storeNotice);return}
-  setBuying(true);try{const request=beginBalance();await applyBalance(await restore(),request);setNotice('Purchases restored.')}catch{setNotice('Purchases could not be restored. Check your connection and try again.')}finally{setBuying(false)}
+  setBuying(true);try{await applyBalance(await restore());setNotice('Purchases restored.')}catch{setNotice('Purchases could not be restored. Check your connection and try again.')}finally{setBuying(false)}
  }
  async function endSimulatedPlus(){
   if(!serverMetered){update(s=>({...s,plus:false}));setNotice('Simulated Plus is off. No subscription or payment to cancel.');return}
-  try{const request=beginBalance();await applyBalance(await simulatePurchase('off'),request);setNotice('Simulated Plus is off. No subscription or payment to cancel.')}catch(error){setNotice(error instanceof Error?error.message:'Simulated Plus could not be turned off.')}
+  try{await applyBalance(await simulatePurchase('off'));setNotice('Simulated Plus is off. No subscription or payment to cancel.')}catch(error){setNotice(error instanceof Error?error.message:'Simulated Plus could not be turned off.')}
  }
  const prediction=flow.stage==='reveal'?flow.prediction:null;
  const onboarding=!canRead(state);

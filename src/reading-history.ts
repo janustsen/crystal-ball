@@ -18,5 +18,5 @@ export function saveCircleReading(state:AccountState,forecast:CircleForecast):Ac
 }
 // The server balance replaces the device's cached plan, packs and daily count.
 export function withBalance(state:AccountState,balance:Balance):AccountState{
- return {...state,plus:balance.plus,credits:balance.packs,usage:{day:balance.day,count:balance.used}};
+ return {...state,balanceSnapshot:{owner:balance.owner,asOf:balance.asOf},plus:balance.plus,credits:balance.packs,usage:{day:balance.day,count:balance.used}};
 }
