@@ -55,3 +55,9 @@ Sizes: backdrops 1290×2796 (3x of 430×932), the stand and ball layers 3x of a 
 ## Provenance
 
 Every generated file is listed in `docs/art/provenance.json`. Hand edits (crop, key, defringe) are recorded as processing steps. Generated art is reviewed before use, so no recognisable third-party characters, marks or styles ship.
+
+## Authorized Gemini browser concept pass (2026-10-04)
+
+The concept pass uses the captain-authorized Temporary chat on the MacBook through `/tmp/cb-gjs.sh`, confined to its existing window. The one-off browser helper submitted the same prompt table and retrieved generated blob images through a canvas. Browser authorization was then revoked in inbox 020; the driver was stopped and removed. It must not be rerun. It does not read other chats or automate another browser window. `generate-art.mjs --prompts` prints the prompt table; `--import <names>` processes locally retrieved PNGs without an API key. The UI shows Pro, but does not expose the image model; provenance therefore records **Gemini web, undisclosed image model**, not an assumed Nano Banana version.
+
+The retrieved preview images are typically 1024 pixels on their longest edge. Responsive WebP variants never upscale them; `@3x` is the variant name, not a claim of native 3× resolution. Production art resolution, alpha edges and motion need another review after the direction is selected. Concept generation intentionally covers the ball, stands, backdrops, panels and memory jars first. Dedicated charms, tags and reveal effects are still pending and are identified in the study.

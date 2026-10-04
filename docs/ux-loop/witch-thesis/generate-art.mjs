@@ -58,19 +58,27 @@ async function keyLight(buffer){
 }
 // Solid objects: remove the magenta field, soften the edge and pull magenta spill out of fringe pixels.
 async function keySolid(buffer){
- const {data,info}=await sharp(buffer).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ // Gemini web can add an unrequested white margin outside the chroma field.
+ const margin=await sharp(buffer).trim({threshold:15}).toBuffer();
+ const dimensions=await sharp(margin).metadata();
+ const trimmed=await sharp(margin).extract({left:3,top:3,width:dimensions.width-6,height:dimensions.height-6}).toBuffer();
+ const {data,info}=await sharp(trimmed).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  for(let i=0;i<data.length;i+=4){const [r,g,b]=[data[i],data[i+1],data[i+2]],spill=Math.min(r,b)-g;
   if(spill>90&&r>150&&b>150)data[i+3]=0;else if(spill>30){data[i+3]=Math.max(0,255-(spill-30)*4);data[i]=data[i+2]=Math.min(r,b,g+30)}}
  return sharp(data,{raw:info}).trim({threshold:1}).png().toBuffer();
 }
-const want=new Set(process.argv.slice(2));
+const args=process.argv.slice(2);
+const prompts=assets.map(([name,kind,aspect,size,subject])=>({name,kind,aspect,size,prompt:`${style} ${subject} ${kind==='light'?light:kind==='solid'?solid:backdrop}`}));
+if(args.includes('--prompts')){console.log(JSON.stringify(prompts));process.exit(0)}
+const importing=args.includes('--import');
+const want=new Set(args.filter(a=>a!=='--import'));
 await mkdir(out,{recursive:true});await mkdir(raw,{recursive:true});
-const provenance=await readFile(ledger,'utf8').then(JSON.parse).catch(()=>[]);
-const apiKey=await key();
+let provenance=await readFile(ledger,'utf8').then(JSON.parse).catch(()=>[]);
+const apiKey=importing?null:await key();
 for(const [name,kind,aspect,size,subject] of assets){
  if(want.size?!want.has(name):await access(`${out}/${name}@3x.webp`).then(()=>true,()=>false))continue;
  const prompt=`${style} ${subject} ${kind==='light'?light:kind==='solid'?solid:backdrop}`;
- let image,attempt=0;
+ let image=importing?await readFile(`${raw}/${name}.png`):null,attempt=0;
  for(;attempt<3&&!image;attempt++)try{image=await generate(apiKey,prompt,aspect)}catch(error){console.error(name,'attempt',attempt+1,error.message)}
  if(!image){console.error('FAILED',name);continue}
  await writeFile(`${raw}/${name}.png`,image);
@@ -79,7 +87,8 @@ for(const [name,kind,aspect,size,subject] of assets){
   const meta=await sharp(keyed).metadata(),long=Math.round(size*factor),fit=meta.width>=meta.height?{width:long}:{height:long};
   await sharp(keyed).resize({...fit,withoutEnlargement:true}).webp({quality:82,alphaQuality:90}).toFile(`${out}/${name}@${scale}.webp`);
  }
- provenance.push({file:`${name}@{1x,2x,3x}.webp`,model,prompt,aspect,kind,date:new Date().toISOString(),attempts:attempt,rawSha256:createHash('sha256').update(image).digest('hex'),processing:kind==='light'?'luminance to alpha, resize, WebP q82':kind==='solid'?'magenta chroma key, spill suppression, trim, resize, WebP q82':'resize, WebP q82'});
+ provenance=provenance.filter(p=>p.file!==`${name}@{1x,2x,3x}.webp`);
+ provenance.push({source:importing?'Gemini web, authorized Temporary chat, Pro selected; underlying image model not exposed':'Gemini API',file:`${name}@{1x,2x,3x}.webp`,model:importing?'Gemini web (undisclosed image model)':model,prompt,aspect,kind,date:new Date().toISOString(),attempts:attempt,rawSha256:createHash('sha256').update(image).digest('hex'),processing:kind==='light'?'luminance to alpha, resize, WebP q82':kind==='solid'?'outer margin trim plus 3px fringe crop, magenta chroma key, spill suppression, trim, resize, WebP q82':'resize, WebP q82'});
  await writeFile(ledger,JSON.stringify(provenance,null,1)+'\n');
  console.log('generated',name);
 }
