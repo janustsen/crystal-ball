@@ -3,12 +3,12 @@ import {KeyboardAvoidingView,Modal,Platform,Pressable,TextInput,View} from 'reac
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Atmosphere} from './Atmosphere';
 import {useStore} from './store';
-import {Action,Input,Txt,colors,fonts,styles} from './ui';
+import {PaperButton,Input,Txt,colors,fonts,styles} from './ui';
 
 export function ExpandableInput({editorTitle,...props}:React.ComponentProps<typeof Input>&{editorTitle:string}){
  const {state}=useStore();
  const insets=useSafeAreaInsets(),field=useRef<TextInput>(null);
- const [draft,setDraft]=useState<string|null>(null),[focused,setFocused]=useState(false);
+ const [draft,setDraft]=useState<string|null>(null);
  function close(save:boolean){if(save&&draft!==null)props.onChangeText?.(draft);setDraft(null);}
  return <>
   <Input {...props}/>
@@ -17,11 +17,13 @@ export function ExpandableInput({editorTitle,...props}:React.ComponentProps<type
    <KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={{flex:1,backgroundColor:colors.ink,paddingTop:Math.max(insets.top,12),paddingBottom:Math.max(insets.bottom,12)}}>
     <Atmosphere reduce={state.reduceMotion} mood="utility" focused/>
     <View style={{flex:1,width:'100%',maxWidth:430,alignSelf:'center',paddingHorizontal:24}}>
-     <Pressable testID="editor-cancel" accessibilityRole="button" accessibilityLabel="Cancel" onPress={()=>close(false)} style={{minHeight:48,alignSelf:'flex-start',justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ Cancel</Txt></Pressable>
-     <Txt accessibilityRole="header" display style={{fontSize:22,lineHeight:28,marginVertical:12}}>{editorTitle}</Txt>
-     <View style={{flex:1,minHeight:80,borderWidth:focused?2:1,borderColor:focused?colors.ice:'#79634A',borderRadius:12,paddingVertical:focused?11:12,marginBottom:8}}><Input fill ref={field} onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)} testID="expanded-input" accessibilityLabel={props.accessibilityLabel||editorTitle} multiline value={draft||''} onChangeText={setDraft} maxLength={props.maxLength} placeholder={props.placeholder} placeholderTextColor={colors.muted} style={[styles.input,{flex:1,minHeight:80,fontFamily:fonts.body,fontSize:18,lineHeight:26,textAlignVertical:'top',borderWidth:0,marginVertical:0,paddingVertical:4,paddingHorizontal:focused?11:12}]}/></View>
-     {props.maxLength?<Txt testID="editor-capacity" style={styles.caption}>{draft?.length||0} / {props.maxLength} characters</Txt>:null}
-     <Action testID="editor-done" label="Done" onPress={()=>close(true)}/>
+     <Txt accessibilityRole="header" display style={{fontSize:18,lineHeight:24,marginBottom:8}}>{editorTitle}</Txt>
+     <View style={{flex:1,minHeight:80,marginBottom:4}}><Input fill ref={field} testID="expanded-input" accessibilityLabel={props.accessibilityLabel||editorTitle} multiline value={draft||''} onChangeText={setDraft} maxLength={props.maxLength} placeholder={props.placeholder} placeholderTextColor={colors.muted} style={[styles.input,{flex:1,minHeight:80,fontFamily:fonts.body,fontSize:18,lineHeight:26,textAlignVertical:'top',borderWidth:0,marginVertical:0,paddingVertical:12,paddingHorizontal:12}]}/></View>
+     {props.maxLength?<Txt testID="editor-capacity" style={{fontSize:12,lineHeight:16}}>{draft?.length||0} / {props.maxLength} characters</Txt>:null}
+     <View style={{flexDirection:'row',alignItems:'center',gap:12,marginTop:4}}>
+      <Pressable testID="editor-cancel" accessibilityRole="button" accessibilityLabel="Cancel" onPress={()=>close(false)} style={{flex:1,minHeight:56,justifyContent:'center'}}><Txt style={{fontSize:18,lineHeight:24,color:colors.ice}}>Cancel</Txt></Pressable>
+      <PaperButton wood testID="editor-done" accessibilityRole="button" accessibilityLabel="Done" onPress={()=>close(true)} style={{flex:1,marginTop:0}}><Txt display style={{fontSize:18,lineHeight:24,color:colors.ice}}>Done</Txt></PaperButton>
+     </View>
     </View>
    </KeyboardAvoidingView>
   </Modal>

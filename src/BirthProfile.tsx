@@ -1,7 +1,7 @@
 import {Paper} from './Paper';
 import {useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,BackHandler,Platform,Pressable,View,type TextInput} from 'react-native';
-import {Input,Action,Txt,styles,colors} from './ui';
+import {Input,Action,PaperButton,Txt,styles,colors} from './ui';
 import {useStore} from './store';
 import {formatCalendarDate} from './retention';
 import {BirthdayInput} from './BirthdayInput';
@@ -53,7 +53,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   const saved=chartStatus==='saved';
   const message=chartStatus==='no-results'?'No matching city. Check the spelling or try a nearby town for an approximate chart.':chartStatus==='search-error'?'City search is unavailable. Try again.':chartStatus==='calculation-error'?'The chart could not be calculated. Try again.':chartStatus==='forgotten'?'Birth time and place forgotten. Your birthday is kept.':'';
   return <View>
-   <Pressable testID="close-birth-details" accessibilityRole="button" accessibilityLabel={chartStep==='city'&&!saved?'Back to birth time':'Back to You'} onPress={backChart} style={{alignSelf:'flex-start',minHeight:44,minWidth:44,justifyContent:'center',marginBottom:8}}><Txt style={{color:colors.ice}}>{chartStep==='city'&&!saved?'‹ Birth time':'‹ You'}</Txt></Pressable>
+   <Pressable testID="close-birth-details" accessibilityRole="button" accessibilityLabel={chartStep==='city'&&!saved?'Back to birth time':'Back to You'} onPress={backChart} style={{alignSelf:'center',minHeight:44,minWidth:44,justifyContent:'center',marginBottom:8}}><Txt style={{color:colors.ice}}>{chartStep==='city'&&!saved?'‹ Birth time':'‹ You'}</Txt></Pressable>
    <Txt testID="birth-details-heading" accessibilityRole="header" display style={{fontSize:22,lineHeight:28}}>{saved?'Your Moon and rising':chartStep==='time'?'Your birth time':'Your birth city'}</Txt>
    {saved?<>
     <Txt accessibilityLiveRegion="polite" style={[styles.caption,{color:colors.gold,marginTop:16}]}>Calculated and saved on this device.</Txt>
@@ -81,7 +81,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
      {chartStatus==='no-results'||chartStatus==='search-error'?<Txt accessibilityRole="alert" style={{marginVertical:8}}>{message}</Txt>:null}
      <Action testID="find-birth-city" label={busy?'Finding your city…':chartStatus==='search-error'?'Retry city search':'Find birth city'} disabled={busy||place.trim().length<2} onPress={search}/>
      {places.length?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:20}]}>Select your birth city</Txt>:null}
-     {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet onPress={()=>{setSelected(p);setPlaces([]);setChartStatus('idle')}}/>)}
+     {places.map(p=><PaperButton key={`${p.latitude},${p.longitude}`} accessibilityRole="button" accessibilityLabel={p.name} onPress={()=>{setSelected(p);setPlaces([]);setChartStatus('idle')}}><Txt>{p.name.split(',')[0]}</Txt><Txt style={styles.caption}>{p.name.split(',').slice(1).join(',').trim()}</Txt></PaperButton>)}
     </>}
     {!message&&chartStatus!=='time-error'?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{busy?'Finding matching cities…':selected?(validBirthTime(time)?'Ready to calculate and save.':'Add your local birth time to continue.'):places.length?'':'Find and select your birth city to continue.'}</Txt>:null}
     {chartStatus==='calculation-error'?<Txt accessibilityRole="alert" style={{marginTop:12}}>{message}</Txt>:null}

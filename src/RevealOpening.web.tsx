@@ -1,4 +1,5 @@
 import {Orb,Action} from './ui';
+import {Image} from 'react-native';
 import {useOpening,type OpeningProps} from './useOpening';
 import type {CSSProperties} from 'react';
 const css=`
@@ -7,7 +8,7 @@ const css=`
 .opening-object{position:relative;width:240px;height:270px;animation:orb-charge var(--release) ease-in-out both}
 .opening-object .halo,.opening-object .pool,.opening-object .orb::before{display:none}
 .opening-object .gb{animation:none!important}
-.opening-fracture{position:absolute;left:0;top:0;width:240px;height:240px;animation:seam-charge var(--release) ease-in both;pointer-events:none}
+.opening-fracture{position:absolute;left:14px;top:0;width:213px;height:213px;border-radius:50%;overflow:hidden;mix-blend-mode:screen;animation:seam-charge var(--release) ease-in both;pointer-events:none}
 .opening-mist{position:absolute;inset:-16px;border-radius:50%;background:radial-gradient(ellipse at 45% 55%,#e0a45855,transparent 65%);animation:mist-release var(--release) ease-out both;pointer-events:none}
 .opening-ring{position:absolute;inset:30px 10px 50px;border:2px solid var(--accent);border-radius:50%;animation:opening-ring 450ms ease-out var(--charge) both;pointer-events:none}
 .opening-ember{position:absolute;left:50%;top:45%;width:3px;height:6px;border-radius:50%;background:var(--accent);animation:opening-ember 450ms ease-out var(--charge) both;pointer-events:none}
@@ -26,7 +27,7 @@ const css=`
 export function RevealOpening(props:OpeningProps){
  const {phase,finish}=useOpening(props),{golden,reduce,children}=props;
  return <><style>{css}</style>{phase==='opening'?<div data-testid="reveal-opening" className="opening-stage" style={{'--charge':`${golden?1150:900}ms`,'--release':`${golden?1350:1100}ms`,'--accent':golden?'#F2C284':'#C49B68'} as CSSProperties}>
-  <div aria-hidden="true" className="opening-object"><Orb size={240} reduce/><svg className="opening-fracture" viewBox="0 0 240 240"><path d="M120 14 L110 70 L128 120 L118 166 L123 225 M128 120 L151 141 L157 179" stroke="var(--accent)" strokeWidth="2" fill="none"/></svg><div className="opening-mist"/><div className="opening-ring"/>{Array.from({length:golden?12:8},(_,i)=>{const angle=i*Math.PI*2/(golden?12:8);return <i key={i} className="opening-ember" style={{'--x':`${Math.cos(angle)*130}px`,'--y':`${Math.sin(angle)*110}px`} as CSSProperties}/>})}</div>
+  <div aria-hidden="true" className="opening-object"><Orb size={240} reduce/><div className="opening-fracture"><Image source={require('../assets/apothecary/smoke.webp')} style={{width:'100%',height:'100%',opacity:.7}}/></div><div className="opening-mist"/><div className="opening-ring"/>{Array.from({length:golden?12:8},(_,i)=>{const angle=i*Math.PI*2/(golden?12:8);return <i key={i} className="opening-ember" style={{'--x':`${Math.cos(angle)*130}px`,'--y':`${Math.sin(angle)*110}px`} as CSSProperties}/>})}</div>
   <div className="opening-skip"><Action testID="skip-reveal" label="Show forecast" quiet onPress={finish}/></div>
  </div>:<div data-testid="reveal-content" className={`opening-content${phase==='payoff'?` opening-payoff${reduce?' calm':''}`:''}`}>{children}</div>}</>;
 }

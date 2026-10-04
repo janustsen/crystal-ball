@@ -29,10 +29,10 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   if(step===1&&birthday.trim()){onFinish({birthday:birthday.trim()});return;}
   setConfirming(true);
  }
- if(blocked&&!correcting)return <View style={{paddingTop:32}}><Txt style={[styles.caption,{color:colors.gold}]}>Age requirement</Txt><Txt testID="age-restriction" accessibilityRole="header" display style={{fontSize:30,lineHeight:36,marginVertical:16}}>Crystal Ball is for ages 13 and up.</Txt><Txt>You cannot continue with the age you entered.</Txt><Txt style={[styles.caption,{marginTop:16}]}>If you entered it incorrectly, you can correct your birthday.</Txt><Action testID="correct-birthday" label="Correct my birthday" quiet onPress={()=>{setBirthday('');setError('');setStep(0);setCorrecting(true)}}/></View>;
+ if(blocked&&!correcting)return <View style={{paddingTop:32}}><Txt style={[styles.caption,{color:colors.gold}]}>Age requirement</Txt><Txt testID="age-restriction" accessibilityRole="header" display style={{fontSize:30,lineHeight:36,marginVertical:16}}>Ages 13 and up.</Txt><Txt>You cannot continue with the age you entered.</Txt><Txt style={[styles.caption,{marginTop:16}]}>If you entered it incorrectly, you can correct your birthday.</Txt><Action testID="correct-birthday" label="Correct my birthday" onPress={()=>{setBirthday('');setError('');setStep(0);setCorrecting(true)}}/></View>;
  if(confirming&&!blocked)return <><Txt testID="age-confirmation-heading" accessibilityRole="header" display>Are you 13 or older?</Txt><Txt style={[styles.caption,{marginTop:12}]}>No birthday needed.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
  return <>
-  <Txt display style={{marginTop:30,marginBottom:16}}>Come inside.</Txt>
+
 
   <Txt style={styles.caption}>{step+1} of 2</Txt>
   <Txt testID={step===1?'onboarding-focus-heading':blocked?'age-correction-heading':'onboarding-birthday-heading'} accessibilityRole="header" display style={{marginTop:8,fontSize:22,lineHeight:28}}>{blocked&&step===0?'Correct your birthday':step===0?'Your birthday':'Your focus'}</Txt>

@@ -11,7 +11,7 @@ export function OrbVisual({size,reduce=false,phase}:{size:number;phase?:string;r
   return()=>{listener.remove();loop.stop()};
  },[reduce,breath]);
  return <View testID="painted-orb" pointerEvents="none" style={{width:size,height:size*1.125}}>
-  <View style={{position:'absolute',left:size*.07,bottom:-size*.015,width:size*.86,height:size*.12,borderRadius:size,backgroundColor:'#07040388',boxShadow:'0 5px 14px #080400'}}/>
+  <View style={{position:'absolute',left:size*.07,bottom:-size*.008,width:size*.86,height:size*.07,borderRadius:size,backgroundColor:'#080301dd',boxShadow:'0 3px 5px #070300, 0 9px 12px #090400cc, 0 -2px 5px #a86b2433'}}/>
   <Image source={require('../assets/apothecary/stand.webp')} style={{position:'absolute',left:size*.1,top:size*.73,width:size*.8,height:size*.395}} resizeMode="stretch"/>
   <View style={{position:'absolute',left:size*.055,top:0,width:size*.89,height:size*.89,borderRadius:size,overflow:'hidden',backgroundColor:'#20120B',boxShadow:'0 0 24px #d0923729'}}>
    <Image source={require('../assets/apothecary/interior.webp')} style={{position:'absolute',left:'-11%',top:'-11%',width:'122%',height:'122%'}}/>
