@@ -24,6 +24,8 @@ Prerequisites: `ffmpeg` (with the `libx264` encoder) and `ffprobe` on PATH, plus
 
 A full run takes about a minute per video.
 
+Run `node --test scripts/content/verify-capture.mjs` separately on the renderer’s Mac with project dependencies installed. This browser check exercises the capture guards against fixture omens and follow-up cards, including an omen refresh. It uses the same Chrome prerequisite as rendering and is outside the browser-free `npm test` suite; it does not replace a live-app render.
+
 ## Content rules
 
 Every hook comes from `hooks.mjs`, and `assertSafe` checks every caption and omen at render time (`tests/content-hooks.test.ts` covers the list):

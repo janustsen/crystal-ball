@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {chromium} from '@playwright/test';
-import {assertFollowUpSafe,assertHomeSafe} from '../scripts/content/capture-safety.mjs';
+import {assertFollowUpSafe,assertHomeSafe} from './capture-safety.mjs';
 
 test('capture checks reject unsafe displayed omens and every follow-up field',async()=>{
  const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -21,7 +21,7 @@ test('capture checks reject unsafe displayed omens and every follow-up field',as
   const rejected=assert.rejects(refreshed,/Content rule/);
   await page.waitForTimeout(100);
   assert.equal(settled,false);
-  await omen.evaluate((el,text)=>{el.textContent=text;el.parentElement!.setAttribute('aria-busy','false')},unsafe);
+  await omen.evaluate((el,text)=>{el.textContent=text;el.parentElement.setAttribute('aria-busy','false')},unsafe);
   await rejected;
 
   await page.setContent('<div><div id="question">How long have you been waiting?</div><div role="radiogroup"><button role="radio">A few days</button><button role="radio">A few weeks</button><button role="radio">✧ In my own words</button></div></div>');
