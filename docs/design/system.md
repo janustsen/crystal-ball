@@ -18,7 +18,7 @@ See [UI rules](ui-rules.md#navigation-and-the-17-states) for the current compone
 
 No sign-up gate. See [UI rules](ui-rules.md#navigation-and-the-17-states) for Sky navigation. Knowledge facts retain human labels, editable values and deletion. Friends' facts never enter the owner's knowledge.
 
-Paywall: Free 1/day; Plus $5.99/month or $39.99/year (10/day), packs 5/$1.99 and 20/$5.99. Billing period must remain clear alongside price, with no fake urgency. Simulated purchases take no money; Restore must tell the truth about mock state.
+Paywall offers, allowances, selection default and billing disclosures follow [prototype pricing](../research/pricing.md#paywall-rules-and-test). Restore must tell the truth about mock state.
 
 ## States and verification
 Reading generation has loading, timeout, retry and cancel; facts load before Ask becomes available. Daily omen availability follows the [daily generation policy](../../SETUP.md#daily-omen-widget-and-check-ins). Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items until Xcode/accounts exist. Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
