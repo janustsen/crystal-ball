@@ -65,4 +65,3 @@ On a development or TestFlight build signed in with an eligible Sandbox account:
 - Texas app-store age-signal plumbing; Android / Play billing; paywall placement experiments; App Store listing copy and screenshots.
 - Terms of Use (EULA) and Privacy Policy links on the paywall and in App Store metadata (App Review 3.1.2) once the URLs exist; the captain's paywall redesign owns their placement.
 - Consumable refunds are not clawed back from an already-credited pack balance.
-
