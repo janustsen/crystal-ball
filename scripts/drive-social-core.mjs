@@ -3,6 +3,7 @@ import {execFile} from 'node:child_process';
 import {openAuthenticatedPreview} from './preview-auth.mjs';
 import {promisify} from 'node:util';
 import {writeFile,rm,mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
 const exec=promisify(execFile),session=`cb-social-core-${Date.now()}`,env={...process.env,CHROME_DEVTOOLS_AXI_SESSION:session};
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
 await mkdir(evidenceDir,{recursive:true});
@@ -15,7 +16,7 @@ const click=id=>`await page.click('[data-testid="${id}"]');`;
 const expect=text=>`if(!(await page.eval(()=>document.body.innerText.replaceAll('\u00a0',' '))).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing ${text}`)});`;
 const expectForecastHorizon=String.raw`if(!/\b(?:6|six)\s+months\b/i.test(await page.eval(()=>document.querySelector('[data-testid="app-shell"] [aria-live="polite"] > :first-child')?.textContent||'')))throw Error('Forecast missing six-month horizon');`;
 async function shot(name){
- const path=`${process.cwd()}/${evidenceDir}/social-${name}.png`;await rm(path,{force:true});
+ const path=resolve(evidenceDir,`social-${name}.png`);await rm(path,{force:true});
  try{await exec('chrome-devtools-axi',['screenshot',path],{env})}catch(error){
   // Firstmate approved accepting a valid saved image when the CLI misreports its path.
   const sharp=(await import('sharp')).default;await sharp(path).metadata();

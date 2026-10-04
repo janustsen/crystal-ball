@@ -36,7 +36,7 @@ async function fixture(earlierUpload=false){
   './cloud':{mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length||state.circleCharges?.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
   './social':{publishCircleForecast:async()=>card,markCircleCharged:async()=>{}},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
-  './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
+  './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{},reopenCheckIn:()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  },warnings);
  const render=()=>h.render(()=>storeModule.Store({})).props.value;
  render();await tick();render();await tick();
