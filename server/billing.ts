@@ -41,9 +41,11 @@ export function billing(env:Env){
   if(typeof value?.id!=='string')throw new BillingError('Your session expired. Please try again.',401);
   return value.id as string;
  }
- async function authorizeCharge(viewer:string,key:unknown){
+ async function authorizeCharge(viewer:string,key:unknown,ask:{question:string;friend:boolean;personName?:string;circle?:string;member?:string;firstName?:string}){
   if(typeof key!=='string'||!uuid.test(key))throw new BillingError('Please start this question again.',400);
-  const reading=`ask:${key}`;
+  const identity=JSON.stringify([key.toLowerCase(),ask.question.trim(),ask.friend,ask.personName??null,ask.circle??null,ask.member??null,ask.firstName??null]);
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(identity));
+  const reading=`ask:${Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}`;
   const response=await fetch(`${base}/rest/v1/reading_charges?user_id=eq.${encodeURIComponent(viewer)}&reading_id=eq.${encodeURIComponent(reading)}&select=reading_id`,{headers:service,signal:AbortSignal.timeout(5000)});
   const charges=await response.json();
   if(!response.ok||!Array.isArray(charges))throw new Error('Your reading balance is unavailable. Please try again.');

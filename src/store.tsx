@@ -14,14 +14,16 @@ import {mirror,restoreBackup,supabase} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance,balanceRequest?:number)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;beginBalance:()=>number;applyBalance:(balance:Balance,request:number)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
- const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
+ const locked=useRef(true),current=useRef(state),accountVersion=useRef(0),balanceSequence=useRef(0);
  const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
  const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
+ const beginBalance=()=>++balanceSequence.current;
+ const balanced=(state:AccountState,balance:Balance,request:number|undefined)=>request===balanceSequence.current?withBalance(state,balance):state;
  function withArchiveLock<T>(action:()=>Promise<T>){
   locked.current=true;setBackupBusy(true);
   const work=archiveWork.current.catch(()=>{}).then(action);
@@ -38,7 +40,8 @@ export function Store({children}:React.PropsWithChildren){
    if(!active)return;
    clearTimeout(timer);
    if(serverMetered){
-    try{loaded=withBalance(loaded,await loadBalance())}catch{console.warn('Reading balance unavailable; showing the last saved balance.')}
+    const request=beginBalance();
+    try{loaded=balanced(loaded,await loadBalance(),request)}catch{console.warn('Reading balance unavailable; showing the last saved balance.')}
    }
    if(active){change(()=>loaded);locked.current=false;setReady(true)}
   })().catch(()=>{if(active)setHydrationError('Could not open your saved readings. Your archive has not been changed.')}).finally(()=>clearTimeout(timer));
@@ -57,10 +60,11 @@ export function Store({children}:React.PropsWithChildren){
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});await uploads.catch(()=>{});
    accountVersion.current++;
+   const request=beginBalance();
    try{await authenticate()}finally{
     if(serverMetered){
-     change(s=>withBalance(s,{plus:false,plusUntil:null,packs:0,used:0,day:new Date().toISOString().slice(0,10)}));
-     const balance=await loadBalance();change(s=>withBalance(s,balance));
+     change(s=>balanced(s,{plus:false,plusUntil:null,packs:0,used:0,day:new Date().toISOString().slice(0,10)},request));
+     const balance=await loadBalance();change(s=>balanced(s,balance,request));
     }
    }
    let next:AccountState;
@@ -86,22 +90,22 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
- async function applyBalance(balance:Balance){
+ async function applyBalance(balance:Balance,request:number){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});
    if(version!==accountVersion.current)throw new Error('Your account changed. Please refresh your balance.');
-   const next=withBalance(current.current,balance);
+   const next=balanced(current.current,balance,request);
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
   });
  }
- async function savePrediction(prediction:Prediction,facts:Facts={},balance?:Balance){
+ async function savePrediction(prediction:Prediction,facts:Facts={},balance?:Balance,balanceRequest?:number){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});
    if(version!==accountVersion.current)throw new Error('Your account changed. Please ask again.');
    const saved=saveReading(current.current,prediction);
-   const next={...(balance?withBalance(saved,balance):saved),facts:{...saved.facts,...facts}};
+   const next={...(balance?balanced({...saved,plus:current.current.plus,credits:current.current.credits,usage:current.current.usage},balance,balanceRequest):saved),facts:{...saved.facts,...facts}};
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
   });
  }
@@ -110,16 +114,17 @@ export function Store({children}:React.PropsWithChildren){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});
+   const request=beginBalance();
    const forecast=await publishCircleForecast(draft);
    const balance=serverMetered?await loadBalance().catch(()=>null):null;
-   const saved=saveCircleReading(current.current,forecast),next=balance?withBalance(saved,balance):saved;
+   const saved=saveCircleReading(current.current,forecast),next=balance?balanced(saved,balance,request):saved;
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
    return forecast;
   });
  }
 
  const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider value={{state,ready,hydrationError,publishCircle,beginBalance,applyBalance,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

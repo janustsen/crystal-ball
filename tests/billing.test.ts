@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {handler} from '../server/handler.ts';
-import {storeEntitlements,webhookUsers} from '../server/billing.ts';
+import {billing,storeEntitlements,webhookUsers} from '../server/billing.ts';
 import {readingsLeft} from '../src/billing.ts';
 import {saveCircleReading,withBalance,circleReading} from '../src/reading-history.ts';
 import type {AccountState} from '../src/types.ts';
@@ -46,7 +46,7 @@ test('a metered forecast is charged once, after success, with the server balance
  const result=await response.json();
  assert.equal(result.kind,'ok',JSON.stringify(result));
  const charges=b.calls.filter(c=>c.path.endsWith('/charge_reading'));
- assert.deepEqual(charges.map(c=>c.body),[{viewer,reading:`ask:${requestId}`}]);
+ assert.equal(charges.length,1);assert.equal(charges[0].body.viewer,viewer);assert.match(charges[0].body.reading,/^ask:[0-9a-f]{64}$/);
  assert.deepEqual(result.balance,balance({used:1}));
 });
 
@@ -128,7 +128,8 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry after
  const lost=await send();assert.equal(lost.status,200);await lost.body?.cancel();
  const retry=await send();assert.equal(retry.status,200);
  assert.equal((await retry.json()).balance.used,1);
- assert.deepEqual(b.calls.filter(c=>c.path.endsWith('/charge_reading')).map(c=>c.body),[{viewer,reading:`ask:${requestId}`},{viewer,reading:`ask:${requestId}`}]);
+ const charges=b.calls.filter(c=>c.path.endsWith('/charge_reading'));
+ assert.equal(charges.length,2);assert.deepEqual(charges[0].body,charges[1].body);
  assert.equal((await send('22222222-2222-4222-8222-222222222222')).status,402);
 });
 
@@ -139,4 +140,34 @@ test('metered predictions require a valid client ask key before inference',async
   assert.equal(response.status,400);
  }
  assert.equal(b.models(),0);assert.ok(!b.calls.some(c=>c.path.endsWith('/charge_reading')));
+});
+
+for(const friend of [false,true])test(`${friend?'friend':'personal'} reused client key charges a different question`,async t=>{
+ const b=boundary(t,{plus:true}),serve=handler(env());
+ const send=(question:string)=>serve(new Request(friend?'http://localhost/social':'http://localhost/',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify(friend?{action:'friend',requestId,question,firstName:'Alex',circle:'circle',member:'member'}:{action:'predict',requestId,question,facts:{context_1:'Daily practice',horizon:'next month'},ageConfirmed:true})}));
+ assert.equal((await send('Will I finish my course?')).status,200);
+ const different=await send('Will I complete my course?');assert.equal(different.status,200);
+ assert.equal((await different.json()).balance.used,2);
+ assert.equal((await (await send('Will I complete my course?')).json()).balance.used,2);
+ const charges=b.calls.filter(c=>c.path.endsWith('/charge_reading'));
+ assert.equal(b.calls.filter(c=>c.path.endsWith('/reading_balance')).length,2);
+ assert.notEqual(charges[0].body.reading,charges[1].body.reading);
+ assert.equal(charges[1].body.reading,charges[2].body.reading);
+});
+
+test('every ask identity field participates in the server ledger key',async t=>{
+ boundary(t,{plus:true});const meter=billing(env())!;
+ const original={question:'Will I finish my course?',friend:false};
+ const first=await meter.authorizeCharge(viewer,requestId,original);await meter.charge(viewer,first);
+ const keys=new Set([first]);
+ for(const change of [{question:'Will I finish another course?'},{friend:true},{personName:'Alex'},{circle:'circle'},{member:'member'},{firstName:'Alex'}]){
+  const ask={...original,...change};
+  const key=await meter.authorizeCharge(viewer,requestId,ask);
+  assert.ok(!keys.has(key));keys.add(key);
+  const charged=await meter.charge(viewer,key);
+  assert.equal(charged.used,keys.size);
+  assert.equal(await meter.authorizeCharge(viewer,requestId,ask),key);
+  assert.equal((await meter.charge(viewer,key)).used,keys.size);
+ }
+ assert.equal(await meter.authorizeCharge(viewer,requestId,{friend:false,question:'  Will I finish my course?  '}),first);
 });

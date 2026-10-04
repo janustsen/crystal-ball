@@ -38,7 +38,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     // A signed-in app expects metering; an engine without billing config must not serve it free.
     if(!meter&&request.headers.get('authorization'))throw new BillingError('Readings are unavailable right now. Please try again later.',503);
     const viewer=meter?await meter.user(request):null;
-    const charge=viewer?await meter!.authorizeCharge(viewer,'requestId' in body?body.requestId:undefined):null;
+    const charge=viewer?await meter!.authorizeCharge(viewer,'requestId' in body?body.requestId:undefined,{question,friend:'friend' in body&&body.friend===true,personName}):null;
     const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);
     return new Response(JSON.stringify(viewer&&result.kind==='ok'?{...result,balance:await meter!.charge(viewer,charge!)}:result),{headers});
    }

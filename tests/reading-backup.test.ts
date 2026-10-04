@@ -24,7 +24,7 @@ function load(path:string,imports:Record<string,any>,warnings:string[]){
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{}),AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)}});
  return module.exports;
 }
-async function fixture(earlierUpload=false){
+async function fixture(earlierUpload=false,api:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
  let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
@@ -34,6 +34,7 @@ async function fixture(earlierUpload=false){
  const storeModule=load('../src/store.tsx',{
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './cloud':{mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
+  './api':api,
   './social':{publishCircleForecast:async()=>card},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{},reopenCheckIn:()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
@@ -146,10 +147,10 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
  const backup=earlier.backup(mode,async()=>{owner='paid'});
  if(restoreFails)await assert.rejects(backup,/backup offline/);else await backup;
  let current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- await assert.rejects(earlier.applyBalance(oldBalance),/account changed/);
+ await assert.rejects(earlier.applyBalance(oldBalance,0),/account changed/);
  await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
  current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
- await current.applyBalance({...paidBalance,used:2});
+ await current.applyBalance({...paidBalance,used:2},current.beginBalance());
  current=render();assert.equal(current.remaining,13);
  await tick();assert.equal(JSON.parse(disk).plus,true);
 });
@@ -192,10 +193,10 @@ for(const fails of [false,true])test(`initial balance settles before purchases a
  await assert.rejects(opening.savePrediction({id:'premature'}),/wait for your archive/);
  await assert.rejects(opening.publishCircle('premature'),/wait for your archive/);
  await assert.rejects(opening.backup('restore',async()=>{}),/wait for your archive/);
- await assert.rejects(opening.applyBalance({...exhausted,packs:5}),/wait for your archive/);assert.equal(render().state.credits,0);
+ await assert.rejects(opening.applyBalance({...exhausted,packs:5},0),/wait for your archive/);assert.equal(render().state.credits,0);
  if(fails)fail(new Error('offline'));else finish(exhausted);
  await tick();const ready=render();assert.equal(ready.ready,true);assert.equal(ready.remaining,0);
- await ready.applyBalance({...exhausted,packs:5});
+ await ready.applyBalance({...exhausted,packs:5},ready.beginBalance());
  render();await tick();assert.equal(render().remaining,5);assert.equal(JSON.parse(disk).credits,5);
  assert.equal(warnings.length,fails?1:0);
 });
@@ -204,8 +205,46 @@ test('purchase balance waits for unrelated archive work instead of being discard
  const f=await fixture(true),store=f.render();
  const forgetting=store.forgetAll();await tick();
  let applied=false;
- const applying=store.applyBalance({plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)}).then(()=>{applied=true});
+ const applying=store.applyBalance({plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)},store.beginBalance()).then(()=>{applied=true});
  await tick();assert.equal(applied,false);
  f.fail();await forgetting;await applying;
  assert.equal(f.render().remaining,5);assert.equal(f.state().credits,5);
+});
+
+for(const older of ['purchase','reading'])test(`newer balance survives a delayed ${older} response`,async()=>{
+ const f=await fixture(),store=f.render(),day=new Date().toISOString().slice(0,10);
+ const before=store.beginBalance(),after=store.beginBalance();
+ const oldBalance={plus:false,plusUntil:null,packs:5,used:1,day};
+ const newBalance={...oldBalance,packs:4};
+ const reading={...readings.circleReading(f.card),circleId:undefined};
+ if(older==='purchase'){
+  await store.savePrediction(reading,{},newBalance,after);
+  await store.applyBalance(oldBalance,before);
+ }else{
+  await store.applyBalance(newBalance,after);
+  await store.savePrediction(reading,{},oldBalance,before);
+ }
+ assert.equal(f.state().credits,4);assert.equal(f.state().usage.count,1);
+ assert.equal(f.state().history.length,1);
+ f.render();await tick();f.fail();await tick();
+});
+
+test('balance requests superseded while queued cannot overwrite the latest balance',async()=>{
+ const f=await fixture(true),store=f.render();
+ const forgetting=store.forgetAll();await tick();
+ const balance={plus:false,plusUntil:null,packs:5,used:1,day:new Date().toISOString().slice(0,10)};
+ const older=store.applyBalance(balance,store.beginBalance());
+ const newer=store.applyBalance({...balance,packs:4},store.beginBalance());
+ f.fail();await forgetting;await older;await newer;
+ assert.equal(f.state().credits,4);assert.equal(f.render().remaining,4);
+});
+
+test('Circle publication supersedes an older purchase balance',async()=>{
+ const balance={plus:false,plusUntil:null,packs:4,used:1,day:new Date().toISOString().slice(0,10)};
+ const f=await fixture(false,{serverMetered:true,loadBalance:async()=>balance}),store=f.render();
+ const request=store.beginBalance();
+ await store.publishCircle('draft');
+ await store.applyBalance({...balance,packs:5},request);
+ assert.equal(f.state().credits,4);assert.equal(f.state().history.length,1);
+ f.render();await tick();f.fail();await tick();
 });
