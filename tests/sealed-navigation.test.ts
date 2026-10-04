@@ -18,11 +18,11 @@ function app(onboardingDone=true,history:any[]=[]){
   createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
-  useEffect:()=>{},
+  useEffect:()=>{},useLayoutEffect:()=>{},useCallback:(callback:any)=>callback,
  };
  const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true};
  const imports:Record<string,any>={
-  '../src/retention':retention,react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  '../src/retention':retention,react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844,width:390})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},
@@ -48,7 +48,7 @@ test('sealed landing allows existing users to navigate every tab and plans',()=>
   const next=render();
   assert.equal(params.seal,undefined,destination);
   assert.ok(!next.some(n=>n.type==='SealedCard'),destination);
-  if(destination==='plans')assert.ok(next.some(n=>n.props.label==='Continue with Plus · simulate'));
+  if(destination==='plans')assert.ok(next.some(n=>n.props.testID==='continue-with-plus-simulate'));
   if(destination==='sky')assert.ok(next.some(n=>n.type==='Social'));
  }
 });
@@ -74,6 +74,8 @@ test('Circle archive directs check-ins to Circles without personal prompts or re
  assert.ok(archive.some(n=>n.children.includes('Circle check-in · Vote in Circles')));
  archive.find(n=>n.props.accessibilityRole==='button'&&n.props.key==='forecast').props.onPress();
  assert.ok(!render().some(n=>n.props.testID==='remind-me-to-check-back'||n.props.testID==='check-in-yes'));
+ render().find(n=>n.props.testID==='reading-more').props.onPress();
+ assert.ok(!render().some(n=>n.props.testID==='remind-me-to-check-back'));
  render().find(n=>n.props.label==='Open Circle check-in').props.onPress();
  assert.equal(params.social,'circles');assert.ok(render().some(n=>n.type==='Social'));
  assert.equal(retention.personalCheckInDue({...reading,circleId:undefined}),true);

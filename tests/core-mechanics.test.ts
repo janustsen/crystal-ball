@@ -67,7 +67,7 @@ test('restored unanswered readings reopen reminders without clearing other saved
   await actions.cancelCheckIn('restored');await actions.cancelCheckIn('still-answered');
   assert.match(await actions.reminder('','restored'),/check-in is saved/);
   actions.reopenCheckIn('restored');
-  assert.match(await actions.reminder('','restored'),platform==='ios'?/reminder set/:/Native reminder preview/);
+  assert.match(await actions.reminder('','restored'),platform==='ios'?/reminder set/:/No reminder scheduled in this browser/);
   assert.equal(scheduled.length,platform==='ios'?2:0);
   assert.match(await actions.reminder('','still-answered'),/check-in is saved/);
   await actions.cancelCheckIn('restored');

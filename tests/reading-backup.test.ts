@@ -6,6 +6,7 @@ import ts from 'typescript';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
+import * as readingAnswers from '../src/reading-answers';
 
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function hooks(effectsEnabled=true){
@@ -13,6 +14,7 @@ function hooks(effectsEnabled=true){
  const react={
   createContext:()=>({Provider:'Provider'}),createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
+  useLayoutEffect:()=>{},useCallback:(callback:any)=>callback,
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:(effect:()=>void,deps:any[])=>{const i=cursor++;if(effectsEnabled&&(!slots[i]||deps.some((d,j)=>d!==slots[i][j]))){slots[i]=deps;effects.push(effect)}},
  };
@@ -47,7 +49,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal surv
  const f=await fixture(),h=hooks(false),params:any={};
  const reading={...readings.circleReading(f.card),circleId:undefined,friend};
  const app=load('../app/index.tsx',{
-  react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844,width:390})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,
@@ -55,6 +57,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal surv
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=> 'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
   '../src/social':{friendForecast:async()=>reading,checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
+  '../src/reading-answers':readingAnswers,
   '../src/questions':{validateAnswer:()=>{},factLabels:{}},
   '../src/api':{request:async(action:string)=>({kind:'ok',value:action==='predict'?reading:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
  },f.warnings);
@@ -63,7 +66,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal surv
  render().find(n=>n.props.testID==='tab-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will we learn?',friend,friend?{id:'friend'}:undefined);
  void render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
- if(!friend){render().find(n=>n.props.testID==='option-0').props.onPress();await tick()}
+ if(!friend){render().find(n=>n.props.testID==='option-0').props.onPress();render().find(n=>n.props.testID==='answer-next').props.onPress();await tick()}
  const revealed=render();await tick();
  assert.ok(revealed.some(n=>n.props.testID==='forecast-due-date'));
  assert.equal(f.state().credits,1);assert.equal(f.state().history.length,1);
