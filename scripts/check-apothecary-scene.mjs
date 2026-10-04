@@ -3,7 +3,7 @@ import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8098',out=process.env.UX_EVIDENCE||'.local/apothecary-scene';await mkdir(out,{recursive:true});
-const browser=await chromium.launch({channel:'chrome',headless:true});
+const browser=await chromium.launch({channel:'chrome',headless:process.env.SCENE_HEADFUL!=='1'});
 const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),checks=[];
 async function frames(label,action){
  const capture=page.evaluate(()=>new Promise(resolve=>{const times=[],long=[];const observer=new PerformanceObserver(list=>long.push(...list.getEntries().map(e=>e.duration)));observer.observe({entryTypes:['longtask']});let first=0,last=0;function frame(t){if(!first)first=t;if(last)times.push(t-last);last=t;if(t-first<3000){requestAnimationFrame(frame);return}observer.disconnect();const sorted=[...times].sort((a,b)=>a-b);resolve({fps:times.length*1000/(t-first),p95:sorted[Math.floor(sorted.length*.95)],max:Math.max(...times),longTasks:long})}requestAnimationFrame(frame)}));

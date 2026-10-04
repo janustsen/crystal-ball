@@ -7,7 +7,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import ts from 'typescript';
 
-const git = (...args) => execFileSync('git', args, {encoding: 'utf8'});
+const git = (...args) => execFileSync('git', args, {encoding: 'utf8', maxBuffer: 64 * 1024 * 1024});
 const testFile = path => /\.[cm]?[jt]sx?$/.test(path) && /(^|\/)(__tests__|tests?)\/|\.(test|spec)\.[cm]?[jt]sx?$/.test(path);
 
 function inspectSource(text, path) {
@@ -117,7 +117,7 @@ if (process.argv[2] === '--self-test') {
   assert.deepEqual(inspect(diff('', 'const value = config["only"];')), []);
   assert.deepEqual(inspect(diff('', 'const disabled = test.skip;')), ['test disable/focus added']);
   const fixture = mkdtempSync(join(tmpdir(), 'test-tampering-'));
-  const fixtureGit = (...args) => execFileSync('git', args, {cwd: fixture, encoding: 'utf8'}).trim();
+  const fixtureGit = (...args) => execFileSync('git', args, {cwd: fixture, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024}).trim();
   try {
     fixtureGit('init', '-q');
     fixtureGit('config', 'user.name', 'Test fixture');

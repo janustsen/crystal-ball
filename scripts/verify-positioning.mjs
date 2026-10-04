@@ -3,7 +3,7 @@ import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {httpCredentials,previewFetch} from './preview-auth.mjs';
-const base=process.env.VERIFY_URL||'http://localhost:8112',out='docs/evidence/positioning';
+const base=process.env.VERIFY_URL||'http://localhost:8112',out=process.env.POSITIONING_EVIDENCE||'docs/evidence/positioning';
 await mkdir(out,{recursive:true});await mkdir('.local/positioning-video',{recursive:true});
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
 expect(health).toMatchObject({app:'crystal-ball',provider:'ollama'});

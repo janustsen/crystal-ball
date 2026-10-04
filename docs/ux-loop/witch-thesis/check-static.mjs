@@ -24,8 +24,8 @@ for(const asset of ledger){
  }
 }
 const previewStatus=(await fetch('http://localhost:8098/concepts/witch-house.html')).status;
-const remoteStatus=(await fetch('http://janus-mac.tail8d2280.ts.net:8098/concepts/witch-house.html')).status;
+const remoteStatus=(await fetch(process.env.REMOTE_PREVIEW_URL||'http://localhost:8098/concepts/witch-house.html')).status;
 assert.equal(missing.length,0);assert.equal(previewStatus,200);assert.equal(remoteStatus,200);
 const result={scriptSyntax:'pass',assetCount:ledger.length,missing,alpha,previewStatus,remoteStatus,finalBrowserVerification:'not run: browser control revoked in inbox 020'};
 fs.writeFileSync('docs/ux-loop/witch-thesis/static-checks.json',JSON.stringify(result,null,2)+'\n');
-console.log('PASS: 13 assets, transparent solid corners, script syntax, local and Tailscale HTTP 200');
+console.log('PASS: 13 assets, transparent solid corners, script syntax, local and configured preview HTTP 200');

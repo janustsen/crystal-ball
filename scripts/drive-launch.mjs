@@ -1,10 +1,12 @@
 import {fillBirthday} from './fill-birthday.mjs';
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
-import {writeFile} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 const results=[];
+const evidence=process.env.LAUNCH_EVIDENCE||'docs/evidence';
+await mkdir(evidence,{recursive:true});
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
  await fillBirthday(page,'1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
@@ -18,7 +20,7 @@ try{
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
- await page.waitForTimeout(800);await page.screenshot({path:'docs/evidence/launch-you.png'});
+ await page.waitForTimeout(800);await page.screenshot({path:`${evidence}/launch-you.png`});
  await page.getByRole('button',{name:'Privacy and entertainment',exact:true}).click();
  await expect(page.getByText(/Forecasts are speculative entertainment/)).toBeVisible();
  results.push('You hides unavailable Apple backup and shows readable privacy details');
@@ -28,7 +30,7 @@ try{
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
- await page.screenshot({path:'docs/evidence/launch-you-large.png'});
+ await page.screenshot({path:`${evidence}/launch-you-large.png`});
  await expect(page.getByRole('tab',{name:'You',exact:true})).toBeVisible();
  results.push('Unavailable backup stays absent at 375px and 200% text; navigation remains visible');
  await page.getByTestId('tab-ask').click();
@@ -49,6 +51,6 @@ try{
   await page.getByTestId('type-instead').click();await expect(ask).toHaveText('Review AI consent');
   results.push('Named AI consent enables typing/voice reading and revoking restores review in both; no model call made');
  }
- await writeFile('docs/evidence/launch-ui.json',JSON.stringify({at:new Date().toISOString(),results},null,2));
+ await writeFile(`${evidence}/launch-ui.json`,JSON.stringify({at:new Date().toISOString(),results},null,2));
  console.log(results);
 }finally{await browser.close()}
