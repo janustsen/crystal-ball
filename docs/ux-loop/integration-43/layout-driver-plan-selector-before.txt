@@ -1,0 +1,35 @@
+Checked 390:onboarding-birthday
+Checked 390:onboarding-age
+Checked 390:onboarding-blocked
+Checked 390:onboarding-correction
+Checked 390:onboarding-focus
+Checked 390:onboarding-focus-selected
+Checked 390:home
+Checked 390:home-omen-policy
+Checked 390:sky
+Checked 390:circles
+Checked 390:circles-retry
+Checked 390:history
+Checked 390:you
+Checked 390:you-birthday
+Checked 390:you-birth-time
+Checked 390:you-birth-details
+Checked 390:paywall
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+locator.click: Error: strict mode violation: getByRole('radio').filter({ hasText: 'Monthly' }) resolved to 2 elements:
+    1) <div role="radio" tabindex="-1" aria-checked="false" class="css-g5y9jx r-1loqt21 r-1otgn73 r-1niwhzg r-qklmqi r-17gur6a r-1yadl64 r-1e084wi">…</div> aka getByRole('radio', { name: 'Monthly $5.99 each month.' })
+    2) <div role="radio" tabindex="-1" aria-checked="false" class="css-g5y9jx r-1loqt21 r-1otgn73 r-1niwhzg r-qklmqi r-17gur6a r-1yadl64 r-1e084wi">…</div> aka getByRole('radio', { name: 'Yearly $39.99 each year.' })
+
+Call log:
+[2m  - waiting for getByRole('radio').filter({ hasText: 'Monthly' })[22m
+
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-layout.mjs:82:60 {
+  log: [
+    "  - waiting for getByRole('radio').filter({ hasText: 'Monthly' })"
+  ]
+}
+
+Node.js v26.10.0
