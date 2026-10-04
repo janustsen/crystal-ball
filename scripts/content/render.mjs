@@ -7,6 +7,7 @@ import {join,resolve} from 'node:path';
 import {parseArgs} from 'node:util';
 import {httpCredentials,previewFetch} from '../preview-auth.mjs';
 import {assertSafe,forecasts,profileBirthday,receiptExamples,signs} from './hooks.mjs';
+import {assertFollowUpSafe,assertHomeSafe} from './capture-safety.mjs';
 
 const {values:opt}=parseArgs({options:{day:{type:'string',default:new Date().toLocaleDateString('en-CA')},a:{type:'string',default:'2'},b:{type:'string',default:'1'},c:{type:'string',default:'2'},out:{type:'string',default:process.env.CONTENT_OUT||'.local/content'}}});
 const base=process.env.VERIFY_URL||'http://localhost:8087',out=resolve(opt.out,opt.day),label='AI-generated';
@@ -82,6 +83,7 @@ async function profile(browser){
  const omen=page.waitForResponse(r=>{try{return r.request().postDataJSON()?.action==='omen'}catch{return false}},{timeout:90000});
  await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
  await omen;await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}').text,null,{timeout:10000}); // omenKey in src/daily-omen.ts
+ await assertHomeSafe(page);
  const state=await page.context().storageState();await page.context().close();return state;
 }
 
@@ -102,6 +104,7 @@ async function ask(page,question){
    await page.getByTestId('try-again').click();await page.getByTestId('try-again').waitFor({state:'detached'});continue;
   }
   const shown=now(),card=await page.getByTestId('option-0').elementHandle();
+  await assertFollowUpSafe(page);
   await page.waitForTimeout(900);await card.click();ev.cards.push([shown-.3,now()+.4]);
   await page.waitForFunction(el=>!el.isConnected,card,{timeout:90000});
  }
@@ -112,7 +115,7 @@ async function forecastVideo(browser,state,item,file,dir){
  const hook=assertSafe(item.hook);assertSafe(item.question);
  const page=await session(browser,{state}),stop=await record(page,dir);
  try{
-  await page.goto(base);await page.getByTestId('tab-ask').waitFor();const start=now()+.3;await page.waitForTimeout(1500);
+  await page.goto(base);await page.getByTestId('tab-ask').waitFor();await assertHomeSafe(page);const start=now()+.3;await page.waitForTimeout(1500);
   const ev=await ask(page,item.question);await page.waitForTimeout(4000);const end=now();
   const reading=await latest(page),frames=await stop();assertSafe(reading.headline);
   const seconds=await encode(frames,[[start,ev.asked+1],...ev.cards,[ev.reveal-1,end]],[[await still(`<div class="hook">${esc(hook)}</div>`,join(dir,'hook.png')),start,ev.reveal-1],[await still('',join(dir,'label.png')),start,end]],file,dir);
@@ -131,7 +134,7 @@ async function receiptVideo(browser,state,item,file,dir){
  const hook=assertSafe(item.hook);
  page=await session(browser,{state:asked,clock:due});const stop=await record(page,dir);
  try{
-  await page.goto(base);await page.getByTestId('tab-history').waitFor();const start=now()+.3;await page.waitForTimeout(1500);
+  await page.goto(base);await page.getByTestId('tab-history').waitFor();await assertHomeSafe(page);const start=now()+.3;await page.waitForTimeout(1500);
   await page.getByTestId('tab-history').click();await page.waitForTimeout(1200);
   await page.getByRole('button').filter({hasText:item.question}).first().click();
   const choice=page.getByTestId(`check-in-${item.outcome}`);await choice.waitFor();await page.waitForTimeout(2200);
@@ -156,6 +159,7 @@ async function omenVideo(browser,state,half,file,dir){
  let art,app;
  try{
   await page.goto(base);await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(1500);
+  await assertHomeSafe(page);
   app=(await page.screenshot()).toString('base64');
   // Without the atmosphere layer, the darkened Home screenshot stands in as the art.
   if(await page.locator('[data-testid="app-shell"]>.atmosphere').count()){await page.addStyleTag({content:'[data-testid="app-shell"]>:not(.atmosphere){visibility:hidden!important}'});await page.waitForTimeout(500)}
