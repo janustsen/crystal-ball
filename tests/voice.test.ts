@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {voiceFlags} from '../server/voice';
 
-test('editorial fixtures flag doom, private-feeling claims and certainty',()=>{
+test('editorial fixtures flag doom, private-feeling claims, certainty and Ball fallibility',()=>{
  const fixtures:[string,string[]][]=[
   ['You are doomed to fail.',['doom']],
   ['Alex secretly loves you.',['secretFeelings']],
@@ -13,7 +13,9 @@ test('editorial fixtures flag doom, private-feeling claims and certainty',()=>{
   ['Guaranteed: you will always be together.',['certainty']],
   ['You will finish a first draft this year. This scenario assumes you keep writing daily.',[]],
   ['Speculative forecast · not a guarantee. Golden edition · same uncertainty.',[]],
-  ['Not quite saved. Thanks for saying so — the Ball can miss.',[]],
+  ['Not quite saved. Thanks for saying so — the Ball can miss.',['fallibility']],
+  ['Forecasts might be wrong sometimes.',['fallibility']],
+  ['Saved ✨',[]],
  ];
  for(const [text,expected] of fixtures)assert.deepEqual(voiceFlags(text),expected,text);
 });

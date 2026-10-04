@@ -33,7 +33,7 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
  if(confirming&&!blocked)return <><Txt testID="age-confirmation-heading" accessibilityRole="header" display>Are you 13 or older?</Txt><Txt style={[styles.caption,{marginTop:12}]}>No birthday needed.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
  return <>
   <Txt display style={{marginBottom:16}}>Your forecast. Then check back.</Txt>
-  <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet. The Ball can miss — your story matters either way.</Txt>
+  <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet.</Txt>
   <Txt style={styles.caption}>A little about you · {step+1} of 2</Txt>
   <Txt testID={step===1?'onboarding-focus-heading':blocked?'age-correction-heading':'onboarding-birthday-heading'} accessibilityRole="header" display style={{marginTop:8,fontSize:22,lineHeight:28}}>{blocked&&step===0?'Correct your birthday':step===0?'Your birthday':'Your focus'}</Txt>
   <Txt style={[styles.caption,{marginTop:8,marginBottom:12}]}>{blocked&&step===0?'Enter your actual birthday. Access still requires age 13 or older.':step===0?'13 and up. Your birthday sets your Sun sign.':'Choose one, or skip. You can change it later.'}</Txt>
