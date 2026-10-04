@@ -49,16 +49,17 @@ async function record(page,dir){
 function encode(frames,windows,overlays,file,dir){
  const spans=windows.toSorted((x,y)=>x[0]-y[0]).reduce((all,[s,e])=>{const last=all.at(-1);if(last&&s<=last[1])last[1]=Math.max(last[1],e);else all.push([s,e]);return all},[]);
  const cut=t=>spans.reduce((sum,[s,e])=>sum+Math.min(Math.max(t-s,0),e-s),0);
- let list='ffconcat version 1.0\n';
+ let list='ffconcat version 1.0\n',lastFrame,duration=0;
  for(const [s,e] of spans){
   const inside=frames.filter(f=>f.t>=s&&f.t<=e);
-  inside.forEach((f,i)=>{list+=`file '${f.file}'\nduration ${((inside[i+1]?.t??e)-f.t).toFixed(4)}\n`});
+  inside.forEach((f,i)=>{const seconds=((inside[i+1]?.t??e)-f.t).toFixed(4);list+=`file '${f.file}'\nduration ${seconds}\n`;duration+=Number(seconds);lastFrame=f.file});
  }
  if(!list.includes('\nfile '))throw new Error('No frames captured inside the cut windows.');
+ list+=`file '${lastFrame}'\n`;
  const listFile=join(dir,'frames.ffconcat');
  return writeFile(listFile,list).then(()=>{
   const graph=overlays.map(([,from,to],i)=>`[v${i}][${i+1}:v]overlay=enable='between(t,${cut(from).toFixed(2)},${cut(to).toFixed(2)})'[v${i+1}]`);
-  execFileSync('ffmpeg',['-y','-v','error','-f','concat','-safe','0','-i',listFile,...overlays.flatMap(([png])=>['-i',png]),'-filter_complex',[`[0:v]fps=30,scale=1080:1920,setsar=1[v0]`,...graph,`[v${overlays.length}]format=yuv420p[out]`].join(';'),'-map','[out]','-an','-c:v','libx264','-crf','18','-preset','medium','-movflags','+faststart',file],{stdio:'pipe'});
+  execFileSync('ffmpeg',['-y','-v','error','-f','concat','-safe','0','-i',listFile,...overlays.flatMap(([png])=>['-i',png]),'-filter_complex',[`[0:v]fps=30,scale=1080:1920,setsar=1[v0]`,...graph,`[v${overlays.length}]format=yuv420p[out]`].join(';'),'-map','[out]','-t',String(duration),'-an','-c:v','libx264','-crf','18','-preset','medium','-movflags','+faststart',file],{stdio:'pipe'});
   const [w,h,seconds]=execFileSync('ffprobe',['-v','error','-select_streams','v:0','-show_entries','stream=width,height:format=duration','-of','csv=p=0:s=,',file],{encoding:'utf8'}).trim().split(/[,\n]/).map(Number);
   if(w!==1080||h!==1920)throw new Error(`Rendered ${w}×${h}, expected 1080×1920.`);
   return Math.round(seconds*10)/10;
