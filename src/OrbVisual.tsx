@@ -1,13 +1,16 @@
 import {useEffect,useRef} from 'react';
 import {Animated,Easing,Image,View} from 'react-native';
-import {FogTiles} from './FogTiles';
-function Wisp({size,index,reduce}:{size:number;index:number;reduce:boolean}){
- const value=useRef(new Animated.Value(0)).current;
- useEffect(()=>{if(reduce){value.setValue(0);return}value.setValue(0);const loop=Animated.loop(Animated.timing(value,{toValue:1,duration:index?13700:9700,easing:Easing.linear,useNativeDriver:true,isInteraction:false}));loop.start();return()=>loop.stop()},[reduce,value,index]);
- return <Animated.Image source={require('../assets/fog-wisp.png')} style={{position:'absolute',left:size*.15,top:0,width:size*.7,height:size*.7,opacity:value.interpolate({inputRange:[0,.2,.6,1],outputRange:[0,.09,.07,0]}),transform:[{translateY:value.interpolate({inputRange:[0,1],outputRange:[size*.25,-size*.55]})},{translateX:value.interpolate({inputRange:[0,1],outputRange:[-size*.1,size*.1]})},{scale:value.interpolate({inputRange:[0,1],outputRange:[.5,1.2]})}]}}/>;
-}
-export function OrbVisual({size,reduce=false}:{size:number;phase?:string;reduce?:boolean}){
- const glow=useRef(new Animated.Value(0)).current;
- useEffect(()=>{if(reduce){glow.setValue(.5);return}glow.setValue(0);const loop=Animated.loop(Animated.sequence([Animated.timing(glow,{toValue:1,duration:3650,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false}),Animated.timing(glow,{toValue:0,duration:3650,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false})]));loop.start();return()=>loop.stop()},[reduce,glow]);
- return <View style={{width:size,height:size*1.125}}><Animated.View style={{position:'absolute',left:-size*.07,top:-size*.07,width:size*1.14,height:size*1.14,borderRadius:size,backgroundColor:'#E0A458',opacity:glow.interpolate({inputRange:[0,1],outputRange:[.025,.065]}),shadowColor:'#F2C284',shadowRadius:20,shadowOpacity:1,shadowOffset:{width:0,height:0},transform:[{scale:glow.interpolate({inputRange:[0,1],outputRange:[.96,1.06]})}]}}/><Wisp size={size} index={0} reduce={reduce}/><Wisp size={size} index={1} reduce={reduce}/><View style={{position:'absolute',width:size,height:size,borderRadius:size/2,backgroundColor:'#21180F'}}><FogTiles size={size} reduce={reduce}/></View><Image source={require('../assets/orb-glass.png')} style={{width:size,height:size*1.125}}/><View pointerEvents="none" style={{position:'absolute',left:-2,top:-2,width:size+4,height:size+4,borderRadius:size,borderWidth:Math.max(2,size*.014),borderColor:'#0B0604'}}/><View pointerEvents="none" style={{position:'absolute',left:size*.12,top:size*.09,width:size*.42,height:size*.42,borderRadius:size,borderTopWidth:size*.035+1,borderColor:'rgba(255,248,232,.78)',transform:[{rotate:'-24deg'}]}}/></View>;
+// Painted room reflections sit above the smoke; the stand occludes the lower glass.
+export function OrbVisual({size,reduce=false,phase}:{size:number;phase?:string;reduce?:boolean}){
+ const breath=useRef(new Animated.Value(0)).current;
+ useEffect(()=>{breath.setValue(0);if(reduce)return;const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:4300,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false}),Animated.timing(breath,{toValue:0,duration:4300,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false})]));loop.start();return()=>loop.stop()},[reduce,breath]);
+ return <View testID="painted-orb" pointerEvents="none" style={{width:size,height:size*1.125}}>
+  <View style={{position:'absolute',left:size*.07,bottom:-size*.015,width:size*.86,height:size*.12,borderRadius:size,backgroundColor:'#07040388',boxShadow:'0 5px 14px #080400'}}/>
+  <Image source={require('../assets/apothecary/stand.webp')} style={{position:'absolute',left:size*.1,top:size*.73,width:size*.8,height:size*.395}} resizeMode="stretch"/>
+  <View style={{position:'absolute',left:size*.055,top:0,width:size*.89,height:size*.89,borderRadius:size,overflow:'hidden',backgroundColor:'#20120B',boxShadow:'0 0 24px #d0923729'}}>
+   <Image source={require('../assets/apothecary/interior.webp')} style={{position:'absolute',left:'-11%',top:'-11%',width:'122%',height:'122%'}}/>
+   <Animated.Image testID="painted-smoke" source={require('../assets/apothecary/smoke.webp')} style={{position:'absolute',width:'100%',height:'100%',opacity:breath.interpolate({inputRange:[0,1],outputRange:[phase==='reveal'?.3:.13,phase==='reveal'?.5:.26]}),transform:[{translateY:breath.interpolate({inputRange:[0,1],outputRange:[0,-size*.025]})},{scale:breath.interpolate({inputRange:[0,1],outputRange:[1,1.06]})}]}}/>
+   <Image source={require('../assets/apothecary/glass.webp')} style={{position:'absolute',width:'100%',height:'100%',opacity:.85}}/>
+  </View>
+ </View>;
 }

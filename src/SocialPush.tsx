@@ -1,3 +1,4 @@
+import {Paper} from './Paper';
 import React,{useState} from 'react';
 import {Platform,View} from 'react-native';
 import Constants from 'expo-constants';
@@ -17,7 +18,7 @@ export function SocialPush(){
    await setSocialPush((await Notifications.getExpoPushTokenAsync({projectId})).data);setNotice('Circle notifications enabled.');
   }catch(error){setNotice(error instanceof Error?error.message:'Notifications could not be enabled.')}finally{setBusy(false)}
  }
- return <View style={styles.panel}><Txt>Circle notifications</Txt><Txt style={styles.caption}>Sealed forecasts, invitations, someone joining, and Circle forecasts and check-ins only. No activity or glow notifications.</Txt><Action label="Enable Circle notifications" disabled={busy} onPress={()=>void enable()}/><Action label="Turn off Circle notifications" quiet disabled={busy} onPress={()=>{setBusy(true);void setSocialPush(null).then(()=>setNotice('Circle notifications off.')).catch(()=>setNotice('Could not turn notifications off. Try again.')).finally(()=>setBusy(false))}}/>{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}</View>;
+ return <Paper style={styles.panel}><Txt>Circle notifications</Txt><Txt style={styles.caption}>Sealed forecasts, invitations, someone joining, and Circle forecasts and check-ins only. No activity or glow notifications.</Txt><Action label="Enable Circle notifications" disabled={busy} onPress={()=>void enable()}/><Action label="Turn off Circle notifications" quiet disabled={busy} onPress={()=>{setBusy(true);void setSocialPush(null).then(()=>setNotice('Circle notifications off.')).catch(()=>setNotice('Could not turn notifications off. Try again.')).finally(()=>setBusy(false))}}/>{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}</Paper>;
 }
 export function watchSocialPushes(open:()=>void){
  if(Platform.OS==='web')return ()=>{};

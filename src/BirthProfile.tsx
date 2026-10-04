@@ -1,3 +1,4 @@
+import {Paper} from './Paper';
 import {useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,BackHandler,Platform,Pressable,View,type TextInput} from 'react-native';
 import {Input,Action,Txt,styles,colors} from './ui';
@@ -92,7 +93,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
    </>}
   </View>;
  }
- return <View style={[styles.panel,state.largeText&&{paddingTop:8,marginTop:0}]}>
+ return <Paper style={[styles.panel,state.largeText&&{paddingTop:8,marginTop:0}]}>
   <Txt display style={[styles.title,{fontSize:22,lineHeight:28}]}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign[0].toUpperCase()+state.sunSign.slice(1)} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · readings for ages 13–17':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · readings for ages 13–17'}</Txt>
@@ -103,5 +104,5 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   {state.birthday?<Action label="Add birth time and place" quiet onPress={()=>{setNotice('');setChartStep('time');setChartStatus(state.birthPlace&&state.moonSign?'saved':'idle');setChartOpen(true)}}/>:null}
 
   {notice?<Txt accessibilityRole="alert">{notice}</Txt>:null}
- </View>;
+ </Paper>;
 }

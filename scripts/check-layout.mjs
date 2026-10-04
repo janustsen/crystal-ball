@@ -62,14 +62,14 @@ for(const width of (process.env.LAYOUT_WIDTH?[Number(process.env.LAYOUT_WIDTH)]:
  const tap=id=>page.getByTestId(id).click();
  const text=value=>page.getByText(value,{exact:true});
  const check=(name,marker,delay)=>audit(page,width,name+tag,marker,delay);
- const planning=text('Checking the question and finding what matters.');
- const research=text('Looking for current context and forming your forecast.');
+ const planning=text('Finding the thread.');
+ const research=text('Reading the signs.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
  await page.goto(base,{timeout:120000});await check('onboarding-birthday',page.getByTestId('onboarding-birthday'));await tap('skip-for-now');await check('onboarding-age',page.getByTestId('confirm-age'));await tap('decline-age');await check('onboarding-blocked',page.getByTestId('age-restriction'));await tap('correct-birthday');await check('onboarding-correction',page.getByTestId('age-correction-heading'));await fillBirthday(page,'1995-06-15');await tap('continue');await check('onboarding-focus',page.getByTestId('meet-the-ball'));await tap('learning-growth');await check('onboarding-focus-selected',page.getByTestId('learning-growth'));await tap('meet-the-ball');await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));await tap('omen-daily-limit');const policy=text('Today’s free omen attempt is used, even when no omen is saved. Try tomorrow. This is separate from your reading balance.');await policy.scrollIntoViewIfNeeded();await check('home-omen-policy',policy);await tap('omen-daily-limit');
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));await tap('social-section-circles');await check('circles',page.getByTestId('retry-circles'));await tap('retry-circles');await check('circles-retry',text('Still offline. Try again later. Your circle setup is unavailable.'));
- await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
+ await tap('tab-history');await check('history',text('Your first glimpse.'));
  await tap('tab-you');await check('you',text('Memory'));
  await tap('edit-birthday');await check('you-birthday',page.getByRole('textbox',{name:'Birthday day',exact:true}));await tap('cancel-birthday');await tap('add-birth-time-and-place');await check('you-birth-time',page.getByTestId('birth-time'));await page.getByTestId('birth-time').fill('14:30');await tap('continue-to-birth-city');await check('you-birth-details',page.getByRole('textbox',{name:'Birth city'}));await tap('close-birth-details');await tap('close-birth-details');
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));

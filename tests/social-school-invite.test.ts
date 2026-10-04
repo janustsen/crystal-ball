@@ -7,7 +7,7 @@ import {settleCircleReading} from '../src/reading-history';
 import type {AccountState} from '../src/types';
 
 test('school invitations never reuse filtered circles or another suggestion’s invitation',async()=>{
- const snapshot={owner:'A',profile:{school_id:'school',age_band:'teen'},stars:[],schoolOnly:false,
+ const snapshot={owner:'A',profile:{handle:'reader',school_id:'school',age_band:'teen'},stars:[],schoolOnly:false,
   circles:[{id:'occupied',owner_id:'A'}],members:[{circle_id:'occupied',user_id:'A'}],
   schoolSuggestions:[{circle_id:'occupied',user_id:'C'},{circle_id:'occupied',user_id:'D'}],
   schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[]};
@@ -33,8 +33,8 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  };
  let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false};
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
-  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false,settleCircle:(forecast:any)=>settleCircleReading(state,forecast,async next=>{state=next},async()=>{})})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
+  react,'react-native':{Platform:{OS:'ios'}},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
+  './Paper':{},'./ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false,settleCircle:(forecast:any)=>settleCircleReading(state,forecast,async next=>{state=next},async()=>{})})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),
@@ -61,7 +61,16 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  };
  const settle=()=>new Promise(resolve=>setImmediate(resolve));
  render();await settle();
+ const openDestination=(testID:string)=>{
+  let tree=render();
+  const back=tree.find(node=>node.props.testID==='circle-back');
+  if(back){back.props.onPress();tree=render();}
+  const destination=tree.find(node=>node.props.testID===testID);
+  assert.ok(destination,`Expected destination ${testID}`);
+  destination.props.onPress();
+ };
  const start=async(index:number)=>{
+  openDestination('circle-view-school');
   render().filter(node=>node.props.label?.startsWith('Start a school circle'))[index].props.onPress();
   await settle();
   return render().find(node=>node.props.url)?.props.url;
@@ -81,6 +90,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  assert.equal(await start(0),'circle=token-new-4');
  assert.equal(created,4);
  snapshot.owner='A';
+ openDestination('circle-view-1');
  render().find(node=>node.props.label==='Invite a friend').props.onPress();
  await settle();
  assert.equal(render().find(node=>node.props.url)?.props.url,'circle=token-occupied');

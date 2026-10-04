@@ -14,6 +14,5 @@ export function BirthdayInput({value,onChange,testID,error}:{value:string;onChan
  return <View testID={testID}>
   <View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{(['day','month','year'] as const).map(key=><View key={key} style={{flex:state.largeText?undefined:key==='year'?1.4:1,...state.largeText?{width:key==='year'?'100%':'47%'}:{}}}><Txt style={styles.caption}>{key[0].toUpperCase()+key.slice(1)}</Txt><Input accessibilityLabel={`Birthday ${key}`} aria-invalid={!!error&&(!missing.length||missing.includes(key))} aria-describedby={error?`${testID}-error`:undefined} keyboardType="number-pad" inputMode="numeric" value={draft[key]} onChangeText={text=>change(key,text)} maxLength={key==='year'?4:2} placeholder={key==='year'?'YYYY':key==='month'?'MM':'DD'} placeholderTextColor={colors.muted} style={styles.input}/></View>)}</View>
   {error?<Txt nativeID={`${testID}-error`} accessibilityRole="alert" style={{marginTop:8,color:colors.gold}}>{message}</Txt>:null}
-  {!error?<Txt style={[styles.caption,{marginTop:8}]}>For example: day 15, month 6, year 1995.</Txt>:null}
  </View>;
 }

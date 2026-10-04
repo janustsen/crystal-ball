@@ -1,0 +1,2 @@
+import {Image,Platform,StyleSheet,View} from 'react-native';
+export function PaperArt(){return <View pointerEvents="none" accessible={false} aria-hidden style={StyleSheet.absoluteFill}><Image accessible={false} aria-hidden source={require('../assets/apothecary/paper.webp')} capInsets={Platform.OS==='ios'?{left:90,right:90,top:65,bottom:65}:undefined} resizeMode="stretch" style={[StyleSheet.absoluteFill,{width:'100%',height:'100%'}]}/></View>}

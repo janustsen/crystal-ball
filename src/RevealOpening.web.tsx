@@ -11,7 +11,7 @@ const css=`
 .opening-mist{position:absolute;inset:-16px;border-radius:50%;background:radial-gradient(ellipse at 45% 55%,#e0a45855,transparent 65%);animation:mist-release var(--release) ease-out both;pointer-events:none}
 .opening-ring{position:absolute;inset:30px 10px 50px;border:2px solid var(--accent);border-radius:50%;animation:opening-ring 450ms ease-out var(--charge) both;pointer-events:none}
 .opening-ember{position:absolute;left:50%;top:45%;width:3px;height:6px;border-radius:50%;background:var(--accent);animation:opening-ember 450ms ease-out var(--charge) both;pointer-events:none}
-.opening-skip{width:100%;max-width:260px;margin-top:28px}
+.opening-skip{display:flex;flex-direction:column;width:100%;max-width:260px;margin-top:28px}
 .opening-payoff{animation:forecast-settle 700ms cubic-bezier(.2,.75,.2,1) both;transform-origin:50% 25%}
 .opening-payoff.calm{animation:forecast-calm 180ms ease-out both}
 @keyframes orb-charge{0%{transform:scale(1);opacity:1}12%{transform:scale(1.025,.975)}24%{transform:scale(.99,1.01) rotate(-.6deg)}40%{transform:rotate(.9deg)}54%{transform:rotate(-1.3deg)}66%{transform:rotate(1.8deg)}77%{transform:rotate(-2.5deg) scale(.98,1.02)}82%{transform:rotate(0) scale(1.035,.975);opacity:1}100%{transform:scale(1.07);opacity:0}}

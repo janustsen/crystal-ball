@@ -2,6 +2,12 @@
 
 Opening Crystal Ball means stepping into a witch's cottage at night. Every screen is a place in that house, lit by candles, with a glowing ball at its heart. This supersedes the Open mist direction and the Fraunces + Manrope pairing.
 
+## Selected: B · Apothecary
+
+The captain selected B on 2026-10-04. Use IM Fell English SC for headings and Caudex for body text. The room and ball are one scene: shelves behind, a table beneath the ball, room reflections in the glass, jars in front and a shared warm light. Tapping the ball pushes the room closer and crossfades to pre-blurred scenery; returning pulls back. History, Circles and plans are places in that room. Reduced motion uses a still composition. Device tilt remains a native verification gap; browser pointer and scroll parallax are separate evidence.
+
+Parchment must have irregular edges, texture, thickness and shadow. Type remains real centered text. The question belongs on a physical slip by the stand, never flat on the sphere. The asset inventory and missing independent painted layers are recorded in `docs/art/apothecary-assets.md`.
+
 ## The rules
 
 1. **Nothing is machine-cut.** No hairline rules, perfect rounded rectangles or straight dividers. Surfaces have hand-cut, chipped silhouettes. Edges are uneven, and dividers are carved grooves, twine or a row of stitches.

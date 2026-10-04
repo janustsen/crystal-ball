@@ -1,16 +1,19 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useContext,useEffect,useRef,useState} from 'react';
 import {Animated,Pressable,StyleSheet,Text,TextInput,View,ScrollView,Platform,Easing,type TextStyle} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {tabArtwork} from './designArt';
+import {PaperArt} from './PaperArt';
+import {PaperInk,PaperButton} from './Paper';
+export {Paper,PaperButton} from './Paper';
 import {OrbVisual} from './OrbVisual';
 import {Enter} from './Enter';
 import {motion,type MotionKind} from './motion';
 import {selectedStyle,skinColors} from './delight';
 import {haptic} from './native';
 import {useStore} from './store';
-export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C284',gold:'#E0A458',ivory:'#F1E9DC',muted:'#B9AB97',surface:'#1C1510',outline:'#0B0604'};
-export const fonts={display:'Fraunces',wordmark:'IMFellEnglishItalic',body:'Manrope'};
-export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){const {state}=useStore();const scale=state.largeText&&props.allowFontScaling!==false?2:1;const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?28:16,lineHeight:display?34:24},display&&styles.inked,style]);return <Text {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}>{children}</Text>}
+export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C284',gold:'#F0C17F',ivory:'#F1E9DC',muted:'#DECBB1',surface:'#1C1510',outline:'#0B0604'};
+export const fonts={display:'IMFellEnglishSC',wordmark:'IMFellEnglishItalic',body:'Caudex'};
+export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){const paper=useContext(PaperInk);const {state}=useStore();const scale=state.largeText&&props.allowFontScaling!==false?2:1;const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?28:16,lineHeight:display?34:24},display&&styles.inked,style]);return <Text {...props} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale,textAlign:'center',...(paper?{color:'#382516',textShadowRadius:0,textShadowColor:'transparent'}:{})}]}>{children}</Text>}
 
 export function RadioGroup({testID,...props}:React.ComponentProps<typeof View>&{testID:string}){
  useEffect(()=>{
@@ -35,13 +38,13 @@ export function Input({style,fill=false,...props}:React.ComponentPropsWithRef<ty
  const {state}=useStore(),scale=state.largeText&&props.allowFontScaling!==false?2:1;
  const [contentHeight,setContentHeight]=useState(0),[height,setHeight]=useState(0),[offset,setOffset]=useState(0);
  const composed:TextStyle=StyleSheet.flatten([styles.input,style]);
- const input=<TextInput {...props} onLayout={event=>{setHeight(event.nativeEvent.layout.height);props.onLayout?.(event)}} onContentSizeChange={event=>{setContentHeight(event.nativeEvent.contentSize.height);props.onContentSizeChange?.(event)}} onScroll={event=>{setOffset(Platform.OS==='web'?(event.currentTarget as unknown as HTMLTextAreaElement).scrollTop:event.nativeEvent.contentOffset.y);props.onScroll?.(event)}} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale}]}/>;
- if(!props.multiline)return input;
+ const input=<TextInput {...props} placeholderTextColor="#715b43" onLayout={event=>{setHeight(event.nativeEvent.layout.height);props.onLayout?.(event)}} onContentSizeChange={event=>{setContentHeight(event.nativeEvent.contentSize.height);props.onContentSizeChange?.(event)}} onScroll={event=>{setOffset(Platform.OS==='web'?(event.currentTarget as unknown as HTMLTextAreaElement).scrollTop:event.nativeEvent.contentOffset.y);props.onScroll?.(event)}} style={[composed,{fontSize:(composed.fontSize||16)*scale,lineHeight:(composed.lineHeight||24)*scale,backgroundColor:'transparent',borderWidth:0,borderRadius:0,color:'#382516'}]}/>;
  const track=Math.max(0,height-32),thumb=Math.max(16,track*height/Math.max(1,contentHeight)),progress=Math.max(0,Math.min(1,offset/Math.max(1,contentHeight-height)));
- return <View style={{position:'relative',flex:fill?1:undefined,minHeight:fill?0:undefined}}>{input}{height>0&&contentHeight>height+2?<View testID={`${props.testID||'input'}-scroll-cue`} pointerEvents="none" accessible={false} style={{position:'absolute',right:5,top:22,width:3,height:track,borderRadius:2,backgroundColor:'#E0A45833'}}><View style={{width:3,height:Math.min(track,thumb),borderRadius:2,backgroundColor:colors.gold,transform:[{translateY:progress*Math.max(0,track-thumb)}]}}/></View>:null}</View>;
+ return <View style={{position:'relative',flex:fill?1:undefined,minHeight:fill?0:undefined}}><PaperArt/>{input}{props.multiline&&height>0&&contentHeight>height+2?<View testID={`${props.testID||'input'}-scroll-cue`} pointerEvents="none" accessible={false} style={{position:'absolute',right:5,top:22,width:3,height:track,borderRadius:2,backgroundColor:'#E0A45833'}}><View style={{width:3,height:Math.min(track,thumb),borderRadius:2,backgroundColor:colors.gold,transform:[{translateY:progress*Math.max(0,track-thumb)}]}}/></View>:null}</View>;
 }
 
-export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:quiet?'400':'600',color:quiet?colors.ice:colors.ink,textAlign:quiet?'left':'center'}}>{label}</Txt></Pressable>}
+export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){const Component=quiet?Pressable:PaperButton;return <Component testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.display,fontSize:19,lineHeight:25,color:quiet?colors.ice:'#382516',textAlign:'center'}}>{label}</Txt></Component>}
+
 export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;reduce?:boolean;onPress?:()=>void;phase?:'idle'|'research'|'reveal'}){
  const {state}=useStore();
  const ballStyle=selectedStyle(state,'ball'),skin=skinColors[ballStyle];
@@ -57,15 +60,15 @@ export function Constellation({count,current}:{count:number;current:number}){con
 export function Screen({children,reduce=false,variant=0,zoom=false,kind="screen"}:React.PropsWithChildren<{reduce?:boolean;variant?:number;zoom?:boolean;kind?:MotionKind}>){return <ScrollView testID="screen-scroll" automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" contentContainerStyle={{padding:24,paddingTop:14,paddingBottom:36,flexGrow:1}}><Enter reduce={reduce} variant={variant} zoom={zoom} kind={kind} fill>{children}</Enter></ScrollView>}
 
 export const styles=StyleSheet.create({
- action:{minHeight:54,paddingVertical:14,paddingHorizontal:22,borderRadius:27,backgroundColor:'#EBD5B0',borderWidth:1,borderColor:'#EBD5B0',justifyContent:'center',marginTop:14,boxShadow:'0 3px 0 #7A5527, 0 8px 18px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.5)'},
+ action:{minHeight:54,paddingVertical:14,paddingHorizontal:22,borderRadius:0,backgroundColor:'transparent',borderWidth:0,justifyContent:'center',marginTop:14,boxShadow:'0 4px 9px rgba(0,0,0,.3)'},
  pressed:{transform:[{translateY:2}],boxShadow:'0 1px 0 #7A5527'},
- quiet:{minHeight:48,marginTop:4,paddingVertical:12,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#614C3455',borderRadius:0,paddingHorizontal:0,boxShadow:'none'},
+ quiet:{minHeight:48,marginTop:4,paddingVertical:12,backgroundColor:'transparent',borderWidth:0,borderBottomWidth:0,borderColor:'transparent',borderRadius:0,paddingHorizontal:0,boxShadow:'none'},
  quietPressed:{opacity:.7},
  disabled:{opacity:.55,boxShadow:'none'},
- chip:{backgroundColor:'transparent',borderWidth:0,borderBottomWidth:1,borderColor:'#614C34',borderRadius:0},
+ chip:{backgroundColor:'transparent',borderWidth:0,borderRadius:0},
  inked:{textShadowColor:'rgba(0,0,0,.4)',textShadowOffset:{width:0,height:1},textShadowRadius:2},
- input:{marginVertical:6,fontFamily:fonts.body,fontSize:16,color:colors.ivory,backgroundColor:'transparent',borderWidth:1,borderColor:'#79634A',borderRadius:12,paddingVertical:16,paddingHorizontal:12,minHeight:56},
- panel:{backgroundColor:'transparent',borderRadius:0,paddingVertical:22,paddingHorizontal:0,borderWidth:0,borderBottomWidth:1,borderColor:'#614C3466',marginTop:16},
+ input:{marginVertical:6,fontFamily:fonts.body,fontSize:16,color:'#382516',textAlign:'center',backgroundColor:'#d9bc88',borderWidth:0,borderRadius:3,paddingVertical:16,paddingHorizontal:12,minHeight:56},
+ panel:{backgroundColor:'transparent',borderRadius:0,paddingVertical:24,paddingHorizontal:24,borderWidth:0,marginTop:16},
  row:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12},
  caption:{fontSize:14,lineHeight:20,color:colors.muted},muted:{color:colors.muted},title:{fontSize:28,lineHeight:34,marginBottom:12},gap:{height:20}
 });

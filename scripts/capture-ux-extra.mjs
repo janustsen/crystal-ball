@@ -17,7 +17,7 @@ try{
  for(const [outcome,label] of [['pending','Not yet'],['no','Not quite'],['yes','Yes']]){
   await page.getByTestId(`check-in-${outcome}`).click();await page.getByTestId('save-outcome').click();await expect(page.getByTestId('check-in-status')).toHaveText(`Saved · ${label}`);await page.waitForTimeout(300);await page.screenshot({path:`${round}/screens/outcome-${outcome}-saved.png`});
  }
- await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('Yes',{exact:true})).toBeVisible();await page.waitForTimeout(400);await page.screenshot({path:`${round}/screens/history-outcome-persisted.png`});
+ await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByTestId('history-record').first()).toContainText(' · Yes');await page.waitForTimeout(400);await page.screenshot({path:`${round}/screens/history-outcome-persisted.png`});
  await page.evaluate(()=>{const d=new Date(),day=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('crystal-ball-personal-omen-v1',JSON.stringify({day,text:'Tonight, the moon hints at a door you have not tried yet.'}))});await page.reload();await page.getByTestId('daily-omen').waitFor();await page.waitForTimeout(600);await page.screenshot({path:`${round}/screens/home-omen-fixture.png`});
  await writeFile(`${round}/outcome-feedback.json`,JSON.stringify({fixture:'Synthetic history item, real save controls and storage',savedStates:['pending','no','yes'],inlineStatus:true,persistsAfterReload:true},null,2));
 }finally{await browser.close()}

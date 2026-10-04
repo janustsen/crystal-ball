@@ -1,0 +1,9 @@
+# Apothecary asset use
+
+Generated source: Gemini Temporary chat while explicitly authorized, 2026-10-04; underlying image model undisclosed. Exact prompts and source hashes: `provenance.json`. Automation stopped at inbox 020. No further captain-browser or account control.
+
+Production uses the B backdrop, brass stand, parchment label and bottle, plus shared sphere interior, smoke and glass reflections. These are copied from the retained generated assets into `assets/apothecary/`. Processing: fit within 720/700px without enlargement, WebP q86, 9px pre-blurred room q72; crop the interior within the sphere to hide the unrequested carved rim, flatten the tall stand to support the globe, and composite the same layers for story export with `scripts/render-apothecary.mjs`. `table.jpg` and `parchment.jpg` are original procedural textures from the committed texture generator. Fonts are IM Fell English SC and Caudex, with OFL licenses alongside them.
+
+Depth currently consists of a room painting, a separate pre-blurred room, table, ball layers, foreground bottle props, shadow, warm candlelight overlay and dust. The wall and shelves share one painting; they are **not** independent painted depth layers. The hearth and cabinet are navigable destinations in that room, not separately generated rooms. The repeated jar is a deliberate provisional reuse.
+
+Missing painted art for later: independently separated far wall and shelves; a true foreground candle and flame; a dedicated hearth and cabinet; varied jars and four focus charms; a fitted low stand; a plain interior without ornamental rim; nine-slice parchment edges designed for tall reading text; physical price tags; reveal shards and smoke exits. Current effects use the retained art plus native/CSS masks, transforms and procedural lighting. No placeholder is presented as newly generated art.

@@ -1,0 +1,29 @@
+// Isolated test profile only. No existing browser, account, or remote machine is controlled.
+import {chromium,expect} from '@playwright/test';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {skipPreviewOnboarding} from './skip-preview-onboarding.mjs';
+const base=process.env.PREVIEW_URL||'http://localhost:8098',out=process.env.UX_EVIDENCE||'.local/apothecary-scene';await mkdir(out,{recursive:true});
+const browser=await chromium.launch({channel:'chrome',headless:true});
+const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),checks=[];
+async function frames(label,action){
+ const capture=page.evaluate(()=>new Promise(resolve=>{const times=[],long=[];const observer=new PerformanceObserver(list=>long.push(...list.getEntries().map(e=>e.duration)));observer.observe({entryTypes:['longtask']});let first=0,last=0;function frame(t){if(!first)first=t;if(last)times.push(t-last);last=t;if(t-first<3000){requestAnimationFrame(frame);return}observer.disconnect();const sorted=[...times].sort((a,b)=>a-b);resolve({fps:times.length*1000/(t-first),p95:sorted[Math.floor(sorted.length*.95)],max:Math.max(...times),longTasks:long})}requestAnimationFrame(frame)}));
+ if(action)await action();const sample=await capture;
+ checks.push({label,...sample});expect(sample.fps).toBeGreaterThanOrEqual(58);expect(sample.p95).toBeLessThanOrEqual(20);expect(sample.max).toBeLessThanOrEqual(50);expect(sample.longTasks).toEqual([]);
+}
+try{
+ // Fixtures isolate rendering performance; the separate live drive proves engine behavior.
+ await page.route('**/engine',route=>{const action=route.request().postDataJSON()?.action;return route.fulfill({contentType:'application/json',body:JSON.stringify({kind:'ok',value:action==='omen'?{text:'A small door opens.'}:action==='plan'?{topic:'general',provided:{},cards:[{id:'context_1',question:'What will help you begin?',options:['Practice','A class','Other'],remember:false}]}:{id:'scene-performance',headline:'A little practice may open a new door.',question:'Will I learn pottery this winter?',label:'Speculative forecast',why:'A weekly class creates room to practise.',facts:{},assumptions:[],sources:[],createdAt:new Date().toISOString()}})})});
+ await page.goto(base);await skipPreviewOnboarding(page);await page.getByTestId('hero-orb').waitFor();await page.waitForTimeout(1300);
+ const geometry=await page.evaluate(()=>{const orb=document.querySelector('[data-testid=hero-orb]').getBoundingClientRect(),table=document.querySelector('[data-testid=room-table]').getBoundingClientRect();return {orb:{top:orb.top,bottom:orb.bottom,width:orb.width},table:{top:table.top,bottom:table.bottom}}});
+ expect(geometry.table.top).toBeLessThan(geometry.orb.bottom);expect(geometry.table.bottom).toBeGreaterThanOrEqual(geometry.orb.bottom);checks.push({label:'ball physically overlaps table plane',geometry});
+ await page.screenshot({path:`${out}/home.png`});await frames('Home painted layers');
+ await frames('camera push-in',()=>page.getByTestId('hero-orb').click());await expect(page.locator('.apothecary')).toHaveClass(/focused/);await page.waitForTimeout(1000);await expect(page.locator('.room-defocus')).toHaveCSS('opacity','1');await page.screenshot({path:`${out}/focused.png`});await frames('focused room');
+ await frames('camera pull-back',()=>page.getByTestId('close-flow').click());await expect(page.locator('.apothecary')).not.toHaveClass(/focused/);await page.waitForTimeout(900);await expect(page.locator('.room-defocus')).toHaveCSS('opacity','0');
+ for(const [id,destination]of [['shelf','history'],['hearth','circles'],['cabinet','plans']]){
+  await frames(`camera to ${id}`,()=>page.getByTestId(`place-${id}`).click());await expect(page.locator('.apothecary')).toHaveAttribute('data-place',destination);await page.waitForTimeout(900);await page.screenshot({path:`${out}/${id}.png`});checks.push({label:`${id} button reaches ${destination}`,pass:true});
+  if(id==='cabinet')await page.getByTestId('close-flow').click();else await page.getByTestId('tab-home').click();
+ }
+ await page.getByTestId('hero-orb').click();await page.getByTestId('type-instead').click();await frames('question input',()=>page.getByTestId('question-input').fill('Will I learn pottery this winter?'));await frames('context arrival',()=>page.getByTestId('look-into-the-future').click());await page.getByTestId('option-0').click();await frames('opening and forecast',()=>page.getByTestId('answer-next').click());await frames('share image preparation',()=>page.getByTestId('share-this-glimpse').click());await page.getByTestId('close-flow').click();await page.getByTestId('close-flow').click();
+ await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(700);expect(await page.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);await page.getByTestId('hero-orb').click();await expect(page.locator('.apothecary')).toHaveClass(/focused/);expect(await page.locator('.room-layer').first().evaluate(e=>getComputedStyle(e).transitionDuration)).toBe('0s');checks.push({label:'reduced motion cuts directly with no animation',pass:true});
+ console.log('Scene navigation, table geometry, reduced motion and frame gates passed');
+}finally{await writeFile(`${out}/scene.json`,JSON.stringify(checks,null,2));await browser.close()}

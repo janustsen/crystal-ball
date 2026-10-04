@@ -1,0 +1,58 @@
+ExpectError: expect(locator).toBeVisible() failed
+
+Locator: getByText(/Friend link:/)
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText(/Friend link:/) with timeout 5000ms
+  - waiting for getByText(/Friend link:/)
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBeVisible (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/drive-design-memory.mjs:23:470 {
+  matcherResult: {
+    message: 'expect(locator).toBeVisible() failed\n' +
+      '\n' +
+      'Locator: getByText(/Friend link:/)\n' +
+      'Expected: visible\n' +
+      'Timeout: 5000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      '  - Expect "toBeVisible" getByText(/Friend link:/) with timeout 5000ms\n' +
+      '  - waiting for getByText(/Friend link:/)\n',
+    pass: false,
+    actual: undefined,
+    name: 'toBeVisible',
+    expected: 'visible',
+    log: [
+      '  - Expect "toBeVisible" getByText(/Friend link:/) with timeout 5000ms',
+      '  - waiting for getByText(/Friend link:/)'
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- button "Close": ×\n' +
+      '- button "View plans. 5 readings left.": 5 readings left\n' +
+      '- text: Share this glimpse\n' +
+      '- button "Enlarge shared image":\n' +
+      '  - img "Crystal Ball. You will be conversational in Spanish in six months. Speculative forecast. Not a guarantee. Check back 2027-04-03."\n' +
+      '- button "Download image"\n' +
+      '- text: Image text You will be conversational in Spanish in six months. Speculative forecast · not a guarantee Crystal Ball Check back 2027-04-03\n' +
+      '- button "View full image ›"\n' +
+      '- button "Replay for recording"\n' +
+      '- text: The forecast, check-in date and speculative label appear in your image. Review the headline before sharing; it may contain details you supplied. Your question, answers and reasoning stay private.\n' +
+      '- button "Invite & remind ⌃" [expanded]\n' +
+      '- button "Invite a friend": Invite a friend ↗ A fresh reading. None of your reading is included.\n' +
+      '- button "Remind me to check back": Remind me to check back ↗ Did it come true?\n' +
+      '- button "Back to forecast"\n' +
+      '- dialog:\n' +
+      '  - heading "Your invitation link" [level=1]\n' +
+      '  - text: Your forecast and answers are not included. You can share this fresh question again.\n' +
+      '  - button "Copy invitation link"\n' +
+      '  - button "Share link again"\n' +
+      '  - button "View link ⌄"\n' +
+      '  - button "Done"'
+  }
+}

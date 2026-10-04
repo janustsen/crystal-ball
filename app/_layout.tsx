@@ -5,7 +5,7 @@ import {useFonts} from 'expo-font';
 import {Store} from '../src/store';
 export default function Layout(){
  const [loaded,error]=useFonts({
-  Fraunces:require('../assets/fonts/Fraunces.ttf'),Manrope:require('../assets/fonts/Manrope.ttf'),
+  IMFellEnglishSC:require('../assets/fonts/IMFellEnglishSC.ttf'),Caudex:require('../assets/fonts/Caudex.ttf'),
   IMFellEnglishItalic:Platform.OS==='web'?require('../assets/fonts/IMFellEnglishItalic.woff2'):require('../assets/fonts/IMFellEnglishItalic.ttf')
  });
  if(!loaded&&!error)return null;
