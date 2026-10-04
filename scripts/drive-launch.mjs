@@ -6,6 +6,9 @@ const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844
 const results=[];
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
+ await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
+ await expect(page.locator('[ariahidden]')).toHaveCount(0);
+ await expect(page.locator('[role=tab] > svg[aria-hidden="true"]')).toHaveCount(4);
  await expect(page.getByText(/For entertainment\. Never a guarantee/)).toBeVisible();
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
  results.push('Home has entertainment disclosure and no sign-in prompt');

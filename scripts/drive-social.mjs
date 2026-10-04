@@ -22,23 +22,25 @@ async function waitFor(name,selector,label,ms=95000,expectedText=''){
  }while(Date.now()<deadline);
  throw new Error(`${label} did not appear: ${last?.text}`);
 }
+const onboard=`await page.wait('[data-testid="onboarding-birthday"]');await page.fill('[data-testid="onboarding-birthday"]','1995-06-15');await page.click('[data-testid="continue"]');await page.wait('[data-testid="meet-the-ball"]');await page.click('[data-testid="meet-the-ball"]');`;
 const click=id=>`await page.click('[data-testid="${id}"]');`;
 const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
+const setHandle=person=>`await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+runId)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`;
 const identity=`await page.eval(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)).user.id:null})`;
 
 try{
  const circle=await run('owner',`
-  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');
+  await page.open(${JSON.stringify(base)});${onboard}await page.wait('[data-testid="tab-sky"]');
   ${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
   await page.wait('[data-testid="option-0"]',65000);
-  for(let card=0;card<3;card++){${click('option-0')}if(card<2)await page.wait('[data-testid="option-0"]');}
+  for(let card=0;card<2;card++){const last=(await page.eval(()=>document.body.innerText)).includes((card+1)+' of '+(card+1));${click('option-0')}if(last)break;await page.wait('[data-testid="option-0"]');}
   await page.wait('[data-testid="share-this-glimpse"]',65000);
   ${click('close-flow')}${click('tab-sky')}${click('add-my-star')}
   await page.wait('[data-testid="publish-anonymous-star"]',120000);
   ${assertText('Approve your anonymous wording')}${click('publish-anonymous-star')}
   await page.wait('[data-testid="remove-my-star"]');
-  ${click('social-section-circles')}${click('create-my-circle')}
+  ${click('social-section-circles')}${setHandle('owner')}${click('create-my-circle')}
   await page.wait('[data-testid="invite-a-friend"]');${click('invite-a-friend')}
   await page.wait('[data-testid="social-link"]');
   console.log(JSON.stringify({url:await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent),owner:${identity}}));
@@ -46,7 +48,7 @@ try{
  log.push({realOllamaReading:true,aiRewrittenStarApproved:true,createdPrivateCircle:true});
  console.log('PASS: real reading → AI-rewritten draft → explicit publication → circle invite');
  const friend=await run('friend',`
-  await page.open(${JSON.stringify(circle.url)});await page.wait('[data-testid="join-this-circle"]');
+  await page.open(${JSON.stringify(circle.url)});${onboard}${setHandle('friend')}await page.wait('[data-testid="join-this-circle"]');
   ${assertText('Joining shares')}${click('join-this-circle')} await page.wait('[data-testid="leave-this-circle"]');
   ${click('tab-home')}${click('tab-sky')}
   if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after joining');
@@ -57,15 +59,13 @@ try{
  `);
  log.push({explicitJoin:friend.explicitJoin,anonymousResonance:friend.anonymousResonance});
  await run('outsider',`
-  await page.open(${JSON.stringify(circle.url)});await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
+  await page.open(${JSON.stringify(circle.url)});${onboard}${setHandle('outsider')}await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
   await page.wait('[data-testid="dismiss-social-notice"]');${assertText('expired or was used')}
   ${click('dismiss-social-notice')}${click('decline-invitation')}${click('tab-home')}${click('tab-sky')}
   if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after declining');
   console.log(JSON.stringify({inviteReplayRejected:true,declinedInvitationConsumed:true}));
  `).then(result=>log.push(result));
- // Onboarding belongs to the reading-flow lane. This synthetic adult fixture is explicit.
  await run('friend',`
-  await page.eval(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));state.ageBand='adult';state.sunSign='leo';localStorage.setItem('crystal-ball-v1',JSON.stringify(state))});
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-home"]');
   ${click('tab-home')}${click('tab-sky')}${click('social-section-circles')}
   await page.wait('[role="switch"]:not([aria-disabled="true"])');
@@ -117,6 +117,7 @@ try{
  await waitFor('friend','[data-testid="open-sealed-forecast"][aria-disabled="true"]','Opened headline',30000,'Speculative forecast');
  await run('friend',`
   ${assertText('Speculative forecast')}
+  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}
   ${click('social-section-circles')}
   await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}
   ${assertText('Someone asked about you.')}
@@ -135,9 +136,9 @@ try{
   await page.wait('[data-testid="create-my-circle"]');
   console.log(JSON.stringify({leftCircle:true}));
  `).then(result=>log.push(result));
- console.log('PASS: social browser drive; real PostgreSQL RLS and Ollama, simulated Auth/PostgREST and adult profile setup');
+ console.log('PASS: social browser drive; real PostgreSQL RLS and Ollama, simulated Auth/PostgREST; adult onboarding through UI');
 }catch(error){log.push({failure:String(error)});console.error(error);process.exitCode=1;}
 finally{
- await mkdir('docs/evidence',{recursive:true});await writeFile('docs/evidence/social-drive.json',JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST and adult profile setup simulated; PostgreSQL RLS and Ollama real',steps:log},null,2));
+ await mkdir('docs/evidence',{recursive:true});await writeFile('docs/evidence/social-drive.json',JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST simulated; adult onboarding through UI, PostgreSQL RLS and Ollama real',steps:log},null,2));
  for(const session of sessions)await new Promise(resolve=>{const child=spawn('chrome-devtools-axi',['stop'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session},stdio:'ignore'});child.on('error',resolve);child.on('close',resolve)});
 }

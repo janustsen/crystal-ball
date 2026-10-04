@@ -57,7 +57,7 @@ try{
  await refresh('friend');
  await run('friend',`await page.wait('[data-testid="open-sealed-forecast"]');${click('open-sealed-forecast')}await page.wait(1000);${text('A glimpse for you.')}`);
  evidence.push({realFriendReadingWithConsent:true,realSealModeration:true,targetedSealUi:true,recipientBallClaim:true});
- await run('owner',`${click('seal-for-a-friend')}await page.wait('[data-testid="create-sealed-link"]',120000);${click('create-sealed-link')}await page.wait('[data-testid="social-link"]');`);
+ await run('owner',`${click('seal-for-a-friend')}await page.wait('[data-testid="create-sealed-link"]:not([aria-disabled="true"])',120000);${click('create-sealed-link')}await page.wait('[data-testid="social-link"]');`);
  const link=await run('owner',`console.log(JSON.stringify(await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent)));`);
  await run('visitor',`await page.open(${JSON.stringify(link)});await page.wait('[data-testid="open-sealed-forecast"]');if((await page.eval(()=>document.body.innerText)).includes('When is your birthday?'))throw Error('Seal blocked by onboarding');${click('open-sealed-forecast')}await page.wait('[data-testid="open-crystal-ball-app"]');${text('A glimpse for you.')}`);
  await run('outsider',`await page.open(${JSON.stringify(link)});await page.wait('[data-testid="open-sealed-forecast"]');${click('open-sealed-forecast')}await page.wait(1200);${text('This seal is unavailable')}`);
