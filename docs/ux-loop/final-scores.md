@@ -29,4 +29,4 @@ Final (round58): median item 8.87 (grader summary median 8.83), lowest item 8.17
 
 All scores and checks are browser evaluations of the Expo web preview. Physical iPhone checks (VoiceOver, native keyboard, native sharing and frame rate) are not done and remain a later item. Structural and visual checks do not establish forecast accuracy.
 
-Round evidence and grader outputs: docs/ux-loop/round-NN/ (runtime.md, grader-a.json, grader-b.json, sheets/).
+Round evidence and grader outputs: docs/ux-loop/round-NN/ (runtime.md, grader-a.json, grader-b.json); round 58 keeps its captures and sheets in git, and earlier binary captures are archived outside the repository (see ARCHIVE-MANIFEST.md).
