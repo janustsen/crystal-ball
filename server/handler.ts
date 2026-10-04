@@ -36,6 +36,8 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    const facts=raw as Facts,question=body.question.trim();
    if(body.action==='predict'){
     // Readings are charged only after a successful forecast; failed attempts use none.
+    // A signed-in app expects metering; an engine without billing config must not serve it free.
+    if(!meter&&request.headers.get('authorization'))throw new BillingError('Readings are unavailable right now. Please try again later.',503);
     const viewer=meter?await meter.user(request):null;
     if(viewer&&readingsLeft(await meter!.balance(viewer))<=0)throw new BillingError(noReadings,402);
     const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);

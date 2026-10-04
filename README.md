@@ -4,7 +4,7 @@ Your forecast, then check back. An astrology-flavoured Expo / React Native oracl
 
 - Cosmic glass orb, five tabs, local knowledge/history, editable facts, safe-topic redirects.
 - Local Qwen through Ollama; deterministic numeric scenarios and constrained generation.
-- Optional Apple backup to Supabase with RLS; mock RevenueCat pricing; native notification wiring.
+- Optional Apple backup to Supabase with RLS; RevenueCat purchases with server-owned entitlements (mock in the preview); native notification wiring.
 - Private 9:16 still story cards; friend links; Tonight’s Sky and private Circles.
 
 [Run and account setup](SETUP.md) · [Research decisions](docs/research/decisions.md) · [Current design](docs/design/ui-rules.md) · [Art and motion evidence](docs/evidence/art-pass-2026-10-01/README.md)

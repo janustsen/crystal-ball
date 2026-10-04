@@ -60,6 +60,12 @@ test('the loopback preview without Supabase stays unmetered',async t=>{
  assert.equal(result.kind,'ok');assert.equal(result.balance,undefined);assert.deepEqual(b.calls,[]);
 });
 
+test('an engine without billing config refuses signed-in readings instead of serving them free',async t=>{
+ const b=boundary(t,{});
+ const response=await handler(()=>undefined)(predict('Bearer user-token'));
+ assert.equal(response.status,503);assert.equal(b.models(),0);
+});
+
 test('RevenueCat webhook requires its secret and reconciles every Supabase user on the event',async t=>{
  const b=boundary(t,{});
  const send=(authorization:string)=>handler(env())(new Request('http://localhost/revenuecat',{method:'POST',headers:{authorization},body:JSON.stringify({event:{type:'TRANSFER',app_user_id:'$RCAnonymousID:abc',transferred_to:[viewer]}})}));
@@ -98,4 +104,14 @@ test('a published Circle forecast is saved once and the server balance replaces 
  assert.strictEqual(saveCircleReading(saved,forecast),saved);
  assert.strictEqual(saveCircleReading({...state,onboardingDone:false,ageConfirmed:false},forecast).history.length,0);
  assert.deepEqual(withBalance(saved,balance({plus:true,packs:7,used:3})),{...saved,plus:true,credits:7,usage:{day:'2026-10-04',count:3}});
+});
+
+test('the StoreKit test configuration matches the store catalog and trial',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const {plans,packs,trialProduct}=await import('../src/billing.ts');
+ const kit=JSON.parse(readFileSync(new URL('../store/CrystalBall.storekit',import.meta.url),'utf8'));
+ const subscriptions=kit.subscriptionGroups[0].subscriptions,products=[...subscriptions,...kit.products];
+ for(const item of [...plans,...packs])assert.equal(`$${products.find((p:any)=>p.productID===item.product)?.displayPrice}`,item.price,item.product);
+ assert.deepEqual(subscriptions.filter((s:any)=>s.introductoryOffer).map((s:any)=>[s.productID,s.introductoryOffer.paymentMode,s.introductoryOffer.subscriptionPeriod]),[[trialProduct,'free','P3D']]);
+ assert.ok(kit.products.every((p:any)=>p.type==='Consumable'));
 });

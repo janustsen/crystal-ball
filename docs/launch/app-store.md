@@ -13,7 +13,7 @@
 | Login (5.1.1) | No first-launch sign-in. Apple backup is reached from You only. Native linking/restore requires configuration and a device drive. |
 | Teens / social UGC (1.2) | Onboarding and social workers own the 13+ gate and teen controls. Verify AI filtering before every publication, report, block, repeated-report auto-hide, timely moderation and reachable contact details on the merged app. Not verified by this launch-only branch. |
 | Complete app (2.1) | Hosted authenticated engine, live support/privacy URLs, signing, icons/screenshots and review access remain release work. |
-| Payments (3.1) | Mock plans clearly say no payment. Replace with reviewed IAP products, restore, subscription terms and real entitlements before monetization. |
+| Payments (3.1) | IAP products, restore, Apple subscription management link, renewal terms and server entitlements are implemented ([billing](billing.md)); sandbox purchase, Terms/Privacy links and App Store Connect setup remain. |
 
 These are our application-specific conclusions against [Apple's review guidelines](https://developer.apple.com/app-store/review/guidelines/), not Apple's approval.
 
@@ -28,7 +28,7 @@ Draft for a hosted engine + Supabase backup release; reconcile with final SDK ma
 | Financial information / other financial info (assets, debts, savings supplied for money readings) | App functionality | Yes when saved | No |
 | Coarse location / school selection | See the [school privacy boundary](../social/school.md#app-store-privacy-and-native-release-note); volunteered city is used for readings | Yes for saved city or chosen school | No |
 | Birthday / school / sun sign and social content | Age gating, personalization and approved social features | Yes when saved or mirrored | No |
-| Purchase history | App functionality, once real RevenueCat billing is enabled | Review SDK configuration | No intended tracking |
+| Purchase history | App functionality (RevenueCat and the Supabase reading ledger) | Yes | No intended tracking |
 | Email/name | No name/email scopes requested by the app; audit identity-provider claims retained by Supabase before deciding whether to declare | Potentially yes | No |
 | Audio data | App does not retain audio; verify OS speech processing and any retained third-party audio | Pending native audit | No intended tracking |
 | Diagnostics / device identifiers | No analytics added here; review Expo, RevenueCat and production server logs | Pending release audit | No intended tracking |
