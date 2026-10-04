@@ -8,7 +8,7 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await page.addInitScript(prediction=>localStorage.setItem('crystal-ball-v1',JSON.stringify({onboardingDone:true,ageConfirmed:true,facts:{},history:[prediction],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},largeText:false,reduceMotion:true})),prediction);
  await page.goto(base);await page.getByTestId('tab-history').click();await page.getByRole('button').filter({hasText:prediction.headline}).click();await page.getByTestId('share-this-glimpse').click();await page.getByRole('img').waitFor();await expect(page.getByTestId('export-animated-story')).toHaveCount(0);await page.getByTestId('share-more').click();
 
- await expect(page.getByTestId('preview-story-card')).toContainText('Tap to enlarge');
+ await expect(page.getByTestId('preview-story-card')).toContainText('Enlarge');
  await expect(page.getByRole('img')).toHaveAccessibleName(new RegExp(prediction.headline.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
  await page.getByTestId('preview-story-card').focus();await page.keyboard.press('Enter');
  await expect(page.getByTestId('share-image-text')).toHaveText(prediction.headline);

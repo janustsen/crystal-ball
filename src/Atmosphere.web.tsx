@@ -5,7 +5,7 @@ const css=`
 .apothecary{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#160e09;isolation:isolate}
 .room-layer{position:absolute;inset:-4%;transform:translate(calc(var(--px,0)*-5px),calc(var(--py,0)*-3px)) scale(1.04);transition:transform 850ms cubic-bezier(.2,.7,.2,1),opacity 600ms;transform-origin:50% 50%}
 .room-layer>div{width:100%;height:100%}.room-defocus{opacity:0}.apothecary.focused .room-layer{transform:translate(calc(var(--px,0)*-9px),2%) scale(1.3)}.apothecary.focused .room-defocus{opacity:1}
-.room-shelves,.room-hearth{opacity:0}.apothecary[data-place=history] .room-shelves,.apothecary[data-place=circles] .room-hearth{opacity:1}
+.room-base{opacity:1;transition:transform 850ms cubic-bezier(.2,.7,.2,1),opacity 160ms 160ms}.room-shelves,.room-hearth{opacity:0;transition:transform 850ms cubic-bezier(.2,.7,.2,1),opacity 160ms}.apothecary[data-place=history] .room-base,.apothecary[data-place=circles] .room-base{opacity:0;transition-delay:0ms}.apothecary[data-place=history] .room-shelves,.apothecary[data-place=circles] .room-hearth{opacity:1;transition-delay:0ms,160ms}
 .room-doorframe{position:absolute;inset:-4%;opacity:.75;transform:translate(calc(var(--px,0)*13px),calc(var(--py,0)*5px)) scale(1.05);transition:transform 850ms ease,opacity 650ms}.room-doorframe>div{width:100%;height:100%}.focused .room-doorframe{transform:scale(1.55);opacity:0}.utility .room-doorframe{opacity:.25}
 .apothecary[data-place=history] .room-layer{transform:translate(9%,3%) scale(1.2)}.apothecary[data-place=circles] .room-layer{transform:translate(-8%,2%) scale(1.17)}.apothecary[data-place=plans] .room-layer{transform:translate(-2%,-4%) scale(1.23)}
 .room-shade{position:absolute;inset:0;background:linear-gradient(#120904b3,#120904a6 35%,#120904c9);transition:background 500ms}.apothecary.focused .room-shade{background:#140b09a8}.apothecary.utility .room-shade{background:#130b07cf}
@@ -39,7 +39,7 @@ export function Atmosphere({reduce,mood,destination='home',focused=false}:{reduc
  },[reduce]);
  return <div ref={ref} aria-hidden="true" data-place={destination} className={`apothecary${reduce?' reduced':''}${focused?' focused':''}${mood==='utility'?' utility':''}`}>
   <style>{motionCss+css}</style>
-  <div className="room-layer"><Image source={require('../assets/apothecary/room.webp')} resizeMode="cover" style={{width:'100%',height:'100%'}}/></div>
+  <div className="room-layer room-base"><Image source={require('../assets/apothecary/room.webp')} resizeMode="cover" style={{width:'100%',height:'100%'}}/></div>
   <div className="room-layer room-shelves"><Image source={require('../assets/apothecary/shelves.webp')} resizeMode="cover" style={{width:'100%',height:'100%'}}/></div>
   <div className="room-layer room-hearth"><Image source={require('../assets/apothecary/hearth.webp')} resizeMode="cover" style={{width:'100%',height:'100%'}}/></div>
   <div className="room-layer room-defocus"><Image source={require('../assets/apothecary/room-blurred.webp')} resizeMode="cover" style={{width:'100%',height:'100%'}}/></div>
