@@ -81,7 +81,7 @@ async function profile(browser){
  // The app claims the day's omen before inference; snapshotting mid-request would cache an empty omen into every copy.
  const omen=page.waitForResponse(r=>{try{return r.request().postDataJSON()?.action==='omen'}catch{return false}},{timeout:90000});
  await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
- await omen;await page.waitForTimeout(500);
+ await omen;await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}').text,null,{timeout:10000}); // omenKey in src/daily-omen.ts
  const state=await page.context().storageState();await page.context().close();return state;
 }
 
@@ -114,7 +114,7 @@ async function forecastVideo(browser,state,item,file,dir){
  try{
   await page.goto(base);await page.getByTestId('tab-ask').waitFor();const start=now()+.3;await page.waitForTimeout(1500);
   const ev=await ask(page,item.question);await page.waitForTimeout(4000);const end=now();
-  const reading=await latest(page),frames=await stop();
+  const reading=await latest(page),frames=await stop();assertSafe(reading.headline);
   const seconds=await encode(frames,[[start,ev.asked+1],...ev.cards,[ev.reveal-1,end]],[[await still(`<div class="hook">${esc(hook)}</div>`,join(dir,'hook.png')),start,ev.reveal-1],[await still('',join(dir,'label.png')),start,end]],file,dir);
   if(seconds<9.5||seconds>15.5)throw new Error(`Format A must run 10–15 s; got ${seconds} s.`);
   return {hook,question:item.question,headline:reading.headline,dueDate:reading.dueDate,seconds};
@@ -125,7 +125,7 @@ async function receiptVideo(browser,state,item,file,dir){
  assertSafe(item.question);
  let page=await session(browser,{state});
  await page.goto(base);await ask(page,item.question);
- const reading=await latest(page),asked=await page.context().storageState();await page.context().close();
+ const reading=await latest(page),asked=await page.context().storageState();await page.context().close();assertSafe(reading.headline);
  // The app runs at noon on the due date, so History offers the real check-in.
  const due=new Date(`${reading.dueDate}T12:00:00`);
  const hook=assertSafe(item.hook);
@@ -173,6 +173,8 @@ async function omenVideo(browser,state,half,file,dir){
 
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
 if(health?.app!=='crystal-ball')throw new Error(`No Crystal Ball engine at ${base}.`);
+// Hosted inference needs the viewer's in-app AI consent, which a renderer must not grant on anyone's behalf.
+if(health.provider==='hosted')throw new Error('Render against the local engine; the hosted provider requires in-app AI consent.');
 await mkdir(out,{recursive:true});
 const work=await mkdtemp(join(tmpdir(),'cb-content-'));
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -187,7 +189,7 @@ try{
   try{
    const render={A:forecastVideo,B:receiptVideo,C:omenVideo}[format];
    manifest.videos.push({file:name,format,...await render(browser,state,item,join(out,name),dir)});console.log(`PASS ${name}`);
-  }catch(error){manifest.failures.push({file:name,format,error:String(error)});console.log(`FAIL ${name}: ${error.message}`)}
+  }catch(error){await rm(join(out,name),{force:true});manifest.failures.push({file:name,format,error:String(error)});console.log(`FAIL ${name}: ${error.message}`)}
   finally{await rm(dir,{recursive:true,force:true})}
  }
 }finally{
