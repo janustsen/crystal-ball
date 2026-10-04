@@ -1,6 +1,16 @@
 // Compose the same painted ball layers used by OrbVisual for the exported story card.
 import sharp from 'sharp';
 const root='assets/apothecary';
+// Reuse retained room paintings for adjacent places; no new generated artwork.
+await sharp('public/concepts/witch-assets/art/a-backdrop@2x.webp').extract({left:20,top:28,width:532,height:968}).resize({height:1024}).webp({quality:84}).toFile(`${root}/shelves.webp`);
+await sharp('public/concepts/witch-assets/art/c-backdrop@2x.webp').extract({left:20,top:28,width:532,height:968}).resize({height:1024}).modulate({saturation:.8,brightness:.85}).webp({quality:84}).toFile(`${root}/hearth.webp`);
+await sharp('public/concepts/witch-assets/art/c-backdrop@2x.webp').extract({left:125,top:333,width:240,height:256}).resize(480,512).webp({quality:88}).toFile(`${root}/window.webp`);
+const {data:frame,info:frameInfo}=await sharp(`${root}/room.webp`).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+for(let y=0;y<frameInfo.height;y++)for(let x=0;x<frameInfo.width;x++){
+ const edge=Math.min(x,frameInfo.width-1-x),strength=Math.max(0,Math.min(1,(52-edge)/15));
+ frame[(y*frameInfo.width+x)*4+3]=Math.round(255*strength);
+}
+await sharp(frame,{raw:frameInfo}).webp({quality:84}).toFile(`${root}/doorframe.webp`);
 // Preserve chipped edges while lifting the writing area out of the painted shadow.
 const {data:paper,info:paperInfo}=await sharp('public/concepts/witch-assets/art/b-panel@3x.webp').resize({width:700,withoutEnlargement:true}).ensureAlpha().raw().toBuffer({resolveWithObject:true});
 for(let y=0;y<paperInfo.height;y++)for(let x=0;x<paperInfo.width;x++){

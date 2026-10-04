@@ -61,3 +61,7 @@ There is no geometric or grotesk sans anywhere. Each concept uses a storybook or
 ## Honesty and accessibility
 
 Prices, renewal and cancellation terms stay visible on a parchment tag. Icon-only objects keep accessibility labels. Text keeps 4.5:1 contrast against its actual texture, so lettering sits on darkened wood or light parchment and never on busy grain. Enlarging text to 200% reflows objects into a single centred column.
+
+## Material roles within Apothecary
+
+The working-cabinet study at `public/concepts/apothecary-materials.html` compares hanging labels, a cabinet and an open ledger. The implementation uses dark textured wood for primary actions, plain writing paper for fields, and the retained illustrated parchment for choices and information. History uses wide paper summaries on physical shelves, with the date and outcome on separate lines. Retained A/C paintings supply the adjacent shelf and hearth; an extracted B doorway moves as a foreground plane. This reuses existing art rather than claiming new painting or fully reconstructed room geometry.

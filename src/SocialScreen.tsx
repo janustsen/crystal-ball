@@ -1,6 +1,6 @@
 import {Paper} from './Paper';
 import React,{useEffect,useRef,useState} from 'react';
-import {Platform,Pressable,Share,View} from 'react-native';
+import {Image,Platform,Pressable,Share,View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {Input,Action,colors,Orb,styles,Txt,Toggle} from './ui';
 import {sealedLink} from './social-links';
@@ -75,7 +75,8 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    <Txt display style={styles.title}>What if?</Txt><Txt style={styles.caption}>Choose a theme to explore a question.</Txt>
 
    {!offline?<Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>:null}
-   <View testID="tonights-sky" style={{minHeight:state.largeText?0:200,marginVertical:16,backgroundColor:'transparent',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',gap:12}: {})}}>
+   <View testID="tonights-sky" style={{minHeight:state.largeText?0:248,marginVertical:12,backgroundColor:'#17151b',overflow:'hidden',borderRadius:state.largeText?10:110,boxShadow:'inset 0 0 18px #050209, 0 8px 12px #08040088',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',gap:12}: {})}}>
+    <View pointerEvents="none" accessible={false} aria-hidden style={{position:'absolute',width:'100%',height:'100%'}}><Image source={require('../assets/apothecary/window.webp')} resizeMode="stretch" style={{width:'100%',height:'100%',opacity:.2}}/></View>
     {templates.map(([key,prompt])=>{
      const live=stars.filter(star=>star.theme===key),points=live.length?live:schoolOnly?[]:sampleStars.filter(star=>star.theme===key);
      return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{width:'48%',paddingVertical:8,paddingHorizontal:4,minHeight:56,justifyContent:'center',borderBottomWidth:0,borderColor:selected===key?colors.gold:'#614C3466'}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>
@@ -100,7 +101,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    {joining&&invite?<><Txt style={[styles.caption,{marginTop:16}]}>Your invitation is waiting. Connect to review and join.</Txt><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></>:null}
   </View>:<>
    {current&&data?<>
-   <Pressable testID="circle-back" accessibilityRole="button" onPress={()=>setView(null)} style={{minHeight:48,alignSelf:'flex-start',justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ Your little circle</Txt></Pressable>
+   <Pressable testID="circle-back" accessibilityRole="button" onPress={()=>setView(null)} style={{minHeight:48,alignSelf:'center',justifyContent:'center'}}><Txt style={{color:colors.ice}}>‹ Your little circle</Txt></Pressable>
    {current==='profile'?<><Txt testID="circle-view-heading" accessibilityRole="header" display style={styles.title}>Profile & people</Txt><SocialPush/><SocialIdentity key={data.owner} data={data} act={act} busy={busy}/></>:null}
    {current==='friends'?<><Txt testID="circle-view-heading" accessibilityRole="header" display style={styles.title}>Friend readings</Txt><Txt style={styles.caption}>Friends in your Circles can ask the Ball about you only when this is on. They are told nothing of your questions.</Txt>
    <Paper style={styles.panel}><Toggle accessibilityLabel="Friends can ask about me" disabled={busy||data?.profile?.age_band!=='adult'} value={data?.profile?.friends_can_ask===true} onValueChange={allowed=>void act(()=>setFriendConsent(allowed))}/><Txt style={styles.caption}>{!data?'Eligibility unavailable offline.':data.profile?.age_band==='adult'?'Off unless you choose. Only your sun sign and shared themes are used.':'Off for teens and unknown ages.'}</Txt></Paper>
