@@ -15,7 +15,8 @@ export function ExpandableInput({editorTitle,...props}:React.ComponentProps<type
     <View style={{flex:1,width:'100%',maxWidth:430,alignSelf:'center',paddingHorizontal:24}}>
      <View style={{flexDirection:'row',justifyContent:'space-between',gap:16}}>{(['Cancel','Done'] as const).map(label=><Pressable key={label} testID={`editor-${label.toLowerCase()}`} accessibilityRole="button" onPress={()=>close(label==='Done')} style={{minHeight:48,minWidth:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>{label}</Txt></Pressable>)}</View>
      <Txt accessibilityRole="header" style={[styles.caption,{marginVertical:12}]}>{editorTitle}</Txt>
-     <Input fill ref={field} testID="expanded-input" accessibilityLabel={props.accessibilityLabel||editorTitle} multiline value={draft||''} onChangeText={setDraft} maxLength={props.maxLength} placeholder={props.placeholder} placeholderTextColor={colors.muted} style={[styles.input,{flex:1,minHeight:80,fontFamily:fonts.body,fontSize:18,lineHeight:26,textAlignVertical:'top',marginBottom:12}]}/>
+     <View style={{flex:1,minHeight:80,borderWidth:1,borderColor:'#79634A',borderRadius:12,paddingVertical:12,marginBottom:8}}><Input fill ref={field} testID="expanded-input" accessibilityLabel={props.accessibilityLabel||editorTitle} multiline value={draft||''} onChangeText={setDraft} maxLength={props.maxLength} placeholder={props.placeholder} placeholderTextColor={colors.muted} style={[styles.input,{flex:1,minHeight:80,fontFamily:fonts.body,fontSize:18,lineHeight:26,textAlignVertical:'top',borderWidth:0,marginVertical:0,paddingVertical:4}]}/></View>
+     {props.maxLength?<Txt testID="editor-capacity" style={[styles.caption,{marginBottom:8}]}>{draft?.length||0} / {props.maxLength} characters</Txt>:null}
     </View>
    </KeyboardAvoidingView>
   </Modal>
