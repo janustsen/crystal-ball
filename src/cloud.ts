@@ -21,6 +21,13 @@ export async function anonymousOwner(client:SupabaseClient|null=supabase){
  }
  return pending;
 }
+// Metered requests carry the anonymous session; without Supabase (local preview) readings are counted on-device.
+export async function authorization(client:SupabaseClient|null=supabase):Promise<Record<string,string>>{
+ if(!client)return {};
+ await anonymousOwner(client);
+ const {data,error}=await client.auth.getSession();if(error)throw error;
+ return data.session?{Authorization:`Bearer ${data.session.access_token}`}:{};
+}
 export async function restoreBackup(state:AccountState,client:SupabaseClient|null=supabase){
  if(!client)return state;
  const {data,error}=await client.auth.getSession();if(error)throw error;

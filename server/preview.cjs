@@ -3,7 +3,7 @@ const {timingSafeEqual}=require('node:crypto');
 const same=(a,b)=>typeof a==='string'&&Buffer.byteLength(a)===Buffer.byteLength(b)&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
 // Login-free private-network preview; the public client token is not user authentication.
 module.exports=function previewBridge(next,secret){
- const paths={'/engine':'/','/engine/social':'/social','/engine/health':'/health'};
+ const paths={'/engine':'/','/engine/social':'/social','/engine/billing':'/billing','/engine/health':'/health'};
  return (req,res,done)=>{
   const engine=Object.hasOwn(paths,req.url);
   if(!engine)return next(req,res,done);

@@ -5,13 +5,17 @@ import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
+import {billing,billingHandler,BillingError,noReadings} from './billing.ts';
+import {readingsLeft} from '../src/billing.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
  const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160);
- const social=socialHandler(env,model);
+ const meter=billing(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
-  if(new URL(request.url).pathname.endsWith('/social'))return social(request);
+  const path=new URL(request.url).pathname;
+  if(path.endsWith('/social'))return social(request);
   const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':env('APP_ORIGIN')||'http://localhost:8087','Access-Control-Allow-Headers':'content-type, authorization, apikey','Access-Control-Allow-Methods':'POST, OPTIONS'};
   if(request.method==='OPTIONS')return new Response(null,{headers});
+  if(path.endsWith('/billing')||path.endsWith('/revenuecat'))return store(request,headers);
   if(request.method!=='POST')return new Response(JSON.stringify({kind:'error',message:'Use POST.'}),{status:405,headers});
   try {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
@@ -30,8 +34,15 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
    const context={viewerBirthday,ageConfirmed,personName,localDate};
    const facts=raw as Facts,question=body.question.trim();
-   const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:body.action==='plan'?await makePlan(question,facts,model,context):await predict(question,facts,'friend'in body&&body.friend===true,model,context);
+   if(body.action==='predict'){
+    // Readings are charged only after a successful forecast; failed attempts use none.
+    const viewer=meter?await meter.user(request):null;
+    if(viewer&&readingsLeft(await meter!.balance(viewer))<=0)throw new BillingError(noReadings,402);
+    const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);
+    return new Response(JSON.stringify(viewer&&result.kind==='ok'?{...result,balance:await meter!.charge(viewer,result.value.id)}:result),{headers});
+   }
+   const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});
-  } catch(error){return new Response(JSON.stringify({kind:'error',message:error instanceof Error?error.message:'Please try again.'}),{status:400,headers});}
+  } catch(error){return new Response(JSON.stringify({kind:'error',message:error instanceof Error?error.message:'Please try again.'}),{status:error instanceof BillingError?error.status:400,headers});}
  };
 }

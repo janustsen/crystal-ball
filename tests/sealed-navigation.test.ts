@@ -6,6 +6,7 @@ import ts from 'typescript';
 import * as retention from '../src/retention';
 import {circleReading} from '../src/reading-history';
 import {canRead} from '../src/profile';
+import * as billing from '../src/billing';
 
 const code=ts.transpileModule(readFileSync(new URL('../app/index.tsx',import.meta.url),'utf8'),{
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
@@ -22,7 +23,7 @@ function app(onboardingDone=true,history:any[]=[]){
  };
  const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true};
  const imports:Record<string,any>={
-  '../src/retention':retention,react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  '../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},

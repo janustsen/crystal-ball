@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
-import {settleCircleReading} from '../src/reading-history';
 import type {AccountState} from '../src/types';
 
 test('school invitations never reuse filtered circles or another suggestion’s invitation',async()=>{
@@ -34,7 +33,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false};
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
-  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false,settleCircle:(forecast:any)=>settleCircleReading(state,forecast,async next=>{state=next},async()=>{})})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
+  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),

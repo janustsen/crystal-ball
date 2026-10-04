@@ -33,8 +33,8 @@ async function fixture(earlierUpload=false){
  const h=hooks();
  const storeModule=load('../src/store.tsx',{
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
-  './cloud':{mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length||state.circleCharges?.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
-  './social':{publishCircleForecast:async()=>card,markCircleCharged:async()=>{}},
+  './cloud':{mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
+  './social':{publishCircleForecast:async()=>card},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{},reopenCheckIn:()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  },warnings);
@@ -76,11 +76,12 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} reveal surv
  assert.equal(f.state().credits,1);assert.equal(f.state().history.length,1);
 });
 
-for(const mode of ['publish','recover'])for(const replacement of ['forget','restore'])test(`Circle ${mode} completes before backup and orders ${replacement}`,async()=>{
+// The server charges Circle publication; the device keeps its own copy without spending a local credit.
+for(const replacement of ['forget','restore'])test(`Circle publish completes before backup and orders ${replacement}`,async()=>{
  const f=await fixture();let completed=false;
- const work=f.render().settleCircle(mode==='publish'?'draft':f.card).then(()=>{completed=true});
+ const work=f.render().publishCircle('draft').then(()=>{completed=true});
  await tick();assert.equal(completed,true);await work;
- assert.equal(f.state().credits,1);f.render();await tick();
+ assert.equal(f.state().credits,2);assert.deepEqual(f.state().history.map((p:any)=>p.id),['receipt']);f.render();await tick();
  {
   let replaced=false;
   const store=f.render();
@@ -88,33 +89,33 @@ for(const mode of ['publish','recover'])for(const replacement of ['forget','rest
   await tick();assert.equal(replaced,false);
   f.fail();await replacing;assert.equal(replaced,true);
  }
- await f.render().settleCircle(f.card);f.render();await tick();
- assert.equal(f.state().credits,1);assert.deepEqual(f.state().history,[]);
+ f.render();await tick();
+ assert.equal(f.state().credits,2);assert.deepEqual(f.state().history,[]);
 });
 
 
-for(const mode of ['private','publish','recover'])for(const replacement of ['forget','restore'])test(`${mode} completes during an earlier upload and preserves ${replacement} ordering`,async()=>{
+for(const mode of ['private','publish'])for(const replacement of ['forget','restore'])test(`${mode} completes during an earlier upload and preserves ${replacement} ordering`,async()=>{
  const f=await fixture(true);
  assert.deepEqual(f.uploads,[[]]);
  const reading={...readings.circleReading(f.card),circleId:undefined};
- const complete=()=>mode==='private'?f.render().savePrediction(reading):f.render().settleCircle(mode==='publish'?'draft':f.card);
+ const complete=()=>mode==='private'?f.render().savePrediction(reading):f.render().publishCircle('draft'),credits=mode==='private'?1:2;
  let completed=false;
  const work=complete().then(()=>{completed=true});
  await tick();assert.equal(completed,true);await work;
  assert.equal(f.render().backupBusy,false);
- assert.equal(f.state().credits,1);
- assert.deepEqual(f.state().history.map((p:any)=>p.id),mode==='recover'?[]:['receipt']);
+ assert.equal(f.state().credits,credits);
+ assert.deepEqual(f.state().history.map((p:any)=>p.id),['receipt']);
  let retried=false;
  const retry=complete().then(()=>{retried=true});
  await tick();assert.equal(retried,true);await retry;
- assert.equal(f.state().credits,1);
+ assert.equal(f.state().credits,credits);
  assert.deepEqual(f.uploads,[[]]);
  let replaced=false;
  const store=f.render();
  const replacing=(replacement==='forget'?store.forgetAll():store.backup('restore',async()=>{})).then(()=>{replaced=true});
  await tick();assert.equal(replaced,false);
  f.fail();await replacing;f.render();await tick();
- assert.equal(replaced,true);assert.equal(f.state().credits,1);
+ assert.equal(replaced,true);assert.equal(f.state().credits,credits);
  assert.deepEqual(f.state().history,[]);
  assert.ok(f.uploads.every(ids=>ids.length===0));
  assert.equal(f.warnings.length,1);

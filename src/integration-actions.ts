@@ -34,8 +34,8 @@ export function nativeActions(ports:NativePorts){
  },
  async friendLink(question:string){const url=ports.link(question);await ports.share(`Ask the Crystal Ball for yourself: ${url}`,url);return url;},
 };}
-export async function purchaseOfferings(mode:'mock'|'sandbox',platform:string,key:string|undefined,sdk:{configure:(key:string)=>void;get:()=>Promise<unknown>}){
- if(mode==='mock')return {mode,offerings:null};if(platform!=='ios'||!key)throw new Error('RevenueCat sandbox requires the configured iOS development build.');sdk.configure(key);return {mode,offerings:await sdk.get()};
+export async function purchaseOfferings(mode:'mock'|'store',platform:string,key:string|undefined,sdk:{configure:(key:string)=>void;get:()=>Promise<unknown>}){
+ if(mode==='mock')return {mode,offerings:null};if(platform!=='ios'||!key)throw new Error('App Store purchases require the configured iOS build.');sdk.configure(key);return {mode,offerings:await sdk.get()};
 }
 export function voiceSession(port:{permission:()=>Promise<boolean>;start:()=>void;stop:()=>void;active:(value:boolean)=>void;notice:(message:string)=>void}){
  let held=false,started=false;

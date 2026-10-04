@@ -11,11 +11,12 @@ const code=ts.transpileModule(readFileSync(new URL('../src/store.tsx',import.met
 }).outputText;
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 
-for(const lost of [false,true])test(`Store serializes publication and refresh with ${lost?'lost':'successful'} response`,async()=>{
+// The server charges publication; the Store only serializes it and keeps the asker's copy.
+for(const lost of [false,true])test(`Store serializes publication with ${lost?'lost':'successful'} response`,async()=>{
  const day=new Date().toISOString().slice(0,10);
  let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
  const card={id:'receipt',asker_id:'asker',circle_id:'circle',charged_at:null,question:'Will we learn together?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
- let respond!:(value:typeof card)=>void,reject!:(error:Error)=>void,started=false,marks=0;
+ let respond!:(value:typeof card)=>void,reject!:(error:Error)=>void,started=false;
  const response=new Promise<typeof card>((resolve,fail)=>{respond=resolve;reject=fail});
  const slots:any[]=[],effects:(()=>void)[]=[];let cursor=0;
  const react={
@@ -26,7 +27,7 @@ for(const lost of [false,true])test(`Store serializes publication and refresh wi
  };
  const imports:Record<string,any>={
   react,'react-native':{},'./reading-history':readings,'./profile':profile,
-  './social':{publishCircleForecast:async()=>{started=true;return response},markCircleCharged:async()=>{marks++}},
+  './social':{publishCircleForecast:async()=>{started=true;return response}},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  };
@@ -34,25 +35,23 @@ for(const lost of [false,true])test(`Store serializes publication and refresh wi
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{}});
  const render=()=>{cursor=0;const store=module.exports.Store({});effects.splice(0).forEach(effect=>effect());return store};
  render();await tick();const store=render();await tick();
- const publication=store.settleCircle('draft');
+ const publication=store.publishCircle('draft');
  const outcome=publication.then(()=>null,(error:Error)=>error);
  await tick();assert.equal(started,true);
- const refresh=store.settleCircle({...card});
- await tick();assert.equal(marks,0);assert.equal(JSON.parse(disk).credits,2);
+ const forgetting=store.forgetAll();
+ await tick();assert.equal(JSON.parse(disk).credits,2);
  if(lost)reject(new Error('response lost'));else respond(card);
- const error=await outcome;await refresh;
+ const error=await outcome;await forgetting;
  assert.equal(Boolean(error),lost);
- assert.equal(JSON.parse(disk).credits,1);
- assert.deepEqual(JSON.parse(disk).history.map((p:any)=>p.id),lost?[]:['receipt']);
- await store.forgetAll();await store.settleCircle({...card});
- assert.deepEqual(JSON.parse(disk).history,[]);assert.equal(JSON.parse(disk).credits,1);
+ assert.equal(JSON.parse(disk).credits,2);
+ assert.deepEqual(JSON.parse(disk).history,[]);
 });
 
-for(const replacement of ['none','forget','restore'])test(`private saves survive Circle settlement before ${replacement}`,async()=>{
+for(const replacement of ['none','forget','restore'])test(`private saves survive Circle publication before ${replacement}`,async()=>{
  const day=new Date().toISOString().slice(0,10);
  let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
  const card={id:'receipt',asker_id:'asker',circle_id:'circle',charged_at:null,question:'Will we learn together?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
- let respond!:(value:typeof card)=>void,reject!:(error:Error)=>void,started=false,marks=0;
+ let respond!:(value:typeof card)=>void,reject!:(error:Error)=>void,started=false;
  const response=new Promise<typeof card>((resolve,fail)=>{respond=resolve;reject=fail});
  const slots:any[]=[],effects:(()=>void)[]=[];let cursor=0;
  const react={
@@ -64,7 +63,7 @@ for(const replacement of ['none','forget','restore'])test(`private saves survive
  const imports:Record<string,any>={
   react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './cloud':{restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
-  './social':{publishCircleForecast:async()=>{started=true;return response},markCircleCharged:async()=>{marks++}},
+  './social':{publishCircleForecast:async()=>{started=true;return response}},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  };
@@ -73,7 +72,7 @@ for(const replacement of ['none','forget','restore'])test(`private saves survive
  const render=()=>{cursor=0;const store=module.exports.Store({});effects.splice(0).forEach(effect=>effect());return store};
  render();await tick();const store=render();await tick();
 
- const publication=store.settleCircle('draft');await tick();
+ const publication=store.publishCircle('draft');await tick();
  const privateReading={...readings.circleReading(card),id:'private',circleId:undefined};
  let saved=false;
  const saving=store.savePrediction(privateReading,{interest:'music'}).then(()=>{saved=true});
@@ -81,7 +80,7 @@ for(const replacement of ['none','forget','restore'])test(`private saves survive
  const replacing=replacement==='forget'?store.forgetAll():replacement==='restore'?store.backup('restore',async()=>{}):Promise.resolve();
  await tick();assert.equal(saved,false);assert.deepEqual(JSON.parse(disk).history,[]);
  respond(card);await Promise.all([publication,saving,duplicate,replacing]);
- assert.equal(saved,true);assert.equal(JSON.parse(disk).credits,0);
+ assert.equal(saved,true);assert.equal(JSON.parse(disk).credits,1);
  assert.deepEqual(JSON.parse(disk).history.map((p:any)=>p.id),replacement==='none'?['private','receipt']:[]);
  assert.deepEqual(JSON.parse(disk).facts,replacement==='none'?{interest:'music'}:{});
 });
