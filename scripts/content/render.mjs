@@ -161,8 +161,8 @@ async function omenVideo(browser,state,half,file,dir){
   await page.goto(base);await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(1500);
   await assertHomeSafe(page);
   app=(await page.screenshot()).toString('base64');
-  // Without the atmosphere layer, the darkened Home screenshot stands in as the art.
-  if(await page.locator('[data-testid="app-shell"]>.atmosphere').count()){await page.addStyleTag({content:'[data-testid="app-shell"]>:not(.atmosphere){visibility:hidden!important}'});await page.waitForTimeout(500)}
+  if(!await page.locator('[data-testid="app-shell"]>.atmosphere').count())throw new Error('Format C requires the .atmosphere art layer; no background captured.');
+  await page.addStyleTag({content:'[data-testid="app-shell"]>:not(.atmosphere){visibility:hidden!important}'});await page.waitForTimeout(500);
   art=(await page.screenshot()).toString('base64');
  }finally{await page.context().close()}
  const bg=`<div class="art" style="background-image:url(data:image/png;base64,${art})"></div><div class="veil"></div>`;

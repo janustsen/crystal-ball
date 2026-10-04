@@ -40,7 +40,7 @@ Before adding a question, run it through the live engine once. Small local model
 ## Boundaries
 
 - Drive through stable testIDs (`tab-*`, `type-instead`, `question-input`, `option-0`, `record-reveal`, `check-in-*`, `daily-omen`), Action labels (`continue`, `meet-the-ball`, `try-again`) and the History row's question text. After a UI change, render a small batch and check each format before rendering the bank.
-- The C background hides everything in the app shell except `.atmosphere`. Without that layer, it falls back to the darkened Home screen.
+- Format C requires the `.atmosphere` art layer and fails with an explicit error if it is absent. Background capture hides everything else in the app shell.
 - Capture uses a CDP screencast at device pixels. Playwright's `recordVideo` would upscale a 360×640 capture.
 - Local engine only. The renderer refuses a hosted provider, because hosted inference requires the viewer's own in-app AI consent.
 - Model headlines and omens pass the same content rules as hooks. A video that fails any check is deleted and listed under `failures`.
