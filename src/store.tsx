@@ -33,7 +33,8 @@ export function Store({children}:React.PropsWithChildren){
   archiveWork.current=work;
   return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
  }
- useEffect(()=>{const timer=setInterval(()=>{if(!locked.current)change(s=>{const day=new Date().toISOString().slice(0,10);return s.usage.day===day?s:{...s,usage:{day,count:0}}})},60000);return()=>clearInterval(timer)},[]);
+ // Server-metered days belong to the server: a new device day refreshes the balance instead of resetting it locally.
+ useEffect(()=>{const timer=setInterval(()=>{const day=new Date().toISOString().slice(0,10);if(serverMetered){if(ready&&day>current.current.usage.day)void loadBalance().then(applyBalance).catch(()=>{});return}if(!locked.current)change(s=>s.usage.day===day?s:{...s,usage:{day,count:0}})},60000);return()=>clearInterval(timer)},[ready]);
  useEffect(()=>{
   let active=true;
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);
@@ -123,7 +124,7 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
- const day=new Date().toISOString().slice(0,10),used=state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
+ const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
  return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}

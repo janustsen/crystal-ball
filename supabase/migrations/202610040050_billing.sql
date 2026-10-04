@@ -1,6 +1,6 @@
 -- Server-owned entitlements. Only the billing service (RevenueCat reconciliation) grants Plus or packs;
 -- every reading is charged here, including Circle forecasts at publication. Clients may only read their row.
-alter table public.social_profiles add column plus_until timestamptz, add column packs integer not null default 0 check(packs>=0);
+alter table public.social_profiles add column plus_until timestamptz, add column store_synced_at timestamptz, add column packs integer not null default 0 check(packs>=0);
 create table public.pack_purchases(
  transaction_id text primary key,
  user_id uuid not null references auth.users on delete cascade,
@@ -12,6 +12,7 @@ create table public.reading_charges(
  reading_id text not null check(length(reading_id) between 1 and 100),
  day date not null,
  source text not null check(source in ('daily','pack')),
+ uses integer not null default 1 check(uses>=1),
  primary key(user_id,reading_id)
 );
 alter table public.pack_purchases enable row level security;
@@ -36,30 +37,38 @@ create function public.reading_balance(viewer uuid) returns jsonb
  end;
 $$;
 
--- Idempotent per reading: retrying the same reading never charges twice.
+-- The first use of a reading is charged and one retry of it is free; every later use debits a new reading.
 create function public.charge_reading(viewer uuid,reading text) returns jsonb
  language plpgsql security definer set search_path='' as $$
- declare today date:=(now() at time zone 'UTC')::date; profile public.social_profiles; used integer;
+ declare today date:=(now() at time zone 'UTC')::date; profile public.social_profiles; used integer; prior integer; target text:=reading;
  begin
   insert into public.social_profiles(user_id) values(viewer) on conflict do nothing;
   select * into profile from public.social_profiles where user_id=viewer for update;
-  if not exists(select 1 from public.reading_charges where user_id=viewer and reading_id=reading) then
-   select count(*) into used from public.reading_charges where user_id=viewer and day=today;
-   if used<(case when coalesce(profile.plus_until>now(),false) then 10 else 1 end) then
-    insert into public.reading_charges values(viewer,reading,today,'daily');
-   elsif profile.packs>0 then
-    update public.social_profiles set packs=packs-1 where user_id=viewer;
-    insert into public.reading_charges values(viewer,reading,today,'pack');
-   else
-    raise exception 'No readings left today';
-   end if;
+  select uses into prior from public.reading_charges where user_id=viewer and reading_id=reading;
+  if prior=1 then
+   update public.reading_charges set uses=2 where user_id=viewer and reading_id=reading;
+   return public.reading_balance(viewer);
+  end if;
+  if prior is not null then
+   target:=reading||':'||prior;
+   update public.reading_charges set uses=prior+1 where user_id=viewer and reading_id=reading;
+  end if;
+  select count(*) into used from public.reading_charges where user_id=viewer and day=today;
+  if used<(case when coalesce(profile.plus_until>now(),false) then 10 else 1 end) then
+   insert into public.reading_charges(user_id,reading_id,day,source) values(viewer,target,today,'daily');
+  elsif profile.packs>0 then
+   update public.social_profiles set packs=packs-1 where user_id=viewer;
+   insert into public.reading_charges(user_id,reading_id,day,source) values(viewer,target,today,'pack');
+  else
+   raise exception 'No readings left today';
   end if;
   return public.reading_balance(viewer);
  end;
 $$;
 
--- RevenueCat reconciliation: subscription expiry is replaced wholesale; each pack transaction credits once.
-create function public.apply_store_entitlements(viewer uuid,entitled_until timestamptz,purchases jsonb) returns jsonb
+-- RevenueCat reconciliation: a subscriber snapshot replaces the expiry only when it is at least as new as the last
+-- applied one, so a delayed stale snapshot cannot undo a renewal. Each pack transaction credits once.
+create function public.apply_store_entitlements(viewer uuid,entitled_until timestamptz,purchases jsonb,snapshot_at timestamptz default now()) returns jsonb
  language plpgsql security definer set search_path='' as $$
  declare granted integer;
  begin
@@ -70,12 +79,16 @@ create function public.apply_store_entitlements(viewer uuid,entitled_until times
    select p->>'id',viewer,(p->>'readings')::integer from jsonb_array_elements(purchases) p
    on conflict do nothing returning readings)
   select coalesce(sum(readings),0) into granted from fresh;
-  update public.social_profiles set plus_until=entitled_until,plus=coalesce(entitled_until>now(),false),packs=packs+granted where user_id=viewer;
+  update public.social_profiles set
+   plus_until=case when store_synced_at is null or snapshot_at>=store_synced_at then entitled_until else plus_until end,
+   store_synced_at=greatest(store_synced_at,snapshot_at),packs=packs+granted
+   where user_id=viewer;
+  update public.social_profiles set plus=coalesce(plus_until>now(),false) where user_id=viewer;
   return public.reading_balance(viewer);
  end;
 $$;
-revoke all on function public.reading_balance(uuid),public.charge_reading(uuid,text),public.apply_store_entitlements(uuid,timestamptz,jsonb) from public,anon,authenticated;
-grant execute on function public.reading_balance(uuid),public.charge_reading(uuid,text),public.apply_store_entitlements(uuid,timestamptz,jsonb) to service_role;
+revoke all on function public.reading_balance(uuid),public.charge_reading(uuid,text),public.apply_store_entitlements(uuid,timestamptz,jsonb,timestamptz) from public,anon,authenticated;
+grant execute on function public.reading_balance(uuid),public.charge_reading(uuid,text),public.apply_store_entitlements(uuid,timestamptz,jsonb,timestamptz) to service_role;
 
 -- Publishing a Circle forecast is the asker's reading; it is charged in the same transaction.
 drop function public.mark_circle_charged(uuid);

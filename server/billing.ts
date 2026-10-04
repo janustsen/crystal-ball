@@ -41,22 +41,27 @@ export function billing(env:Env){
   if(typeof value?.id!=='string')throw new BillingError('Your session expired. Please try again.',401);
   return value.id as string;
  }
- async function authorizeCharge(viewer:string,key:unknown,ask:{question:string;friend:boolean;personName?:string;circle?:string;member?:string;firstName?:string}){
+ // One ledger entry per ask (client key + everything that shapes the forecast): a retry is free once, then charged again.
+ async function authorizeCharge(viewer:string,key:unknown,ask:{question:string;friend:boolean;personName?:string;circle?:string;member?:string;firstName?:string;facts?:Record<string,string>}){
   if(typeof key!=='string'||!uuid.test(key))throw new BillingError('Please start this question again.',400);
-  const identity=JSON.stringify([key.toLowerCase(),ask.question.trim(),ask.friend,ask.personName??null,ask.circle??null,ask.member??null,ask.firstName??null]);
+  const facts=Object.entries(ask.facts??{}).sort(([a],[b])=>a<b?-1:a>b?1:0);
+  const identity=JSON.stringify([key.toLowerCase(),ask.question.trim(),ask.friend,ask.personName??null,ask.circle??null,ask.member??null,ask.firstName??null,facts]);
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(identity));
   const reading=`ask:${Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}`;
-  const response=await fetch(`${base}/rest/v1/reading_charges?user_id=eq.${encodeURIComponent(viewer)}&reading_id=eq.${encodeURIComponent(reading)}&select=reading_id`,{headers:service,signal:AbortSignal.timeout(5000)});
+  const response=await fetch(`${base}/rest/v1/reading_charges?user_id=eq.${encodeURIComponent(viewer)}&reading_id=eq.${encodeURIComponent(reading)}&select=reading_id,uses`,{headers:service,signal:AbortSignal.timeout(5000)});
   const charges=await response.json();
   if(!response.ok||!Array.isArray(charges))throw new Error('Your reading balance is unavailable. Please try again.');
-  if(!charges.length&&readingsLeft(await rpc('reading_balance',{viewer}))<=0)throw new BillingError(noReadings,402);
+  const freeRetry=charges.length>0&&(charges[0].uses??1)<2;
+  if(!freeRetry&&readingsLeft(await rpc('reading_balance',{viewer}))<=0)throw new BillingError(noReadings,402);
   return reading;
  }
  async function reconcile(viewer:string){
   const secret=env('REVENUECAT_SECRET_KEY');if(!secret)throw new BillingError('Store purchases are not connected yet.',503);
   const response=await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(viewer)}`,{headers:{authorization:`Bearer ${secret}`},signal:AbortSignal.timeout(8000)});
   if(!response.ok)throw new Error('The App Store could not be checked. Please try again.');
-  return rpc('apply_store_entitlements',{viewer,...storeEntitlements((await response.json()).subscriber)});
+  // request_date orders snapshots, so a delayed stale fetch cannot overwrite a newer renewal.
+  const json=await response.json();
+  return rpc('apply_store_entitlements',{viewer,...storeEntitlements(json.subscriber),...(typeof json.request_date==='string'?{snapshot_at:json.request_date}:{})});
  }
  // Local verification only: simulated purchases still flow through the real ledger.
  async function simulate(viewer:string,kind:unknown){

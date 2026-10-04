@@ -8,9 +8,9 @@ Real purchases go through RevenueCat (`react-native-purchases`) on iOS. The serv
 |---|---|---|
 | Catalog | `src/billing.ts` | Product ids, decided prices (weekly $1.99 preselected, monthly $5.99, yearly $39.99; 5 readings $1.99, 20 readings $5.99), weekly-only 3-day trial. |
 | Ledger | `supabase/migrations/202610040050_billing.sql` | `social_profiles.plus_until` and `packs`, `pack_purchases` (one pack grant per store transaction) and `reading_charges` (one charge per reading id). Free: 1 reading per UTC day; Plus: 10; packs cover the rest and never expire. Clients can read their own row and nothing else. |
-| Metering | `server/handler.ts`, `server/social.ts` | Personal and friend readings check the balance before inference and charge after a successful forecast. Failed or blocked generation adds no charge; client interruption follows the [retry guidance](../../README.md). |
+| Metering | `server/handler.ts`, `server/social.ts` | Personal and friend readings check the balance before inference and charge after a successful forecast. Failed or blocked generation adds no charge; client interruption follows the [retry guidance](../../README.md). Each ask (client key plus question, answers and subject) is charged once, one retry of it is free, and every later reuse is charged again. |
 | Circle forecasts | `publish_circle_forecast` | Publication charges the asker one reading in the same transaction; no reading, no publication. |
-| Reconcile | `server/billing.ts` | Reads the RevenueCat subscriber (`GET /v1/subscribers/{id}`) and applies it: Plus expiry from entitlement `plus`, one pack grant per transaction. |
+| Reconcile | `server/billing.ts` | Reads the RevenueCat subscriber (`GET /v1/subscribers/{id}`) and applies it: Plus expiry from entitlement `plus`, one pack grant per transaction. The response's `request_date` orders snapshots (`store_synced_at`), so a delayed stale snapshot cannot replace a newer expiry. |
 | Webhook | `supabase/functions/revenuecat` | RevenueCat calls it on every event; it reconciles every Supabase user on the event (including transfers). |
 | App | `src/purchases.ts`, `app/index.tsx` | Configures RevenueCat with the Supabase user id as app user id, shows store prices and trial eligibility, buys, restores, links to Apple's subscription management, then asks the server to reconcile and shows the server balance. |
 
@@ -66,4 +66,3 @@ On a development or TestFlight build signed in with an eligible Sandbox account:
 - Terms of Use (EULA) and Privacy Policy links on the paywall and in App Store metadata (App Review 3.1.2) once the URLs exist; the captain's paywall redesign owns their placement.
 - Consumable refunds are not clawed back from an already-credited pack balance.
 
-- Out-of-order RevenueCat reconciliation (for example, an expiration webhook applied after a newer renewal) can overwrite `plus_until`; tracked as `cb-billing-entitlement-order`, required before real purchases go live.

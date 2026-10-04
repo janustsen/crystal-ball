@@ -12,7 +12,7 @@ try{
  const check=async(fn,message)=>{if(!await page.eval(fn))throw Error(message);console.log('PASS '+message)};
  await click('skip-for-now');await click('confirm-age');await click('view-plans');
  await check(()=>{const r=[...document.querySelectorAll('[role=radio]')];return r.length===3&&r[0].textContent.includes('Weekly')&&r[0].getAttribute('aria-checked')==='true'&&r[0].textContent.includes('$103.48/yr')&&r.every(x=>x.textContent.includes('Renews until canceled in your app store’s subscription settings.'))},'weekly default, yearly equivalent and cancellation terms on all three plans');
- await check(()=>['$1.99 each week','$5.99 each month','$39.99 each year','10 readings a day','never expire','Test mode · no real payments','A reading is never spent if a forecast fails.'].every(x=>document.body.innerText.includes(x)),'exact prices, allowance, permanent packs and test-mode disclosure');
+ await check(()=>['$1.99 each week','$5.99 each month','$39.99 each year','10 readings a day','never expire','Test mode · no real payments','An interrupted forecast may use a reading.'].every(x=>document.body.innerText.includes(x)),'exact prices, allowance, permanent packs and test-mode disclosure');
  for(let i=0;i<3;i++){await page.eval('document.querySelectorAll("[role=radio]")['+i+'].click()');await check(()=>document.querySelectorAll('[role=radio][aria-checked=true]').length===1,'exactly one plan selected')}
  await click('5-readings-1-99-simulate');await click('20-readings-5-99-simulate');
  await check(()=>document.querySelector('[data-testid=view-plans]').textContent==='26 readings','both packs add 25 readings at their advertised prices');

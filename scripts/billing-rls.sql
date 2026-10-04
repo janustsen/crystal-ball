@@ -53,5 +53,18 @@ set role authenticated;
 select proof.reject($q$select public.publish_circle_forecast('80000000-0000-0000-0000-000000000003')$q$,'P0001');
 reset role;
 select proof.assert((select count(*)=0 from public.circle_forecasts where id='80000000-0000-0000-0000-000000000003'),'no reading left means no publication');
+-- One free retry per ask: first use charged, retry free, later uses debit new readings.
+set role service_role;
+delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000000003';
+update public.social_profiles set packs=5,plus_until=null,store_synced_at=null where user_id='00000000-0000-0000-0000-000000000003';
+select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003','ask:g1')->>'used')::int=1,'first use of an ask is charged');
+select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003','ask:g1')->>'used')::int=1,'one retry of the same ask is free');
+select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003','ask:g1')->>'packs')::int=4,'a second retry debits a new reading');
+select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003','ask:g1')->>'packs')::int=3,'every further reuse debits again');
+-- A stale RevenueCat snapshot applied after a newer renewal cannot remove Plus; a newer snapshot still can.
+select public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',now()+interval '7 days','[]','2026-10-04T12:00:00Z');
+select proof.assert((public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',now()-interval '1 day','[]','2026-10-04T11:59:00Z')->>'plus')::boolean,'stale expired snapshot after renewal keeps Plus');
+select proof.assert(not (public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',now()-interval '1 day','[]','2026-10-04T12:01:00Z')->>'plus')::boolean,'newer expired snapshot ends Plus');
+reset role;
 rollback;
 \echo 'PASS: server-owned reading ledger, store reconciliation and Circle publication charges'
