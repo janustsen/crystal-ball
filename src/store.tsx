@@ -9,7 +9,7 @@ import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts} from './types';
 import {mirror,restoreBackup,supabase} from './cloud';
-let writes:Promise<void>=Promise.resolve();
+let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
 const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts)=>Promise<void>;settleCircle:(forecast:CircleForecast|string)=>Promise<CircleForecast>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
@@ -38,13 +38,16 @@ export function Store({children}:React.PropsWithChildren){
  },[hydrationAttempt]);
  useEffect(()=>{if(ready&&!locked.current){writes=writes.catch(()=>{}).then(async()=>{
   const snapshot=current.current;await AsyncStorage.setItem(key,JSON.stringify(snapshot));
-  if(!locked.current&&snapshot.backupOwner&&canRead(snapshot))await mirror(snapshot);
+  uploads=uploads.catch(()=>{}).then(async()=>{
+   const latest=current.current;
+   if(!locked.current&&latest.backupOwner&&canRead(latest))await mirror(latest);
+  }).catch(()=>console.warn('Automatic backup failed; it will retry on the next update.'));
  }).catch(()=>console.warn('Automatic archive persistence failed; it will retry on the next update.'));}},[state,ready,backupBusy]);
  useEffect(()=>{if(ready)for(const reading of state.history)if(reading.outcome)void cancelCheckIn(reading.id).catch(()=>Alert.alert('Reminder cleanup failed','Your answer is saved, but its reminder could not be canceled. Please try checking in again.'));else reopenCheckIn(reading.id);},[ready,state.history]);
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
-   await writes.catch(()=>{});await authenticate();
+   await writes.catch(()=>{});await uploads.catch(()=>{});await authenticate();
    let next:AccountState;
    if(mode==='restore')next=await restoreBackup(current.current);
    else {
@@ -60,7 +63,7 @@ export function Store({children}:React.PropsWithChildren){
  async function forgetAll(){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
-   await writes.catch(()=>{});await forgetOmen(AsyncStorage);
+   await writes.catch(()=>{});await uploads.catch(()=>{});await forgetOmen(AsyncStorage);
    void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));
    updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[]}));
    await AsyncStorage.setItem(key,JSON.stringify(current.current));

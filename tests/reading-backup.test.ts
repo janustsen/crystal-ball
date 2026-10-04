@@ -24,7 +24,7 @@ function load(path:string,imports:Record<string,any>,warnings:string[]){
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)}});
  return module.exports;
 }
-async function fixture(){
+async function fixture(earlierUpload=false){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
  let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
@@ -33,7 +33,7 @@ async function fixture(){
  const h=hooks();
  const storeModule=load('../src/store.tsx',{
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
-  './cloud':{mirror:async(state:any)=>{uploads.push(state.history.map((p:any)=>p.id));if((state.history.length||state.circleCharges?.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
+  './cloud':{mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length||state.circleCharges?.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
   './social':{publishCircleForecast:async()=>card,markCircleCharged:async()=>{}},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
@@ -90,4 +90,32 @@ for(const mode of ['publish','recover'])for(const replacement of ['forget','rest
  }
  await f.render().settleCircle(f.card);f.render();await tick();
  assert.equal(f.state().credits,1);assert.deepEqual(f.state().history,[]);
+});
+
+
+for(const mode of ['private','publish','recover'])for(const replacement of ['forget','restore'])test(`${mode} completes during an earlier upload and preserves ${replacement} ordering`,async()=>{
+ const f=await fixture(true);
+ assert.deepEqual(f.uploads,[[]]);
+ const reading={...readings.circleReading(f.card),circleId:undefined};
+ const complete=()=>mode==='private'?f.render().savePrediction(reading):f.render().settleCircle(mode==='publish'?'draft':f.card);
+ let completed=false;
+ const work=complete().then(()=>{completed=true});
+ await tick();assert.equal(completed,true);await work;
+ assert.equal(f.render().backupBusy,false);
+ assert.equal(f.state().credits,1);
+ assert.deepEqual(f.state().history.map((p:any)=>p.id),mode==='recover'?[]:['receipt']);
+ let retried=false;
+ const retry=complete().then(()=>{retried=true});
+ await tick();assert.equal(retried,true);await retry;
+ assert.equal(f.state().credits,1);
+ assert.deepEqual(f.uploads,[[]]);
+ let replaced=false;
+ const store=f.render();
+ const replacing=(replacement==='forget'?store.forgetAll():store.backup('restore',async()=>{})).then(()=>{replaced=true});
+ await tick();assert.equal(replaced,false);
+ f.fail();await replacing;f.render();await tick();
+ assert.equal(replaced,true);assert.equal(f.state().credits,1);
+ assert.deepEqual(f.state().history,[]);
+ assert.ok(f.uploads.every(ids=>ids.length===0));
+ assert.equal(f.warnings.length,1);
 });
