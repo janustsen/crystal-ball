@@ -1,9 +1,15 @@
 import {useEffect,useRef} from 'react';
-import {Animated,Easing,Image,View} from 'react-native';
+import {Animated,AppState,Easing,Image,View} from 'react-native';
 // Painted room reflections sit above the smoke; the stand occludes the lower glass.
 export function OrbVisual({size,reduce=false,phase}:{size:number;phase?:string;reduce?:boolean}){
  const breath=useRef(new Animated.Value(0)).current;
- useEffect(()=>{breath.setValue(0);if(reduce)return;const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:4300,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false}),Animated.timing(breath,{toValue:0,duration:4300,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false})]));loop.start();return()=>loop.stop()},[reduce,breath]);
+ useEffect(()=>{
+  breath.setValue(0);if(reduce)return;
+  const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:1,duration:4300,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false}),Animated.timing(breath,{toValue:0,duration:4300,easing:Easing.inOut(Easing.sin),useNativeDriver:true,isInteraction:false})]));
+  const sync=(state:string)=>{loop.stop();if(state==='active'){loop.reset();loop.start()}};
+  sync(AppState.currentState);const listener=AppState.addEventListener('change',sync);
+  return()=>{listener.remove();loop.stop()};
+ },[reduce,breath]);
  return <View testID="painted-orb" pointerEvents="none" style={{width:size,height:size*1.125}}>
   <View style={{position:'absolute',left:size*.07,bottom:-size*.015,width:size*.86,height:size*.12,borderRadius:size,backgroundColor:'#07040388',boxShadow:'0 5px 14px #080400'}}/>
   <Image source={require('../assets/apothecary/stand.webp')} style={{position:'absolute',left:size*.1,top:size*.73,width:size*.8,height:size*.395}} resizeMode="stretch"/>
