@@ -39,7 +39,12 @@ export default function App(){
  const params=useLocalSearchParams<{social?:string;question?:string;friend?:string;circle?:string;seal?:string}>();
  const [tab,setCurrentTab]=useState<Tab>('Home'),[flow,setFlow]=useState<Flow>({stage:'ask'}),[question,setQuestion]=useState(''),[choice,setChoice]=useState(''),[other,setOther]=useState(''),[notice,setNotice]=useState(''),[undoFact,setUndoFact]=useState<{key:string;value:string}|null>(null),[why,setWhy]=useState(false),[reviewing,setReviewing]=useState(false),[share,setShare]=useState(false),[capture,setCapture]=useState(false),[paywall,setPlansVisible]=useState(false),[systemReduce,setSystemReduce]=useState(false),[edit,setEdit]=useState<string|null>(null),[editValue,setEditValue]=useState(''),[longWait,setLongWait]=useState(false),[planChoice,setPlanChoice]=useState<PlanKind>('weekly'),[offers,setOffers]=useState<Offer[]|null>(null),[buying,setBuying]=useState(false);
  function setTab(next:Tab){router.setParams({seal:undefined});setCurrentTab(next)}
- function setPaywall(visible:boolean){if(visible)router.setParams({seal:undefined});setPlansVisible(visible);if(visible&&storeAvailable&&!offers)void storeOffers().then(setOffers).catch(()=>setNotice('The App Store is unavailable right now. Please try again in a moment.'))}
+ function setPaywall(visible:boolean){if(visible)router.setParams({seal:undefined});setPlansVisible(visible)}
+ useEffect(()=>{
+  let active=true;setOffers(null);
+  if(paywall&&storeAvailable&&!buying&&!backupBusy)void storeOffers().then(value=>{if(active)setOffers(value)}).catch(()=>{if(active)setNotice('The App Store is unavailable right now. Please try again in a moment.')});
+  return()=>{active=false};
+ },[paywall,buying,backupBusy,state.balanceSnapshot?.owner,state.backupOwner]);
  useEffect(()=>{if(flow.stage!=='approach')return;const timer=setTimeout(()=>setFlow({stage:'listening'}),state.reduceMotion||systemReduce?0:1100);return()=>clearTimeout(timer)},[flow.stage,state.reduceMotion,systemReduce]);
  useDelight({enabled:!!state.ambientSound,listening:flow.stage==='approach'||flow.stage==='listening',thinking:flow.stage==='planning'||flow.stage==='research',revealId:flow.stage==='reveal'&&!reviewing?flow.prediction.id:undefined});
  const [{friend,friendTarget},setReadingIdentity]=useState(()=>readingIdentity({friend:false}));

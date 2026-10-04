@@ -6,6 +6,7 @@ import ts from 'typescript';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
+import {plans,packs} from '../src/billing';
 
 const stamp=(n:number)=>`2026-10-04T00:00:00.${String(n).padStart(6,'0')}Z`;
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
@@ -15,7 +16,7 @@ function hooks(effectsEnabled=true){
   createContext:()=>({Provider:'Provider'}),createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
-  useEffect:(effect:()=>void,deps:any[])=>{const i=cursor++;if(effectsEnabled&&(!slots[i]||deps.some((d,j)=>d!==slots[i][j]))){slots[i]=deps;effects.push(effect)}},
+  useEffect:(effect:()=>void|(()=>void),deps:any[])=>{const i=cursor++;if(effectsEnabled&&(!slots[i]||deps.some((d,j)=>d!==slots[i].deps[j]))){const previous=slots[i];slots[i]={deps};effects.push(()=>{previous?.cleanup?.();slots[i].cleanup=effect()})}},
  };
  return {react,render:(component:()=>any)=>{cursor=0;const result=component();effects.splice(0).forEach(effect=>effect());return result}};
 }
@@ -261,4 +262,40 @@ test('database snapshot time wins over request order and ignores other owners',a
  await store.applyBalance({...snapshot,owner:'other-owner',asOf:stamp(99),packs:20});
  assert.equal(f.state().credits,5);
  assert.equal(f.state().balanceSnapshot.asOf,stamp(3));
+});
+
+test('Plans refreshes trial eligibility after reopen, purchase, restore and owner changes',async()=>{
+ const h=hooks(),pending:((offers:any[])=>void)[]=[];
+ let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,balanceSnapshot:{owner:'one'}};
+ let busy=false,finishPurchase!:()=>void,finishRestore!:()=>void;
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{}})},
+  '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
+  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(resolve=>pending.push(resolve)),buy:()=>new Promise(resolve=>{finishPurchase=()=>resolve('purchased')}),restore:()=>new Promise(resolve=>{finishRestore=()=>resolve({})})},
+  '../src/api':{syncStoreBalance:async()=>({})},
+ },[]);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const trial=()=>render().some(n=>n.children.some((c:any)=>typeof c==='string'&&c.startsWith('Weekly starts with a 3-day free trial')));
+ const settle=async(eligible:boolean)=>{assert.ok(pending.length);pending.shift()!([{kind:'weekly',price:'$1.99',trial:eligible,pkg:{}}]);await tick()};
+ render().find(n=>n.props.testID==='view-plans').props.onPress();render();await settle(true);assert.equal(trial(),true);
+ render().find(n=>n.props.testID==='close-flow').props.onPress();render();
+ render().find(n=>n.props.testID==='view-plans').props.onPress();render();assert.equal(trial(),false);await settle(true);assert.equal(trial(),true);
+ render().find(n=>n.props.label==='Continue with Plus').props.onPress();render();assert.equal(trial(),false);
+ finishPurchase();await tick();render();await settle(false);assert.equal(trial(),false);
+ render().find(n=>n.props.testID==='close-flow').props.onPress();render();
+ render().find(n=>n.props.testID==='view-plans').props.onPress();render();await settle(true);assert.equal(trial(),true);
+ render().find(n=>n.props.onPress&&n.children.some((c:any)=>c?.children?.includes('Restore purchases'))).props.onPress();render();assert.equal(trial(),false);
+ finishRestore();await tick();render();await settle(false);assert.equal(trial(),false);
+ state={...state,balanceSnapshot:{owner:'two'}};render();assert.equal(trial(),false);
+ const stale=pending.shift()!;
+ busy=true;render();busy=false;state={...state,balanceSnapshot:{owner:'three'}};render();
+ stale([{kind:'weekly',price:'$1.99',trial:true,pkg:{}}]);await tick();assert.equal(trial(),false);
+ await settle(false);assert.equal(trial(),false);
 });

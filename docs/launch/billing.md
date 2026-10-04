@@ -63,3 +63,5 @@ On a development or TestFlight build signed in with a Sandbox account: open Plan
 - Texas app-store age-signal plumbing; Android / Play billing; paywall placement experiments; App Store listing copy and screenshots.
 - Terms of Use (EULA) and Privacy Policy links on the paywall and in App Store metadata (App Review 3.1.2) once the URLs exist; the captain's paywall redesign owns their placement.
 - Consumable refunds are not clawed back from an already-credited pack balance.
+
+- Out-of-order RevenueCat reconciliation (for example, an expiration webhook applied after a newer renewal) can overwrite `plus_until`; tracked as `cb-billing-entitlement-order`, required before real purchases go live.
