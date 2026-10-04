@@ -119,15 +119,15 @@ test('forecast outputs resolve typed and general horizons before rendering both 
  };
  const move={location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'6 months'};
  const cases:{question:string;facts:Record<string,string>;headline:RegExp;due:string}[]=[
-  {question:'Who will win the Men’s World Cup?',facts:{competition:'Men’s World Cup',edition:'2030',team:'Spain'},headline:/2030 Men’s World Cup/,due:'2030-12-31'},
-  {question:'Who will win the Women’s World Cup?',facts:{competition:'Women’s World Cup',edition:'2027',team:'Spain'},headline:/2027 Women’s World Cup/,due:'2027-12-31'},
-  {question:'Who will win the NBA championship?',facts:{competition:'NBA championship',edition:'2028',team:'Lakers'},headline:/2028 NBA championship/,due:'2028-12-31'},
+  {question:'Who will win the Men’s World Cup?',facts:{competition:'Men’s World Cup',edition:'2030',team:'Spain'},headline:/2030 Men’s World Cup/,due:'2027-09-30'},
+  {question:'Who will win the Women’s World Cup?',facts:{competition:'Women’s World Cup',edition:'2027',team:'Spain'},headline:/2027 Women’s World Cup/,due:'2027-09-30'},
+  {question:'Who will win the NBA championship?',facts:{competition:'NBA championship',edition:'2028',team:'Lakers'},headline:/2028 NBA championship/,due:'2027-09-30'},
   {question:'Will I move to Berlin?',facts:move,headline:/move to Berlin within a year/,due:'2027-09-30'},
   {question:'Will I move to Berlin?',facts:{...move,work:'Need a new job'},headline:/stay in Boston for a year/,due:'2027-09-30'},
-  {question:'How many users will my project have?',facts:{current_users:'100',weekly_growth:'2',growth_weeks:'104'},headline:/308 users in 104 weeks/,due:'2028-09-27'},
-  {question:'What will my net worth be in 10 years?',facts:{currency:'USD',assets:'10000',debt:'0',monthly_saving:'100',return:'0',saving_growth:'0',withdrawals:'0',windfall:'0',inflation:'No, future money'},headline:/22,000 in 10 years/,due:'2036-09-30'},
+  {question:'How many users will my project have?',facts:{current_users:'100',weekly_growth:'2',growth_weeks:'104'},headline:/308 users in 104 weeks/,due:'2027-09-30'},
+  {question:'What will my net worth be in 10 years?',facts:{currency:'USD',assets:'10000',debt:'0',monthly_saving:'100',return:'0',saving_growth:'0',withdrawals:'0',windfall:'0',inflation:'No, future money'},headline:/22,000 in 10 years/,due:'2027-09-30'},
   {question:'Will I learn Spanish in six months?',facts:{level:'Intermediate',practice:'20 minutes',conversation:'Weekly'},headline:/Spanish in 6 months/,due:'2027-03-30'},
-  {question:'Will EVs lead global sales?',facts:{definition:'A noticeable shift',scenario:'Support increases',evidence:'No additional evidence'},headline:/share in 2027/,due:'2027-12-31'},
+  {question:'Will EVs lead global sales?',facts:{definition:'A noticeable shift',scenario:'Support increases',evidence:'No additional evidence'},headline:/share in 2027/,due:'2027-09-30'},
   {question:'Will I finish next week?',facts:{context_1:'Daily work'},headline:/next week/,due:'2026-10-11'},
   {question:'Will I finish?',facts:{context_1:'Daily work',horizon:'2 months'},headline:/within 2 months/,due:'2026-11-30'},
  ];

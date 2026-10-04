@@ -36,7 +36,7 @@ test('answer validation and forecast generation share the local year boundary',a
    assert.throws(()=>validateAnswer('growth','growth_weeks','1.5'),/whole/);
    assert.equal(forecastDueDate('tomorrow'),tomorrow);assert.equal(forecastDueDate('in 1 week'),week);
    for(const [question,facts,expected] of [
-    ['Will I finish?',{context_1:'Daily writing',horizon:`by ${today.slice(0,4)}`},`${today.slice(0,4)}-12-31`],
+    ['Will I finish?',{context_1:'Daily writing',horizon:`by ${today.slice(0,4)}`},today.endsWith('12-31')?tomorrow:`${today.slice(0,4)}-12-31`],
     ['Will I learn Spanish?',{level:'Intermediate',practice:'20 minutes',conversation:'Weekly',deadline:'tomorrow'},tomorrow],
     ['How many users will my project have?',{current_users:'10',weekly_growth:'2',growth_weeks:'1'},week],
    ] as const){
@@ -57,7 +57,7 @@ test('learning calendar years survive planning and typed or general forecasts',a
  });
  for(const [phrase,deadline,expected] of [
   ['this year','this year','2026-12-31'],
-  ['next year','next year','2027-12-31'],
+  ['next year','next year','2027-10-01'],
   ['in a year','In 1 year','2027-10-01'],
   ['in six months','In 6 months','2027-04-01'],
  ]){

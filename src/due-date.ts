@@ -19,3 +19,9 @@ export function forecastDueDate(horizon:string,now:Date|string=new Date()):strin
  if(!Number.isFinite(date.getTime())||date.getTime()<start)throw new Error('Use a current or future timeframe.');
  return date.toISOString().slice(0,10);
 }
+
+// Forecast horizons can be longer; the first check-in always falls within a year.
+export function checkInDueDate(horizon:string,now:Date|string=new Date()):string {
+ const chosen=forecastDueDate(horizon,now),earliest=forecastDueDate('in 1 day',now),latest=forecastDueDate('in 1 year',now);
+ return chosen<earliest?earliest:chosen>latest?latest:chosen;
+}
