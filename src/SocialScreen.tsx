@@ -75,7 +75,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    <Txt display style={styles.title}>What if?</Txt><Txt style={styles.caption}>Choose a theme to explore a question.</Txt>
 
    {!offline?<Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>:null}
-   <View testID="tonights-sky" style={{minHeight:state.largeText?0:248,marginVertical:12,backgroundColor:'#17151b',overflow:'hidden',borderRadius:42,boxShadow:'inset 0 0 18px #050209, 0 8px 12px #08040088',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',gap:12}: {})}}>
+   <View testID="tonights-sky" style={{minHeight:state.largeText?0:248,marginVertical:12,backgroundColor:'#17151b',overflow:'hidden',borderRadius:42,boxShadow:'inset 0 0 18px #050209, 0 8px 12px #08040088',...(state.largeText?{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',rowGap:4,paddingVertical:18,paddingHorizontal:18,borderRadius:28}: {})}}>
     <View pointerEvents="none" accessible={false} aria-hidden style={{position:'absolute',width:'100%',height:'100%'}}><Image source={require('../assets/apothecary/window.webp')} resizeMode="stretch" style={{width:'100%',height:'100%',opacity:.2}}/></View>
     {templates.map(([key,prompt])=>{
      const live=stars.filter(star=>star.theme===key),points=live.length?live:schoolOnly?[]:sampleStars.filter(star=>star.theme===key);

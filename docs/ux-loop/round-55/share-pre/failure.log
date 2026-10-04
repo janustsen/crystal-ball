@@ -1,0 +1,162 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(received).toEqual(expected) // deep equality
+
+- Expected  -  1
++ Received  + 52
+
+- Array []
++ Array [
++   Object {
++     "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
++     "help": "Scrollable region must have keyboard access",
++     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright",
++     "id": "scrollable-region-focusable",
++     "impact": "serious",
++     "nodes": Array [
++       Object {
++         "all": Array [],
++         "any": Array [
++           Object {
++             "data": null,
++             "id": "focusable-content",
++             "impact": "serious",
++             "message": "Element should have focusable content",
++             "relatedNodes": Array [],
++           },
++           Object {
++             "data": null,
++             "id": "focusable-element",
++             "impact": "serious",
++             "message": "Element should be focusable",
++             "relatedNodes": Array [],
++           },
++         ],
++         "failureSummary": "Fix any of the following:
++   Element should have focusable content
++   Element should be focusable",
++         "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" style=\"max-height: 152px; background-color: rgb(241, 227, 196); box-shadow: rgba(92, 59, 25, 0.25) 0px 2px 6px inset; border-width: 1px; border-style: dashed; border-color: rgba(138, 90, 43, 0.53);\">",
++         "impact": "serious",
++         "none": Array [],
++         "target": Array [
++           "div[data-material=\"parchment\"] > .r-150rngu.r-eqz5dr.r-16y2uox",
++         ],
++       },
++     ],
++     "tags": Array [
++       "cat.keyboard",
++       "wcag2a",
++       "wcag211",
++       "wcag213",
++       "TTv5",
++       "TT4.a",
++       "EN-301-549",
++       "EN-9.2.1.1",
++       "EN-9.2.1.3",
++       "RGAAv4",
++       "RGAA-7.3.2",
++     ],
++   },
++ ]
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toEqual (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-share-options.mjs:2:2893 {
+  matcherResult: {
+    actual: [
+      {
+        id: 'scrollable-region-focusable',
+        impact: 'serious',
+        tags: [
+          'cat.keyboard', 'wcag2a',
+          'wcag211',      'wcag213',
+          'TTv5',         'TT4.a',
+          'EN-301-549',   'EN-9.2.1.1',
+          'EN-9.2.1.3',   'RGAAv4',
+          'RGAA-7.3.2'
+        ],
+        description: 'Ensure elements that have scrollable content are accessible by keyboard in Safari',
+        help: 'Scrollable region must have keyboard access',
+        helpUrl: 'https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright',
+        nodes: [
+          {
+            any: [Array],
+            all: [],
+            none: [],
+            impact: 'serious',
+            html: '<div class="css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx" style="max-height: 152px; background-color: rgb(241, 227, 196); box-shadow: rgba(92, 59, 25, 0.25) 0px 2px 6px inset; border-width: 1px; border-style: dashed; border-color: rgba(138, 90, 43, 0.53);">',
+            target: [Array],
+            failureSummary: 'Fix any of the following:\n' +
+              '  Element should have focusable content\n' +
+              '  Element should be focusable'
+          }
+        ]
+      }
+    ],
+    expected: [],
+    message: 'expect(received).toEqual(expected) // deep equality\n' +
+      '\n' +
+      '- Expected  -  1\n' +
+      '+ Received  + 52\n' +
+      '\n' +
+      '- Array []\n' +
+      '+ Array [\n' +
+      '+   Object {\n' +
+      '+     "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",\n' +
+      '+     "help": "Scrollable region must have keyboard access",\n' +
+      '+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright",\n' +
+      '+     "id": "scrollable-region-focusable",\n' +
+      '+     "impact": "serious",\n' +
+      '+     "nodes": Array [\n' +
+      '+       Object {\n' +
+      '+         "all": Array [],\n' +
+      '+         "any": Array [\n' +
+      '+           Object {\n' +
+      '+             "data": null,\n' +
+      '+             "id": "focusable-content",\n' +
+      '+             "impact": "serious",\n' +
+      '+             "message": "Element should have focusable content",\n' +
+      '+             "relatedNodes": Array [],\n' +
+      '+           },\n' +
+      '+           Object {\n' +
+      '+             "data": null,\n' +
+      '+             "id": "focusable-element",\n' +
+      '+             "impact": "serious",\n' +
+      '+             "message": "Element should be focusable",\n' +
+      '+             "relatedNodes": Array [],\n' +
+      '+           },\n' +
+      '+         ],\n' +
+      '+         "failureSummary": "Fix any of the following:\n' +
+      '+   Element should have focusable content\n' +
+      '+   Element should be focusable",\n' +
+      '+         "html": "<div class=\\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\\" style=\\"max-height: 152px; background-color: rgb(241, 227, 196); box-shadow: rgba(92, 59, 25, 0.25) 0px 2px 6px inset; border-width: 1px; border-style: dashed; border-color: rgba(138, 90, 43, 0.53);\\">",\n' +
+      '+         "impact": "serious",\n' +
+      '+         "none": Array [],\n' +
+      '+         "target": Array [\n' +
+      '+           "div[data-material=\\"parchment\\"] > .r-150rngu.r-eqz5dr.r-16y2uox",\n' +
+      '+         ],\n' +
+      '+       },\n' +
+      '+     ],\n' +
+      '+     "tags": Array [\n' +
+      '+       "cat.keyboard",\n' +
+      '+       "wcag2a",\n' +
+      '+       "wcag211",\n' +
+      '+       "wcag213",\n' +
+      '+       "TTv5",\n' +
+      '+       "TT4.a",\n' +
+      '+       "EN-301-549",\n' +
+      '+       "EN-9.2.1.1",\n' +
+      '+       "EN-9.2.1.3",\n' +
+      '+       "RGAAv4",\n' +
+      '+       "RGAA-7.3.2",\n' +
+      '+     ],\n' +
+      '+   },\n' +
+      '+ ]',
+    name: 'toEqual',
+    pass: false
+  }
+}
+
+Node.js v26.10.0
