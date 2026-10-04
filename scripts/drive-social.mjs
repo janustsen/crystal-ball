@@ -3,13 +3,14 @@ import {chromium} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 const out=process.env.EVIDENCE_DIR||'docs/evidence';await mkdir(out,{recursive:true});
+const runId=Date.now().toString(36);
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],sessions=new Map();
 const browser=await chromium.launch({channel:'chrome',headless:true});let capture=0;
 async function run(name,script){
  let native=sessions.get(name);
  if(!native){
   const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true});native=await context.newPage();sessions.set(name,native);
-  await native.goto(base);await fillBirthday(native,'1995-06-15');await native.getByTestId('continue').click();await native.getByTestId('skip-for-now').click();
+  await native.goto(base);await fillBirthday(native,'1995-06-15');await native.getByTestId('continue').click();await native.getByTestId('meet-the-ball').click();await native.getByTestId('tab-home').waitFor();
  }
  const page={open:url=>native.goto(url),click:selector=>native.locator(selector).click(),fill:(selector,value)=>native.locator(selector).fill(value),eval:fn=>native.evaluate(fn),wait:(value,timeout=30000)=>typeof value==='number'?native.waitForTimeout(value):native.locator(value).waitFor({timeout})};
  let output='';await new Function('page','console',`return (async()=>{${script}})()`)(page,{log:value=>{output+=String(value)}});
@@ -26,15 +27,14 @@ async function waitFor(name,selector,label,ms=95000,expectedText=''){
  }while(Date.now()<deadline);
  throw new Error(`${label} did not appear: ${last?.text}`);
 }
-const onboard=`await page.wait('[data-testid="onboarding-birthday"]');await page.fill('[data-testid="onboarding-birthday"]','1995-06-15');await page.click('[data-testid="continue"]');await page.wait('[data-testid="meet-the-ball"]');await page.click('[data-testid="meet-the-ball"]');`;
 const click=id=>`await page.click('[data-testid="${id}"]');`;
 const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
-const setHandle=person=>`await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+runId)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`;
+const setHandle=person=>`await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+runId)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}${click('circle-view-profile')}await page.wait('[data-testid="search-people"]');${click('circle-back')}`;
 const identity=`await page.eval(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)).user.id:null})`;
 
 try{
  const circle=await run('owner',`
-  await page.open(${JSON.stringify(base)});${onboard}await page.wait('[data-testid="tab-sky"]');
+  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');
   ${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
   await page.wait('[data-testid="option-0"]',65000);
@@ -44,7 +44,7 @@ try{
   await page.wait('[data-testid="publish-anonymous-star"]',120000);
   ${assertText('Approve your anonymous wording')}${click('publish-anonymous-star')}
   await page.wait('[data-testid="remove-my-star"]');
-  ${click('social-section-circles')}${setHandle('owner')}${click('create-my-circle')}
+  ${click('social-section-circles')}${setHandle('owner')}${click('create-my-circle')}${click('circle-view-1')}
   await page.wait('[data-testid="invite-a-friend"]');${click('invite-a-friend')}
   await page.wait('[data-testid="social-link"]');
   console.log(JSON.stringify({url:await page.eval(()=>document.querySelector('[data-testid="social-link"]').textContent),owner:${identity}}));
@@ -52,8 +52,8 @@ try{
  log.push({realOllamaReading:true,aiRewrittenStarApproved:true,createdPrivateCircle:true});
  console.log('PASS: real reading → AI-rewritten draft → explicit publication → circle invite');
  const friend=await run('friend',`
-  await page.open(${JSON.stringify(circle.url)});${onboard}${setHandle('friend')}await page.wait('[data-testid="join-this-circle"]');
-  ${assertText('Joining shares')}${click('join-this-circle')} await page.wait('[data-testid="leave-this-circle"]');
+  await page.open(${JSON.stringify(circle.url)});${setHandle('friend')}await page.wait('[data-testid="join-this-circle"]');
+  ${assertText('Joining shares')}${click('join-this-circle')}${click('circle-view-1')} await page.wait('[data-testid="leave-this-circle"]');
   ${click('tab-home')}${click('tab-sky')}
   if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after joining');
   ${click('social-section-sky')}${click('sky-theme-learning')}
@@ -63,7 +63,7 @@ try{
  `);
  log.push({explicitJoin:friend.explicitJoin,anonymousResonance:friend.anonymousResonance});
  await run('outsider',`
-  await page.open(${JSON.stringify(circle.url)});${onboard}${setHandle('outsider')}await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
+  await page.open(${JSON.stringify(circle.url)});${setHandle('outsider')}await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
   await page.wait('[data-testid="dismiss-social-notice"]');${assertText('expired or was used')}
   ${click('dismiss-social-notice')}${click('decline-invitation')}${click('tab-home')}${click('tab-sky')}
   if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after declining');
@@ -71,14 +71,14 @@ try{
  `).then(result=>log.push(result));
  await run('friend',`
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-home"]');
-  ${click('tab-home')}${click('tab-sky')}${click('social-section-circles')}
-  await page.wait('[role="switch"]:not([aria-disabled="true"])');
-  await page.click('[role="switch"]');
+  ${click('tab-home')}${click('tab-sky')}${click('social-section-circles')}${click('circle-view-friends')}
+  await page.wait('[aria-label="Friends can ask about me"]:not([aria-disabled="true"])');
+  await page.click('[aria-label="Friends can ask about me"]');
   console.log(JSON.stringify({adultOptInUsed:true}));
  `).then(result=>log.push(result));
  await run('owner',`
   ${click('view-plans')}${click('continue-with-plus-simulate')}${click('close-flow')}
-  ${click('tab-sky')}${click('social-section-circles')}
+  ${click('tab-sky')}${click('social-section-circles')}${click('circle-view-1')}
   console.log(JSON.stringify({stage:'Plus selected'}));
  `);
  const ownerFacts=await run('owner',`console.log(JSON.stringify(await page.eval(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).facts)));`);
@@ -92,8 +92,8 @@ try{
  console.log('PASS: consented Friend reading returned');
  for(const fromHistory of [false,true]){
   await run('owner',`
-   ${fromHistory?`${click('close-flow')}${click('tab-history')}await page.eval(()=>{const button=[...document.querySelectorAll('[role="button"]')].find(b=>b.textContent.includes('creative goal'));if(!button)throw Error('Missing archived Friend reading');button.click()});`:''}
-   await page.eval(()=>{const button=[...document.querySelectorAll('[role="button"]')].find(b=>b.textContent==='Edit question');if(!button)throw Error('Missing Edit question');button.click()});
+   ${fromHistory?`${click('close-flow')}${click('tab-history')}await page.eval(()=>{const button=[...document.querySelectorAll('[role="button"]')].find(b=>b.textContent.includes(JSON.parse(localStorage.getItem('crystal-ball-v1')).history[0].headline));if(!button)throw Error('Missing archived Friend reading');button.click()});`:''}
+   ${click('reading-more')}await page.eval(()=>{const button=[...document.querySelectorAll('[role="button"]')].find(b=>b.textContent==='Edit question');if(!button)throw Error('Missing Edit question');button.click()});
    ${assertText('For a friend')}
    ${click('look-into-the-future')}
    console.log(JSON.stringify({stage:'Friend edit requested'}));
@@ -123,8 +123,7 @@ try{
   ${assertText('Speculative forecast')}
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}
   ${click('social-section-circles')}
-  await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}
-  ${assertText('Someone asked about you.')}
+  ${assertText('Someone asked about you.')}${click('circle-view-1')}await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}
   console.log(JSON.stringify({openedByOrbTap:true,privateActivityVisible:true,anonymousFriendNotice:true,reactionSent:true}));
  `).then(result=>log.push(result));
  await run('outsider',`

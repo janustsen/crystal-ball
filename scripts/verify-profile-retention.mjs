@@ -20,7 +20,7 @@ try{
  await page.getByTestId('tab-you').click();
  await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));Object.assign(state,{birthTime:'14:30',birthPlace:'Copenhagen',moonSign:'aries',risingSign:'leo',history:[{id:'birthday-fixture',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-01T12:00:00Z',label:'Speculative',why:'Practice continues.',facts:{birthday:'1995-06-15',level:'Beginner'},sources:[],assumptions:[],friend:false}]});localStorage.setItem('crystal-ball-v1',JSON.stringify(state));}); // test fixture, no user-controlled data; nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
  await page.reload();await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await page.getByTestId('save-birthday').click();
- await expect(page.getByText('aries Moon · leo rising')).toBeVisible();expect((await stored()).birthTime).toBe('14:30');
+ await expect(page.getByText('Aries Moon · Leo rising')).toBeVisible();expect((await stored()).birthTime).toBe('14:30');
  await page.getByTestId('edit-birthday').click();await page.getByTestId('remove-birthday-options').click();await page.getByTestId('forget-birthday').click();
  await expect(page.getByText('Your Sun sign is a mystery')).toBeVisible();
  await expect.poll(async()=> (await stored()).birthday).toBeUndefined();
@@ -32,7 +32,7 @@ try{
  await page.getByTestId('tab-home').click();expect(requests.filter(r=>r.action==='omen')).toHaveLength(1);
  await page.clock.setFixedTime(new Date('2026-10-02T00:30:00Z'));await page.reload();
  await expect.poll(()=>requests.filter(r=>r.action==='omen').length).toBe(2);expect(requests.filter(r=>r.action==='omen')[1].facts.sun_sign).toBeUndefined();
- await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await fillBirthday(page,'1996-07-15');await page.getByTestId('save-birthday').click();await expect(page.getByText('cancer Sun',{exact:true})).toBeVisible();
+ await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await fillBirthday(page,'1996-07-15');await page.getByTestId('save-birthday').click();await expect(page.getByText('Cancer Sun',{exact:true})).toBeVisible();
  await page.getByTestId('edit-birthday').click();await fillBirthday(page,'');await page.getByTestId('save-birthday').click();await expect(page.getByText('Your Sun sign is a mystery')).toBeVisible();expect((await stored()).ageConfirmed).toBe(true);
  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I finish my draft tomorrow?');
  await page.route('**/engine',route=>{const body=route.request().postDataJSON();requests.push(body);return route.fulfill({json:{kind:'error',message:'Local date transport probe'}})});
