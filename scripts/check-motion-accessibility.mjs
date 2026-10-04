@@ -14,6 +14,7 @@ try{
  await page.getByRole('switch',{name:'Large text',exact:true}).click();await page.getByTestId('tab-home').click();await still('large text reduced motion');
  const balls=await page.getByTestId('painted-orb').evaluateAll(nodes=>nodes.map(n=>({width:n.getBoundingClientRect().width,visible:n.getBoundingClientRect().bottom<=innerHeight})));expect(balls).toHaveLength(2);expect(balls.every(b=>b.visible)).toBe(true);log.push({balls});
  await page.getByTestId('hero-orb').click();await expect(page.getByTestId('type-instead')).toBeVisible({timeout:1000});log.push({label:'input choice immediately available'});
+ expect(styleErrors).toEqual([]);
  await mkdir(evidence,{recursive:true});await writeFile(evidence+'/reduced-motion.json',JSON.stringify(log,null,2)+'\n');
  console.log('Reduced motion, resume, large text and immediate input choice passed.');
 }finally{await browser.close()}
