@@ -12,7 +12,7 @@ Choose an opted-in friend in Circles and enter their first name, or create a fri
 ## Gotchas
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. scripts/check-share-options.mjs mocks the share sheet and clipboard, including denied-copy fallback to selectable link text. Export, invitation and reminder outcomes use a scrollable result sheet with Done. scripts/check-share-feedback.mjs proves held encoding, failure/retry and return focus. No automatic external posting.
 
-Only the 1080×1920 still PNG is exported. Animated/video export and the ffmpeg server route have been removed.
+Web previews render at 540×960; downloads are rendered separately at 1080×1920. Only the 1080×1920 still PNG is exported. Animated/video export and the ffmpeg server route have been removed.
 
 See [recording usage](../../../../README.md) for replay controls and their privacy boundary. Verify that Done returns to the prior reveal/share state without generating another reading.
 
