@@ -39,7 +39,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   const pos=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
   const uRes=gl.getUniformLocation(program,'uRes'),uT=gl.getUniformLocation(program,'uT'),uOrb=gl.getUniformLocation(program,'uOrb'),uMood=gl.getUniformLocation(program,'uMood'),uAsk=gl.getUniformLocation(program,'uAsk');
   const uOrbClip=gl.getUniformLocation(program,'uOrbClip'),uAskClip=gl.getUniformLocation(program,'uAskClip');
-  const moods:Record<string,number[]>={utility:[.25,.3,.12,.15],calm:[1,.3,.5,1],approach:[1.2,.3,.6,1],listening:[2.2,.3,.6,1],cards:[1.1,.25,.5,1],planning:[3.2,.3,.7,1.1],research:[3.2,.3,.7,1.1],reveal:[1.2,.25,1,1],error:[.45,.2,.1,.7],blocked:[.7,.2,.8,.9]};
+  const moods:Record<string,number[]>={utility:[.25,.3,.12,.15],calm:[1,.3,.5,1],approach:[1.2,.3,.6,1],listening:[2.2,.3,.6,1],ask:[1,.035,.5,1],cards:[1.1,.035,.5,1],planning:[3.2,.035,.7,1.1],research:[3.2,.035,.7,1.1],reveal:[1.2,.25,1,1],error:[.45,.2,.1,.7],blocked:[.7,.2,.8,.9]};
   let m=[...moods.calm],frame=0,last=0,time=20,disposed=false,dirty=true;
   const host=cv.parentElement!;host.classList.add('gl');
   function draw(ts:number){

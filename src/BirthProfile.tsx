@@ -53,7 +53,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   const message=chartStatus==='no-results'?'No matching city. Check the spelling or try a nearby town for an approximate chart.':chartStatus==='search-error'?'City search is unavailable. Try again.':chartStatus==='calculation-error'?'The chart could not be calculated. Try again.':chartStatus==='forgotten'?'Birth time and place forgotten. Your birthday is kept.':'';
   return <View>
    <Pressable testID="close-birth-details" accessibilityRole="button" accessibilityLabel={chartStep==='city'&&!saved?'Back to birth time':'Back to You'} onPress={backChart} style={{alignSelf:'flex-start',minHeight:44,minWidth:44,justifyContent:'center',marginBottom:8}}><Txt style={{color:colors.ice}}>{chartStep==='city'&&!saved?'‹ Birth time':'‹ You'}</Txt></Pressable>
-   <Txt testID="birth-details-heading" accessibilityRole="header" display style={{fontSize:26,lineHeight:32}}>{saved?'Your Moon and rising':chartStep==='time'?'Your birth time':'Your birth city'}</Txt>
+   <Txt testID="birth-details-heading" accessibilityRole="header" display style={{fontSize:22,lineHeight:28}}>{saved?'Your Moon and rising':chartStep==='time'?'Your birth time':'Your birth city'}</Txt>
    {saved?<>
     <Txt accessibilityLiveRegion="polite" style={[styles.caption,{color:colors.gold,marginTop:16}]}>Calculated and saved on this device.</Txt>
     <Txt display style={{fontSize:24,lineHeight:32,marginVertical:16}}>{state.moonSign&&state.moonSign[0].toUpperCase()+state.moonSign.slice(1)} Moon · {state.risingSign&&state.risingSign[0].toUpperCase()+state.risingSign.slice(1)} rising</Txt>
@@ -92,7 +92,7 @@ export function BirthProfile({onEditorChange}:{onEditorChange?:(editing:boolean)
   </View>;
  }
  return <View style={[styles.panel,state.largeText&&{paddingTop:8,marginTop:0}]}>
-  <Txt display style={styles.title}>Your sky</Txt>
+  <Txt display style={[styles.title,{fontSize:22,lineHeight:28}]}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign[0].toUpperCase()+state.sunSign.slice(1)} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · readings for ages 13–17':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · readings for ages 13–17'}</Txt>
   {state.birthday?<Txt style={styles.caption}>Birthday · {formatCalendarDate(state.birthday)}</Txt>:null}

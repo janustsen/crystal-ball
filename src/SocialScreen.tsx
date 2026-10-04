@@ -83,7 +83,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
    <Txt accessibilityRole="header" display style={{fontSize:28,lineHeight:34}}>Circles are offline.</Txt>
    <Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{connecting?'Checking your connection…':version>0?'Still offline. Try again later. Your circle setup is unavailable.':'We can’t check your circle or create one right now.'}</Txt>
    <Action testID="retry-circles" label={connecting?'Checking connection…':'Retry connection'} disabled={connecting} onPress={()=>setVersion(v=>v+1)}/>
-   <View style={[styles.panel,{marginTop:24}]}><Txt display style={styles.title}>Shared sky, private questions.</Txt><Txt style={styles.caption}>Friends share their day, theme and Sun sign. Never their question or forecast.</Txt></View>
+   <View style={[styles.panel,{marginTop:24}]}><Txt display style={[styles.title,{fontSize:20,lineHeight:26}]}>Shared sky, private questions.</Txt><Txt style={styles.caption}>Friends share their day, theme and Sun sign. Never their question or forecast.</Txt></View>
    <Txt style={[styles.caption,{marginTop:16}]}>Circle setup returns when the connection is restored.</Txt>
    {joining&&invite?<><Txt style={[styles.caption,{marginTop:16}]}>Your invitation is waiting. Connect to review and join.</Txt><Action label="Decline invitation" quiet onPress={()=>{setJoining(false);onInviteHandled()}}/></>:null}
   </View>:<>
