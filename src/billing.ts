@@ -20,5 +20,7 @@ export function validBalance(value:unknown):value is Balance{
  const b=value as Record<string,unknown>;
  return typeof b.owner==='string'&&b.owner.length>0&&typeof b.asOf==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(b.asOf)&&Number.isFinite(Date.parse(b.asOf))&&typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day);
 }
+// The server's 402 message; the app opens Plans when it sees it.
+export const noReadings='No readings left today. Choose Plus or a reading pack to keep going.';
 export const dailyReadings=(plus:boolean)=>plus?10:1;
 export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'>)=>Math.max(0,dailyReadings(b.plus)-b.used)+b.packs;

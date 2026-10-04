@@ -1,7 +1,6 @@
-import {packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
+import {noReadings,packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
 type Env=(key:string)=>string|undefined;
 export class BillingError extends Error{constructor(message:string,readonly status:number){super(message)}}
-export const noReadings='No readings left today. Choose Plus or a reading pack to keep going.';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const periodDays={week:7,month:30,year:365};
 

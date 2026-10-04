@@ -6,7 +6,8 @@ import ts from 'typescript';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
-import {plans,packs} from '../src/billing';
+import * as billing from '../src/billing';
+const {plans,packs}=billing;
 
 const stamp=(n:number)=>`2026-10-04T00:00:00.${String(n).padStart(6,'0')}Z`;
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
@@ -20,13 +21,13 @@ function hooks(effectsEnabled=true){
  };
  return {react,render:(component:()=>any)=>{cursor=0;const result=component();effects.splice(0).forEach(effect=>effect());return result}};
 }
-function load(path:string,imports:Record<string,any>,warnings:string[]){
+function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{}),AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{}),AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
-async function fixture(earlierUpload=false,api:Record<string,unknown>={}){
+async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
  let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
@@ -40,7 +41,7 @@ async function fixture(earlierUpload=false,api:Record<string,unknown>={}){
   './social':{publishCircleForecast:async()=>card},
   '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{},reopenCheckIn:()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
- },warnings);
+ },warnings,globals);
  const render=()=>h.render(()=>storeModule.Store({})).props.value;
  render();await tick();render();await tick();
  return {render,card,warnings,uploads,state:()=>JSON.parse(disk),fail:()=>{blocking=false;fail(new Error('backup offline'))}};
@@ -298,4 +299,60 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
  busy=true;render();busy=false;state={...state,balanceSnapshot:{owner:'three'}};render();
  stale([{kind:'weekly',price:'$1.99',trial:true,pkg:{}}]);await tick();assert.equal(trial(),false);
  await settle(false);assert.equal(trial(),false);
+});
+
+test('a phone clock behind the server still refreshes an exhausted balance at server midnight',async()=>{
+ const intervals:(()=>void)[]=[],day=new Date().toISOString().slice(0,10);
+ // Fetched a millisecond before the server's midnight; the phone is still well inside the same day.
+ const asOf=new Date(new Date().setUTCHours(24,0,0,0)-1).toISOString().replace('Z','000Z');
+ let loads=0;
+ const f=await fixture(false,{serverMetered:true,loadBalance:async()=>{loads++;return {owner:'owner',asOf,plus:false,plusUntil:null,packs:0,used:1,day}}},{setInterval:(fn:()=>void)=>intervals.push(fn)});
+ assert.equal(f.render().remaining,0);assert.equal(loads,1);
+ await new Promise(resolve=>setTimeout(resolve,5));
+ intervals.forEach(fn=>fn());
+ assert.equal(loads,2);
+});
+
+test('Ask mirrors the server retry rule and opens Plans on its no-readings response',async()=>{
+ const h=hooks(false),params:any={};let remaining=1,predicts=0,next:'lost'|'empty'='lost';
+ const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(value:any)=>Object.assign(params,value)}},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining,applyBalance:async()=>{}})},
+  '../src/profile':profile,'../src/retention':retention,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{},
+  '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
+  '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(()=>{})},
+  '../src/api':{request:async(action:string)=>{
+   if(action==='plan')return {kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false}]}};
+   predicts++;if(next==='empty')return {kind:'error',message:billing.noReadings};throw new Error('response lost');
+  }},
+ },[]);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const press=async(match:(n:any)=>boolean)=>{render().find(match).props.onPress();await tick()};
+ const plansOpen=()=>render().some(n=>n.children.some((c:any)=>c==='Choose your next chapter.'));
+ const closePlans=()=>press(n=>n.props.testID==='close-flow');
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will I learn?',false);await press(n=>n.props.testID==='look-into-the-future')};
+ await ask();
+ await press(n=>n.props.testID==='option-0');
+ assert.equal(predicts,1);
+ // The interrupted forecast spent the last reading on the server.
+ remaining=0;
+ await ask();
+ await press(n=>n.props.testID==='option-1');
+ assert.equal(predicts,1,'changed answers are a new, charged reading');assert.ok(plansOpen());
+ await closePlans();
+ await press(n=>n.props.testID==='option-0');
+ assert.equal(predicts,2,'the same answers retry once for free');assert.ok(!plansOpen());
+ await press(n=>n.props.label==='Try again');
+ assert.equal(predicts,2,'a second retry is charged');assert.ok(plansOpen());
+ // A stale device balance still lets a charged request through; the server's 402 opens Plans.
+ await closePlans();remaining=1;next='empty';
+ await press(n=>n.props.label==='Try again');
+ assert.equal(predicts,3);assert.ok(plansOpen());
 });

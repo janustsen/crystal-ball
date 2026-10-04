@@ -21,10 +21,12 @@ export function Store({children}:React.PropsWithChildren){
  const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
  const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
+ const serverOffset=useRef(0);
  const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
  async function balanced(state:AccountState,balance:Balance){
   const owner=await anonymousOwner(),previous=state.balanceSnapshot;
   if(balance.owner!==owner||(previous?.owner===owner&&balance.asOf<=previous.asOf))return state;
+  serverOffset.current=Date.parse(balance.asOf)-Date.now();
   return withBalance(state,balance);
  }
  function withArchiveLock<T>(action:()=>Promise<T>){
@@ -33,8 +35,8 @@ export function Store({children}:React.PropsWithChildren){
   archiveWork.current=work;
   return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
  }
- // Server-metered days belong to the server: a new device day refreshes the balance instead of resetting it locally.
- useEffect(()=>{const timer=setInterval(()=>{const day=new Date().toISOString().slice(0,10);if(serverMetered){if(ready&&day>current.current.usage.day)void loadBalance().then(applyBalance).catch(()=>{});return}if(!locked.current)change(s=>s.usage.day===day?s:{...s,usage:{day,count:0}})},60000);return()=>clearInterval(timer)},[ready]);
+ // Server-metered days belong to the server: its clock (offset from the last balance) decides the new day, so a phone clock running behind still refreshes the balance at the server's midnight.
+ useEffect(()=>{const timer=setInterval(()=>{if(serverMetered){if(ready&&new Date(Date.now()+serverOffset.current).toISOString().slice(0,10)>current.current.usage.day)void loadBalance().then(applyBalance).catch(()=>{});return}const day=new Date().toISOString().slice(0,10);if(!locked.current)change(s=>s.usage.day===day?s:{...s,usage:{day,count:0}})},60000);return()=>clearInterval(timer)},[ready]);
  useEffect(()=>{
   let active=true;
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);

@@ -5,9 +5,9 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
 import {Action,colors,fonts,Orb,TabIcon,Screen,styles,Txt} from '../src/ui';
 import {useStore,learnedFacts} from '../src/store';
-import {request,aiProvider,serverMetered,simulatePurchase,syncStoreBalance} from '../src/api';
+import {request,aiProvider,serverMetered,simulatePurchase,syncStoreBalance,loadBalance} from '../src/api';
 import {buy,manageSubscriptions,purchaseMode,restore,storeAvailable,storeOffers,type Offer} from '../src/purchases';
-import {packs,plans,type PackKind,type PlanKind} from '../src/billing';
+import {noReadings,packs,plans,type PackKind,type PlanKind} from '../src/billing';
 import {adaptPlan,factLabels,validateAnswer,validateFact} from '../src/questions';
 import type {Facts,Flow,Plan,Prediction,FriendTarget} from '../src/types';
 import {Atmosphere} from '../src/Atmosphere';
@@ -58,6 +58,13 @@ export default function App(){
  const askIds=useRef(new Map<string,string>());
  const askIdentity=(q:string)=>JSON.stringify([q.trim(),friend,friendTarget?.circle,friendTarget?.member,friendTarget?.firstName,personMode?personName.trim():null]);
  function askId(identity:string){let id=askIds.current.get(identity);if(!id){id=randomUUID();askIds.current.set(identity,id)}return id}
+ // Mirrors server/billing.ts authorizeCharge: one ask key with the same answers may retry once for free; any other use needs a reading.
+ const attempts=useRef(new Map<string,number>());
+ const attemptKey=(identity:string,facts:Facts)=>JSON.stringify([askId(identity),Object.entries(facts).sort(([a],[b])=>a<b?-1:a>b?1:0)]);
+ const freeRetry=(key:string)=>attempts.current.get(key)===1;
+ function attempt(key:string){attempts.current.set(key,(attempts.current.get(key)??0)+1)}
+ // The server is authoritative: its no-readings rejection opens Plans and refreshes a stale balance.
+ function outOfReadings(message:string){if(message!==noReadings)return false;setPaywall(true);if(serverMetered)void loadBalance().then(applyBalance).catch(()=>{});return true}
  const lastReading=useRef<{plan:Plan;answers:Facts;question:string}|null>(null);
  const [aiAllowed,setAiAllowed]=useState(false),[privacyOpen,setPrivacyOpen]=useState(false);
  useEffect(()=>{setLongWait(false);const timer=setTimeout(()=>setLongWait(true),8000);return()=>clearTimeout(timer)},[flow.stage]);
@@ -75,23 +82,28 @@ export default function App(){
  function openAsk(value='',forFriend=false,target?:FriendTarget,subject=''){setReadingIdentity(readingIdentity({friend:forFriend,friendTarget:target}));lastReading.current=null;cancel();setFlow({stage:value?'ask':'approach'});setQuestion(value);setTab('Ask');setWhy(false);setShare(false);setCapture(false);setPersonMode(Boolean(subject));setPersonName(subject)}
  async function begin(){
   const issue=personQuestionIssue(question,personMode?personName.trim():undefined);if(issue){setNotice(issue);return;}
-  if(!question.trim()||!ready||backupBusy||aiProvider&&!aiAllowed||!canRead(state))return;if(remaining<=0&&!askIds.current.has(askIdentity(question))){setPaywall(true);return;}
-  const identity=askIdentity(question),requestId=askId(identity);
+  if(!question.trim()||!ready||backupBusy||aiProvider&&!aiAllowed||!canRead(state))return;
+  const identity=askIdentity(question),friendKey=friendTarget?attemptKey(identity,{}):'';
+  if(remaining<=0&&!(friendTarget?freeRetry(friendKey):askIds.current.has(identity))){setPaywall(true);return;}
+  const requestId=askId(identity);
   const id=++generation.current;controller.current?.abort();const abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);
   setFlow({stage:'planning',question});setNotice('');
-  try{if(friendTarget){const {balance,...result}=await friendForecast(question,friendTarget,abort.signal,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;const reading=assignEdition(result,state.plus);lastReading.current=null;await savePrediction(reading,{},balance);askIds.current.delete(identity);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(question)).catch(()=>{});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);return;}const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
+  try{if(friendTarget){attempt(friendKey);const {balance,...result}=await friendForecast(question,friendTarget,abort.signal,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;const reading=assignEdition(result,state.plus);lastReading.current=null;await savePrediction(reading,{},balance);askIds.current.delete(identity);attempts.current.delete(friendKey);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(question)).catch(()=>{});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);return;}const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
    if(result.kind==='ok'){setFlow({stage:'cards',question,plan:result.value,answers:{},index:0});setChoice('');setOther('')}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question,message:result.message});
-  }catch{if(id===generation.current)setFlow({stage:'error',question,message:`${abort.signal.aborted?'The Ball took too long.':'The mist is too thick.'} ${retryNotice}`})}finally{clearTimeout(timeout)}
+  }catch(error){if(id!==generation.current)return;if(error instanceof Error&&outOfReadings(error.message)){setFlow({stage:'error',question,message:error.message});return}setFlow({stage:'error',question,message:`${abort.signal.aborted?'The Ball took too long.':'The mist is too thick.'} ${retryNotice}`})}finally{clearTimeout(timeout)}
  }
  async function reveal(plan:Plan,answers:Facts,q:string){
-  if(!ready||!canRead(state)||predicting.current)return;if(remaining<=0&&!askIds.current.has(askIdentity(q))){setPaywall(true);return;}
+  if(!ready||!canRead(state)||predicting.current)return;
   const identity=askIdentity(q),requestId=askId(identity);
+  const facts={...(friend||personMode?{}:personalFacts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},key=attemptKey(identity,facts);
+  if(remaining<=0&&!freeRetry(key)){setPaywall(true);return;}
+  attempt(key);
   predicting.current=true;lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
-  try{const result=await request<Prediction>('predict',q,{...(friend||personMode?{}:personalFacts),...plan.provided,...(plan.topic==='general'?Object.fromEntries(plan.cards.map(c=>[c.id,c.id.startsWith('context_')?`${c.question} ${answers[c.id]}`.slice(0,300):answers[c.id]])):answers)},friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
-   if(result.kind==='ok'){const reading=assignEdition(result.value,state.plus);await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance);askIds.current.delete(identity);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
-   else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});
+  try{const result=await request<Prediction>('predict',q,facts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
+   if(result.kind==='ok'){const reading=assignEdition(result.value,state.plus);await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance);askIds.current.delete(identity);attempts.current.delete(key);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
+   else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else{setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});outOfReadings(result.message)}
   }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:`${abort.signal.aborted?'The Ball took too long.':'The mist is too thick.'} Your answers are kept. ${retryNotice}`,retry:{plan,answers}})}finally{clearTimeout(timeout);if(id===generation.current)predicting.current=false}
  }
  function next(selected?:string){if(flow.stage!=='cards')return;const value=selected??(choice==='Other'?other.trim():choice);if(!value)return;try{validateAnswer(flow.plan.topic,flow.plan.cards[flow.index].id,value)}catch(error){setNotice(error instanceof Error?error.message:'Please check this answer.');return;}const answers={...Object.fromEntries(flow.plan.cards.slice(0,flow.index).filter(c=>flow.answers[c.id]).map(c=>[c.id,flow.answers[c.id]])),[flow.plan.cards[flow.index].id]:value};haptic();if(flow.index+1===flow.plan.cards.length){if(selected)setChoice(selected);void reveal(flow.plan,answers,flow.question);return;}setFlow({...flow,plan:adaptPlan(flow.plan,answers),answers,index:flow.index+1});setChoice('');setOther('')}
