@@ -1,0 +1,7 @@
+# Shared-change boundary
+
+PaperButton is used throughout onboarding, answers, settings and disclosures. Its new pressed translation/shadow must not move a neighboring control or alter the writing inset. The shared change affects rendering only while pressed; the normal box dimensions and accessible semantics are unchanged. Real browser focus/pressed captures cover paper and wood at normal/200%, and the full layout sweep checks callers across all states.
+
+PlanLedger changes the plan comparison, not billing or entitlement calculation. The dangerous boundary is selecting one plan while showing another plan's price or terms. The keyboard driver selects all three options and asserts each accessible price, visible interval and selected renewal terms, then exercises the same roving-radio keyboard contract. Weekly annual-equivalent and annual savings assertions remain. The live browser drive exercises simulated purchase/restore; no real billing is claimed.
+
+The shared header/Screen animation change applies only to the unobstructed Home and Ask Approach room scenes. Paywall, Share, onboarding, question entry and follow-up cards retain their existing layout conditions. A red/green geometry test compares the real sphere bounds through Home→Approach at both text scales; the current values match exactly. Chronological captures cover both directions and the destination routes; full layout and reduced-motion checks cover surrounding states.
