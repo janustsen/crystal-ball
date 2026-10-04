@@ -10,7 +10,7 @@ flowchart LR
   Draft -->|asker approves wording| Sky[Today's anonymous Star]
   Sky --> Report[Report or block]
   Report --> Hide[3 distinct reports hide the Star]
-  Reading --> Activity[Circle sees activity + shared group forecasts]
+  Reading --> Activity[Circle activity: see Social v2 below]
   Invite[Single-use link: 7 days] -->|explicit Join| Circle[Private Circle: up to 20]
   Circle --> Consent[Adult friend opts in; default off]
   Consent --> Friend[Plus Friend reading: first name, sign and shared themes only]
@@ -56,7 +56,7 @@ Blocking prevents either account from resonating with or reporting the other's S
 
 Profiles add unique lowercase handles (3–24 letters, digits or underscores), display names and a fixed avatar choice. `search_handles` exposes exactly handle/name/avatar. Adults are searchable by authenticated accounts. Teens are searchable only by explicit teen profiles with the same non-null chosen school. Unknown-age profiles are not discoverable and cannot discover teens; they retain teen safeguards. Blocks hide both directions. Circle-only member projections add identity while keeping sun signs inside shared membership.
 
-Handle invitations are seven-day requests: recipients accept or silently decline; a sender may have at most 20 pending requests created that UTC day. Membership insertion enforces 5 Circles per free account or 10 with Plus, and 20 members per Circle. Owners remove members or transfer ownership. Leaving as owner passes ownership to the earliest remaining member; leaving the last place deletes the Circle.
+Handle invitations are seven-day requests: recipients accept or silently decline; a sender may have at most 20 pending requests created that UTC day. Membership insertion enforces 5 Circles per free account or 10 with Plus, and 20 members per Circle. Owners remove members or transfer ownership. Leaving as owner passes ownership to the earliest remaining member; leaving the last place deletes the Circle. Ownership changes invalidate outstanding links and pending handle requests. Issuance and acceptance lock the Circle before invitation records and revalidate under those locks; membership insertion also serializes on the joining profile. See `scripts/social-invitation-races.py` for concurrent ownership and acceptance coverage.
 
 Joining shares consultation day/theme and sun sign, plus content-free check-in moments and golden draws. Personal questions stay private except for explicitly approved Circle forecasts. Fixed reactions are ✦, ❤️, 🌙 and ✨. Consultation updates record a glow when everyone consulted that UTC day. Recorded glow days remain; nothing breaks or resets. These activities never queue pushes.
 
