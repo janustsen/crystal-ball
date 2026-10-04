@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Expansion 54 mounting study</title><style>
+@font-face{font-family:Fell;src:url(witch-assets/imfellenglishsc.ttf)}@font-face{font-family:Caudex;src:url(witch-assets/caudex.ttf)}*{box-sizing:border-box}body{margin:0;background:#130c08;color:#f1e9dc;font:16px/1.5 Caudex,serif;text-align:center}
+nav{display:flex;gap:6px;justify-content:center;padding:10px}nav button{font:inherit;color:inherit;border:0;background:#352317;padding:8px;min-height:44px}nav button[aria-pressed=true]{color:#ffcf8e;text-decoration:underline}
+.room{max-width:430px;min-height:800px;padding:20px 24px 40px;margin:auto;background:linear-gradient(#160b08cb,#160b08ed),url(witch-assets/art/b-backdrop@2x.webp) center/cover}
+h1{font:400 26px Fell;margin:18px 0}
+.choice{position:relative;display:block;width:100%;margin:12px 0;padding:18px 24px;min-height:56px;font:inherit;color:#382516;background:transparent;border:0;isolation:isolate}
+.choice .art{position:absolute;inset:0;z-index:-1;border-style:solid;border-color:transparent;border-width:0;border-image:url(witch-assets/paper-readable.webp) 65 90 fill / 14px 18px stretch}
+.choice[aria-checked=true]{font-weight:bold}.choice[aria-checked=true]:before{content:'✓ ';color:#5e3a1e}
+.c0 .art{clip-path:polygon(3px 6px,25% 0,52% 3px,78% 0,calc(100% - 3px) 4px,100% 31%,calc(100% - 3px) 67%,100% calc(100% - 4px),75% 100%,49% calc(100% - 3px),26% 100%,0 calc(100% - 4px),3px 66%,0 30%)}
+.v1 .art{clip-path:polygon(2px 3px,18% 1px,47% 4px,71% 0,calc(100% - 2px) 5px,100% 44%,calc(100% - 4px) 78%,100% calc(100% - 2px),66% calc(100% - 4px),38% 100%,14% calc(100% - 2px),0 calc(100% - 5px),4px 52%,0 18%)}
+.v2 .art{clip-path:polygon(4px 2px,33% 4px,58% 0,86% 3px,100% 0,calc(100% - 3px) 36%,100% 71%,calc(100% - 2px) calc(100% - 5px),81% 100%,55% calc(100% - 2px),21% 100%,3px calc(100% - 3px),0 61%,2px 24%)}
+.m .art{transform:scaleX(-1)}
+.thin .art{border-image-width:9px 12px;filter:saturate(.9)}
+.wood{display:block;width:100%;margin-top:26px;padding:16px;min-height:56px;font:inherit;color:#f1e9dc;border:0;background:#382517 url(witch-assets/wood-table.jpg) center/cover;box-shadow:inset 0 3px 2px #b48a5a88,inset 0 -9px 2px #120904;clip-path:polygon(3px 6px,25% 0,52% 3px,78% 0,calc(100% - 3px) 4px,100% 31%,calc(100% - 3px) 67%,100% calc(100% - 4px),75% 100%,49% calc(100% - 3px),26% 100%,0 calc(100% - 4px),3px 66%,0 30%)}
+.tack .art::before,.tack .art::after{content:'';position:absolute;top:7px;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe2a6,#b7863f 45%,#5a3a17 80%);box-shadow:0 2px 2px #2a160899}.tack .art::before{left:12px}.tack .art::after{right:12px}
+.tack .art{border-image-width:9px 12px}
+.inset .choice{margin:10px 0}.inset .art{border-image-width:9px 12px;box-shadow:0 1px 0 #f6e3bd55 inset}.inset .choice::after{content:'';position:absolute;left:6%;right:6%;bottom:-6px;height:8px;z-index:-2;background:radial-gradient(ellipse at 50% 0,#000a,transparent 70%)}
+</style>
+<nav><button data-v="thin">A Round52 edge</button><button data-v="tack">B Brass tacks</button><button data-v="inset">C Contact shadow</button></nav>
+<main class="room"><h1>What matters most?</h1><div id="list"></div><button class="wood">Continue</button></main>
+<script>
+const labels=['Steady progress','A clear turning point','Help from someone close','Something unexpected'];
+function draw(v){document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
+ const cls=i=>'c0 thin'+(v==='tack'?' tack':'');document.getElementById('list').parentElement.classList.toggle('inset',v==='inset');
+ document.getElementById('list').innerHTML=labels.map((l,i)=>`<button class="choice ${cls(i)}" role="radio" aria-checked="${i===1}"><span class="art"></span>${l}</button>`).join('')}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>draw(b.dataset.v));draw(new URLSearchParams(location.search).get('v')||'thin');
+</script></html>

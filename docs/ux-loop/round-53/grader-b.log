@@ -1,0 +1,1479 @@
+Reading prompt from stdin...
+OpenAI Codex v0.158.0
+--------
+workdir: /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a10731-ba3c-7402-b2d9-cedd712ba44f
+--------
+user
+You are an independent blind UX evaluator. Read-only evaluation; do not implement, delegate, supervise, browse other task state, or read other graders/previous rounds. Evaluate the attached labeled screenshots of Crystal Ball, a speculative entertainment app. The selected direction is the witch’s Apothecary: shelves, bottles, hand-cut parchment, storybook lettering and a painted gold orb physically seated in the room. Assess depth/scene integration, material thickness, lighting and occlusion, and camera continuity within surface coherence; penalize flat pasted-on layers or unrelated panels when observed. Sample layout predictions are fixtures and cannot establish model quality. Treat runtime limitations honestly. The owner explicitly requires centered text everywhere; assess readability honestly and propose improvements within that constraint, rather than changing alignment. Apply the frozen stage clarification: assess the browser implementation across the full score range; record deferred physical/native verification separately, without deductions solely for that deferred boundary. Tie each deduction to a specific observed browser deficiency or missing browser evidence. Never infer functionality from a screenshot. Do not award a desired score to satisfy a target.
+
+FROZEN RUBRIC:
+## Rubric: score the screen AND its components
+
+Grade each dimension 0–10. Aesthetic score A = mean of hierarchy, typography/spacing, surface/color coherence. Functional score F = mean of task clarity, feedback/recovery, accessibility. Overall = 0.4A + 0.6F, rounded to one decimal. Apply the same six dimensions to each screen and each meaningful component (orb, tabs, option, input, card, button, modal). Mark genuinely inapplicable dimensions N/A and normalize; never infer an interaction score from a screenshot.
+
+- **6 — usable but visibly rough:** task succeeds; inconsistent spacing, competing emphasis, or weak feedback is obvious. No data loss or unreachable primary action.
+- **8 — clean and dependable:** one clear next action; consistent type/spacing/surface roles; responsive press/loading/error states; 44pt targets; text enlargement, contrast and reduced motion checked. Minor polish remains.
+- **9 — premium and effortless:** all 8 criteria plus continuity through transitions, contextual recovery, concise humane copy, restrained delight, no distracting layout shifts; real phone and assistive-technology checks passed.
+- **10 — exemplary for this task:** all 9 criteria; repeated novice use and representative accessibility/performance checks find no material friction. Reserve for demonstrated outcomes, not taste or resemblance to another app.
+- **0–5:** 0 absent/unusable; 2 major path broken; 4 task possible only with workarounds; 5 works but a serious clarity/accessibility issue remains.
+
+Hard gates: blocked or materially unanswered task/data loss/error disguised as success => overall at most 4. Essential unreadable content, inaccessible primary control or motion preference ignored => at most 5. Unverified runtime/native behavior => provisional grade, cannot certify 9/10. Averages never erase a failed gate.
+
+Loop acceptance: every core screen and critical component >=8, A and F each >=8, no hard-gate failure. Record before/after screenshot at 390×844, action and result, normal/200% text, reduced motion, empty/loading/error/selected state and any untested boundary. Change one issue at a time; keep every failed observation. Browser checks do not prove native haptics, voice, keyboard or screen reader behavior.
+
+
+
+Authorized loop threshold is A >=9 and F >=9 for every screen and meaningful component from both independent graders. This supersedes the report's >=8 acceptance sentence; its evidence requirements and hard gates remain unchanged. Native and physical assistive-technology coverage is unverified, so no 9/10 certification is permitted on that evidence. Grade honestly; the target is not a requested score.
+
+
+Stage clarification from firstmate inbox004: continue scoring the browser implementation provisionally until every screen and component reaches A>=9 and F>=9 there; firstmate will then arrange the physical iPhone/VoiceOver pass. For this stage, judge the demonstrated browser behavior across the full numeric range and record missing physical/native proof separately, rather than lowering every browser score solely for that deferred boundary. This does NOT certify a full/native9/10 or waive a browser accessibility defect. Keep all other anchors, dimensions and failure gates unchanged. Never award a target score merely to complete the loop.
+
+Captain-selected witch’s-house direction: Apothecary. Within surface coherence, explicitly assess **depth/scene integration**: a painted ball seated on a table, consistent room lighting and reflections, foreground occlusion, physical parchment/labels, and camera focus connecting Home to reading and other room destinations. Evaluate both settled composition and observed motion. Text must be centered and short outside explanations; type must have storybook character. Do not equate texture quantity with quality or excuse unreadable controls as atmosphere. Flag missing independent painted layers honestly; do not assume that a static screenshot proves parallax, camera movement, performance or reduced-motion behavior.
+
+All text remains centered per the owner's explicit direction. Judge readability honestly within that constraint; improve grouping, line length and hierarchy rather than recommending left alignment. Material roles now distinguish wood primary actions, plain writing paper inputs, and illustrated parchment choices/information. Evaluate the actual pixels, not these intended roles. Retained shelf/hearth paintings and an extracted doorway supply additional room layers; no new image generation occurred.
+
+
+RUNTIME EVIDENCE:
+# Apothecary browser evidence — round53
+
+Provisional browser evaluation only. Physical iPhone/VoiceOver, native keyboard/tilt, actual OS sharing, native performance and connected social services remain unverified. iOS export checks code/fonts/assets bundling only. Billing is simulated. Interface tests do not establish predictive accuracy. Centered text is an explicit owner constraint.
+
+The paper/wood cut edge now belongs to the painted layer; external contact shadows can reach the room. A real pixel comparison measures1033 shadow pixels below the plan parchment, with unchanged x24/y304/width342/height264. Writing areas remain plain and inset from texture. The plan ledger keeps all prices visible and marks selection with a check and weight. The keyboard driver selects all three options and verifies each price, interval, weekly52-week annual equivalent, yearly savings, renewal/cancellation language and test-mode status. It also exercises radio Arrow/Home/End/Space, roving tab stops, Enter commitment, Back restoration and axe at both scales.
+
+Explanations, saved answers and assumptions use smaller centered passage groups on parchment. Sentence splitting preserves every original word and existing paragraph boundaries; no excerpt replaces the complete reading. Check-in keeps the exact forecast above the three outcome choices and live status on one sheet. The driver verifies every saved outcome, correcting it, persistence/reload, unsaved keyboard changes discarded on reload, original-question keyboard disclosure, unchanged reminder date and zero axe violations at both scales.
+
+The saved birth result groups signs, time and location on one surface. Birth tests cover optional Skip, retained drafts, invalid time, actual Copenhagen lookup, injected no-results/503 with live recovery, save/reload/forget and focus/axe. Birthday editing covers partial/invalid dates, under13 restriction/correction, Cancel and persistence at both scales. Question-context text still explains what is sent and when, and retains saved facts and birthday/recipient-specific detail. The constrained-form driver retrieves the full disclosure and restores context/subject focus.
+
+Share presents a larger centered preview and a soft dark background beneath the image headline. The image retains its full text, uncertainty label and check-in date; private answers are excluded. Browser export tests hold encoding, prevent duplicate encoding, inject failure, retry a real1080×1920 PNG download, show completion and restore focus at normal/200%. Image inspection has an Enlarge cue and full accessible headline, with direct image-text access and keyboard return. Native OS sharing is not proven.
+
+Share invitation tests cover360/390/430 at both scales: fresh-question-only payload, clipboard success/denial fallback, visible URL, cancellation and explicit unsupported browser reminder. navigator.share is mocked; no message or native notification is sent.
+
+Home/Approach retain67%-width sphere geometry. A requestAnimationFrame probe samples both transitions for1800ms with motion enabled at normal/200%; measured x/y/width/height extents are0 in all four runs. This proves stationary foreground bounds, not aesthetic continuity of background paintings. Chronological filmstrips attach Home push/pull, History, Circles, Plans and opening; raw frames, times and recording live under continuity/. Sampling incurs screenshot overhead and is NOT a frame-rate measurement. These captures use explicit engine fixtures; the separate live drive uses actual Ollama. The background transitions themselves remain available for independent visual assessment.
+
+Normal, keyboard-focus and pressed controls are captured separately. Real Tab input establishes :focus-visible before capture. Normal-versus-focused changed pixels:1540/1640 for wood and1358/1456 for parchment at normal/200%. Close and Back measure at least44×44 at both scales, with actual keyboard focus and2px outlines. These focus/target behaviors were already functional; this is direct browser evidence rather than a claimed bug fix.
+
+Sixteen populated-field checks show visible ink at minimum10.706:1 contrast across eight shared field families and both text scales. Twenty-four expanded-editor cases pass360/390/430 ×500/844 ×normal/200%, with >=208px writing space in constrained enlarged cases, complete drafts, Done/Cancel, return focus and zero axe violations. The390×500 enlarged-form check retains500-character question/custom-answer drafts, continuation cues, reachable labels/actions and subject/context validation. Resized viewports simulate a constrained keyboard boundary; they do not verify the native keyboard.
+
+Main text contrast passes18 scenes/285 checks; Why/Share passes60 scenes/663 checks, zero failures. Home checks pass390×844 and430×932 at both scales:60–70% hero, visible orb after onboarding, no question overlap, <=2 default headline lines, omen fit, navigation clearance and no horizontal overflow. Seven opening modes pass normal/golden, OS/app reduced, Skip, interrupted exit and early Share, save-once/no-replay and zero page/axe errors. Both OS and app reduced-motion settings stop animations; restoring motion resumes them.
+
+Typecheck and172 unit tests pass. iOS export succeeds. The actual Ollama drive ends passed:true/errors:[] after a real reading/explanation, saved history/outcome,1080×1920 export, mock plans, sensitive redirects and recoverable errors. The switch passes keyboard off/on, persistence, >=44px targets and axe at both scales; contrast6.115:1 off and4.449:1 on. Full layout passes318 cases (53 states ×360/390/430 ×normal/200%) with zero failures. Isolated scene timing passes all11 samples at the unchanged budgets: >=58fps,p95<=20ms,maximum<=50ms and no long tasks. Actual minimum59.672fps, maximum33.3ms, zero long tasks. Other local browser/build jobs had finished; no host-load waiver. This does not establish native frame rate.
+
+
+Round53 changes. The settled reveal places the full-size orb above a parchment slip holding the label, forecast, check-in date and golden edition note; Why and Share are a paired wood row (stacked at200%) with full accessible names, and Replay and More actions share one quiet row. The 64px orb below the actions is removed. Room paintings now crossfade: the incoming painting reaches full opacity over320ms on top before the outgoing one is removed, in both directions, so no dark backing frame appears between rooms (see continuity filmstrips). At200% the check-in quotes the forecast in the italic body face instead of display capitals, and its status reads "Not saved yet." The enlarged Approach title fits on one line on the table.
+
+Round52 changes. Reading details use one prompt style for every question, condition, section title and source publisher, with a short centered rule between groups. Source titles are body size with date and link beneath. The parchment edge is lighter (9px/12px nine-slice instead of14px/18px) on web; native keeps its previous cap insets. The clipboard-denied invitation link has a label, 15px text, even wrapping and one-tap whole-link selection on web. Compose-read now verifies each answer, assumption and source text in order within its open section; its old single-node assertion predated passage splitting.
+
+Earlier (round51) changes. Decorative paper cuts now use fixed pixel depths at the top and bottom edges instead of percentages, so tall evidence sheets keep a constant cut depth. A dense-sheet check opens explanation, answers, assumptions and sources with300-character facts, three400-character sources and long assumptions at360/390/430 and normal/200%, scrolls each to its start and end, and measures every visible text run: all48 cases pass. Before this change25 failed, minimum contrast1.18. The header close/back glyph is a fixed-size control icon (28px normal,36px at large text,44px line box); its target and accessible name are unchanged. The fallback explanation is one reason group with passages inside it; every original word is verified in order.
+
+A saved check-in folds into a short note with the exact forecast, Saved status and a Change outcome action. Changing shows the three outcomes (one row at normal text, stacked at200%), Save and Cancel; Cancel restores the saved value and returns focus; Save persists through reload; an unsaved change is discarded on reload; the suggested check-in date stays unchanged; axe reports zero violations while viewing and editing, at both scales. Native screen-reader focus movement is not device-verified.
+
+
+Grade EVERY settled screen and key state represented in the sheets (group its corresponding transition with it, assess visible transition continuity). Include ALL represented core states and empty, error, loading, expanded, other-input and populated variants, including main’s birthday/focus/age-confirmation onboarding, birthday editing, optional birth details and named-person input when pictured. Grade these components individually too: hero orb, room destination controls, tab bar, wordmark/balance header, primary button, secondary action, answer choice, question input, large-text input, settings switch, omen content, sky star/selected question, circle surface, history row, plan option, share preview, notice/recovery, typography, atmospheric background; and, when present, birthday input, age confirmation, focus selection, birth-profile surface, birth-details form, named-person control, evidence disclosure and export status. If evidence is missing, record it and provisional scores; do not invent proof. For each screen and component give six 0–10 dimension scores, evidence and concise concrete findings. Use null only for truly inapplicable dimensions, not missing evidence. Return the required JSON. Keep each evidence field to one sentence and findings to ONE concise, actionable sentence per item. Do not classify intentionally labeled synthetic fixture wording as a production-copy bug; runtime evidence states the boundary. Chronological filmstrips, when attached, show labeled elapsed times from left to right, top to bottom. Judge visible continuity from those sequences; screenshots add sampling overhead, so frame-rate claims must use the separate runtime measurements. Do not claim to have watched a video if you inspected only still frames. You may inspect ONLY this round's screenshots, continuity/filmstrips, continuity/frames, continuity/continuity.json, continuity/room-continuity.webm, opening recordings, controls.json, layout.json and runtime.md if more detail is needed. Do not inspect research.md (contains prior ratings), source, or other files.
+
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+ERROR: Reconnecting... 2/5
+ERROR: Reconnecting... 3/5
+ERROR: Reconnecting... 4/5
+ERROR: Reconnecting... 5/5
+warning: Falling back from WebSockets to HTTPS transport. stream disconnected before completion: websocket closed by server before response.completed
+codex
+{
+  "screens": [
+    {
+      "name": "Home — default, omen unavailable and transition",
+      "dimensions": {"hierarchy": 8, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 34–36 show the seated orb and unavailable omen, while the push/pull filmstrips show stationary foreground geometry against changing room focus.",
+      "findings": ["Give the omen and lower destinations more breathing room above navigation; the oversized table and repeated Ask entry points crowd the lower composition."]
+    },
+    {
+      "name": "Home — populated omen",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 35 and the camera filmstrips show a short omen on parchment beneath the painted table, with supplied runtime evidence covering fit and contrast.",
+      "findings": ["Strengthen the parchment’s contact with the room so the omen reads as a placed object rather than a floating rectangular overlay."]
+    },
+    {
+      "name": "Home — expanded omen policy",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 35 shows the expanded policy filling a large parchment at 200%, with the primary orb outside the captured scroll position.",
+      "findings": ["Separate the unavailable result from the policy explanation with a small centered divider and tighter paragraph grouping."]
+    },
+    {
+      "name": "Onboarding — age confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 37 shows a direct age question and two distinct responses at both scales, supported by the supplied age-path checks.",
+      "findings": ["Add a quieter backing behind the introductory text to keep the cabinet detail from competing with this simple decision."]
+    },
+    {
+      "name": "Onboarding — optional birthday",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 38 shows labeled date fields, Skip and Continue, with all-empty fields and an enabled-looking Continue.",
+      "findings": ["Clarify what Continue does with an empty optional birthday so it does not compete ambiguously with Skip."]
+    },
+    {
+      "name": "Age requirement — onboarding blocked and saved-birthday blocked",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 1 and 38–39 show the restriction, explanation and correction action at normal and enlarged text, with restriction/correction covered in supplied runtime evidence.",
+      "findings": ["Reduce the display heading’s vertical footprint at 200% while retaining the enlarged text and explicit correction route."]
+    },
+    {
+      "name": "Onboarding — birthday correction",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 39–40 show required date fields and Check birthday, with the enlarged secondary return continuing below the viewport.",
+      "findings": ["Tighten the centered introductory grouping so the correction form and return action require less vertical travel."]
+    },
+    {
+      "name": "Onboarding — optional focus, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 2 and 40–41 show four parchment choices and a clearly labeled Skip focus action at both scales.",
+      "findings": ["Vary the parchment edge treatment subtly so four repeated choices feel like individual slips rather than copies of one texture."]
+    },
+    {
+      "name": "Onboarding — focus selected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 40–41 show a check beside Learning & growth and a changed Continue label, with enlarged wrapping contained inside the choice.",
+      "findings": ["Give the selected slip a restrained border or material change in addition to its check for faster visual scanning."]
+    },
+    {
+      "name": "Birthday editor — populated valid",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 72 shows populated date fields, Save, Cancel and a separate removal disclosure, supported by persistence and cancellation checks.",
+      "findings": ["Use a more consistent physical inset around the three writing surfaces so they read as one date-entry group."]
+    },
+    {
+      "name": "Birthday editor — partial date",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 2 shows the missing day outlined with the specific message Enter day at both scales.",
+      "findings": ["Keep the field-specific recovery but reduce background detail immediately behind the error message."]
+    },
+    {
+      "name": "Birthday editor — invalid calendar date",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 1 shows 31/02/2020 with outlined fields and a calendar-specific explanation, while supplied checks cover invalid-date recovery.",
+      "findings": ["Shorten the centered error to reduce its three-line enlarged footprint without losing the instruction to check day and month."]
+    },
+    {
+      "name": "Approach — default, enlarged and transition",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 3 and 20 show the orb resting on its stand and table, and the push filmstrip shows the room becoming blurred behind the unchanged foreground.",
+      "findings": ["Make the sharp foreground table and heavily blurred room share a more gradual depth transition to reduce the cutout effect."]
+    },
+    {
+      "name": "Question composer — self, collapsed context and populated input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4, 6 and 20 show the populated writing area, disclosure, Expand editor and primary submission action, with draft and focus checks supplied.",
+      "findings": ["Give the input’s paper edge a quieter, consistent inset so its decorative double border does not compete with the entered question."]
+    },
+    {
+      "name": "Question composer — expanded self context",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 3–4 show the disclosure above the question, taking nearly the full initial viewport at 200%.",
+      "findings": ["Condense the centered disclosure into distinctly spaced sent-data and saved-profile groups so the question remains easier to locate."]
+    },
+    {
+      "name": "Question composer — named person, collapsed context",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4–5 show About Alex and the corresponding populated question with the same input/action hierarchy at both scales.",
+      "findings": ["Retain the explicit recipient label while simplifying the writing surface’s layered border."]
+    },
+    {
+      "name": "Question composer — constrained viewport and long question",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 31–32 show partial long-question text with Expand editor and submission visible, and supplied constrained-form checks establish complete retained drafts and reachable controls.",
+      "findings": ["Make the input’s internal continuation cue stronger where text disappears at its lower edge."]
+    },
+    {
+      "name": "Question composer — retrieved disclosure in constrained viewport",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 31 shows a scrolled disclosure and part of the question, while supplied runtime evidence reports full disclosure retrieval and restored context focus.",
+      "findings": ["Use shorter centered disclosure groups to reduce the distance between recipient context and question entry."]
+    },
+    {
+      "name": "Named-person selector — populated and corrected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 5–6 and 21 show Someone selected, Alex entered, reassurance, Use this person and Cancel changes.",
+      "findings": ["Give the selected person option the same selection treatment used by other choice controls."]
+    },
+    {
+      "name": "Named-person selector — empty and constrained",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 22 and 32 show the empty name state and enlarged constrained variants, with supplied subject-validation checks covering reachable actions.",
+      "findings": ["Reduce space above the name field in constrained layouts so validation and commitment sit closer to the active input."]
+    },
+    {
+      "name": "Follow-up card 1 — preparation, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 11 shows the step indicator, three readable choices, custom-answer route and disabled Continue at both scales.",
+      "findings": ["Preserve this clear choice-first hierarchy and explicit prerequisite for continuing."]
+    },
+    {
+      "name": "Follow-up card 2 — obstacle, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 12 shows the second step with Time, Money and Nerve and consistent enlarged spacing.",
+      "findings": ["Preserve the balanced spacing between the question, options and commitment action."]
+    },
+    {
+      "name": "Follow-up card 3 — support, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 12–13 show the final step and a disabled Reveal with the instruction to choose first.",
+      "findings": ["Keep the final-step wording and action change consistent with this captured state."]
+    },
+    {
+      "name": "Follow-up cards — selected answer",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 14 and 21 show a filled radio indicator and enabled commitment, with keyboard selection and restoration reported in runtime evidence.",
+      "findings": ["Preserve the non-color selection marker and the visibly enabled next action."]
+    },
+    {
+      "name": "Follow-up cards — one-step, focus and pressed variants",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8, "accessibility": 8},
+      "evidence": "Sheets 19–21 and 29–30 show one-step choices, but the paper-choice focus border is much less distinct than the outlined Back control.",
+      "findings": ["Increase separation between parchment edges and keyboard-focus outlines so focus remains unmistakable on the light choices."]
+    },
+    {
+      "name": "Custom follow-up answer — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 13–14 show a labeled empty writing area, Expand editor and the explicit instruction required to enable Continue.",
+      "findings": ["Simplify the input’s decorative border while keeping the helpful empty-state instruction."]
+    },
+    {
+      "name": "Custom follow-up answer — populated and constrained",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 30–31 show a populated answer and a long internally scrolled answer, with draft retention and reachable Reveal supported by runtime checks.",
+      "findings": ["Strengthen the internal scroll cue where the long answer begins or ends mid-line."]
+    },
+    {
+      "name": "Expanded question editor — full and constrained height",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 24–25 show a large writing area, character count and Done/Cancel, with 24 editor cases reported across widths, heights and scales.",
+      "findings": ["Inset the scrolling text slightly farther from the paper’s top and bottom so partially visible lines look intentional."]
+    },
+    {
+      "name": "Expanded custom-answer editor — full and constrained height",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 24 shows the 300-character limit and usable Done/Cancel controls at both heights, with complete drafts verified in supplied checks.",
+      "findings": ["Keep the limit indicator but add a clearer inset scroll boundary around clipped text."]
+    },
+    {
+      "name": "Birth time — initial and optional unknown-time route",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 8–9 and 71 show the labeled 24-hour input, local-time example and unknown-time alternative at both scales.",
+      "findings": ["Consolidate the centered time-format guidance into a shorter block closer to the input."]
+    },
+    {
+      "name": "Birth time — invalid",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 9 shows 25:99 outlined with the exact accepted range, and invalid-time recovery is included in supplied runtime evidence.",
+      "findings": ["Retain the precise range message while making the error outline visually distinct from the ordinary gold focus frame."]
+    },
+    {
+      "name": "Birth time — forgotten confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 8 shows confirmation that time/place were forgotten and birthday retained above the empty time field.",
+      "findings": ["Give the confirmation its own compact centered status group so it does not merge with the form introduction."]
+    },
+    {
+      "name": "Birth city — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 70–71 show the empty city field, disabled search, Skip and city-only sharing disclosure.",
+      "findings": ["Move the search prerequisite closer to the input to keep the reason for the disabled action immediately apparent."]
+    },
+    {
+      "name": "Birth city — retained populated draft",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 6–7 show Copenhagen retained in the city field with an available search action, supported by draft-retention checks.",
+      "findings": ["Keep the draft visible while reducing the repeated vertical separation between input, action and selection guidance."]
+    },
+    {
+      "name": "Birth city — service failure",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 7 shows unavailable-search feedback, Retry city search and preserved-chart reassurance, with injected failure and live recovery reported.",
+      "findings": ["Shorten and visually separate the saved-chart reassurance from the immediate retry message at 200%."]
+    },
+    {
+      "name": "Birth city — no results",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 7–8 show an explicit no-match explanation with spelling and nearby-town recovery options.",
+      "findings": ["Split the enlarged no-results guidance into two short centered passages to reduce the dense text block."]
+    },
+    {
+      "name": "Birth city — live result list",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 9–10 show multiple Copenhagen matches differentiated by region and country, with actual lookup and selection covered by supplied checks.",
+      "findings": ["Increase hierarchy between city name and geographic qualifier so repeated names remain easy to distinguish at 200%."]
+    },
+    {
+      "name": "Birth profile — saved and recovered-save result",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 10–11 show signs, location, time and saved-on-device confirmation on one parchment with Done, Edit and Forget.",
+      "findings": ["Keep the signs visually dominant and tighten the enlarged location/time grouping below them."]
+    },
+    {
+      "name": "Planning — loading",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 50–51 show Finding the thread, an upper-bound wait explanation and Cancel, with cancellation and reduced-motion behavior reported.",
+      "findings": ["Add a subtle contact shadow beneath the floating loading orb to connect it more convincingly to the room."]
+    },
+    {
+      "name": "Research — loading",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 51 shows Reading the signs and the same visible wait and cancellation contract at both scales.",
+      "findings": ["Keep the concise phase distinction while grounding the orb with a consistent supporting surface or shadow."]
+    },
+    {
+      "name": "Planning — recoverable error",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 25 shows a prominent retry, question-edit route and no-charge reassurance, with recoverable errors included in the supplied live drive.",
+      "findings": ["Preserve the clear recovery hierarchy and explicit reading-credit reassurance."]
+    },
+    {
+      "name": "Prediction — recoverable error",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 26 shows Try again, Review answers and Edit question with the unchanged reading balance.",
+      "findings": ["Preserve these contextual recovery choices and their distinct visual priority."]
+    },
+    {
+      "name": "Sensitive question — planning redirect",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 56–57 show the support destination, alternative-question routes and no-reading-spent message, with redirect behavior reported in the live drive.",
+      "findings": ["Reduce the enlarged theatrical heading’s dominance so the support explanation receives attention sooner."]
+    },
+    {
+      "name": "Sensitive question — prediction redirect",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 57 shows the equivalent prediction-stage support state and recovery routes at both text scales.",
+      "findings": ["Use a more compact centered heading and group the support explanation directly with its action."]
+    },
+    {
+      "name": "Voice — unavailable",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 36–37 show microphone-permission guidance, a primary typing fallback and secondary voice retry.",
+      "findings": ["Keep the typing fallback prominent and give the small decorative orb a more convincing visual grounding."]
+    },
+    {
+      "name": "Opening — normal and golden pre-reveal sequence",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 7, "clarity": 9, "feedback": 8, "accessibility": 9},
+      "evidence": "Sheets 41–45 and the opening filmstrip show the orb brightening, becoming almost invisible at 1177 ms, then returning above the forecast.",
+      "findings": ["Remove the near-disappearance between orb animation and forecast arrival so the reveal maintains continuous visual presence."]
+    },
+    {
+      "name": "Reveal — normal settled forecast",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 53–54 show the orb above the forecast slip and paired actions, while enlarged display capitals make the forecast occupy most of the viewport.",
+      "findings": ["Use the readable enlarged forecast treatment already demonstrated in check-in to reduce stacked display-capital lines and expose actions sooner."]
+    },
+    {
+      "name": "Reveal — golden settled forecast",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 42–43 show the golden ring, forecast slip and same-uncertainty note with distinct Why and Share actions.",
+      "findings": ["Integrate the golden ring into the orb’s painted light rather than leaving a thin geometric outline floating around its silhouette."]
+    },
+    {
+      "name": "Reveal — expanded actions",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 52 shows Remind me, View reading plans and Edit question below the main action row, with enlarged content extending substantially below the forecast.",
+      "findings": ["Compact the enlarged forecast and group the secondary actions beneath a clearer centered disclosure boundary."]
+    },
+    {
+      "name": "Reading details — all disclosures collapsed",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 52–53 show four consistently named disclosures with a return-to-forecast action at both scales.",
+      "findings": ["Reduce the apparent thickness of disclosure bars so expandable headings are less visually equivalent to primary actions."]
+    },
+    {
+      "name": "Reading details — explanation expanded",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 23 and 28 show long centered explanation passages, including visible mid-word fixture endings, while supplied checks establish complete retained text.",
+      "findings": ["Use stronger centered passage grouping and section breaks so dense explanations remain scannable without changing their content or alignment."]
+    },
+    {
+      "name": "Reading details — saved answers expanded and dense",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 23 and 26–27 show prompt headings separated by small rules and lengthy centered answer passages at both scales.",
+      "findings": ["Increase the visual distinction between each prompt and its answer while keeping centered passage widths and consistent spacing."]
+    },
+    {
+      "name": "Reading details — assumptions expanded",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 27–28 show a condition heading, grouped assumption text and Close assumptions on the parchment.",
+      "findings": ["Strengthen separation between the condition heading, its passages and the closing action."]
+    },
+    {
+      "name": "Reading details — background sources expanded and dense",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 23–24 and 29 show source caveats, long publisher names, passages and dated links, with start/end visibility verified in supplied dense-sheet checks.",
+      "findings": ["Reduce publisher-title emphasis and group each centered source into a compact title, passage and date/link block."]
+    },
+    {
+      "name": "Why this forecast — standalone explanation",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 54 shows the uncertainty label above a long centered parchment explanation at normal and enlarged text.",
+      "findings": ["Introduce clearer centered paragraph hierarchy so recorded context and assumptions are easier to distinguish within the complete explanation."]
+    },
+    {
+      "name": "Check-in — initial unselected outcome",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 15–17 and 46 show the exact forecast above three outcomes, with Save disabled until a choice and enlarged choices stacked vertically.",
+      "findings": ["Tighten the enlarged quote and choice spacing so the save action is closer to the outcome decision."]
+    },
+    {
+      "name": "Check-in — selected but unsaved outcome",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 17 shows Not yet selected with Not saved yet and an enabled Save, supported by unsaved-change reload checks.",
+      "findings": ["Keep the explicit unsaved status adjacent to the selection while reducing the tall enlarged quote block."]
+    },
+    {
+      "name": "Check-in — saved Yes, Not quite and Not yet",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 16 and 46–48 show all three Saved statuses and Change outcome, with save/reload persistence reported for each outcome.",
+      "findings": ["Make the saved outcome slightly more prominent within the enlarged forecast note to speed confirmation."]
+    },
+    {
+      "name": "Check-in — original question expanded",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 15 and 45–46 show the original question on a separate parchment with a visible disclosure focus outline and unchanged check-in date.",
+      "findings": ["Keep the question visually subordinate to the outcome task by tightening its enlarged card padding."]
+    },
+    {
+      "name": "Saved check-in — editing, changed, canceled and resaved",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 55–56 show editing and saved states, while supplied runtime evidence verifies Cancel restoration, focus return and unchanged reminder date.",
+      "findings": ["Bring Save and Cancel nearer the enlarged outcome choices by reducing excess vertical space within the quote-and-choice sheet."]
+    },
+    {
+      "name": "History — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 33–34 show the empty-history bottle physically resting on a shelf, and the shelf filmstrip shows the room destination transition.",
+      "findings": ["Preserve the restrained empty-state composition and clear Ask the Ball route."]
+    },
+    {
+      "name": "History — populated, multiple entries and persisted outcome",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 32–34 show parchment entries resting on shelves with dates and either suggested check-in or persisted outcome.",
+      "findings": ["Reduce the enlarged row’s decorative vertical spacing so more than one saved reading can be scanned comfortably."]
+    },
+    {
+      "name": "Sky — offline sample stars and selected question",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 69 shows an explicit offline/sample label and selected Love question, but the star map becomes a text grid at 200%.",
+      "findings": ["Give the enlarged theme grid an intentional parchment or room-integrated treatment instead of retaining the rounded map panel behind plain rows."]
+    },
+    {
+      "name": "Circles — offline",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show explicit unavailability and Retry connection, while the hearth filmstrip shows the destination crossfade without a dark backing frame.",
+      "findings": ["Shorten the enlarged offline heading and tighten spacing so the privacy card enters the viewport sooner."]
+    },
+    {
+      "name": "Circles — unsuccessful retry",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show Still offline and a preserved retry route rather than a false success state.",
+      "findings": ["Keep the honest retry result but reduce repeated offline wording across heading, message and footer."]
+    },
+    {
+      "name": "You — populated profile and memory",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 72–73 show a birth-profile card, plan information and memory controls, with lower content continuing behind the viewport boundary.",
+      "findings": ["Group profile, plan and memory more distinctly so the centered page feels like organized sections rather than text distributed over shelves."]
+    },
+    {
+      "name": "You — empty memory and settings",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 22–23 and 58 show the empty-memory note, display controls and data actions, with keyboard switching and persistence reported.",
+      "findings": ["Strengthen the centered section hierarchy between appearance, plans/privacy and saved-data actions."]
+    },
+    {
+      "name": "Plans — weekly selected",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 49–50 and the cabinet filmstrip show weekly selection, interval, annual equivalent, renewal terms and simulated billing.",
+      "findings": ["Use compact centered plan rows with clearer selected-row boundaries so price comparison needs less vertical scanning."]
+    },
+    {
+      "name": "Plans — monthly selected",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 49 shows the monthly check, monthly renewal copy and matching simulated action, with all three plan choices exercised in supplied runtime evidence.",
+      "findings": ["Reduce unused vertical space inside the ledger while keeping each price and billing interval together."]
+    },
+    {
+      "name": "Plans — reading packs and restore section",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 49–50 show one-time pack amounts, non-expiry language, simulation labels and Restore purchases below subscriptions.",
+      "findings": ["Separate packs from subscription terms with a stronger centered section boundary and consistent action treatment."]
+    },
+    {
+      "name": "Share — preview and primary export",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 65 and 68 show the centered preview, Enlarge, Download image and Read image text, with real browser PNG export reported.",
+      "findings": ["Increase the preview headline’s legibility at its initial display size without requiring enlargement to inspect the core message."]
+    },
+    {
+      "name": "Share — expanded invitation and reminder options",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 65–66 show export, replay, privacy guidance and expanded Invite & remind content in a long centered page.",
+      "findings": ["Create clearer centered groups for image export and invitation/reminder actions to reduce the long sequence of similarly styled links."]
+    },
+    {
+      "name": "Share — enlarged image inspection and story",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 61–62 and 69–70 show the enlarged image with readable forecast, uncertainty label and date plus direct image-text access.",
+      "findings": ["Preserve the integrated image lighting and the visible text-access alternative."]
+    },
+    {
+      "name": "Share — image text",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 67–68 show the complete forecast, uncertainty wording, brand and date as centered text above the download action.",
+      "findings": ["Keep the accessible text prominent and reduce redundant image weight beneath it when the user is explicitly reading text."]
+    },
+    {
+      "name": "Share export — preparing",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 60 shows preparation status and Hide progress, with held encoding and duplicate-prevention behavior reported in supplied checks.",
+      "findings": ["Place the preparation message in a quieter centered status surface rather than directly over detailed cabinet shelves."]
+    },
+    {
+      "name": "Share export — download started",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 60 shows Download started and private-answer exclusion, supported by the reported real 1080×1920 browser download.",
+      "findings": ["Use the same compact status grouping as preparation so completion feels like a coherent state change."]
+    },
+    {
+      "name": "Share export — failure and retry",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 61 shows explicit export failure, Try again and Done, with injected failure and successful retry reported.",
+      "findings": ["Keep the recovery hierarchy while reducing cabinet detail behind the explanatory text."]
+    },
+    {
+      "name": "Invitation — copied result",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 63–65 show Link copied, repeat sharing and View link across three widths, with clipboard success and focus checks supplied.",
+      "findings": ["Shorten the enlarged introduction so View link is less easily lost below the initial viewport."]
+    },
+    {
+      "name": "Invitation — clipboard-denied fallback and visible URL",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 58–59 show the complete selectable URL, which wraps into a tall block at 200%, with denial fallback and whole-link selection reported.",
+      "findings": ["Present the centered raw URL in a more compact dedicated field while preserving full selection and the complete address."]
+    },
+    {
+      "name": "Invitation — canceled sharing",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 62–63 explicitly say sharing closed without confirmation and offer Try again, with browser sharing mocked in supplied evidence.",
+      "findings": ["Keep the honest non-success wording and group it more clearly against the detailed room background."]
+    },
+    {
+      "name": "Reminder — unsupported browser",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 66–67 explicitly state that no browser reminder was scheduled and provide a date and native-app explanation.",
+      "findings": ["Break the enlarged explanation into a short unscheduled status and a separate centered next-step passage."]
+    }
+  ],
+  "components": [
+    {
+      "name": "Hero orb",
+      "dimensions": {"hierarchy": 9, "typography": null, "surfaces": 8, "clarity": 9, "feedback": 8, "accessibility": 9},
+      "evidence": "Home and Approach show convincing painted reflections and stand/table contact, but the opening filmstrip includes an almost invisible orb at 1177 ms.",
+      "findings": ["Preserve the seated painting and eliminate the near-blank handoff during reveal."]
+    },
+    {
+      "name": "Room destination controls",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "evidence": "Camera filmstrips show three small painted destination thumbnails with labels, but their focus and enlarged interaction states are not individually demonstrated.",
+      "findings": ["Provide direct enlarged and keyboard-state evidence for these small destination controls and strengthen their active affordance."]
+    },
+    {
+      "name": "Tab bar",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18, 33 and 69 show persistent labeled navigation, underlined selection and a physically raised central orb at both scales.",
+      "findings": ["Give enlarged labels slightly more separation so Home, Sky, Ask, History and You remain comfortably distinct."]
+    },
+    {
+      "name": "Wordmark and balance header",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Home shows a distinctive script wordmark with a much smaller normal-scale reading balance, while result states show updated balances.",
+      "findings": ["Increase normal-scale balance prominence slightly without competing with the wordmark or task heading."]
+    },
+    {
+      "name": "Primary wood button",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 20, 22 and 30 show normal, focused and pressed wood actions, supported by keyboard, target and state checks.",
+      "findings": ["Reduce the repeated heavy lower shadow so stacked buttons feel attached to their local surface rather than floating planks."]
+    },
+    {
+      "name": "Secondary text action",
+      "dimensions": {"hierarchy": 8, "typography": 9, "surfaces": 9, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Across composer, profile and share screens, gold text represents navigation, disclosure, retry, editing and cancellation with similar treatment.",
+      "findings": ["Differentiate navigation, disclosure and editing through consistent small icons or grouping while keeping text centered."]
+    },
+    {
+      "name": "Answer choice",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8, "accessibility": 8},
+      "evidence": "Sheets 14 and 21 distinguish selected radios clearly, but the focused parchment edge remains subtle against its existing border.",
+      "findings": ["Make keyboard focus visually distinct from both the parchment edge and the selected radio state."]
+    },
+    {
+      "name": "Question input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4–6 show clear dark ink on plain paper, with supplied field checks reporting at least 10.706:1 contrast and retained drafts.",
+      "findings": ["Simplify the layered gold-and-paper border so the writing area has a quieter material identity."]
+    },
+    {
+      "name": "Large-text input and expanded editor",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 24–25 and 31 show retained long text and accessible editor actions, alongside visible partial lines at internal scroll boundaries.",
+      "findings": ["Add clearer inset scroll boundaries so cropped lines signal scroll position rather than apparent text loss."]
+    },
+    {
+      "name": "Settings switch",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 22–23 and 58 show distinct thumb positions and keyboard focus, supported by persistence, target and contrast measurements.",
+      "findings": ["Preserve the visible positional state and full-row keyboard focus treatment."]
+    },
+    {
+      "name": "Omen content",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 35–36 show successful, unavailable and expanded-policy omen states with clear attempt and reading-credit language.",
+      "findings": ["Separate omen status from policy disclosure more clearly and reduce competition with the nearby hero instruction."]
+    },
+    {
+      "name": "Sky stars and selected question",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 69 shows selected Love with its sample question and an enlarged grid replacing the normal star layout.",
+      "findings": ["Make the enlarged grid an intentional material variant and integrate the rounded map panel more convincingly into the room."]
+    },
+    {
+      "name": "Circle surface",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show a privacy parchment beneath honest offline and retry messaging.",
+      "findings": ["Reduce repeated explanatory text and strengthen the card’s contact with the hearth scene."]
+    },
+    {
+      "name": "History row",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 32–34 show bottle, parchment and shelf integration with separate dates and outcome/check-in labels.",
+      "findings": ["Compact the enlarged decorative spacing while preserving the strong shelf-and-card relationship."]
+    },
+    {
+      "name": "Plan option",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 49–50 show all prices on one ledger with selected checks, and supplied runtime evidence covers radio keys and all billing details.",
+      "findings": ["Give each plan a clearer centered row boundary and reduce unused ledger height."]
+    },
+    {
+      "name": "Share preview",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 61–62 and 68 show an integrated painted export image, though the initial preview renders its headline much smaller than surrounding controls.",
+      "findings": ["Improve headline readability in the initial preview while retaining Enlarge and direct text access."]
+    },
+    {
+      "name": "Notice and recovery",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Error, sharing and voice sheets show specific statuses and recovery actions, supported by injected failures and recovery checks.",
+      "findings": ["Use a consistent quiet backing or compact grouping for notices currently placed directly over busy shelves."]
+    },
+    {
+      "name": "Typography system",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 9, "clarity": 8, "feedback": null, "accessibility": 9},
+      "evidence": "The sheets retain storybook character and centered alignment, but enlarged reveal capitals and dense explanation passages create tall, slowly scanned blocks.",
+      "findings": ["Reserve display lettering for short headings and use compact centered body passages for enlarged forecasts and explanations."]
+    },
+    {
+      "name": "Atmospheric background and camera continuity",
+      "dimensions": {"hierarchy": 8, "typography": null, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 9},
+      "evidence": "Room filmstrips show overlapping paintings during crossfades without a dark backing gap, while supplied measurements separately establish browser timing and reduced-motion behavior.",
+      "findings": ["Reduce the visible double-room overlay during destination crossfades and smooth the jump from sharp room detail to heavy blur."]
+    },
+    {
+      "name": "Birthday input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 1–2, 38–40 and 72 show labeled date fields, enlarged reflow and specific partial/invalid feedback with persistence checks supplied.",
+      "findings": ["Unify the paper inset and error/focus treatments across all three date fields."]
+    },
+    {
+      "name": "Age confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 37 shows the explicit age threshold, birthday-free confirmation and separate under-age response.",
+      "findings": ["Quiet the detailed backdrop directly behind the decision text."]
+    },
+    {
+      "name": "Focus selection",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 40–41 show wrapped labels contained within parchment, a selected check and a matching Continue action.",
+      "findings": ["Add a restrained selected-surface cue and reduce identical repeated texture edges."]
+    },
+    {
+      "name": "Birth-profile surface",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 10–11 and 72–73 group saved astrological details and related editing actions on parchment.",
+      "findings": ["Strengthen the distinction between primary sign information, supporting birth data and editing actions."]
+    },
+    {
+      "name": "Birth-details form",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 7–11 and 70–71 show optional steps, explicit input guidance and search recovery, with live lookup and saved-state checks supplied.",
+      "findings": ["Shorten and group centered guidance to keep the active input and its recovery action visually close at 200%."]
+    },
+    {
+      "name": "Named-person control",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 5–6, 21–22 and 32 show selected recipient type, labeled name input and empty-name disabling.",
+      "findings": ["Standardize its selected-choice marker with the rest of the option system."]
+    },
+    {
+      "name": "Evidence disclosure",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 26–29 and 52–53 show named expandable sections, directional chevrons and complete-content verification in the supplied runtime account.",
+      "findings": ["Make disclosure bars visually lighter than primary buttons and strengthen grouping inside expanded passages."]
+    },
+    {
+      "name": "Export status",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 60–61 show preparation, download-started and failure states with supplied evidence for duplicate prevention, retry and focus restoration.",
+      "findings": ["Give all export statuses the same compact centered visual container to reinforce continuity."]
+    },
+    {
+      "name": "Close and Back controls",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 19–20 show strong focused outlines at both scales, with at least 44×44 targets and accessible names reported.",
+      "findings": ["Preserve this clear focus treatment as the standard for the weaker parchment-choice focus state."]
+    },
+    {
+      "name": "Check-in outcome selector and saved status",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 15–17 and 45–56 distinguish empty, selected-unsaved, saved and editing states, with persistence and cancellation checks supplied.",
+      "findings": ["Reduce enlarged quote-and-choice spacing so the saved/unsaved status and commitment action remain close to the decision."]
+    },
+    {
+      "name": "Parchment information card",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 9},
+      "evidence": "Across plan, omen and evidence sheets, cut edges and contact shadows are visible, but tall sheets retain broad flat interiors with repeated edge patterns.",
+      "findings": ["Use restrained edge variation and more consistent local contact lighting without increasing texture behind text."]
+    }
+  ],
+  "limitations": [
+    "This is an independent provisional browser evaluation of the attached screenshots, labeled still-frame sequences and supplied runtime account; no additional files, source, previous ratings or live application were inspected.",
+    "Corresponding normal, 200%, transition and repeated captures are grouped under their screen/state entries; distinct error, empty, selected, expanded and populated states are separated where their task changes.",
+    "A is the mean of hierarchy, typography and surfaces; F is the mean of clarity, feedback and accessibility; overall is 0.4A + 0.6F, excluding genuinely inapplicable null dimensions.",
+    "The A>=9 and F>=9 threshold is not met for every screen or component: repeated browser-visible weaknesses remain in enlarged typography, material integration, disclosure density and opening continuity.",
+    "No hard-gate failure is established by the supplied evidence; content outside a captured viewport is not treated as unreachable where supplied scrolling and reachability checks cover it.",
+    "Runtime claims are supplied evidence rather than independently reproduced results; screenshots alone do not establish interaction, persistence, accessible semantics or predictive quality.",
+    "Physical iPhone/VoiceOver, native keyboard, haptics, tilt, native sharing, notifications and native performance remain deferred without score deductions solely for that boundary.",
+    "Billing is simulated, navigator.share is mocked and connected Circles behavior is unavailable; no successful real purchase, native share or connected social task is certified.",
+    "Synthetic passages and labeled layout fixtures are not treated as production-copy or model-quality failures; their visible density still informs layout assessment.",
+    "Filmstrips establish sampled visual states, not frame rate or continuous motion quality; browser performance and reduced-motion credit rely on the separate supplied runtime measurements.",
+    "The painted orb, stand, table and foreground bottles provide visible depth cues, but the attachments do not independently establish the implementation or motion of every proposed painted layer."
+  ],
+  "topFixes": [
+    "Remove the opening sequence’s near-invisible orb frame and preserve continuous visual presence through forecast arrival.",
+    "Replace enlarged forecast display capitals with the more readable body treatment already used in check-in, keeping all text centered.",
+    "Strengthen parchment-choice keyboard focus so it is as unmistakable as the demonstrated Close, Back and wood-button outlines.",
+    "Reduce dense centered explanation and disclosure blocks through shorter passage groups, clearer section hierarchy and restrained dividers.",
+    "Refine room crossfades, table/background focus boundaries and parchment contact lighting to reduce double-room and pasted-layer effects.",
+    "Compact enlarged check-in, plans and profile layouts so decisions, status and their actions remain visually close."
+  ]
+}
+tokens used
+168,581
+{
+  "screens": [
+    {
+      "name": "Home — default, omen unavailable and transition",
+      "dimensions": {"hierarchy": 8, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 34–36 show the seated orb and unavailable omen, while the push/pull filmstrips show stationary foreground geometry against changing room focus.",
+      "findings": ["Give the omen and lower destinations more breathing room above navigation; the oversized table and repeated Ask entry points crowd the lower composition."]
+    },
+    {
+      "name": "Home — populated omen",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 35 and the camera filmstrips show a short omen on parchment beneath the painted table, with supplied runtime evidence covering fit and contrast.",
+      "findings": ["Strengthen the parchment’s contact with the room so the omen reads as a placed object rather than a floating rectangular overlay."]
+    },
+    {
+      "name": "Home — expanded omen policy",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 35 shows the expanded policy filling a large parchment at 200%, with the primary orb outside the captured scroll position.",
+      "findings": ["Separate the unavailable result from the policy explanation with a small centered divider and tighter paragraph grouping."]
+    },
+    {
+      "name": "Onboarding — age confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 37 shows a direct age question and two distinct responses at both scales, supported by the supplied age-path checks.",
+      "findings": ["Add a quieter backing behind the introductory text to keep the cabinet detail from competing with this simple decision."]
+    },
+    {
+      "name": "Onboarding — optional birthday",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 38 shows labeled date fields, Skip and Continue, with all-empty fields and an enabled-looking Continue.",
+      "findings": ["Clarify what Continue does with an empty optional birthday so it does not compete ambiguously with Skip."]
+    },
+    {
+      "name": "Age requirement — onboarding blocked and saved-birthday blocked",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 1 and 38–39 show the restriction, explanation and correction action at normal and enlarged text, with restriction/correction covered in supplied runtime evidence.",
+      "findings": ["Reduce the display heading’s vertical footprint at 200% while retaining the enlarged text and explicit correction route."]
+    },
+    {
+      "name": "Onboarding — birthday correction",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 39–40 show required date fields and Check birthday, with the enlarged secondary return continuing below the viewport.",
+      "findings": ["Tighten the centered introductory grouping so the correction form and return action require less vertical travel."]
+    },
+    {
+      "name": "Onboarding — optional focus, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 2 and 40–41 show four parchment choices and a clearly labeled Skip focus action at both scales.",
+      "findings": ["Vary the parchment edge treatment subtly so four repeated choices feel like individual slips rather than copies of one texture."]
+    },
+    {
+      "name": "Onboarding — focus selected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 40–41 show a check beside Learning & growth and a changed Continue label, with enlarged wrapping contained inside the choice.",
+      "findings": ["Give the selected slip a restrained border or material change in addition to its check for faster visual scanning."]
+    },
+    {
+      "name": "Birthday editor — populated valid",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 72 shows populated date fields, Save, Cancel and a separate removal disclosure, supported by persistence and cancellation checks.",
+      "findings": ["Use a more consistent physical inset around the three writing surfaces so they read as one date-entry group."]
+    },
+    {
+      "name": "Birthday editor — partial date",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 2 shows the missing day outlined with the specific message Enter day at both scales.",
+      "findings": ["Keep the field-specific recovery but reduce background detail immediately behind the error message."]
+    },
+    {
+      "name": "Birthday editor — invalid calendar date",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 1 shows 31/02/2020 with outlined fields and a calendar-specific explanation, while supplied checks cover invalid-date recovery.",
+      "findings": ["Shorten the centered error to reduce its three-line enlarged footprint without losing the instruction to check day and month."]
+    },
+    {
+      "name": "Approach — default, enlarged and transition",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 3 and 20 show the orb resting on its stand and table, and the push filmstrip shows the room becoming blurred behind the unchanged foreground.",
+      "findings": ["Make the sharp foreground table and heavily blurred room share a more gradual depth transition to reduce the cutout effect."]
+    },
+    {
+      "name": "Question composer — self, collapsed context and populated input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4, 6 and 20 show the populated writing area, disclosure, Expand editor and primary submission action, with draft and focus checks supplied.",
+      "findings": ["Give the input’s paper edge a quieter, consistent inset so its decorative double border does not compete with the entered question."]
+    },
+    {
+      "name": "Question composer — expanded self context",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 3–4 show the disclosure above the question, taking nearly the full initial viewport at 200%.",
+      "findings": ["Condense the centered disclosure into distinctly spaced sent-data and saved-profile groups so the question remains easier to locate."]
+    },
+    {
+      "name": "Question composer — named person, collapsed context",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4–5 show About Alex and the corresponding populated question with the same input/action hierarchy at both scales.",
+      "findings": ["Retain the explicit recipient label while simplifying the writing surface’s layered border."]
+    },
+    {
+      "name": "Question composer — constrained viewport and long question",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 31–32 show partial long-question text with Expand editor and submission visible, and supplied constrained-form checks establish complete retained drafts and reachable controls.",
+      "findings": ["Make the input’s internal continuation cue stronger where text disappears at its lower edge."]
+    },
+    {
+      "name": "Question composer — retrieved disclosure in constrained viewport",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 31 shows a scrolled disclosure and part of the question, while supplied runtime evidence reports full disclosure retrieval and restored context focus.",
+      "findings": ["Use shorter centered disclosure groups to reduce the distance between recipient context and question entry."]
+    },
+    {
+      "name": "Named-person selector — populated and corrected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 5–6 and 21 show Someone selected, Alex entered, reassurance, Use this person and Cancel changes.",
+      "findings": ["Give the selected person option the same selection treatment used by other choice controls."]
+    },
+    {
+      "name": "Named-person selector — empty and constrained",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 22 and 32 show the empty name state and enlarged constrained variants, with supplied subject-validation checks covering reachable actions.",
+      "findings": ["Reduce space above the name field in constrained layouts so validation and commitment sit closer to the active input."]
+    },
+    {
+      "name": "Follow-up card 1 — preparation, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 11 shows the step indicator, three readable choices, custom-answer route and disabled Continue at both scales.",
+      "findings": ["Preserve this clear choice-first hierarchy and explicit prerequisite for continuing."]
+    },
+    {
+      "name": "Follow-up card 2 — obstacle, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 12 shows the second step with Time, Money and Nerve and consistent enlarged spacing.",
+      "findings": ["Preserve the balanced spacing between the question, options and commitment action."]
+    },
+    {
+      "name": "Follow-up card 3 — support, unselected",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 12–13 show the final step and a disabled Reveal with the instruction to choose first.",
+      "findings": ["Keep the final-step wording and action change consistent with this captured state."]
+    },
+    {
+      "name": "Follow-up cards — selected answer",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 14 and 21 show a filled radio indicator and enabled commitment, with keyboard selection and restoration reported in runtime evidence.",
+      "findings": ["Preserve the non-color selection marker and the visibly enabled next action."]
+    },
+    {
+      "name": "Follow-up cards — one-step, focus and pressed variants",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8, "accessibility": 8},
+      "evidence": "Sheets 19–21 and 29–30 show one-step choices, but the paper-choice focus border is much less distinct than the outlined Back control.",
+      "findings": ["Increase separation between parchment edges and keyboard-focus outlines so focus remains unmistakable on the light choices."]
+    },
+    {
+      "name": "Custom follow-up answer — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 13–14 show a labeled empty writing area, Expand editor and the explicit instruction required to enable Continue.",
+      "findings": ["Simplify the input’s decorative border while keeping the helpful empty-state instruction."]
+    },
+    {
+      "name": "Custom follow-up answer — populated and constrained",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 30–31 show a populated answer and a long internally scrolled answer, with draft retention and reachable Reveal supported by runtime checks.",
+      "findings": ["Strengthen the internal scroll cue where the long answer begins or ends mid-line."]
+    },
+    {
+      "name": "Expanded question editor — full and constrained height",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 24–25 show a large writing area, character count and Done/Cancel, with 24 editor cases reported across widths, heights and scales.",
+      "findings": ["Inset the scrolling text slightly farther from the paper’s top and bottom so partially visible lines look intentional."]
+    },
+    {
+      "name": "Expanded custom-answer editor — full and constrained height",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 24 shows the 300-character limit and usable Done/Cancel controls at both heights, with complete drafts verified in supplied checks.",
+      "findings": ["Keep the limit indicator but add a clearer inset scroll boundary around clipped text."]
+    },
+    {
+      "name": "Birth time — initial and optional unknown-time route",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 8–9 and 71 show the labeled 24-hour input, local-time example and unknown-time alternative at both scales.",
+      "findings": ["Consolidate the centered time-format guidance into a shorter block closer to the input."]
+    },
+    {
+      "name": "Birth time — invalid",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 9 shows 25:99 outlined with the exact accepted range, and invalid-time recovery is included in supplied runtime evidence.",
+      "findings": ["Retain the precise range message while making the error outline visually distinct from the ordinary gold focus frame."]
+    },
+    {
+      "name": "Birth time — forgotten confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 8 shows confirmation that time/place were forgotten and birthday retained above the empty time field.",
+      "findings": ["Give the confirmation its own compact centered status group so it does not merge with the form introduction."]
+    },
+    {
+      "name": "Birth city — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 70–71 show the empty city field, disabled search, Skip and city-only sharing disclosure.",
+      "findings": ["Move the search prerequisite closer to the input to keep the reason for the disabled action immediately apparent."]
+    },
+    {
+      "name": "Birth city — retained populated draft",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 6–7 show Copenhagen retained in the city field with an available search action, supported by draft-retention checks.",
+      "findings": ["Keep the draft visible while reducing the repeated vertical separation between input, action and selection guidance."]
+    },
+    {
+      "name": "Birth city — service failure",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 7 shows unavailable-search feedback, Retry city search and preserved-chart reassurance, with injected failure and live recovery reported.",
+      "findings": ["Shorten and visually separate the saved-chart reassurance from the immediate retry message at 200%."]
+    },
+    {
+      "name": "Birth city — no results",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 7–8 show an explicit no-match explanation with spelling and nearby-town recovery options.",
+      "findings": ["Split the enlarged no-results guidance into two short centered passages to reduce the dense text block."]
+    },
+    {
+      "name": "Birth city — live result list",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 9–10 show multiple Copenhagen matches differentiated by region and country, with actual lookup and selection covered by supplied checks.",
+      "findings": ["Increase hierarchy between city name and geographic qualifier so repeated names remain easy to distinguish at 200%."]
+    },
+    {
+      "name": "Birth profile — saved and recovered-save result",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 10–11 show signs, location, time and saved-on-device confirmation on one parchment with Done, Edit and Forget.",
+      "findings": ["Keep the signs visually dominant and tighten the enlarged location/time grouping below them."]
+    },
+    {
+      "name": "Planning — loading",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 50–51 show Finding the thread, an upper-bound wait explanation and Cancel, with cancellation and reduced-motion behavior reported.",
+      "findings": ["Add a subtle contact shadow beneath the floating loading orb to connect it more convincingly to the room."]
+    },
+    {
+      "name": "Research — loading",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 51 shows Reading the signs and the same visible wait and cancellation contract at both scales.",
+      "findings": ["Keep the concise phase distinction while grounding the orb with a consistent supporting surface or shadow."]
+    },
+    {
+      "name": "Planning — recoverable error",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 25 shows a prominent retry, question-edit route and no-charge reassurance, with recoverable errors included in the supplied live drive.",
+      "findings": ["Preserve the clear recovery hierarchy and explicit reading-credit reassurance."]
+    },
+    {
+      "name": "Prediction — recoverable error",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 26 shows Try again, Review answers and Edit question with the unchanged reading balance.",
+      "findings": ["Preserve these contextual recovery choices and their distinct visual priority."]
+    },
+    {
+      "name": "Sensitive question — planning redirect",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 56–57 show the support destination, alternative-question routes and no-reading-spent message, with redirect behavior reported in the live drive.",
+      "findings": ["Reduce the enlarged theatrical heading’s dominance so the support explanation receives attention sooner."]
+    },
+    {
+      "name": "Sensitive question — prediction redirect",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 57 shows the equivalent prediction-stage support state and recovery routes at both text scales.",
+      "findings": ["Use a more compact centered heading and group the support explanation directly with its action."]
+    },
+    {
+      "name": "Voice — unavailable",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 36–37 show microphone-permission guidance, a primary typing fallback and secondary voice retry.",
+      "findings": ["Keep the typing fallback prominent and give the small decorative orb a more convincing visual grounding."]
+    },
+    {
+      "name": "Opening — normal and golden pre-reveal sequence",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 7, "clarity": 9, "feedback": 8, "accessibility": 9},
+      "evidence": "Sheets 41–45 and the opening filmstrip show the orb brightening, becoming almost invisible at 1177 ms, then returning above the forecast.",
+      "findings": ["Remove the near-disappearance between orb animation and forecast arrival so the reveal maintains continuous visual presence."]
+    },
+    {
+      "name": "Reveal — normal settled forecast",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 53–54 show the orb above the forecast slip and paired actions, while enlarged display capitals make the forecast occupy most of the viewport.",
+      "findings": ["Use the readable enlarged forecast treatment already demonstrated in check-in to reduce stacked display-capital lines and expose actions sooner."]
+    },
+    {
+      "name": "Reveal — golden settled forecast",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 42–43 show the golden ring, forecast slip and same-uncertainty note with distinct Why and Share actions.",
+      "findings": ["Integrate the golden ring into the orb’s painted light rather than leaving a thin geometric outline floating around its silhouette."]
+    },
+    {
+      "name": "Reveal — expanded actions",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 52 shows Remind me, View reading plans and Edit question below the main action row, with enlarged content extending substantially below the forecast.",
+      "findings": ["Compact the enlarged forecast and group the secondary actions beneath a clearer centered disclosure boundary."]
+    },
+    {
+      "name": "Reading details — all disclosures collapsed",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 52–53 show four consistently named disclosures with a return-to-forecast action at both scales.",
+      "findings": ["Reduce the apparent thickness of disclosure bars so expandable headings are less visually equivalent to primary actions."]
+    },
+    {
+      "name": "Reading details — explanation expanded",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 23 and 28 show long centered explanation passages, including visible mid-word fixture endings, while supplied checks establish complete retained text.",
+      "findings": ["Use stronger centered passage grouping and section breaks so dense explanations remain scannable without changing their content or alignment."]
+    },
+    {
+      "name": "Reading details — saved answers expanded and dense",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 23 and 26–27 show prompt headings separated by small rules and lengthy centered answer passages at both scales.",
+      "findings": ["Increase the visual distinction between each prompt and its answer while keeping centered passage widths and consistent spacing."]
+    },
+    {
+      "name": "Reading details — assumptions expanded",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 27–28 show a condition heading, grouped assumption text and Close assumptions on the parchment.",
+      "findings": ["Strengthen separation between the condition heading, its passages and the closing action."]
+    },
+    {
+      "name": "Reading details — background sources expanded and dense",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 23–24 and 29 show source caveats, long publisher names, passages and dated links, with start/end visibility verified in supplied dense-sheet checks.",
+      "findings": ["Reduce publisher-title emphasis and group each centered source into a compact title, passage and date/link block."]
+    },
+    {
+      "name": "Why this forecast — standalone explanation",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 54 shows the uncertainty label above a long centered parchment explanation at normal and enlarged text.",
+      "findings": ["Introduce clearer centered paragraph hierarchy so recorded context and assumptions are easier to distinguish within the complete explanation."]
+    },
+    {
+      "name": "Check-in — initial unselected outcome",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 15–17 and 46 show the exact forecast above three outcomes, with Save disabled until a choice and enlarged choices stacked vertically.",
+      "findings": ["Tighten the enlarged quote and choice spacing so the save action is closer to the outcome decision."]
+    },
+    {
+      "name": "Check-in — selected but unsaved outcome",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 17 shows Not yet selected with Not saved yet and an enabled Save, supported by unsaved-change reload checks.",
+      "findings": ["Keep the explicit unsaved status adjacent to the selection while reducing the tall enlarged quote block."]
+    },
+    {
+      "name": "Check-in — saved Yes, Not quite and Not yet",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 16 and 46–48 show all three Saved statuses and Change outcome, with save/reload persistence reported for each outcome.",
+      "findings": ["Make the saved outcome slightly more prominent within the enlarged forecast note to speed confirmation."]
+    },
+    {
+      "name": "Check-in — original question expanded",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 15 and 45–46 show the original question on a separate parchment with a visible disclosure focus outline and unchanged check-in date.",
+      "findings": ["Keep the question visually subordinate to the outcome task by tightening its enlarged card padding."]
+    },
+    {
+      "name": "Saved check-in — editing, changed, canceled and resaved",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 55–56 show editing and saved states, while supplied runtime evidence verifies Cancel restoration, focus return and unchanged reminder date.",
+      "findings": ["Bring Save and Cancel nearer the enlarged outcome choices by reducing excess vertical space within the quote-and-choice sheet."]
+    },
+    {
+      "name": "History — empty",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 33–34 show the empty-history bottle physically resting on a shelf, and the shelf filmstrip shows the room destination transition.",
+      "findings": ["Preserve the restrained empty-state composition and clear Ask the Ball route."]
+    },
+    {
+      "name": "History — populated, multiple entries and persisted outcome",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 32–34 show parchment entries resting on shelves with dates and either suggested check-in or persisted outcome.",
+      "findings": ["Reduce the enlarged row’s decorative vertical spacing so more than one saved reading can be scanned comfortably."]
+    },
+    {
+      "name": "Sky — offline sample stars and selected question",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 69 shows an explicit offline/sample label and selected Love question, but the star map becomes a text grid at 200%.",
+      "findings": ["Give the enlarged theme grid an intentional parchment or room-integrated treatment instead of retaining the rounded map panel behind plain rows."]
+    },
+    {
+      "name": "Circles — offline",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show explicit unavailability and Retry connection, while the hearth filmstrip shows the destination crossfade without a dark backing frame.",
+      "findings": ["Shorten the enlarged offline heading and tighten spacing so the privacy card enters the viewport sooner."]
+    },
+    {
+      "name": "Circles — unsuccessful retry",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show Still offline and a preserved retry route rather than a false success state.",
+      "findings": ["Keep the honest retry result but reduce repeated offline wording across heading, message and footer."]
+    },
+    {
+      "name": "You — populated profile and memory",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 72–73 show a birth-profile card, plan information and memory controls, with lower content continuing behind the viewport boundary.",
+      "findings": ["Group profile, plan and memory more distinctly so the centered page feels like organized sections rather than text distributed over shelves."]
+    },
+    {
+      "name": "You — empty memory and settings",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 22–23 and 58 show the empty-memory note, display controls and data actions, with keyboard switching and persistence reported.",
+      "findings": ["Strengthen the centered section hierarchy between appearance, plans/privacy and saved-data actions."]
+    },
+    {
+      "name": "Plans — weekly selected",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 49–50 and the cabinet filmstrip show weekly selection, interval, annual equivalent, renewal terms and simulated billing.",
+      "findings": ["Use compact centered plan rows with clearer selected-row boundaries so price comparison needs less vertical scanning."]
+    },
+    {
+      "name": "Plans — monthly selected",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 49 shows the monthly check, monthly renewal copy and matching simulated action, with all three plan choices exercised in supplied runtime evidence.",
+      "findings": ["Reduce unused vertical space inside the ledger while keeping each price and billing interval together."]
+    },
+    {
+      "name": "Plans — reading packs and restore section",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 49–50 show one-time pack amounts, non-expiry language, simulation labels and Restore purchases below subscriptions.",
+      "findings": ["Separate packs from subscription terms with a stronger centered section boundary and consistent action treatment."]
+    },
+    {
+      "name": "Share — preview and primary export",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 65 and 68 show the centered preview, Enlarge, Download image and Read image text, with real browser PNG export reported.",
+      "findings": ["Increase the preview headline’s legibility at its initial display size without requiring enlargement to inspect the core message."]
+    },
+    {
+      "name": "Share — expanded invitation and reminder options",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 65–66 show export, replay, privacy guidance and expanded Invite & remind content in a long centered page.",
+      "findings": ["Create clearer centered groups for image export and invitation/reminder actions to reduce the long sequence of similarly styled links."]
+    },
+    {
+      "name": "Share — enlarged image inspection and story",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 61–62 and 69–70 show the enlarged image with readable forecast, uncertainty label and date plus direct image-text access.",
+      "findings": ["Preserve the integrated image lighting and the visible text-access alternative."]
+    },
+    {
+      "name": "Share — image text",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 67–68 show the complete forecast, uncertainty wording, brand and date as centered text above the download action.",
+      "findings": ["Keep the accessible text prominent and reduce redundant image weight beneath it when the user is explicitly reading text."]
+    },
+    {
+      "name": "Share export — preparing",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 60 shows preparation status and Hide progress, with held encoding and duplicate-prevention behavior reported in supplied checks.",
+      "findings": ["Place the preparation message in a quieter centered status surface rather than directly over detailed cabinet shelves."]
+    },
+    {
+      "name": "Share export — download started",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 60 shows Download started and private-answer exclusion, supported by the reported real 1080×1920 browser download.",
+      "findings": ["Use the same compact status grouping as preparation so completion feels like a coherent state change."]
+    },
+    {
+      "name": "Share export — failure and retry",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 61 shows explicit export failure, Try again and Done, with injected failure and successful retry reported.",
+      "findings": ["Keep the recovery hierarchy while reducing cabinet detail behind the explanatory text."]
+    },
+    {
+      "name": "Invitation — copied result",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 63–65 show Link copied, repeat sharing and View link across three widths, with clipboard success and focus checks supplied.",
+      "findings": ["Shorten the enlarged introduction so View link is less easily lost below the initial viewport."]
+    },
+    {
+      "name": "Invitation — clipboard-denied fallback and visible URL",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 58–59 show the complete selectable URL, which wraps into a tall block at 200%, with denial fallback and whole-link selection reported.",
+      "findings": ["Present the centered raw URL in a more compact dedicated field while preserving full selection and the complete address."]
+    },
+    {
+      "name": "Invitation — canceled sharing",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 62–63 explicitly say sharing closed without confirmation and offer Try again, with browser sharing mocked in supplied evidence.",
+      "findings": ["Keep the honest non-success wording and group it more clearly against the detailed room background."]
+    },
+    {
+      "name": "Reminder — unsupported browser",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 66–67 explicitly state that no browser reminder was scheduled and provide a date and native-app explanation.",
+      "findings": ["Break the enlarged explanation into a short unscheduled status and a separate centered next-step passage."]
+    }
+  ],
+  "components": [
+    {
+      "name": "Hero orb",
+      "dimensions": {"hierarchy": 9, "typography": null, "surfaces": 8, "clarity": 9, "feedback": 8, "accessibility": 9},
+      "evidence": "Home and Approach show convincing painted reflections and stand/table contact, but the opening filmstrip includes an almost invisible orb at 1177 ms.",
+      "findings": ["Preserve the seated painting and eliminate the near-blank handoff during reveal."]
+    },
+    {
+      "name": "Room destination controls",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 8},
+      "evidence": "Camera filmstrips show three small painted destination thumbnails with labels, but their focus and enlarged interaction states are not individually demonstrated.",
+      "findings": ["Provide direct enlarged and keyboard-state evidence for these small destination controls and strengthen their active affordance."]
+    },
+    {
+      "name": "Tab bar",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18, 33 and 69 show persistent labeled navigation, underlined selection and a physically raised central orb at both scales.",
+      "findings": ["Give enlarged labels slightly more separation so Home, Sky, Ask, History and You remain comfortably distinct."]
+    },
+    {
+      "name": "Wordmark and balance header",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Home shows a distinctive script wordmark with a much smaller normal-scale reading balance, while result states show updated balances.",
+      "findings": ["Increase normal-scale balance prominence slightly without competing with the wordmark or task heading."]
+    },
+    {
+      "name": "Primary wood button",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 20, 22 and 30 show normal, focused and pressed wood actions, supported by keyboard, target and state checks.",
+      "findings": ["Reduce the repeated heavy lower shadow so stacked buttons feel attached to their local surface rather than floating planks."]
+    },
+    {
+      "name": "Secondary text action",
+      "dimensions": {"hierarchy": 8, "typography": 9, "surfaces": 9, "clarity": 8, "feedback": 9, "accessibility": 9},
+      "evidence": "Across composer, profile and share screens, gold text represents navigation, disclosure, retry, editing and cancellation with similar treatment.",
+      "findings": ["Differentiate navigation, disclosure and editing through consistent small icons or grouping while keeping text centered."]
+    },
+    {
+      "name": "Answer choice",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 8, "accessibility": 8},
+      "evidence": "Sheets 14 and 21 distinguish selected radios clearly, but the focused parchment edge remains subtle against its existing border.",
+      "findings": ["Make keyboard focus visually distinct from both the parchment edge and the selected radio state."]
+    },
+    {
+      "name": "Question input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 4–6 show clear dark ink on plain paper, with supplied field checks reporting at least 10.706:1 contrast and retained drafts.",
+      "findings": ["Simplify the layered gold-and-paper border so the writing area has a quieter material identity."]
+    },
+    {
+      "name": "Large-text input and expanded editor",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 24–25 and 31 show retained long text and accessible editor actions, alongside visible partial lines at internal scroll boundaries.",
+      "findings": ["Add clearer inset scroll boundaries so cropped lines signal scroll position rather than apparent text loss."]
+    },
+    {
+      "name": "Settings switch",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 22–23 and 58 show distinct thumb positions and keyboard focus, supported by persistence, target and contrast measurements.",
+      "findings": ["Preserve the visible positional state and full-row keyboard focus treatment."]
+    },
+    {
+      "name": "Omen content",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 35–36 show successful, unavailable and expanded-policy omen states with clear attempt and reading-credit language.",
+      "findings": ["Separate omen status from policy disclosure more clearly and reduce competition with the nearby hero instruction."]
+    },
+    {
+      "name": "Sky stars and selected question",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 7, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 69 shows selected Love with its sample question and an enlarged grid replacing the normal star layout.",
+      "findings": ["Make the enlarged grid an intentional material variant and integrate the rounded map panel more convincingly into the room."]
+    },
+    {
+      "name": "Circle surface",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 18–19 show a privacy parchment beneath honest offline and retry messaging.",
+      "findings": ["Reduce repeated explanatory text and strengthen the card’s contact with the hearth scene."]
+    },
+    {
+      "name": "History row",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 32–34 show bottle, parchment and shelf integration with separate dates and outcome/check-in labels.",
+      "findings": ["Compact the enlarged decorative spacing while preserving the strong shelf-and-card relationship."]
+    },
+    {
+      "name": "Plan option",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 49–50 show all prices on one ledger with selected checks, and supplied runtime evidence covers radio keys and all billing details.",
+      "findings": ["Give each plan a clearer centered row boundary and reduce unused ledger height."]
+    },
+    {
+      "name": "Share preview",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 61–62 and 68 show an integrated painted export image, though the initial preview renders its headline much smaller than surrounding controls.",
+      "findings": ["Improve headline readability in the initial preview while retaining Enlarge and direct text access."]
+    },
+    {
+      "name": "Notice and recovery",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Error, sharing and voice sheets show specific statuses and recovery actions, supported by injected failures and recovery checks.",
+      "findings": ["Use a consistent quiet backing or compact grouping for notices currently placed directly over busy shelves."]
+    },
+    {
+      "name": "Typography system",
+      "dimensions": {"hierarchy": 8, "typography": 7, "surfaces": 9, "clarity": 8, "feedback": null, "accessibility": 9},
+      "evidence": "The sheets retain storybook character and centered alignment, but enlarged reveal capitals and dense explanation passages create tall, slowly scanned blocks.",
+      "findings": ["Reserve display lettering for short headings and use compact centered body passages for enlarged forecasts and explanations."]
+    },
+    {
+      "name": "Atmospheric background and camera continuity",
+      "dimensions": {"hierarchy": 8, "typography": null, "surfaces": 8, "clarity": 8, "feedback": 8, "accessibility": 9},
+      "evidence": "Room filmstrips show overlapping paintings during crossfades without a dark backing gap, while supplied measurements separately establish browser timing and reduced-motion behavior.",
+      "findings": ["Reduce the visible double-room overlay during destination crossfades and smooth the jump from sharp room detail to heavy blur."]
+    },
+    {
+      "name": "Birthday input",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 1–2, 38–40 and 72 show labeled date fields, enlarged reflow and specific partial/invalid feedback with persistence checks supplied.",
+      "findings": ["Unify the paper inset and error/focus treatments across all three date fields."]
+    },
+    {
+      "name": "Age confirmation",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheet 37 shows the explicit age threshold, birthday-free confirmation and separate under-age response.",
+      "findings": ["Quiet the detailed backdrop directly behind the decision text."]
+    },
+    {
+      "name": "Focus selection",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 40–41 show wrapped labels contained within parchment, a selected check and a matching Continue action.",
+      "findings": ["Add a restrained selected-surface cue and reduce identical repeated texture edges."]
+    },
+    {
+      "name": "Birth-profile surface",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 10–11 and 72–73 group saved astrological details and related editing actions on parchment.",
+      "findings": ["Strengthen the distinction between primary sign information, supporting birth data and editing actions."]
+    },
+    {
+      "name": "Birth-details form",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 7–11 and 70–71 show optional steps, explicit input guidance and search recovery, with live lookup and saved-state checks supplied.",
+      "findings": ["Shorten and group centered guidance to keep the active input and its recovery action visually close at 200%."]
+    },
+    {
+      "name": "Named-person control",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 5–6, 21–22 and 32 show selected recipient type, labeled name input and empty-name disabling.",
+      "findings": ["Standardize its selected-choice marker with the rest of the option system."]
+    },
+    {
+      "name": "Evidence disclosure",
+      "dimensions": {"hierarchy": 9, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 26–29 and 52–53 show named expandable sections, directional chevrons and complete-content verification in the supplied runtime account.",
+      "findings": ["Make disclosure bars visually lighter than primary buttons and strengthen grouping inside expanded passages."]
+    },
+    {
+      "name": "Export status",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 8, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 60–61 show preparation, download-started and failure states with supplied evidence for duplicate prevention, retry and focus restoration.",
+      "findings": ["Give all export statuses the same compact centered visual container to reinforce continuity."]
+    },
+    {
+      "name": "Close and Back controls",
+      "dimensions": {"hierarchy": 9, "typography": 9, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 19–20 show strong focused outlines at both scales, with at least 44×44 targets and accessible names reported.",
+      "findings": ["Preserve this clear focus treatment as the standard for the weaker parchment-choice focus state."]
+    },
+    {
+      "name": "Check-in outcome selector and saved status",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 9, "clarity": 9, "feedback": 9, "accessibility": 9},
+      "evidence": "Sheets 15–17 and 45–56 distinguish empty, selected-unsaved, saved and editing states, with persistence and cancellation checks supplied.",
+      "findings": ["Reduce enlarged quote-and-choice spacing so the saved/unsaved status and commitment action remain close to the decision."]
+    },
+    {
+      "name": "Parchment information card",
+      "dimensions": {"hierarchy": 8, "typography": 8, "surfaces": 8, "clarity": 9, "feedback": null, "accessibility": 9},
+      "evidence": "Across plan, omen and evidence sheets, cut edges and contact shadows are visible, but tall sheets retain broad flat interiors with repeated edge patterns.",
+      "findings": ["Use restrained edge variation and more consistent local contact lighting without increasing texture behind text."]
+    }
+  ],
+  "limitations": [
+    "This is an independent provisional browser evaluation of the attached screenshots, labeled still-frame sequences and supplied runtime account; no additional files, source, previous ratings or live application were inspected.",
+    "Corresponding normal, 200%, transition and repeated captures are grouped under their screen/state entries; distinct error, empty, selected, expanded and populated states are separated where their task changes.",
+    "A is the mean of hierarchy, typography and surfaces; F is the mean of clarity, feedback and accessibility; overall is 0.4A + 0.6F, excluding genuinely inapplicable null dimensions.",
+    "The A>=9 and F>=9 threshold is not met for every screen or component: repeated browser-visible weaknesses remain in enlarged typography, material integration, disclosure density and opening continuity.",
+    "No hard-gate failure is established by the supplied evidence; content outside a captured viewport is not treated as unreachable where supplied scrolling and reachability checks cover it.",
+    "Runtime claims are supplied evidence rather than independently reproduced results; screenshots alone do not establish interaction, persistence, accessible semantics or predictive quality.",
+    "Physical iPhone/VoiceOver, native keyboard, haptics, tilt, native sharing, notifications and native performance remain deferred without score deductions solely for that boundary.",
+    "Billing is simulated, navigator.share is mocked and connected Circles behavior is unavailable; no successful real purchase, native share or connected social task is certified.",
+    "Synthetic passages and labeled layout fixtures are not treated as production-copy or model-quality failures; their visible density still informs layout assessment.",
+    "Filmstrips establish sampled visual states, not frame rate or continuous motion quality; browser performance and reduced-motion credit rely on the separate supplied runtime measurements.",
+    "The painted orb, stand, table and foreground bottles provide visible depth cues, but the attachments do not independently establish the implementation or motion of every proposed painted layer."
+  ],
+  "topFixes": [
+    "Remove the opening sequence’s near-invisible orb frame and preserve continuous visual presence through forecast arrival.",
+    "Replace enlarged forecast display capitals with the more readable body treatment already used in check-in, keeping all text centered.",
+    "Strengthen parchment-choice keyboard focus so it is as unmistakable as the demonstrated Close, Back and wood-button outlines.",
+    "Reduce dense centered explanation and disclosure blocks through shorter passage groups, clearer section hierarchy and restrained dividers.",
+    "Refine room crossfades, table/background focus boundaries and parchment contact lighting to reduce double-room and pasted-layer effects.",
+    "Compact enlarged check-in, plans and profile layouts so decisions, status and their actions remain visually close."
+  ]
+}
