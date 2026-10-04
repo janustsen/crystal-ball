@@ -1,0 +1,7 @@
+# Round43: expansion43 winners, then direction change
+
+Applied the expansion43 blind winners: History compact ledger (rows open the full record), Evidence one-open disclosures with a closing action that returns focus, the editor as a bordered in-flow field with Done below (the frame carries focus; no doubled ring), Plans as a compact ledger with per-plan renewal and one shared cancellation line (also fixes overlapping price/terms at 200%), and Circle summary destinations (each Circle, Profile & people, Friend readings, Sent seals, School suggestions) with urgent invitations, notices and received seals kept on the overview.
+
+Checks: typecheck, 171 unit tests, the 390 layout audit (106 states), why-details/compose-read focus, 24 expanded-editor checks and the full multi-person social drive (real SQL and Ollama, dev-mode preview on 8099) all pass. Preserved failures: the layout script defaulting to another lane's 8087 preview, a chrome-devtools-axi bridge port collision, and one social run where both owned previews were killed externally mid-drive (shown as Circles offline). None was a product defect.
+
+Steering013-016 then superseded the visual direction: less text, centred, game-like visuals, no Ball-fallibility copy (removed), and a witch's-house thesis with intricate painted art. See docs/design-thesis.md and docs/art/asset-pipeline.md. These screens are not regraded under Open mist.

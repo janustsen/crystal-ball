@@ -19,6 +19,10 @@ export function SocialIdentity({data,act,busy}:{data:SocialSnapshot;act:Act;busy
   {data.profile?.handle?<View style={styles.panel}><Txt>Find an @handle</Txt><TextInput accessibilityLabel="Search handles" autoCapitalize="none" value={query} onChangeText={value=>{setQuery(value);setResults([])}} style={styles.input}/><Action label="Search people" disabled={busy||query.replace('@','').trim().length<2} onPress={()=>void act(async()=>setResults(await searchHandles(query)))}/>
    {results.map(person=><View key={person.handle} style={{marginTop:12}}><Txt>{person.avatar} {person.display_name} · @{person.handle}</Txt>{data.circles.filter(c=>c.owner_id===data.owner).map((circle)=><Action key={circle.id} label={`Invite @${person.handle} to Circle ${data.circles.findIndex(c=>c.id===circle.id)+1}`} quiet disabled={busy} onPress={()=>void act(()=>requestInvite(circle.id,person.handle),'Invitation sent. They choose whether to join.')}/>)}<Action label={`Block @${person.handle}`} quiet disabled={busy} onPress={()=>void act(async()=>{await blockHandle(person.handle);setResults(results.filter(p=>p.handle!==person.handle))},'Person blocked.')}/></View>)}
   </View>:null}
+ </>;
+}
+export function InviteRequests({data,act,busy}:{data:SocialSnapshot;act:Act;busy:boolean}){
+ return <>
   {data.requests.map(request=><View key={request.id} style={styles.panel}><Txt>{request.avatar} @{request.handle} invited you to a Circle.</Txt><Txt style={styles.caption}>Joining shares your consultation days, themes, sun sign, check-in moments and golden draws. Group forecast questions and forecasts are visible to members.</Txt><Action label={`Accept @${request.handle} invitation`} disabled={busy||!data.profile?.handle} onPress={()=>void act(()=>answerInvite(request.id,true),'You joined the Circle.')}/><Action label={`Decline @${request.handle} invitation`} quiet disabled={busy} onPress={()=>void act(()=>answerInvite(request.id,false))}/></View>)}
  </>;
 }
