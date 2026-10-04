@@ -62,8 +62,9 @@ try{
    }
    await page.getByTestId('change-outcome').click();await page.getByTestId('check-in-no').click();await page.getByTestId('save-outcome').click();
    await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
-   await expect(page.getByText('Not quite',{exact:true})).toBeVisible();
-   await page.reload();await page.getByTestId('tab-history').click();await expect(page.getByText('Not quite',{exact:true})).toBeVisible();
+   const historyOutcome=page.getByTestId('history-record').filter({hasText:headline}).getByTestId('history-outcome');
+   await expect(historyOutcome).toBeVisible();await expect(historyOutcome).toHaveText('Outcome · Not quite');
+   await page.reload();await page.getByTestId('tab-history').click();await expect(historyOutcome).toBeVisible();await expect(historyOutcome).toHaveText('Outcome · Not quite');
    const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
    const reading=state.history[0];log.push({sample:sample.name,reading,replies});
    if(sample.golden){await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.history[0].golden=true;localStorage.setItem('crystal-ball-v1',JSON.stringify(s));});await page.reload();await page.getByTestId('tab-history').click();}
