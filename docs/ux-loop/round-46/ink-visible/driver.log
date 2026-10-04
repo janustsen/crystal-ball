@@ -1,0 +1,26 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: question-100: entered text against its actual painted background
+
+expect(received).toBeGreaterThanOrEqual(expected)
+
+Expected: >= 4.5
+Received:    4.433999659381421
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBeGreaterThanOrEqual (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at ink (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-input-ink.mjs:16:282)
+    at async file:///Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-input-ink.mjs:26:93 {
+  matcherResult: {
+    message: 'expect(received).toBeGreaterThanOrEqual(expected)\n' +
+      '\n' +
+      'Expected: >= 4.5\n' +
+      'Received:    4.433999659381421',
+    pass: false,
+    name: 'toBeGreaterThanOrEqual'
+  }
+}
+
+Node.js v26.10.0
