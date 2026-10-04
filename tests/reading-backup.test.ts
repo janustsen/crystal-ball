@@ -313,7 +313,7 @@ test('a phone clock behind the server still refreshes an exhausted balance at se
  assert.equal(loads,2);
 });
 
-test('Ask mirrors the server retry rule and opens Plans on its no-readings response',async()=>{
+for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncertain retries to the server and handles exhausted readings`,async()=>{
  const h=hooks(false),params:any={};let remaining=1,predicts=0,next:'lost'|'empty'='lost';
  const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
  const app=load('../app/index.tsx',{
@@ -324,35 +324,39 @@ test('Ask mirrors the server retry rule and opens Plans on its no-readings respo
   '../src/profile':profile,'../src/retention':retention,'../src/billing':billing,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
-  '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{},
+  '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{friendForecast:async()=>{predicts++;throw new Error(next==='empty'?billing.noReadings:'response lost')}},
   '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(()=>{})},
   '../src/api':{request:async(action:string)=>{
    if(action==='plan')return {kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false}]}};
    predicts++;if(next==='empty')return {kind:'error',message:billing.noReadings};throw new Error('response lost');
   }},
- },[]);
+ },[],{Error});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
  const press=async(match:(n:any)=>boolean)=>{render().find(match).props.onPress();await tick()};
  const plansOpen=()=>render().some(n=>n.children.some((c:any)=>c==='Choose your next chapter.'));
  const closePlans=()=>press(n=>n.props.testID==='close-flow');
- const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will I learn?',false);await press(n=>n.props.testID==='look-into-the-future')};
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk(mode==='person'?'Will Sam learn?':'Will I learn?',mode==='friend',mode==='friend'?{circle:'circle',member:'member',firstName:'Sam'}:undefined,mode==='person'?'Sam':'');await press(n=>n.props.testID==='look-into-the-future')};
  await ask();
- await press(n=>n.props.testID==='option-0');
+ if(mode!=='friend')await press(n=>n.props.testID==='option-0');
  assert.equal(predicts,1);
  // The interrupted forecast spent the last reading on the server.
  remaining=0;
  await ask();
- await press(n=>n.props.testID==='option-1');
- assert.equal(predicts,1,'changed answers are a new, charged reading');assert.ok(plansOpen());
- await closePlans();
- await press(n=>n.props.testID==='option-0');
- assert.equal(predicts,2,'the same answers retry once for free');assert.ok(!plansOpen());
+ if(mode!=='friend'){
+  await press(n=>n.props.testID==='option-1');
+  assert.equal(predicts,1,'changed answers are a new, charged reading');assert.ok(plansOpen());
+  await closePlans();
+  await press(n=>n.props.testID==='option-0');
+ }
+ assert.equal(predicts,2,'the interrupted reading reaches the server again');assert.ok(!plansOpen());
  await press(n=>n.props.label==='Try again');
- assert.equal(predicts,2,'a second retry is charged');assert.ok(plansOpen());
- // A stale device balance still lets a charged request through; the server's 402 opens Plans.
- await closePlans();remaining=1;next='empty';
+ assert.equal(predicts,3,'an offline retry cannot consume server retry eligibility');assert.ok(!plansOpen());
+ next='empty';
  await press(n=>n.props.label==='Try again');
- assert.equal(predicts,3);assert.ok(plansOpen());
+ assert.equal(predicts,4);assert.ok(plansOpen());
+ await closePlans();remaining=1;
+ await press(n=>n.props.label==='Try again');
+ assert.equal(predicts,5);assert.ok(plansOpen());
 });
