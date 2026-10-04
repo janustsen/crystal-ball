@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, Fraunces display type and Manrope body type (the captain’s selected B direction); the protected Crystal Ball wordmark retains IM Fell English Italic. Home keeps the orb central, with the forecast/check-back introduction and a due-check-in action when applicable. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
+The selected [Apothecary thesis](../design-thesis.md) supersedes the supplied 17-screen reference, Open mist and Fraunces/Manrope. The ball belongs in a painted witch’s house, with a table, room reflections and warm light. Use IM Fell English SC headings, Caudex body text and the protected IM Fell English Italic wordmark. Keep copy brief and centered; omen and forecast explanations may run longer. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
@@ -14,19 +14,19 @@ The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority
 | Secondary text | #B9AB97 |
 | Gold / focus | #E0A458 / #F2C284 |
 | Borders | #614C34 / #79634A |
-| Display / body | Fraunces / Manrope; wordmark IM Fell English Italic |
+| Display / body | IM Fell English SC / Caudex; wordmark IM Fell English Italic |
 
-The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark retains its graphic size; task text and tab labels scale. Footer height is measured so enlarged navigation stays clear of scrolling content and the raised Ask orb. Touch targets remain at least 44 pt. The selected Open mist direction leaves content borderless in the room, grouped with space and fine, low-contrast gold dividers. Primary buttons retain a shallow warm brass lip; secondary actions use left-aligned warm-gold labels and quiet underlines; answer choices retain full-width selection rows. Text fields share a rounded outline, and long multiline fields expose a persistent scroll-position cue. Keep illustrated depth on the orb, not repeated card frames. Utility-screen atmosphere is dimmed behind readable content. The [motion language](motion-language.md) owns these finishes alongside movement. Smoke and embers are decorative and cannot intercept input. Reduced motion stops the shader animation and CSS motion.
+The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark retains its graphic size; task text and tab labels scale. Footer height is measured so enlarged navigation stays clear of scrolling content and the raised Ask orb. Touch targets remain at least 44 pt. Use textured wood for primary actions, writing paper for fields and irregular illustrated parchment for choices and information. Center labels, choices and text. Avoid machine-cut cards and fine straight dividers. Long multiline fields expose a persistent scroll-position cue. The ball and room share illustrated depth; the question sits on a parchment slip below the ball. Utility-screen atmosphere is dimmed behind readable content. Smoke and decoration cannot intercept input. Reduced motion stops painted smoke, camera movement and CSS animation; see [motion](motion.md).
 
 ## Navigation and the 17 states
 
 Home, Sky, raised Ask orb, History and You are the five destinations. The tab orb uses exactly the Home orb artwork. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
-1. Home: orb, one sans-serif forecast/check-back headline, return-visit guidance, due-check-in action, Daily omen content and decorative fog whispers; see [motion](motion.md#orb-delight) for their animation and input behavior.
+1. Home: painted ball on its table, a parchment question, due-check-in action and Daily omen. Shelf, hearth and cabinet objects open History, Circles and plans.
 2. Approach: orb and “Your question.” with explicit Type a question and Speak a question controls.
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
-4. Typing: outlined sans-serif question input, Speak instead and Ask the Ball. Configured AI providers require a separate explicit consent review before sending; the draft is retained.
-5–7. Follow-ups: small decorative orb above a borderless question, with consistently aligned underlined choices. At 200% text, decorative orbs in forms are omitted and plan pricing stacks; Home retains its full hero. Custom entry collapses unused choices and offers a visible way back to them. Standard answers acknowledge selection for 180ms then advance; reduced motion advances immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
+4. Typing: paper question input, Speak instead and Ask the Ball. Configured AI providers require a separate explicit consent review before sending; the draft is retained.
+5–7. Follow-ups: small decorative orb above a centered question, with parchment choices. At 200% text, decorative orbs in forms are omitted and plan pricing stacks; Home retains its full hero. Custom entry collapses unused choices and offers a visible way back to them. Standard answers select without advancing under either motion preference; Continue or Reveal commits once. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
 8. Thinking: smoke, status, longer-wait message and Cancel; no credit is spent yet.
 9. Reveal: actual engine headline and speculative label; see [Short, personal readings](#short-personal-readings) for Due date and Why disclosure. Why and Share remain visible; More actions groups reminder, another question, edit and current-session answer review. At zero balance, the next-reading action opens plans. See [README](../../README.md) for saved-reading outcome controls.
 10. Share: compact actual export preview and image/friend/reminder actions.
@@ -42,11 +42,11 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 
 The real engine still owns cards and predictions. Known facts are skipped; friend readings never teach the owner's memory. Back preserves prior answers and truncates later dependent answers. Invalid Other input cannot advance. Cancel aborts the request. Failed generation keeps answers and spends no reading. The decoder still repairs once then fails closed. Do not describe structural correctness as semantic or predictive accuracy.
 
-Share leads with a tappable artifact preview, primary image action and visible privacy copy. Invite & remind discloses secondary tools. Export feedback stays beside the action. See [sharing usage](../../README.md) for story-image and recording contents and the headline privacy warning. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
+Share leads with a tappable artifact preview, primary image action and visible privacy copy. Invite & remind discloses secondary tools. Export, invitation and reminder feedback opens a scrollable result sheet; dismiss Done before using underlying controls. See [sharing usage](../../README.md) for story-image and recording contents and the headline privacy warning. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
 
 ## Verification
 
-The project verify-crystal-ball skill owns the executable gate. Current evidence is docs/evidence/design-2026-09-30/, including all 17 screens, actual engine responses, accessibility scans, small-screen/large-text checks and preserved failed rounds. Earlier violet/A4 evidence is historical. Match the exported reference visually while using live data; do not seed personal facts or successful readings merely to reproduce reference copy.
+The project verify-crystal-ball skill owns the executable gate. Current design acceptance is recorded in docs/ux-loop/final-scores.md; earlier 17-screen, violet/A4 and Open mist captures are historical. Follow the Apothecary thesis while using live data; do not seed personal facts or successful readings merely to reproduce reference copy.
 
 ## Short, personal readings
 

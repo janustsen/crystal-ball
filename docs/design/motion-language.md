@@ -1,5 +1,7 @@
 # Crystal Ball motion language
 
+Current renderer authority: [Apothecary motion](motion.md) and the [design thesis](../design-thesis.md). The following is the historical smoke/brass study: its Open mist surfaces, WebGL fog, levitation and draw-count gate are superseded. Screen entrance tokens and the staged reveal remain implemented in src/motion.ts and src/RevealOpening. Do not use this study to restore the old renderer or visual direction.
+
 The ball is a small atmosphere behind glass, drawn like a premium illustrated game: inked silhouettes, brass rims, candle bounce light and a shallow brass lip keep the hero and primary action tangible; Open mist content surfaces stay borderless. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it yields slightly when pressed and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
 
 | Signature | Where | Timing and behavior |

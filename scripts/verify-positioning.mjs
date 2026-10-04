@@ -66,7 +66,7 @@ try{
    await page.getByTestId('share-this-glimpse').click();
    if(sample===samples[0]){
     const download=page.waitForEvent('download');await page.getByTestId('export-story-card').click();await(await download).saveAs(`${out}/share-card.png`);
-    await page.getByTestId('dismiss-notice').click();
+    await page.getByTestId('share-result-done').click();
    }
    const before=replies.filter(r=>r.action==='predict').length;
    await page.getByTestId('share-record-reveal').click();
