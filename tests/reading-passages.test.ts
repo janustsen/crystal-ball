@@ -1,3 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readingPassages} from '../src/reading-passages';
 test('long reasoning splits into readable passages without changing words',()=>{const text='Recorded context stays complete. Assumptions are uncertain. '.repeat(12);const passages=readingPassages(text);assert(passages.length>1);assert.equal(passages.join(' ').replace(/\s+/g,' ').trim(),text.trim());});
 test('short explanations and authored paragraphs stay intact',()=>{assert.deepEqual(readingPassages('A short reason.'),['A short reason.']);assert.deepEqual(readingPassages('First paragraph.\n\nSecond paragraph.'),['First paragraph.','Second paragraph.']);});
+
+test('dense authored paragraphs break at sentences while preserving all words',()=>{const sentence='A recurring class gives the plan a concrete place in the week, while the time already reserved makes the next step easier to begin.';const text=`${sentence} ${sentence}\n\n${sentence} ${sentence}`;const passages=readingPassages(text);assert.equal(passages.length,4);assert.equal(passages.join(' '),text.replace(/\s+/g,' '));});
