@@ -32,7 +32,7 @@ test('loadSocial includes every capped collection and recovers an unpaid forecas
  }});
  t.after(()=>{hooks.deregister();delete (globalThis as any).socialPaginationDb});
  t.mock.method(globalThis,'fetch',async()=>Response.json({ok:true}));
- const {loadSocial}=await import('../src/social.ts');
+ const {loadSocial,shareCircleMoment}=await import('../src/social.ts');
  const account={plus:true,ageBand:'adult' as const,sunSign:null};
  const snapshot=await loadSocial(account);
  for(const key of Object.keys(resources) as (keyof typeof resources)[])assert.equal(snapshot[key].length,1010,key);
@@ -45,6 +45,19 @@ test('loadSocial includes every capped collection and recovers an unpaid forecas
  const marked:string[]=[];
  for(const forecast of unpaid)await settleCircleReading(state,forecast,async next=>{state=next},async id=>{marked.push(id)});
  assert.equal(state.credits,1);assert.deepEqual(state.history,[]);assert.deepEqual(marked,['1009']);
+
+ const selected:string[]=[];let release!:()=>void;
+ const first=new Promise<void>(resolve=>{release=resolve});
+ (globalThis as any).socialPaginationDb.rpc=async(_name:string,{moment}:any)=>{
+  selected.push(moment);if(selected.length===1)await first;
+  return {data:null,error:moment==='no'?{message:'offline'}:null};
+ };
+ const yes=shareCircleMoment('reading','yes'),pending=shareCircleMoment('reading','pending'),golden=shareCircleMoment('reading','golden');
+ await new Promise(resolve=>setImmediate(resolve));assert.deepEqual(selected,['yes']);
+ release();await Promise.all([yes,pending,golden]);assert.deepEqual(selected,['yes','pending','golden']);
+ await assert.rejects(shareCircleMoment('reading','no'));
+ await shareCircleMoment('reading','yes');assert.deepEqual(selected,['yes','pending','golden','no','yes']);
+ (globalThis as any).socialPaginationDb.rpc=query;
  fail='circle_forecasts';await assert.rejects(loadSocial(account));
  fail='schools';assert.deepEqual((await loadSocial(account)).schools,[]);
 });

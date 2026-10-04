@@ -15,7 +15,7 @@ export async function deliverSocialPushes(env:(key:string)=>string|undefined,tra
   const response=await transport('https://exp.host/--/api/v2/push/send',{method:'POST',headers:{'Content-Type':'application/json',...(env('EXPO_ACCESS_TOKEN')?{Authorization:`Bearer ${env('EXPO_ACCESS_TOKEN')}`}:{})},body:JSON.stringify({to:job.token,title:'Crystal Ball',body:messages[job.kind],data:{social:true,circle:job.circle_id},sound:'default'}),signal:AbortSignal.timeout(15000)});
   if(!response.ok)continue;
   const result=await response.json();
-  if(result.data?.status==='ok'||result.data?.details?.error==='DeviceNotRegistered'){await rpc('finish_social_push',{notification:job.id});accepted++;}
+  if(result.data?.status==='ok'){await rpc('finish_social_push',{notification:job.id});accepted++;}
  }
  return {queued:jobs.length,accepted};
 }

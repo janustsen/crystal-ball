@@ -94,7 +94,12 @@ export const blockHandle=(handle:string)=>rpc('block_handle',{target_handle:hand
 export const requestInvite=(circle:string,handle:string)=>rpc('request_circle_invite',{target:circle,target_handle:handle});
 export const answerInvite=(id:string,accept:boolean)=>rpc('answer_circle_invite',{request_id:id,accept});
 export const manageCircle=(circle:string,person:string,operation:'remove'|'transfer')=>rpc('manage_circle',{target:circle,person,operation});
-export const shareCircleMoment=(reading:string,moment:'yes'|'no'|'pending'|'golden')=>rpc('share_circle_moment',{reading,moment});
+let momentWork:Promise<unknown>=Promise.resolve();
+export function shareCircleMoment(reading:string,moment:'yes'|'no'|'pending'|'golden'){
+ const work=momentWork.catch(()=>{}).then(()=>rpc('share_circle_moment',{reading,moment}));
+ momentWork=work;
+ return work;
+}
 export const prepareCircleForecast=(circle:string,question:string,aiConsent='')=>socialRequest<CircleForecastDraft>({action:'circle',circle,question,aiConsent});
 export const publishCircleForecast=(draft:string):Promise<CircleForecast>=>rpc('publish_circle_forecast',{approved_draft:draft});
 export const voteCircleForecast=(forecast:string,answer:'yes'|'no'|'pending')=>rpc('vote_circle_forecast',{forecast,answer});

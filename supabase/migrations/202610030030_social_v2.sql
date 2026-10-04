@@ -166,6 +166,7 @@ create function public.share_circle_moment(reading uuid,moment text) returns voi
  language plpgsql security definer set search_path='' as $$
  begin
   if moment not in ('yes','no','pending','golden') then raise exception 'Choose a check-in or golden draw'; end if;
+  perform 1 from public.social_profiles where user_id=auth.uid() for update;
   if moment<>'golden' then delete from public.circle_moments where user_id=auth.uid() and reading_id=reading and kind<>'golden'; end if;
   insert into public.circle_moments(circle_id,user_id,reading_id,kind) select circle_id,user_id,reading,moment from public.circle_members where user_id=auth.uid() on conflict do nothing;
  end;

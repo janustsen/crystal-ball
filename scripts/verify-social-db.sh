@@ -36,6 +36,10 @@ SQL
 for migration in supabase/migrations/*.sql; do
   "${sql[@]}" -f "$migration" >"$cluster/migration.log"
 done
+if [[ "${SOCIAL_MOMENTS_ONLY:-0}" == 1 ]]; then
+  PG_BIN="$pg_bin" python3 scripts/social-moment-races.py
+  exit
+fi
 if [[ "${SOCIAL_CHARGE_ADAPTER_ONLY:-0}" == 1 ]]; then
   PG_BIN="$pg_bin" node scripts/check-social-charge-adapter.mjs
   exit

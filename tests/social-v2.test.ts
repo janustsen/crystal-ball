@@ -54,3 +54,20 @@ test('failed push delivery remains retryable and never acknowledges a rejected t
  const result=await deliverSocialPushes(key=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]),transport);
  assert.deepEqual(result,{queued:1,accepted:0});assert.equal(finished,false);
 });
+
+
+test('unregistered devices remain retryable after token replacement',async()=>{
+ let token='old',finished=false;
+ const sent:string[]=[];
+ const transport:typeof fetch=async(input,init)=>{
+  const url=String(input);
+  if(url.endsWith('claim_social_pushes'))return Response.json(finished?[]:[{id:'job',kind:'seal',token,circle_id:'circle'}]);
+  if(url.endsWith('finish_social_push')){finished=true;return Response.json(null);}
+  sent.push(JSON.parse(String(init?.body)).to);
+  return Response.json({data:token==='old'?{status:'error',details:{error:'DeviceNotRegistered'}}:{status:'ok',id:'ticket'}});
+ };
+ const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]);
+ assert.deepEqual(await deliverSocialPushes(env,transport),{queued:1,accepted:0});assert.equal(finished,false);
+ token='replacement';assert.deepEqual(await deliverSocialPushes(env,transport),{queued:1,accepted:1});
+ assert.equal(finished,true);assert.deepEqual(sent,['old','replacement']);
+});
