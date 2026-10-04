@@ -23,7 +23,7 @@ Web in `store` mode shows the plans with “Purchases are available in the Cryst
 
 An engine without `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` refuses signed-in readings (503) rather than serving them unmetered. Any engine real users reach must have both.
 
-Balance snapshots carry their owner and database-clock `asOf`. The app queues application with archive work and accepts only newer snapshots for the current owner; changing owner resets snapshot freshness and reloads that owner’s balance (`src/store.tsx`). Plans refresh store offers and trial eligibility on opening and after purchase, restore or account changes.
+Balance snapshots carry their owner and database-clock `asOf`. The app queues application with archive work and accepts only newer snapshots for the current owner; changing owner resets snapshot freshness and reloads that owner’s balance (`src/store.tsx`). Each accepted snapshot also estimates the server clock offset. The minute timer uses that offset to request a fresh balance after the server's UTC day advances, including when the phone clock is behind; it never resets server-metered usage locally. Plans refresh store offers and trial eligibility on opening and after purchase, restore or account changes.
 
 ## One-time setup (needs Janus's accounts)
 
