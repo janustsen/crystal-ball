@@ -1,0 +1,55 @@
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toBeVisible() failed
+
+Locator: getByText('Check back 2027-02-03', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('Check back 2027-02-03', { exact: true }) with timeout 5000ms
+  - waiting for getByText('Check back 2027-02-03', { exact: true })
+
+    at captureRawStack (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toBeVisible (/Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at /Users/janustsen/.treehouse/crystal-ball-6fc41b/3/crystal-ball/scripts/check-share-date.mjs:8:191 {
+  matcherResult: {
+    message: 'expect(locator).toBeVisible() failed\n' +
+      '\n' +
+      "Locator: getByText('Check back 2027-02-03', { exact: true })\n" +
+      'Expected: visible\n' +
+      'Timeout: 5000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toBeVisible" getByText('Check back 2027-02-03', { exact: true }) with timeout 5000ms\n` +
+      "  - waiting for getByText('Check back 2027-02-03', { exact: true })\n",
+    pass: false,
+    actual: undefined,
+    name: 'toBeVisible',
+    expected: 'visible',
+    log: [
+      `  - Expect "toBeVisible" getByText('Check back 2027-02-03', { exact: true }) with timeout 5000ms`,
+      "  - waiting for getByText('Check back 2027-02-03', { exact: true })"
+    ],
+    timeout: 5000,
+    ariaSnapshot: '- button "Close": ×\n' +
+      '- button "View plans. 1 reading left.": 1 reading left\n' +
+      '- text: Share this glimpse\n' +
+      '- button "Enlarge shared image":\n' +
+      '  - img "Crystal Ball. By spring you will hold a twenty-minute conversation in Spanish Speculative forecast. Not a guarantee."\n' +
+      '- button "Download image"\n' +
+      '- text: Image text By spring you will hold a twenty-minute conversation in Spanish Speculative forecast · not a guarantee Crystal Ball · A glimpse, not a promise\n' +
+      '- button "View full image ›"\n' +
+      '- button "Replay for recording"\n' +
+      '- text: The forecast, check-in date and speculative label appear in your image. Review the headline before sharing; it may contain details you supplied. Your question, answers and reasoning stay private.\n' +
+      '- button "Invite & remind ⌄"\n' +
+      '- button "Back to forecast"'
+  }
+}
+
+Node.js v26.10.0
