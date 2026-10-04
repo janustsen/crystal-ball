@@ -39,7 +39,7 @@ export function Store({children}:React.PropsWithChildren){
  useEffect(()=>{if(ready&&!locked.current){writes=writes.catch(()=>{}).then(async()=>{
   const snapshot=current.current;await AsyncStorage.setItem(key,JSON.stringify(snapshot));
   if(!locked.current&&snapshot.backupOwner&&canRead(snapshot))await mirror(snapshot);
- }).catch(()=>{});}},[state,ready]);
+ }).catch(()=>console.warn('Automatic archive persistence failed; it will retry on the next update.'));}},[state,ready,backupBusy]);
  useEffect(()=>{if(ready)for(const reading of state.history)if(reading.outcome)void cancelCheckIn(reading.id).catch(()=>Alert.alert('Reminder cleanup failed','Your answer is saved, but its reminder could not be canceled. Please try checking in again.'));else reopenCheckIn(reading.id);},[ready,state.history]);
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
   if(!ready)throw new Error('Please wait for your archive.');
@@ -75,7 +75,6 @@ export function Store({children}:React.PropsWithChildren){
    const saved=saveReading(current.current,prediction);
    const next={...saved,facts:{...saved.facts,...facts}};
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
-   if(next.backupOwner&&canRead(next))await mirror(next);
   });
  }
 
@@ -88,7 +87,6 @@ export function Store({children}:React.PropsWithChildren){
    await settleCircleReading(current.current,forecast,async next=>{
     await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
    },markCircleCharged,typeof input==='string');
-   if(current.current.backupOwner&&canRead(current.current))await mirror(current.current);
    return forecast;
   });
  }
