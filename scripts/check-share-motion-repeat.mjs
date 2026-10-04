@@ -14,8 +14,8 @@ try{for(let run=0;run<5;run++){
   await page.goto(process.env.PREVIEW_URL||'http://localhost:8098');await page.evaluate(()=>document.fonts.ready);await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(plan.request.question);await page.getByTestId('look-into-the-future').click();
   for(let index=0;index<plan.response.value.cards.length;index++){await page.getByTestId('option-0').click();if(index<plan.response.value.cards.length-1)await page.getByTestId('answer-next').click();}
   await page.evaluate('('+measurement+')()');await page.evaluate(()=>motionAudit.sample('opening','answer-next',2200,'share-this-glimpse'));
-  await page.evaluate(()=>motionAudit.sample('share','share-this-glimpse'));
-  const samples=await page.evaluate(()=>motionAudit.finish());checks.push({run:run+1,freshBrowser:true,recordedReading:true,samples});await writeFile(`${out}/samples.json`,JSON.stringify(checks,null,2));
+  const golden=await page.getByTestId('golden-label').count()>0;await page.evaluate(()=>motionAudit.sample('share','share-this-glimpse'));
+  const samples=await page.evaluate(()=>motionAudit.finish());checks.push({run:run+1,freshBrowser:true,recordedReading:true,golden,samples});await writeFile(`${out}/samples.json`,JSON.stringify(checks,null,2));
   await page.screenshot({path:`${out}/share-${run+1}.png`});
  }finally{await browser.close()}
 }
