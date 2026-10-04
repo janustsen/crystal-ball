@@ -37,6 +37,10 @@ SQL
 for migration in supabase/migrations/*.sql; do
   "${sql[@]}" -f "$migration" >"$cluster/migration.log"
 done
+if [[ "${BILLING_ONLY:-0}" == 1 ]]; then
+  "${sql[@]}" -f scripts/billing-expiry.sql
+  exit
+fi
 if [[ "${SOCIAL_INVITATIONS_ONLY:-0}" == 1 ]]; then
   PG_BIN="$pg_bin" python3 scripts/social-invitation-races.py
   exit
@@ -59,7 +63,7 @@ fi
 "${sql[@]}" -f scripts/billing-rls.sql
 
 # Two distinct recipients race to open a fresh seal. Exactly one may succeed.
-token=$("${sql[@]}" -Atc "delete from public.social_blocks; update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated; set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; select public.seal_forecast('20000000-0000-0000-0000-000000000001');" | tail -1)
+token=$("${sql[@]}" -Atc "delete from public.social_blocks; update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated; set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; select public.seal_forecast('20000000-0000-0000-0000-000000000001');" | tail -1)
 claim() {
   "${sql[@]}" -Atc "set role authenticated; set request.jwt.claim.sub='$1'; select public.open_forecast('$token');" >"$2" 2>&1
 }

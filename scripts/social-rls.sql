@@ -82,7 +82,7 @@ select proof.reject(format('select public.open_forecast(%L)',:'seal'),'P0001');
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.invite_to_circle(:'circle') as expired_invite \gset
 select proof.reject('select public.seal_forecast(''20000000-0000-0000-0000-000000000001'')','P0001');
-reset role; update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated;
+reset role; update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated;
 select public.seal_forecast('20000000-0000-0000-0000-000000000001') as aged_seal \gset
 reset role;
 update public.circle_invites set expires_at=now()-interval '1 second' where token=:'expired_invite';
@@ -153,7 +153,7 @@ select proof.assert((select count(*)=1 from public.circle_people()),'blocked mem
 reset role; set role service_role;
 select proof.reject(format('select public.authorize_friend_reading(%L,%L,%L)','00000000-0000-0000-0000-000000000001',:'friends_circle','00000000-0000-0000-0000-000000000002'),'P0001');
 reset role;
-update public.social_profiles set plus=false where user_id='00000000-0000-0000-0000-000000000001';
+update public.social_profiles set plus=false,plus_until=null where user_id='00000000-0000-0000-0000-000000000001';
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select proof.reject('select public.seal_forecast(''20000000-0000-0000-0000-000000000001'')','P0001');
@@ -228,7 +228,7 @@ select public.create_circle() as extra_circle \gset
 select public.invite_to_circle(:'extra_circle') as extra_invite \gset
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
 select proof.reject(format('select public.join_circle(%L)',:'extra_invite'),'P0001');
-reset role; update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000004'; set role authenticated;
+reset role; update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000004'; set role authenticated;
 select public.join_circle(:'extra_invite');
 select proof.assert((select count(*)=6 from public.circle_members where user_id=auth.uid()),'Plus member can join beyond five circles');
 -- Retained Star IDs must not bypass either direction of a block.

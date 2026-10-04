@@ -120,3 +120,52 @@ for(const mode of ['private','publish'])for(const replacement of ['forget','rest
  assert.ok(f.uploads.every(ids=>ids.length===0));
  assert.equal(f.warnings.length,1);
 });
+
+for(const mode of ['save','restore'] as const)for(const restoreFails of [false,true])test(`${mode} refreshes account balance and rejects stale responses (failure=${restoreFails})`,async()=>{
+ const h=hooks(),warnings:string[]=[],day=new Date().toISOString().slice(0,10);
+ const oldBalance={plus:false,plusUntil:null,packs:0,used:1,day};
+ const paidBalance={plus:true,plusUntil:'2099-01-01',packs:5,used:0,day};
+ let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
+ let owner='anonymous',finishHydration!:(b:typeof oldBalance)=>void;
+ const pending=new Promise<typeof oldBalance>(resolve=>{finishHydration=resolve});
+ const store=load('../src/store.tsx',{
+  react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
+  './api':{serverMetered:true,loadBalance:()=>owner==='anonymous'?pending:Promise.resolve(paidBalance)},
+  './cloud':{mirror:async()=>{if(restoreFails)throw new Error('backup offline')},restoreBackup:async(s:any)=>{if(restoreFails)throw new Error('backup offline');return {...s,backupOwner:owner}},supabase:{auth:{getSession:async()=>({data:{session:{user:{id:owner,is_anonymous:false}}}})}}},
+  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  './native':{reopenCheckIn:()=>{}},
+ },warnings);
+ const render=()=>h.render(()=>store.Store({})).props.value;
+ render();await tick();const earlier=render();await tick();
+ assert.equal(earlier.remaining,0);
+ const backup=earlier.backup(mode,async()=>{owner='paid'});
+ if(restoreFails)await assert.rejects(backup,/backup offline/);else await backup;
+ let current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
+ finishHydration(oldBalance);await tick();
+ earlier.applyBalance(oldBalance);
+ await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
+ current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
+ current.applyBalance({...paidBalance,used:2});
+ current=render();assert.equal(current.remaining,13);
+ await tick();assert.equal(JSON.parse(disk).plus,true);
+});
+
+for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMode} purchases on Home and You`,async()=>{
+ const f=await fixture(),h=hooks(false);
+ f.render().update((s:any)=>({...s,plus:true}));
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>({}),router:{setParams:()=>{}}},
+  '../src/store':{useStore:f.render},'../src/profile':profile,'../src/retention':retention,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
+  '../src/purchases':{purchaseMode},'../src/questions':{factLabels:{}},
+ },f.warnings);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const label=purchaseMode==='mock'?'Plus · test':'Plus';
+ assert.equal(render().filter(n=>n.children.includes(label)).length,1);
+ render().find(n=>n.props.testID==='tab-you').props.onPress();
+ assert.equal(render().filter(n=>n.children.includes(label)).length,2);
+});

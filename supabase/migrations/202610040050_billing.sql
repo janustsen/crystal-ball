@@ -53,7 +53,6 @@ create function public.charge_reading(viewer uuid,reading text) returns jsonb
 $$;
 
 -- RevenueCat reconciliation: subscription expiry is replaced wholesale; each pack transaction credits once.
--- plus mirrors plus_until for the social rules (seals, Circle limits, friend readings).
 create function public.apply_store_entitlements(viewer uuid,entitled_until timestamptz,purchases jsonb) returns jsonb
  language plpgsql security definer set search_path='' as $$
  declare granted integer;
@@ -92,5 +91,49 @@ create or replace function public.publish_circle_forecast(approved_draft uuid) r
   insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id,deliver_after)
    select user_id,auth.uid(),draft.circle_id,'vote',draft.id,draft.due_date::timestamp at time zone 'UTC' from public.circle_members where circle_id=draft.circle_id;
   return result;
+ end;
+$$;
+
+create or replace function public.seal_forecast(approved_draft uuid) returns uuid
+ language plpgsql security definer set search_path = '' as $$
+ declare result uuid; draft public.social_drafts; is_plus boolean;
+ begin
+  if auth.uid() is null then raise exception 'Sign in anonymously first'; end if;
+  insert into public.social_profiles(user_id) values(auth.uid()) on conflict do nothing;
+  select coalesce(plus_until>now(),false) into is_plus from public.social_profiles where user_id=auth.uid() for update;
+  select * into draft from public.social_drafts where id=approved_draft and user_id=auth.uid() and kind='seal' and expires_at>now();
+  if draft.id is null then raise exception 'Approve a fresh sealed draft first'; end if;
+  if not is_plus and (select count(*) from public.sealed_forecasts where sender_id=auth.uid() and created_at>=date_trunc('week',now() at time zone 'UTC') at time zone 'UTC')>=1 then raise exception 'Your free seal is used this week. Plus has unlimited seals'; end if;
+  insert into public.sealed_forecasts(sender_id,headline) values(auth.uid(),draft.wording) returning token into result;
+  return result;
+ end;
+$$;
+
+create or replace function public.authorize_friend_reading(viewer uuid,target_circle uuid,target_member uuid) returns jsonb
+ language plpgsql security definer set search_path = '' as $$
+ declare profile public.social_profiles; themes jsonb;
+ begin
+  if not exists(select 1 from public.social_profiles where user_id=viewer and plus_until>now()) then raise exception 'Friend readings are a Plus extra'; end if;
+  if viewer=target_member or not exists(select 1 from public.circle_members where circle_id=target_circle and user_id=viewer)
+   or not exists(select 1 from public.circle_members where circle_id=target_circle and user_id=target_member)
+   or exists(select 1 from public.social_blocks where (user_id=viewer and blocked_id=target_member) or (user_id=target_member and blocked_id=viewer)) then raise exception 'This friend is unavailable'; end if;
+  select * into profile from public.social_profiles where user_id=target_member and age_band='adult' and friends_can_ask for share;
+  if profile.user_id is null then raise exception 'This friend has not enabled friend readings'; end if;
+  select coalesce(jsonb_agg(distinct m.theme) filter(where m.theme is not null),'[]') into themes from public.circle_members m where m.user_id=target_member and exists(select 1 from public.circle_members v where v.circle_id=m.circle_id and v.user_id=viewer);
+  insert into public.friend_notices(user_id) values(target_member);
+  return jsonb_build_object('sun_sign',profile.sun_sign,'themes',themes,'teen_viewer',(select age_band<>'adult' from public.social_profiles where user_id=viewer));
+ end;
+$$;
+
+create or replace function social_private.membership_limit() returns trigger
+ language plpgsql security definer set search_path='' as $$
+ declare allowance integer;
+ begin
+  insert into public.social_profiles(user_id) values(new.user_id) on conflict do nothing;
+  select case when plus_until>now() then 10 else 5 end into allowance from public.social_profiles where user_id=new.user_id for update;
+  if (select count(*) from public.circle_members where user_id=new.user_id)>=allowance then raise exception 'Your Circle limit is %',allowance; end if;
+  perform 1 from public.circles where id=new.circle_id for update;
+  if (select count(*) from public.circle_members where circle_id=new.circle_id)>=20 then raise exception 'This circle is full'; end if;
+  return new;
  end;
 $$;

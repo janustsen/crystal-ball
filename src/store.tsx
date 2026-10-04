@@ -18,7 +18,8 @@ const Context=createContext<{state:AccountState;ready:boolean;hydrationError:str
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
- const locked=useRef(true),current=useRef(state);
+ const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
+ const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
  const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
  function withArchiveLock<T>(action:()=>Promise<T>){
@@ -49,7 +50,14 @@ export function Store({children}:React.PropsWithChildren){
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
-   await writes.catch(()=>{});await uploads.catch(()=>{});await authenticate();
+   await writes.catch(()=>{});await uploads.catch(()=>{});
+   accountVersion.current++;
+   try{await authenticate()}finally{
+    if(serverMetered){
+     change(s=>withBalance(s,{plus:false,plusUntil:null,packs:0,used:0,day:new Date().toISOString().slice(0,10)}));
+     const balance=await loadBalance();change(s=>withBalance(s,balance));
+    }
+   }
    let next:AccountState;
    if(mode==='restore')next=await restoreBackup(current.current);
    else {
@@ -73,11 +81,12 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
- function applyBalance(balance:Balance){if(!locked.current)change(s=>withBalance(s,balance))}
+ function applyBalance(balance:Balance){if(version===accountVersion.current&&!locked.current)change(s=>withBalance(s,balance))}
  async function savePrediction(prediction:Prediction,facts:Facts={},balance?:Balance){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});
+   if(version!==accountVersion.current)throw new Error('Your account changed. Please ask again.');
    const saved=saveReading(current.current,prediction);
    const next={...(balance?withBalance(saved,balance):saved),facts:{...saved.facts,...facts}};
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);

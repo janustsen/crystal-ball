@@ -2,7 +2,7 @@
 begin;
 delete from public.circles;
 delete from public.social_blocks;
-update public.social_profiles set plus=false,school_id=null;
+update public.social_profiles set plus=false,plus_until=null,school_id=null;
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.set_social_identity('adult_one','Adult One','☀️');
@@ -140,14 +140,14 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000003';
 do $$ begin for i in 1..5 loop perform public.create_circle(); end loop; end $$;
 select proof.reject('select public.create_circle()','P0001');
 reset role;
-update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000003';
+update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000003';
 set role authenticated;
 do $$ begin for i in 1..5 loop perform public.create_circle(); end loop; end $$;
 select proof.reject('select public.create_circle()','P0001');
 reset role;
 -- Targeted cards cannot be claimed by a different Circle member or link visitor.
 delete from public.social_blocks;
-update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000001';
+update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001';
 insert into public.circle_members(circle_id,user_id) values(:'c','00000000-0000-0000-0000-000000000001');
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
