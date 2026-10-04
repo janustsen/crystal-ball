@@ -21,12 +21,12 @@ export function Store({children}:React.PropsWithChildren){
  const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
  const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
- const serverOffset=useRef(0);
+ const serverClock=useRef<{offset:number;asOf:number;at:number}|null>(null);
  const change=(fn:(s:AccountState)=>AccountState)=>{current.current=fn(current.current);setState(current.current)};
  async function balanced(state:AccountState,balance:Balance){
   const owner=await anonymousOwner(),previous=state.balanceSnapshot;
   if(balance.owner!==owner||(previous?.owner===owner&&balance.asOf<=previous.asOf))return state;
-  serverOffset.current=Date.parse(balance.asOf)-Date.now();
+  serverClock.current={offset:Date.parse(balance.asOf)-Date.now(),asOf:Date.parse(balance.asOf),at:performance.now()};
   return withBalance(state,balance);
  }
  function withArchiveLock<T>(action:()=>Promise<T>){
@@ -35,8 +35,9 @@ export function Store({children}:React.PropsWithChildren){
   archiveWork.current=work;
   return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
  }
- // Server-metered days belong to the server: its clock (offset from the last balance) decides the new day, so a phone clock running behind still refreshes the balance at the server's midnight.
- useEffect(()=>{const timer=setInterval(()=>{if(serverMetered){if(ready&&new Date(Date.now()+serverOffset.current).toISOString().slice(0,10)>current.current.usage.day)void loadBalance().then(applyBalance).catch(()=>{});return}const day=new Date().toISOString().slice(0,10);if(!locked.current)change(s=>s.usage.day===day?s:{...s,usage:{day,count:0}})},60000);return()=>clearInterval(timer)},[ready]);
+ // Server-metered days belong to the server: the last balance anchors two estimates of its clock, and either one passing midnight refreshes.
+ // The wall-clock offset survives device sleep; the monotonic one survives a phone clock changed afterwards. Each refresh re-anchors both.
+ useEffect(()=>{const timer=setInterval(()=>{if(serverMetered){const c=serverClock.current,estimates=c?[Date.now()+c.offset,c.asOf+performance.now()-c.at]:[Date.now()];if(ready&&estimates.some(ms=>new Date(ms).toISOString().slice(0,10)>current.current.usage.day))void loadBalance().then(applyBalance).catch(()=>{});return}const day=new Date().toISOString().slice(0,10);if(!locked.current)change(s=>s.usage.day===day?s:{...s,usage:{day,count:0}})},60000);return()=>clearInterval(timer)},[ready]);
  useEffect(()=>{
   let active=true;
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);

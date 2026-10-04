@@ -32,7 +32,7 @@ for(const lost of [false,true])test(`Store serializes publication with ${lost?'l
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  };
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},performance});
  const render=()=>{cursor=0;const store=module.exports.Store({});effects.splice(0).forEach(effect=>effect());return store};
  render();await tick();const store=render();await tick();
  const publication=store.publishCircle('draft');
@@ -68,7 +68,7 @@ for(const replacement of ['none','forget','restore'])test(`private saves survive
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  };
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},performance});
  const render=()=>{cursor=0;const store=module.exports.Store({});effects.splice(0).forEach(effect=>effect());return store};
  render();await tick();const store=render();await tick();
 

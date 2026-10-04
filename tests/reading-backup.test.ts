@@ -24,7 +24,7 @@ function hooks(effectsEnabled=true){
 function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{}),AbortController,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='expo-crypto'?{randomUUID:()=>crypto.randomUUID()}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
 async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={}){
@@ -313,6 +313,19 @@ test('a phone clock behind the server still refreshes an exhausted balance at se
  assert.equal(loads,2);
 });
 
+test('a phone clock corrected backward after a balance still refreshes at server midnight',async()=>{
+ const intervals:(()=>void)[]=[],day=new Date().toISOString().slice(0,10);
+ let skew=0,monotonic=1000,loads=0;
+ class PhoneDate extends Date{static now(){return Date.now()+skew}}
+ // Fetched a millisecond before the server's midnight, while the phone clock agreed with the server.
+ const asOf=new Date(new Date().setUTCHours(24,0,0,0)-1).toISOString().replace('Z','000Z');
+ const f=await fixture(false,{serverMetered:true,loadBalance:async()=>{loads++;return {owner:'owner',asOf,plus:false,plusUntil:null,packs:0,used:1,day}}},{setInterval:(fn:()=>void)=>intervals.push(fn),Date:PhoneDate,performance:{now:()=>monotonic}});
+ assert.equal(f.render().remaining,0);assert.equal(loads,1);
+ skew=-2*3600000;monotonic+=60000;
+ intervals.forEach(fn=>fn());
+ assert.equal(loads,2);
+});
+
 for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncertain retries to the server and handles exhausted readings`,async()=>{
  const h=hooks(false),params:any={};let remaining=1,predicts=0,next:'lost'|'empty'='lost';
  const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
@@ -359,4 +372,8 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  await closePlans();remaining=1;
  await press(n=>n.props.label==='Try again');
  assert.equal(predicts,5);assert.ok(plansOpen());
+ // The refreshed balance confirms zero: the rejected ask is no longer pending, so Plans opens without another request.
+ await closePlans();remaining=0;
+ await press(n=>n.props.label==='Try again');
+ assert.equal(predicts,5,'a rejected ask does not reach the server again');assert.ok(plansOpen());
 });
