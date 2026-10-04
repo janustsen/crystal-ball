@@ -36,6 +36,10 @@ SQL
 for migration in supabase/migrations/*.sql; do
   "${sql[@]}" -f "$migration" >"$cluster/migration.log"
 done
+if [[ "${SOCIAL_INVITATIONS_ONLY:-0}" == 1 ]]; then
+  PG_BIN="$pg_bin" python3 scripts/social-invitation-races.py
+  exit
+fi
 if [[ "${SOCIAL_MOMENTS_ONLY:-0}" == 1 ]]; then
   PG_BIN="$pg_bin" python3 scripts/social-moment-races.py
   exit

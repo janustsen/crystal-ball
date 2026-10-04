@@ -87,13 +87,24 @@ create table public.social_notifications(
  deliver_after timestamptz not null default now(),delivered_at timestamptz,
  unique(user_id,kind,reference_id)
 );
+create or replace function public.invite_to_circle(target uuid) returns uuid
+ language plpgsql security definer set search_path='' as $$
+ declare result uuid;
+ begin
+  perform 1 from public.circles where id=target and owner_id=auth.uid() for update;
+  if not found then raise exception 'Only the circle creator can invite'; end if;
+  insert into public.circle_invites(circle_id) values(target) returning token into result;
+  return result;
+ end;
+$$;
 create function public.request_circle_invite(target uuid,target_handle text) returns void
  language plpgsql security definer set search_path='' as $$
  declare person uuid; request_id uuid;
  begin
   perform 1 from public.social_profiles where user_id=auth.uid() and handle is not null for update;
   if not found then raise exception 'Choose your handle first'; end if;
-  if not exists(select 1 from public.circles where id=target and owner_id=auth.uid()) then raise exception 'Only the owner can invite'; end if;
+  perform 1 from public.circles where id=target and owner_id=auth.uid() for update;
+  if not found then raise exception 'Only the owner can invite'; end if;
   select user_id into person from public.social_profiles where handle=target_handle and social_private.discoverable(user_id);
   if person is null or exists(select 1 from public.circle_members where circle_id=target and user_id=person) then raise exception 'This person is unavailable'; end if;
   if (select count(*) from public.circle_requests where sender_id=auth.uid() and created_at>=date_trunc('day',now() at time zone 'UTC') at time zone 'UTC' and status='pending')>=20 then raise exception 'You have 20 pending invites today'; end if;
