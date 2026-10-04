@@ -32,7 +32,11 @@ test('check-in examples disclose demos and rotate all three outcomes',()=>{
   }
   assert.deepEqual(new Set(batches.map(batch=>batch[0].outcome)),new Set(['yes','no','pending']));
  }
- const packages=[0,1,2].map(offset=>receiptExamples(day+offset,12).find(item=>item.category==='package'));
+ const packages=[0,1,2].map(offset=>{
+  const item=receiptExamples(day+offset,12).find(item=>item.category==='package');
+  assert.ok(item);
+  return item;
+ });
  assert.deepEqual(new Set(packages.map(item=>item.outcome)),new Set(['yes','no','pending']));
  assert.deepEqual(receiptExamples(day,0),[]);
 });
