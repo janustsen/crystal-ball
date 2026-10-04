@@ -20,7 +20,7 @@ Prerequisites: `ffmpeg` (with the `libx264` encoder) and `ffprobe` on PATH, plus
    ```
 
    `--a/--b/--c` are per-format counts. `--day` selects the output folder and offsets the A/B question lists by their batch counts; a count equal to a list's length repeats that list each day. It does not change the date used for live readings or omens. C alternates the two sign groups within each batch. `--out` (or `CONTENT_OUT`) sets the output root, default `.local/content` (gitignored). The full bank goes outside git: `--a 12 --b 10 --c 8 --out /Users/janustsen/dev/archive/crystal-ball-content`.
-3. Read `<out>/<day>/manifest.json`. It lists each video's hook, question, the model's headline and due date, the B demo outcome and label, and the C omens. Use it for captions; preserve B’s example framing and `AI-generated demo` disclosure. Failures are listed with their error (including the screen text when a reading stalls), and the command exits non-zero. Re-run the batch for that day. The engine fails closed on some questions, so the driver uses the app's own Try again up to twice.
+3. Read `<out>/<day>/manifest.json`. It lists each video's hook, question, the model's headline and due date, the B demo outcome and label, and the C omens. Use it for captions; preserve B’s example framing and `AI-generated demo` disclosure. Per-video failures are listed with their error (including the screen text when a reading stalls), and the command exits non-zero. Startup failures appear in the command output and may leave no manifest. Re-run the batch for that day. The engine fails closed on some questions, so the driver uses the app's own Try again up to twice.
 
 A full run takes about a minute per video.
 
