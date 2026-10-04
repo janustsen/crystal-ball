@@ -1,5 +1,8 @@
 \set QUIET 1
 begin;
+-- This suite builds its own Circles; prior-suite membership must not consume its quota.
+delete from public.circles;
+update public.social_profiles set plus=true;
 reset role;
 delete from public.social_blocks;
 delete from public.star_reports;

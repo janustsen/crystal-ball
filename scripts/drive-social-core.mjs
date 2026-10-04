@@ -2,8 +2,11 @@
 import {execFile} from 'node:child_process';
 import {openAuthenticatedPreview} from './preview-auth.mjs';
 import {promisify} from 'node:util';
-import {writeFile,rm} from 'node:fs/promises';
+import {writeFile,rm,mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
 const exec=promisify(execFile),session=`cb-social-core-${Date.now()}`,env={...process.env,CHROME_DEVTOOLS_AXI_SESSION:session};
+const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
+await mkdir(evidenceDir,{recursive:true});
 const evidence=[],base=process.env.SOCIAL_APP_URL||'http://localhost:8095';
 async function run(script){
  const {spawn}=await import('node:child_process');
@@ -13,7 +16,7 @@ const click=id=>`await page.click('[data-testid="${id}"]');`;
 const expect=text=>`if(!(await page.eval(()=>document.body.innerText.replaceAll('\u00a0',' '))).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing ${text}`)});`;
 const expectForecastHorizon=String.raw`if(!/\b(?:6|six)\s+months\b/i.test(await page.eval(()=>document.querySelector('[data-testid="app-shell"] [aria-live="polite"] > :first-child')?.textContent||'')))throw Error('Forecast missing six-month horizon');`;
 async function shot(name){
- const path=`${process.cwd()}/docs/evidence/social-${name}.png`;await rm(path,{force:true});
+ const path=resolve(evidenceDir,`social-${name}.png`);await rm(path,{force:true});
  try{await exec('chrome-devtools-axi',['screenshot',path],{env})}catch(error){
   // Firstmate approved accepting a valid saved image when the CLI misreports its path.
   const sharp=(await import('sharp')).default;await sharp(path).metadata();
@@ -33,8 +36,8 @@ try{
  await run(`${click('share-this-glimpse')}await page.eval(()=>{window.__downloads=[];const click=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){window.__downloads.push({name:this.download,href:this.href});if(!this.download)return click.call(this)}});${click('export-story-card')}await page.wait(1500);`);
  const raw=await run(`console.log(JSON.stringify(await page.eval(()=>window.__downloads.find(d=>d.name.endsWith('.png')))));`),download=JSON.parse(raw);
  if(!download?.href?.startsWith('data:image/png;base64,'))throw Error('No actual PNG export');
- await writeFile('docs/evidence/social-export.png',Buffer.from(download.href.split(',')[1],'base64'));
- const sharp=(await import('sharp')).default,meta=await sharp('docs/evidence/social-export.png').metadata();if(meta.width!==1080||meta.height!==1920)throw Error('PNG dimensions');
+ await writeFile(`${evidenceDir}/social-export.png`,Buffer.from(download.href.split(',')[1],'base64'));
+ const sharp=(await import('sharp')).default,meta=await sharp(`${evidenceDir}/social-export.png`).metadata();if(meta.width!==1080||meta.height!==1920)throw Error('PNG dimensions');
  await run(`if(await page.eval(()=>!!document.querySelector('[data-testid="export-animated-story"]')))throw Error('Video export still present');await page.eval(()=>{window.__canvasBlob=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(callback){callback(null)}});${click('export-story-card')}await page.wait(1200);${expect('The card could not be exported')}await page.eval(()=>{HTMLCanvasElement.prototype.toBlob=window.__canvasBlob});`);
  await shot('export-error');evidence.push({actualPngDimensions:[meta.width,meta.height],shareFailureInjection:'canvas encoding failure',recoveryCopy:true});
  await run(`${click('close-flow')}${click('close-flow')}${click('tab-history')}await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-history"]');${click('tab-history')}await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.includes('Spanish')).click());await page.wait('[data-testid="why-disclosure"]');${expectForecastHorizon}`);
@@ -49,4 +52,4 @@ try{
  evidence.push({phone375x667:true,text200Percent:true,reducedMotion:true,fiveTabsVisible:true});
  console.log('PASS: core UI regression through chrome-devtools-axi');
 }catch(error){evidence.push({failure:String(error)});process.exitCode=1;console.error(error);await shot('core-failed').catch(()=>{})}
-finally{await writeFile('docs/evidence/social-core-drive.json',JSON.stringify(evidence,null,2));await exec('chrome-devtools-axi',['stop'],{env}).catch(()=>{});}
+finally{await writeFile(`${evidenceDir}/social-core-drive.json`,JSON.stringify(evidence,null,2));await exec('chrome-devtools-axi',['stop'],{env}).catch(()=>{});}

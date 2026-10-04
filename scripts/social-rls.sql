@@ -211,8 +211,9 @@ select public.sync_social_profile('00000000-0000-0000-0000-000000000004',null,'l
 reset role; set role authenticated;
 select proof.assert((select age_band='unknown' and not friends_can_ask from public.social_profiles),'null age forces existing consent off');
 select proof.reject('select public.set_friend_consent(true)','P0001');
-do $$ begin for i in 1..6 loop perform public.create_circle(); end loop; end $$;
-select proof.assert((select count(*)=6 from public.circles),'creator can own more than five circles');
+do $$ begin for i in 1..5 loop perform public.create_circle(); end loop; end $$;
+select proof.assert((select count(*)=5 from public.circles),'free creator can own five circles');
+select proof.reject('select public.create_circle()','P0001');
 select id as many_circle from public.circles limit 1 \gset
 select public.invite_to_circle(:'many_circle') as first_invite \gset
 select public.invite_to_circle(:'many_circle') as second_invite \gset
@@ -226,8 +227,10 @@ select proof.assert((select count(*)=2 from public.circle_members where circle_i
 select public.create_circle() as extra_circle \gset
 select public.invite_to_circle(:'extra_circle') as extra_invite \gset
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
+select proof.reject(format('select public.join_circle(%L)',:'extra_invite'),'P0001');
+reset role; update public.social_profiles set plus=true where user_id='00000000-0000-0000-0000-000000000004'; set role authenticated;
 select public.join_circle(:'extra_invite');
-select proof.assert((select count(*)=7 from public.circle_members where user_id=auth.uid()),'member can join beyond five circles');
+select proof.assert((select count(*)=6 from public.circle_members where user_id=auth.uid()),'Plus member can join beyond five circles');
 -- Retained Star IDs must not bypass either direction of a block.
 reset role;
 -- Reset the withdrawn fixture used by the earlier immutable-publication check.

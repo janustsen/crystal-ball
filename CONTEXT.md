@@ -2,7 +2,7 @@
 
 A mystical, astrology-flavoured oracle: you ask the ball a question and it reveals one speculative forecast.
 
-This glossary includes planned product concepts; see [accepted reading-flow scope](docs/evidence/review-decisions.md#reading-flow-acceptance-and-pr-handoff--2026-10-01) for what this branch delivers and defers.
+This glossary includes planned product concepts; see [accepted reading-flow scope](docs/evidence/review-decisions.md#reading-flow-acceptance-and-pr-handoff--2026-10-01) for the original reading-flow scope and the [social boundary](docs/social/model.md) for current social behavior.
 
 ## Language
 
@@ -29,7 +29,7 @@ _Avoid_: post
 The public, anonymous sky of today's Stars grouped by theme.
 
 **Circle**:
-A small private group of friends joined by invite link.
+A small private group of friends joined by invitation; see the [invitation and membership contract](docs/social/model.md#social-v2).
 
 **Plus**:
 The subscription: more Readings plus extras.
@@ -42,7 +42,7 @@ _Avoid_: zodiac, horoscope sign
 The explanation under a Forecast: a short astrological line plus the reasoning from the user's answers. Plus users can expand the deeper Why.
 
 **Circle activity**:
-What Circle members see of each other: the day someone consulted the ball, its theme, and their Sun sign. Never the question or Forecast.
+The shared activity of Circle members. See the [social boundary](docs/social/model.md#social-v2) for feed visibility and the separate group forecast contract.
 
 **Sealed forecast**:
 A Forecast about a friend, sent sealed; the recipient opens it by tapping the ball. Limited for free users, unlimited with Plus.
@@ -64,7 +64,7 @@ A Reading about another person named by first name only (for example a crush). T
 _Avoid_: crush reading, target
 
 **School**:
-The school a user belongs to, found from nearby location; it scopes school-specific Sky and Circles.
+The optional school a user chooses; see the [school boundary](docs/social/school.md).
 
 **Report / Block**:
 Any user can report a Star or block a person; repeated reports hide content automatically. Every published line also passes an AI safety filter.
@@ -76,9 +76,9 @@ A "My school" filter on Tonight's Sky showing only Stars from the user's School.
 
 - A **Reading** produces exactly one **Forecast**; a **Forecast** has one **Due date** and at most one **Check-in** answer.
 - A **Star** is published from at most one **Reading**; one Star per person per day.
-- A **Circle** holds at most 20 members; invites are single-use and expire in 7 days.
+- **Circle** membership and invitation limits follow the [social contract](docs/social/model.md#social-v2).
 - A **Friend reading** requires the friend's opt-in; a **Person reading** requires nothing and notifies no one.
-- The **School** is set once from approximate location; only the chosen School is stored.
+- **School** selection and storage follow the [school boundary](docs/social/school.md).
 
 ## Flagged ambiguities
 
