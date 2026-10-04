@@ -36,7 +36,7 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
 
   <Txt style={styles.caption}>{step+1} of 2</Txt>
   <Txt testID={step===1?'onboarding-focus-heading':blocked?'age-correction-heading':'onboarding-birthday-heading'} accessibilityRole="header" display style={{marginTop:8,fontSize:22,lineHeight:28}}>{blocked&&step===0?'Correct your birthday':step===0?'Your birthday':'Your focus'}</Txt>
-  <Txt style={[styles.caption,{marginTop:8,marginBottom:12}]}>{blocked&&step===0?'Enter your actual birthday. Access still requires age 13 or older.':step===0?'13 and up. Your birthday sets your Sun sign.':'Choose a charm. Or skip.'}</Txt>
+  <Txt style={[styles.caption,{marginTop:8,marginBottom:12}]}>{blocked&&step===0?'Enter your actual birthday. Access still requires age 13 or older.':step===0?'13 and up. Your birthday sets your Sun sign.':'Pick a theme. Or skip.'}</Txt>
   {step===0?<>
    <View style={{flexDirection:'row',alignItems:'center',flexWrap:'wrap',gap:12,marginBottom:12}}><Txt style={[styles.caption,{flex:1}]}>Birthday{blocked?'':' · optional'}</Txt>{!blocked?<Pressable testID="skip-for-now" accessibilityRole="button" onPress={skip} style={{minHeight:44,minWidth:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>Skip</Txt></Pressable>:null}</View>
    <BirthdayInput testID="onboarding-birthday" error={error} value={birthday} onChange={setBirthday}/>
