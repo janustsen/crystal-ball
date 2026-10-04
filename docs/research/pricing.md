@@ -1,6 +1,6 @@
 # Pricing recommendation (USD, prototype hypothesis)
 
-Use 1 free prediction/day, Plus at $1.99/week, $5.99/month or $39.99/year (10 predictions/day), and non-expiring 5-credit / $1.99 and 20-credit / $5.99 consumable packs. One credit buys one successful prediction, not one question card. Blocked, failed and cancelled requests cost nothing. Daily allowance is used before purchased credits; Plus allowance replaces the free allowance. Purchased credits survive subscription changes. Do not advertise unlimited usage.
+Use 1 free prediction/day, Plus at $1.99/week, $5.99/month or $39.99/year (10 predictions/day), and non-expiring 5-credit / $1.99 and 20-credit / $5.99 consumable packs. One credit buys one successful prediction, not one question card. Charging and interruption behavior follow the [billing contract](../launch/billing.md) and [user retry guidance](../../README.md). Daily allowance is used before purchased credits; Plus allowance replaces the free allowance. Purchased credits survive subscription changes. Do not advertise unlimited usage.
 
 [Co–Star's store listing](https://apps.apple.com/us/app/co-star-personalized-astrology/id1264782561) anchors paid questions at $0.28–$0.60 each and subscriptions at $8.99/month. [The Pattern](https://apps.apple.com/us/app/the-pattern/id1071085727) lists $14.99/month and $83.99/year. Our lower initial price reflects narrower scope and an unproven product, not established willingness to pay. Packs at $0.30–$0.40 each sit inside that question range. Annual saves 44% versus twelve $5.99 months; display the actual $39.99 annual charge prominently.
 
@@ -14,7 +14,7 @@ A pessimistic $0.03 total cost/prediction, 300 monthly Plus predictions and a mo
 
 ## Paywall rules and test
 
-Preselect Weekly. Show weekly, monthly and annual charges with their billing periods, the weekly annual equivalent ($103.48 for 52 weeks), exact daily cap, cancel/restore routes, privacy and terms, packs as a separate “No subscription” option, and a visible close action. No fake urgency or preselected free trial. Prototype purchase actions say “simulate”; they change a local mock balance and charge nothing. Production prices must come from RevenueCat offerings. Server receipt/webhook credit accounting is required before real commerce.
+Preselect Weekly. Show weekly, monthly and annual charges with their billing periods, the weekly annual equivalent ($103.48 for 52 weeks), exact daily cap, cancel/restore routes, privacy and terms, packs as a separate “No subscription” option, and a visible close action. No fake urgency or preselected free trial. Purchase modes, store prices and server accounting follow the [billing contract](../launch/billing.md).
 
 Evaluate $5.99 versus $7.99 only after users can complete the core flow. Track paid conversion, 7-day return, successful generations, per-user variable cost, refunds, share completion and cancellations without collecting question text. Guardrails: <$0.01 normal generation cost and no charged failed predictions. These are targets, not observed results.
 

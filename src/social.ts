@@ -107,4 +107,3 @@ export const voteCircleForecast=(forecast:string,answer:'yes'|'no'|'pending')=>r
 export const sendSeal=(draft:SocialDraft,circle:string,member:string)=>rpc('send_sealed_forecast',{approved_draft:draft.id,target_circle:circle,target_member:member});
 
 export const setSocialPush=(token:string|null)=>rpc('set_social_push',{push_token:token});
-

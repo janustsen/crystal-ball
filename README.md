@@ -15,7 +15,9 @@ Tap the orb to move closer and start listening, or choose Type instead. For a Pe
 
 From a reveal or its share screen, choose Replay for recording for a clean 9:16 replay of the saved forecast. Use your device’s screen recorder; Replay spends no reading and Done returns to the previous screen. The replay and exported still include the headline, check-in date and uncertainty label, with a cosmetic golden label when applicable; they exclude the raw question, answers and Why. Review the headline before sharing because it may include details you supplied. The app exports PNG only and never posts automatically. The [sample recordings](docs/evidence/positioning/index.html) are experiment preparation, not participant results.
 
-In You → See plans, review the free allowance, Plus benefits and [prototype prices and limits](docs/research/pricing.md). Plans explain the renewal amount, period and app-store cancellation before the simulated purchase. No payment, real subscription or automatic renewal occurs. Turn off simulated Plus on the same screen to return to Free. Packs are simulated one-time credits with no renewal.
+In You → See plans, review the free allowance and Plus benefits, choose a subscription or one-time reading pack, or restore purchases. Plans show the price and renewal period; Manage or cancel subscription opens Apple’s subscription management. Weekly is preselected and offers a 3-day trial only when the store confirms eligibility. The preview labels simulated purchases and lets you turn off simulated Plus. See [billing](docs/launch/billing.md) for purchase modes, prices and limits.
+
+An interrupted, cancelled or timed-out reading may still finish and be charged on the server. Retry the same question for the same person in the same app session without another reading charge; restarting the app loses that retry identity.
 
 Home example questions fade inside the fog as decorative whispers; tapping them opens the orb, not a prefilled question. Choose Ask this too in Sky to prefill a question instead. Reduce motion keeps one whisper still.
 

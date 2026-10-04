@@ -27,20 +27,20 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
 4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
 5–7. Follow-ups: shrinking orb above a borderless question; centered, staggered and left-aligned answer arrangements. Each real question uses the next arrangement. Standard answers advance immediately. In my own words opens an editable field and an explicit submit action. Progress uses the actual returned total, not a hardcoded three.
-8. Thinking: smoke, status, longer-wait message and Cancel; no credit is spent yet.
+8. Thinking: smoke, status, longer-wait message and Cancel; disclose the [interruption and retry behavior](../../README.md).
 9. Reveal: actual engine headline and speculative label; see [Short, personal readings](#short-personal-readings) for Due date and Why disclosure. Share, reminder, another question, edit and current-session answer review remain available. See [README](../../README.md) for saved-reading outcome controls.
 10. Share: compact actual export preview and image/friend/reminder actions.
 11. Story: full 9:16 preview and 1080×1920 PNG export.
 12. Error: retry, retained answers where available, and edit. No fabricated successful output.
-13. Sensitive redirect: real engine classification, no credit spent or history entry; self-harm exposes support.
-14. Plans: subscription selection per [prototype pricing](../research/pricing.md#paywall-rules-and-test), packs and Restore. All purchases explicitly say test/simulate; no real money moves.
+13. Sensitive redirect: real engine classification, no new charge or history entry for the blocked attempt; retain the interruption caveat from [user guidance](../../README.md). Self-harm exposes support.
+14. Plans: subscription selection per [prototype pricing](../research/pricing.md#paywall-rules-and-test), packs and Restore. Purchase labels follow the [billing mode](../launch/billing.md).
 15. Sky: Tonight’s Sky has clearly labeled synthetic samples and approved anonymous Stars; Circles follows the [social visibility and interaction contract](../social/model.md#social-v2).
 16. History: date, question, real saved headline and outcome.
 17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound and style controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
 
 ## Behavioral invariants
 
-The real engine still owns cards and predictions. Known facts are skipped; friend readings never teach the owner's memory. Back preserves prior answers and truncates later dependent answers. Invalid Other input cannot advance. Cancel aborts the request. Failed generation keeps answers and spends no reading. The decoder still repairs once then fails closed. Do not describe structural correctness as semantic or predictive accuracy.
+The real engine still owns cards and predictions. Known facts are skipped; friend readings never teach the owner's memory. Back preserves prior answers and truncates later dependent answers. Invalid Other input cannot advance. Cancel aborts the client request. Failed generation keeps answers; interruption and retry charging follow [user guidance](../../README.md). The decoder still repairs once then fails closed. Do not describe structural correctness as semantic or predictive accuracy.
 
 See [sharing usage](../../README.md) for story-image and recording contents and the headline privacy warning. The share-screen friend link uses a generic question; Sky prompts use approved anonymous wording or labeled samples. Native check-in behavior and its web preview are described in [README](../../README.md); Apple and purchase setup boundaries remain in [SETUP](../../SETUP.md).
 
