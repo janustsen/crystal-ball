@@ -14,7 +14,7 @@ const css=`
 .room-dust{position:absolute;inset:0;overflow:hidden}.room-dust i{position:absolute;left:var(--x);bottom:8%;width:2px;height:2px;background:#ffdfa7;border-radius:50%;opacity:0;animation:room-dust 19s linear var(--delay) infinite}
 @keyframes room-dust{10%,70%{opacity:.25}100%{transform:translate(18px,-650px);opacity:0}}@keyframes candle-breathe{50%{opacity:.65}}
 [data-testid=app-shell] [role=heading][tabindex="-1"]{outline:none}
-[data-material=parchment]>div:first-child,[data-material=wood]>div:first-child{clip-path:polygon(1% 3%,25% 0,52% 1%,78% 0,99% 2%,100% 31%,99% 67%,100% 98%,75% 100%,49% 99%,26% 100%,0 98%,1% 66%,0 30%)}
+[data-material=parchment]>div:first-child,[data-material=wood]>div:first-child{clip-path:polygon(3px 6px,25% 0,52% 3px,78% 0,calc(100% - 3px) 4px,100% 31%,calc(100% - 3px) 67%,100% calc(100% - 4px),75% 100%,49% calc(100% - 3px),26% 100%,0 calc(100% - 4px),3px 66%,0 30%)}
 [data-material=parchment]:focus-visible,[data-testid=app-shell] [data-material=parchment][role]:focus-visible{outline:2px solid #70401b!important;outline-offset:-7px!important}
 [data-testid=app-shell] [data-material=wood]{isolation:isolate;filter:drop-shadow(0 5px 4px #09040080)}[data-testid=app-shell] [data-material=wood]>div:first-child{z-index:-1}[data-testid=app-shell] [data-material=wood][role]:focus-visible{outline-offset:-7px!important}[data-testid=app-shell] [data-material=parchment]{isolation:isolate;filter:drop-shadow(0 5px 5px #09040060)}
 [data-testid=app-shell] [data-material=parchment]>div:first-child{z-index:-1}
