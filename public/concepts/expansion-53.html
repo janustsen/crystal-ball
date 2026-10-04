@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Expansion 53 reveal study</title><style>
+@font-face{font-family:Fell;src:url(witch-assets/imfellenglishsc.ttf)}@font-face{font-family:Caudex;src:url(witch-assets/caudex.ttf)}*{box-sizing:border-box}
+body{margin:0;background:#130c08;color:#f1e9dc;font:16px/1.5 Caudex,serif;text-align:center}
+nav{display:flex;gap:6px;justify-content:center;padding:8px}nav button{font:inherit;color:inherit;border:0;background:#352317;padding:8px;min-height:44px}nav button[aria-pressed=true]{color:#ffcf8e;text-decoration:underline}
+.room{position:relative;max-width:430px;min-height:844px;padding:56px 24px 40px;margin:auto;background:radial-gradient(circle at 50% 30%,#4a2c1455,transparent 60%),linear-gradient(#160b08d8,#160b08f2),url(witch-assets/art/b-backdrop@2x.webp) center/cover}
+.L{--s:1}.L.large{--s:2}
+.cap{font-size:calc(14px*var(--s));line-height:calc(20px*var(--s));color:#e9c48a}.muted{font-size:calc(14px*var(--s));line-height:calc(20px*var(--s));color:#cdbba3}
+h1{font:400 calc(22px*var(--s))/calc(30px*var(--s)) Fell;margin:12px 0}
+.link{display:block;margin:6px auto;min-height:48px;padding:12px;font:inherit;font-size:calc(16px*var(--s));color:#f3c98b;background:none;border:0}
+.orb{position:relative;width:62%;margin:0 auto -18px;filter:drop-shadow(0 0 28px #f0a24a55)}.orb img{width:100%;display:block}
+.slip{position:relative;padding:22px 22px 18px;color:#382516;isolation:isolate}.slip:before{content:'';position:absolute;inset:0;z-index:-1;border-style:solid;border-color:transparent;border-width:0;border-image:url(witch-assets/paper-readable.webp) 65 90 fill / 9px 12px stretch;clip-path:polygon(3px 6px,25% 0,52% 3px,78% 0,calc(100% - 3px) 4px,100% 31%,calc(100% - 3px) 67%,100% calc(100% - 4px),75% 100%,49% calc(100% - 3px),26% 100%,0 calc(100% - 4px),3px 66%,0 30%);filter:drop-shadow(0 6px 8px #0009)}
+.slip h1{color:#382516;margin:4px 0 8px}.slip .cap{color:#7a4a1e}.slip .muted{color:#5b402a}
+.pair{display:flex;gap:10px;margin-top:20px}.L.large .pair{flex-direction:column}
+.wood{flex:1;min-height:56px;padding:12px;font:inherit;font-size:calc(16px*var(--s));color:#f8e6c8;border:0;background:#382517 url(witch-assets/wood-table.jpg) center/cover;box-shadow:inset 0 3px 2px #b48a5a88,inset 0 -9px 2px #120904;clip-path:polygon(3px 6px,25% 0,52% 3px,78% 0,calc(100% - 3px) 4px,100% 31%,calc(100% - 3px) 67%,100% calc(100% - 4px),75% 100%,49% calc(100% - 3px),26% 100%,0 calc(100% - 4px),3px 66%,0 30%)}
+.wood.quiet{background:#261a12 url(witch-assets/wood-table.jpg) center/cover;background-blend-mode:multiply}
+.row{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:10px}.row .link{margin:0;font-size:calc(15px*var(--s))}.row span{align-self:center;color:#8b6b4d}
+.smallorb{width:72px;margin:24px auto 0;opacity:.9}
+</style>
+<nav><button data-v="a">A Current</button><button data-v="b">B Ball + slip</button><button data-v="c">C Slip only</button><button data-t="large">200%</button></nav>
+<main class="room L" id="m"></main>
+<script>
+const head='By spring you will hold a twenty-minute conversation in Spanish',label='Speculative forecast · not a guarantee',due='Suggested check-in · Nov 3, 2026';
+const p=new URLSearchParams(location.search);let v=p.get('v')||'a',large=p.get('t')==='large';
+const actions=`<div class="pair"><button class="wood">Why this forecast?</button><button class="wood">Share this glimpse</button></div><div class="row"><button class="link">Replay</button><span>·</span><button class="link">More ⌄</button></div>`;
+function draw(){document.querySelectorAll('nav [data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));document.querySelector('[data-t]').setAttribute('aria-pressed',large);const m=document.getElementById('m');m.className='room L'+(large?' large':'');
+ m.innerHTML=v==='a'?`<div class="cap">${label}</div><h1>${head}</h1><div class="muted">${due}</div><button class="link">Why this forecast? ›</button><button class="link">Replay for recording</button><button class="link">Share this glimpse</button><button class="link">More actions ⌄</button><img class="smallorb" src="expansion-53-assets/orb.png" alt="">`
+ :(v==='b'?`<div class="orb"><img src="expansion-53-assets/orb.png" alt=""></div>`:'<div style="height:40px"></div>')+`<div class="slip"><div class="cap">${label}</div><h1>${head}</h1><div class="muted">${due}</div></div>${actions}`}
+document.querySelectorAll('nav [data-v]').forEach(b=>b.onclick=()=>{v=b.dataset.v;draw()});document.querySelector('[data-t]').onclick=()=>{large=!large;draw()};draw();
+</script></html>
