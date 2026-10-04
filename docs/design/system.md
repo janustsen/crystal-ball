@@ -6,7 +6,7 @@ Follow [UI rules](ui-rules.md) for the current art direction, accessibility and 
 See [UI rules](ui-rules.md#palette-and-composition) for palette, typography, sizing and composition. Component dimensions are implemented in `src/ui.tsx`; text must remain clear of the brightest mist.
 
 ## Composition alternatives reviewed
-The earlier observatory composition is superseded by the supplied design; see [UI rules](ui-rules.md) for the current direction and screen compositions.
+See [UI rules](ui-rules.md) for the current direction and screen compositions; the earlier observatory and supplied-design captures are historical.
 
 ## Motion
 See [motion.md](motion.md) for motion and the web/native artwork boundary.
@@ -25,13 +25,13 @@ Reading generation has loading, timeout, retry and cancel; facts load before Ask
 
 ## Rendered review and component states
 
-See [current verification evidence](../evidence/design-2026-09-30/README.md) for captures of the replacement design and platform limits. Earlier violet captures are historical.
+See [UI rules](ui-rules.md#verification) for current design acceptance. The [September design captures](../evidence/design-2026-09-30/README.md) are historical.
 
 [UI rules](ui-rules.md) owns component appearance and interaction; [motion](motion.md) owns orb and entrance states. Preserve these accessibility constraints:
 
 - Actions expose full accessible labels and cannot fire while disabled.
 - Inputs keep visible labels, distinguish placeholders from values and never clamp task text.
-- Why retains focus on its toggle and announces expanded/collapsed state.
+- Why moves focus to the reader heading; Back to forecast restores its opener. Detail disclosures announce expanded/collapsed state and regain focus when closed.
 - Notices announce politely and scroll independently without hiding navigation.
 - Back closes the paywall; Restore remains in its scroll area.
 

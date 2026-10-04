@@ -18,6 +18,8 @@ Parchment must have irregular edges, texture, thickness and shadow. Type remains
 
 ## Materials
 
+This concept inventory describes the original study, not the shipped asset list. See [current assets and missing layers](art/apothecary-assets.md) for implementation status.
+
 | Material | Use | Asset |
 |---|---|---|
 | Aged wood planks | Walls, tab bar, primary panels | `wood-wall.jpg`, `wood-panel.jpg` (procedural, original) |
@@ -41,7 +43,7 @@ There is no geometric or grotesk sans anywhere. Each concept uses a storybook or
 
 - Candle flicker: a slow, low-amplitude change in brightness. Dust motes drift through the light.
 - Pressed objects wobble and settle, like a jar set down on a shelf, rather than scaling uniformly.
-- Sound and haptics: soft wood creaks, glass clinks and a page turn for navigation, all off by default with ambient sound. A light tap fires on selection.
+- Sound and haptics follow the [implemented feedback contract](design/motion.md#orb-delight); wood creaks, glass clinks and navigation page-turn sounds remain concept ideas.
 - Reduce motion turns off flicker, dust and wobble, and keeps a static warm light.
 - Target 60 fps. Textures are static images, and only opacity and transform animate.
 

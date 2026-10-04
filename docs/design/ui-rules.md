@@ -9,14 +9,14 @@ The selected [Apothecary thesis](../design-thesis.md) supersedes the supplied 17
 | Ink / room | #120E0B |
 | Warm glow | #281B10 |
 | Surface | #1C1510 |
-| Tab bar | #0B0806 |
+| Tab bar | See navigation styling in `app/index.tsx` |
 | Primary text | #F1E9DC |
-| Secondary text | #B9AB97 |
-| Gold / focus | #E0A458 / #F2C284 |
+| Secondary text | `colors.muted` in `src/ui.tsx` |
+| Gold / focus | `colors.gold` / `colors.ice` in `src/ui.tsx` |
 | Borders | #614C34 / #79634A |
 | Display / body | IM Fell English SC / Caudex; wordmark IM Fell English Italic |
 
-The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark retains its graphic size; task text and tab labels scale. Footer height is measured so enlarged navigation stays clear of scrolling content and the raised Ask orb. Touch targets remain at least 44 pt. Use textured wood for primary actions, writing paper for fields and irregular illustrated parchment for choices and information. Center labels, choices and text. Avoid machine-cut cards and fine straight dividers. Long multiline fields expose a persistent scroll-position cue. The ball and room share illustrated depth; the question sits on a parchment slip below the ball. Utility-screen atmosphere is dimmed behind readable content. Smoke and decoration cannot intercept input. Reduced motion stops painted smoke, camera movement and CSS animation; see [motion](motion.md).
+The web app stays centered at a maximum width of 430 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark retains its graphic size; task text and tab labels scale. Footer height is measured so enlarged navigation stays clear of scrolling content and the raised Ask orb. Touch targets remain at least 44 pt. Use textured wood for primary actions, writing paper for fields and irregular illustrated parchment for choices and information. Center labels, choices and text. Avoid machine-cut cards and fine straight dividers. Long multiline fields expose a persistent scroll-position cue. The ball and room share illustrated depth; the question sits on a parchment slip below the ball. Utility-screen atmosphere is dimmed behind readable content. Smoke and decoration cannot intercept input. Reduced motion stops painted smoke, camera movement and CSS animation; see [motion](motion.md).
 
 ## Navigation and the 17 states
 
@@ -35,7 +35,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. The tab or
 13. Sensitive redirect: real engine classification, no credit spent or history entry; self-harm exposes support.
 14. Plans: subscription selection per [prototype pricing](../research/pricing.md#paywall-rules-and-test), packs and Restore. All purchases explicitly say test/simulate; no real money moves.
 15. Sky: Tonight’s Sky has clearly labeled synthetic samples and approved anonymous Stars; Circles follows the [social visibility and interaction contract](../social/model.md#social-v2).
-16. History: date, question, real saved headline and outcome.
+16. History: date, real saved headline and outcome on shelf summaries; opening a record exposes the check-in and an Original question disclosure.
 17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound and style controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
 
 ## Behavioral invariants

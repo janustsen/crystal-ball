@@ -1,6 +1,6 @@
 # Painted asset pipeline
 
-The witch's-house world (see [design thesis](../design-thesis.md)) uses painted raster art, not clean vector shapes. The pieces are generated as separate layers so the app can animate between them: smoke moves between the dark glass and its highlights, candlelight relights the scene, and the reveal bursts with painted shards.
+The witch's-house world (see [design thesis](../design-thesis.md)) uses painted raster art, not clean vector shapes. The planned pieces are separate layers for smoke, glass highlights, candlelight and reveal shards. This document describes the generation plan; [current assets and missing layers](apothecary-assets.md) owns what is actually available and used.
 
 ## Style sheet (prefixed to every prompt)
 
