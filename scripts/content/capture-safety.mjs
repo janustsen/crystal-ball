@@ -3,7 +3,10 @@ import {assertSafe} from './hooks.mjs';
 export async function assertHomeSafe(page){
  const panel=page.getByTestId('daily-omen');
  await panel.locator('[aria-live="polite"]').waitFor();
- await page.locator('[data-testid="daily-omen"][aria-busy="false"]').waitFor({timeout:90000});
+ await page.waitForFunction(()=>{
+  const omen=JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}'); // omenKey in src/daily-omen.ts
+  return omen.day===new Date().toLocaleDateString('en-CA')&&omen.text!=null&&document.querySelector('[data-testid="daily-omen"] [aria-live="polite"]')?.textContent===omen.text;
+ },null,{timeout:90000});
  assertSafe(await panel.locator('[aria-live="polite"]').innerText());
 }
 
