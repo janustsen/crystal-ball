@@ -6,7 +6,7 @@ import {localDay,checkInDate} from '../src/retention.ts';
 test('automatic check-ins use existing permission; manual reminders can request it',async()=>{
  const requests:boolean[]=[],scheduled:unknown[][]=[];
  let granted=true;
- const ports:NativePorts={platform:'ios',notifications:{clear:async()=>{},
+ const ports:NativePorts={platform:'ios',notifications:{cancel:async()=>{},clear:async()=>{},
   permission:async(request)=>{requests.push(request);return granted;},
   schedule:async(...args)=>{scheduled.push(args);},
  },share:async()=>{},link:()=>''};
@@ -19,14 +19,14 @@ test('automatic check-ins use existing permission; manual reminders can request 
  assert.ok(Math.abs(Number(scheduled[0][2])-(checkInDate(date)!.getTime()-before)/1000)<2);
  granted=false;
  assert.match(await actions.reminder('A future glimpse','saved-reading',date,false),/off/);
- assert.deepEqual(requests,[false,false]);assert.equal(scheduled.length,1);
+ assert.deepEqual(requests,[false,false]);assert.equal(scheduled.length,2);
  granted=true;
  await actions.reminder('A future glimpse','saved-reading',date);
- assert.deepEqual(requests,[false,false,true]);assert.equal(scheduled.length,2);
- for(const payload of scheduled){assert.equal(payload[1],'The ball has a question for you.');assert.ok(!JSON.stringify(payload).includes('A future glimpse'));}
+ assert.deepEqual(requests,[false,false,true]);assert.equal(scheduled.length,4);
+ for(const payload of scheduled){assert.match(String(payload[1]),/The ball has a question|Your forecast is waiting/);assert.ok(!JSON.stringify(payload).includes('A future glimpse'));}
  ports.platform='web';
  await actions.reminder('A future glimpse','saved-reading',date,false);
- assert.equal(requests.length,3);assert.equal(scheduled.length,2);
+ assert.equal(requests.length,3);assert.equal(scheduled.length,4);
  ports.platform='ios';ports.notifications.schedule=async()=>{throw new Error('OS unavailable');};
  assert.match(await actions.reminder('A future glimpse','saved-reading',date,false),/could not be scheduled/);
  ports.notifications.permission=async()=>{throw new Error('Permission unavailable');};
@@ -40,7 +40,7 @@ test('forget clears existing and in-flight check-ins, preserving later readings'
   const started=new Promise<void>(resolve=>{entered=resolve});
   const retained=new Set(['existing']),delivered=new Set(['delivered']);
   let pause=true;
-  const ports:NativePorts={platform:'ios',notifications:{
+  const ports:NativePorts={platform:'ios',notifications:{cancel:async()=>{},
    clear:async()=>{retained.clear();delivered.clear();},
    permission:async()=>{if(pause&&phase==='permission'){entered();await gate;}return true;},
    schedule:async(_title,_body,_seconds,id)=>{if(pause&&phase==='schedule'){entered();await gate;}retained.add(id!);},

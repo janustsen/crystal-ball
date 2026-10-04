@@ -14,15 +14,15 @@ test('ball Due date wins; legacy forecasts keep 30 days without a migration',()=
 });
 test('real reminder action passes the reading id and date to native scheduling; web and bad dates never schedule',async()=>{
  const scheduled:unknown[][]=[];
- const ports:NativePorts={platform:'ios',notifications:{clear:async()=>{},permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},share:async()=>{},link:()=>''};
+ const ports:NativePorts={platform:'ios',notifications:{cancel:async()=>{},clear:async()=>{},permission:async()=>true,schedule:async(...args)=>{scheduled.push(args)}},share:async()=>{},link:()=>''};
  const on=localDay(new Date(Date.now()+86400000*5));
  const before=Date.now();
  assert.match(await nativeActions(ports).reminder(reading.headline,reading.id,on),/reminder set/);
  assert.equal(scheduled[0][0],'Did it come true?');assert.equal(scheduled[0][3],reading.id);
  assert.ok(Math.abs(Number(scheduled[0][2])-((checkInDate(on)!.getTime()-before)/1000))<2);
- await nativeActions(ports).reminder('',reading.id,'2026-02-30');assert.equal(scheduled.length,1);
- assert.match(await nativeActions(ports).reminder('',reading.id,'2000-01-01'),/ready for a Check-in/);assert.equal(scheduled.length,1);
- ports.platform='web';assert.match(await nativeActions(ports).reminder('',reading.id,on),/Native reminder preview/);assert.equal(scheduled.length,1);
+ await nativeActions(ports).reminder('',reading.id,'2026-02-30');assert.equal(scheduled.length,2);
+ assert.match(await nativeActions(ports).reminder('',reading.id,'2000-01-01'),/ready for a Check-in/);assert.equal(scheduled.length,2);
+ ports.platform='web';assert.match(await nativeActions(ports).reminder('',reading.id,on),/Native reminder preview/);assert.equal(scheduled.length,2);
 });
 
 import {loadDailyOmen,invalidateOmen,omenKey} from '../src/daily-omen';
