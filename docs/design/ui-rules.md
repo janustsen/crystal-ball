@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home is the captain's Claude Design canvas Main artboard ("Home — realistic") ported as drawn: its three.js glass ball, candle and room, Cormorant Garamond and Instrument Sans type, colors and tab bar live in `src/Home.tsx` and `src/HomeScene.web.tsx`, and other screens keep the 17-screen design. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
+The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home is the captain's Claude Design canvas Library artboard ported as drawn: its three.js glass ball, candle, faintly lit library room and drag-to-spin, Cormorant Garamond and Instrument Sans type, colors and tab bar live in `src/Home.tsx` and `src/HomeScene.web.tsx`, and other screens keep the 17-screen design. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
@@ -20,7 +20,7 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 ## Navigation and the 17 states
 
-Home, Sky, raised Ask orb, History and You are the five destinations. Home uses the canvas Main tab bar; other destinations retain the supplied 17-screen tab bar. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
+Home, Sky, raised Ask orb, History and You are the five destinations. Home uses the canvas tab bar; other destinations retain the supplied 17-screen tab bar. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
 1. Home: the canvas scene with the ball as the reading's tap target, the reading balance (opens Plans), “What lies ahead?”, the frosted Today’s omen card, the entertainment line and a due-check-in action when applicable; see [motion](motion.md#home-scene).
 2. Approach: larger orb and “Come closer…” before voice.

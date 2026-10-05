@@ -1,9 +1,12 @@
 import {Image,View} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 
+// Home's ball hands its pointer-down to the web scene to spin it; a drag then suppresses the reading tap.
+export type BallSpin={grab?:(e:PointerEvent)=>void;dragged:boolean};
+
 // Native has no DOM canvas for the three.js scene, so it shows a 600×844 frame captured from the web scene
 // (scripts/capture-home-scene.mjs). Height-fit and centred keeps the ball where the live camera puts it.
-export function HomeScene({width,height}:{width:number;height:number;reduce:boolean}){
+export function HomeScene({width,height}:{width:number;height:number;reduce:boolean;spin:BallSpin}){
  const w=height*600/844;
  return <View pointerEvents="none" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',backgroundColor:'#050302'}}><Image source={require('../assets/home-scene.jpg')} style={{position:'absolute',top:0,left:(width-w)/2,width:w,height}}/></View>;
 }

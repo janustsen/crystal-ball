@@ -1,14 +1,14 @@
-import React,{useState} from 'react';
+import React,{useRef,useState} from 'react';
 import {Pressable,ScrollView,View} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {SvgXml} from 'react-native-svg';
-import {AskOrb,HomeScene} from './HomeScene';
+import {AskOrb,HomeScene,type BallSpin} from './HomeScene';
 import {Txt} from './ui';
 import {useStore} from './store';
 import {selectedStyle,skinColors} from './delight';
 import {haptic} from './native';
 
-// Home is ported from the Claude Design canvas artboard project/Main.dc.html ("Home - realistic"); values below are its own.
+// Home is ported from the Claude Design canvas artboard project/Library.dc.html ("Library"); values below are its own.
 export const homeFonts={serif:'CormorantGaramond',italic:'CormorantGaramondItalic',sans:'InstrumentSans'};
 const cream='#f4ead8',muted='rgba(242,231,210,.62)',active='#f4e2bc';
 // The canvas camera projects the ball centre at 33% of the scene height with a radius of 17.8%, at any width.
@@ -16,14 +16,17 @@ const ballY=.33,ballR=.1783;
 export const homeTabBarHeight=74;
 // react-native-web forwards backdrop-filter; React Native's style types do not list it, and native ignores it.
 const frost=(filter:string)=>({backdropFilter:filter}) as object;
+// Web lets a drag on the ball spin it instead of scrolling the page.
+const noScroll={touchAction:'none'} as object;
 
 export function Home({reduce,ready,count,onPlans,onAsk,checkIns,omen,top,bottom}:{reduce:boolean;ready:boolean;count:string;onPlans:()=>void;onAsk:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number}){
  const {state}=useStore(),skin=skinColors[selectedStyle(state,'ball')];
  const [size,setSize]=useState({width:0,height:0}),{width,height}=size,r=height*ballR;
+ const spin=useRef<BallSpin>({dragged:false}).current;
  return <View style={{position:'absolute',left:0,top:0,right:0,bottom:0}} onLayout={e=>setSize({width:e.nativeEvent.layout.width,height:e.nativeEvent.layout.height})}>
   <ScrollView contentContainerStyle={{minHeight:height,paddingTop:Math.round(height*552/844),paddingBottom:homeTabBarHeight+bottom+16}}>
-   {width?<HomeScene width={width} height={height} reduce={reduce}/>:null}
-   <Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Touch the ball to receive your reading" onPressIn={()=>haptic('touch')} onPress={onAsk} style={{position:'absolute',left:width/2-r,top:height*ballY-r,width:r*2,height:r*2,borderRadius:r,backgroundColor:skin.fill,borderWidth:skin.rim==='transparent'?0:1,borderColor:skin.rim}}/>
+   {width?<HomeScene width={width} height={height} reduce={reduce} spin={spin}/>:null}
+   <Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Touch the ball to receive your reading" onPointerDown={e=>spin.grab?.(e.nativeEvent as unknown as PointerEvent)} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onAsk()}} style={{...noScroll,position:'absolute',left:width/2-r,top:height*ballY-r,width:r*2,height:r*2,borderRadius:r,backgroundColor:skin.fill,borderWidth:skin.rim==='transparent'?0:1,borderColor:skin.rim}}/>
    <View pointerEvents="box-none" style={{position:'absolute',left:0,right:0,top:top+26,alignItems:'center'}}>
     <Txt accessibilityRole="header" allowFontScaling={false} style={{fontFamily:homeFonts.italic,fontSize:30,lineHeight:30,letterSpacing:.3,color:cream}}>Crystal Ball</Txt>
     <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPlans} style={{minHeight:44,marginTop:-7,flexDirection:'row',alignItems:'center',gap:8}}>

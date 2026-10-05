@@ -56,16 +56,23 @@ test('Home keeps the captured ball aligned when WebGL creation fails, including 
  assert.equal(attempts,3);
 });
 
-test('Home hero supplies touch feedback before invoking Ask',()=>{
+test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
   'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './HomeScene':{},'./ui':{Txt:'Txt'},'./store':{useStore:()=>({state:{}})},
+  './HomeScene':{HomeScene:'HomeScene'},'./ui':{Txt:'Txt'},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic',skinColors:{classic:{fill:'transparent',rim:'transparent'}}},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
  const hero=nodes(render('Home',{onAsk:()=>events.push('ask'),top:0,bottom:0})).find(n=>n.props.testID==='hero-orb');
  hero.props.onPressIn();assert.deepEqual(events,['touch']);
  hero.props.onPress();assert.deepEqual(events,['touch','ask']);
+ render('Home',{}).props.onLayout({nativeEvent:{layout:{width:390,height:844}}});
+ const tree=nodes(render('Home',{onAsk:()=>events.push('ask'),top:0,bottom:0}));
+ const spin=tree.find(n=>n.type==='HomeScene').props.spin,ball=tree.find(n=>n.props.testID==='hero-orb');
+ spin.grab=(e:PointerEvent)=>{events.push(`grab ${e.pointerId}`);spin.dragged=true};
+ ball.props.onPointerDown({nativeEvent:{pointerId:4}});
+ ball.props.onPress();assert.deepEqual(events,['touch','ask','grab 4']);
+ ball.props.onPress();assert.deepEqual(events,['touch','ask','grab 4','ask']);
 });
