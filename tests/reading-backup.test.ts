@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import {homeMock} from './home-mock';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
@@ -14,7 +15,7 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function hooks(effectsEnabled=true){
  const slots:any[]=[],effects:(()=>void)[]=[];let cursor=0;
  const react={
-  createContext:()=>({Provider:'Provider'}),createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
+  createContext:()=>({Provider:'Provider'}),createElement:(type:any,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:(effect:()=>void|(()=>void),deps:any[])=>{const i=cursor++;if(effectsEnabled&&(!slots[i]||deps.some((d,j)=>d!==slots[i].deps[j]))){const previous=slots[i];slots[i]={deps};effects.push(()=>{previous?.cleanup?.();slots[i].cleanup=effect()})}},
@@ -57,7 +58,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,
-  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=> 'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
   '../src/social':{friendForecast:async(_q:string,_target:any,_signal:any,_consent:string,key:string)=>attempt(key),checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
@@ -166,7 +167,7 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams:()=>{}}},
   '../src/store':{useStore:f.render},'../src/profile':profile,'../src/retention':retention,
-  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/purchases':{purchaseMode},'../src/questions':{factLabels:{}},
  },f.warnings);
@@ -275,7 +276,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{}})},
   '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs},
-  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight(){}},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(resolve=>pending.push(resolve)),buy:()=>new Promise(resolve=>{finishPurchase=()=>resolve('purchased')}),restore:()=>new Promise(resolve=>{finishRestore=()=>resolve({})})},
@@ -335,7 +336,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(value:any)=>Object.assign(params,value)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining,applyBalance:async()=>{}})},
   '../src/profile':profile,'../src/retention':retention,'../src/billing':billing,
-  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/useDelight':{useDelight:()=>{}},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{friendForecast:async()=>{predicts++;throw new Error(next==='empty'?billing.noReadings:'response lost')}},
   '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import {homeMock} from './home-mock';
 import * as retention from '../src/retention';
 import {circleReading} from '../src/reading-history';
 import {canRead} from '../src/profile';
@@ -16,7 +17,7 @@ function app(onboardingDone=true,history:any[]=[]){
  const params:{seal?:string;social?:string}={seal:'sealed-receipt'},slots:any[]=[];
  let cursor=0;
  const react={
-  createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
+  createElement:(type:any,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:()=>{},
@@ -27,7 +28,7 @@ function app(onboardingDone=true,history:any[]=[]){
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},
-  '../src/ui':{colors:{},fonts:{},styles:{}},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
   '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social'},

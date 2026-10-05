@@ -23,7 +23,7 @@ try{
    await page.goto(base);await expect(page.getByText('Your forecast. Then check back.',{exact:true})).toBeVisible();
    if(sample===samples[0])await page.screenshot({path:`${out}/onboarding.png`});
    await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
-   await expect(page.getByText('Your forecast. Then check back.',{exact:true})).toBeVisible();
+   await expect(page.getByText('What lies ahead?',{exact:true})).toBeVisible();
    if(sample===samples[0]){
     await page.screenshot({path:`${out}/home.png`});
     await page.getByTestId('view-plans').click();

@@ -19,7 +19,7 @@ In You → See plans, review the free allowance and Plus benefits, choose a subs
 
 An interrupted, cancelled or timed-out reading may still finish and be charged on the server. Retry the same question for the same person, with the same answers, once in the same app session without another reading charge; further retries are charged; restarting the app loses that retry identity. An unresolved attempt can be retried even when the displayed balance is zero: the server decides whether a free retry remains. If it reports no readings left, Plans opens and the app requests a fresh balance. Changing answers requires an available reading.
 
-Home example questions fade inside the fog as decorative whispers; tapping them opens the orb, not a prefilled question. Choose Ask this too in Sky to prefill a question instead. Reduce motion keeps one whisper still.
+Home shows the candlelit glass ball; touch it to start a reading, or choose Ask this too in Sky to prefill a question. Reduce motion holds the scene still.
 
 In You, enable Ambient sound for a low hum and a chime on each new reveal. It starts off and the preference is saved on this device. See [orb motion and feedback](docs/design/motion.md#orb-delight) for playback and native haptic behavior and verification limits. Plus adds readings and Classic, Gold or Obsidian ball and share-card styles, selected separately in You; without Plus, styles render as Classic.
 
