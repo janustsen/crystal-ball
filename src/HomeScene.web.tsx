@@ -38,48 +38,9 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
  const BALL=new T.Vector3(0,1.55,0);
 
  // ---------- textures ----------
- // Library no longer shows this backdrop, but drawing it keeps the seeded rnd() sequence, so every book and jar, as the canvas has it.
- mk(1024,768,(g,w,h)=>{
-  const lg=g.createLinearGradient(0,0,0,h);
-  lg.addColorStop(0,'#080504');lg.addColorStop(0.6,'#170d07');lg.addColorStop(1,'#100904');
-  g.fillStyle=lg;g.fillRect(0,0,w,h);
-  const rg=g.createRadialGradient(w*0.5,h*0.7,10,w*0.5,h*0.7,w*0.6);
-  rg.addColorStop(0,'rgba(110,62,28,.5)');rg.addColorStop(1,'rgba(0,0,0,0)');
-  g.fillStyle=rg;g.fillRect(0,0,w,h);
-  const rows=[0.34,0.56,0.78];
-  g.filter='blur(7px)';
-  rows.forEach(y=>{
-   for(let x=10;x<w;x+=26+rnd()*42){
-    const bh=50+rnd()*80,bw=20+rnd()*26;
-    g.fillStyle='rgba('+(16+rnd()*18|0)+','+(10+rnd()*8|0)+',6,.85)';
-    g.fillRect(x,h*y-bh,bw,bh);
-    g.fillRect(x+bw*0.35,h*y-bh-18,bw*0.3,20);
-   }
-  });
-  g.filter='blur(12px)';
-  rows.forEach(y=>{
-   g.fillStyle='rgba(160,100,52,.22)';g.fillRect(0,h*y-2,w,6);
-   g.fillStyle='rgba(0,0,0,.45)';g.fillRect(0,h*y+6,w,30);
-  });
-  g.filter='blur(1.5px)';
-  for(let i=0;i<90;i++){
-   const y0=h*rows[i%3];
-   const x=rnd()*w,y=y0-14-rnd()*90,r=5+rnd()*20,a=0.06+rnd()*0.26,k=rnd();
-   const col=k>0.82?'255,218,160':(k>0.3?'255,158,72':'170,110,86');
-   const bg=g.createRadialGradient(x,y,0,x,y,r);
-   bg.addColorStop(0,'rgba('+col+','+(a*0.8)+')');
-   bg.addColorStop(0.82,'rgba('+col+','+a+')');
-   bg.addColorStop(1,'rgba('+col+',0)');
-   g.fillStyle=bg;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
-  }
-  g.filter='blur(4px)';
-  ([[0.86,0.42,46],[0.12,0.6,30]] as const).forEach(([fx,fy,r])=>{
-   const x=w*fx,y=h*fy,bg=g.createRadialGradient(x,y,0,x,y,r);
-   bg.addColorStop(0,'rgba(255,190,110,.55)');bg.addColorStop(0.8,'rgba(255,160,80,.4)');bg.addColorStop(1,'rgba(255,150,70,0)');
-   g.fillStyle=bg;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
-  });
-  g.filter='none';
- });
+ // Library dropped Main's 1024×768 backdrop; replay the rnd() calls its draw made, so every book and jar matches the canvas.
+ for(let row=0;row<3;row++)for(let x=10;x<1024;x+=26+rnd()*42){rnd();rnd();rnd();rnd()}
+ for(let i=0;i<90;i++){rnd();rnd();rnd();rnd();rnd()}
 
  const woodTex=mk(1024,1024,(g,w,h)=>{
   g.fillStyle='#2b170b';g.fillRect(0,0,w,h);
@@ -441,6 +402,8 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
  // ---------- drag to spin ----------
  const scale=()=>{const b=canvas.getBoundingClientRect();return b.width?b.width/W:1};
  grip.grab=e=>{
+  // A second finger leaves the first one's drag alone.
+  if(spin.dragging)return;
   spin.dragging=true;spin.id=e.pointerId;spin.lx=e.clientX;spin.ly=e.clientY;spin.moved=0;
   spin.ax=0;spin.ay=0;spin.vx=0;spin.vy=0;spin.lt=performance.now();
   grip.dragged=false;
@@ -464,6 +427,8 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
   spin.dragging=false;
   // Reduced motion keeps the hand's turn but drops the coasting spin afterwards.
   if(motion.reduce||performance.now()-spin.lt>90){spin.vx=0;spin.vy=0}
+  // The ball's click, if any, follows this release; after it no drag may swallow a later keyboard activation.
+  setTimeout(()=>{grip.dragged=false});
  };
  window.addEventListener('pointermove',onDragMove);
  window.addEventListener('pointerup',onDragEnd);
@@ -507,6 +472,7 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
   if(spin.dragging){
    if(performance.now()-spin.lt>90){spin.vx*=Math.exp(-dt*12);spin.vy*=Math.exp(-dt*12)}
   }else{
+   if(reduced){spin.vx=0;spin.vy=0} // switching to reduced motion mid-coast must not leave a spin to resume
    turn(spin.vx*dt,spin.vy*dt,spin.orb);
    const f=Math.exp(-dt*1.3);
    spin.vx*=f;spin.vy*=f;
@@ -556,8 +522,7 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
  const resume=()=>{if(alive&&!raf&&!document.hidden){clock.getDelta();raf=requestAnimationFrame(frame)}};
  const visibility=()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else resume()};
  document.addEventListener('visibilitychange',visibility);
- frame();
- return {
+ const api={
   resume,
   stop(){
    alive=false;cancelAnimationFrame(raf);
@@ -571,6 +536,8 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
    pmrem.dispose();renderer.dispose();renderer.forceContextLoss();
   }
  };
+ try{frame()}catch(error){api.stop();throw error}
+ return api;
 }
 
 const grain=`<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><filter id="cbGrain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#cbGrain)"/></svg>`;
