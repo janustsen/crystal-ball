@@ -40,8 +40,8 @@ try{
  if(forecast.readings!==0||forecast.usage!==0)throw Error('Recipient paid for Circle forecast');
  evidence.push({realOllamaCircleForecast:true,askerDebitedOneReading:true,recipientNotDebited:true,oneOpenForecast:true});
  // Advance only the due date in this disposable cluster; generated question/headline remain real.
- const pg=process.env.PG_BIN||'/opt/homebrew/opt/postgresql@17/bin';
- execFileSync(pg+'/psql',['-X','-v','ON_ERROR_STOP=1','-c',"update public.circle_forecasts set due_date=current_date"],{env:{...process.env,PGHOST:'127.0.0.1',PGPORT:process.env.SOCIAL_PG_PORT||'55449',PGDATABASE:'postgres'},stdio:'pipe'});
+ const pg=process.env.PG_BIN||'/opt/homebrew/opt/postgresql@17/bin',port=process.env.SOCIAL_PG_PORT||'55449';
+ execFileSync(pg+'/psql',['-X','-v','ON_ERROR_STOP=1','-c',"update public.circle_forecasts set due_date=current_date"],{env:{...process.env,PGHOST:'127.0.0.1',PGPORT:port,PGDATABASE:'postgres',PGPASSFILE:`.local/social-pg-${port}.pgpass`},stdio:'pipe'});
  await refresh('friend');await run('friend',`${click('yes')}await page.wait(700);${text('1 Yes')}`);
  await refresh('owner');await run('owner',`${click('not-yet')}await page.wait(700);${text('1 Yes')}${text('1 Not yet')}`);
  evidence.push({dueDateAdvancedFixture:true,memberVotingUi:true,sharedTally:true});
