@@ -44,7 +44,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
  useEffect(()=>{if(showCircles)setSection('circles')},[showCircles]);
  useEffect(()=>{
   let active=true;
-  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){setData(snapshot);setOffline(false)}}catch{if(active){setData(null);setOffline(true)}}}
+  async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){setData(snapshot);setOffline(false)}}catch{if(active)setOffline(true)}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   return()=>{active=false;clearInterval(timer)};
  },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);

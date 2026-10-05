@@ -38,6 +38,8 @@ The profile integration reads the account's `sunSign` and `ageBand` fields, owne
 
 `bash scripts/verify-social-db.sh` creates and removes its own PostgreSQL cluster, loads the actual migrations, and runs roles and policies as separate users. It tests draft ownership, direct-write rejection, anonymous projection, invite replay/expiry, Circle capacity, leaving, consent defaults/teen constraints, friend notice privacy, reports, blocks, weekly seals, and concurrent recipient claims. The auth schema is a minimal Supabase stub: this proves PostgreSQL RLS, not Supabase Auth or PostgREST interoperability.
 
+The cluster requires SCRAM-SHA-256 authentication over loopback TCP, using a fresh password generated with `openssl` on each run. The script exports `PGPASSFILE` pointing to `.local/social-pg-${SOCIAL_PG_PORT:-55439}.pgpass`, created with owner-only permissions and removed with the cluster on exit. Separate database clients must use that password file and the same port; `scripts/drive-social-v2.mjs` selects the file automatically from its `SOCIAL_PG_PORT` (default 55449), which must match the running cluster.
+
 For UI verification, `SOCIAL_DB_SERVE=1 bash scripts/verify-social-db.sh` leaves that same isolated cluster running behind `scripts/social-dev-transport.mjs`. The transport simulates Auth/PostgREST on loopback only, while SQL, RLS, app code and Ollama are real. It is verification tooling, never a production fallback. No Docker, hosted accounts or paid services are needed.
 
 Anonymous-account reports are not proof of distinct humans. Hosted rate limits, anti-abuse controls and native delivery remain deployment boundaries. Entitlements and purchase deployment follow the [billing contract](../launch/billing.md).

@@ -8,16 +8,24 @@ if [[ ! -x "$pg_bin/initdb" ]]; then
 fi
 mkdir -p .local
 cluster=$(mktemp -d "$PWD/.local/social-pg.XXXXXX")
+port="${SOCIAL_PG_PORT:-55439}"
+# Per-run password: the loopback port is reachable by other local users. Other drivers find it by port.
+pgpass="$PWD/.local/social-pg-$port.pgpass" published=
 cleanup() {
   "$pg_bin/pg_ctl" -D "$cluster/data" -m immediate stop >/dev/null 2>&1 || true
   rm -rf "$cluster"
+  # Only the run that owns the port publishes, and removes, its password file.
+  [[ -z "$published" ]] || rm -f "$pgpass"
 }
 trap cleanup EXIT
-"$pg_bin/initdb" -D "$cluster/data" -A trust --no-locale -E UTF8 >"$cluster/init.log"
+(umask 077; openssl rand -hex 24 >"$cluster/password")
+"$pg_bin/initdb" -D "$cluster/data" -A scram-sha-256 --pwfile="$cluster/password" --no-locale -E UTF8 >"$cluster/init.log"
 # Disposable loopback cluster; short socket paths are unavailable in long worktree paths.
 # UTC like hosted Supabase: fixtures' current_date must match the UTC day Circle rules use.
-"$pg_bin/pg_ctl" -D "$cluster/data" -l "$cluster/server.log" -o "-p ${SOCIAL_PG_PORT:-55439} -c unix_socket_directories='' -c listen_addresses='127.0.0.1' -c timezone=UTC" -w start >/dev/null
-export PGHOST=127.0.0.1 PGPORT="${SOCIAL_PG_PORT:-55439}" PGDATABASE=postgres
+"$pg_bin/pg_ctl" -D "$cluster/data" -l "$cluster/server.log" -o "-p $port -c unix_socket_directories='' -c listen_addresses='127.0.0.1' -c timezone=UTC" -w start >/dev/null
+(umask 077; echo "127.0.0.1:$port:*:*:$(cat "$cluster/password")" >"$pgpass")
+published=1
+export PGPASSFILE="$pgpass" PGHOST=127.0.0.1 PGPORT="$port" PGDATABASE=postgres
 sql=("$pg_bin/psql" -X -v ON_ERROR_STOP=1)
 "${sql[@]}" <<'SQL' >/dev/null
 create role anon nologin;
