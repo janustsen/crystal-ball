@@ -22,7 +22,7 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 Home, Sky, raised Ask orb, History and You are the five destinations. Home uses the canvas tab bar; other destinations retain the supplied 17-screen tab bar. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
-1. Home: the canvas scene with the ball as the reading's tap target (a drag spins it instead), the reading balance (opens Plans), “What lies ahead?”, the frosted Today’s omen card, the entertainment line and a due-check-in action when applicable; see [motion](motion.md#home-scene).
+1. Home: the canvas scene with the ball as the reading's tap target, the reading balance (opens Plans), “What lies ahead?”, the frosted Today’s omen card, the entertainment line and a due-check-in action when applicable; see [motion](motion.md#home-scene).
 2. Approach: larger orb and “Come closer…” before voice.
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
 4. Typing: smaller orb, borderless serif question input, Speak instead and Ask the Ball.
