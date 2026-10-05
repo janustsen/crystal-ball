@@ -1,6 +1,6 @@
 import * as Crypto from 'expo-crypto';
 
-// Plain-HTTP web origins (e.g. a LAN or tailnet preview) are not secure contexts, so crypto.randomUUID is
+// Non-loopback plain-HTTP origins (e.g. a LAN or tailnet preview) are not secure contexts, so crypto.randomUUID is
 // missing there; crypto.getRandomValues is not secure-context gated, so build the RFC 4122 v4 UUID from it.
 export function uuid(){
  try{return Crypto.randomUUID()}catch{}
