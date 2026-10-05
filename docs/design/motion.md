@@ -8,7 +8,7 @@ Reduced motion freezes the fog, removes entrances and hides sky visitors. Either
 
 ## Home scene
 
-Web Home runs the canvas Main three.js scene (r159, as the canvas loads it): refractive raymarched glass, candle flicker, drifting dust and pointer/tilt parallax. Reduced motion and hidden pages draw one frame and schedule no callbacks; a resize gets a fresh canvas. Native shows `assets/home-scene.jpg`, a frame captured from the web scene by `scripts/capture-home-scene.mjs`, until a native GL renderer exists.
+Web Home runs the canvas Main three.js scene (r159, as the canvas loads it): refractive raymarched glass, candle flicker, drifting dust and pointer/tilt parallax. Reduced motion and hidden pages draw one frame and schedule no callbacks; a resize gets a fresh canvas. The approved native scope for this PR keeps `src/HomeScene.tsx` displaying `assets/home-scene.jpg`, a frame captured from the web scene by `scripts/capture-home-scene.mjs`. Follow-up `cb-native-glass-scene` owns the live native GL scene and requires a real-device development build; Xcode and the Apple account are not set up yet.
 
 ## Orb delight
 
