@@ -17,7 +17,7 @@ From a reveal or its share screen, choose Replay for recording for a clean 9:16 
 
 In You → See plans, review the free allowance and Plus benefits, choose a subscription or one-time reading pack, or restore purchases. Plans show the price and renewal period; Manage or cancel subscription opens Apple’s subscription management. Weekly is preselected and offers a 3-day trial only when the store confirms eligibility. The preview labels simulated purchases and lets you turn off simulated Plus. See [billing](docs/launch/billing.md) for purchase modes, prices and limits.
 
-An interrupted, cancelled or timed-out reading may still finish and be charged on the server. Retry the same question for the same person, with the same answers, once in the same app session without another reading charge; further retries are charged; restarting the app loses that retry identity.
+An interrupted, cancelled or timed-out reading may still finish and be charged on the server. Retry the same question for the same person, with the same answers, once in the same app session without another reading charge; further retries are charged; restarting the app loses that retry identity. An unresolved attempt can be retried even when the displayed balance is zero: the server decides whether a free retry remains. If it reports no readings left, Plans opens and the app requests a fresh balance. Changing answers requires an available reading.
 
 Home example questions fade inside the fog as decorative whispers; tapping them opens the orb, not a prefilled question. Choose Ask this too in Sky to prefill a question instead. Reduce motion keeps one whisper still.
 
