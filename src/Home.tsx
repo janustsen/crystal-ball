@@ -6,6 +6,7 @@ import {AskOrb,HomeScene} from './HomeScene';
 import {Txt} from './ui';
 import {useStore} from './store';
 import {selectedStyle,skinColors} from './delight';
+import {haptic} from './native';
 
 // Home is ported from the Claude Design canvas artboard project/Main.dc.html ("Home - realistic"); values below are its own.
 export const homeFonts={serif:'CormorantGaramond',italic:'CormorantGaramondItalic',sans:'InstrumentSans'};
@@ -22,7 +23,7 @@ export function Home({reduce,ready,count,onPlans,onAsk,checkIns,omen,top,bottom}
  return <View style={{position:'absolute',left:0,top:0,right:0,bottom:0}} onLayout={e=>setSize({width:e.nativeEvent.layout.width,height:e.nativeEvent.layout.height})}>
   <ScrollView contentContainerStyle={{minHeight:height,paddingTop:Math.round(height*552/844),paddingBottom:homeTabBarHeight+bottom+16}}>
    {width?<HomeScene width={width} height={height} reduce={reduce}/>:null}
-   <Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Touch the ball to receive your reading" onPress={onAsk} style={{position:'absolute',left:width/2-r,top:height*ballY-r,width:r*2,height:r*2,borderRadius:r,backgroundColor:skin.fill,borderWidth:skin.rim==='transparent'?0:1,borderColor:skin.rim}}/>
+   <Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Touch the ball to receive your reading" onPressIn={()=>haptic('touch')} onPress={onAsk} style={{position:'absolute',left:width/2-r,top:height*ballY-r,width:r*2,height:r*2,borderRadius:r,backgroundColor:skin.fill,borderWidth:skin.rim==='transparent'?0:1,borderColor:skin.rim}}/>
    <View pointerEvents="box-none" style={{position:'absolute',left:0,right:0,top:top+26,alignItems:'center'}}>
     <Txt accessibilityRole="header" allowFontScaling={false} style={{fontFamily:homeFonts.italic,fontSize:30,lineHeight:30,letterSpacing:.3,color:cream}}>Crystal Ball</Txt>
     <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPlans} style={{minHeight:44,marginTop:-7,flexDirection:'row',alignItems:'center',gap:8}}>

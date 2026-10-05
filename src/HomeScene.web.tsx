@@ -1,4 +1,5 @@
-import {useEffect,useRef} from 'react';
+import {useEffect,useRef,useState} from 'react';
+import {Image} from 'react-native';
 import * as T from 'three';
 
 // Ported from the Claude Design canvas artboard project/Main.dc.html ("Home - realistic").
@@ -379,11 +380,13 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
 const grain=`<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><filter id="cbGrain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#cbGrain)"/></svg>`;
 
 export function HomeScene({width,height,reduce}:{width:number;height:number;reduce:boolean}){
+ const [failed,setFailed]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),motion=useRef({reduce}),scene=useRef<ReturnType<typeof startScene>|null>(null);
  motion.current.reduce=reduce;
  useEffect(()=>{
   if(!ref.current||!width||!height)return;
-  try{scene.current=startScene(ref.current,width,height,motion.current)}catch(error){console.error('crystal ball scene',error)}
+  setFailed(false);
+  try{scene.current=startScene(ref.current,width,height,motion.current)}catch(error){setFailed(true);console.error('crystal ball scene',error)}
   return()=>{scene.current?.stop();scene.current=null};
  },[width,height]);
  useEffect(()=>{if(!reduce)scene.current?.resume()},[reduce]);
@@ -397,6 +400,7 @@ export function HomeScene({width,height,reduce}:{width:number;height:number;redu
   <div style={{position:'absolute',left:0,top:0,width:'100%',height:130,background:'linear-gradient(180deg, rgba(5,3,2,.75) 0%, rgba(5,3,2,0) 100%)'}}/>
   <div style={{position:'absolute',left:0,bottom:0,width:'100%',height:304,background:'linear-gradient(180deg, rgba(5,3,2,0) 0%, rgba(5,3,2,.55) 45%, rgba(5,3,2,.9) 100%)'}}/>
   <div style={{position:'absolute',inset:0,opacity:.09,mixBlendMode:'overlay'}} dangerouslySetInnerHTML={{__html:grain}}/>
+  {failed?<div style={{position:'absolute',inset:0,overflow:'hidden',background:'#050302'}}><Image source={require('../assets/home-scene.jpg')} style={{position:'absolute',top:0,left:(width-height*600/844)/2,width:height*600/844,height}}/></div>:null}
   <style>{'@keyframes cbBreath{0%,100%{box-shadow:0 0 14px rgba(255,170,90,.45)}50%{box-shadow:0 0 22px rgba(255,170,90,.75)}}'}</style>
  </div>;
 }
