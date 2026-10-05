@@ -3,6 +3,7 @@ import {Alert,Platform,View} from 'react-native';
 import * as Apple from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import {anonymousOwner,supabase} from './cloud';
+import {uuid} from './uuid';
 import {useStore} from './store';
 import {Action,styles,Txt} from './ui';
 
@@ -19,7 +20,7 @@ export function BackupPanel(){
     const session=await supabase.auth.getSession();
     if(session.error)throw session.error;
     if(session.data.session?.user.identities?.some(identity=>identity.provider==='apple'))return;
-    const nonce=Crypto.randomUUID();
+    const nonce=uuid();
     const credential=await Apple.signInAsync({requestedScopes:[],nonce:await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,nonce)});
     if(!credential.identityToken)throw new Error('Apple returned no identity token.');
     const credentials={provider:'apple' as const,token:credential.identityToken,nonce};
