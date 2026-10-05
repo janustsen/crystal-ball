@@ -1,4 +1,4 @@
-import {randomUUID} from 'expo-crypto';
+import {uuid} from '../src/uuid';
 import React,{useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,Alert,BackHandler,Linking,Platform,Pressable,ScrollView,Switch,TextInput,View,useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -56,7 +56,7 @@ export default function App(){
  const personalFacts={...state.facts,...(state.birthday?{birthday:state.birthday}:{})};
  const askIds=useRef(new Map<string,string>());
  const askIdentity=(q:string)=>JSON.stringify([q.trim(),friend,friendTarget?.circle,friendTarget?.member,friendTarget?.firstName,personMode?personName.trim():null]);
- function askId(identity:string){let id=askIds.current.get(identity);if(!id){id=randomUUID();askIds.current.set(identity,id)}return id}
+ function askId(identity:string){let id=askIds.current.get(identity);if(!id){id=uuid();askIds.current.set(identity,id)}return id}
  const pendingAsks=useRef(new Set<string>());
  const attemptKey=(identity:string,facts:Facts)=>JSON.stringify([askId(identity),Object.entries(facts).sort(([a],[b])=>a<b?-1:a>b?1:0)]);
  // The server is authoritative: its no-readings rejection ends the pending ask, opens Plans and refreshes a stale balance.
