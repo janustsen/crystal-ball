@@ -1,6 +1,7 @@
 -- One chart weather per Plus user per calendar month. The engine claims the month before inference,
 -- so repeat or concurrent requests reuse the stored text instead of generating again. Service role only.
-create table public.chart_weather(
+-- Re-runnable: this file once shared version 202610060070 with golden, so some databases already applied it.
+create table if not exists public.chart_weather(
  user_id uuid not null references auth.users on delete cascade,
  month text not null check(month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
  text text check(text is null or length(text) between 1 and 400),
@@ -14,7 +15,7 @@ revoke all on public.chart_weather from public,anon,authenticated;
 
 -- Returns {text,chart} when the month is already read, {claimed:true} when the caller should generate,
 -- or {claimed:false} while another request holds a fresh claim. A claim older than two minutes was abandoned.
-create function public.claim_chart_weather(viewer uuid,target_month text) returns jsonb
+create or replace function public.claim_chart_weather(viewer uuid,target_month text) returns jsonb
  language plpgsql volatile security definer set search_path='' as $$
  declare fresh boolean;claim public.chart_weather;
  begin
@@ -31,13 +32,13 @@ create function public.claim_chart_weather(viewer uuid,target_month text) return
  end $$;
 
 -- Completes a claim; an already-read month keeps its first text.
-create function public.save_chart_weather(viewer uuid,target_month text,weather text,weather_chart text) returns text
+create or replace function public.save_chart_weather(viewer uuid,target_month text,weather text,weather_chart text) returns text
  language sql volatile security definer set search_path='' as $$
  update public.chart_weather set text=coalesce(text,weather),chart=coalesce(chart,weather_chart) where user_id=viewer and month=target_month returning text;
  $$;
 
 -- A failed generation gives the month back.
-create function public.release_chart_weather(viewer uuid,target_month text) returns void
+create or replace function public.release_chart_weather(viewer uuid,target_month text) returns void
  language sql volatile security definer set search_path='' as $$
  delete from public.chart_weather where user_id=viewer and month=target_month and text is null;
  $$;

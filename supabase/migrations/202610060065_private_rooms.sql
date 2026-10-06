@@ -1,13 +1,14 @@
 -- Private Circle rooms: a Plus owner can seal check-in votes until the reveal moment.
-alter table public.circles add column private_room boolean not null default false;
+-- Re-runnable: this file once shared version 202610060060 with plus_styles, so some databases already applied it.
+alter table public.circles add column if not exists private_room boolean not null default false;
 
-create function social_private.private_room(target uuid) returns boolean
+create or replace function social_private.private_room(target uuid) returns boolean
  language sql stable security definer set search_path='' as $$
  select exists(select 1 from public.circles c where c.id=target and c.private_room);
 $$;
 revoke all on function social_private.private_room(uuid) from public,anon;
 
-create function public.set_private_room(target uuid,enabled boolean) returns void
+create or replace function public.set_private_room(target uuid,enabled boolean) returns void
  language plpgsql security definer set search_path='' as $$
  begin
   perform 1 from public.circles where id=target and owner_id=auth.uid() for update;
@@ -17,7 +18,7 @@ create function public.set_private_room(target uuid,enabled boolean) returns voi
  end;
 $$;
 
-create function public.private_rooms() returns table(circle_id uuid)
+create or replace function public.private_rooms() returns table(circle_id uuid)
  language sql stable security definer set search_path='' as $$
  select c.id from public.circles c where social_private.member(c.id) and social_private.private_room(c.id);
 $$;
@@ -25,7 +26,7 @@ $$;
 -- In a live room a tally stays sealed (counts null, own vote visible) until every current member has voted
 -- or the UTC day after the due date begins.
 drop function public.circle_vote_tallies();
-create function public.circle_vote_tallies() returns table(forecast_id uuid,yes bigint,no bigint,pending bigint,mine text,sealed boolean)
+create or replace function public.circle_vote_tallies() returns table(forecast_id uuid,yes bigint,no bigint,pending bigint,mine text,sealed boolean)
  language sql stable security definer set search_path='' as $$
  with tally as (
   select f.id,f.circle_id,f.due_date,count(*) filter(where v.vote='yes') as yes,count(*) filter(where v.vote='no') as no,count(*) filter(where v.vote='pending') as pending,max(v.vote) filter(where v.user_id=auth.uid()) as mine
