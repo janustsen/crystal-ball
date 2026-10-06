@@ -65,7 +65,7 @@ export default function App(){
  const [personMode,setPersonMode]=useState(false),[personName,setPersonName]=useState('');
  // A sealed-link browser visitor asking their one free web reading.
  const [visitedSeal,setVisitedSeal]=useState(()=>Platform.OS==='web'&&(!!params.seal||webReadingVisitor()));
- // The web-trial limit is only for anonymous visitors: Plus, purchased readings or a linked account always use the paid path.
+ // The web-trial limit is only for anonymous visitors: Plus, purchased readings or a linked account use the regular account allowance.
  const webTrial=Platform.OS==='web'&&!(state.plus||state.credits>0||state.backupOwner)&&(!!params.seal||visitedSeal);
  useEffect(()=>{if(Platform.OS==='web'&&params.seal){markWebReadingVisitor();setVisitedSeal(true)}},[params.seal]);
  const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined,plus:state.plus,viewerChart:state.plus&&state.moonSign&&state.risingSign?{moonSign:state.moonSign,risingSign:state.risingSign}:undefined};

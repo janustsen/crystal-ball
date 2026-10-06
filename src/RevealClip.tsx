@@ -14,7 +14,6 @@ type Frame={orb?:number;text?:number;glow?:number;category?:string;question?:str
 
 export async function loadOrb(){const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();return orb}
 
-// The 1080×1920 story composition shared by the still card and the reveal clip.
 // Design hook: swap this painter for the designed card/clip template when it lands.
 export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{cardStyle,ballStyle,orb}:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
  const golden=prediction.golden,cardCenter=golden||cardStyle==='gold'?'#684519':cardStyle==='obsidian'?'#12131C':colors.violet;
