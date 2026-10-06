@@ -3,7 +3,6 @@ import {Platform,Pressable,Share,Switch,TextInput,View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {Action,colors,Orb,styles,Txt} from './ui';
 import {sealedLink} from './social-links';
-import {webReadingSpent} from './api';
 import {useStore} from './store';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
 import {SocialPush,SkyPushPrompt} from './SocialPush';
@@ -30,12 +29,11 @@ export function InstallAction({onNotice}:{onNotice:(message:string)=>void}){
  return <Action label={process.env.EXPO_PUBLIC_INSTALL_URL?'Install Crystal Ball':'Open Crystal Ball app'} onPress={()=>void Linking.openURL(process.env.EXPO_PUBLIC_INSTALL_URL||'crystalball://').catch(()=>onNotice('Install Crystal Ball from your device’s app store to ask your own questions.'))}/>;
 }
 
-// onAsk starts the browser visitor's one free reading (web only).
-export function SealedCard({token,reduce,onAsk}:{token:string;reduce:boolean;onAsk?:()=>void}){
+export function SealedCard({token,reduce,onAsk,webTrial=false}:{token:string;reduce:boolean;onAsk?:()=>void;webTrial?:boolean}){
  const [headline,setHeadline]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
  useEffect(()=>{setHeadline('');setNotice('')},[token]);
  async function open(){setBusy(true);setNotice('');try{setHeadline(await openForecast(token))}catch(error){setNotice(error instanceof Error?error.message:'This seal is unavailable.')}finally{setBusy(false)}}
- return <View style={styles.panel}><Txt display style={styles.title}>{headline?'A glimpse for you.':'Someone sealed a glimpse for you.'}</Txt><Pressable testID="open-sealed-forecast" accessibilityRole="button" accessibilityLabel="Open sealed forecast" disabled={busy||!!headline} onPress={()=>void open()} style={{alignItems:'center',minHeight:52}}><Orb size={170} reduce={reduce} phase={headline?'reveal':'idle'}/></Pressable>{headline?<><Txt display>{headline}</Txt><Txt style={[styles.caption,{marginTop:12,color:colors.gold}]}>Speculative forecast · not a guarantee</Txt></>:<Txt style={styles.caption}>{busy?'Opening…':'Tap the ball to open. Only you can claim this card.'}</Txt>}{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}{Platform.OS==='web'&&(headline||notice)?<>{onAsk&&!webReadingSpent()?<><Action testID="web-reading-start" label="Ask the Ball your own question" onPress={onAsk}/><Txt style={styles.caption}>One free reading here. No account needed.</Txt></>:<Txt style={styles.caption}>Get Crystal Ball to ask your own questions.</Txt>}<InstallAction onNotice={setNotice}/></>:null}</View>;
+ return <View style={styles.panel}><Txt display style={styles.title}>{headline?'A glimpse for you.':'Someone sealed a glimpse for you.'}</Txt><Pressable testID="open-sealed-forecast" accessibilityRole="button" accessibilityLabel="Open sealed forecast" disabled={busy||!!headline} onPress={()=>void open()} style={{alignItems:'center',minHeight:52}}><Orb size={170} reduce={reduce} phase={headline?'reveal':'idle'}/></Pressable>{headline?<><Txt display>{headline}</Txt><Txt style={[styles.caption,{marginTop:12,color:colors.gold}]}>Speculative forecast · not a guarantee</Txt></>:<Txt style={styles.caption}>{busy?'Opening…':'Tap the ball to open. Only you can claim this card.'}</Txt>}{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}{Platform.OS==='web'&&(headline||notice)?<>{onAsk?<><Action testID="web-reading-start" label="Ask the Ball your own question" onPress={onAsk}/>{webTrial?<Txt style={styles.caption}>One free reading here. No account needed.</Txt>:null}</>:<Txt style={styles.caption}>Get Crystal Ball to ask your own questions.</Txt>}<InstallAction onNotice={setNotice}/></>:null}</View>;
 }
 
 export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requestedSection,requestId,aiConsent=''}:{requestedSection?:'sky'|'circles';requestId?:string;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){

@@ -173,7 +173,7 @@ export default function App(){
  const aiPermission=<>{aiProvider?<View style={styles.panel}><Txt style={styles.caption}>Allow {aiProvider} to process your questions, relevant answers and saved headlines for readings, omens and sharing checks? Friend readings also use their sun sign and shared themes. Avoid sensitive details.</Txt><Switch accessibilityLabel="Allow AI processing" value={aiAllowed} onValueChange={setAiAllowed}/></View>:null}</>;
  function content(){
  if(!ready)return hydrationError?<View style={styles.panel}><Txt accessibilityLiveRegion="polite">{hydrationError}</Txt><Action testID="retry-hydration" label="Try opening again" onPress={retryHydration}/></View>:<Txt>Opening your sky…</Txt>;
- if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} onAsk={()=>openAsk()}/>;
+ if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} webTrial={webTrial} onAsk={webTrial&&webReadingSpent()?undefined:()=>openAsk()}/>;
  if(onboarding)return <Onboarding blocked={state.onboardingBlocked} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed)=>update(s=>({...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,facts:{...s.facts,...facts}}))}/>;
  if(paywall){
   const cost=(kind:PlanKind|PackKind)=>offers?.find(o=>o.kind===kind)?.price??[...plans,...packs].find(p=>p.kind===kind)!.price;
