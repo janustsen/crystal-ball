@@ -6,7 +6,7 @@ import ts from 'typescript';
 
 test('a failed refresh after a failed action keeps loaded circles visible',async()=>{
  const snapshot={owner:'A',profile:{handle:'a'},stars:[],schoolOnly:false,circles:[{id:'c1',owner_id:'A'}],members:[{circle_id:'c1',user_id:'A'}],
-  schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[]};
+  schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,reads=0;
  const react={
@@ -24,7 +24,7 @@ test('a failed refresh after a failed action keeps loaded circles visible',async
  };
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{},'./ui':{colors:{},styles:{}},'./social-links':{},
-  './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
+  './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{},socialUnavailable:'Social is offline.'},
   './social':{
    loadSocial:async()=>{if(++reads>1)throw new Error('offline');return snapshot},

@@ -72,6 +72,9 @@ The optional school a user chooses; see the [school boundary](docs/social/school
 **Report / Block**:
 Any user can report a Star or block a person; repeated reports hide content automatically. Every published line also passes an AI safety filter.
 
+**Friday Sky**:
+Every Friday at 8pm on the viewer's own clock, the Sky opens one shared omen for the week per School and per Circle, with one opted-in push.
+
 **School Sky**:
 A "My school" filter on Tonight's Sky showing only Stars from the user's School.
 

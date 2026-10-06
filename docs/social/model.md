@@ -69,3 +69,11 @@ A Circle owner with Plus can make the Circle a private room (`set_private_room`)
 Targeted seals use the same weekly quota and moderation gate as links. The inbox reveals only the token and opened state; the headline still requires the intended recipient’s ball tap. Link cards allow one anonymous browser claimant. Blocking and revocation apply at claim time.
 
 `social_notifications` accepts only seal/invite/join/forecast/vote events. A service-only leased queue dispatches generic Expo messages. See SETUP.md for native credentials, the install URL, scheduler setup and delivery limits. Browser proof does not establish native push delivery.
+
+### Friday Sky
+
+Every Friday at 20:00 on each viewer's own clock, the Sky opens one shared omen per School and one per Circle for the week, until the next Friday at 20:00. A School's omen is visible only to accounts that chose that School, so teens see only their own school's; a Circle's omen only to its current members. Before a group's first omen exists, Sky and Circles say when it opens. The client sends its IANA time zone on each Sky load (`open_sky`); unknown zones are ignored and an unsaved clock falls back to UTC.
+
+The trusted scheduler generates omens server-side (`scripts/open-sky.mts`): one per group per week, written only by the service. The model receives just the group kind and a random celestial motif, never member data, and every omen passes the teen-audience public-Star moderation gate; a failed or unsafe omen leaves the group closed until the next run. Generation targets the Friday on or after yesterday (UTC), so omens exist before the earliest zone opens.
+
+The Sky push is its own opted-in type: `sky_push` defaults on, so only accounts that already enabled Circle notifications (have a push token) receive it, and the native Circle notifications panel has the toggle. One generic "The Sky is open." message per account per week is queued from local Friday 20:00 when the account can see at least one omen that week, and is delivered only on that same local Friday; a missed evening is never sent late. It uses a separate `sky_pushes` lease, not `social_notifications`. `scripts/sky-rls.sql` proves the week math, visibility and lease in real PostgreSQL; `node scripts/drive-friday-sky.mjs` drives generation and display.

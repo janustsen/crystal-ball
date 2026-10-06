@@ -71,7 +71,7 @@ export default function App(){
  useEffect(()=>{if(Platform.OS!=='web')return;const css=document.createElement('style');css.textContent='[role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #5CE1E6!important;outline-offset:3px}';document.head.appendChild(css);return()=>css.remove()},[]);
  useEffect(()=>{AccessibilityInfo.isReduceMotionEnabled().then(setSystemReduce);const listener=AccessibilityInfo.addEventListener('reduceMotionChanged',setSystemReduce);return()=>listener.remove()},[]);
  useEffect(()=>{if(params.question)openAsk(params.question.slice(0,500),params.friend==='1')},[params.question,params.friend]);
- useEffect(()=>watchSocialPushes(()=>{setTab('Sky');router.setParams({social:'circles'})}),[]);
+ useEffect(()=>watchSocialPushes(section=>{setTab('Sky');router.setParams({social:section})}),[]);
  useEffect(()=>{if(params.circle)setCurrentTab('Sky')},[params.circle]);
  useEffect(()=>{if(params.seal){cancel();setShare(false);setPaywall(false);setCurrentTab('Sky')}},[params.seal]);
  useEffect(()=>()=>controller.current?.abort(),[]);

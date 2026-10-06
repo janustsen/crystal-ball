@@ -28,8 +28,9 @@ test('each School and Circle gets one teen-moderated omen; unsafe output stays c
   inputs.push(input);
   return {text:++call===3?'Your crush is thinking of you tonight.':' A bright shared spark gathers over all of you tonight. '} as T;
  }};
- assert.deepEqual(await openSky(env,model,new Date('2026-10-08T12:00Z'),transport),{week:'2026-10-09',targets:3,opened:2});
- assert.deepEqual(inputs,[{group:'school'},{group:'circle'},{group:'circle'}]);
+ let motif=0;
+ assert.deepEqual(await openSky(env,model,new Date('2026-10-08T12:00Z'),transport,()=>motif++),{week:'2026-10-09',targets:3,opened:2});
+ assert.deepEqual(inputs,[{group:'school',motif:'a new moon'},{group:'circle',motif:'a passing comet'},{group:'circle',motif:'a meteor shower'}]);
  assert.ok(moderated.every(line=>line.teen&&line.star));
  assert.deepEqual(saved,[
   {target_week:'2026-10-09',school:'sfusd-lowell',circle:null,text_value:'A bright shared spark gathers over all of you tonight.'},
