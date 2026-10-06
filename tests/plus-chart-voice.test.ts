@@ -11,7 +11,7 @@ const billed=(key:string)=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERV
 
 // Fake Ollama and Supabase boundaries; the weather text is what the model "writes".
 function boundary(t:any,{plus=false,weather=['Gemini Sun, Pisces Moon and Virgo rising invite a slower, kinder pace this month. Let small rituals steady you.']}={}){
- const prompts:any[]=[];let weatherCalls=0;
+ const prompts:any[]=[],stored=new Map<string,string|null>(),rpcs:string[]=[];let weatherCalls=0;
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
   if(body?.messages){
@@ -25,9 +25,20 @@ function boundary(t:any,{plus=false,weather=['Gemini Sun, Pisces Moon and Virgo 
   if(url.pathname==='/auth/v1/user')return Response.json({id:viewer});
   if(url.pathname==='/rest/v1/reading_charges')return Response.json([]);
   if(url.pathname==='/rest/v1/rpc/reading_balance'||url.pathname==='/rest/v1/rpc/charge_reading')return Response.json(balance(plus));
+  // Mirrors the chart_weather claim functions (proved on PostgreSQL by scripts/chart-weather-rls.sql).
+  if(url.pathname.startsWith('/rest/v1/rpc/')&&url.pathname.includes('chart_weather')){
+   const name=url.pathname.slice(13),key=`${body.viewer}:${body.target_month}`;rpcs.push(name);
+   if(name==='claim_chart_weather'){
+    if(!plus)return Response.json({message:'Chart weather is a Plus extra'},{status:400});
+    if(!stored.has(key)){stored.set(key,null);return Response.json({claimed:true})}
+    const text=stored.get(key);return Response.json(text?JSON.parse(text):{claimed:false});
+   }
+   if(name==='save_chart_weather'){const saved=stored.get(key)??JSON.stringify({text:body.weather,chart:body.weather_chart});stored.set(key,saved);return Response.json(JSON.parse(saved).text)}
+   if(name==='release_chart_weather'){if(stored.get(key)===null)stored.delete(key);return new Response(null,{status:204})}
+  }
   throw new Error(`Unexpected URL: ${url}`);
  });
- return {prompts,weatherCalls:()=>weatherCalls};
+ return {prompts,stored,rpcs,weatherCalls:()=>weatherCalls};
 }
 const ask=(serve:(r:Request)=>Promise<Response>,body:object)=>serve(new Request('http://localhost/',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month',birthday},viewerBirthday:birthday,localDate:'2026-10-06',requestId:'11111111-1111-4111-8111-111111111111',...body})}));
 
@@ -115,17 +126,32 @@ test('Circle-friend Why uses the viewer chart with the server Plus gate',async t
  }
 });
 
-test('chart weather is a Plus extra that names only the viewer’s signs',async t=>{
+test('chart weather is a Plus extra read once per month on the server',async t=>{
+ const today=new Date().toISOString().slice(0,10),month=new Date(`${today}T12:00:00Z`).toLocaleString('en-US',{month:'long',timeZone:'UTC'});
+ const weather=(serve:ReturnType<typeof handler>,extra:object={})=>ask(serve,{action:'chart',viewerChart:chart,localDate:today,...extra});
  let fake=boundary(t,{plus:false});
- const free=await ask(handler(billed),{action:'chart',viewerChart:chart});
+ const free=await weather(handler(billed));
  assert.equal(free.status,403);assert.equal(fake.weatherCalls(),0);
  t.mock.restoreAll();fake=boundary(t,{plus:true});
- const plus=await (await ask(handler(billed),{action:'chart',viewerChart:chart})).json();
- assert.equal(plus.kind,'ok');assert.match(plus.value.text,/Pisces Moon/);
- assert.deepEqual(fake.prompts.at(-1),{month:'October',sunSign:'gemini',...chart});
- t.mock.restoreAll();fake=boundary(t,{plus:true,weather:['Leo energy and your Pisces Moon promise a bright, steady month ahead of you.']});
- const strayed=await ask(handler(billed),{action:'chart',viewerChart:chart});
- assert.equal(strayed.status,400);assert.equal(fake.weatherCalls(),2,'one repair, then fail closed');
+ const serve=handler(billed),first=await (await weather(serve)).json();
+ assert.equal(first.kind,'ok');assert.match(first.value.text,/Pisces Moon/);
+ assert.deepEqual(fake.prompts.at(-1),{month,sunSign:'gemini',...chart});
+ const again=await (await weather(serve)).json();
+ assert.equal(again.value.text,first.value.text);assert.equal(fake.weatherCalls(),1,'a repeat request reuses the month');
+ assert.equal((await weather(serve,{localDate:'2020-01-15'})).status,400,'a far-off device date cannot open another month');
+ const changed=await weather(serve,{viewerChart:{moonSign:'leo',risingSign:'virgo'}});
+ assert.equal(changed.status,409,'a changed chart waits for next month instead of reusing the old signs');
+ assert.equal(fake.weatherCalls(),1);
+});
+
+test('chart weather fails closed on stray or generic text and gives the month back',async t=>{
+ const today=new Date().toISOString().slice(0,10);
+ for(const text of ['Leo energy and your Pisces Moon invite a bright and steady month ahead, full of small brave choices and kind moments.','This month invites a slower and kinder pace. Let small rituals steady you as the days grow shorter and calmer.']){
+  t.mock.restoreAll();const fake=boundary(t,{plus:true,weather:[text]});
+  const response=await ask(handler(billed),{action:'chart',viewerChart:chart,localDate:today});
+  assert.equal(response.status,400);assert.equal(fake.weatherCalls(),2,'one repair, then fail closed');
+  assert.deepEqual(fake.rpcs,['claim_chart_weather','release_chart_weather']);assert.equal(fake.stored.size,0);
+ }
 });
 
 test('chart weather follows the birth chart it came from',()=>{

@@ -22,8 +22,8 @@ export async function personalOmen(facts:Facts,model:ModelProvider):Promise<stri
 }
 
 // A Plus user's monthly reflection from their Sun, Moon and rising; the app keeps one per month.
-export async function chartWeather(chart:{sunSign:string;moonSign:string;risingSign:string},localDate:string|undefined,model:ModelProvider):Promise<string>{
- const month=new Date(`${localDate??new Date().toISOString().slice(0,10)}T12:00:00Z`).toLocaleString('en-US',{month:'long',timeZone:'UTC'});
+export async function chartWeather(chart:{sunSign:string;moonSign:string;risingSign:string},yearMonth:string,model:ModelProvider):Promise<string>{
+ const month=new Date(`${yearMonth}-15T12:00:00Z`).toLocaleString('en-US',{month:'long',timeZone:'UTC'});
  const supplied=[chart.sunSign,chart.moonSign,chart.risingSign];
  const value=await model.json<{text:string}>(
   ballVoice+' Write this month’s chart weather: two short sentences of astrology-flavored reflection for the supplied month, using the supplied Sun, Moon and rising signs symbolically. Name the supplied signs; never name any other sign or invent planetary positions, transits or dates. It is reflection and entertainment, not a forecast of events: no guarantees, diagnoses, medical/legal/financial advice, or claims about another person’s feelings. Use 20 to 45 words.',
@@ -31,9 +31,11 @@ export async function chartWeather(chart:{sunSign:string;moonSign:string;risingS
   {type:'object',properties:{text:{type:'string',minLength:40,maxLength:320}},required:['text'],additionalProperties:false},
   value=>{
    if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string')return false;
-   const text=value.text.trim(),words=text.toLowerCase().split(/\W+/);
-   if(text.length<40||text.length>320||/[\r\n]/.test(text)||!/[.!?]$/.test(text))return {valid:false,feedback:'Write two complete sentences, 20 to 45 words in total, ending with punctuation.'};
+   const text=value.text.trim(),words=text.toLowerCase().split(/\W+/).filter(Boolean);
+   // Word range is looser than the prompt's 20-45 so a slightly long reflection does not fail closed.
+   if(text.length<40||text.length>320||words.length<15||words.length>60||/[\r\n]/.test(text)||!/[.!?]$/.test(text))return {valid:false,feedback:'Write two complete sentences, 20 to 45 words in total, ending with punctuation.'};
    if(signs.some(sign=>words.includes(sign)&&!supplied.includes(sign)))return {valid:false,feedback:`Name only these signs: ${supplied.join(', ')}.`};
+   if(!supplied.some(sign=>words.includes(sign)))return {valid:false,feedback:`Name the supplied signs: ${supplied.join(', ')}.`};
    if(voiceFlags(text).length)return {valid:false,feedback:'Keep it gentle and uncertain: no doom, certainty or claims about anyone’s secret feelings.'};
    return true;
   }

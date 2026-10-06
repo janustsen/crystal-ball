@@ -52,7 +52,7 @@ export default function App(){
  },[paywall,buying,backupBusy,state.balanceSnapshot?.owner,state.backupOwner]);
  useEffect(()=>{if(flow.stage!=='approach')return;const timer=setTimeout(()=>setFlow({stage:'listening'}),state.reduceMotion||systemReduce?0:1100);return()=>clearTimeout(timer)},[flow.stage,state.reduceMotion,systemReduce]);
  useDelight({enabled:!!state.ambientSound,listening:flow.stage==='approach'||flow.stage==='listening',thinking:flow.stage==='planning'||flow.stage==='research',revealId:flow.stage==='reveal'&&!reviewing?flow.prediction.id:undefined});
- const spoken=flow.stage==='reveal'&&!reviewing?narration(state,flow.prediction):null;
+ const spoken=flow.stage==='reveal'&&!reviewing&&!capture?narration(state,flow.prediction):null;
  useEffect(()=>{if(!spoken)return;speak(spoken);return stopSpeaking},[spoken,flow.stage==='reveal'?flow.prediction.id:null]);
  const [{friend,friendTarget},setReadingIdentity]=useState(()=>readingIdentity({friend:false}));
  const socialProfile=accountSocialProfile(state),socialReady=ready&&canRead(state);

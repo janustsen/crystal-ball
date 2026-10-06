@@ -86,7 +86,24 @@ export function billing(env:Env){
   const recorded=await fetch(`${base}/rest/v1/golden_forecasts`,{method:'POST',headers:{...service,Prefer:'resolution=ignore-duplicates'},body:JSON.stringify({user_id:viewer,reading_id:prediction.id}),signal:AbortSignal.timeout(5000)}).then(response=>response.ok,()=>false);
   return recorded?drawn:{...drawn,golden:false};
  }
- return {user,reconcile,simulate,styles,authorizeCharge,edition,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
+ // One chart weather per Plus user per month: the database claim decides who generates; everyone else reuses it.
+ async function chartWeather(viewer:string,month:string,chart:string,generate:()=>Promise<string>):Promise<string>{
+  const call=async(name:string,args:object)=>{
+   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:service,body:JSON.stringify({viewer,target_month:month,...args}),signal:AbortSignal.timeout(5000)});
+   const value=await response.json().catch(()=>null);
+   if(!response.ok&&/Plus extra/.test(value?.message))throw new BillingError('Chart weather is a Plus extra.',403);
+   if(!response.ok)throw new Error('Chart weather is unavailable. Please try again later.');
+   return value;
+  };
+  const claim=await call('claim_chart_weather',{});
+  if(typeof claim?.text==='string'){if(claim.chart===chart)return claim.text;throw new BillingError('You’ve read this month’s chart weather. A new one arrives next month.',409)}
+  if(claim?.claimed!==true)throw new BillingError('Your chart weather is still arriving. Try again in a moment.',409);
+  let text:string;
+  try{text=await generate()}catch(error){await call('release_chart_weather',{}).catch(()=>{});throw error}
+  const saved=await call('save_chart_weather',{weather:text,weather_chart:chart});
+  return typeof saved==='string'?saved:text;
+ }
+ return {user,reconcile,simulate,styles,authorizeCharge,edition,chartWeather,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }
 export type Billing=NonNullable<ReturnType<typeof billing>>;
 

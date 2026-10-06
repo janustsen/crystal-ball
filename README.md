@@ -17,7 +17,7 @@ From a reveal or its share screen, choose Replay for recording for a clean 9:16 
 
 History also shows Your year in forecasts for the current year and each past year with saved readings. Plus reveals counts of readings, themes, golden finds and Yes check-ins, with no accuracy score; Free shows a Plus invitation for each year. Recaps use the readings saved on this device.
 
-With Plus and saved birth details, choose Read this month’s chart weather in You for a short symbolic reflection using your Sun, Moon and rising. It spends no reading credit and stays on this device for the current month; changing or forgetting birth details clears it. Allow AI processing in Ask first when prompted.
+With Plus and saved birth details, choose Read this month’s chart weather in You for a short symbolic reflection using your Sun, Moon and rising. It spends no reading credit. Each Plus account gets one chart weather per calendar month, kept on the server; changing or forgetting birth details clears this device’s copy, and a changed chart gets its new reading next month. Allow AI processing in Ask first when prompted.
 
 Plus also speaks each fresh reveal’s headline and speculative label using native or browser speech synthesis where available. Choose Mute the Ball on the reveal to stop it, or Let the Ball speak to enable it again; the preference stays on this device. Reopening a saved reading does not narrate it.
 

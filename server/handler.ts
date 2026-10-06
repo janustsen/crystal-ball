@@ -52,8 +52,13 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    }
    if(body.action==='chart'){
     if(!chart)throw new Error('Add your birth time and place in You first.');
-    if(!await plusChart(null))throw new BillingError('Chart weather is a Plus extra.',403);
-    return new Response(JSON.stringify({kind:'ok',value:{text:await chartWeather({sunSign:sunSign(viewerBirthday as string)!,...chart},localDate,omenModel)}}),{headers});
+    // The viewer's local month, which can differ from the server's by at most a day across time zones.
+    const today=new Date().toISOString().slice(0,10),day=typeof localDate==='string'?localDate:today;
+    if(Math.abs(Date.parse(day)-Date.parse(today))>86400000)throw new Error('Please check your device date.');
+    const month=day.slice(0,7),signs=[sunSign(viewerBirthday as string),chart.moonSign,chart.risingSign].join('/'),generate=()=>chartWeather({sunSign:sunSign(viewerBirthday as string)!,...chart},month,omenModel);
+    // With billing, the database enforces Plus and keeps the month's single reading; the loopback preview generates directly.
+    const text=meter?await meter.chartWeather(await meter.user(request),month,signs,generate):await generate();
+    return new Response(JSON.stringify({kind:'ok',value:{text}}),{headers});
    }
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});

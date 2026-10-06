@@ -38,9 +38,14 @@ try{
  await expect(page.getByText(/^Under your Gemini Sun, Capricorn Moon and Virgo rising/)).toBeVisible();
  const headline=plusAsk.response.value.headline;await expect.poll(spoken).toEqual([`${headline} Speculative forecast, not a guarantee.`]);
  const narrated=await spoken();await expect(page.getByTestId('narration-toggle')).toHaveText('Mute the Ball');await shot('plus-reveal');
- const cancels=await page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length);
+ const cancelCount=()=>page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length);
+ // Recording a replay silences the Ball; returning to the reveal narrates it again.
+ const beforeCapture=await cancelCount();await page.getByTestId('record-reveal').click();await page.getByTestId('capture-reveal').waitFor();
+ expect(await cancelCount()).toBeGreaterThan(beforeCapture);expect(await spoken()).toHaveLength(1);
+ await page.getByTestId('close-capture').click();await expect.poll(spoken).toHaveLength(2);
+ const cancels=await cancelCount();
  await page.getByTestId('narration-toggle').click();await expect(page.getByTestId('narration-toggle')).toHaveText('Let the Ball speak');
- expect(await page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length)).toBeGreaterThan(cancels);expect(await spoken()).toHaveLength(1);
+ expect(await page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length)).toBeGreaterThan(cancels);expect(await spoken()).toHaveLength(2);
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).narrationMuted)).toBe(true);
 
  await home();await page.getByTestId('tab-you').click();await expect(page.getByText('Your Moon and rising shape every Why.')).toBeVisible();await page.getByTestId('chart-weather-read').click();
