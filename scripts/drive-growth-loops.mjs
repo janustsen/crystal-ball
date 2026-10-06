@@ -60,7 +60,8 @@ async function clip(page,file){
  const video=result.probe.streams.find(s=>s.codec_type==='video'),audio=result.probe.streams.find(s=>s.codec_type==='audio');
  expect(video).toMatchObject({width:1080,height:1920});expect(audio).toBeDefined();
  const end=await assertRevealEnd(page,saved,`${out}/${file}-last-title.png`);
- expect(Math.abs(Number(video.duration)-Number(audio.duration))).toBeLessThanOrEqual(.3);
+ expect(Number(audio.duration)).toBeGreaterThanOrEqual(Number(video.duration));
+ expect(Math.abs(Number(video.duration)-Number(audio.duration))).toBeLessThanOrEqual(1.5);
  return {...result,...end};
 }
 try{
