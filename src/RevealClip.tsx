@@ -74,9 +74,9 @@ export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Pr
   if(!type)throw new Error('unsupported');
   const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d');if(!ctx)throw new Error('unsupported');
   paintClip(ctx,prediction,look,frame,0);
-  const stream=canvas.captureStream(30);
   await audio.resume();
-  for(const track of await soundtrack(audio).catch(()=>[]))stream.addTrack(track);
+  const tracks=await soundtrack(audio),stream=canvas.captureStream(30);
+  for(const track of tracks)stream.addTrack(track);
   const recorder=new MediaRecorder(stream,{mimeType:type,videoBitsPerSecond:6_000_000}),chunks:Blob[]=[];
   recorder.ondataavailable=event=>{if(event.data.size)chunks.push(event.data)};
   const stopped=new Promise(resolve=>recorder.onstop=resolve);
@@ -90,26 +90,24 @@ export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Pr
 // Web: MediaRecorder on a canvas. Native needs a view-to-video recorder module and a development build;
 // until then native keeps Replay for recording with the device screen recorder (see SETUP.md).
 export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice:(message:string)=>void}){
- const {state}=useStore(),[question,setQuestion]=useState(false),[busy,setBusy]=useState(false),[clip,setClip]=useState<globalThis.File|null>(null);
+ const {state}=useStore(),[question,setQuestion]=useState(false),[busy,setBusy]=useState(false);
  if(Platform.OS!=='web')return null;
  async function make(){
-  setBusy(true);setClip(null);onNotice('');
+  setBusy(true);onNotice('');
   try{
    const orb=await loadOrb();
-   setClip(await recordClip(prediction,{cardStyle:selectedStyle(state,'card'),ballStyle:selectedStyle(state,'ball'),orb},{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
+   await save(await recordClip(prediction,{cardStyle:selectedStyle(state,'card'),ballStyle:selectedStyle(state,'ball'),orb},{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
   }catch(error){onNotice(error instanceof Error&&error.message==='unsupported'?'This browser cannot record video. Use Story image or Replay for recording instead.':'The clip could not be recorded. Please try again.')}
   finally{setBusy(false)}
  }
- async function save(){
-  if(!clip)return;
+ async function save(clip:globalThis.File){
   const download=()=>{const url=URL.createObjectURL(clip),a=document.createElement('a');a.download=clip.name;a.href=url;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);onNotice('1080 × 1920 reveal clip saved.')};
   if(navigator.canShare?.({files:[clip]}))await navigator.share({files:[clip]}).catch(error=>{if(error?.name!=='AbortError')download()});
   else download();
  }
  return <View style={{marginTop:12}}>
-  <Action testID="make-reveal-clip" label={busy?'Recording the reveal…':'Make reveal clip'} quiet disabled={busy} onPress={()=>void make()}/>
-  {clip?<Action testID="save-reveal-clip" label="Save or share clip" onPress={()=>void save()}/>:null}
-  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Switch testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} disabled={busy} onValueChange={value=>{setQuestion(value);setClip(null)}}/></View>
+  <Action testID="make-reveal-clip" label={busy?'Recording the reveal…':'Make clip'} quiet disabled={busy} onPress={()=>void make()}/>
+  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Switch testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} disabled={busy} onValueChange={setQuestion}/></View>
   <Txt style={styles.caption}>9:16 video with sound: the ball opening, theme, headline and check-back date, labeled AI-generated. Your question stays out unless you turn it on.</Txt>
  </View>;
 }

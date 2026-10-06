@@ -1,5 +1,5 @@
 import {BillingError} from './billing.ts';
-import {sha256,validProof,webReadingUsed,webReadingsResting,type WebReading} from '../src/web-reading.ts';
+import {sha256,validProof,webReadingUsed,webNetworkUsed,webReadingsResting,type WebReading} from '../src/web-reading.ts';
 type Env=(key:string)=>string|undefined;
 type Claim={browser:string;network:string;day:string};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -29,6 +29,7 @@ export function webReadings(env:Env){
    if(outcome==='ok'){browsers.set(claimed.browser,today);networks.set(claimed.network,today)}
   }
   if(outcome==='cap')throw new BillingError(webReadingsResting,429);
+  if(outcome==='network')throw new BillingError(webNetworkUsed,429);
   if(outcome!=='ok')throw new BillingError(webReadingUsed,429);
   return claimed;
  }

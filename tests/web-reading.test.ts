@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {webReadings} from '../server/web-reading.ts';
 import {markWebReadingVisitor,webReadingVisitor,spendWebReading} from '../src/api.ts';
 import {handler} from '../server/handler.ts';
-import {sha256,solveProof,validProof,webReadingUsed,webReadingsResting} from '../src/web-reading.ts';
+import {sha256,solveProof,validProof,webReadingUsed,webNetworkUsed,webReadingsResting} from '../src/web-reading.ts';
 
 const browsers=['11111111-1111-4111-8111-111111111111','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','44444444-4444-4444-8444-444444444444'];
 // Solved once: each proof costs ~65k hashes.
@@ -54,7 +54,7 @@ test('one free web reading per browser, per network per day, under a global dail
  const again=await serve(await ask(proofs[0],'198.51.100.7'));
  assert.equal(again.status,429);assert.equal((await again.json()).message,webReadingUsed);
  const sameNetwork=await serve(await ask(proofs[1],'203.0.113.1'));
- assert.equal(sameNetwork.status,429);assert.equal((await sameNetwork.json()).message,webReadingUsed);
+ assert.equal(sameNetwork.status,429);assert.equal((await sameNetwork.json()).message,webNetworkUsed);
  b.state.fail=true;
  const failed=await serve(await ask(proofs[1],'198.51.100.7'));
  assert.notEqual((await failed.json()).kind,'ok');
@@ -91,7 +91,7 @@ test('with Supabase, claims go through the service RPC with a hashed network and
  t.mock.method(Date,'now',()=>Date.parse(day+'T23:59:59Z')+2000);
  const current=await meter.claim(req,proofs[1]);
  await meter.release(old);
- await assert.rejects(meter.claim(req,proofs[2]),new RegExp(webReadingUsed));
+ await assert.rejects(meter.claim(req,proofs[2]),new RegExp(webNetworkUsed));
  const retried=await meter.claim(await ask(proofs[0],'192.0.2.1'),proofs[0]);
  assert.notEqual(retried.day,old.day);
  await meter.release(old);

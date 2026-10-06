@@ -1,7 +1,8 @@
 // One free reading for browser visitors who arrive by a sealed link. Shared by the client and the server.
 export const webReadingUsed='Your free web reading is used. Install Crystal Ball to ask more.';
+export const webNetworkUsed='This network has used its free web reading today. Try another network or return tomorrow, or install Crystal Ball to ask more.';
 export const webReadingsResting='The Ball has answered all its web visitors today. Install Crystal Ball to ask now.';
-export const installMessages=[webReadingUsed,webReadingsResting];
+export const installMessages=[webReadingUsed,webNetworkUsed,webReadingsResting];
 // Light bot check: a nonce whose SHA-256 starts with this many zero bits (~65k hashes).
 export const proofBits=16;
 export type WebReading={browser:string;day:string;nonce:string};

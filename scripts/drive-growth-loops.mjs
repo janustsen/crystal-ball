@@ -36,9 +36,8 @@ async function ask(page,question){
  await page.getByTestId('seal-for-a-friend').waitFor({timeout:65000});return 'reveal';
 }
 async function clip(page,file){
+ const download=page.waitForEvent('download');
  await page.getByTestId('make-reveal-clip').click();
- await page.getByTestId('save-reveal-clip').waitFor({timeout:30000});
- const download=page.waitForEvent('download');await page.getByTestId('save-reveal-clip').click();
  const saved=`${out}/${file}.${(await download).suggestedFilename().split('.').pop()}`;await (await download).saveAs(saved);
  execFileSync('ffmpeg',['-v','error','-y','-ss','4','-i',saved,'-frames:v','1',`${out}/${file}-4s.png`]);
  execFileSync('ffmpeg',['-v','error','-y','-ss','7.5','-i',saved,'-frames:v','1',`${out}/${file}-end.png`]);
@@ -70,7 +69,7 @@ try{
  // A fresh browser on the same network is refused by the server.
  const b=await visitor('same-network-visitor');
  expect(await ask(b.page,'Will I move somewhere new this year?')).toBe('install');
- await expect(b.page.getByText('Your free web reading is used. Install Crystal Ball to ask more.')).toBeVisible();
+ await expect(b.page.getByText('This network has used its free web reading today. Try another network or return tomorrow, or install Crystal Ball to ask more.')).toBeVisible();
  await b.page.screenshot({path:`${out}/04-install-same-network.png`});
  log.push({visitor:a.name,requests:a.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading,authorization:r.authorization})),clips:[plain,withQuestion],errors:a.errors},{visitor:b.name,requests:b.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading})),errors:b.errors});
  expect([...a.errors,...b.errors]).toEqual([]);

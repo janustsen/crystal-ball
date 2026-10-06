@@ -407,10 +407,10 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  f.fail();await tick();
 });
 
-test('web quota refusals preserve eligibility until a reading succeeds',async()=>{
+for(const consumed of ['success','browser refusal'])test(`web quota refusals preserve eligibility until ${consumed}`,async()=>{
  const f=await fixture(),h=hooks(false),params:any={};let spent=false,predicts=0;
  const reading={...readings.circleReading(f.card),circleId:undefined};
- const outcomes=[{kind:'error',message:webReading.webReadingUsed},{kind:'error',message:webReading.webReadingsResting},{kind:'ok',value:reading}];
+ const outcomes=[{kind:'error',message:webReading.webNetworkUsed},{kind:'error',message:webReading.webReadingsResting},consumed==='success'?{kind:'ok',value:reading}:{kind:'error',message:webReading.webReadingUsed}];
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -442,7 +442,7 @@ test('web quota refusals preserve eligibility until a reading succeeds',async()=
  }
  await ask();
  assert.equal(predicts,3);assert.equal(spent,true);
- assert.equal(f.state().history.length,1);
+ assert.equal(f.state().history.length,consumed==='success'?1:0);
  await ask();assert.equal(predicts,3);
- f.fail();await tick();
+ if(consumed==='success'){f.fail();await tick()}
 });
