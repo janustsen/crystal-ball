@@ -423,7 +423,7 @@ test('web quota refusals including pending browser reservations preserve eligibi
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
   '../src/SocialScreen':{Social:'Social',InstallAction:'InstallAction'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
-  '../src/social':{checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
+  '../src/social':{checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p,narration:()=>null},
   '../src/questions':{validateAnswer:()=>{},factLabels:{}},
   '../src/api':{webReadingVisitor:()=>true,webReadingSpent:()=>spent,spendWebReading:()=>{spent=true},webReadingProof:async()=>({}),request:async(action:string)=>action==='predict'?outcomes[predicts++]:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}}},
  },f.warnings);

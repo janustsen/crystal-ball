@@ -159,7 +159,7 @@ test('a used-up web trial never blocks a Plus, credited or linked account in the
  for(const account of [{plus:true},{credits:3},{backupOwner:'apple-user'}]){
   const {render,params}=app(true,[reading],'sealed-receipt',account,true);
   render().find(n=>n.props.testID==='open-sealed-forecast').props.onPress();
-  await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
   const ask=render().find(n=>n.props.testID==='web-reading-start');
   assert.ok(ask,JSON.stringify(account));
   assert.ok(!render().some(n=>n.children.includes('One free reading here. No account needed.')));
@@ -177,7 +177,7 @@ test('sealed landing offers anonymous visitors only an unspent free reading',asy
  for(const spent of [false,true]){
   const {render}=app(true,[],'sealed-receipt',{},spent);
   render().find(n=>n.props.testID==='open-sealed-forecast').props.onPress();
-  await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
   const landing=render();
   assert.equal(landing.some(n=>n.props.testID==='web-reading-start'),!spent);
   assert.equal(landing.some(n=>n.children.includes('One free reading here. No account needed.')),!spent);
