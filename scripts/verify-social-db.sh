@@ -65,6 +65,7 @@ fi
 "${sql[@]}" -f scripts/social-rls.sql
 "${sql[@]}" -f scripts/school-rls.sql
 "${sql[@]}" -f scripts/social-v2-rls.sql
+"${sql[@]}" -f scripts/sky-rls.sql
 "${sql[@]}" -f scripts/billing-rls.sql
 "${sql[@]}" -f scripts/private-room-rls.sql
 

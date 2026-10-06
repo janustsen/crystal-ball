@@ -9,7 +9,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  const snapshot={owner:'A',profile:{school_id:'school',age_band:'teen'},stars:[],schoolOnly:false,
   circles:[{id:'occupied',owner_id:'A'}],members:[{circle_id:'occupied',user_id:'A'}],
   schoolSuggestions:[{circle_id:'occupied',user_id:'C'},{circle_id:'occupied',user_id:'D'}],
-  schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[]};
+  schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,created=0,reads=0;
  const invited:string[]=[],checked:(string|undefined)[]=[];
@@ -33,7 +33,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false};
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
-  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},
+  './ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),

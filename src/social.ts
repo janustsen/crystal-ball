@@ -18,8 +18,9 @@ export type Circle = {id:string;owner_id:string};
 export type CircleMember = {circle_id:string;user_id:string;joined_at:string;consulted_on:string|null;theme:SkyPrompt|null;sun_sign:string|null;can_ask:boolean;handle:string|null;display_name:string|null;avatar:string};
 export type CircleReaction = {circle_id:string;target_id:string;user_id:string;day:string;emoji:string};
 export type SentSeal = {id:string;headline:string;token:string;opened_at:string|null};
+export type SkyOmen={week:string;school_id:string|null;circle_id:string|null;omen:string};
 export type SocialDraft={id:string;wording:string;theme:SkyPrompt};
-export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean;school_id:string|null;handle:string|null;display_name:string|null;avatar:string}|null;notices:number;schools:School[];schoolSuggestions:SchoolSuggestion[];schoolOnly:boolean;requests:CircleInvite[];moments:CircleMoment[];glows:{circle_id:string;day:string}[];forecasts:CircleForecast[];votes:CircleTally[];rooms:string[];receivedSeals:{token:string;opened_at:string|null}[]};
+export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean;school_id:string|null;handle:string|null;display_name:string|null;avatar:string;sky_push:boolean;sky_push_answered:boolean}|null;omens:SkyOmen[]|null;notices:number;schools:School[];schoolSuggestions:SchoolSuggestion[];schoolOnly:boolean;requests:CircleInvite[];moments:CircleMoment[];glows:{circle_id:string;day:string}[];forecasts:CircleForecast[];votes:CircleTally[];rooms:string[];receivedSeals:{token:string;opened_at:string|null}[]};
 
 async function client(){
  if(!supabase)throw new Error(socialUnavailable);
@@ -48,22 +49,25 @@ export const friendForecast=(question:string,target:FriendTarget,signal:AbortSig
 export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise<SocialSnapshot>{
  await syncSocialProfile(account);
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);
- const [sky,own,circles,members,reactions,seals,profile,notices,schools,suggestions,requests,moments,glows,forecasts,votes,receivedSeals,rooms]=await Promise.all([
+ const [sky,own,circles,members,reactions,seals,profile,notices,schools,suggestions,requests,moments,glows,forecasts,votes,receivedSeals,rooms,omens]=await Promise.all([
   db.rpc('tonights_sky',{my_school:schoolOnly}),db.from('sky_stars').select('id').eq('day',day),db.from('circles').select('id,owner_id'),
   db.rpc('circle_people'),allRows<CircleReaction>((from,to)=>db.from('circle_reactions').select('circle_id,target_id,user_id,day,emoji').eq('day',day).order('circle_id').order('target_id').order('user_id').order('day').range(from,to)),
   allRows<SentSeal>((from,to)=>db.from('sealed_forecasts').select('id,headline,token,opened_at').eq('revoked',false).order('id').range(from,to)),
-  db.from('social_profiles').select('age_band,friends_can_ask,school_id,handle,display_name,avatar'),allRows<{id:string}>((from,to)=>db.from('friend_notices').select('id').eq('seen',false).order('id').range(from,to)),
+  db.from('social_profiles').select('age_band,friends_can_ask,school_id,handle,display_name,avatar,sky_push,sky_push_answered'),allRows<{id:string}>((from,to)=>db.from('friend_notices').select('id').eq('seen',false).order('id').range(from,to)),
   allRows<School>((from,to)=>db.from('schools').select('id,name,city,latitude,longitude').order('id').range(from,to)),db.rpc('school_circle_suggestions'),
-  allRows<CircleInvite>((from,to)=>db.rpc('circle_inbox').order('id').range(from,to)),allRows<CircleMoment>((from,to)=>db.from('circle_moments').select('id,circle_id,user_id,kind,day').order('id').range(from,to)),allRows<{circle_id:string;day:string}>((from,to)=>db.from('circle_glows').select('circle_id,day').order('circle_id').order('day').range(from,to)),allRows<CircleForecast>((from,to)=>db.from('circle_forecasts').select('id,asker_id,charged_at,circle_id,question,headline,due_date,created_at').order('id').range(from,to)),allRows<CircleTally>((from,to)=>db.rpc('circle_vote_tallies').order('forecast_id').range(from,to)),allRows<{token:string;opened_at:string|null}>((from,to)=>db.rpc('sealed_inbox').order('token').range(from,to)),allRows<{circle_id:string}>((from,to)=>db.rpc('private_rooms').order('circle_id').range(from,to)),
+  allRows<CircleInvite>((from,to)=>db.rpc('circle_inbox').order('id').range(from,to)),allRows<CircleMoment>((from,to)=>db.from('circle_moments').select('id,circle_id,user_id,kind,day').order('id').range(from,to)),allRows<{circle_id:string;day:string}>((from,to)=>db.from('circle_glows').select('circle_id,day').order('circle_id').order('day').range(from,to)),allRows<CircleForecast>((from,to)=>db.from('circle_forecasts').select('id,asker_id,charged_at,circle_id,question,headline,due_date,created_at').order('id').range(from,to)),allRows<CircleTally>((from,to)=>db.rpc('circle_vote_tallies').order('forecast_id').range(from,to)),allRows<{token:string;opened_at:string|null}>((from,to)=>db.rpc('sealed_inbox').order('token').range(from,to)),
+  allRows<{circle_id:string}>((from,to)=>db.rpc('private_rooms').order('circle_id').range(from,to)),
+  // The saved clock decides when this viewer's Friday Sky opens and when its push arrives.
+  db.rpc('open_sky',{zone:Intl.DateTimeFormat().resolvedOptions().timeZone||null}),
  ]);
- // School data and room status are optional: their failure leaves Sky and Circles working. Tallies stay server-sealed either way.
+ // School, Friday Sky data and room status are optional: their failure leaves Sky and Circles working. Tallies stay server-sealed either way.
  for(const result of [sky,own,circles,members,reactions,seals,profile,notices,requests,moments,glows,forecasts,votes,receivedSeals])if(result.error)throw new Error(socialUnavailable);
  const stars:SkyStar[]=[];
  for(const row of sky.data??[]){
   if(isSkyPrompt(row.theme)&&safeSealedHeadline(row.wording)&&typeof row.id==='string'&&Number.isFinite(row.resonances))
    stars.push({id:row.id,theme:row.theme,wording:row.wording,resonances:row.resonances,resonated:row.resonated===true,mine:row.mine===true,synthetic:false});
  }
- return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly,requests:requests.data??[],moments:moments.data??[],glows:glows.data??[],forecasts:forecasts.data??[],votes:votes.data??[],rooms:(rooms.data??[]).map(room=>room.circle_id),receivedSeals:receivedSeals.data??[]};
+ return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly,requests:requests.data??[],moments:moments.data??[],glows:glows.data??[],forecasts:forecasts.data??[],votes:votes.data??[],rooms:(rooms.data??[]).map(room=>room.circle_id),receivedSeals:receivedSeals.data??[],omens:omens.error?null:((omens.data??[]) as SkyOmen[]).filter(row=>safeSealedHeadline(row.omen))};
 }
 export const publishStar=(draft:SocialDraft)=>rpc('publish_star',{approved_draft:draft.id});
 export const removeStar=(id:string)=>rpc('withdraw_star',{star:id});
@@ -109,3 +113,4 @@ export const voteCircleForecast=(forecast:string,answer:'yes'|'no'|'pending')=>r
 export const sendSeal=(draft:SocialDraft,circle:string,member:string)=>rpc('send_sealed_forecast',{approved_draft:draft.id,target_circle:circle,target_member:member});
 
 export const setSocialPush=(token:string|null)=>rpc('set_social_push',{push_token:token});
+export const setSkyPush=(enabled:boolean,token?:string)=>rpc('set_sky_push',{enabled,push_token:token??null});

@@ -1,6 +1,6 @@
 # Social boundary
 
-Tonight’s Sky is public. Circles and sealed forecasts are private. Publishing always needs an explicit approval.
+Tonight’s Sky Stars are public. Circles and sealed forecasts are private. Publishing a user’s content always needs explicit approval. Shared omens follow the separate [Friday Sky contract](#friday-sky).
 
 ```mermaid
 flowchart LR
@@ -69,3 +69,11 @@ A Circle owner with Plus can make the Circle a private room (`set_private_room`)
 Targeted seals use the same weekly quota and moderation gate as links. The inbox reveals only the token and opened state; the headline still requires the intended recipient’s ball tap. Link cards allow one anonymous browser claimant. Blocking and revocation apply at claim time.
 
 `social_notifications` accepts only seal/invite/join/forecast/vote events. A service-only leased queue dispatches generic Expo messages. See SETUP.md for native credentials, the install URL, scheduler setup and delivery limits. Browser proof does not establish native push delivery.
+
+### Friday Sky
+
+Every Friday at 20:00 on each viewer's own clock, the Sky opens one shared omen per School and one per Circle for the week, until the next Friday at 20:00. A School's omen is visible only to accounts that chose that School, so teens see only their own school's; a Circle's omen only to its current members. Before a group's first omen exists, Sky and Circles say when it opens; if omens cannot load, they say the Friday Sky is unavailable and otherwise keep working. The client sends its IANA time zone on each Sky load (`open_sky`); unknown zones are ignored and an unsaved clock falls back to UTC.
+
+The trusted scheduler generates omens server-side (`scripts/open-sky.mts`): one per group per week, written only by the service. The model receives just the group kind and a random celestial motif, never member data, and every omen passes the teen-audience public-Star moderation gate; a failed or unsafe omen leaves the group closed until the next run. Each run targets the Friday on or after yesterday (UTC), so omens exist before the earliest zone opens; from Sunday through Thursday (UTC) it first retries any group still missing the current open week's omen.
+
+The Sky push requires separate explicit consent: `sky_push` defaults off for existing and new accounts, including existing Circle-notification subscribers. A native-only prompt in Sky offers Friday notifications once per account; accepting or dismissing persists `sky_push_answered`. Accepting first records the answer with Sky off, then requests permission and the device token and enables Sky with that token only after that succeeds. Circle and Friday Sky share one device token but each checks its own consent: `social_push_tokens.circle_push` gates Circle pushes and `sky_push` gates the Sky push, so Friday opt-in never enables Circle pushes and turning off Circle notifications keeps the token and Friday consent. Permission or registration failures leave Sky off and direct the user to the native Circle notification settings, where the Sky toggle can be changed later. Web never shows the prompt. One generic "The Sky is open." message per account per week is queued from local Friday 20:00 when the account can see at least one omen that week, and each claim, including retries, requires explicit opt-in, that same local Friday at or after 20:00, and a currently visible omen; a missed evening is never sent late. It uses a separate `sky_pushes` lease, not `social_notifications`. `scripts/sky-rls.sql` proves the week math, visibility and lease in real PostgreSQL; `node scripts/drive-friday-sky.mjs` drives generation and display.
