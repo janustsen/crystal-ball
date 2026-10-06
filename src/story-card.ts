@@ -14,9 +14,7 @@ export function forecastCard(p:Prediction):StoryCard{
 // Only a personal "Yes" check-in earns a receipt. It records the asker's own answer, never an accuracy score.
 export function receiptCard(p:Prediction|undefined):StoryCard|null{
  if(p?.outcome!=='yes'||p.circleId)return null;
- // Answers saved before check-in dates were recorded open on their due date.
- const opened=p.checkedInAt??suggestedCheckIn(p);
- return {kind:'receipt',golden:!!p.golden,headlines:[p.headline],labels:[skyPrompts[activityTheme(p.question)].label,`Sealed ${day(p.createdAt)} · opened ${day(opened)} · Yes`],footer:'Your side of the story',file:'crystal-ball-receipt.png'};
+ return {kind:'receipt',golden:!!p.golden,headlines:[p.headline],labels:[`${skyPrompts[activityTheme(p.question)].label} · Speculative forecast · Not a guarantee`,`Sealed ${day(p.createdAt)}${p.checkedInAt?` · opened ${day(p.checkedInAt)}`:''} · Yes`],footer:'Your side of the story',file:'crystal-ball-receipt.png'};
 }
 
 export const goldenShelf=(history:Prediction[])=>history.filter(p=>p.golden);
