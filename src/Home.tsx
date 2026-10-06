@@ -19,8 +19,8 @@ const noScroll={touchAction:'none'} as object;
 
 // Home's screen content, docked below the room's ball (top) with the canvas's own copy and omen card.
 export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number}){
- return <View style={{position:'absolute',left:0,top:0,right:0,bottom:0}}>
-  <ScrollView contentContainerStyle={{paddingTop:top,paddingBottom:homeTabBarHeight+bottom+16}}>
+ return <View style={{position:'absolute',left:0,top,right:0,bottom:0}}>
+  <ScrollView contentContainerStyle={{paddingBottom:homeTabBarHeight+bottom+16}}>
    <View pointerEvents="none" style={{alignItems:'center',gap:10}}>
     <Txt style={{fontFamily:homeFonts.italic,fontSize:25,lineHeight:27.5,color:cream,textShadowColor:'rgba(0,0,0,.8)',textShadowOffset:{width:0,height:2},textShadowRadius:12}}>What lies ahead?</Txt>
     <View style={{flexDirection:'row',alignItems:'center',gap:12}}>

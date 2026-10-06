@@ -570,9 +570,9 @@ export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:numbe
   const target=flight?.to??at;
   if(spot===target)return;
   // A flight needs its clip in hand and a resting start; otherwise cut (or fade, for reduced motion) to the still.
-  const url=!flight&&!reduce?clips.get(flightKey(at,spot)):undefined;
+  const url=!flight&&!reduce&&!failed?clips.get(flightKey(at,spot)):undefined;
   if(url){setFlight({key:flightKey(at,spot),url,to:spot});return}
-  if(reduce)setFading(target);
+  if(reduce&&!failed)setFading(target);
   setFlight(null);setAt(spot);
  },[spot]);
  // Land on the destination when the clip ends, fails, or never starts (an autoplay block must not strand the camera).
@@ -585,7 +585,7 @@ export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:numbe
   return()=>clearTimeout(timer);
  },[flight]);
  // Switching to reduced motion mid-flight cuts straight to the destination rather than finishing the move.
- useEffect(()=>{if(reduce&&flight)land(flight)},[reduce]);
+ useEffect(()=>{if((reduce||failed)&&flight)land(flight)},[reduce,failed]);
  // The ball canvas spans twice the ball's widest tracked diameter, so it is only ever scaled down.
  const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4);
  useEffect(()=>{
@@ -609,19 +609,19 @@ export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:numbe
  },[width,height]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flight]);
- const idleUrl=!reduce&&!flight?clips.get(idleKey(at)):undefined;
+ const idleUrl=!reduce&&!failed&&!flight?clips.get(idleKey(at)):undefined;
  useEffect(()=>watchFrames(idle.current),[idleUrl]);
  // The room replaces the fog Atmosphere, so it publishes the same shell reduced-motion flag.
  useEffect(()=>{const shell=ref.current?.closest('[data-testid="app-shell"]');shell?.setAttribute('data-reduced',String(reduce));return()=>shell?.removeAttribute('data-reduced')},[reduce]);
- const fallback=failed?ballOnScreen(stillFrame(flight?.to??at),width,height):null;
+ const fallback=failed?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
- const stills=flight?[flight.to,at]:[at];
+ const stills=failed?[spot]:flight?[flight.to,at]:[at];
  return <div aria-hidden="true" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#050302'}}>
   {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
   {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
-  {flight?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}
+  {flight&&!failed?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}
   {/* Reduced motion's fade runs on the Web Animations API: the shell's reduced-motion rule stops CSS animations. */}
-  {fading?<img key={`fade-${fading}`} alt="" data-room-fade src={Asset.fromModule(roomStills[fading]).uri} ref={img=>{if(img&&!img.getAnimations().length)img.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished.then(()=>setFading(null),()=>setFading(null))}} style={fill}/>:null}
+  {fading&&!failed?<img key={`fade-${fading}`} alt="" data-room-fade src={Asset.fromModule(roomStills[fading]).uri} ref={img=>{if(img&&!img.getAnimations().length)img.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished.then(()=>setFading(null),()=>setFading(null))}} style={fill}/>:null}
   {/* a resize gets a fresh canvas because stop() loses the old context */}
   <canvas key={`${width}x${height}`} ref={ref} width={S} height={S} style={{position:'absolute',left:0,top:0,width:S,height:S,transformOrigin:'50% 50%',visibility:'hidden'}}/>
   {fallback?<div style={{position:'absolute',left:fallback.x-fallback.r,top:fallback.y-fallback.r,width:fallback.r*2,height:fallback.r*2,borderRadius:'50%',overflow:'hidden'}}><OrbVisual size={fallback.r*2} reduce/></div>:null}
