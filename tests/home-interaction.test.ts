@@ -61,16 +61,16 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
  const render=component('../src/Home.tsx',{
   'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './HomeScene':{HomeScene:'HomeScene'},'./ui':{Txt:'Txt'},'./store':{useStore:()=>({state:{}})},
+  './RoomScene':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt'},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic',skinColors:{classic:{fill:'transparent',rim:'transparent'}}},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
- const hero=nodes(render('Home',{onAsk:()=>events.push('ask'),top:0,bottom:0})).find(n=>n.props.testID==='hero-orb');
+ // The shared room now owns the scene; Home's hit target is exported as BallButton.
+ const spin:any={dragged:false};
+ const hero=render('BallButton',{x:175,y:560,r:18.7,home:true,spin,onPress:()=>events.push('ask')});
  hero.props.onPressIn();assert.deepEqual(events,['touch']);
  hero.props.onPress();assert.deepEqual(events,['touch','ask']);
- render('Home',{}).props.onLayout({nativeEvent:{layout:{width:390,height:844}}});
- const tree=nodes(render('Home',{onAsk:()=>events.push('ask'),top:0,bottom:0}));
- const spin=tree.find(n=>n.type==='HomeScene').props.spin,ball=tree.find(n=>n.props.testID==='hero-orb');
+ const ball=hero;
  spin.grab=(e:PointerEvent)=>{events.push(`grab ${e.pointerId}`);spin.dragged=true};
  ball.props.onPointerDown({nativeEvent:{pointerId:4}});
  ball.props.onPress();assert.deepEqual(events,['touch','ask','grab 4']);

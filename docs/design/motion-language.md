@@ -1,6 +1,6 @@
 # Crystal Ball motion language
 
-The ball is a small atmosphere behind glass, drawn like a premium illustrated game: inked silhouettes, brass rims, candle bounce light and hard drop shadows give every surface a front, a side and a floor. The [Home scene](motion.md#home-scene) has its own motion contract; the shared primitives below govern other screens and controls using `src/ui.tsx`. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it squashes when touched, overshoots once when it lands and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
+The ball is a small atmosphere behind glass, drawn like a premium illustrated game: inked silhouettes, brass rims, candle bounce light and hard drop shadows give every surface a front, a side and a floor. The [room](motion.md#room) has its own motion contract; the shared primitives below govern other screens and controls using `src/ui.tsx`. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it squashes when touched, overshoots once when it lands and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
 
 | Signature | Where | Timing and behavior |
 |---|---|---|

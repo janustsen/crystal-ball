@@ -1,7 +1,6 @@
 import {useEffect,useRef} from 'react';
-import {designCss} from './designArt';
 import {fogShader} from './fogShader';
-import {motionCss} from './motionCss';
+import {appCss} from './motionCss';
 export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
  const sky=useRef([43+Math.random()*19,79+Math.random()*29,61+Math.random()*23]);
  const ref=useRef<HTMLCanvasElement>(null),settings=useRef({reduce,mood});
@@ -72,7 +71,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
   return()=>{disposed=true;cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visibility);resize.disconnect();mutations.disconnect();host.parentElement?.removeEventListener('scroll',redraw,true);host.classList.remove('gl');gl.deleteBuffer(buffer);gl.deleteProgram(program);shaders.forEach(s=>gl.deleteShader(s))};
  },[]);
  return <div aria-hidden="true" className={reduce?'atmosphere reduced':'atmosphere'} style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden'}}>
-  <style>{designCss+motionCss+` .reduced *, [data-reduced="true"] *, [data-reduced="true"] *::before, [data-reduced="true"] *::after {animation:none!important;transition:none!important} .orb{pointer-events:none} [data-testid="app-shell"]:has(.gl) .orb .gb{background:rgba(20,14,9,.18)} [data-testid="app-shell"]:has(.gl) .orb .fb{display:none} [role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F2C284!important;outline-offset:3px}`}</style>
+  <style>{appCss}</style>
   <div className="room"/><div className="sky"><div className="stars"/><i className="shooting-star" style={{animationDuration:`${sky.current[0]}s`}}/><i className="wandering-moon" style={{animationDuration:`${sky.current[1]}s`}}>☾</i><div className="hidden-constellation" style={{animationDuration:`${sky.current[2]}s`}}>✧ · ˚ · ✦</div></div>
   <div className="candle"/><canvas ref={ref} className="mist"/>
   <div className="embers" style={{'--h':'900px'} as React.CSSProperties}>{Array.from({length:10},(_,i)=><i key={i} style={{'--x':`${8+i*9}%`,'--z':`${i%3+1}px`,'--t':`${14+i}s`,'--d':`${-i*3}s`,'--dx':`${i%2?20:-20}px`} as React.CSSProperties}/>)}</div>

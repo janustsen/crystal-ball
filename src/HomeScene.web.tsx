@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {Image} from 'react-native';
 import * as T from 'three';
-import type {BallSpin} from './HomeScene';
+import type {BallSpin} from './RoomScene';
 
 // Ported from the Claude Design canvas artboard project/Library.dc.html ("Library").
 // Keep the scene identical to that source; only lifecycle, sizing and reduced motion are app-specific.
