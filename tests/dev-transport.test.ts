@@ -49,7 +49,7 @@ console.log('BEGIN\\nSET\\n'+JSON.stringify(fixture.result)+'\\nCOMMIT');
    sql:`begin; set local role service_role; select coalesce(to_jsonb(public.${entry.name}(${entry.args})),'null'::jsonb); commit;`,
    result:entry.result,error:entry.error,
   }));
-  const response=await fetch(`${base}/rest/v1/rpc/${entry.name}`,{
+  const response:Response=await fetch(`${base}/rest/v1/rpc/${entry.name}`,{
    method:'POST',headers:{Authorization:'Bearer verification-service-only','Content-Type':'application/json'},
    body:JSON.stringify(entry.body),signal:AbortSignal.timeout(3000),
   });
