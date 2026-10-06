@@ -1,0 +1,21 @@
+export const serverRpcs={
+ reading_balance:'rpc/reading_balance',
+ charge_reading:'rpc/charge_reading',
+ apply_store_entitlements:'rpc/apply_store_entitlements',
+ set_profile_styles:'rpc/set_profile_styles',
+ claim_chart_weather:'rpc/claim_chart_weather',
+ save_chart_weather:'rpc/save_chart_weather',
+ release_chart_weather:'rpc/release_chart_weather',
+ claim_web_reading:'rpc/claim_web_reading',
+ complete_web_reading:'rpc/complete_web_reading',
+ release_web_reading:'rpc/release_web_reading',
+ claim_social_pushes:'rpc/claim_social_pushes',
+ claim_sky_pushes:'rpc/claim_sky_pushes',
+ finish_social_push:'rpc/finish_social_push',
+ finish_sky_push:'rpc/finish_sky_push',
+ sky_omen_targets:'rpc/sky_omen_targets',
+ save_sky_omen:'rpc/save_sky_omen',
+ sync_social_profile:'rpc/sync_social_profile',
+ authorize_friend_reading:'rpc/authorize_friend_reading',
+} as const;
+export type ServerRpc=keyof typeof serverRpcs;

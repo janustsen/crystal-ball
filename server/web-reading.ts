@@ -1,3 +1,4 @@
+import {serverRpcs,type ServerRpc} from './rpc.ts';
 import {BillingError} from './billing.ts';
 import {sha256,validProof,webReadingUsed,webNetworkUsed,webReadingsResting,type WebReading} from '../src/web-reading.ts';
 type Env=(key:string)=>string|undefined;
@@ -12,8 +13,8 @@ export function webReadings(env:Env){
  const salt=env('WEB_READING_SALT')||key||'local-preview';
  type Reservation={day:string;expires_at:string;completed:boolean};
  const browsers=new Map<string,Reservation>(),networks=new Map<string,Reservation>();
- async function rpc(name:string,args:object){
-  const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key!,authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
+ async function rpc(name:ServerRpc,args:object){
+  const response=await fetch(`${base}/rest/v1/${serverRpcs[name]}`,{method:'POST',headers:{apikey:key!,authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw new Error('Web readings are unavailable right now. Please try again later.');
   return response.json().catch(()=>null);
  }

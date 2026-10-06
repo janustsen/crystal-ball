@@ -1,3 +1,4 @@
+import {serverRpcs,type ServerRpc} from './rpc.ts';
 import {assignEdition,isStyle} from '../src/delight.ts';
 import {noReadings,packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
 import type {Prediction} from '../src/types.ts';
@@ -28,8 +29,8 @@ export function billing(env:Env){
  const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY');
  if(!base||!key)return null;
  const service={apikey:key,authorization:`Bearer ${key}`,'Content-Type':'application/json'};
- async function rpc(name:string,args:object):Promise<Balance>{
-  const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:service,body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
+ async function rpc(name:ServerRpc,args:object):Promise<Balance>{
+  const response=await fetch(`${base}/rest/v1/${serverRpcs[name]}`,{method:'POST',headers:service,body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
   const value=await response.json().catch(()=>null);
   if(!response.ok&&/No readings left/.test(value?.message))throw new BillingError(noReadings,402);
   if(!response.ok&&/a Plus extra/.test(value?.message))throw new BillingError(plusStyles,403);
@@ -88,8 +89,8 @@ export function billing(env:Env){
  }
  // One chart weather per Plus user per month: the database claim decides who generates; everyone else reuses it.
  async function chartWeather(viewer:string,month:string,chart:string,generate:()=>Promise<string>):Promise<string>{
-  const call=async(name:string,args:object)=>{
-   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:service,body:JSON.stringify({viewer,target_month:month,...args}),signal:AbortSignal.timeout(5000)});
+  const call=async(name:ServerRpc,args:object)=>{
+   const response=await fetch(`${base}/rest/v1/${serverRpcs[name]}`,{method:'POST',headers:service,body:JSON.stringify({viewer,target_month:month,...args}),signal:AbortSignal.timeout(5000)});
    const value=await response.json().catch(()=>null);
    if(!response.ok&&/Plus extra/.test(value?.message))throw new BillingError('Chart weather is a Plus extra.',403);
    if(!response.ok)throw new Error('Chart weather is unavailable. Please try again later.');

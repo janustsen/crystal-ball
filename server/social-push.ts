@@ -1,10 +1,11 @@
+import {serverRpcs,type ServerRpc} from './rpc.ts';
 // Run once per minute in a trusted scheduler. No private text enters a push payload.
 const messages={seal:'Someone sealed a forecast for you.',invite:'You have a Circle invitation.',joined:'Someone joined your Circle.',forecast:'Your Circle has a new forecast.',vote:'Your Circle forecast is ready for its check-in.',sky:'The Sky is open.'} as const;
 export function serviceRpc(env:(key:string)=>string|undefined,transport:typeof fetch=fetch){
  const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY');
  if(!base||!key)throw new Error('Configure Supabase before running social jobs.');
- return async(name:string,body:unknown)=>{
-  const response=await transport(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key,authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
+ return async(name:ServerRpc,body:unknown)=>{
+  const response=await transport(`${base}/rest/v1/${serverRpcs[name]}`,{method:'POST',headers:{apikey:key,authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
   if(!response.ok)throw new Error('Social push queue unavailable.');
   return response.json();
  };
