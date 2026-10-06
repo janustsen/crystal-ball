@@ -15,4 +15,4 @@ Examples:
 - Mind reading → shared action: “Alex secretly loves you” → “Alex will join you for a shared activity this month.” Only use an activity supported by supplied context; do not invent consent or a relationship.
 - Check-in: “Not quite saved. Thanks for saying so — the Ball can miss.”
 
-`server/voice.ts` supplies the instruction to forecast, follow-up, omen and Circle-friend generation. `tests/voice.test.ts` checks editorial fixtures for doom, secret-feelings claims and certainty language. These English tripwires flag samples for review; they are not proof of semantic safety or predictive accuracy. Existing moderation and one repair followed by fail-closed validation remain in force.
+`server/voice.ts` supplies the instruction to forecast, follow-up, omen, chart weather and Circle-friend generation. `tests/voice.test.ts` checks editorial fixtures for doom, secret-feelings claims and certainty language. These English tripwires flag samples for review; they are not proof of semantic safety or predictive accuracy. Existing moderation and one repair followed by fail-closed validation remain in force.
