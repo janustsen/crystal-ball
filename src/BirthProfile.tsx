@@ -20,7 +20,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
  // ponytail: one chart weather per month is kept on this device, like the daily omen; move the claim server-side if requests are abused.
  async function readWeather(){
   if(aiConsent===null||weatherBusy)return;setWeatherBusy(true);setNotice('');
-  try{const text=await requestChartWeather(state,aiConsent);update(s=>s.moonSign?{...s,chartWeather:{month,text}}:s);}catch(e){setNotice(e instanceof Error?e.message:'Chart weather is unavailable. Please try again later.');}finally{setWeatherBusy(false);}
+  try{const text=await requestChartWeather(state,aiConsent);update(s=>s.moonSign&&s.birthday===state.birthday&&s.moonSign===state.moonSign&&s.risingSign===state.risingSign?{...s,chartWeather:{month,text}}:s);}catch(e){setNotice(e instanceof Error?e.message:'Chart weather is unavailable. Please try again later.');}finally{setWeatherBusy(false);}
  }
  function saveBirthday(){
   if(ageGroup(birthday)==='under13'){update(s=>({...s,onboardingBlocked:true,onboardingDone:false}));return;}
@@ -47,7 +47,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
    <TextInput accessibilityLabel="Birth city" placeholder="City, country" placeholderTextColor={colors.muted} value={place} onChangeText={value=>{request.current?.abort();setBusy(false);setPlace(value);setSelected(undefined);setPlaces([])}} style={styles.input} maxLength={100}/>
    <Action label={busy?'Finding your city…':'Find birth city'} quiet disabled={busy||place.trim().length<2} onPress={search}/>
    {places.map(p=><Action key={`${p.latitude},${p.longitude}`} label={p.name} quiet={selected!==p} onPress={()=>setSelected(p)}/>)}
-   <Action label="Reveal Moon and rising" disabled={!selected||!time} onPress={()=>{try{if(!selected||!state.birthday)return;const chart=birthChart(state.birthday,time,selected.latitude,selected.longitude);update(s=>({...s,...chart,birthTime:time,birthPlace:selected.name}));setNotice('Calculated on this device.');}catch{setNotice('Check your time and place, then try again.');}}}/>
+   <Action label="Reveal Moon and rising" disabled={!selected||!time} onPress={()=>{try{if(!selected||!state.birthday)return;const chart=birthChart(state.birthday,time,selected.latitude,selected.longitude);update(s=>({...s,...chart,birthTime:time,birthPlace:selected.name,chartWeather:undefined}));setNotice('Calculated on this device.');}catch{setNotice('Check your time and place, then try again.');}}}/>
    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={()=>{update(s=>({...s,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined,chartWeather:undefined}));setTime('');setPlace('');setSelected(undefined);setPlaces([])}}/>:null}
    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
   </>:null}
