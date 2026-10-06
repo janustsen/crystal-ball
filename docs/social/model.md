@@ -1,6 +1,6 @@
 # Social boundary
 
-Tonight’s Sky is public. Circles and sealed forecasts are private. Publishing always needs an explicit approval.
+Tonight’s Sky Stars are public. Circles and sealed forecasts are private. Publishing a user’s content always needs explicit approval. Shared omens follow the separate [Friday Sky contract](#friday-sky).
 
 ```mermaid
 flowchart LR
