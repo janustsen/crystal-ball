@@ -12,7 +12,7 @@ Choose an opted-in friend in Circles and enter their first name, or create a fri
 ## Gotchas
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.
 
-Only the 1080×1920 still PNG is exported. Animated/video export and the ffmpeg server route have been removed.
+Yes receipts and the golden set use the same still export; `scripts/drive-receipts-golden.mjs` checks both 1080×1920 PNGs and that No/Not yet offer no receipt. Only the 1080×1920 still PNG is exported. Animated/video export and the ffmpeg server route have been removed.
 
 See [recording usage](../../../../README.md) for Replay for recording and its privacy boundary. Verify that Done returns to the prior reveal/share state without generating another reading.
 

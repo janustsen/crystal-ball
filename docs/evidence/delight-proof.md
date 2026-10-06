@@ -1,14 +1,12 @@
-# Orb delight: current proof
+# Orb delight: historical proof
 
-The current implementation sits on the merged redesign. Current screenshots and driver reports are in `delight-redesign/`; older `delight-*` captures show the superseded violet prototype and remain historical evidence.
+This records the orb-delight verification before server-owned golden draws and receipts. Screenshots and driver reports from that checkpoint are in `delight-redesign/`; older `delight-*` captures show the superseded violet prototype. These results do not verify the current implementation. See [README](../../README.md) for the current golden edition contract and [SETUP](../../SETUP.md#social-v2-delivery) for required migrations.
 
 ## Behavior and blast radius
 
-`assignEdition` derives an edition from the server-generated UUID at Free 1/50 or Plus 1/10 and saves a `golden` boolean before reveal/history storage. Existing flags are preserved. Reopening, sharing, upgrading and downgrading do not recompute the edition. Old readings with no flag remain ordinary. Gold changes only appearance and retains the speculative disclaimer.
+At that checkpoint, `tests/delight.test.ts` exercised 10,000 UUID prefixes: 200 Free and 1,000 Plus gold, and checked saved results across JSON serialization and plan changes. These were structural/selection checks, not predictive-accuracy evidence; the historical round-trip assertions do not describe the current test coverage.
 
-`tests/delight.test.ts` executes the shipped function for 10,000 UUID prefixes: 200 Free and 1,000 Plus gold. Every saved result survives JSON serialization and a plan change unchanged. The tiny finite-range modulo bias is below one in a billion. These are structural/selection checks, not predictive-accuracy evidence.
-
-The new optional reading flag remains inside the existing JSON prediction payload; the mirror copies that payload rather than projecting a fixed schema. No SQL migration is required. Device-local `ambientSound`, `ballStyle` and `cardStyle` preferences use the existing account storage. Missing sound means off. Both style renderers gate premium selections against the current Plus flag; an executable test proves downgrade fallback to Classic. The real browser drive additionally observed a boolean edition flag in a persisted real-model reading. Supabase account/mirror execution is not claimed verified in this lane.
+At that checkpoint, the optional reading flag stayed inside the existing JSON prediction payload, so that change needed no SQL migration. Device-local `ambientSound`, `ballStyle` and `cardStyle` preferences used the existing account storage. Missing sound meant off. Both style renderers gated premium selections against the current Plus flag; an executable test proved downgrade fallback to Classic. The real browser drive additionally observed a boolean edition flag in a persisted real-model reading. Supabase account/mirror execution was not verified in that lane.
 
 ## Runtime evidence
 

@@ -11,7 +11,7 @@ const viewer='0f0e0d0c-0b0a-4908-8706-050403020100';
 const balance=(over:object={})=>({owner:viewer,asOf:'2026-10-04T00:00:00.000001Z',plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-04',...over});
 
 // A fake Supabase/RevenueCat/Ollama boundary that records every billing call.
-function boundary(t:any,left:object){
+function boundary(t:any,left:object,{recordGolden=true}={}){
  const calls:{path:string;body:any}[]=[];let modelCalls=0;const charged=new Set<string>();
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
@@ -27,7 +27,8 @@ function boundary(t:any,left:object){
   if(url.pathname==='/rest/v1/social_profiles')return Response.json([{age_band:'adult'}]);
   if(url.pathname==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'leo',themes:['growth']});
   if(url.pathname==='/rest/v1/rpc/reading_balance')return Response.json(balance({used:charged.size,...left}));
-  if(url.pathname==='/rest/v1/rpc/charge_reading'){charged.add(body.reading);return Response.json(balance({used:charged.size}))}
+  if(url.pathname==='/rest/v1/rpc/charge_reading'){charged.add(body.reading);return Response.json(balance({...left,used:charged.size}))}
+  if(url.pathname==='/rest/v1/golden_forecasts')return new Response(null,{status:recordGolden?201:503});
   if(url.pathname==='/rest/v1/rpc/apply_store_entitlements')return Response.json(balance({used:1}));
   if(url.hostname==='api.revenuecat.com')return Response.json({subscriber:{entitlements:{plus:{expires_date:'2099-01-01T00:00:00Z'}},non_subscriptions:{cb_pack_5:[{id:'txn-1'}]}}});
   throw new Error(`Unexpected URL: ${url}`);
@@ -209,4 +210,40 @@ test('saved styles travel with the balance; older balances without them keep the
  assert.equal(next.ballStyle,'obsidian');assert.equal(next.cardStyle,'classic');
  const legacy=withBalance(state,balance({plus:true}));
  assert.equal(legacy.ballStyle,'gold');assert.equal(legacy.cardStyle,'gold');
+});
+
+// Golden at Plus odds (1 in 10) but not at free odds (1 in 50).
+const goldenId='0000000a-0000-4000-8000-000000000000';
+const ask=(body:object,authorization='Bearer user-token')=>new Request('http://localhost/',{method:'POST',headers:authorization?{authorization}:{},body:JSON.stringify({action:'predict',requestId,question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month'},ageConfirmed:true,...body})});
+const goldenRecords=(b:{calls:{path:string;body:any}[]})=>b.calls.filter(c=>c.path==='/rest/v1/golden_forecasts').map(c=>c.body);
+
+for(const plus of [false,true])test(`the server draws golden at its own ${plus?'Plus':'free'} odds and records it; client claims are ignored`,async t=>{
+ t.mock.method(globalThis.crypto,'randomUUID',()=>goldenId);
+ const b=boundary(t,{plus});
+ const result=await (await handler(env())(ask({plus:!plus,golden:true}))).json();
+ assert.equal(result.value.golden,plus);
+ assert.deepEqual(goldenRecords(b),plus?[{user_id:viewer,reading_id:goldenId}]:[]);
+});
+
+test('a friend reading golden draw is recorded for the asker',async t=>{
+ t.mock.method(globalThis.crypto,'randomUUID',()=>goldenId);
+ const b=boundary(t,{plus:true});
+ const result=await (await handler(env())(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',requestId,question:'What lies ahead for Alex?',firstName:'Alex',circle:'circle',member:'member'})}))).json();
+ assert.equal(result.golden,true);
+ assert.deepEqual(goldenRecords(b),[{user_id:viewer,reading_id:goldenId}]);
+});
+
+test('a golden draw the server cannot record is returned as a standard edition',async t=>{
+ t.mock.method(globalThis.crypto,'randomUUID',()=>goldenId);
+ const b=boundary(t,{plus:true},{recordGolden:false});
+ const result=await (await handler(env())(ask({}))).json();
+ assert.equal(result.kind,'ok');assert.equal(result.value.golden,false);assert.equal(goldenRecords(b).length,1);
+});
+
+test('the unmetered loopback preview uses the device plan for golden odds',async t=>{
+ t.mock.method(globalThis.crypto,'randomUUID',()=>goldenId);
+ boundary(t,{});
+ const serve=handler(env({SUPABASE_URL:'',SUPABASE_SERVICE_ROLE_KEY:''}));
+ assert.equal((await (await serve(ask({plus:true},''))).json()).value.golden,true);
+ assert.equal((await (await serve(ask({},''))).json()).value.golden,false);
 });

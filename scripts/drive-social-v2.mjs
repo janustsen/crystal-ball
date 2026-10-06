@@ -40,9 +40,9 @@ try{
  const forecast=await run('friend',`${text('Will we learn a creative skill together?')}console.log(JSON.stringify(await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {readings:s.history.length,usage:s.usage.count,text:document.body.innerText}})));`);
  if(forecast.readings!==0||forecast.usage!==0)throw Error('Recipient paid for Circle forecast');
  evidence.push({realOllamaCircleForecast:true,askerDebitedOneReading:true,recipientNotDebited:true,oneOpenForecast:true});
- // Advance only the due date in this disposable cluster; generated question/headline remain real.
+ // Advance only the due date and record the fixture golden draw in this disposable cluster; generated question/headline remain real.
  const pg=process.env.PG_BIN||'/opt/homebrew/opt/postgresql@17/bin',port=process.env.SOCIAL_PG_PORT||'55449';
- execFileSync(pg+'/psql',['-X','-v','ON_ERROR_STOP=1','-c',"update public.circle_forecasts set due_date=current_date"],{env:{...process.env,PGHOST:'127.0.0.1',PGPORT:port,PGDATABASE:'postgres',PGPASSFILE:fileURLToPath(new URL(`../.local/social-pg-${port}.pgpass`,import.meta.url))},stdio:'pipe'});
+ execFileSync(pg+'/psql',['-X','-v','ON_ERROR_STOP=1','-c',"update public.circle_forecasts set due_date=current_date; insert into public.golden_forecasts(user_id,reading_id) select user_id,'50000000-0000-0000-0000-000000000001' from public.circle_members on conflict do nothing"],{env:{...process.env,PGHOST:'127.0.0.1',PGPORT:port,PGDATABASE:'postgres',PGPASSFILE:fileURLToPath(new URL(`../.local/social-pg-${port}.pgpass`,import.meta.url))},stdio:'pipe'});
  await refresh('friend');await run('friend',`${click('yes')}await page.wait(700);${text('1 Yes')}`);
  await refresh('owner');await run('owner',`${click('not-yet')}await page.wait(700);${text('1 Yes')}${text('1 Not yet')}`);
  evidence.push({dueDateAdvancedFixture:true,memberVotingUi:true,sharedTally:true});

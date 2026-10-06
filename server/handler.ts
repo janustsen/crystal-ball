@@ -6,6 +6,7 @@ import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
 import {billing,billingHandler,BillingError} from './billing.ts';
+import {assignEdition} from '../src/delight.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
  const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160);
  const meter=billing(env),social=socialHandler(env,model,meter),store=billingHandler(env);
@@ -40,7 +41,11 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     const viewer=meter?await meter.user(request):null;
     const charge=viewer?await meter!.authorizeCharge(viewer,'requestId' in body?body.requestId:undefined,{question,friend:'friend' in body&&body.friend===true,personName,facts}):null;
     const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);
-    return new Response(JSON.stringify(viewer&&result.kind==='ok'?{...result,balance:await meter!.charge(viewer,charge!)}:result),{headers});
+    if(result.kind!=='ok')return new Response(JSON.stringify(result),{headers});
+    // Unmetered loopback preview only: the device owns its simulated plan, so its Plus claim sets the odds.
+    if(!viewer)return new Response(JSON.stringify({...result,value:assignEdition(result.value,'plus'in body&&body.plus===true)}),{headers});
+    const balance=await meter!.charge(viewer,charge!);
+    return new Response(JSON.stringify({...result,value:await meter!.edition(viewer,result.value,balance.plus),balance}),{headers});
    }
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});

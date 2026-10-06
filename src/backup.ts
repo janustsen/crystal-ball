@@ -7,5 +7,6 @@ export function validPrediction(v: unknown): v is Prediction {
   typeof v.id === 'string' && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(v.id) && Number.isFinite(Date.parse(String(v.createdAt))) &&
   validFacts(v.facts) && typeof v.friend === 'boolean' && strings(v.assumptions) && Array.isArray(v.sources) &&
   v.sources.every(s => object(s) && ['title','url','date','publisher'].every(k => typeof s[k] === 'string')) &&
-  (v.outcome === undefined || ['yes','no','pending'].includes(String(v.outcome)));
+  (v.outcome === undefined || ['yes','no','pending'].includes(String(v.outcome))) &&
+  (v.checkedInAt === undefined || typeof v.checkedInAt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v.checkedInAt));
 }

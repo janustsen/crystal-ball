@@ -13,11 +13,31 @@ try{
  ]);
  const base=`http://127.0.0.1:${process.env.SOCIAL_DB_PORT||55329}`;
  async function request(path,token,body){
-  const response=await fetch(base+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:body===undefined?undefined:JSON.stringify(body)});
+  const response=await fetch(base+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=ignore-duplicates',...(token?{Authorization:`Bearer ${token}`}:{})},body:body===undefined?undefined:JSON.stringify(body)});
   const result=await response.json();assert.equal(response.status,200,JSON.stringify(result));return result;
  }
  const session=await request('/auth/v1/signup',null,{}),token=session.access_token;
  const circle=await request('/rest/v1/rpc/create_circle',token,{});
+ const goldenId='00000000-0000-4000-8000-000000000001';
+ const unrecorded=await fetch(base+'/rest/v1/rpc/share_circle_moment',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({reading:goldenId,moment:'golden'})});
+ assert.equal(unrecorded.status,400);
+ const rejection=await unrecorded.json();assert.match(rejection.message,/Only a drawn golden forecast/);
+ for(let attempt=0;attempt<2;attempt++){
+  await request('/rest/v1/golden_forecasts','verification-service-only',{user_id:session.user.id,reading_id:goldenId});
+ }
+ const lookupGolden=`/rest/v1/golden_forecasts?reading_id=eq.${goldenId}`;
+ const records=await request(lookupGolden,token);
+ assert.equal(records.length,1);assert.equal(records[0].user_id,session.user.id);
+ assert.ok(Number.isFinite(Date.parse(records[0].created_at)));
+ const stranger=await request('/auth/v1/signup',null,{});
+ assert.deepEqual(await request(lookupGolden,stranger.access_token),[]);
+ const forged=await fetch(base+'/rest/v1/golden_forecasts',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({user_id:session.user.id,reading_id:goldenId})});
+ assert.equal(forged.status,400);
+ await request('/rest/v1/rpc/share_circle_moment',token,{reading:goldenId,moment:'golden'});
+ const moments=await request('/rest/v1/circle_moments',token);
+ assert.ok(moments.some(moment=>moment.kind==='golden'&&moment.circle_id===circle));
+ console.log(JSON.stringify({unrecordedGolden:{status:unrecorded.status,body:rejection},ownerRecords:records,strangerRecords:await request(lookupGolden,stranger.access_token),clientInsertStatus:forged.status,publishedMoments:moments}));
+ console.log('PASS: golden editions persist once through HTTP, retain owner isolation, and enable Circle sharing');
  const [draft]=await request('/rest/v1/circle_forecast_drafts','verification-service-only',{user_id:session.user.id,circle_id:circle,question:'Will we learn together?',headline:'A shared skill awaits.',due_date:new Date(Date.now()+86400000*2).toISOString().slice(0,10)});
  const published=await request('/rest/v1/rpc/publish_circle_forecast',token,{approved_draft:draft.id});
  assert.ok(Number.isFinite(Date.parse(published.charged_at)));
