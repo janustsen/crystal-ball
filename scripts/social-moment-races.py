@@ -20,6 +20,7 @@ insert into auth.users values ('{OWNER}');
 insert into public.social_profiles(user_id) values ('{OWNER}');
 insert into public.circles(id,owner_id) values ('{CIRCLE}','{OWNER}');
 insert into public.circle_members(circle_id,user_id) values ('{CIRCLE}','{OWNER}');
+insert into public.golden_forecasts(user_id,reading_id) values ('{OWNER}','{READING}');
 """)
 sql(share('golden'))
 first = subprocess.Popen([PSQL, '-XAtq', '-v', 'ON_ERROR_STOP=1'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

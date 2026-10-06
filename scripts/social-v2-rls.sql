@@ -85,6 +85,13 @@ select proof.assert((select count(*)=0 from public.circle_glows),'not every memb
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select public.circle_checkin('learning');
 select proof.assert((select count(*)=1 from public.circle_glows),'all members produce glow');
+-- A golden draw is shareable only when the forecast server recorded it; clients cannot record one.
+select proof.reject($q$select public.share_circle_moment('30000000-0000-0000-0000-000000000001','golden')$q$,'P0001');
+select proof.reject($q$insert into public.golden_forecasts values(auth.uid(),'30000000-0000-0000-0000-000000000001')$q$,'42501');
+reset role;
+insert into public.golden_forecasts(user_id,reading_id) values('00000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000001'),('00000000-0000-0000-0000-000000000002','30000000-0000-0000-0000-000000000002');
+set role authenticated;
+select proof.assert((select count(*)=1 from public.golden_forecasts),'only your own golden records are readable');
 select public.share_circle_moment('30000000-0000-0000-0000-000000000001','golden');
 select public.share_circle_moment('30000000-0000-0000-0000-000000000001','yes');
 select proof.assert((select count(*)=2 from public.circle_moments),'golden and check-in without content');
