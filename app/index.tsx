@@ -65,7 +65,8 @@ export default function App(){
  const [personMode,setPersonMode]=useState(false),[personName,setPersonName]=useState('');
  // A sealed-link browser visitor asking their one free web reading.
  const [visitedSeal,setVisitedSeal]=useState(()=>Platform.OS==='web'&&(!!params.seal||webReadingVisitor()));
- const webTrial=Platform.OS==='web'&&(!!params.seal||visitedSeal);
+ // The web-trial limit is only for anonymous visitors: Plus, purchased readings or a linked account always use the paid path.
+ const webTrial=Platform.OS==='web'&&!(state.plus||state.credits>0||state.backupOwner)&&(!!params.seal||visitedSeal);
  useEffect(()=>{if(Platform.OS==='web'&&params.seal){markWebReadingVisitor();setVisitedSeal(true)}},[params.seal]);
  const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined,plus:state.plus,viewerChart:state.plus&&state.moonSign&&state.risingSign?{moonSign:state.moonSign,risingSign:state.risingSign}:undefined};
  const personalFacts={...state.facts,...(state.birthday?{birthday:state.birthday}:{})};
@@ -115,7 +116,7 @@ export default function App(){
   pendingAsks.current.add(key);
   predicting.current=true;lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
-  try{const result=await request<Prediction>('predict',q,facts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId,webTrial?await webReadingProof():undefined);if(id!==generation.current)return;
+  try{const result=await request<Prediction>('predict',q,facts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId,webTrial?await webReadingProof():null);if(id!==generation.current)return;
    if(webTrial&&result.kind==='ok')spendWebReading();
    if(result.kind==='ok'){const reading=result.value;await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},webTrial?null:result.balance);askIds.current.delete(identity);pendingAsks.current.delete(key);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else{setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});outOfReadings(result.message,key)}

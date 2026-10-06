@@ -30,9 +30,9 @@ function load(path:string,imports:Record<string,any>,warnings:string[],globals:R
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
-async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={}){
+async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={},account:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false});
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let fail!:(error:Error)=>void,blocking=true;
  const remote=new Promise<void>((_resolve,reject)=>{fail=reject});
@@ -411,7 +411,8 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
 });
 
 test('web quota refusals including pending browser reservations preserve eligibility until success',async()=>{
- const f=await fixture(),h=hooks(false),params:any={};let spent=false,predicts=0;
+ // An anonymous sealed-link visitor: no linked account, Plus or purchased readings.
+ const f=await fixture(false,{},{},{backupOwner:undefined,credits:0}),h=hooks(false),params:any={};let spent=false,predicts=0;
  const reading={...readings.circleReading(f.card),circleId:undefined};
  const outcomes=[{kind:'error',message:webReading.webNetworkUsed},{kind:'error',message:webReading.webReadingsResting},{kind:'error',message:webReading.webReadingUsed},{kind:'ok',value:reading}];
  const app=load('../app/index.tsx',{
@@ -447,5 +448,5 @@ test('web quota refusals including pending browser reservations preserve eligibi
  assert.equal(predicts,4);assert.equal(spent,true);
  assert.equal(f.state().history.length,1);
  await ask();assert.equal(predicts,4);
- f.fail();await tick();
+ // No backup upload to release: an anonymous visitor has no linked account.
 });

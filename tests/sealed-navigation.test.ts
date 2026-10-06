@@ -14,7 +14,7 @@ const code=ts.transpileModule(readFileSync(new URL('../app/index.tsx',import.met
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
 }).outputText;
 
-function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-receipt'){
+function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-receipt',account:object={}){
  const params:{seal?:string;social?:string}={seal},slots:any[]=[];
  let cursor=0;
  const react={
@@ -23,7 +23,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:()=>{},
  };
- const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true};
+ const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
  const imports:Record<string,any>={
   '../src/api':{webReadingVisitor:()=>false},'../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -142,4 +142,15 @@ test('a sealed-link browser visitor starts their free reading from the seal, the
  const reveal=openReading(render);
  assert.ok(reveal.some(n=>n.type==='InstallAction'));
  assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));
+});
+
+test('a used-up web trial never blocks a Plus, credited or linked account in the same browser',()=>{
+ for(const account of [{plus:true},{credits:3},{backupOwner:'apple-user'}]){
+  const {render}=app(true,[reading],'sealed-receipt',account);
+  render().find(n=>n.type==='SealedCard').props.onAsk();
+  render().find(n=>n.props.testID==='close-flow').props.onPress();
+  const reveal=openReading(render);
+  assert.ok(reveal.some(n=>n.props.testID==='ask-another-question'),JSON.stringify(account));
+  assert.ok(!reveal.some(n=>n.type==='InstallAction'),JSON.stringify(account));
+ }
 });
