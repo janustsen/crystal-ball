@@ -66,6 +66,7 @@ export function Store({children}:React.PropsWithChildren){
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});await uploads.catch(()=>{});
    accountVersion.current++;
+   change(s=>({...s,chartWeather:undefined}));
    try{await authenticate()}finally{
     if(serverMetered){
      const owner=await anonymousOwner();
@@ -143,7 +144,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}
