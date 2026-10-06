@@ -12,7 +12,7 @@ Research captured 2026-09-29, US storefront. This is a desk review of primary li
 
 ## Onboarding and retention proposal
 
-The original anonymous-entry and long-card-flow proposal is superseded by the [current reading and onboarding usage](../../README.md). Request notification permission only when the user sets a check-back. Offer Apple sign-in to preserve history after value is delivered. No contact upload.
+The original anonymous-entry and long-card-flow proposal and check-back-only notification permission recommendation are superseded by the [current reading, onboarding and notification usage](../../README.md). Offer Apple sign-in to preserve history after value is delivered. No contact upload.
 
 The commercial wedge is accountable specificity: a date/number/pick, visible assumptions and source dates, and a later “Did it happen?” response. Avoid ominous mortality/illness statements and false claims of supernatural certainty. Sharing is opt-in and omits private answers. The current social surface follows the [social boundary](../social/model.md).
 
