@@ -67,7 +67,7 @@ test('one free web reading per browser, per network per day, under a global dail
 
 test('with Supabase, claims go through the service RPC with a hashed network and never touch account billing',async t=>{
  const claims:any[]=[];
- const b=boundary(t,(path,body)=>{if(path.endsWith('/claim_web_reading')){claims.push(body);return {outcome:body.browser===browsers[1]?'network':'ok',day:'2026-10-05'}}return null});
+ const b=boundary(t,(path,body)=>{if(path.endsWith('/claim_web_reading')){claims.push(body);return {outcome:body.browser===browsers[1]?'network':'ok',day:'2026-10-05',expires_at:'2026-10-05T00:10:00Z'}}return path.endsWith('/complete_web_reading')?true:null});
  const serve=handler(k=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only'} as Record<string,string>)[k]);
  const ok=await serve(await ask(await proofFor(0),'203.0.113.1','Bearer user-token'));
  assert.equal((await ok.json()).kind,'ok');
@@ -117,4 +117,27 @@ test('with Supabase, claims go through the service RPC with a hashed network and
  assert.equal(body.webReading.browser,browsers[0]);
  assert.ok(validProof(body.webReading));
  assert.equal(calls[0].headers.authorization,undefined);
+});
+
+ test('pending reservations expire after ten minutes while completed readings stay consumed',async t=>{
+ const proofs=await solved;let now=Date.parse(proofs[0].day+'T12:00:00Z');
+ t.mock.method(Date,'now',()=>now);
+ const meter=webReadings(key=>key==='WEB_READING_DAILY_CAP'?'1':undefined);
+ const req=await ask(proofs[0],'203.0.113.1'),other=await ask(proofs[1],'192.0.2.1');
+ const abandoned=await meter.claim(req,proofs[0]);
+ now+=599_999;
+ await assert.rejects(meter.claim(req,proofs[0]),new RegExp(webReadingUsed));
+ await assert.rejects(meter.claim(req,proofs[1]),new RegExp(webNetworkUsed));
+ await assert.rejects(meter.claim(other,proofs[1]),new RegExp(webReadingsResting));
+ now++;
+ const replacement=await meter.claim(req,proofs[0]);
+ await meter.release(abandoned);
+ await assert.rejects(meter.complete(abandoned),/expired/);
+ await assert.rejects(meter.claim(req,proofs[1]),new RegExp(webNetworkUsed));
+ await meter.complete(replacement);
+ await meter.release(replacement);
+ now+=600_000;
+ await assert.rejects(meter.claim(req,proofs[0]),new RegExp(webReadingUsed));
+ await assert.rejects(meter.claim(req,proofs[1]),new RegExp(webNetworkUsed));
+ await assert.rejects(meter.claim(other,proofs[1]),new RegExp(webReadingsResting));
 });

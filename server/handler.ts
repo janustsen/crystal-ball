@@ -42,7 +42,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     // A sealed-link browser visitor's one free reading: limited by browser, network and a daily cap, never by an account.
     const claimed=await web.claim(request,body.webReading);
     const result=await predict(question,facts,false,model,context).catch(async error=>{await web.release(claimed);throw error});
-    if(result.kind!=='ok')await web.release(claimed);
+    if(result.kind==='ok')await web.complete(claimed);else await web.release(claimed);
     return new Response(JSON.stringify(result),{headers});
    }
    if(body.action==='predict'){
