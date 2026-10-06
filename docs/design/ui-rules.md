@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Home is the captain's Claude Design canvas Library artboard ported as drawn: its three.js glass ball, candle, faintly lit library room and drag-to-spin, Cormorant Garamond and Instrument Sans type, colors and tab bar live in `src/Home.tsx` and `src/HomeScene.web.tsx`, and other screens keep the 17-screen design. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
+The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Every tab sits in the captain-approved AI-rendered library room (`src/RoomScene.web.tsx`, [motion](motion.md#room)) with the canvas Library artboard's three.js glass ball, drag-to-spin, Cormorant Garamond and Instrument Sans header and tab bar (`src/Home.tsx`); each tab's existing screen content keeps the 17-screen design. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
