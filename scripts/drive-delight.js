@@ -3,6 +3,7 @@
 await page.open('http://localhost:8093');
 await page.wait('[data-testid=tab-you]');
 await page.click('[data-testid=tab-you]');
+await page.wait('[aria-label="Ambient sound"]');
 console.log('sound default',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
 await page.click('[aria-label="Ambient sound"]');
 await page.wait(300);
@@ -10,6 +11,7 @@ console.log('sound saved',await page.eval(()=>JSON.parse(localStorage.getItem('c
 await page.open('http://localhost:8093');
 await page.wait('[data-testid=tab-you]');
 await page.click('[data-testid=tab-you]');
+await page.wait('[aria-label="Ambient sound"]');
 console.log('sound reloaded',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
 await page.click('[aria-label="Ambient sound"]');
 if(await page.eval(()=>!!document.querySelector('[data-testid=ball-style-gold]')))throw new Error('Free user can access Plus styles');
@@ -25,6 +27,8 @@ await page.wait(300);
 const styles=await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {ball:s.ballStyle,card:s.cardStyle,plus:s.plus};});
 if(styles.ball!=='gold'||styles.card!=='obsidian'||!styles.plus)throw new Error('Plus styles did not persist');
 console.log('Plus styles',JSON.stringify(styles));
+await page.click('[data-testid=tab-you]');
+await page.wait('[aria-label="Reduce motion"]');
 if(!await page.eval(()=>document.querySelector('[aria-label="Reduce motion"]').checked))await page.click('[aria-label="Reduce motion"]');
 await page.wait(300);
 await page.eval(()=>{
@@ -41,8 +45,8 @@ const gold=await page.eval(()=>({label:document.querySelector('[data-testid=gold
 if(!gold.glow||!gold.uncertainty||!gold.label.includes('same uncertainty'))throw new Error('Golden reveal contract failed');
 console.log('gold fixture',JSON.stringify(gold));
 await page.click('[data-testid=share-this-glimpse]');
-await page.wait('img[alt="Your exported prediction card"]');
-const share=await page.eval(()=>{const img=document.querySelector('img[alt="Your exported prediction card"]');return {width:img.naturalWidth,height:img.naturalHeight};});
+await page.wait('img[alt="Your exported forecast card"]');
+const share=await page.eval(()=>{const img=document.querySelector('img[alt="Your exported forecast card"]');return {width:img.naturalWidth,height:img.naturalHeight};});
 if(share.width!==1080||share.height!==1920)throw new Error('Wrong golden share dimensions');
 console.log('gold share',JSON.stringify(share));
 await page.click('[data-testid=close-flow]');
@@ -60,7 +64,7 @@ await page.click('[data-testid=tab-history]');
 await page.eval(()=>Array.from(document.querySelectorAll('[role=button]')).find(e=>e.textContent.includes('You will finish your first draft')).click());
 if(await page.eval(()=>!!document.querySelector('[data-testid=golden-label]')))throw new Error('Style choice changed golden status');
 await page.click('[data-testid=share-this-glimpse]');
-await page.wait('img[alt="Your exported prediction card"]');
-const pixel=await page.eval(()=>{const img=document.querySelector('img[alt="Your exported prediction card"]');const c=document.createElement('canvas');c.width=1080;c.height=1920;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);return Array.from(ctx.getImageData(80,960,1,1).data);});
+await page.wait('img[alt="Your exported forecast card"]');
+const pixel=await page.eval(()=>{const img=document.querySelector('img[alt="Your exported forecast card"]');const c=document.createElement('canvas');c.width=1080;c.height=1920;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);return Array.from(ctx.getImageData(80,960,1,1).data);});
 if(pixel[0]>25||pixel[1]>25||pixel[2]>35)throw new Error('Obsidian card was not applied');
 console.log('obsidian center pixel',JSON.stringify(pixel));

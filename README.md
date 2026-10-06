@@ -21,7 +21,7 @@ An interrupted, cancelled or timed-out reading may still finish and be charged o
 
 Home shows the candlelit glass ball in a faintly lit library. On web with WebGL available, drag the ball to spin it with momentum without starting a reading; tap it to start one. Reduce motion stops continuous animation but still lets the ball follow your drag, without coasting after release. Native builds and browsers without WebGL show a still image. Choose Ask this too in Sky to prefill a question.
 
-In You, enable Ambient sound for a low hum and a chime on each new reveal. It starts off and the preference is saved on this device. See [orb motion and feedback](docs/design/motion.md#orb-delight) for playback and native haptic behavior and verification limits. Plus adds readings and Classic, Gold or Obsidian ball and share-card styles, selected separately in You; without Plus, styles render as Classic.
+In You, enable Ambient sound for a low hum and a chime on each new reveal. It starts off and the preference is saved on this device. See [orb motion and feedback](docs/design/motion.md#orb-delight) for playback and native haptic behavior and verification limits. Plus adds readings and opens the Inner Library (from Home or You), where Classic, Gold or Obsidian ball and share-card styles are selected separately; without Plus the room is a locked door and styles render as Classic. With the server ledger the choice is saved per account.
 
 New forecasts receive a cosmetic golden edition about 1 in 50 times on Free or 1 in 10 on Plus. Its reveal halo and special share card never mean the forecast is more likely true. The edition stays with the saved reading through reopening, sharing and plan changes; choosing a Gold style does not change its edition.
 
