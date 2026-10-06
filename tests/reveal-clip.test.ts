@@ -11,7 +11,7 @@ test('recording locks the question setting until recording completes or fails',a
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
  const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}}};
  const module={exports:{} as any},notices:string[]=[];
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},Image:class {decode(){return loading}}});
+ runInNewContext(code,{React:react,module,exports:module.exports,require:(name:string)=>imports[name]??{},Image:class {decode(){return loading}}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.RevealClip({prediction:{question:'Private question'},onNotice:(text:string)=>notices.push(text)}))};
  const control=(id:string)=>render().find(n=>n.props.testID===id).props;
@@ -35,7 +35,7 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
  let cursor=0,recordings=0,closed=0,clock=0,addedAudio=0;
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
  const ctx=new Proxy({},{get:(_target,key)=>key==='measureText'?()=>({width:10}):key==='createLinearGradient'||key==='createRadialGradient'?()=>({addColorStop:()=>{}}):()=>{},set:()=>true});
- const track={stop:()=>{}},stream={addTrack:()=>{addedAudio++},getTracks:()=>[track]};
+ const track={stop:()=>{},requestFrame:()=>{}},stream={addTrack:()=>{addedAudio++},getTracks:()=>[track],getVideoTracks:()=>[track]};
  const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'asset'})}},'./store':{useStore:()=>({state:{}})},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'},'./social-policy':{activityTheme:()=>'learning',skyPrompts:{learning:{label:'Learning'}}},'./retention':{suggestedCheckIn:()=>'2026-12-01'}};
  class Audio{
   currentTime=0;
@@ -50,12 +50,13 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
   static isTypeSupported(){return true}
   onstop=()=>{};ondataavailable=(_event:any)=>{};
   start(){recordings++}
+  requestData(){}
   stop(){this.ondataavailable({data:new Blob(['video'])});this.onstop()}
  }
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},Error,Blob,File,AudioContext:Audio,MediaRecorder:Recorder,Image:class {async decode(){}},
+ runInNewContext(code,{React:react,module,exports:module.exports,require:(name:string)=>imports[name]??{},Error,Blob,File,AudioContext:Audio,MediaRecorder:Recorder,Image:class {async decode(){}},
   fetch:async()=>{if(mode==='audio fetch failure')throw new Error('fetch failed');return {arrayBuffer:async()=>new ArrayBuffer(0)}},
-  performance:{now:()=>clock},requestAnimationFrame:(callback:()=>void)=>{clock+=8000;callback()},setTimeout:()=>0,
+  performance:{now:()=>clock},setTimeout:(callback:()=>void,delay:number)=>{if(delay<10000)queueMicrotask(()=>{clock+=delay;callback()});return 0},
   URL:{createObjectURL:()=> 'blob:clip',revokeObjectURL:()=>{}},
   document:{createElement:(tag:string)=>tag==='canvas'?{getContext:()=>ctx,captureStream:()=>stream}:{click(){downloaded.push('clip')}}},
   navigator:{canShare:()=>mode!=='download',share:async(value:any)=>{shared.push(value);if(mode==='expired activation')throw new Error('activation expired');if(mode==='cancel')throw Object.assign(new Error('canceled'),{name:'AbortError'})}},

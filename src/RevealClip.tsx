@@ -76,12 +76,22 @@ export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Pr
   paintClip(ctx,prediction,look,frame,0);
   await audio.resume();
   const tracks=await soundtrack(audio),stream=canvas.captureStream(30);
+  const video=stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack;
   for(const track of tracks)stream.addTrack(track);
   const recorder=new MediaRecorder(stream,{mimeType:type,videoBitsPerSecond:6_000_000}),chunks:Blob[]=[];
   recorder.ondataavailable=event=>{if(event.data.size)chunks.push(event.data)};
   const stopped=new Promise(resolve=>recorder.onstop=resolve);
   recorder.start(250);const start=performance.now();
-  await new Promise<void>(resolve=>{const tick=()=>{const ms=performance.now()-start;paintClip(ctx,prediction,look,frame,ms);if(ms>=duration){resolve();return}requestAnimationFrame(tick)};requestAnimationFrame(tick)});
+  let endCardSince:number|undefined;
+  // Display callbacks can pause. Capture on a timer and hold the fully painted end card
+  // before stopping; stopping in the last paint's task can discard that frame.
+  for(;;){
+   const now=performance.now(),ms=now-start;paintClip(ctx,prediction,look,frame,ms);video.requestFrame?.();
+   if(ms>=6800)endCardSince??=now;
+   if(endCardSince!==undefined&&now-endCardSince>=1200)break;
+   await new Promise(resolve=>setTimeout(resolve,1000/30));
+  }
+  recorder.requestData();await new Promise(resolve=>setTimeout(resolve,250));
   recorder.stop();await stopped;stream.getTracks().forEach(track=>track.stop());
   return new globalThis.File(chunks,`crystal-ball-reveal.${type.startsWith('video/mp4')?'mp4':'webm'}`,{type:type.split(';')[0]});
  }finally{void audio.close().catch(()=>{})}

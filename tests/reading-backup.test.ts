@@ -404,6 +404,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  assert.equal(f.state().history.length,1);
  assert.deepEqual(f.state().usage,before.usage);
  assert.equal(f.state().credits,before.credits);
+ f.render();await tick();
  f.fail();await tick();
 });
 

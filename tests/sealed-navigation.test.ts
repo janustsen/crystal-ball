@@ -137,6 +137,7 @@ test('a sealed-link browser visitor starts their free reading from the seal, the
  test('Ask navigation from a sealed landing keeps the visitor restriction',()=>{
  const {render}=app(true,[reading]);
  render().find(n=>n.props.testID==='tab-ask').props.onPress();
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
  const reveal=openReading(render);
  assert.ok(reveal.some(n=>n.type==='InstallAction'));
  assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));

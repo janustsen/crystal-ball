@@ -4,14 +4,15 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
+import {assertRevealEnd} from './assert-reveal-end.mjs';
 import {httpCredentials,previewFetch} from './preview-auth.mjs';
-const base=process.env.VERIFY_URL||'http://localhost:8131',out='docs/evidence/growth-loops';
+const base=process.env.VERIFY_URL||'http://localhost:8131',out=process.env.EVIDENCE_DIR||'docs/evidence/growth-loops';
 await mkdir(out,{recursive:true});
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
 expect(health).toMatchObject({app:'crystal-ball',provider:'ollama'});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--autoplay-policy=no-user-gesture-required']});
 const log=[{health,boundary:'OS share sheet stubbed (canShare=false) so clips download. Real Ollama readings through the preview bridge; in-process web limits (no Supabase). The seal token is fictional, so opening it fails by design.'}];
-const probe=file=>JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','stream=codec_type,width,height:format=duration','-of','json',file],{encoding:'utf8'}));
+const probe=file=>JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','stream=codec_type,width,height,duration:format=duration','-of','json',file],{encoding:'utf8'}));
 async function visitor(name){
  const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true,acceptDownloads:true});
  // Boundary mock: the OS share sheet is unavailable headless, so the clip takes its download path.
@@ -41,7 +42,7 @@ async function clip(page,file){
  const saved=`${out}/${file}.${(await download).suggestedFilename().split('.').pop()}`;await (await download).saveAs(saved);
  execFileSync('ffmpeg',['-v','error','-y','-ss','4','-i',saved,'-frames:v','1',`${out}/${file}-4s.png`]);
  execFileSync('ffmpeg',['-v','error','-y','-ss','7.5','-i',saved,'-frames:v','1',`${out}/${file}-end.png`]);
- return {saved,probe:probe(saved)};
+ return {saved,probe:probe(saved),...await assertRevealEnd(page,saved,`${out}/${file}-last-title.png`)};
 }
 try{
  const a=await visitor('first-visitor');
@@ -55,12 +56,23 @@ try{
  const predict=a.requests.find(r=>r.body.action==='predict');
  expect(predict.body.webReading).toMatchObject({browser:expect.any(String),nonce:expect.any(String)});expect(predict.authorization).toBe(false);
  const plain=await clip(a.page,'clip-question-off');
+ // A failed asset must surface an error and unlock the controls, never export a silent clip.
+ await a.page.route('**/*.wav*',route=>route.abort());
+ await a.page.getByTestId('make-reveal-clip').click();
+ await expect(a.page.getByText('The clip could not be recorded. Please try again.')).toBeVisible();
+ await expect(a.page.getByTestId('make-reveal-clip')).toBeEnabled();
+ await a.page.screenshot({path:`${out}/audio-failure.png`,fullPage:true});
+ await a.page.unroute('**/*.wav*');
+ // Force the browser share boundary to reject expired activation; the real recorder must still download.
+ await a.page.evaluate(()=>{navigator.canShare=()=>true;navigator.share=async()=>{throw new DOMException('Expired activation','NotAllowedError')}});
  await a.page.getByTestId('clip-question').click();
  const withQuestion=await clip(a.page,'clip-question-on');
+ log.push({clips:[plain,withQuestion],audioFailure:'visible error and controls unlocked',shareBoundary:'injected NotAllowedError falls back to actual download'});
  for(const c of [plain,withQuestion]){
   const video=c.probe.streams.find(s=>s.codec_type==='video');
   expect(video).toMatchObject({width:1080,height:1920});expect(c.probe.streams.some(s=>s.codec_type==='audio')).toBe(true);
   expect(Number(c.probe.format.duration)).toBeGreaterThan(7);
+  if(video.duration!==undefined)expect(Number(video.duration)).toBeGreaterThan(7);
  }
  // The spent visitor is sent to install instead of a second reading.
  await a.page.getByTestId('close-flow').click();await a.page.getByTestId('tab-ask').click();await a.page.getByTestId('type-instead').click();
@@ -71,7 +83,7 @@ try{
  expect(await ask(b.page,'Will I move somewhere new this year?')).toBe('install');
  await expect(b.page.getByText('This network has used its free web reading today. Try another network or return tomorrow, or install Crystal Ball to ask more.')).toBeVisible();
  await b.page.screenshot({path:`${out}/04-install-same-network.png`});
- log.push({visitor:a.name,requests:a.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading,authorization:r.authorization})),clips:[plain,withQuestion],errors:a.errors},{visitor:b.name,requests:b.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading})),errors:b.errors});
+ log.push({visitor:a.name,requests:a.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading,authorization:r.authorization})),clips:[plain,withQuestion],audioFailure:'visible error and controls unlocked',shareBoundary:'injected NotAllowedError falls back to actual download',errors:a.errors},{visitor:b.name,requests:b.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading})),errors:b.errors});
  expect([...a.errors,...b.errors]).toEqual([]);
  log.push({result:'pass'});
 }catch(error){log.push({result:'fail',error:String(error?.stack||error)});process.exitCode=1}
