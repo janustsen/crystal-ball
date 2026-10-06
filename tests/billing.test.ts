@@ -176,3 +176,37 @@ test('balances require an owner and a database timestamp with microsecond precis
  assert.equal(validBalance(balance()),true);
  for(const patch of [{owner:undefined},{owner:''},{asOf:undefined},{asOf:'not a date'},{asOf:'2026-10-04T00:00:00.001Z'},{asOf:'2026-10-04T99:00:00.000001Z'}])assert.equal(validBalance(balance(patch)),false);
 });
+
+test('style choices go through the server, which refuses unknown ids and non-Plus premium styles',async t=>{
+ let plus=false;const calls:any[]=[];
+ t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
+  const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
+  if(url.pathname==='/auth/v1/user')return Response.json({id:viewer});
+  if(url.pathname==='/rest/v1/rpc/set_profile_styles'){
+   calls.push(body);
+   if(!plus&&(body.ball!=='classic'||body.card!=='classic'))return Response.json({message:'Ball and card styles are a Plus extra'},{status:400});
+   return Response.json(balance({plus,ballStyle:body.ball,cardStyle:body.card}));
+  }
+  throw new Error(`Unexpected URL: ${url}`);
+ });
+ const send=(body:object)=>handler(env())(new Request('http://localhost/billing',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify(body)}));
+ const free=await send({action:'styles',ball:'gold',card:'classic'});
+ assert.equal(free.status,403);assert.match((await free.json()).message,/Plus extra/);
+ assert.equal((await send({action:'styles',ball:'classic',card:'classic'})).status,200);
+ const unknown=await send({action:'styles',ball:'rainbow',card:'classic'});
+ assert.equal(unknown.status,400);assert.equal(calls.length,2);
+ plus=true;
+ const saved=await (await send({action:'styles',ball:'obsidian',card:'gold'})).json();
+ assert.equal(validBalance(saved),true);
+ assert.deepEqual(calls.at(-1),{viewer,ball:'obsidian',card:'gold'});
+ assert.equal(saved.ballStyle,'obsidian');assert.equal(saved.cardStyle,'gold');
+});
+
+test('saved styles travel with the balance; older balances without them keep the device choice',()=>{
+ const state:AccountState={sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:true,usage:{day:'2026-10-04',count:0},reduceMotion:false,largeText:false,ballStyle:'gold',cardStyle:'gold'};
+ assert.equal(validBalance(balance({ballStyle:'rainbow'})),false);
+ const next=withBalance(state,balance({plus:true,ballStyle:'obsidian',cardStyle:'classic'}));
+ assert.equal(next.ballStyle,'obsidian');assert.equal(next.cardStyle,'classic');
+ const legacy=withBalance(state,balance({plus:true}));
+ assert.equal(legacy.ballStyle,'gold');assert.equal(legacy.cardStyle,'gold');
+});

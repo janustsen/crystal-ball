@@ -32,7 +32,7 @@ function app(onboardingDone=true,history:any[]=[]){
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
   '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social'},
-  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
+  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},'../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
  };
  const module={exports:{} as any};
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
@@ -80,4 +80,25 @@ test('Circle archive directs check-ins to Circles without personal prompts or re
  assert.equal(params.social,'circles');assert.ok(render().some(n=>n.type==='Social'));
  assert.equal(retention.personalCheckInDue({...reading,circleId:undefined}),true);
  assert.equal(retention.checkInLabel({...reading,circleId:undefined}),'Ready to check in');
+});
+
+test('the Inner Library opens from the Home room spot and You; its locked door leads to Plus and back',()=>{
+ const {render}=app();
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ const spot=render().find(n=>n.props.testID==='room-inner-library');
+ assert.equal(spot.props.locked,true);spot.props.onPress();
+ let room=render();
+ assert.ok(room.some(n=>n.children.includes('Inner Library')),'header names the room');
+ room.find(n=>n.type==='InnerLibrary').props.onUpgrade();
+ const plans=render();
+ assert.ok(plans.some(n=>n.props.label==='Continue with Plus · simulate'));
+ for(const unlock of billing.plusUnlocks)assert.ok(plans.some(n=>n.children.includes(`· ${unlock}`)),unlock);
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ assert.ok(render().some(n=>n.type==='InnerLibrary'),'closing Plans returns to the room');
+ render().find(n=>n.props.testID==='tab-you').props.onPress();
+ const entry=render().find(n=>n.props.testID==='open-inner-library');
+ assert.equal(entry.props.label,'Inner Library · Plus');entry.props.onPress();
+ room=render();
+ assert.ok(room.some(n=>n.type==='InnerLibrary'));
+ assert.ok(!room.some(n=>n.props.testID==='tab-you'&&n.props.accessibilityState?.selected),'the room is not a tab');
 });

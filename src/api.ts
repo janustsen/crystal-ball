@@ -1,5 +1,5 @@
 import {localDay} from './retention';
-import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState} from './types';
+import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,StyleName} from './types';
 import type {Balance} from './billing';
 import {validBalance} from './billing';
 export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
@@ -35,3 +35,4 @@ async function billing(body:Record<string,unknown>):Promise<Balance>{
 export const loadBalance=()=>billing({action:'balance'});
 export const syncStoreBalance=()=>billing({action:'sync'});
 export const simulatePurchase=(kind:string)=>billing({action:'simulate',kind});
+export const saveStyles=(ball:StyleName,card:StyleName)=>billing({action:'styles',ball,card});

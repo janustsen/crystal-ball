@@ -9,6 +9,8 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
 select proof.reject($q$select public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',now()+interval '1 week','[]')$q$,'42501');
 select proof.reject($q$select public.charge_reading('00000000-0000-0000-0000-000000000001','r')$q$,'42501');
 select proof.reject($q$select public.reading_balance('00000000-0000-0000-0000-000000000001')$q$,'42501');
+select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','gold','gold')$q$,'42501');
+select proof.reject($q$update public.social_profiles set ball_style='gold'$q$,'42501');
 select proof.reject($q$update public.social_profiles set packs=99$q$,'42501');
 select proof.reject($q$select * from public.reading_charges$q$,'42501');
 select proof.reject($q$select * from public.pack_purchases$q$,'42501');
@@ -21,6 +23,9 @@ set role service_role;
 select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000001','free-1')->>'used')::int=1,'first free reading charged');
 select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000001','free-1')->>'used')::int=1,'same reading id is idempotent');
 select proof.reject($q$select public.charge_reading('00000000-0000-0000-0000-000000000001','free-2')$q$,'P0001');
+-- Styles: Free may save only Classic; ids outside the catalog never reach the row.
+select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','gold','classic')$q$,'P0001');
+select proof.assert(public.set_profile_styles('00000000-0000-0000-0000-000000000001','classic','classic')->>'ballStyle'='classic','Free may keep Classic');
 -- A pack transaction credits exactly once, even when reconciled twice.
 select proof.assert((public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',null,'[{"id":"txn-5","readings":5}]')->>'packs')::int=5,'pack credited');
 select proof.assert((public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',null,'[{"id":"txn-5","readings":5}]')->>'packs')::int=5,'replayed pack transaction is not credited twice');
@@ -29,11 +34,15 @@ select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000001
 -- Plus: ten daily readings while entitled; expiry ends it and the social flag follows.
 select proof.assert((public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',now()+interval '7 days','[]')->>'plus')::boolean,'active subscription grants Plus');
 select proof.assert((select plus from public.social_profiles where user_id='00000000-0000-0000-0000-000000000001'),'social Plus mirrors the subscription');
+select proof.assert((select b->>'ballStyle'='obsidian' and b->>'cardStyle'='gold' from public.set_profile_styles('00000000-0000-0000-0000-000000000001','obsidian','gold') b),'Plus saves premium styles');
+select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','rainbow','gold')$q$,'23514');
 select public.charge_reading('00000000-0000-0000-0000-000000000001','plus-'||i) from generate_series(3,10) i;
 select proof.assert((public.reading_balance('00000000-0000-0000-0000-000000000001')->>'used')::int=10 and (public.reading_balance('00000000-0000-0000-0000-000000000001')->>'packs')::int=4,'Plus readings use the daily allowance before packs');
 select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000001','plus-11')->>'packs')::int=3,'eleventh Plus reading spends a pack');
 select proof.assert(not (public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',now()-interval '1 second','[]')->>'plus')::boolean,'expired subscription removes Plus');
 select proof.assert(not (select plus from public.social_profiles where user_id='00000000-0000-0000-0000-000000000001'),'social Plus follows expiry');
+select proof.assert(public.reading_balance('00000000-0000-0000-0000-000000000001')->>'ballStyle'='obsidian','a lapsed subscription keeps the saved choice');
+select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','gold','gold')$q$,'P0001');
 reset role;
 
 -- A Circle forecast is charged server-side at publication, once, and fails closed without readings.
