@@ -1,21 +1,30 @@
 import test,{type TestContext} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,rm,readFile,readdir} from 'node:fs/promises';
-import {spawn} from 'node:child_process';
+import {mkdtemp,writeFile,rm,readdir} from 'node:fs/promises';
+import {spawn,execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {createServer} from 'node:net';
+import {randomUUID} from 'node:crypto';
+import {billing} from '../server/billing.ts';
+import {deliverSocialPushes} from '../server/social-push.ts';
+import {openSky} from '../server/sky.ts';
+import {webReadings} from '../server/web-reading.ts';
+import {solveProof} from '../src/web-reading.ts';
+import type {ModelProvider,JsonSchema} from '../server/provider.ts';
 import {once} from 'node:events';
 import {join} from 'node:path';
 
-async function startAdapter(t:TestContext,psql:string){
+async function startAdapter(t:TestContext,psql:string,env:NodeJS.ProcessEnv={}){
  const directory=await mkdtemp(join(process.cwd(),'.dev-transport-test-'));
- t.after(()=>rm(directory,{recursive:true,force:true}));
  await writeFile(join(directory,'psql'),`#!/usr/bin/env node\n${psql}`,{mode:0o700});
  const child=spawn(process.execPath,['scripts/social-dev-transport.mjs'],{
-  env:{...process.env,PG_BIN:directory,SOCIAL_DB_PORT:'0'},
+  env:{...process.env,...env,PG_BIN:directory,SOCIAL_DB_PORT:'0'},
   stdio:['ignore','pipe','pipe'],
  });
  let stderr='';child.stderr.on('data',chunk=>{stderr+=chunk});
  t.after(async()=>{
   if(child.exitCode===null&&child.signalCode===null){const exited=once(child,'exit');child.kill();await exited}
+  await rm(directory,{recursive:true,force:true});
  });
  const [startup]=await Promise.race([
   once(child.stdout,'data',{signal:AbortSignal.timeout(5000)}),
@@ -64,28 +73,96 @@ console.log('BEGIN\\nSET\\n'+JSON.stringify(fixture.result)+'\\nCOMMIT');
  }
 });
 
-// Every public SQL function the app or server names must pass the adapter with its current parameters,
-// and set-returning functions must come back as arrays, so new RPCs cannot silently fail on the preview.
-test('dev transport allows every RPC the app and server call', {timeout:30000}, async t=>{
- const functions=new Map<string,{params:string[];rows:boolean}>();
+const exec=promisify(execFile);
+
+test('engine RPC operations work through the dev adapter and PostgreSQL', {timeout:60000}, async t=>{
+ const directory=await mkdtemp(join(process.cwd(),'.dev-transport-db-'));
+ let started=false;
+ t.after(async()=>{
+  if(started)await exec('pg_ctl',['-D',join(directory,'data'),'-m','immediate','-w','stop']);
+  await rm(directory,{recursive:true,force:true});
+ });
+ const password=randomUUID();
+ await writeFile(join(directory,'password'),password,{mode:0o600});
+ await exec('initdb',['-D',join(directory,'data'),'-U','transport_test','-A','scram-sha-256','--pwfile='+join(directory,'password'),'--no-locale','-E','UTF8']);
+ const listener=createServer();listener.listen(0,'127.0.0.1');await once(listener,'listening');
+ const port=(listener.address() as {port:number}).port;
+ await new Promise<void>((resolve,reject)=>listener.close(error=>error?reject(error):resolve()));
+ await exec('pg_ctl',['-D',join(directory,'data'),'-l',join(directory,'server.log'),'-o',`-p ${port} -c unix_socket_directories='' -c listen_addresses='127.0.0.1' -c timezone=UTC`,'-w','start']);
+ started=true;
+ const env={...process.env,PGHOST:'127.0.0.1',PGPORT:String(port),PGDATABASE:'postgres',PGUSER:'transport_test',PGPASSWORD:password};
+ const sql=async(statement:string)=>(await exec('psql',['-X','-At','-v','ON_ERROR_STOP=1','-c',statement],{env})).stdout.trim();
+ await sql(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
+ create schema auth; create table auth.users(id uuid primary key);
+ create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+ grant usage on schema auth to anon,authenticated,service_role;
+ grant execute on function auth.uid() to anon,authenticated,service_role;
+ alter default privileges in schema public grant all on tables to anon,authenticated,service_role;
+ alter default privileges in schema public grant execute on functions to anon,authenticated,service_role;`);
  for(const file of (await readdir('supabase/migrations')).sort()){
-  for(const [,name,params,rows] of (await readFile(join('supabase/migrations',file),'utf8')).matchAll(/create (?:or replace )?function public\.(\w+)\(([^;]*?)\)\s*returns\s+(table|setof)?/gi)){
-   functions.set(name,{params:params.split(/,(?![^(]*\))/).map(param=>param.trim().split(/\s+/)[0]).filter(Boolean),rows:Boolean(rows)});
+  await exec('psql',['-X','-v','ON_ERROR_STOP=1','-f',join('supabase/migrations',file)],{env});
+ }
+ const {base}=await startAdapter(t,`const {spawnSync}=require('node:child_process');
+const result=spawnSync('psql',process.argv.slice(2),{stdio:'inherit'});
+if(result.error)throw result.error;
+process.exit(result.status??1);`,env);
+ const settings=(key:string)=>({SUPABASE_URL:base,SUPABASE_SERVICE_ROLE_KEY:'verification-service-only',SOCIAL_MOCK_ENTITLEMENTS:'true'} as Record<string,string>)[key];
+ const signup=await fetch(`${base}/auth/v1/signup`,{method:'POST',body:'{}'});
+ assert.equal(signup.status,200);
+ const session=await signup.json(),viewer=session.user.id;
+ const meter=billing(settings)!;
+ assert.equal(await meter.user(new Request(base,{headers:{authorization:`Bearer ${session.access_token}`}})),viewer);
+ assert.equal((await meter.balance(viewer)).plus,false);
+ assert.equal((await meter.simulate(viewer,'monthly')).plus,true);
+ assert.equal((await meter.styles(viewer,'classic','classic')).plus,true);
+ const reading=await meter.authorizeCharge(viewer,randomUUID(),{question:'Will I learn?',friend:false});
+ assert.equal((await meter.charge(viewer,reading)).used,1);
+
+ const weather="Gemini's skies invite a slower pace.";
+ let generated=0;
+ const generate=async()=>{generated++;return weather};
+ assert.equal(await meter.chartWeather(viewer,'2026-10','gemini/pisces/virgo',generate),weather);
+ assert.equal(await meter.chartWeather(viewer,'2026-10','gemini/pisces/virgo',generate),weather);
+ assert.equal(generated,1);
+ await assert.rejects(meter.chartWeather(viewer,'2026-11','gemini',async()=>{throw Error('generation failed')}),/generation failed/);
+ assert.equal(await sql("select count(*) from public.chart_weather where month='2026-11'"),'0');
+ assert.equal(await meter.chartWeather(viewer,'2026-11','gemini',generate),weather);
+
+ const web=webReadings(settings),proof=await solveProof(randomUUID()),request=new Request(base,{headers:{'x-forwarded-for':'192.0.2.1'}});
+ const claim=await web.claim(request,proof);
+ await web.release(claim);
+ const retry=await web.claim(request,proof);
+ await web.complete(retry);
+ await assert.rejects(web.claim(request,proof),/free web reading is used/);
+
+ const sent:Record<string,unknown>[]=[];
+ const transport:typeof fetch=async(input,init)=>{
+  if(String(input)==='https://exp.host/--/api/v2/push/send'){
+   sent.push(JSON.parse(String(init?.body)));
+   return Response.json({data:{status:'ok'}});
   }
- }
- let source='';
- for(const directory of ['app','server','src']){
-  for(const file of await readdir(directory,{recursive:true}))if(/\.(ts|tsx|mts|cjs)$/.test(file))source+=await readFile(join(directory,file),'utf8');
- }
- const called=[...functions.keys()].filter(name=>new RegExp(`['"\`/]${name}['"\`]`).test(source));
- for(const name of ['claim_web_reading','claim_chart_weather','claim_social_pushes','claim_sky_pushes','finish_sky_push'])assert.ok(called.includes(name),`scan finds ${name}`);
- const {base}=await startAdapter(t,"console.log('BEGIN\\nSET\\n'+JSON.stringify(process.argv.at(-1))+'\\nCOMMIT');");
- for(const name of called){
-  const {params,rows}=functions.get(name)!;
-  const response=await serviceCall(base,name,Object.fromEntries(params.map(param=>[param,'x'])));
-  const statement=await response.json();
-  assert.equal(response.status,200,`${name} is allowed: ${JSON.stringify(statement)}`);
-  assert.match(statement,new RegExp(`public\\.${name}\\(${params.map(param=>`${param} => 'x'`).join(',')}\\)`),`${name} forwards ${params.join(',')||'no arguments'}`);
-  assert.equal(statement.includes('jsonb_agg'),rows,`${name} ${rows?'returns':'does not return'} rows`);
- }
+  return fetch(input,init);
+ };
+ assert.deepEqual(await deliverSocialPushes(settings,transport),{queued:0,accepted:0});
+ const circle=randomUUID();
+ await sql(`insert into public.circles(id,owner_id) values('${circle}','${viewer}');
+ insert into public.circle_members(circle_id,user_id) values('${circle}','${viewer}');`);
+ const model:ModelProvider={async json<T>(_system:string,_input:unknown,schema:JsonSchema){
+  return ('safe' in (schema.properties as Record<string,unknown>)?{safe:true}:{text:'A bright shared spark gathers over all of you tonight.'}) as T;
+ }};
+ assert.deepEqual(await openSky(settings,model,new Date('2026-10-09T12:00Z')),{week:'2026-10-09',targets:1,opened:1});
+ assert.deepEqual(await openSky(settings,model,new Date('2026-10-09T12:00Z')),{week:'2026-10-09',targets:0,opened:0});
+ const token='ExpoPushToken[transport]';
+ const registered=await fetch(`${base}/rest/v1/rpc/set_social_push`,{method:'POST',headers:{authorization:`Bearer ${session.access_token}`},body:JSON.stringify({push_token:token})});
+ assert.equal(registered.status,200);
+ await sql(`update public.social_profiles set sky_push=true,time_zone='SKY'||(extract(epoch from ((now() at time zone 'UTC')-(date_trunc('week',now() at time zone 'UTC')+interval '4 days 20 hours 30 minutes')))/3600)::int::text where user_id='${viewer}';
+ delete from public.sky_omens;
+ insert into public.sky_omens(week,circle_id,omen) select (now() at time zone time_zone)::date,'${circle}','A bright shared spark gathers over all of you tonight.' from public.social_profiles where user_id='${viewer}';
+ insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id) values('${viewer}','${viewer}','${circle}','joined','${circle}');`);
+ assert.deepEqual(await deliverSocialPushes(settings,transport),{queued:2,accepted:2});
+ assert.deepEqual(sent.map(push=>push.data),[{social:true,circle},{social:true,sky:true}]);
+ assert.deepEqual(sent.map(push=>push.to),[token,token]);
+ assert.equal(await sql('select count(*) from public.social_notifications where delivered_at is not null'),'1');
+ assert.equal(await sql('select count(*) from public.sky_pushes where delivered_at is not null'),'1');
+ assert.deepEqual(await deliverSocialPushes(settings,transport),{queued:0,accepted:0});
 });
