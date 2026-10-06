@@ -13,8 +13,13 @@ const shot=async name=>{await page.waitForTimeout(800);await page.screenshot({pa
 const spoken=()=>page.evaluate(()=>window.__speech.filter(entry=>entry.speak).map(entry=>entry.speak));
 async function read(question){
  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(question);await page.getByTestId('look-into-the-future').click();
- await page.getByTestId('option-0').waitFor({timeout:65000});
- while(!await page.getByTestId('share-this-glimpse').count()){if(await page.getByTestId('option-0').count())await page.getByTestId('option-0').click();await page.waitForTimeout(1000);}
+ const deadline=Date.now()+180000;
+ while(!await page.getByTestId('share-this-glimpse').count()){
+  if(await page.getByText('The mist is too thick.',{exact:true}).count()||await page.getByText('This one isn’t for the Ball.',{exact:true}).count())throw new Error(`Reading failed: ${await page.locator('body').innerText()}`);
+  if(Date.now()>=deadline)throw new Error('Reading did not reveal within 180 seconds.');
+  if(await page.getByTestId('option-0').count())await page.getByTestId('option-0').click({timeout:Math.max(1,Math.min(10000,deadline-Date.now()))});
+  await page.waitForTimeout(1000);
+ }
  await page.getByTestId('why-disclosure').click();
 }
 async function home(){while(await page.getByTestId('close-flow').count())await page.getByTestId('close-flow').click();}
