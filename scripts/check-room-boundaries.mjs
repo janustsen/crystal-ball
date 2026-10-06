@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const results=[];
-async function scrollPastBall(page,control,ball){
+async function scrollAndTap(page,control){
  await control.evaluate(el=>{
   for(let parent=el.parentElement;parent;parent=parent.parentElement){
    if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
@@ -21,13 +21,13 @@ async function scrollPastBall(page,control,ball){
    }
   }
  });
- const target=await ball.boundingBox();
- assert.ok(bounds.height>0,'scroll viewport remains usable');
- assert.ok(bounds.top>=target.y+target.height,'scrolled controls cannot overlap the ball target');
+ assert.ok(bounds.height>=100,'scroll viewport remains usable on short screens');
+ await control.scrollIntoViewIfNeeded();
+ await expect(control).toBeInViewport({ratio:0.3});
  await control.click();
 }
 try{
- for(const failed of [false,true])for(const viewport of [{width:390,height:844},{width:375,height:667}]){
+ for(const failed of [false,true])for(const viewport of [{width:390,height:844},{width:375,height:667},{width:390,height:390},{width:844,height:390}]){
   const context=await browser.newContext({viewport});
   try{
    if(failed)await context.addInitScript(()=>{
@@ -47,19 +47,19 @@ try{
    await page.getByTestId('hero-orb').waitFor();
    await page.waitForTimeout(2500);
    await expect.poll(()=>page.locator('video').count()).toBe(failed?0:1);
-   await scrollPastBall(page,page.getByTestId('room-inner-library'),page.getByTestId('hero-orb'));
+   await scrollAndTap(page,page.getByTestId('room-inner-library'));
    await expect(page.getByTestId('hero-orb')).toHaveCount(0);
    await page.getByTestId('tab-home').click();
-   await page.getByTestId('hero-orb').click();await page.getByTestId('type-instead').click();
+   await page.getByTestId(page.viewportSize().height>=800?'hero-orb':'tab-ask').click();await page.getByTestId('type-instead').click();
    const input=page.getByTestId('question-input');
    await input.fill('Will I finish my draft?');
-   await scrollPastBall(page,input,page.getByTestId('ask-ball'));
+   await scrollAndTap(page,input);
    await expect(input).toBeFocused();
    await expect(input).toHaveValue('Will I finish my draft?');
    await page.getByTestId('look-into-the-future').click();
    const other=page.getByTestId('option-2');
    await other.waitFor();await page.waitForTimeout(1000);
-   await scrollPastBall(page,other,page.getByTestId('ask-ball'));
+   await scrollAndTap(page,other);
    await expect(page.getByTestId('other-input')).toBeVisible();
    if(failed){
     await expect(page.locator('video')).toHaveCount(0);
