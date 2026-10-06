@@ -1,5 +1,5 @@
 // Plus social journey: year recap teaser/unlock, private Circle room toggle, sealed tally, reveal and Circle shelf.
-// Same isolated adapter and port setup as drive-social-v2.mjs. Only the due date is advanced as a fixture.
+// Same isolated adapter and port setup as drive-social-v2.mjs. Due dates and saved reading years use timing fixtures.
 import {spawn,execFileSync} from 'node:child_process';
 import sharp from 'sharp';
 import {mkdir,writeFile} from 'node:fs/promises';
