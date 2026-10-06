@@ -72,7 +72,7 @@ Targeted seals use the same weekly quota and moderation gate as links. The inbox
 
 ### Friday Sky
 
-Every Friday at 20:00 on each viewer's own clock, the Sky opens one shared omen per School and one per Circle for the week, until the next Friday at 20:00. A School's omen is visible only to accounts that chose that School, so teens see only their own school's; a Circle's omen only to its current members. Before a group's first omen exists, Sky and Circles say when it opens. The client sends its IANA time zone on each Sky load (`open_sky`); unknown zones are ignored and an unsaved clock falls back to UTC.
+Every Friday at 20:00 on each viewer's own clock, the Sky opens one shared omen per School and one per Circle for the week, until the next Friday at 20:00. A School's omen is visible only to accounts that chose that School, so teens see only their own school's; a Circle's omen only to its current members. Before a group's first omen exists, or if omens cannot load, Sky and Circles say when it opens and otherwise keep working. The client sends its IANA time zone on each Sky load (`open_sky`); unknown zones are ignored and an unsaved clock falls back to UTC.
 
 The trusted scheduler generates omens server-side (`scripts/open-sky.mts`): one per group per week, written only by the service. The model receives just the group kind and a random celestial motif, never member data, and every omen passes the teen-audience public-Star moderation gate; a failed or unsafe omen leaves the group closed until the next run. Generation targets the Friday on or after yesterday (UTC), so omens exist before the earliest zone opens.
 

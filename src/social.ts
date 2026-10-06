@@ -60,14 +60,14 @@ export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise
   // The saved clock decides when this viewer's Friday Sky opens and when its push arrives.
   db.rpc('open_sky',{zone:Intl.DateTimeFormat().resolvedOptions().timeZone||null}),
  ]);
- // School data and room status are optional: their failure leaves Sky and Circles working. Tallies stay server-sealed either way.
- for(const result of [sky,own,circles,members,reactions,seals,profile,notices,requests,moments,glows,forecasts,votes,receivedSeals,omens])if(result.error)throw new Error(socialUnavailable);
+ // School, Friday Sky data and room status are optional: their failure leaves Sky and Circles working. Tallies stay server-sealed either way.
+ for(const result of [sky,own,circles,members,reactions,seals,profile,notices,requests,moments,glows,forecasts,votes,receivedSeals])if(result.error)throw new Error(socialUnavailable);
  const stars:SkyStar[]=[];
  for(const row of sky.data??[]){
   if(isSkyPrompt(row.theme)&&safeSealedHeadline(row.wording)&&typeof row.id==='string'&&Number.isFinite(row.resonances))
    stars.push({id:row.id,theme:row.theme,wording:row.wording,resonances:row.resonances,resonated:row.resonated===true,mine:row.mine===true,synthetic:false});
  }
- return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly,requests:requests.data??[],moments:moments.data??[],glows:glows.data??[],forecasts:forecasts.data??[],votes:votes.data??[],rooms:(rooms.data??[]).map(room=>room.circle_id),receivedSeals:receivedSeals.data??[],omens:((omens.data??[]) as SkyOmen[]).filter(row=>safeSealedHeadline(row.omen))};
+ return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly,requests:requests.data??[],moments:moments.data??[],glows:glows.data??[],forecasts:forecasts.data??[],votes:votes.data??[],rooms:(rooms.data??[]).map(room=>room.circle_id),receivedSeals:receivedSeals.data??[],omens:((omens.error?[]:omens.data??[]) as SkyOmen[]).filter(row=>safeSealedHeadline(row.omen))};
 }
 export const publishStar=(draft:SocialDraft)=>rpc('publish_star',{approved_draft:draft.id});
 export const removeStar=(id:string)=>rpc('withdraw_star',{star:id});
