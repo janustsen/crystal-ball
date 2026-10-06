@@ -15,3 +15,7 @@ export function selectedStyle(state:Pick<AccountState,'plus'|'ballStyle'|'cardSt
  return state.plus?(state[kind==='ball'?'ballStyle':'cardStyle']||'classic'):'classic';
 }
 export const skinColors={classic:{fill:'transparent',rim:'transparent'},gold:{fill:'#E0A45855',rim:'#E0A458'},obsidian:{fill:'#05060B99',rim:'#8F91A3'}};
+// Plus narration: the headline is always spoken with its speculative label, never alone.
+export function narration(state:Pick<AccountState,'plus'|'narrationMuted'>,prediction:Pick<Prediction,'headline'|'label'>):string|null {
+ return state.plus&&!state.narrationMuted?`${prediction.headline} ${prediction.label.replaceAll(' · ',', ')}.`:null;
+}

@@ -12,16 +12,19 @@ export function sunSign(birthday?:string):string|undefined {
  if(!birthday||!validBirthday(birthday))return;
  return (signs.filter(([start])=>birthday.slice(5)>=start).at(-1)?.[1]||'Capricorn').toLowerCase();
 }
-export function astrologyLine(birthday?:string):string {
+export type BirthChart={moonSign:string;risingSign:string};
+const titled=(sign:string)=>sign[0].toUpperCase()+sign.slice(1);
+export function astrologyLine(birthday?:string,chart?:BirthChart):string {
  const sign=sunSign(birthday);
- return sign?`Under your ${sign[0].toUpperCase()+sign.slice(1)} Sun, consider this a playful invitation to your next chapter.`:'The stars offer a playful lens on your next chapter.';
+ if(!sign)return 'The stars offer a playful lens on your next chapter.';
+ return `Under your ${titled(sign)} Sun${chart?`, ${titled(chart.moonSign)} Moon and ${titled(chart.risingSign)} rising`:''}, consider this a playful invitation to your next chapter.`;
 }
 
 export function birthdayProfile(birthday?:string,ageConfirmed=false){
  const group=ageGroup(birthday);
  if(group==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
  if(birthday&&!validBirthday(birthday))throw new Error('Use a valid birthday: YYYY-MM-DD.');
- return {birthday,ageConfirmed:group==='unknown'?ageConfirmed:true,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?(ageConfirmed?'teen' as const:null):group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined};
+ return {birthday,ageConfirmed:group==='unknown'?ageConfirmed:true,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?(ageConfirmed?'teen' as const:null):group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined,chartWeather:undefined};
 }
 
 export function updateBirthday(state:AccountState,birthday?:string):AccountState {
@@ -52,7 +55,7 @@ export function restoreProfile(state:AccountState):AccountState {
  const facts={...state.facts};delete facts.birthday;
  if(state.onboardingBlocked||ageGroup(birthday)==='under13')return {...state,...birthdayProfile(),facts,onboardingBlocked:true,onboardingDone:false};
  const profile=birthdayProfile(birthday,state.ageConfirmed===true);
- return {...state,...profile,...(!birthday&&profile.ageConfirmed&&state.ageBand==='adult'?{ageBand:'adult' as const}:{}),...(birthday?{birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign}:{}),facts,onboardingDone:profile.ageConfirmed&&(state.onboardingDone??Boolean(state.history.length||Object.keys(facts).length))};
+ return {...state,...profile,...(!birthday&&profile.ageConfirmed&&state.ageBand==='adult'?{ageBand:'adult' as const}:{}),...(birthday?{birthTime:state.birthTime,birthPlace:state.birthPlace,moonSign:state.moonSign,risingSign:state.risingSign,chartWeather:state.chartWeather}:{}),facts,onboardingDone:profile.ageConfirmed&&(state.onboardingDone??Boolean(state.history.length||Object.keys(facts).length))};
 }
 export function personQuestionIssue(question:string,name?:string):string|undefined {
  if(name===undefined)return;
