@@ -16,7 +16,7 @@ import type {ModelProvider,JsonSchema} from '../server/provider.ts';
 import {once} from 'node:events';
 import {join} from 'node:path';
 
-async function startAdapter(t:TestContext,psql:string,env:NodeJS.ProcessEnv={}){
+async function startAdapter(t:TestContext,psql:string,env:Partial<NodeJS.ProcessEnv>={}){
  const directory=await mkdtemp(join(process.cwd(),'.dev-transport-test-'));
  await writeFile(join(directory,'psql'),`#!/usr/bin/env node\n${psql}`,{mode:0o700});
  const child=spawn(process.execPath,['scripts/social-dev-transport.mjs'],{
