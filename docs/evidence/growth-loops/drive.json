@@ -1,0 +1,89 @@
+[
+ {
+  "health": {
+   "app": "crystal-ball",
+   "provider": "ollama"
+  },
+  "boundary": "OS share sheet stubbed (canShare=false) so clips download. Real Ollama readings through the preview bridge; in-process web limits (no Supabase). The seal token is fictional, so opening it fails by design."
+ },
+ {
+  "visitor": "first-visitor",
+  "requests": [
+   {
+    "action": "plan",
+    "webReading": false,
+    "authorization": false
+   },
+   {
+    "action": "predict",
+    "webReading": true,
+    "authorization": false
+   },
+   {
+    "action": "omen",
+    "webReading": false,
+    "authorization": false
+   }
+  ],
+  "clips": [
+   {
+    "saved": "docs/evidence/growth-loops/clip-question-off.mp4",
+    "probe": {
+     "programs": [],
+     "stream_groups": [],
+     "streams": [
+      {
+       "codec_type": "video",
+       "width": 1080,
+       "height": 1920
+      },
+      {
+       "codec_type": "audio"
+      }
+     ],
+     "format": {
+      "duration": "7.817667"
+     }
+    }
+   },
+   {
+    "saved": "docs/evidence/growth-loops/clip-question-on.mp4",
+    "probe": {
+     "programs": [],
+     "stream_groups": [],
+     "streams": [
+      {
+       "codec_type": "video",
+       "width": 1080,
+       "height": 1920
+      },
+      {
+       "codec_type": "audio"
+      }
+     ],
+     "format": {
+      "duration": "7.996633"
+     }
+    }
+   }
+  ],
+  "errors": []
+ },
+ {
+  "visitor": "same-network-visitor",
+  "requests": [
+   {
+    "action": "plan",
+    "webReading": false
+   },
+   {
+    "action": "predict",
+    "webReading": true
+   }
+  ],
+  "errors": []
+ },
+ {
+  "result": "pass"
+ }
+]

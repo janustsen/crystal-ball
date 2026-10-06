@@ -31,8 +31,9 @@ function app(onboardingDone=true,history:any[]=[]){
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
-  '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social'},
-  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},'../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
+  '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social',SealForecast:'SealForecast',InstallAction:'InstallAction'},'../src/RevealClip':{RevealClip:'RevealClip'},
+  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
+  '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
  };
  const module={exports:{} as any};
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
@@ -101,4 +102,34 @@ test('the Inner Library opens from the Home room spot and You; its locked door l
  room=render();
  assert.ok(room.some(n=>n.type==='InnerLibrary'));
  assert.ok(!room.some(n=>n.props.testID==='tab-you'&&n.props.accessibilityState?.selected),'the room is not a tab');
+});
+
+const reading={id:'reading',question:'Will I finish my course?',headline:'You will finish your course next month.',createdAt:'2026-10-01T00:00:00Z',label:'Speculative forecast · not a guarantee',why:'Practice adds up.',facts:{},sources:[],assumptions:[],friend:false};
+const openReading=(render:()=>any[])=>{
+ render().find(n=>n.props.testID==='tab-history').props.onPress();
+ render().find(n=>n.props.accessibilityRole==='button'&&n.props.key==='reading').props.onPress();
+ return render();
+};
+
+test('a reveal leads with Seal it for a friend; Share and Ask again stay secondary',()=>{
+ const {render}=app(true,[reading]);
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ const reveal=openReading(render);
+ const seal=reveal.findIndex(n=>n.type==='SealForecast'),share=reveal.findIndex(n=>n.props.label==='Share this glimpse');
+ assert.ok(seal>=0&&share>seal,'seal comes before share');
+ assert.equal(reveal[share].props.quiet,true);
+ assert.ok(reveal.some(n=>n.type==='RevealClip'&&n.props.prediction.id==='reading'));
+ assert.ok(reveal.some(n=>n.props.testID==='ask-another-question'));
+ assert.ok(!reveal.some(n=>n.type==='InstallAction'));
+});
+
+test('a sealed-link browser visitor starts their free reading from the seal, then is sent to install',()=>{
+ const {render,params}=app(true,[reading]);
+ render().find(n=>n.type==='SealedCard').props.onAsk();
+ assert.equal(params.seal,undefined);
+ assert.ok(render().some(n=>n.props.testID==='close-flow'),'Ask opens');
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ const reveal=openReading(render);
+ assert.ok(reveal.some(n=>n.type==='InstallAction'));
+ assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));
 });

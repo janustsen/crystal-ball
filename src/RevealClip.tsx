@@ -1,0 +1,115 @@
+import {useState} from 'react';
+import {Platform,Switch,View} from 'react-native';
+import {Asset} from 'expo-asset';
+import {Action,Txt,colors,fonts,styles} from './ui';
+import {suggestedCheckIn} from './retention';
+import {selectedStyle,skinColors} from './delight';
+import {activityTheme,skyPrompts} from './social-policy';
+import {useStore} from './store';
+import type {Prediction,StyleName} from './types';
+
+type Look={cardStyle:StyleName;ballStyle:StyleName;orb:HTMLImageElement};
+// Animation inputs (0-1) plus the clip-only lines. Defaults paint the still story card.
+type Frame={orb?:number;text?:number;glow?:number;category?:string;question?:string;aiLabel?:boolean};
+
+export async function loadOrb(){const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();return orb}
+
+// The 1080×1920 story composition shared by the still card and the reveal clip.
+// Design hook: swap this painter for the designed card/clip template when it lands.
+export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{cardStyle,ballStyle,orb}:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
+ const golden=prediction.golden,cardCenter=golden||cardStyle==='gold'?'#684519':cardStyle==='obsidian'?'#12131C':colors.violet;
+ ctx.globalAlpha=1;ctx.textAlign='center';
+ const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,cardCenter);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
+ for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+ const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+ if(glow>0){const halo=ctx.createRadialGradient(540,584,60,540,584,460);halo.addColorStop(0,colors.gold);halo.addColorStop(1,'transparent');ctx.globalAlpha=glow*.55;ctx.fillStyle=halo;ctx.fillRect(0,100,1080,980);ctx.globalAlpha=1;}
+ const scale=.86+.14*open,w=540*scale,h=608*scale;ctx.globalAlpha=open;ctx.drawImage(orb,540-w/2,584-h/2,w,h);
+ if(ballStyle!=='classic'){const skin=skinColors[ballStyle];ctx.fillStyle=skin.fill;ctx.strokeStyle=skin.rim;ctx.lineWidth=2;ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.fill();ctx.stroke();}
+ ctx.globalAlpha=1;
+ if(cardStyle!=='classic'&&!golden){ctx.strokeStyle=cardStyle==='gold'?colors.gold:'#8F91A3';ctx.lineWidth=3;ctx.strokeRect(64,64,952,1792);}
+ if(golden){ctx.strokeStyle=colors.gold;ctx.lineWidth=8;ctx.strokeRect(48,48,984,1824);}
+ if(aiLabel){ctx.font=`32px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.muted;ctx.fillText('AI-generated · for entertainment',540,140);}
+ ctx.globalAlpha=text;
+ if(golden){ctx.font=`38px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText('Golden edition · same uncertainty',540,1490);}
+ if(category){ctx.font=`40px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText(category.toUpperCase(),540,question?935:960);}
+ if(question){ctx.font=`38px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;let line=`“${question}”`;while(ctx.measureText(line).width>900&&line.length>4)line=line.slice(0,-3)+'…”';ctx.fillText(line,540,1000);}
+ ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;
+ const headline=prediction.headline.replace(/(\d+)\s+(months?|years?|weeks?|days?)/gi,'$1 $2');
+ const wrap=(text:string)=>{const lines:string[]=[];let line='';for(const word of text.split(' ')){if(ctx.measureText((line+' '+word).trim()).width<=820){line=(line+' '+word).trim();continue;}if(line){lines.push(line);line='';}for(const letter of word){if(ctx.measureText(line+letter).width>820){lines.push(line);line='';}line+=letter;}}if(line)lines.push(line);return lines;};
+ let font=82,lines=wrap(headline);while(lines.length>3&&font>36){font-=2;ctx.font=`${font}px ${fonts.display}, Georgia`;lines=wrap(headline);}
+ let y=1080;for(const line of lines){ctx.fillText(line,540,y);y+=font*1.25;}y-=font*1.25;
+ ctx.font=`42px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;const labelY=Math.min(y+100,1370);ctx.fillText('Speculative forecast',540,labelY);ctx.fillText('Not a guarantee',540,labelY+72);ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',540,1590);
+ ctx.font=`36px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.muted;ctx.fillText(`Check back ${suggestedCheckIn(prediction)}`,540,1650);
+ ctx.globalAlpha=1;
+}
+
+const ease=(t:number)=>{const x=Math.min(1,Math.max(0,t));return x*x*(3-2*x)};
+const duration=8000;
+// Timeline: the ball opens, the forecast card fades in and holds, then the end card.
+function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,frame:Frame,ms:number){
+ paintStory(ctx,prediction,look,{...frame,aiLabel:true,orb:ease(ms/1800),glow:Math.sin(Math.PI*Math.min(1,ms/2400))*.9,text:ease((ms-1600)/1000)});
+ const end=ease((ms-6200)/600);
+ if(end>0){
+  ctx.globalAlpha=end;ctx.fillStyle=colors.ink;ctx.fillRect(0,0,1080,1920);ctx.drawImage(look.orb,360,520,360,405);
+  ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`76px ${fonts.display}, Georgia`;ctx.fillText('search Crystal Ball',540,1120);
+  ctx.fillStyle=colors.gold;ctx.font=`44px ${fonts.body}, sans-serif`;ctx.fillText('Ask the Ball your own question',540,1200);
+  ctx.fillStyle=colors.muted;ctx.font=`32px ${fonts.body}, sans-serif`;ctx.fillText('AI-generated · for entertainment',540,140);
+ }
+ ctx.globalAlpha=.55;ctx.textAlign='right';ctx.fillStyle=colors.ivory;ctx.font=`30px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',1020,1870);ctx.globalAlpha=1;ctx.textAlign='center';
+}
+
+// The app's own generated chime and hum (assets/audio); no licensed music.
+async function soundtrack(audio:AudioContext){
+ const destination=audio.createMediaStreamDestination();
+ const [hum,chime]=await Promise.all([require('../assets/audio/hum.wav'),require('../assets/audio/chime.wav')].map(async module=>audio.decodeAudioData(await (await fetch(Asset.fromModule(module).uri)).arrayBuffer())));
+ const play=(buffer:AudioBuffer,at:number,volume:number,loop=false)=>{const source=audio.createBufferSource(),gain=audio.createGain();source.buffer=buffer;source.loop=loop;gain.gain.value=volume;source.connect(gain).connect(destination);source.start(audio.currentTime+at);if(loop)source.stop(audio.currentTime+duration/1000)};
+ play(hum,0,.35,true);play(chime,1.6,.8);
+ return destination.stream.getAudioTracks();
+}
+
+export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Promise<globalThis.File>{
+ const audio=new AudioContext(); // created inside the tap so the browser lets it play
+ try{
+  const type=['video/mp4;codecs=avc1,mp4a','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+  if(!type)throw new Error('unsupported');
+  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d');if(!ctx)throw new Error('unsupported');
+  paintClip(ctx,prediction,look,frame,0);
+  const stream=canvas.captureStream(30);
+  await audio.resume();
+  for(const track of await soundtrack(audio).catch(()=>[]))stream.addTrack(track);
+  const recorder=new MediaRecorder(stream,{mimeType:type,videoBitsPerSecond:6_000_000}),chunks:Blob[]=[];
+  recorder.ondataavailable=event=>{if(event.data.size)chunks.push(event.data)};
+  const stopped=new Promise(resolve=>recorder.onstop=resolve);
+  recorder.start(250);const start=performance.now();
+  await new Promise<void>(resolve=>{const tick=()=>{const ms=performance.now()-start;paintClip(ctx,prediction,look,frame,ms);if(ms>=duration){resolve();return}requestAnimationFrame(tick)};requestAnimationFrame(tick)});
+  recorder.stop();await stopped;stream.getTracks().forEach(track=>track.stop());
+  return new globalThis.File(chunks,`crystal-ball-reveal.${type.startsWith('video/mp4')?'mp4':'webm'}`,{type:type.split(';')[0]});
+ }finally{void audio.close().catch(()=>{})}
+}
+
+// Web: MediaRecorder on a canvas. Native needs a view-to-video recorder module and a development build;
+// until then native keeps Replay for recording with the device screen recorder (see SETUP.md).
+export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice:(message:string)=>void}){
+ const {state}=useStore(),[question,setQuestion]=useState(false),[busy,setBusy]=useState(false),[clip,setClip]=useState<globalThis.File|null>(null);
+ if(Platform.OS!=='web')return null;
+ async function make(){
+  setBusy(true);setClip(null);onNotice('');
+  try{
+   const orb=await loadOrb();
+   setClip(await recordClip(prediction,{cardStyle:selectedStyle(state,'card'),ballStyle:selectedStyle(state,'ball'),orb},{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
+  }catch(error){onNotice(error instanceof Error&&error.message==='unsupported'?'This browser cannot record video. Use Story image or Replay for recording instead.':'The clip could not be recorded. Please try again.')}
+  finally{setBusy(false)}
+ }
+ async function save(){
+  if(!clip)return;
+  const download=()=>{const url=URL.createObjectURL(clip),a=document.createElement('a');a.download=clip.name;a.href=url;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);onNotice('1080 × 1920 reveal clip saved.')};
+  if(navigator.canShare?.({files:[clip]}))await navigator.share({files:[clip]}).catch(error=>{if(error?.name!=='AbortError')download()});
+  else download();
+ }
+ return <View style={{marginTop:12}}>
+  <Action testID="make-reveal-clip" label={busy?'Recording the reveal…':'Make reveal clip'} quiet disabled={busy} onPress={()=>void make()}/>
+  {clip?<Action testID="save-reveal-clip" label="Save or share clip" onPress={()=>void save()}/>:null}
+  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Switch testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} onValueChange={value=>{setQuestion(value);setClip(null)}}/></View>
+  <Txt style={styles.caption}>9:16 video with sound: the ball opening, theme, headline and check-back date, labeled AI-generated. Your question stays out unless you turn it on.</Txt>
+ </View>;
+}
