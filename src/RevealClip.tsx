@@ -44,7 +44,6 @@ export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{c
 }
 
 const ease=(t:number)=>{const x=Math.min(1,Math.max(0,t));return x*x*(3-2*x)};
-const duration=8000;
 // Timeline: the ball opens, the forecast card fades in and holds, then the end card.
 function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,frame:Frame,ms:number){
  paintStory(ctx,prediction,look,{...frame,aiLabel:true,orb:ease(ms/1800),glow:Math.sin(Math.PI*Math.min(1,ms/2400))*.9,text:ease((ms-1600)/1000)});
@@ -62,7 +61,8 @@ function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,
 async function soundtrack(audio:AudioContext){
  const destination=audio.createMediaStreamDestination();
  const [hum,chime]=await Promise.all([require('../assets/audio/hum.wav'),require('../assets/audio/chime.wav')].map(async module=>audio.decodeAudioData(await (await fetch(Asset.fromModule(module).uri)).arrayBuffer())));
- const play=(buffer:AudioBuffer,at:number,volume:number,loop=false)=>{const source=audio.createBufferSource(),gain=audio.createGain();source.buffer=buffer;source.loop=loop;gain.gain.value=volume;source.connect(gain).connect(destination);source.start(audio.currentTime+at);if(loop)source.stop(audio.currentTime+duration/1000)};
+ // Keep the hum audible through the capture tail; recordClip closes audio after the recorder stops.
+ const play=(buffer:AudioBuffer,at:number,volume:number,loop=false)=>{const source=audio.createBufferSource(),gain=audio.createGain();source.buffer=buffer;source.loop=loop;gain.gain.value=volume;source.connect(gain).connect(destination);source.start(audio.currentTime+at)};
  play(hum,0,.35,true);play(chime,1.6,.8);
  return destination.stream.getAudioTracks();
 }
