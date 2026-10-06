@@ -34,6 +34,7 @@ test('push worker sends only permitted generic messages and acknowledges accepte
  const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]);
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input),body=JSON.parse(String(init?.body));
+  if(url.endsWith('/claim_sky_pushes'))return Response.json([]);
   if(url.endsWith('/claim_social_pushes'))return Response.json(['seal','invite','joined','forecast','vote'].map((kind,index)=>({id:String(index),kind,token:'ExpoPushToken[fixture]',circle_id:'circle'})));
   if(url.endsWith('/finish_social_push')){finished.push(body.notification);return Response.json(null);}
   assert.equal(url,'https://exp.host/--/api/v2/push/send');sent.push(body);return Response.json({data:{status:'ok',id:'ticket'}});
@@ -47,6 +48,7 @@ test('failed push delivery remains retryable and never acknowledges a rejected t
  let finished=false;
  const transport:typeof fetch=async(input)=>{
   const url=String(input);
+  if(url.endsWith('/claim_sky_pushes'))return Response.json([]);
   if(url.endsWith('claim_social_pushes'))return Response.json([{id:'job',kind:'invite',token:'ExpoPushToken[fixture]',circle_id:'circle'}]);
   if(url.endsWith('finish_social_push')){finished=true;return Response.json(null);}
   return Response.json({data:{status:'error',details:{error:'MessageRateExceeded'}}});
@@ -61,6 +63,7 @@ test('unregistered devices remain retryable after token replacement',async()=>{
  const sent:string[]=[];
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input);
+  if(url.endsWith('/claim_sky_pushes'))return Response.json([]);
   if(url.endsWith('claim_social_pushes'))return Response.json(finished?[]:[{id:'job',kind:'seal',token,circle_id:'circle'}]);
   if(url.endsWith('finish_social_push')){finished=true;return Response.json(null);}
   sent.push(JSON.parse(String(init?.body)).to);
