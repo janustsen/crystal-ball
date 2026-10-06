@@ -78,7 +78,24 @@ export function billing(env:Env){
   if(!isStyle(ball)||!isStyle(card))throw new BillingError('Choose a ball and card style.',400);
   return rpc('set_profile_styles',{viewer,ball,card});
  }
- return {user,reconcile,simulate,styles,authorizeCharge,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
+ // One chart weather per Plus user per month: the database claim decides who generates; everyone else reuses it.
+ async function chartWeather(viewer:string,month:string,chart:string,generate:()=>Promise<string>):Promise<string>{
+  const call=async(name:string,args:object)=>{
+   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:service,body:JSON.stringify({viewer,target_month:month,...args}),signal:AbortSignal.timeout(5000)});
+   const value=await response.json().catch(()=>null);
+   if(!response.ok&&/Plus extra/.test(value?.message))throw new BillingError('Chart weather is a Plus extra.',403);
+   if(!response.ok)throw new Error('Chart weather is unavailable. Please try again later.');
+   return value;
+  };
+  const claim=await call('claim_chart_weather',{});
+  if(typeof claim?.text==='string'){if(claim.chart===chart)return claim.text;throw new BillingError('You’ve read this month’s chart weather. A new one arrives next month.',409)}
+  if(claim?.claimed!==true)throw new BillingError('Your chart weather is still arriving. Try again in a moment.',409);
+  let text:string;
+  try{text=await generate()}catch(error){await call('release_chart_weather',{}).catch(()=>{});throw error}
+  const saved=await call('save_chart_weather',{weather:text,weather_chart:chart});
+  return typeof saved==='string'?saved:text;
+ }
+ return {user,reconcile,simulate,styles,authorizeCharge,chartWeather,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }
 export type Billing=NonNullable<ReturnType<typeof billing>>;
 

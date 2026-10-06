@@ -17,7 +17,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
   try{const matches=await findBirthPlaces(place.trim(),abort.signal);if(!abort.signal.aborted){setPlaces(matches);if(!matches.length)setNotice('No matching city. Try a nearby town.');}}catch{if(!abort.signal.aborted)setNotice('City search is unavailable. Try again later.');}finally{if(!abort.signal.aborted)setBusy(false);}
  }
  const month=localDay().slice(0,7),weather=state.chartWeather?.month===month?state.chartWeather.text:null;
- // ponytail: one chart weather per month is kept on this device, like the daily omen; move the claim server-side if requests are abused.
+ // The server keeps one chart weather per account and month; this copy only avoids asking again.
  async function readWeather(){
   if(aiConsent===null||weatherBusy)return;setWeatherBusy(true);setNotice('');
   try{const text=await requestChartWeather(state,aiConsent);update(s=>s.moonSign&&s.birthday===state.birthday&&s.moonSign===state.moonSign&&s.risingSign===state.risingSign?{...s,chartWeather:{month,text}}:s);}catch(e){setNotice(e instanceof Error?e.message:'Chart weather is unavailable. Please try again later.');}finally{setWeatherBusy(false);}

@@ -67,6 +67,7 @@ fi
 "${sql[@]}" -f scripts/social-v2-rls.sql
 "${sql[@]}" -f scripts/billing-rls.sql
 "${sql[@]}" -f scripts/private-room-rls.sql
+"${sql[@]}" -f scripts/chart-weather-rls.sql
 
 # Two distinct recipients race to open a fresh seal. Exactly one may succeed.
 token=$("${sql[@]}" -Atc "delete from public.social_blocks; update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated; set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; select public.seal_forecast('20000000-0000-0000-0000-000000000001');" | tail -1)
