@@ -8,14 +8,14 @@ const code=ts.transpileModule(readFileSync(new URL('../src/SocialPush.tsx',impor
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
 }).outputText;
 function fixture(platform='ios'){
- const account={answered:false,enabled:false,token:null as string|null};
+ const account={answered:false,enabled:false,token:null as string|null,circle:false};
  const calls:string[]=[];
  let slots:any[]=[],cursor=0,permission='granted',tokenFails=false,saveFails=false;
  const react={
   createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]},
  };
- const setSkyPush=async(enabled:boolean)=>{calls.push(`sky:${enabled}`);if(saveFails)throw new Error('Save failed');account.answered=true;account.enabled=enabled;};
+ const setSkyPush=async(enabled:boolean,token?:string)=>{calls.push(token?`sky:${enabled}:${token}`:`sky:${enabled}`);if(saveFails)throw new Error('Save failed');account.answered=true;account.enabled=enabled;if(token)account.token=token;};
  const imports:Record<string,any>={
   react,'react-native':{Platform:{OS:platform},View:'View',Switch:'Switch'},
   './ui':{Action:'Action',Txt:'Txt',styles:{row:{}}},
@@ -25,7 +25,7 @@ function fixture(platform='ios'){
    getExpoPushTokenAsync:async()=>{calls.push('token');if(tokenFails)throw new Error('Token failed');return {data:'test-token'}},
    setNotificationChannelAsync:async()=>{calls.push('channel')},AndroidImportance:{DEFAULT:3},
   },
-  './social':{setSkyPush,setSocialPush:async(token:string|null)=>{calls.push('save-token');account.token=token}},
+  './social':{setSkyPush,setSocialPush:async(token:string|null)=>{calls.push(token?'save-token':'circle-off');if(token)account.token=token;account.circle=token!==null}},
  };
  const module={exports:{} as any};
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error});
@@ -41,8 +41,8 @@ test('Sky prompt is native-only and acceptance registers before opting in',async
  const f=fixture();
  assert.ok(control(f,'sky-push-prompt'));
  control(f,'sky-push-accept').props.onPress();await settle();
- assert.deepEqual(f.calls,['sky:false','answered:false','permission','token','save-token','sky:true','answered:true']);
- assert.deepEqual(f.account,{answered:true,enabled:true,token:'test-token'});
+ assert.deepEqual(f.calls,['sky:false','answered:false','permission','token','sky:true:test-token','answered:true']);
+ assert.deepEqual(f.account,{answered:true,enabled:true,token:'test-token',circle:false});
  f.remount();assert.equal(control(f,'sky-push-prompt'),undefined);
 });
 
@@ -75,8 +75,11 @@ test('settings default off, allow later opt-in and opt-out, and Circle enable ne
  f.render(true).find(n=>n.props.label==='Enable Circle notifications').props.onPress();await settle();
  assert.equal(f.account.enabled,false);assert.equal(f.account.answered,false);
  f.calls.length=0;toggle().props.onValueChange(true);await settle();
- assert.deepEqual(f.calls,['channel','permission','token','save-token','sky:true']);
+ assert.deepEqual(f.calls,['channel','permission','token','sky:true:test-token']);
  assert.equal(toggle().props.value,true);
+ assert.equal(f.account.circle,true);
+ f.render(true).find(n=>n.props.label==='Turn off Circle notifications').props.onPress();await settle();
+ assert.equal(f.account.circle,false);assert.equal(f.account.enabled,true);assert.equal(toggle().props.value,true);
  f.calls.length=0;toggle().props.onValueChange(false);await settle();
  assert.deepEqual(f.calls,['sky:false']);assert.equal(toggle().props.value,false);
  f.remount();assert.equal(control(f,'sky-push-prompt'),undefined);

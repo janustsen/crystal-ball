@@ -20,7 +20,7 @@ export type CircleReaction = {circle_id:string;target_id:string;user_id:string;d
 export type SentSeal = {id:string;headline:string;token:string;opened_at:string|null};
 export type SkyOmen={week:string;school_id:string|null;circle_id:string|null;omen:string};
 export type SocialDraft={id:string;wording:string;theme:SkyPrompt};
-export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean;school_id:string|null;handle:string|null;display_name:string|null;avatar:string;sky_push:boolean;sky_push_answered:boolean}|null;omens:SkyOmen[];notices:number;schools:School[];schoolSuggestions:SchoolSuggestion[];schoolOnly:boolean;requests:CircleInvite[];moments:CircleMoment[];glows:{circle_id:string;day:string}[];forecasts:CircleForecast[];votes:CircleTally[];rooms:string[];receivedSeals:{token:string;opened_at:string|null}[]};
+export type SocialSnapshot = {owner:string;stars:SkyStar[];ownStar:string|null;circles:Circle[];members:CircleMember[];reactions:CircleReaction[];seals:SentSeal[];profile:{age_band:string;friends_can_ask:boolean;school_id:string|null;handle:string|null;display_name:string|null;avatar:string;sky_push:boolean;sky_push_answered:boolean}|null;omens:SkyOmen[]|null;notices:number;schools:School[];schoolSuggestions:SchoolSuggestion[];schoolOnly:boolean;requests:CircleInvite[];moments:CircleMoment[];glows:{circle_id:string;day:string}[];forecasts:CircleForecast[];votes:CircleTally[];rooms:string[];receivedSeals:{token:string;opened_at:string|null}[]};
 
 async function client(){
  if(!supabase)throw new Error(socialUnavailable);
@@ -67,7 +67,7 @@ export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise
   if(isSkyPrompt(row.theme)&&safeSealedHeadline(row.wording)&&typeof row.id==='string'&&Number.isFinite(row.resonances))
    stars.push({id:row.id,theme:row.theme,wording:row.wording,resonances:row.resonances,resonated:row.resonated===true,mine:row.mine===true,synthetic:false});
  }
- return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly,requests:requests.data??[],moments:moments.data??[],glows:glows.data??[],forecasts:forecasts.data??[],votes:votes.data??[],rooms:(rooms.data??[]).map(room=>room.circle_id),receivedSeals:receivedSeals.data??[],omens:((omens.error?[]:omens.data??[]) as SkyOmen[]).filter(row=>safeSealedHeadline(row.omen))};
+ return {owner,stars,ownStar:own.data?.[0]?.id??null,circles:circles.data??[],members:members.data??[],reactions:reactions.data??[],seals:(seals.data??[]).filter(seal=>safeSealedHeadline(seal.headline)),profile:profile.data?.[0]??null,notices:notices.data?.length??0,schools:schools.data??[],schoolSuggestions:suggestions.data??[],schoolOnly,requests:requests.data??[],moments:moments.data??[],glows:glows.data??[],forecasts:forecasts.data??[],votes:votes.data??[],rooms:(rooms.data??[]).map(room=>room.circle_id),receivedSeals:receivedSeals.data??[],omens:omens.error?null:((omens.data??[]) as SkyOmen[]).filter(row=>safeSealedHeadline(row.omen))};
 }
 export const publishStar=(draft:SocialDraft)=>rpc('publish_star',{approved_draft:draft.id});
 export const removeStar=(id:string)=>rpc('withdraw_star',{star:id});
@@ -113,4 +113,4 @@ export const voteCircleForecast=(forecast:string,answer:'yes'|'no'|'pending')=>r
 export const sendSeal=(draft:SocialDraft,circle:string,member:string)=>rpc('send_sealed_forecast',{approved_draft:draft.id,target_circle:circle,target_member:member});
 
 export const setSocialPush=(token:string|null)=>rpc('set_social_push',{push_token:token});
-export const setSkyPush=(enabled:boolean)=>rpc('set_sky_push',{enabled});
+export const setSkyPush=(enabled:boolean,token?:string)=>rpc('set_sky_push',{enabled,push_token:token??null});

@@ -41,10 +41,39 @@ create function public.open_sky(zone text) returns table(week date,school_id tex
   return query select o.week,o.school_id,o.circle_id,o.omen from social_private.sky_omens_for(auth.uid(),social_private.sky_week(coalesce(saved,'UTC'),now())) o;
  end;
 $$;
-create function public.set_sky_push(enabled boolean) returns void
+-- Each push type checks its own consent on the shared device token: Friday opt-in never enables Circle pushes,
+-- and turning Circle notifications off keeps the token for Friday Sky.
+alter table public.social_push_tokens add column circle_push boolean not null default true;
+create or replace function public.set_social_push(push_token text) returns void language plpgsql security definer set search_path='' as $$
+ begin
+  if auth.uid() is null then raise exception 'Sign in first'; end if;
+  if push_token is null then update public.social_push_tokens set circle_push=false where user_id=auth.uid();
+  else insert into public.social_push_tokens(user_id,token,circle_push) values(auth.uid(),push_token,true) on conflict(user_id) do update set token=excluded.token,circle_push=true; end if;
+ end;
+$$;
+create or replace function public.claim_social_pushes() returns table(id uuid,token text,kind text,circle_id uuid)
+ language plpgsql security definer set search_path='' as $$
+ begin
+  return query with pending as (
+   select n.id,t.token from public.social_notifications n join public.social_push_tokens t on t.user_id=n.user_id
+   where t.circle_push and n.delivered_at is null and n.deliver_after<=now() and (n.claimed_until is null or n.claimed_until<now())
+   and not exists(select 1 from public.social_blocks b where (b.user_id=n.user_id and b.blocked_id=n.actor_id) or (b.blocked_id=n.user_id and b.user_id=n.actor_id))
+   and ((n.kind='invite' and exists(select 1 from public.circle_requests r where r.id=n.reference_id and r.status='pending' and r.expires_at>now()))
+    or (n.kind='seal' and exists(select 1 from public.sealed_forecasts s where s.id=n.reference_id and not s.revoked and s.opened_at is null))
+    or (n.kind in ('joined','forecast','vote') and exists(select 1 from public.circle_members m where m.circle_id=n.circle_id and m.user_id=n.user_id)))
+   order by n.deliver_after limit 100 for update of n skip locked
+  ), claimed as (update public.social_notifications n set claimed_until=now()+interval '5 minutes' from pending p where n.id=p.id returning n.id,n.kind,n.circle_id)
+  select c.id,p.token,c.kind,c.circle_id from claimed c join pending p on p.id=c.id;
+ end;
+$$;
+-- Enabling Friday Sky registers the device token without granting Circle consent.
+create function public.set_sky_push(enabled boolean,push_token text default null) returns void
  language plpgsql security definer set search_path='' as $$
  begin
   if auth.uid() is null or enabled is null then raise exception 'Choose whether the Sky may notify you'; end if;
+  if enabled and push_token is not null then
+   insert into public.social_push_tokens(user_id,token,circle_push) values(auth.uid(),push_token,false) on conflict(user_id) do update set token=excluded.token;
+  end if;
   insert into public.social_profiles(user_id,sky_push,sky_push_answered) values(auth.uid(),enabled,true) on conflict(user_id) do update set sky_push=excluded.sky_push,sky_push_answered=true;
  end;
 $$;
@@ -96,7 +125,7 @@ create function public.finish_sky_push(notification uuid) returns void language 
 $$;
 
 revoke all on function social_private.sky_week(text,timestamptz),social_private.sky_omens_for(uuid,date),social_private.queue_sky_pushes(timestamptz) from public,anon,authenticated;
-revoke all on function public.open_sky(text),public.set_sky_push(boolean) from public,anon;
-grant execute on function public.open_sky(text),public.set_sky_push(boolean) to authenticated;
+revoke all on function public.open_sky(text),public.set_sky_push(boolean,text) from public,anon;
+grant execute on function public.open_sky(text),public.set_sky_push(boolean,text) to authenticated;
 revoke all on function public.sky_omen_targets(date),public.save_sky_omen(date,text,uuid,text),public.claim_sky_pushes(),public.finish_sky_push(uuid) from public,anon,authenticated;
 grant execute on function public.sky_omen_targets(date),public.save_sky_omen(date,text,uuid,text),public.claim_sky_pushes(),public.finish_sky_push(uuid) to service_role;

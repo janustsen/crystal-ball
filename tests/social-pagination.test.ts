@@ -56,7 +56,7 @@ test('loadSocial includes every capped collection and recovers an unpaid forecas
  fail='circle_forecasts';await assert.rejects(loadSocial(account));
  fail='schools';assert.deepEqual((await loadSocial(account)).schools,[]);
  fail='';(globalThis as any).socialPaginationDb.rpc=(name:string)=>name==='open_sky'?Promise.resolve({data:null,error:{message:'Sky unavailable'}}):query(name);
- assert.deepEqual((await loadSocial(account)).omens,[]);
+ assert.equal((await loadSocial(account)).omens,null);
 });
 
 test('pagination finishes exact page multiples and discards partial failures',async()=>{

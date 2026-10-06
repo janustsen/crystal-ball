@@ -13,11 +13,20 @@ export function skyWeek(now:Date){
 // A random motif keeps each group's omen its own without sending any member data to the model.
 const motifs=['a new moon','a passing comet','a meteor shower','the northern lights','twin stars','a lantern-lit sky','a rising tide moon','a shy constellation','a silver eclipse','a planet at its brightest','a falling star','dawn after a long night'];
 
+// Before Friday (UTC), last Friday's week is still open everywhere, so its missing omens are retried first.
+export function skyWeeks(now:Date){
+ const upcoming=skyWeek(now);
+ if(upcoming<=now.toISOString().slice(0,10))return [upcoming];
+ const current=new Date(`${upcoming}T00:00:00Z`);current.setUTCDate(current.getUTCDate()-7);
+ return [current.toISOString().slice(0,10),upcoming];
+}
+
 // Run hourly in a trusted scheduler. Each School and Circle gets one moderated omen per week; failed groups retry next run.
 // The model sees only the group kind and a motif, never member data, so no per-user AI consent is involved.
 export async function openSky(env:(key:string)=>string|undefined,model:ModelProvider,now=new Date(),transport:typeof fetch=fetch,pick=(count:number)=>Math.floor(Math.random()*count)){
- const rpc=serviceRpc(env,transport),week=skyWeek(now);
- const targets:{school_id:string|null;circle_id:string|null}[]=await rpc('sky_omen_targets',{target_week:week});
+ const rpc=serviceRpc(env,transport),weeks=skyWeeks(now);
+ const targets:{week:string;school_id:string|null;circle_id:string|null}[]=[];
+ for(const week of weeks)for(const target of await rpc('sky_omen_targets',{target_week:week}))targets.push({...target,week});
  let opened=0;
  // ponytail: sequential, ~25s per group on local Qwen and 500 targets per run; batch or parallelize when groups outgrow an hourly run.
  for(const target of targets){
@@ -33,9 +42,9 @@ export async function openSky(env:(key:string)=>string|undefined,model:ModelProv
     });
    const omen=text.trim();
    await moderateSocialLine(omen,'star',true,model);
-   await rpc('save_sky_omen',{target_week:week,school:target.school_id,circle:target.circle_id,text_value:omen});
+   await rpc('save_sky_omen',{target_week:target.week,school:target.school_id,circle:target.circle_id,text_value:omen});
    opened++;
   }catch{/* Unsafe or failed generation leaves the group closed; the next run retries it. */}
  }
- return {week,targets:targets.length,opened};
+ return {week:weeks.at(-1)!,targets:targets.length,opened};
 }

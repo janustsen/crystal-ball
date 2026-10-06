@@ -133,5 +133,35 @@ update public.sky_pushes set delivered_at=null,week=week-7;
 set role service_role;
 select proof.assert((select count(*)=0 from public.claim_sky_pushes() where id=:'missed_id'),'a missed Friday evening is never delivered late');
 reset role;
+
+-- Separate consent on one shared token: Friday opt-in never enables Circle pushes; Circle off never stops Friday.
+delete from public.social_push_tokens where user_id='a0000000-0000-0000-0000-000000000003';
+insert into public.circle_members(circle_id,user_id) values ('a1000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000003') on conflict do nothing;
+insert into public.sky_omens(week,circle_id,omen) values('2026-10-09','a1000000-0000-0000-0000-000000000001','Circle omen for the push week.') on conflict do nothing;
+insert into public.social_notifications(user_id,actor_id,circle_id,kind,reference_id,deliver_after)
+ values('a0000000-0000-0000-0000-000000000003','a0000000-0000-0000-0000-000000000002','a1000000-0000-0000-0000-000000000001','joined',gen_random_uuid(),'2000-01-01');
+set role authenticated;
+set request.jwt.claim.sub='a0000000-0000-0000-0000-000000000003';
+select public.set_sky_push(true,'ExpoPushToken[sky-three]');
+reset role;
+select proof.assert((select not circle_push from public.social_push_tokens where user_id='a0000000-0000-0000-0000-000000000003'),'Friday opt-in registers the token without Circle consent');
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_social_pushes() where token='ExpoPushToken[sky-three]'),'Friday-only consent receives no Circle push');
+reset role;
+set role authenticated;
+set request.jwt.claim.sub='a0000000-0000-0000-0000-000000000003';
+select public.set_social_push('ExpoPushToken[sky-three]');
+reset role;
+set role service_role;
+select proof.assert((select count(*)>0 from public.claim_social_pushes() where token='ExpoPushToken[sky-three]'),'explicit Circle consent receives Circle pushes');
+reset role;
+set role authenticated;
+set request.jwt.claim.sub='a0000000-0000-0000-0000-000000000003';
+select public.set_social_push(null);
+reset role;
+update public.social_profiles set time_zone='America/New_York' where user_id='a0000000-0000-0000-0000-000000000003';
+select proof.assert((select not t.circle_push and p.sky_push from public.social_push_tokens t join public.social_profiles p using(user_id) where user_id='a0000000-0000-0000-0000-000000000003'),'Circle off keeps the token and Friday consent');
+select social_private.queue_sky_pushes('2026-10-09 20:01-04');
+select proof.assert((select count(*)=1 from public.sky_pushes where user_id='a0000000-0000-0000-0000-000000000003' and week='2026-10-09'),'Friday still queues after Circle notifications are turned off');
 rollback;
 \echo 'PASS: Friday Sky week math, one omen per group, own-school and own-Circle visibility, service-only generation and once-per-week push lease'

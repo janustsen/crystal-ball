@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {openSky,skyWeek} from '../server/sky';
+import {openSky,skyWeek,skyWeeks} from '../server/sky';
 import {deliverSocialPushes} from '../server/social-push';
 import type {ModelProvider,JsonSchema} from '../server/provider';
 
@@ -17,6 +17,7 @@ test('each School and Circle gets one teen-moderated omen; unsafe output stays c
  const saved:Record<string,unknown>[]=[],inputs:unknown[]=[],moderated:{text:string;teen:boolean;star:boolean}[]=[];
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input),body=JSON.parse(String(init?.body));
+  if(url.endsWith('/sky_omen_targets')&&body.target_week==='2026-10-02')return Response.json([]);
   if(url.endsWith('/sky_omen_targets')){assert.equal(body.target_week,'2026-10-09');return Response.json([{school_id:'sfusd-lowell',circle_id:null},{school_id:null,circle_id:'circle-a'},{school_id:null,circle_id:'circle-b'}]);}
   if(url.endsWith('/save_sky_omen')){saved.push(body);return Response.json(null);}
   throw new Error(`Unexpected URL ${url}`);
@@ -36,6 +37,26 @@ test('each School and Circle gets one teen-moderated omen; unsafe output stays c
   {target_week:'2026-10-09',school:'sfusd-lowell',circle:null,text_value:'A bright shared spark gathers over all of you tonight.'},
   {target_week:'2026-10-09',school:null,circle:'circle-a',text_value:'A bright shared spark gathers over all of you tonight.'},
  ]);
+});
+
+test('a missed omen is retried for the still-open week before the upcoming Friday',async()=>{
+ assert.deepEqual(skyWeeks(new Date('2026-10-11T00:00Z')),['2026-10-09','2026-10-16']);
+ assert.deepEqual(skyWeeks(new Date('2026-10-08T23:59Z')),['2026-10-02','2026-10-09']);
+ assert.deepEqual(skyWeeks(new Date('2026-10-09T05:00Z')),['2026-10-09']);
+ assert.deepEqual(skyWeeks(new Date('2026-10-10T12:00Z')),['2026-10-09']);
+ const asked:string[]=[],saved:string[]=[];
+ const transport:typeof fetch=async(input,init)=>{
+  const url=String(input),body=JSON.parse(String(init?.body));
+  if(url.endsWith('/sky_omen_targets')){asked.push(body.target_week);return Response.json(body.target_week==='2026-10-09'?[{school_id:null,circle_id:'circle-missed'}]:[{school_id:null,circle_id:'circle-new'}]);}
+  if(url.endsWith('/save_sky_omen')){saved.push(`${body.target_week}:${body.circle}`);return Response.json(null);}
+  throw new Error(`Unexpected URL ${url}`);
+ };
+ const model:ModelProvider={async json<T>(_system:string,_input:unknown,schema:JsonSchema){
+  return ('safe'in(schema.properties as Record<string,unknown>)?{safe:true}:{text:'A bright shared spark gathers over all of you tonight.'}) as T;
+ }};
+ assert.deepEqual(await openSky(env,model,new Date('2026-10-11T00:00Z'),transport),{week:'2026-10-16',targets:2,opened:2});
+ assert.deepEqual(asked,['2026-10-09','2026-10-16']);
+ assert.deepEqual(saved,['2026-10-09:circle-missed','2026-10-16:circle-new']);
 });
 
 test('the Sky push is generic, opens the Sky and is acknowledged on its own lease',async()=>{
