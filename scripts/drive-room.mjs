@@ -126,7 +126,7 @@ try{
  {const page=await open();
   await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));state.history=[{id:'0000000a-abcd-4000-8000-000000000000',question:'Will I finish my draft?',headline:'You will finish your first draft within 6 months.',createdAt:'2026-09-30T12:00:00Z',label:'Speculative forecast · not a guarantee',why:'A speculative scenario based on your plans.',facts:{},sources:[],assumptions:[],friend:false,golden:true}];localStorage.setItem('crystal-ball-v1',JSON.stringify(state))});
   await page.reload();await page.getByTestId('tab-history').click();
-  await page.getByRole('button',{name:/You will finish your first draft/}).click();
+  await page.getByTestId('golden-shelf-item-0000000a-abcd-4000-8000-000000000000').click();
   await page.getByTestId('golden-label').waitFor();await page.waitForTimeout(2500);
   near(await centre(page.getByTestId('golden-glow')),await centre(page.getByTestId('ask-ball')),'Golden halo');
   await page.screenshot({path:`${out}/golden-reveal.png`});
