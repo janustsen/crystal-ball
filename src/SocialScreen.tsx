@@ -5,7 +5,7 @@ import {Action,colors,Orb,styles,Txt} from './ui';
 import {sealedLink} from './social-links';
 import {useStore} from './store';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
-import {SocialPush} from './SocialPush';
+import {SocialPush,SkyPushPrompt} from './SocialPush';
 import {SkyOmen} from './SkyOmen';
 import {SchoolPicker} from './SchoolPicker';
 import type {Prediction,FriendTarget} from './types';
@@ -61,6 +61,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
    <Txt display>A sky full of what-ifs.</Txt>
+   {data?.profile?<SkyPushPrompt key={data.owner} answered={data.profile.sky_push_answered===true} onAnswered={enabled=>setData(current=>current?.profile?{...current,profile:{...current.profile,sky_push:enabled,sky_push_answered:true}}:current)}/>:null}
    {data?.profile?.school_id?<View style={styles.panel}><SkyOmen testID="sky-omen-school" omen={data.omens.find(omen=>omen.school_id===data.profile?.school_id)}/></View>:null}
    {data?.circles.map((circle,index)=><View key={circle.id} style={styles.panel}><Txt>Circle {index+1}</Txt><SkyOmen testID={`sky-omen-circle-${index+1}`} omen={data.omens.find(omen=>omen.circle_id===circle.id)}/></View>)}
    <View style={styles.row}><Txt>My school</Txt><Switch accessibilityLabel="My school" value={schoolOnly} disabled={!data?.profile?.school_id} onValueChange={setSchoolOnly}/></View>
@@ -81,7 +82,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
    {draft?<View style={styles.panel}><Txt>Approve your anonymous wording</Txt><Txt style={[styles.caption,{marginTop:8}]}>{draft.wording}</Txt><Txt style={[styles.caption,{marginTop:12}]}>Rewritten from your latest reading. No name, original question or answers. Visible today (UTC). One star per day.</Txt><Action label="Publish anonymous star" disabled={busy||!!ownStar} onPress={()=>void act(async()=>{await publishStar(draft);setDraft(null)},'Your star is in tonight’s sky.')}/><Action label="Keep it private" quiet onPress={()=>setDraft(null)}/></View>:null}
    {ownStar?<Action label="Remove my star" quiet disabled={busy} onPress={()=>void act(()=>removeStar(ownStar),'Your star was removed.')}/>:null}
   </>:<>
-   <Txt display>Your little circle.</Txt><SocialPush skyPush={data?.profile?.sky_push!==false} onSkyPush={enabled=>void act(()=>setSkyPush(enabled))}/>{data?<SocialIdentity key={data.owner} data={data} act={act} busy={busy}/>:null}<Txt style={[styles.caption,{marginTop:12}]}>Friends by invitation. Personal questions stay private. Only Circle forecast questions are shared.</Txt>
+   <Txt display>Your little circle.</Txt><SocialPush skyPush={data?.profile?.sky_push===true} onSkyPush={enabled=>act(()=>setSkyPush(enabled))}/>{data?<SocialIdentity key={data.owner} data={data} act={act} busy={busy}/>:null}<Txt style={[styles.caption,{marginTop:12}]}>Friends by invitation. Personal questions stay private. Only Circle forecast questions are shared.</Txt>
    {data?.profile?.school_id?<View style={styles.panel}><Txt>School Circle suggestions</Txt><Txt style={styles.caption}>Only friends you directly invited or who invited you, at your chosen school. No school directory.</Txt>
     {!data.schoolSuggestions.length?<Txt style={styles.caption}>No invited school friends yet. Use a private invitation with someone you already know.</Txt>:null}
     {data.schoolSuggestions.filter((suggestion,index,all)=>all.findIndex(s=>s.user_id===suggestion.user_id)===index).map(suggestion=>{

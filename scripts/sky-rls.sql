@@ -49,24 +49,29 @@ set request.jwt.claim.sub='a0000000-0000-0000-0000-000000000001';
 select proof.assert((select array_agg(omen)=array['Lowell omen for this week only.'] from public.open_sky('America/Los_Angeles')),'an adult sees only their own school omen');
 set request.jwt.claim.sub='a0000000-0000-0000-0000-000000000003';
 select proof.assert((select array_agg(omen)=array['Circle omen for this week only.'] from public.open_sky('America/Los_Angeles')),'a member sees their Circle omen and no school omen');
-select proof.assert((select sky_push from public.social_profiles),'the Sky push defaults on');
+select proof.assert((select not sky_push and not sky_push_answered from public.social_profiles),'the Sky push defaults off and unanswered');
 select public.set_sky_push(false);
-select proof.assert((select not sky_push from public.social_profiles),'the Sky push can be turned off');
+select proof.assert((select not sky_push and sky_push_answered from public.social_profiles),'dismissing persists the answer without enabling pushes');
 select public.set_sky_push(true);
+select proof.assert((select sky_push and sky_push_answered from public.social_profiles),'explicit opt-in persists both preference and answer');
+select public.set_sky_push(false);
+select proof.assert((select not sky_push and sky_push_answered from public.social_profiles),'turning off later does not reset the prompt');
 reset role;
 
 -- Push queue: account with a token, a clock, an omen and the toggle on, at or after local Friday 20:00.
 delete from public.sky_omens;
-insert into public.sky_omens(week,school_id,omen) values('2026-10-09','sfusd-lowell','Lowell omen for the push week.');
+insert into public.sky_omens(week,school_id,omen) values('2026-10-09','sfusd-lowell','Lowell omen for the push week.'),('2026-10-09','sfusd-washington','Washington omen for the push week.');
 update public.social_profiles set time_zone='America/New_York' where user_id in ('a0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000002');
 insert into public.social_push_tokens values
  ('a0000000-0000-0000-0000-000000000001','ExpoPushToken[sky-one]'),('a0000000-0000-0000-0000-000000000002','ExpoPushToken[sky-two]');
 select social_private.queue_sky_pushes('2026-10-09 19:59-04');
 select proof.assert((select count(*)=0 from public.sky_pushes),'nothing queues before 20:00 local');
-update public.social_profiles set sky_push=false where user_id='a0000000-0000-0000-0000-000000000001';
 select social_private.queue_sky_pushes('2026-10-09 20:01-04');
-select proof.assert((select count(*)=0 from public.sky_pushes),'the toggle off and a missing omen both skip the push');
-update public.social_profiles set sky_push=true where user_id='a0000000-0000-0000-0000-000000000001';
+select proof.assert((select count(*)=0 from public.sky_pushes),'a token, clock and visible omen do not enroll either account');
+set role authenticated;
+set request.jwt.claim.sub='a0000000-0000-0000-0000-000000000001';
+select public.set_sky_push(true);
+reset role;
 select social_private.queue_sky_pushes('2026-10-09 20:01-04');
 select social_private.queue_sky_pushes('2026-10-09 21:30-04');
 select proof.assert((select array_agg(user_id::text)=array['a0000000-0000-0000-0000-000000000001'] and min(week)='2026-10-09' from public.sky_pushes),'one push per account per week');

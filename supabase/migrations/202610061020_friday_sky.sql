@@ -1,6 +1,5 @@
 -- Friday Sky: one moderated omen per School and per Circle opens at 20:00 on each viewer's local Friday.
--- The zone is the viewer's own clock; sky_push defaults on, so only accounts with a push token are notified.
-alter table public.social_profiles add column time_zone text, add column sky_push boolean not null default true;
+alter table public.social_profiles add column time_zone text, add column sky_push boolean not null default false, add column sky_push_answered boolean not null default false;
 create table public.sky_omens(
  id uuid primary key default gen_random_uuid(),week date not null check(extract(isodow from week)=5),
  school_id text references public.schools on delete cascade,circle_id uuid references public.circles on delete cascade,
@@ -46,7 +45,7 @@ create function public.set_sky_push(enabled boolean) returns void
  language plpgsql security definer set search_path='' as $$
  begin
   if auth.uid() is null or enabled is null then raise exception 'Choose whether the Sky may notify you'; end if;
-  insert into public.social_profiles(user_id,sky_push) values(auth.uid(),enabled) on conflict(user_id) do update set sky_push=excluded.sky_push;
+  insert into public.social_profiles(user_id,sky_push,sky_push_answered) values(auth.uid(),enabled,true) on conflict(user_id) do update set sky_push=excluded.sky_push,sky_push_answered=true;
  end;
 $$;
 
