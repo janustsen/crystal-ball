@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
+import ts from 'typescript';
+
+test('recording locks the question setting until recording completes or fails',async()=>{
+ const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
+ const slots:any[]=[];let cursor=0,reject!:(error:Error)=>void;
+ const loading=new Promise<void>((_resolve,fail)=>{reject=fail});
+ const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
+ const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}}};
+ const module={exports:{} as any},notices:string[]=[];
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??{},Image:class {decode(){return loading}}});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>{cursor=0;return nodes(module.exports.RevealClip({prediction:{question:'Private question'},onNotice:(text:string)=>notices.push(text)}))};
+ const control=(id:string)=>render().find(n=>n.props.testID===id).props;
+ control('clip-question').onValueChange(true);
+ control('make-reveal-clip').onPress();
+ assert.equal(control('clip-question').value,true);
+ assert.equal(control('clip-question').disabled,true);
+ assert.equal(control('make-reveal-clip').disabled,true);
+ assert.ok(!render().some(n=>n.props.testID==='save-reveal-clip'));
+ reject(new Error('failed'));
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(control('clip-question').disabled,false);
+ control('clip-question').onValueChange(false);
+ assert.equal(control('clip-question').value,false);
+ assert.ok(notices.some(text=>text.includes('could not be recorded')));
+});

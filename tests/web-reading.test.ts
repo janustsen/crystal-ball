@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {webReadings} from '../server/web-reading.ts';
+import {markWebReadingVisitor,webReadingVisitor,spendWebReading} from '../src/api.ts';
 import {handler} from '../server/handler.ts';
 import {sha256,solveProof,validProof,webReadingUsed,webReadingsResting} from '../src/web-reading.ts';
 
@@ -65,7 +67,7 @@ test('one free web reading per browser, per network per day, under a global dail
 
 test('with Supabase, claims go through the service RPC with a hashed network and never touch account billing',async t=>{
  const claims:any[]=[];
- const b=boundary(t,(path,body)=>{if(path.endsWith('/claim_web_reading')){claims.push(body);return body.browser===browsers[1]?'network':'ok'}return null});
+ const b=boundary(t,(path,body)=>{if(path.endsWith('/claim_web_reading')){claims.push(body);return {outcome:body.browser===browsers[1]?'network':'ok',day:'2026-10-05'}}return null});
  const serve=handler(k=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only'} as Record<string,string>)[k]);
  const ok=await serve(await ask(await proofFor(0),'203.0.113.1','Bearer user-token'));
  assert.equal((await ok.json()).kind,'ok');
@@ -77,5 +79,42 @@ test('with Supabase, claims go through the service RPC with a hashed network and
  const failed=await serve(await ask(await proofFor(2),'192.0.2.9'));
  assert.notEqual((await failed.json()).kind,'ok');
  assert.deepEqual(b.calls.filter(c=>c.path.endsWith('/release_web_reading')).map(c=>c.body.browser),[browsers[2]]);
+ assert.equal(b.calls.find(c=>c.path.endsWith('/release_web_reading'))?.body.day,'2026-10-05');
  assert.ok(!b.calls.some(c=>/auth\/v1\/user|reading_balance|reading_charges|charge_reading/.test(c.path)));
+});
+
+ test('releasing yesterday preserves today’s network reservation',async t=>{
+ const proofs=await solved,day=proofs[0].day;
+ t.mock.method(Date,'now',()=>Date.parse(day+'T23:59:59Z'));
+ const meter=webReadings(()=>undefined),req=await ask(proofs[0],'203.0.113.1');
+ const old=await meter.claim(req,proofs[0]);
+ t.mock.method(Date,'now',()=>Date.parse(day+'T23:59:59Z')+2000);
+ const current=await meter.claim(req,proofs[1]);
+ await meter.release(old);
+ await assert.rejects(meter.claim(req,proofs[2]),new RegExp(webReadingUsed));
+ const retried=await meter.claim(await ask(proofs[0],'192.0.2.1'),proofs[0]);
+ assert.notEqual(retried.day,old.day);
+ await meter.release(old);
+ await assert.rejects(meter.claim(await ask(proofs[0],'192.0.2.2'),proofs[0]),new RegExp(webReadingUsed));
+ await meter.release(current);
+ await meter.claim(req,proofs[2]);
+});
+
+ test('persistent visitor context routes requests through proof after navigation and reload',async t=>{
+ const storage=new Map<string,string>([['cb.web-browser',browsers[0]]]);
+ const previous=Object.getOwnPropertyDescriptor(globalThis,'localStorage');
+ Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem:(key:string)=>storage.get(key)??null,setItem:(key:string,value:string)=>storage.set(key,value)}});
+ t.after(()=>{if(previous)Object.defineProperty(globalThis,'localStorage',previous);else Reflect.deleteProperty(globalThis,'localStorage')});
+ markWebReadingVisitor();
+ assert.equal(webReadingVisitor(),true);
+ spendWebReading();
+ const calls:any[]=[];
+ t.mock.method(globalThis,'fetch',async(_input:unknown,init?:RequestInit)=>{calls.push(init);return Response.json({kind:'error',message:webReadingUsed})});
+ const reloaded=await import('../src/api.ts');
+ assert.equal(reloaded.webReadingVisitor(),true);
+ await reloaded.request('predict','Will I learn?',{},false,new AbortController().signal);
+ const body=JSON.parse(calls[0].body);
+ assert.equal(body.webReading.browser,browsers[0]);
+ assert.ok(validProof(body.webReading));
+ assert.equal(calls[0].headers.authorization,undefined);
 });

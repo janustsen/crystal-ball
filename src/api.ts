@@ -9,6 +9,7 @@ export const previewHeaders:Record<string,string>=process.env.EXPO_PUBLIC_PREVIE
 // A metered forecast returns the server's balance after its charge.
 // A sealed-link browser visitor's free reading carries its bot-check proof instead of an account session.
 export async function request<T extends Plan|Prediction>(action:'plan'|'predict',question:string,facts:Facts,friend:boolean,signal:AbortSignal,context:ReadingContext={},aiConsent='',requestId?:string,webReading?:WebReading):Promise<Result<T>&{balance?:Balance}>{
+ if(action==='predict'&&!webReading&&webReadingVisitor())webReading=await webReadingProof();
  const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...action==='predict'&&!webReading?await sessionHeader():{}},body:JSON.stringify({action,question,facts,friend,...context,localDate:localDay(),aiConsent,requestId,webReading}),signal});
  const result=await response.json();
  if(!result||!['ok','blocked','error'].includes(result.kind))throw new Error('The mist is too thick. Please try again.');
@@ -48,6 +49,8 @@ export const saveStyles=(ball:StyleName,card:StyleName)=>billing({action:'styles
 
 // Browser-only markers; the server's per-browser, per-network and daily limits stay authoritative.
 const local=(run:(storage:Storage)=>string|null|void)=>{try{return typeof localStorage==='undefined'?null:run(localStorage)??null}catch{return null}};
+export const webReadingVisitor=()=>local(s=>s.getItem('cb.web-visitor'))==='1'||webReadingSpent()||!!local(s=>s.getItem('cb.web-browser'));
+export const markWebReadingVisitor=()=>void local(s=>s.setItem('cb.web-visitor','1'));
 export const webReadingSpent=()=>local(s=>s.getItem('cb.web-reading'))==='spent';
 export const spendWebReading=()=>void local(s=>s.setItem('cb.web-reading','spent'));
 export async function webReadingProof(){

@@ -13,8 +13,8 @@ const code=ts.transpileModule(readFileSync(new URL('../app/index.tsx',import.met
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
 }).outputText;
 
-function app(onboardingDone=true,history:any[]=[]){
- const params:{seal?:string;social?:string}={seal:'sealed-receipt'},slots:any[]=[];
+function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-receipt'){
+ const params:{seal?:string;social?:string}={seal},slots:any[]=[];
  let cursor=0;
  const react={
   createElement:(type:any,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
@@ -24,7 +24,7 @@ function app(onboardingDone=true,history:any[]=[]){
  };
  const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true};
  const imports:Record<string,any>={
-  '../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  '../src/api':{webReadingVisitor:()=>false},'../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},
@@ -112,7 +112,7 @@ const openReading=(render:()=>any[])=>{
 };
 
 test('a reveal leads with Seal it for a friend; Share and Ask again stay secondary',()=>{
- const {render}=app(true,[reading]);
+ const {render}=app(true,[reading],'');
  render().find(n=>n.props.testID==='tab-home').props.onPress();
  const reveal=openReading(render);
  const seal=reveal.findIndex(n=>n.type==='SealForecast'),share=reveal.findIndex(n=>n.props.label==='Share this glimpse');
@@ -129,6 +129,14 @@ test('a sealed-link browser visitor starts their free reading from the seal, the
  assert.equal(params.seal,undefined);
  assert.ok(render().some(n=>n.props.testID==='close-flow'),'Ask opens');
  render().find(n=>n.props.testID==='close-flow').props.onPress();
+ const reveal=openReading(render);
+ assert.ok(reveal.some(n=>n.type==='InstallAction'));
+ assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));
+});
+
+ test('Ask navigation from a sealed landing keeps the visitor restriction',()=>{
+ const {render}=app(true,[reading]);
+ render().find(n=>n.props.testID==='tab-ask').props.onPress();
  const reveal=openReading(render);
  assert.ok(reveal.some(n=>n.type==='InstallAction'));
  assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));

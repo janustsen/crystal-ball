@@ -64,7 +64,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
   '../src/social':{friendForecast:async(_q:string,_target:any,_signal:any,_consent:string,key:string)=>attempt(key),checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p,narration:()=>null},
   '../src/questions':{validateAnswer:()=>{},factLabels:{}},
-  '../src/api':{request:async(action:string,_q:string,_facts:any,_friend:boolean,_signal:any,_context:any,_consent:string,key:string)=>({kind:'ok',value:action==='predict'?attempt(key):{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
+  '../src/api':{webReadingVisitor:()=>false,request:async(action:string,_q:string,_facts:any,_friend:boolean,_signal:any,_context:any,_consent:string,key:string)=>({kind:'ok',value:action==='predict'?attempt(key):{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
@@ -297,7 +297,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(resolve=>pending.push(resolve)),buy:()=>new Promise(resolve=>{finishPurchase=()=>resolve('purchased')}),restore:()=>new Promise(resolve=>{finishRestore=()=>resolve({})})},
-  '../src/api':{syncStoreBalance:async()=>({})},
+  '../src/api':{webReadingVisitor:()=>false,syncStoreBalance:async()=>({})},
  },[]);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
@@ -358,7 +358,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{friendForecast:async()=>{predicts++;throw new Error(next==='empty'?billing.noReadings:'response lost')}},
   '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(()=>{})},
-  '../src/api':{request:async(action:string)=>{
+  '../src/api':{webReadingVisitor:()=>false,request:async(action:string)=>{
    if(action==='plan')return {kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false}]}};
    predicts++;if(next==='empty')return {kind:'error',message:billing.noReadings};throw new Error('response lost');
   }},
@@ -394,4 +394,15 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  await closePlans();remaining=0;
  await press(n=>n.props.label==='Try again');
  assert.equal(predicts,5,'a rejected ask does not reach the server again');assert.ok(plansOpen());
+});
+
+ test('free web archives preserve allowance and packs, including duplicate saves',async()=>{
+ const f=await fixture(),before=f.state();
+ const reading={...readings.circleReading(f.card),circleId:undefined};
+ await f.render().savePrediction(reading,{},null);
+ await f.render().savePrediction(reading,{},null);
+ assert.equal(f.state().history.length,1);
+ assert.deepEqual(f.state().usage,before.usage);
+ assert.equal(f.state().credits,before.credits);
+ f.fail();await tick();
 });

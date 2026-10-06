@@ -5,7 +5,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
 import {Action,colors,fonts,Screen,styles,Txt} from '../src/ui';
 import {useStore,learnedFacts} from '../src/store';
-import {request,aiProvider,serverMetered,simulatePurchase,syncStoreBalance,loadBalance,spendWebReading,webReadingProof,webReadingSpent} from '../src/api';
+import {request,aiProvider,serverMetered,simulatePurchase,syncStoreBalance,loadBalance,spendWebReading,webReadingProof,webReadingSpent,webReadingVisitor,markWebReadingVisitor} from '../src/api';
 import {installMessages,webReadingUsed} from '../src/web-reading';
 import {buy,manageSubscriptions,purchaseMode,restore,storeAvailable,storeOffers,type Offer} from '../src/purchases';
 import {noReadings,packs,plans,plusUnlocks,type PackKind,type PlanKind} from '../src/billing';
@@ -64,7 +64,9 @@ export default function App(){
  useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.history.find(p=>p.id===id);if(reading)showPrediction(reading);else{cancel();setPaywall(false);setShare(false);setTab('History')}})},[ready,state.history]);
  const [personMode,setPersonMode]=useState(false),[personName,setPersonName]=useState('');
  // A sealed-link browser visitor asking their one free web reading.
- const [webTrial,setWebTrial]=useState(false);
+ const [visitedSeal,setVisitedSeal]=useState(()=>Platform.OS==='web'&&(!!params.seal||webReadingVisitor()));
+ const webTrial=Platform.OS==='web'&&(!!params.seal||visitedSeal);
+ useEffect(()=>{if(Platform.OS==='web'&&params.seal){markWebReadingVisitor();setVisitedSeal(true)}},[params.seal]);
  const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined,plus:state.plus,viewerChart:state.plus&&state.moonSign&&state.risingSign?{moonSign:state.moonSign,risingSign:state.risingSign}:undefined};
  const personalFacts={...state.facts,...(state.birthday?{birthday:state.birthday}:{})};
  const askIds=useRef(new Map<string,string>());
@@ -94,7 +96,7 @@ export default function App(){
  async function begin(){
   const issue=personQuestionIssue(question,personMode?personName.trim():undefined);if(issue){setNotice(issue);return;}
   if(!question.trim()||!ready||backupBusy||aiProvider&&!aiAllowed||!canRead(state))return;
-  if(webTrial&&webReadingSpent()){setFlow({stage:'error',question,message:webReadingUsed});return;}
+  if(webTrial&&(webReadingSpent()||friendTarget)){setFlow({stage:'error',question,message:webReadingUsed});return;}
   const identity=askIdentity(question),friendKey=friendTarget?attemptKey(identity,{}):'';
   if(!webTrial&&remaining<=0&&!(friendTarget?pendingAsks.current.has(friendKey):askIds.current.has(identity))){setPaywall(true);return;}
   const requestId=askId(identity);
@@ -115,7 +117,7 @@ export default function App(){
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
   try{const result=await request<Prediction>('predict',q,facts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId,webTrial?await webReadingProof():undefined);if(id!==generation.current)return;
    if(webTrial&&(result.kind==='ok'||result.kind==='error'&&result.message===webReadingUsed))spendWebReading();
-   if(result.kind==='ok'){const reading=result.value;await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance);askIds.current.delete(identity);pendingAsks.current.delete(key);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
+   if(result.kind==='ok'){const reading=result.value;await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},webTrial?null:result.balance);askIds.current.delete(identity);pendingAsks.current.delete(key);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else{setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});outOfReadings(result.message,key)}
   }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:`${abort.signal.aborted?'The Ball took too long.':'The mist is too thick.'} Your answers are kept. ${retryNotice}`,retry:{plan,answers}})}finally{clearTimeout(timeout);if(id===generation.current)predicting.current=false}
  }
@@ -170,7 +172,7 @@ export default function App(){
  const aiPermission=<>{aiProvider?<View style={styles.panel}><Txt style={styles.caption}>Allow {aiProvider} to process your questions, relevant answers and saved headlines for readings, omens and sharing checks? Friend readings also use their sun sign and shared themes. Avoid sensitive details.</Txt><Switch accessibilityLabel="Allow AI processing" value={aiAllowed} onValueChange={setAiAllowed}/></View>:null}</>;
  function content(){
  if(!ready)return hydrationError?<View style={styles.panel}><Txt accessibilityLiveRegion="polite">{hydrationError}</Txt><Action testID="retry-hydration" label="Try opening again" onPress={retryHydration}/></View>:<Txt>Opening your sky…</Txt>;
- if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} onAsk={()=>{setWebTrial(true);openAsk()}}/>;
+ if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} onAsk={()=>openAsk()}/>;
  if(onboarding)return <Onboarding blocked={state.onboardingBlocked} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed)=>update(s=>({...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,facts:{...s.facts,...facts}}))}/>;
  if(paywall){
   const cost=(kind:PlanKind|PackKind)=>offers?.find(o=>o.kind===kind)?.price??[...plans,...packs].find(p=>p.kind===kind)!.price;

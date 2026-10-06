@@ -109,7 +109,7 @@ export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice
  return <View style={{marginTop:12}}>
   <Action testID="make-reveal-clip" label={busy?'Recording the reveal…':'Make reveal clip'} quiet disabled={busy} onPress={()=>void make()}/>
   {clip?<Action testID="save-reveal-clip" label="Save or share clip" onPress={()=>void save()}/>:null}
-  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Switch testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} onValueChange={value=>{setQuestion(value);setClip(null)}}/></View>
+  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Switch testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} disabled={busy} onValueChange={value=>{setQuestion(value);setClip(null)}}/></View>
   <Txt style={styles.caption}>9:16 video with sound: the ball opening, theme, headline and check-back date, labeled AI-generated. Your question stays out unless you turn it on.</Txt>
  </View>;
 }
