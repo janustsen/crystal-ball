@@ -41,6 +41,9 @@ _Avoid_: zodiac, horoscope sign
 **Why**:
 The explanation under a Forecast: a short astrological line plus the reasoning from the user's answers. Plus users can expand the deeper Why.
 
+**Private room**:
+A Circle with sealed check-in votes and a Circle shelf. See the [social contract](docs/social/model.md#social-v2) for entitlement and reveal rules.
+
 **Circle activity**:
 The shared activity of Circle members. See the [social boundary](docs/social/model.md#social-v2) for feed visibility and the separate group forecast contract.
 
