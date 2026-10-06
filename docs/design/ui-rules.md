@@ -36,7 +36,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. Home uses 
 14. Plans: subscription selection per [prototype pricing](../research/pricing.md#paywall-rules-and-test), packs and Restore. Purchase labels follow the [billing mode](../launch/billing.md).
 15. Sky: Tonight’s Sky has clearly labeled synthetic samples and approved anonymous Stars; Circles follows the [social visibility and interaction contract](../social/model.md#social-v2).
 16. History: date, question, real saved headline and outcome.
-17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound and style controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
+17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
 
 ## Behavioral invariants
 

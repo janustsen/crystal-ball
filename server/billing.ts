@@ -1,8 +1,10 @@
+import {isStyle} from '../src/delight.ts';
 import {noReadings,packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
 type Env=(key:string)=>string|undefined;
 export class BillingError extends Error{constructor(message:string,readonly status:number){super(message)}}
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const periodDays={week:7,month:30,year:365};
+export const plusStyles='Ball and card styles are a Plus extra.';
 
 // RevenueCat v1 subscriber -> server entitlement. Pack transactions are credited once by their RevenueCat id.
 export function storeEntitlements(subscriber:any){
@@ -29,6 +31,7 @@ export function billing(env:Env){
   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:service,body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
   const value=await response.json().catch(()=>null);
   if(!response.ok&&/No readings left/.test(value?.message))throw new BillingError(noReadings,402);
+  if(!response.ok&&/a Plus extra/.test(value?.message))throw new BillingError(plusStyles,403);
   if(!response.ok||!validBalance(value))throw new Error('Your reading balance is unavailable. Please try again.');
   return value;
  }
@@ -70,7 +73,12 @@ export function billing(env:Env){
   const entitled_until=plan?new Date(Date.now()+periodDays[plan.period]*86400000).toISOString():kind==='off'?null:(await rpc('reading_balance',{viewer})).plusUntil;
   return rpc('apply_store_entitlements',{viewer,entitled_until,purchases:pack?[{id:`mock:${crypto.randomUUID()}`,readings:pack.readings}]:[]});
  }
- return {user,reconcile,simulate,authorizeCharge,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
+ // The database refuses a non-classic style unless Plus is active at write time.
+ async function styles(viewer:string,ball:unknown,card:unknown){
+  if(!isStyle(ball)||!isStyle(card))throw new BillingError('Choose a ball and card style.',400);
+  return rpc('set_profile_styles',{viewer,ball,card});
+ }
+ return {user,reconcile,simulate,styles,authorizeCharge,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }
 export type Billing=NonNullable<ReturnType<typeof billing>>;
 
@@ -91,6 +99,7 @@ export function billingHandler(env:Env){
    const viewer=await service.user(request),body=await request.json().catch(()=>null);
    if(body?.action==='balance')return reply(await service.balance(viewer));
    if(body?.action==='sync')return reply(await service.reconcile(viewer));
+   if(body?.action==='styles')return reply(await service.styles(viewer,body.ball,body.card));
    if(body?.action==='simulate')return reply(await service.simulate(viewer,body.kind));
    return reply({message:'Choose a billing action.'},400);
   }catch(error){return reply({message:error instanceof Error?error.message:'Billing is unavailable.'},error instanceof BillingError?error.status:500)}

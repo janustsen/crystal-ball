@@ -16,7 +16,7 @@ export function saveCircleReading(state:AccountState,forecast:CircleForecast):Ac
  if(!canRead(state)||state.history.some(p=>p.id===forecast.id))return state;
  return {...state,history:[circleReading(forecast),...state.history]};
 }
-// The server balance replaces the device's cached plan, packs and daily count.
+// The server balance replaces the device's cached plan, packs, daily count and saved styles.
 export function withBalance(state:AccountState,balance:Balance):AccountState{
- return {...state,balanceSnapshot:{owner:balance.owner,asOf:balance.asOf},plus:balance.plus,credits:balance.packs,usage:{day:balance.day,count:balance.used}};
+ return {...state,balanceSnapshot:{owner:balance.owner,asOf:balance.asOf},plus:balance.plus,credits:balance.packs,usage:{day:balance.day,count:balance.used},...balance.ballStyle?{ballStyle:balance.ballStyle}:{},...balance.cardStyle?{cardStyle:balance.cardStyle}:{}};
 }

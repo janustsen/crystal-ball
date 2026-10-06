@@ -275,7 +275,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{}})},
-  '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs},
+  '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs,plusUnlocks:billing.plusUnlocks},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {assignEdition,selectedStyle} from '../src/delight';
+import {assignEdition,goldenOdds,isStyle,selectedStyle,styleCatalog} from '../src/delight';
+import {dailyReadings,plusUnlocks} from '../src/billing';
 import type {Prediction} from '../src/types';
 const reading=(id:string):Prediction=>({id,question:'Will I finish?',headline:'You will finish.',createdAt:'2026-09-30',label:'Speculative forecast',why:'For fun',facts:{},sources:[],assumptions:[],friend:false});
 test('free odds 1/50, Plus 1/10; saved editions survive plan changes and JSON round trips',()=>{
@@ -20,4 +21,15 @@ test('style entitlement is checked at render time; saved premium choices cannot 
  assert.equal(selectedStyle(state,'ball'),'obsidian');assert.equal(selectedStyle(state,'card'),'gold');
  assert.equal(selectedStyle({...state,plus:false},'ball'),'classic');assert.equal(selectedStyle({...state,plus:false},'card'),'classic');
  assert.equal(selectedStyle({plus:true},'ball'),'classic');
+});
+test('the paywall lists every Plus unlock with the odds and allowance the app enforces',()=>{
+ assert.deepEqual([goldenOdds(false),goldenOdds(true)],[50,10]);
+ assert.ok(plusUnlocks.includes(`${dailyReadings(true)} readings a day`));
+ assert.ok(plusUnlocks.some(u=>u.includes(`1 in ${goldenOdds(true)}`)&&u.includes(`1 in ${goldenOdds(false)}`)));
+ for(const unlock of [/deeper Why/,/Inner Library/,/ball and card styles/,/sealed cards/])assert.ok(plusUnlocks.some(u=>unlock.test(u)),String(unlock));
+});
+test('the style catalog is the only source of style ids; Classic is the free style',()=>{
+ assert.deepEqual(Object.keys(styleCatalog),['classic','gold','obsidian']);
+ assert.deepEqual(Object.entries(styleCatalog).filter(([,s])=>!s.plus).map(([id])=>id),['classic']);
+ for(const bad of ['rainbow','toString','__proto__',1,null])assert.equal(isStyle(bad),false);
 });

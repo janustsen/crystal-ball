@@ -19,7 +19,7 @@ const frost=(filter:string)=>({backdropFilter:filter}) as object;
 // Web lets a drag on the ball spin it instead of scrolling the page.
 const noScroll={touchAction:'none'} as object;
 
-export function Home({reduce,ready,count,onPlans,onAsk,checkIns,omen,top,bottom}:{reduce:boolean;ready:boolean;count:string;onPlans:()=>void;onAsk:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number}){
+export function Home({reduce,ready,count,onPlans,onAsk,libraryLocked,onLibrary,checkIns,omen,top,bottom}:{reduce:boolean;ready:boolean;count:string;onPlans:()=>void;onAsk:()=>void;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number}){
  const {state}=useStore(),skin=skinColors[selectedStyle(state,'ball')];
  const [size,setSize]=useState({width:0,height:0}),{width,height}=size,r=height*ballR;
  const spin=useRef<BallSpin>({dragged:false}).current;
@@ -45,6 +45,10 @@ export function Home({reduce,ready,count,onPlans,onAsk,checkIns,omen,top,bottom}
    <View style={{paddingHorizontal:20,marginTop:22.5,gap:14}}>
     {checkIns}
     {omen}
+    {/* Placeholder room spot: the designed Inner Library door replaces this link and keeps its testID. */}
+    <Pressable testID="room-inner-library" accessibilityRole="button" accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary} style={{minHeight:44,alignItems:'center',justifyContent:'center'}}>
+     <Txt style={{fontFamily:homeFonts.sans,fontSize:11.5,lineHeight:14,letterSpacing:2.07,textTransform:'uppercase',color:'rgba(242,231,210,.74)'}}>{libraryLocked?'Inner Library · Plus':'Inner Library'}</Txt>
+    </Pressable>
     <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:.44,textAlign:'center',color:muted}}>For entertainment. Never a guarantee.</Txt>
    </View>
   </ScrollView>

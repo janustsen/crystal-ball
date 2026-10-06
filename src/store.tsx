@@ -1,7 +1,7 @@
 import React,{createContext,useContext,useEffect,useState,useRef} from 'react';
 import {saveReading,saveCircleReading,withBalance} from './reading-history';
 import {publishCircleForecast,type CircleForecast} from './social';
-import {loadBalance,serverMetered} from './api';
+import {loadBalance,saveStyles,serverMetered} from './api';
 import type {Balance} from './billing';
 import {Alert} from 'react-native';
 import {forgetCheckIns,reopenCheckIn,cancelCheckIn} from './native';
@@ -9,12 +9,12 @@ import {forgetOmen} from './daily-omen';
 import {updateOmenWidget} from './omen-widget';
 import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type {AccountState,Prediction,Facts} from './types';
+import type {AccountState,Prediction,Facts,StyleName} from './types';
 import {mirror,restoreBackup,supabase,anonymousOwner} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;chooseStyle:(kind:'ball'|'card',value:StyleName)=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
@@ -96,6 +96,21 @@ export function Store({children}:React.PropsWithChildren){
   });
  }
 
+ async function chooseStyle(kind:'ball'|'card',value:StyleName){
+  if(!ready)throw new Error('Please wait for your archive.');
+  if(locked.current)return;
+  const field=kind==='ball'?'ballStyle':'cardStyle';
+  if(!serverMetered){change(s=>({...s,[field]:value}));return}
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});
+   if(version!==accountVersion.current)throw new Error('Your account changed. Please choose again.');
+   const latest=await loadBalance();
+   const balance=await saveStyles(kind==='ball'?value:latest.ballStyle??'classic',kind==='card'?value:latest.cardStyle??'classic');
+   const next=await balanced(current.current,balance);
+   await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+  });
+ }
+
  async function applyBalance(balance:Balance){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
@@ -128,7 +143,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}
