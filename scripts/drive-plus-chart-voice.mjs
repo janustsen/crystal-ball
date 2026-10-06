@@ -2,7 +2,7 @@ import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 // Plus birth chart depth and the narrated Ball against the live engine. Only the speech synthesizer is spied on.
-const url=process.env.VERIFY_URL||'http://localhost:8087',engine=process.env.VERIFY_ENGINE_URL||`${url}/engine`,out='docs/evidence/plus-chart-voice';
+const url=process.env.VERIFY_URL||'http://localhost:8087',engine=process.env.VERIFY_ENGINE_URL||`${url}/engine`,out=process.env.EVIDENCE_DIR||'docs/evidence/plus-chart-voice';
 await mkdir('.local',{recursive:true});await mkdir(out,{recursive:true});
 const context=await chromium.launchPersistentContext(await mkdtemp(`${process.cwd()}/.local/plus-chart-voice-`),{httpCredentials,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 await context.addInitScript(()=>{window.__speech=[];const synth=window.speechSynthesis;synth.speak=line=>window.__speech.push({speak:line.text});synth.cancel=()=>window.__speech.push({cancel:true});});
