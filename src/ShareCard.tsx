@@ -1,3 +1,4 @@
+import {drawStoryHeadlines} from './story-layout';
 import {useEffect,useRef,useState} from 'react';
 import {View,Platform,Pressable,Image as PreviewImage} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
@@ -34,11 +35,8 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   if(ballStyle!=='classic'){const skin=skinColors[ballStyle];ctx.fillStyle=skin.fill;ctx.strokeStyle=skin.rim;ctx.lineWidth=2;ctx.beginPath();ctx.arc(540,550,270,0,Math.PI*2);ctx.fill();ctx.stroke();}
   if(cardStyle!=='classic'&&!golden){ctx.strokeStyle=cardStyle==='gold'?colors.gold:'#8F91A3';ctx.lineWidth=3;ctx.strokeRect(64,64,952,1792);}
   if(golden){ctx.strokeStyle=colors.gold;ctx.lineWidth=8;ctx.strokeRect(48,48,984,1824);ctx.textAlign='center';ctx.font=`38px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText('Golden edition · same uncertainty',540,1490);}
-  ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;
-  const headlines=card.headlines.map(headline=>headline.replace(/(\d+)\s+(months?|years?|weeks?|days?)/gi,'$1\u00a0$2')),maxLines=headlines.length>1?6:3;
-  const wrap=(text:string)=>{const lines:string[]=[];let line='';for(const word of text.split(' ')){if(ctx.measureText((line+' '+word).trim()).width<=820){line=(line+' '+word).trim();continue;}if(line){lines.push(line);line='';}for(const letter of word){if(ctx.measureText(line+letter).width>820){lines.push(line);line='';}line+=letter;}}if(line)lines.push(line);return lines;};
-  let font=82,blocks=headlines.map(wrap);while(blocks.flat().length>maxLines&&font>36){font-=2;ctx.font=`${font}px ${fonts.display}, Georgia`;blocks=headlines.map(wrap);}
-  let y=blocks.flat().length>3?940:1080;for(const block of blocks){for(const line of block){ctx.fillText(line,540,y);y+=font*1.25;}y+=font*.5;}y-=font*1.75;
+  ctx.textAlign='center';ctx.fillStyle=colors.ivory;
+  const y=drawStoryHeadlines(ctx,card.headlines,fonts.display);
   ctx.fillStyle=colors.gold;const labelY=Math.min(y+100,1370);card.labels.forEach((label,i)=>{let size=42;do{ctx.font=`${size}px ${fonts.body}, sans-serif`;size-=2}while(ctx.measureText(label).width>900&&size>24);ctx.fillText(label,540,labelY+i*72)});ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',540,1590);
   ctx.font=`36px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.muted;ctx.fillText(card.footer,540,1650);
   // Encode asynchronously so opening Share does not block the animation frame.
