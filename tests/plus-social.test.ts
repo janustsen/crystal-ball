@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import {yearRecap} from '../src/recap';
+import {skyPrompts} from '../src/social-policy';
 import type {Prediction} from '../src/types';
 
 const reading=(id:string,createdAt:string,question:string,extra:Partial<Prediction>={}):Prediction=>({id,question,headline:'A glimpse',createdAt,label:'',why:'',facts:{},sources:[],assumptions:[],friend:false,...extra});
@@ -41,7 +42,7 @@ const snapshot=(rooms:string[],owner='owner')=>({owner,circles:[{id:'room',owner
  forecasts:[forecast('past',day(-3)),forecast('today',day(0))],
  votes:[{forecast_id:'past',sealed:false,yes:2,no:1,pending:0,mine:'yes'},{forecast_id:'today',sealed:true,yes:null,no:null,pending:null,mine:'no'}]});
 
-test('a private room seals tallies, shelves past forecasts and lets only a Plus owner open it',async()=>{
+test('a private room preserves its shelf for free owners and requires Plus only to enable it',async()=>{
  const harness=circleForecasts(),act=async(operation:()=>Promise<unknown>)=>{await operation()};
  let plusOpened=0;
  const props=(data:any)=>({circle:'room',data,act,busy:false,aiConsent:'',onPlus:()=>plusOpened++});
@@ -65,7 +66,45 @@ test('a private room seals tallies, shelves past forecasts and lets only a Plus 
 
  harness.setPlus(true);
  harness.render(props(snapshot([]))).id('private-room-toggle').props.onPress();
- harness.render(props(snapshot(['room']))).id('private-room-toggle').props.onPress();
+ harness.setPlus(false);
+ const lapsed=harness.render(props(snapshot(['room'])));
+ assert.ok(lapsed.id('circle-shelf'));
+ assert.ok(lapsed.id('circle-tally-sealed'));
+ lapsed.id('private-room-toggle').props.onPress();
+ assert.equal(plusOpened,1,'free owner may turn the room off without a paywall');
  await new Promise(resolve=>setImmediate(resolve));
  assert.deepEqual(harness.calls,[['room',true],['room',false]]);
+});
+
+
+test('History retains completed recaps across year rollover, with Plus gating for every year',()=>{
+ const module={exports:{} as any};
+ const state={plus:true,history:[reading('a','2026-03-01T12:00:00Z','Will I find love?',{golden:true,outcome:'yes'}),reading('b','2025-06-01T12:00:00Z','Will I get the job?')]};
+ const element=(type:any,props:any)=>({type,props:props??{}});
+ const imports:Record<string,any>={
+  'react/jsx-runtime':{jsx:element,jsxs:element},'react-native':{},'./ui':{styles:{}},
+  './store':{useStore:()=>({state})},'./social-policy':{skyPrompts},'./recap':{yearRecap},
+ };
+ const code=ts.transpileModule(readFileSync(new URL('../src/YearRecap.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ class January2027 extends Date{constructor(){super('2027-01-01T12:00:00Z')}}
+ runInNewContext(code,{module,exports:module.exports,Date:January2027,require:(name:string)=>imports[name]});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...nodes(node.props.children)];
+ const text=(node:any):string=>node==null?'':typeof node!=='object'?String(node):Array.isArray(node)?node.map(text).join(''):text(node.props.children);
+ let upgrades=0;
+ const render=()=>module.exports.YearRecap({onPlus:()=>upgrades++});
+ let tree=render();
+ assert.deepEqual(nodes(tree).filter(n=>/^year-recap-\d+$/.test(n.props.testID)).map(n=>n.props.testID),['year-recap-2027','year-recap-2026','year-recap-2025']);
+ assert.match(text(tree),/Your 2027 in forecasts0 readings/);
+ assert.match(text(tree),/Your 2026 in forecasts1 reading · 1 golden find · 1 Yes check-in/);
+ state.history.push(reading('c','2027-01-01T12:00:00Z','Will I learn a skill?'));
+ tree=render();
+ assert.match(text(tree),/Your 2027 in forecasts1 reading/);
+ assert.match(text(tree),/Your 2026 in forecasts1 reading · 1 golden find · 1 Yes check-in/);
+ state.plus=false;
+ tree=render();
+ assert.doesNotMatch(text(tree),/1 reading|1 golden find|1 Yes check-in|Most asked:/);
+ const gates=nodes(tree).filter(n=>n.props.testID?.startsWith('year-recap-plus'));
+ assert.equal(gates.length,3);
+ gates.forEach(n=>n.props.onPress());
+ assert.equal(upgrades,3);
 });

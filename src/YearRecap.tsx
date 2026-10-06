@@ -6,14 +6,14 @@ import {yearRecap} from './recap';
 
 const plural=(n:number,word:string)=>`${n} ${word}${n===1?'':'s'}`;
 export function YearRecap({onPlus}:{onPlus:()=>void}){
- const {state}=useStore(),recap=yearRecap(state.history,new Date().getFullYear());
- if(!recap.readings)return null;
- return <View testID="year-recap" style={styles.panel}><Txt display style={styles.title}>Your {recap.year} in forecasts</Txt>{state.plus?<>
+ const {state}=useStore(),currentYear=new Date().getFullYear();
+ const years=[currentYear,...[...new Set(state.history.map(p=>new Date(p.createdAt).getFullYear()))].filter(year=>year<currentYear).sort((a,b)=>b-a)];
+ return <View testID="year-recap">{years.map(year=>{const recap=yearRecap(state.history,year);return <View key={year} testID={`year-recap-${year}`} style={styles.panel}><Txt display style={styles.title}>Your {recap.year} in forecasts</Txt>{state.plus?<>
   <Txt>{plural(recap.readings,'reading')} · {plural(recap.golden,'golden find')} · {plural(recap.yes,'Yes check-in')}</Txt>
   {recap.themes.length?<Txt style={styles.caption}>Most asked: {recap.themes.map(t=>`${skyPrompts[t.theme].label} ${t.count}`).join(' · ')}</Txt>:null}
   <Txt style={styles.caption}>Counts only · no accuracy score.</Txt>
  </>:<>
-  <Txt style={styles.caption}>Your readings, themes, golden finds and Yes check-ins this year.</Txt>
-  <Action testID="year-recap-plus" label="See my year with Plus" quiet onPress={onPlus}/>
- </>}</View>;
+  <Txt style={styles.caption}>Your readings, themes, golden finds and Yes check-ins that year.</Txt>
+  <Action testID={year===currentYear?'year-recap-plus':`year-recap-plus-${year}`} label="See my year with Plus" quiet onPress={onPlus}/>
+ </>}</View>})}</View>;
 }

@@ -44,10 +44,17 @@ reset role;
 update public.circle_forecasts set due_date=current_date;
 update public.social_profiles set plus_until=now()-interval '1 second' where user_id='00000000-0000-0000-0000-000000000001';
 set role authenticated;
-select proof.assert((select not sealed and yes=1 from public.circle_vote_tallies()),'owner Plus lapse reopens the tally');
-select proof.assert((select count(*)=0 from public.private_rooms()),'lapsed room is not live');
+select proof.assert((select sealed and yes is null and no is null and pending is null from public.circle_vote_tallies()),'owner Plus lapse keeps votes sealed');
+select proof.assert((select count(*)=1 from public.private_rooms()),'lapsed room remains private');
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+select public.manage_circle('90000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000002','transfer');
+set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
+select proof.assert((select sealed and yes is null and no is null and pending is null and mine='no' from public.circle_vote_tallies()),'transfer to free owner keeps votes sealed');
+select proof.assert((select count(*)=1 from public.private_rooms()),'transferred room remains private');
 select public.set_private_room('90000000-0000-0000-0000-000000000001',false);
+select proof.assert((select not sealed and yes=1 and no=1 from public.circle_vote_tallies()),'free owner can reveal votes by turning room off');
+select proof.assert((select count(*)=0 from public.private_rooms()),'disabled room is absent');
+select proof.reject($q$select public.set_private_room('90000000-0000-0000-0000-000000000001',true)$q$,'P0001');
 reset role;
 select proof.assert((select not private_room from public.circles where id='90000000-0000-0000-0000-000000000001'),'owner can close the room without Plus');
 set role anon;
@@ -55,4 +62,4 @@ select proof.reject('select * from public.private_rooms()','42501');
 select proof.reject($q$select public.set_private_room('90000000-0000-0000-0000-000000000001',true)$q$,'42501');
 reset role;
 rollback;
-\echo 'PASS: private Circle rooms are Plus-owner only, seal tallies until everyone votes or the due day ends, and reopen on lapse'
+\echo 'PASS: private Circle rooms are Plus-owner only, seal tallies until everyone votes or the due day ends, and preserve privacy after lapse or ownership transfer'

@@ -1,10 +1,9 @@
 -- Private Circle rooms: a Plus owner can seal check-in votes until the reveal moment.
--- The room is live only while the current owner holds Plus; an ownership transfer or lapse reopens tallies.
 alter table public.circles add column private_room boolean not null default false;
 
 create function social_private.private_room(target uuid) returns boolean
  language sql stable security definer set search_path='' as $$
- select exists(select 1 from public.circles c join public.social_profiles p on p.user_id=c.owner_id where c.id=target and c.private_room and p.plus_until>now());
+ select exists(select 1 from public.circles c where c.id=target and c.private_room);
 $$;
 revoke all on function social_private.private_room(uuid) from public,anon;
 

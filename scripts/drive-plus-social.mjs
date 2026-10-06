@@ -38,7 +38,10 @@ try{
  await run('owner',`${has('year-recap')}${has('year-recap-plus')}${absent('Counts only')}${click('year-recap-plus')}await page.wait('[data-testid="continue-with-plus-simulate"]');${click('continue-with-plus-simulate')}await page.wait(1500);${click('close-flow')}`);
  await history('owner');
  await run('owner',`${text('1 reading · 0 golden finds · 0 Yes check-ins')}${text('Counts only · no accuracy score.')}${lacks('year-recap-plus')}`);
- evidence.push({recapTeaserForFree:true,recapUnlockedByPlus:true});
+ await run('owner',`await page.eval(()=>{const saved=JSON.parse(localStorage.getItem('crystal-ball-v1'));for(const reading of saved.history){const created=new Date(reading.createdAt);created.setFullYear(new Date().getFullYear()-1);reading.createdAt=created.toISOString()}localStorage.setItem('crystal-ball-v1',JSON.stringify(saved))});await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-history"]');`);
+ await history('owner');
+ await run('owner',`${has('year-recap-'+new Date().getFullYear())}${has('year-recap-'+(new Date().getFullYear()-1))}${text('0 readings · 0 golden finds · 0 Yes check-ins')}${text('1 reading · 0 golden finds · 0 Yes check-ins')}`);
+ evidence.push({recapTeaserForFree:true,recapUnlockedByPlus:true,pastYearCreatedAtFixture:true,completedYearReachableWithEmptyCurrentYear:true});
  await circles('owner');
  await run('owner',`${click('private-room-toggle')}await page.wait(1500);${text('Private room on.')}${has('private-room-status')}${text('Open the room · show tallies live')}`);
  await circles('friend');
