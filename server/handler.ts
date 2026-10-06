@@ -8,9 +8,10 @@ import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
 import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
+import {webReadings} from './web-reading.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
  const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160);
- const meter=billing(env),social=socialHandler(env,model,meter),store=billingHandler(env);
+ const meter=billing(env),web=webReadings(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;
   if(path.endsWith('/social'))return social(request);
@@ -37,6 +38,13 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    const plusChart=async(viewer:string|null)=>chart&&(!meter||(await meter.balance(viewer??await meter.user(request))).plus)?chart:undefined;
    const context={viewerBirthday,ageConfirmed,personName,localDate};
    const facts=raw as Facts,question=body.question.trim();
+   if(body.action==='predict'&&'webReading'in body){
+    // A sealed-link browser visitor's one free reading: limited by browser, network and a daily cap, never by an account.
+    const claimed=await web.claim(request,body.webReading);
+    const result=await predict(question,facts,false,model,context).catch(async error=>{await web.release(claimed);throw error});
+    if(result.kind==='ok')await web.complete(claimed);else await web.release(claimed);
+    return new Response(JSON.stringify(result.kind==='ok'?{...result,value:assignEdition(result.value,false)}:result),{headers});
+   }
    if(body.action==='predict'){
     // Readings are charged only after a successful forecast; failed attempts use none.
     // A signed-in app expects metering; an engine without billing config must not serve it free.

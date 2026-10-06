@@ -8,6 +8,8 @@ import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
 import * as billing from '../src/billing';
+import * as storyCard from '../src/story-card';
+import * as webReading from '../src/web-reading';
 const {plans,packs}=billing;
 
 const stamp=(n:number)=>`2026-10-04T00:00:00.${String(n).padStart(6,'0')}Z`;
@@ -25,12 +27,12 @@ function hooks(effectsEnabled=true){
 function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
-async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={}){
+async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={},account:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false});
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let fail!:(error:Error)=>void,blocking=true;
  const remote=new Promise<void>((_resolve,reject)=>{fail=reject});
@@ -63,7 +65,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
   '../src/social':{friendForecast:async(_q:string,_target:any,_signal:any,_consent:string,key:string)=>attempt(key),checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p,narration:()=>null},
   '../src/questions':{validateAnswer:()=>{},factLabels:{}},
-  '../src/api':{request:async(action:string,_q:string,_facts:any,_friend:boolean,_signal:any,_context:any,_consent:string,key:string)=>({kind:'ok',value:action==='predict'?attempt(key):{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
+  '../src/api':{webReadingVisitor:()=>false,request:async(action:string,_q:string,_facts:any,_friend:boolean,_signal:any,_context:any,_consent:string,key:string)=>({kind:'ok',value:action==='predict'?attempt(key):{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
@@ -186,6 +188,7 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/purchases':{purchaseMode},'../src/questions':{factLabels:{}},
+  '../src/api':{webReadingVisitor:()=>false},
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
@@ -296,7 +299,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(resolve=>pending.push(resolve)),buy:()=>new Promise(resolve=>{finishPurchase=()=>resolve('purchased')}),restore:()=>new Promise(resolve=>{finishRestore=()=>resolve({})})},
-  '../src/api':{syncStoreBalance:async()=>({})},
+  '../src/api':{webReadingVisitor:()=>false,syncStoreBalance:async()=>({})},
  },[]);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
@@ -357,7 +360,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{friendForecast:async()=>{predicts++;throw new Error(next==='empty'?billing.noReadings:'response lost')}},
   '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(()=>{})},
-  '../src/api':{request:async(action:string)=>{
+  '../src/api':{webReadingVisitor:()=>false,request:async(action:string)=>{
    if(action==='plan')return {kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false}]}};
    predicts++;if(next==='empty')return {kind:'error',message:billing.noReadings};throw new Error('response lost');
   }},
@@ -393,4 +396,57 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  await closePlans();remaining=0;
  await press(n=>n.props.label==='Try again');
  assert.equal(predicts,5,'a rejected ask does not reach the server again');assert.ok(plansOpen());
+});
+
+ test('free web archives preserve allowance and packs, including duplicate saves',async()=>{
+ const f=await fixture(),before=f.state();
+ const reading={...readings.circleReading(f.card),circleId:undefined};
+ await f.render().savePrediction(reading,{},null);
+ await f.render().savePrediction(reading,{},null);
+ assert.equal(f.state().history.length,1);
+ assert.deepEqual(f.state().usage,before.usage);
+ assert.equal(f.state().credits,before.credits);
+ f.render();await tick();
+ f.fail();await tick();
+});
+
+test('web quota refusals including pending browser reservations preserve eligibility until success',async()=>{
+ // An anonymous sealed-link visitor: no linked account, Plus or purchased readings.
+ const f=await fixture(false,{},{},{backupOwner:undefined,credits:0}),h=hooks(false),params:any={};let spent=false,predicts=0;
+ const reading={...readings.circleReading(f.card),circleId:undefined};
+ const outcomes=[{kind:'error',message:webReading.webNetworkUsed},{kind:'error',message:webReading.webReadingsResting},{kind:'error',message:webReading.webReadingUsed},{kind:'ok',value:reading}];
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
+  '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/SocialScreen':{Social:'Social',InstallAction:'InstallAction'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
+  '../src/social':{checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p,narration:()=>null},
+  '../src/questions':{validateAnswer:()=>{},factLabels:{}},
+  '../src/api':{webReadingVisitor:()=>true,webReadingSpent:()=>spent,spendWebReading:()=>{spent=true},webReadingProof:async()=>({}),request:async(action:string)=>action==='predict'?outcomes[predicts++]:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}}},
+ },f.warnings);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const ask=async()=>{
+  render().find(n=>n.props.testID==='close-flow')?.props.onPress();
+  render().find(n=>n.props.testID==='tab-sky').props.onPress();
+  render().find(n=>n.type==='Social').props.onAsk('Will I learn?',false);
+  render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
+  const option=render().find(n=>n.props.testID==='option-0');
+  if(option){option.props.onPress();await tick()}
+ };
+ for(let attempt=1;attempt<=3;attempt++){
+  await ask();
+  assert.equal(predicts,attempt);
+  assert.equal(spent,false);
+  assert.equal(f.state().history.length,0);
+  assert.ok(render().some(n=>n.type==='InstallAction'));
+ }
+ await ask();
+ assert.equal(predicts,4);assert.equal(spent,true);
+ assert.equal(f.state().history.length,1);
+ await ask();assert.equal(predicts,4);
+ // No backup upload to release: an anonymous visitor has no linked account.
 });

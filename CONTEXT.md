@@ -48,7 +48,7 @@ A Circle with sealed check-in votes and a Circle shelf. See the [social contract
 The shared activity of Circle members. See the [social boundary](docs/social/model.md#social-v2) for feed visibility and the separate group forecast contract.
 
 **Sealed forecast**:
-A Forecast about a friend, sent sealed; the recipient opens it by tapping the ball. Limited for free users, unlimited with Plus.
+A Forecast's headline sent sealed to a friend; the recipient opens it by tapping the ball. Limited for free users, unlimited with Plus.
 
 **Friend reading**:
 A Plus Reading about a Circle member, allowed only if that member turned on "friends can ask about me" (off by default). See the [social boundary](docs/social/model.md) for the subject and viewer context and anonymous notification contract.

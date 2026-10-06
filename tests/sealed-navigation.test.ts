@@ -8,13 +8,18 @@ import * as retention from '../src/retention';
 import {circleReading} from '../src/reading-history';
 import {canRead} from '../src/profile';
 import * as billing from '../src/billing';
+import * as storyCard from '../src/story-card';
 
 const code=ts.transpileModule(readFileSync(new URL('../app/index.tsx',import.meta.url),'utf8'),{
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
 }).outputText;
 
-function app(onboardingDone=true,history:any[]=[]){
- const params:{seal?:string;social?:string}={seal:'sealed-receipt'},slots:any[]=[];
+const socialCode=ts.transpileModule(readFileSync(new URL('../src/SocialScreen.tsx',import.meta.url),'utf8'),{
+ compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
+}).outputText;
+
+function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-receipt',account:object={},spent=false){
+ const params:{seal?:string;social?:string}={seal},slots:any[]=[];
  let cursor=0;
  const react={
   createElement:(type:any,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
@@ -22,20 +27,28 @@ function app(onboardingDone=true,history:any[]=[]){
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:()=>{},
  };
- const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true};
+ const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
  const imports:Record<string,any>={
-  '../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  '../src/api':{webReadingVisitor:()=>false,webReadingSpent:()=>spent},'../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
-  '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social'},
-  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},'../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
+  '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social',SealForecast:'SealForecast',InstallAction:'InstallAction'},'../src/RevealClip':{RevealClip:'RevealClip'},
+  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
+  '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
  };
+ const sealSlots:any[]=[];
+ let sealCursor=0;
+ const sealReact={...react,useState:(initial:any)=>{const i=sealCursor++;if(!(i in sealSlots))sealSlots[i]=initial;return [sealSlots[i],(value:any)=>{sealSlots[i]=value}]}};
+ const socialModule={exports:{} as any};
+ const socialImports:Record<string,any>={react:sealReact,'react-native':{Platform:{OS:'web'},View:'View',Pressable:'Pressable'},'./ui':{Action:'Action',Txt:'Txt',Orb:'Orb',styles:{},colors:{}},'./social':{openForecast:async()=>reading.headline},'./api':{webReadingSpent:()=>spent}};
+ runInNewContext(socialCode,{module:socialModule,exports:socialModule.exports,process:{env:{}},require:(name:string)=>socialImports[name]??{}});
+ imports['../src/SocialScreen'].SealedCard=(props:any)=>{sealCursor=0;return react.createElement('SealedCard',props,socialModule.exports.SealedCard(props))};
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
  return {params,render};
@@ -101,4 +114,73 @@ test('the Inner Library opens from the Home room spot and You; its locked door l
  room=render();
  assert.ok(room.some(n=>n.type==='InnerLibrary'));
  assert.ok(!room.some(n=>n.props.testID==='tab-you'&&n.props.accessibilityState?.selected),'the room is not a tab');
+});
+
+const reading={id:'reading',question:'Will I finish my course?',headline:'You will finish your course next month.',createdAt:'2026-10-01T00:00:00Z',label:'Speculative forecast · not a guarantee',why:'Practice adds up.',facts:{},sources:[],assumptions:[],friend:false};
+const openReading=(render:()=>any[])=>{
+ render().find(n=>n.props.testID==='tab-history').props.onPress();
+ render().find(n=>n.props.accessibilityRole==='button'&&n.props.key==='reading').props.onPress();
+ return render();
+};
+
+test('a reveal leads with Seal it for a friend; Share and Ask again stay secondary',()=>{
+ const {render}=app(true,[reading],'');
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ const reveal=openReading(render);
+ const seal=reveal.findIndex(n=>n.type==='SealForecast'),share=reveal.findIndex(n=>n.props.label==='Share this glimpse');
+ assert.ok(seal>=0&&share>seal,'seal comes before share');
+ assert.equal(reveal[share].props.quiet,true);
+ assert.ok(reveal.some(n=>n.type==='RevealClip'&&n.props.prediction.id==='reading'));
+ assert.ok(reveal.some(n=>n.props.testID==='ask-another-question'));
+ assert.ok(!reveal.some(n=>n.type==='InstallAction'));
+});
+
+test('a sealed-link browser visitor starts their free reading from the seal, then is sent to install',()=>{
+ const {render,params}=app(true,[reading]);
+ render().find(n=>n.type==='SealedCard').props.onAsk();
+ assert.equal(params.seal,undefined);
+ assert.ok(render().some(n=>n.props.testID==='close-flow'),'Ask opens');
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ const reveal=openReading(render);
+ assert.ok(reveal.some(n=>n.type==='InstallAction'));
+ assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));
+});
+
+ test('Ask navigation from a sealed landing keeps the visitor restriction',()=>{
+ const {render}=app(true,[reading]);
+ render().find(n=>n.props.testID==='tab-ask').props.onPress();
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ const reveal=openReading(render);
+ assert.ok(reveal.some(n=>n.type==='InstallAction'));
+ assert.ok(!reveal.some(n=>n.props.testID==='ask-another-question'));
+});
+
+test('a used-up web trial never blocks a Plus, credited or linked account in the same browser',async()=>{
+ for(const account of [{plus:true},{credits:3},{backupOwner:'apple-user'}]){
+  const {render,params}=app(true,[reading],'sealed-receipt',account,true);
+  render().find(n=>n.props.testID==='open-sealed-forecast').props.onPress();
+  await new Promise(resolve=>setImmediate(resolve));
+  const ask=render().find(n=>n.props.testID==='web-reading-start');
+  assert.ok(ask,JSON.stringify(account));
+  assert.ok(!render().some(n=>n.children.includes('One free reading here. No account needed.')));
+  ask.props.onPress();
+  assert.equal(params.seal,undefined);
+  assert.ok(render().some(n=>n.children.includes('Come closer…')));
+  render().find(n=>n.props.testID==='close-flow').props.onPress();
+  const reveal=openReading(render);
+  assert.ok(reveal.some(n=>n.props.testID==='ask-another-question'),JSON.stringify(account));
+  assert.ok(!reveal.some(n=>n.type==='InstallAction'),JSON.stringify(account));
+ }
+});
+
+test('sealed landing offers anonymous visitors only an unspent free reading',async()=>{
+ for(const spent of [false,true]){
+  const {render}=app(true,[],'sealed-receipt',{},spent);
+  render().find(n=>n.props.testID==='open-sealed-forecast').props.onPress();
+  await new Promise(resolve=>setImmediate(resolve));
+  const landing=render();
+  assert.equal(landing.some(n=>n.props.testID==='web-reading-start'),!spent);
+  assert.equal(landing.some(n=>n.children.includes('One free reading here. No account needed.')),!spent);
+  assert.ok(landing.some(n=>n.props.label==='Open Crystal Ball app'));
+ }
 });
