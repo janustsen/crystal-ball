@@ -74,12 +74,11 @@ test('social refresh recovers lost publication responses and charges each Readin
  }
  await prepareSocialDraft('star','Will I learn Spanish?','Candidate AI');
  await prepareSocialDraft('seal','A creative opportunity may arrive.','Candidate AI');
- const viewerContext={viewerBirthday:'1995-06-15',viewerChart:{moonSign:'pisces',risingSign:'virgo'}};
- await friendForecast('What lies ahead for Alex?',target,signal,'Candidate AI',undefined,viewerContext);
+ await friendForecast('What lies ahead for Alex?',target,signal,'Candidate AI');
  assert.deepEqual(writes.slice(-3),[
   {action:'draft',kind:'star',text:'Will I learn Spanish?',aiConsent:'Candidate AI'},
   {action:'draft',kind:'seal',text:'A creative opportunity may arrive.',aiConsent:'Candidate AI'},
-  {action:'friend',question:'What lies ahead for Alex?',...target,aiConsent:'Candidate AI',...viewerContext},
+  {action:'friend',question:'What lies ahead for Alex?',...target,aiConsent:'Candidate AI'},
  ]);
  const before=writes.length;
  await assert.rejects(prepareSocialDraft('star','Will I learn Spanish?'),/Allow Candidate AI/);

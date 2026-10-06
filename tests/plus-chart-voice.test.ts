@@ -69,6 +69,33 @@ test('viewer chart survives subject filtering in every engine reading mode',asyn
  }
 });
 
+test('friendForecast forwards the viewer birthday and chart',async t=>{
+ const env={EXPO_PUBLIC_AI_PROVIDER_NAME:'Candidate AI',EXPO_PUBLIC_SUPABASE_URL:'http://127.0.0.1:55329',EXPO_PUBLIC_SUPABASE_ANON_KEY:'local-verification-only',EXPO_PUBLIC_ENGINE_URL:'http://127.0.0.1:8795'};
+ const previous=Object.fromEntries(Object.keys(env).map(key=>[key,process.env[key]]));
+ Object.assign(process.env,env);
+ const oldWindow=Object.getOwnPropertyDescriptor(globalThis,'window');
+ Object.defineProperty(globalThis,'window',{configurable:true,value:{localStorage:{getItem:()=>null,setItem:()=>{},removeItem:()=>{}}}});
+ t.after(()=>{
+  for(const [key,value] of Object.entries(previous)){
+   if(value===undefined)delete process.env[key];else process.env[key]=value;
+  }
+  if(oldWindow)Object.defineProperty(globalThis,'window',oldWindow);else Reflect.deleteProperty(globalThis,'window');
+ });
+ const {supabase}=await import('../src/cloud');assert.ok(supabase);
+ await supabase.auth.initialize();await supabase.auth.stopAutoRefresh();
+ t.mock.method(supabase.auth,'getSession',async()=>({data:{session:{access_token:'test-token',user:{id:viewer}}},error:null}));
+ const {friendForecast}=await import('../src/social');
+ const writes:unknown[]=[];
+ t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
+  assert.equal(String(input),'http://127.0.0.1:8795/social');
+  writes.push(JSON.parse(String(init?.body)));
+  return Response.json({ok:true});
+ });
+ const target={circle:'circle',member:'friend',firstName:'Alex'},context={viewerBirthday:birthday,viewerChart:chart};
+ await friendForecast('What lies ahead for Alex?',target,new AbortController().signal,'Candidate AI',undefined,context);
+ assert.deepEqual(writes,[{action:'friend',question:'What lies ahead for Alex?',...target,aiConsent:'Candidate AI',...context}]);
+});
+
 test('Circle-friend Why uses the viewer chart with the server Plus gate',async t=>{
  const send=(serve:ReturnType<typeof handler>,extra:object={})=>serve(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',question:'What lies ahead for Alex?',firstName:'Alex',circle:'circle',member:'member',requestId:'11111111-1111-4111-8111-111111111111',viewerBirthday:birthday,viewerChart:chart,...extra})}));
  for(const plus of [false,true]){
