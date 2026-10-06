@@ -25,7 +25,7 @@ function load(path:string,imports:Record<string,any>){
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
  }).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,React:imports.react,Error,require:(name:string)=>imports[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
  return module.exports;
 }
 async function library(serverMetered=true){
