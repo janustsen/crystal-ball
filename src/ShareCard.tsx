@@ -13,9 +13,9 @@ import {selectedStyle,skinColors} from './delight';
 import {useStore} from './store';
 import type {Prediction} from './types';
 const copy={
- forecast:{title:'Share this glimpse',note:'Only the forecast, its check-in date and speculative label are shared. Review the headline before sharing; it may contain details you supplied. Never your question, answers or reasoning.'},
- receipt:{title:'Share your receipt',note:'Only the headline, its category and your check-in dates are shared. Never your question, answers or reasoning.'},
- 'golden-set':{title:'Share your golden set',note:'Only your golden headlines and how many you hold are shared. Never your questions, answers or reasoning.'},
+ forecast:{title:'Share this glimpse',note:'Only the forecast, its check-in date and speculative label are shared. Review the headline before sharing; it may contain details you supplied. Never your question, answers or reasoning.',back:'Back to forecast'},
+ receipt:{title:'Share your receipt',note:'Only the headline, its category and your check-in dates are shared. Never your question, answers or reasoning.',back:'Back to forecast'},
+ 'golden-set':{title:'Share your golden set',note:'Only your golden headlines and how many you hold are shared. Never your questions, answers or reasoning.',back:'Back to History'},
 };
 // Draws a StoryCard on the current look. Forecast cards also get the recording, link and reminder options.
 export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:StoryCard;prediction?:Prediction;onClose:()=>void;onNotice:(message:string)=>void;onRecord?:()=>void}){
@@ -37,8 +37,8 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;
   const headlines=card.headlines.map(headline=>headline.replace(/(\d+)\s+(months?|years?|weeks?|days?)/gi,'$1\u00a0$2')),maxLines=headlines.length>1?6:3;
   const wrap=(text:string)=>{const lines:string[]=[];let line='';for(const word of text.split(' ')){if(ctx.measureText((line+' '+word).trim()).width<=820){line=(line+' '+word).trim();continue;}if(line){lines.push(line);line='';}for(const letter of word){if(ctx.measureText(line+letter).width>820){lines.push(line);line='';}line+=letter;}}if(line)lines.push(line);return lines;};
-  let font=82,lines=headlines.flatMap(wrap);while(lines.length>maxLines&&font>36){font-=2;ctx.font=`${font}px ${fonts.display}, Georgia`;lines=headlines.flatMap(wrap);}
-  let y=lines.length>3?960:1080;for(const line of lines){ctx.fillText(line,540,y);y+=font*1.25;}y-=font*1.25;
+  let font=82,blocks=headlines.map(wrap);while(blocks.flat().length>maxLines&&font>36){font-=2;ctx.font=`${font}px ${fonts.display}, Georgia`;blocks=headlines.map(wrap);}
+  let y=blocks.flat().length>3?940:1080;for(const block of blocks){for(const line of block){ctx.fillText(line,540,y);y+=font*1.25;}y+=font*.5;}y-=font*1.75;
   ctx.fillStyle=colors.gold;const labelY=Math.min(y+100,1370);card.labels.forEach((label,i)=>{let size=42;do{ctx.font=`${size}px ${fonts.body}, sans-serif`;size-=2}while(ctx.measureText(label).width>900&&size>24);ctx.fillText(label,540,labelY+i*72)});ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',540,1590);
   ctx.font=`36px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.muted;ctx.fillText(card.footer,540,1650);
   // Encode asynchronously so opening Share does not block the animation frame.
@@ -57,5 +57,5 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   story,
   {label:'Private friend link',detail:'Private to this friend reading.',id:'share-friend-link',run:async()=>{try{setNotice(`Friend link: ${await friendLink('What will my life look like next year?')}`)}catch{setNotice('Sharing was canceled. No link was sent.')}}},
   {label:'Remind me to check back',detail:'Yes, Not quite, or Not yet — tell your side.',id:'share-reminder',run:async()=>setNotice(await reminder(prediction.headline,prediction.id,suggestedCheckIn(prediction)))}
- ]:[story]).map(item=><Pressable key={item.id} testID={item.id} accessibilityRole="button" accessibilityLabel={item.label} onPress={item.run} style={{paddingVertical:16,borderBottomWidth:1,borderColor:'#614C34'}}><Txt>{item.label} ↗</Txt><Txt style={styles.caption}>{item.detail}</Txt></Pressable>)}</View><Txt style={[styles.caption,{marginTop:24}]}>{copy[card.kind].note}</Txt><Action label="Back to forecast" quiet onPress={onClose}/></>;
+ ]:[story]).map(item=><Pressable key={item.id} testID={item.id} accessibilityRole="button" accessibilityLabel={item.label} onPress={item.run} style={{paddingVertical:16,borderBottomWidth:1,borderColor:'#614C34'}}><Txt>{item.label} ↗</Txt><Txt style={styles.caption}>{item.detail}</Txt></Pressable>)}</View><Txt style={[styles.caption,{marginTop:24}]}>{copy[card.kind].note}</Txt><Action label={copy[card.kind].back} quiet onPress={onClose}/></>;
 }

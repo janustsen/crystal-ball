@@ -24,5 +24,5 @@ export const goldenShelf=(history:Prediction[])=>history.filter(p=>p.golden);
 export function goldenSetCard(history:Prediction[]):StoryCard|null{
  const shelf=goldenShelf(history),shown=shelf.slice(0,3);
  if(!shelf.length)return null;
- return {kind:'golden-set',golden:true,headlines:shown.map(p=>p.headline),labels:[`${shelf.length} golden forecast${shelf.length===1?'':'s'}`,'Same uncertainty'],footer:shelf.length>shown.length?`+${shelf.length-shown.length} more on the golden shelf`:'From the golden shelf',file:'crystal-ball-golden-set.png'};
+ return {kind:'golden-set',golden:true,headlines:shown.map(p=>p.headline),labels:[`${shelf.length} golden forecast${shelf.length===1?'':'s'}`],footer:shelf.length>shown.length?`+${shelf.length-shown.length} more on the golden shelf`:'From the golden shelf',file:'crystal-ball-golden-set.png'};
 }
