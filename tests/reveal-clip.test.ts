@@ -77,3 +77,48 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
   assert.equal(downloaded.length,mode==='download'||mode==='expired activation'?1:0);
  }
 });
+
+test('reveal clips paint AI glass inside the ball with the opening fade; Classic keeps the base orb',()=>{
+ const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{
+  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX},
+ }).outputText;
+ const module={exports:{} as typeof import('../src/RevealClip')};
+ const imports:Record<string,unknown>={
+  react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},
+  './ui':{colors:{},fonts:{}},'./retention':{suggestedCheckIn:()=>'December 1'},
+  './delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},
+ };
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>{
+  assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name];
+ }});
+ const orb={} as HTMLImageElement,glass={} as HTMLImageElement;
+ for(const ballStyle of ['aurora','classic'] as const)for(const open of [1,.5]){
+  const calls:unknown[][]=[];
+  const ctx={
+   globalAlpha:1,
+   createLinearGradient:()=>({addColorStop:()=>{}}),
+   fillRect(){},fill(){},stroke(){},moveTo(){},lineTo(){},fillText(){},
+   measureText:()=>({width:100}),
+   save(){calls.push(['save'])},restore(){calls.push(['restore'])},
+   beginPath(){calls.push(['beginPath'])},arc(...args:number[]){calls.push(['arc',...args])},
+   clip(){calls.push(['clip'])},
+   drawImage(image:HTMLImageElement,...args:number[]){calls.push(['drawImage',image,...args,this.globalAlpha])},
+  };
+  module.exports.paintStory(ctx as unknown as CanvasRenderingContext2D,
+   {headline:'You will finish your course.'} as Parameters<typeof module.exports.paintStory>[1],
+   {cardStyle:'classic',ballStyle,orb,glass},{orb:open});
+  const scale=.86+.14*open;
+  assert.equal(calls.filter(call=>call[0]==='drawImage'&&call[1]===orb).length,1);
+  if(ballStyle==='aurora'){
+   const start=calls.findIndex(call=>call[0]==='save');
+   assert.deepEqual(calls.slice(start,start+6),[
+    ['save'],['beginPath'],['arc',540,550,270*scale,0,Math.PI*2],['clip'],
+    ['drawImage',glass,540-270*scale,550-270*scale,540*scale,540*scale,open],['restore'],
+   ]);
+  }else{
+   assert.equal(calls.some(call=>call[0]==='drawImage'&&call[1]===glass),false);
+   assert.equal(calls.some(call=>call[0]==='clip'),false);
+  }
+  assert.equal(ctx.globalAlpha,1);
+ }
+});

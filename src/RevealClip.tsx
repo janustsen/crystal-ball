@@ -3,19 +3,20 @@ import {Platform,Switch,View} from 'react-native';
 import {Asset} from 'expo-asset';
 import {Action,Txt,colors,fonts,styles} from './ui';
 import {suggestedCheckIn} from './retention';
-import {selectedStyle,skinColors} from './delight';
+import {selectedStyle} from './delight';
+import {ballArt} from './roomAssets';
 import {activityTheme,skyPrompts} from './social-policy';
 import {useStore} from './store';
-import type {Prediction,StyleName} from './types';
+import type {Prediction,BallStyle,CardStyle} from './types';
 
-type Look={cardStyle:StyleName;ballStyle:StyleName;orb:HTMLImageElement};
+type Look={cardStyle:CardStyle;ballStyle:BallStyle;orb:HTMLImageElement;glass?:HTMLImageElement};
 // Animation inputs (0-1) plus the clip-only lines. Defaults paint the still story card.
 type Frame={orb?:number;text?:number;glow?:number;category?:string;question?:string;aiLabel?:boolean};
 
 export async function loadOrb(){const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();return orb}
 
 // Design hook: swap this painter for the designed card/clip template when it lands.
-export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{cardStyle,ballStyle,orb}:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
+export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{cardStyle,ballStyle,orb,glass}:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
  const golden=prediction.golden,cardCenter=golden||cardStyle==='gold'?'#684519':cardStyle==='obsidian'?'#12131C':colors.violet;
  ctx.globalAlpha=1;ctx.textAlign='center';
  const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,cardCenter);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
@@ -23,7 +24,7 @@ export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{c
  const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
  if(glow>0){const halo=ctx.createRadialGradient(540,584,60,540,584,460);halo.addColorStop(0,colors.gold);halo.addColorStop(1,'transparent');ctx.globalAlpha=glow*.55;ctx.fillStyle=halo;ctx.fillRect(0,100,1080,980);ctx.globalAlpha=1;}
  const scale=.86+.14*open,w=540*scale,h=608*scale;ctx.globalAlpha=open;ctx.drawImage(orb,540-w/2,584-h/2,w,h);
- if(ballStyle!=='classic'){const skin=skinColors[ballStyle];ctx.fillStyle=skin.fill;ctx.strokeStyle=skin.rim;ctx.lineWidth=2;ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.fill();ctx.stroke();}
+ if(ballStyle!=='classic'&&glass){ctx.save();ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,540-270*scale,550-270*scale,540*scale,540*scale);ctx.restore();}
  ctx.globalAlpha=1;
  if(cardStyle!=='classic'&&!golden){ctx.strokeStyle=cardStyle==='gold'?colors.gold:'#8F91A3';ctx.lineWidth=3;ctx.strokeRect(64,64,952,1792);}
  if(golden){ctx.strokeStyle=colors.gold;ctx.lineWidth=8;ctx.strokeRect(48,48,984,1824);}
@@ -105,8 +106,9 @@ export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice
  async function make(){
   setBusy(true);onNotice('');
   try{
-   const orb=await loadOrb();
-   await save(await recordClip(prediction,{cardStyle:selectedStyle(state,'card'),ballStyle:selectedStyle(state,'ball'),orb},{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
+   const orb=await loadOrb(),ballStyle=selectedStyle(state,'ball');let glass:HTMLImageElement|undefined;
+   if(ballStyle!=='classic'){glass=new Image();glass.src=Asset.fromModule(ballArt[ballStyle].glass).uri;await glass.decode();}
+   await save(await recordClip(prediction,{cardStyle:selectedStyle(state,'card'),ballStyle,orb,glass},{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
   }catch(error){onNotice(error instanceof Error&&error.message==='unsupported'?'This browser cannot record video. Use Story image or Replay for recording instead.':'The clip could not be recorded. Please try again.')}
   finally{setBusy(false)}
  }
