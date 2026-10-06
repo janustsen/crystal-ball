@@ -141,3 +141,19 @@ test('with Supabase, claims go through the service RPC with a hashed network and
  await assert.rejects(meter.claim(req,proofs[1]),new RegExp(webNetworkUsed));
  await assert.rejects(meter.claim(other,proofs[1]),new RegExp(webReadingsResting));
 });
+
+test('free web readings receive Free editions even when the request claims Plus',async t=>{
+ boundary(t);
+ let id='00000032-0000-4000-8000-000000000001' as `${string}-${string}-${string}-${string}-${string}`;
+ t.mock.method(crypto,'randomUUID',()=>id);
+ for(const [prefix,golden] of [['00000032',true],['0000000a',false],['00000033',false]] as const){
+  id=`${prefix}-0000-4000-8000-000000000001`;
+  const original=await ask(await proofFor(0),'203.0.113.1');
+  const request=new Request(original.url,{method:'POST',headers:original.headers,body:JSON.stringify({...await original.json(),plus:true})});
+  const response=await handler(()=>undefined)(request),result=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(result.kind,'ok');
+  assert.equal(result.value.id,id);
+  assert.equal(result.value.golden,golden);
+ }
+});

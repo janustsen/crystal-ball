@@ -43,7 +43,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     const claimed=await web.claim(request,body.webReading);
     const result=await predict(question,facts,false,model,context).catch(async error=>{await web.release(claimed);throw error});
     if(result.kind==='ok')await web.complete(claimed);else await web.release(claimed);
-    return new Response(JSON.stringify(result),{headers});
+    return new Response(JSON.stringify(result.kind==='ok'?{...result,value:assignEdition(result.value,false)}:result),{headers});
    }
    if(body.action==='predict'){
     // Readings are charged only after a successful forecast; failed attempts use none.
