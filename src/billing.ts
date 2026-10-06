@@ -28,4 +28,4 @@ export const noReadings='No readings left today. Choose Plus or a reading pack t
 export const dailyReadings=(plus:boolean)=>plus?10:1;
 export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'>)=>Math.max(0,dailyReadings(b.plus)-b.used)+b.packs;
 // Paywall copy: everything Plus unlocks, in order.
-export const plusUnlocks=[`${dailyReadings(true)} readings a day`,'The deeper Why: your answers, assumptions and news leads',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];
+export const plusUnlocks=[`${dailyReadings(true)} readings a day`,'The deeper Why: your answers, assumptions and news leads, with your Moon and rising','Monthly chart weather','A narrated Ball',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];

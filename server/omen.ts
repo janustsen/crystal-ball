@@ -1,7 +1,7 @@
-import {ballVoice} from './voice.ts';
+import {ballVoice,voiceFlags} from './voice.ts';
+import {sunSigns as signs} from '../src/social-policy.ts';
 import type {Facts} from '../src/types.ts';
 import type {ModelProvider} from './provider.ts';
-const signs=['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
 export async function personalOmen(facts:Facts,model:ModelProvider):Promise<string>{
  const sunSign=signs.find(sign=>sign===facts.sun_sign?.toLowerCase())??null;
  const value=await model.json<{text:string}>(
@@ -15,6 +15,26 @@ export async function personalOmen(facts:Facts,model:ModelProvider):Promise<stri
    const words=text.toLowerCase().split(/\W+/);
    const named=signs.filter(sign=>words.includes(sign));
    if(named.some(sign=>sign!==sunSign)||(sunSign&&!named.includes(sunSign)))return {valid:false,feedback:sunSign?`Address ${sunSign} by name, without naming other Sun signs.`:'No Sun sign was supplied. Do not name any Sun sign.'};
+   return true;
+  }
+ );
+ return value.text.trim();
+}
+
+// A Plus user's monthly reflection from their Sun, Moon and rising; the app keeps one per month.
+export async function chartWeather(chart:{sunSign:string;moonSign:string;risingSign:string},localDate:string|undefined,model:ModelProvider):Promise<string>{
+ const month=new Date(`${localDate??new Date().toISOString().slice(0,10)}T12:00:00Z`).toLocaleString('en-US',{month:'long',timeZone:'UTC'});
+ const supplied=[chart.sunSign,chart.moonSign,chart.risingSign];
+ const value=await model.json<{text:string}>(
+  ballVoice+' Write this month’s chart weather: two short sentences of astrology-flavored reflection for the supplied month, using the supplied Sun, Moon and rising signs symbolically. Name the supplied signs; never name any other sign or invent planetary positions, transits or dates. It is reflection and entertainment, not a forecast of events: no guarantees, diagnoses, medical/legal/financial advice, or claims about another person’s feelings. Use 20 to 45 words.',
+  {month,...chart},
+  {type:'object',properties:{text:{type:'string',minLength:40,maxLength:320}},required:['text'],additionalProperties:false},
+  value=>{
+   if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string')return false;
+   const text=value.text.trim(),words=text.toLowerCase().split(/\W+/);
+   if(text.length<40||text.length>320||/[\r\n]/.test(text)||!/[.!?]$/.test(text))return {valid:false,feedback:'Write two complete sentences, 20 to 45 words in total, ending with punctuation.'};
+   if(signs.some(sign=>words.includes(sign)&&!supplied.includes(sign)))return {valid:false,feedback:`Name only these signs: ${supplied.join(', ')}.`};
+   if(voiceFlags(text).length)return {valid:false,feedback:'Keep it gentle and uncertain: no doom, certainty or claims about anyone’s secret feelings.'};
    return true;
   }
  );

@@ -1,6 +1,7 @@
 import {checkInDate} from '../src/retention.ts';
-import {readingAge,validBirthday,validPersonName} from '../src/profile.ts';
-import {personalOmen} from './omen.ts';
+import {readingAge,sunSign,validBirthday,validPersonName} from '../src/profile.ts';
+import {sunSigns} from '../src/social-policy.ts';
+import {chartWeather,personalOmen} from './omen.ts';
 import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
@@ -19,7 +20,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
   try {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
    const body:unknown=JSON.parse(text);
-   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
+   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen','chart'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
    requireAiConsent(env,'aiConsent' in body?body.aiConsent:undefined);
    const raw='facts'in body?body.facts:{};
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
@@ -31,6 +32,11 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
    const localDate='localDate'in body?body.localDate:undefined;
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
+   const rawChart='viewerChart'in body?body.viewerChart:undefined,sign=(value:unknown):value is string=>sunSigns.some(s=>s===value);
+   const chart=rawChart&&typeof rawChart==='object'&&'moonSign'in rawChart&&'risingSign'in rawChart&&sign(rawChart.moonSign)&&sign(rawChart.risingSign)&&viewerBirthday?{moonSign:rawChart.moonSign,risingSign:rawChart.risingSign}:undefined;
+   if(rawChart!==undefined&&!chart)throw new Error('Please check your birth details in You.');
+   // Moon and rising are a Plus depth: with billing, only a current Plus viewer's chart reaches the reading.
+   const plusChart=async(viewer:string|null)=>chart&&(!meter||(await meter.balance(viewer??await meter.user(request))).plus)?chart:undefined;
    const context={viewerBirthday,ageConfirmed,personName,localDate};
    const facts=raw as Facts,question=body.question.trim();
    if(body.action==='predict'){
@@ -39,8 +45,13 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     if(!meter&&request.headers.get('authorization'))throw new BillingError('Readings are unavailable right now. Please try again later.',503);
     const viewer=meter?await meter.user(request):null;
     const charge=viewer?await meter!.authorizeCharge(viewer,'requestId' in body?body.requestId:undefined,{question,friend:'friend' in body&&body.friend===true,personName,facts}):null;
-    const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);
+    const result=await predict(question,facts,'friend'in body&&body.friend===true,model,{...context,viewerChart:await plusChart(viewer)});
     return new Response(JSON.stringify(viewer&&result.kind==='ok'?{...result,balance:await meter!.charge(viewer,charge!)}:result),{headers});
+   }
+   if(body.action==='chart'){
+    if(!chart)throw new Error('Add your birth time and place in You first.');
+    if(!await plusChart(null))throw new BillingError('Chart weather is a Plus extra.',403);
+    return new Response(JSON.stringify({kind:'ok',value:{text:await chartWeather({sunSign:sunSign(viewerBirthday as string)!,...chart},localDate,omenModel)}}),{headers});
    }
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});
