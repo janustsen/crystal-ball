@@ -21,7 +21,6 @@ export async function personalOmen(facts:Facts,model:ModelProvider):Promise<stri
  return value.text.trim();
 }
 
-// A Plus user's monthly reflection from their Sun, Moon and rising; the app keeps one per month.
 export async function chartWeather(chart:{sunSign:string;moonSign:string;risingSign:string},yearMonth:string,model:ModelProvider):Promise<string>{
  const month=new Date(`${yearMonth}-15T12:00:00Z`).toLocaleString('en-US',{month:'long',timeZone:'UTC'});
  const supplied=[chart.sunSign,chart.moonSign,chart.risingSign];
