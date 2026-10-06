@@ -1,3 +1,4 @@
+import {designCss} from './designArt';
 // Compositor-first UI motion and the illustrated depth layer. Procedural fog is rendered separately by WebGL.
 // Transition names match entrances[kind].name in motion.ts and docs/design/motion-language.md.
 const spring='cubic-bezier(.34,1.56,.64,1)',ease='cubic-bezier(.2,.75,.2,1)';
@@ -87,3 +88,6 @@ export const motionCss = `
 [data-reduced="true"] .sky,.reduced .sky,[data-reduced="true"] .tap-burst{display:none}
 @media(prefers-reduced-motion:reduce){.motion-enter{animation:none}.screen-veil::after,.screen-veil::before{display:none}.sky,.tap-burst{display:none}.tap-squash{animation:none!important}}
 `;
+
+// The shell's shared stylesheet (design, entrances, reduced motion, focus rings), injected by whichever backdrop is mounted.
+export const appCss=designCss+motionCss+` .reduced *, [data-reduced="true"] *, [data-reduced="true"] *::before, [data-reduced="true"] *::after {animation:none!important;transition:none!important} .orb{pointer-events:none} [data-testid="app-shell"]:has(.gl) .orb .gb{background:rgba(20,14,9,.18)} [data-testid="app-shell"]:has(.gl) .orb .fb{display:none} [role=button]:focus-visible,[role=radio]:focus-visible,[role=tab]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F2C284!important;outline-offset:3px}`;

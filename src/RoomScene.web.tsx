@@ -1,11 +1,19 @@
 import {useEffect,useRef,useState} from 'react';
-import {Image} from 'react-native';
 import * as T from 'three';
-import type {BallSpin} from './HomeScene';
+import {Asset} from 'expo-asset';
+import {OrbVisual} from './OrbVisual';
+import {appCss} from './motionCss';
+import type {BallSpin} from './RoomScene';
+import {ballOnScreen,clipFrames,clipUrl,flightKey,roomCover,idleKey,maxBallRadius,roomAssetBase,roomFps,roomVersion,stillFrame,type BallFrame,type Spot} from './room';
+import {homeIdle,roomStills} from './roomAssets';
 
-// Ported from the Claude Design canvas artboard project/Library.dc.html ("Library").
-// Keep the scene identical to that source; only lifecycle, sizing and reduced motion are app-specific.
-function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:boolean},grip:BallSpin){
+// The glass ball is ported from the Claude Design canvas artboard project/Library.dc.html ("Library").
+// Keep its look identical to that source. Its library room now only lights and reflects in the glass (the
+// cube map); the screen shows the rendered room video, and this canvas draws the ball alone over it.
+// aim() runs before every frame: it places the canvas and returns the camera's direction from the ball,
+// or null while the ball is out of frame.
+function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},grip:BallSpin,aim:()=>number[]|null){
+ const W=S,H=S;
  let seed=7;
  const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
  const mk=(w:number,h:number,draw:(g:CanvasRenderingContext2D,w:number,h:number)=>void,srgb?:boolean)=>{
@@ -17,7 +25,7 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
  };
 
  // ---------- renderer ----------
- const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+ const renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
  renderer.setSize(W,H,false);
  renderer.outputColorSpace=T.SRGBColorSpace;
@@ -26,16 +34,15 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
  renderer.shadowMap.enabled=true;
  renderer.shadowMap.type=T.PCFSoftShadowMap;
  renderer.shadowMap.autoUpdate=false;
- renderer.setClearColor(0x050302,1);
+ renderer.setClearColor(0x000000,0);
 
  const scene=new T.Scene();
  scene.fog=new T.FogExp2(0x060403,0.06);
- const camera=new T.PerspectiveCamera(38,W/H,0.1,60);
- const camBase=new T.Vector3(0,2.25,8.4);
- const target=new T.Vector3(0,0.55,0);
- camera.position.copy(camBase);
- camera.lookAt(target);
  const BALL=new T.Vector3(0,1.55,0);
+ // The canvas's original camera distance (so fog and halo read the same); the ball fills half the canvas.
+ const CAM_D=8.43,FILL=0.5;
+ const camera=new T.PerspectiveCamera(2*Math.atan(Math.tan(Math.asin(1/CAM_D))/FILL)*180/Math.PI,1,0.1,60);
+ camera.layers.set(1);
 
  // ---------- textures ----------
  // Library dropped Main's 1024×768 backdrop; replay the rnd() calls its draw made, so every book and jar matches the canvas.
@@ -362,45 +369,17 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
    }`
  });
  const ball=new T.Mesh(new T.SphereGeometry(1,128,96),ballMat);
- ball.position.copy(BALL);
+ ball.position.copy(BALL);ball.layers.set(1);
  scene.add(ball);
 
  const halo=new T.Sprite(new T.SpriteMaterial({map:haloTex,color:0xffb46a,blending:T.AdditiveBlending,depthTest:false,depthWrite:false,transparent:true,opacity:0.16,toneMapped:false}));
- halo.position.copy(BALL);halo.scale.set(3.7,3.7,1);halo.renderOrder=10;
+ halo.position.copy(BALL);halo.scale.set(3.7,3.7,1);halo.renderOrder=10;halo.layers.set(1);
  scene.add(halo);
 
- // drifting dust in the candlelight
- const NDUST=220,dpos=new Float32Array(NDUST*3),dspd:number[]=[];
- for(let i=0;i<NDUST;i++){
-  let x,y,z;
-  do{x=(rnd()-0.5)*3.4;y=0.2+rnd()*3;z=(rnd()-0.5)*3}while(Math.hypot(x,y-BALL.y,z)<1.1);
-  dpos.set([x,y,z],i*3);dspd.push(0.02+rnd()*0.05,rnd()*6.28);
- }
- const dgeo=new T.BufferGeometry();dgeo.setAttribute('position',new T.BufferAttribute(dpos,3));
- const dust=new T.Points(dgeo,new T.PointsMaterial({map:dotTex,color:0xffd6a0,size:0.028,transparent:true,opacity:0.5,depthWrite:false,blending:T.AdditiveBlending}));
- scene.add(dust);
-
- // ---------- input ----------
- const mouse={x:0,y:0},sm={x:0,y:0};
  const KROT=0.011,VMAX=14;
  const spin={dragging:false,id:-1,lx:0,ly:0,lt:0,ax:0,ay:0,vx:0,vy:0,orb:0,moved:0};
- const onMove=(e:PointerEvent)=>{
-  if(spin.dragging)return;
-  const b=canvas.getBoundingClientRect();
-  if(!b.width)return;
-  mouse.x=Math.max(-1,Math.min(1,((e.clientX-b.left)/b.width-0.5)*2));
-  mouse.y=Math.max(-1,Math.min(1,((e.clientY-b.top)/b.height-0.5)*2));
- };
- const onTilt=(e:DeviceOrientationEvent)=>{
-  if(e.gamma==null||e.beta==null)return;
-  mouse.x=Math.max(-1,Math.min(1,e.gamma/25));
-  mouse.y=Math.max(-1,Math.min(1,(e.beta-45)/25));
- };
- window.addEventListener('pointermove',onMove);
- window.addEventListener('deviceorientation',onTilt);
 
  // ---------- drag to spin ----------
- const scale=()=>{const b=canvas.getBoundingClientRect();return b.width?b.width/W:1};
  grip.grab=e=>{
   // A second finger leaves the first one's drag alone.
   if(spin.dragging)return;
@@ -411,7 +390,7 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
  };
  const onDragMove=(e:PointerEvent)=>{
   if(!spin.dragging||e.pointerId!==spin.id)return;
-  const k=scale(),dx=(e.clientX-spin.lx)/k,dy=(e.clientY-spin.ly)/k;
+  const dx=e.clientX-spin.lx,dy=e.clientY-spin.ly;
   const now=performance.now(),de=Math.max((now-spin.lt)/1000,0.008);
   spin.lt=now;
   spin.vx+=(Math.max(-VMAX,Math.min(VMAX,dx*KROT/de))-spin.vx)*0.4;
@@ -463,8 +442,6 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
   t+=dt;
   swirl+=dt*(reduced?0.03:0.16);
 
-  sm.x+=(mouse.x-sm.x)*Math.min(1,dt*2.5);
-  sm.y+=(mouse.y-sm.y)*Math.min(1,dt*2.5);
   if(spin.ax||spin.ay){
    turn(spin.ax*KROT,spin.ay*KROT,spin.orb);
    spin.ax=0;spin.ay=0;
@@ -482,40 +459,28 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
   // Reduced motion leaves the camera still rather than swinging with the spin.
   const orbTarget=reduced?0:Math.max(-0.22,Math.min(0.22,spin.vx*0.035));
   spin.orb+=(orbTarget-spin.orb)*Math.min(1,dt*2.2);
-  const ox=camBase.x+sm.x*0.35,oz=camBase.z;
-  const co=Math.cos(spin.orb),so=Math.sin(spin.orb);
-  camera.position.set(ox*co+oz*so,camBase.y-sm.y*0.18,-ox*so+oz*co);
-  camera.lookAt(target);
-
-  const fl=reduced?1:0.86+0.07*Math.sin(t*13.1)+0.05*Math.sin(t*23.7+1.3)+0.04*Math.sin(t*7.3+0.4);
-  candle.intensity=7*fl;
-  flame.scale.set(0.1*(1+0.05*Math.sin(t*17.3)),0.24*(0.92+0.1*fl),1);
-  flame.position.x=CX+0.006*Math.sin(t*9.1);
-  flameGlow.material.opacity=0.2*fl;
+  // The room camera's view of the ball, swung slightly with the spin.
+  const dir=aim();
+  if(dir){
+   const co=Math.cos(spin.orb),so=Math.sin(spin.orb);
+   camera.position.set(dir[0]*co+dir[2]*so,dir[1],-dir[0]*so+dir[2]*co).multiplyScalar(CAM_D).add(BALL);
+   camera.lookAt(BALL);
+  }
 
   const g=1+0.07*Math.sin(t*1.3);
   uniforms.uTime.value=t;uniforms.uSwirl.value=swirl;uniforms.uGlow.value=g;
   inner.intensity=1.6*g;
   halo.material.opacity=0.13*g;
 
-  if(!reduced){
-   const a=dgeo.attributes.position.array as Float32Array;
-   for(let i=0;i<NDUST;i++){
-    a[i*3+1]+=dspd[i*2]*dt*0.35;
-    a[i*3]+=Math.sin(t*0.4+dspd[i*2+1])*dt*0.02;
-    if(a[i*3+1]>3.2)a[i*3+1]=0.2;
-   }
-   dgeo.attributes.position.needsUpdate=true;
-  }
-
+  // ponytail: the reflected room is captured once (no candle flicker in the glass); recapture if it reads static.
   if(n===0){
    renderer.shadowMap.needsUpdate=true;
    capture();
    scene.environment=pmrem.fromCubemap(cubeRT.texture).texture;
    capture();
-  }else if(n%2===0)capture();
+  }
   n++;
-  renderer.render(scene,camera);
+  if(dir)renderer.render(scene,camera);
   // Reduced motion and hidden pages hold the last frame without scheduling callbacks.
   if(!reduced&&!document.hidden)raf=requestAnimationFrame(frame);
  };
@@ -526,8 +491,6 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
   resume,
   stop(){
    alive=false;cancelAnimationFrame(raf);
-   window.removeEventListener('pointermove',onMove);
-   window.removeEventListener('deviceorientation',onTilt);
    window.removeEventListener('pointermove',onDragMove);
    window.removeEventListener('pointerup',onDragEnd);
    window.removeEventListener('pointercancel',onDragEnd);
@@ -542,33 +505,135 @@ function startScene(canvas:HTMLCanvasElement,W:number,H:number,motion:{reduce:bo
 
 const grain=`<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><filter id="cbGrain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#cbGrain)"/></svg>`;
 
-export function HomeScene({width,height,reduce,spin}:{width:number;height:number;reduce:boolean;spin:BallSpin}){
- const [failed,setFailed]=useState(false);
- const ref=useRef<HTMLCanvasElement>(null),motion=useRef({reduce}),scene=useRef<ReturnType<typeof startScene>|null>(null);
- motion.current.reduce=reduce;
+// Clips play from object URLs once fully loaded, so a cut never waits on the network. Streamed clips persist in
+// the Cache API where the origin allows it (HTTPS or localhost) and in the HTTP cache elsewhere.
+const clips=new Map<string,string>(),loading=new Map<string,Promise<void>>();
+const listeners=new Set<()=>void>();
+function loadClip(key:string,url:string,persist:boolean){
+ let job=loading.get(key);
+ if(!job){
+  job=(async()=>{
+   try{
+    const cache=persist&&typeof caches!=='undefined'?await caches.open(`crystal-ball-room-${roomVersion}`).catch(()=>null):null;
+    let response=await cache?.match(url);
+    if(!response){
+     response=await fetch(url);
+     if(!response.ok)throw new Error(`${url}: ${response.status}`);
+     await cache?.put(url,response.clone()).catch(()=>{});
+    }
+    clips.set(key,URL.createObjectURL(await response.blob()));
+    listeners.forEach(listener=>listener());
+   }catch(error){loading.delete(key);console.warn('room clip unavailable',error)}
+  })();
+  loading.set(key,job);
+ }
+ return job;
+}
+const spots:Spot[]=['Home','Sky','Ask','History','You'];
+let prefetched=false;
+// After the first screen settles, quietly fetch every streamed clip: flights from Home first, then the loops.
+function prefetchRoom(){
+ if(prefetched)return;
+ prefetched=true;
+ void loadClip(idleKey('Home'),Asset.fromModule(homeIdle).uri,false);
+ if(!roomAssetBase)return;
+ const keys=[...spots.slice(1).map(to=>flightKey('Home',to)),...spots.slice(1).map(idleKey),
+  ...spots.slice(1).flatMap(from=>spots.filter(to=>to!==from).map(to=>flightKey(from,to)))];
+ setTimeout(async()=>{for(const key of keys)await loadClip(key,clipUrl(key),true)},1500);
+}
+
+// The presented frame's media time (requestVideoFrameCallback where supported, so the ball lands on the exact frame).
+function frameOf(video:HTMLVideoElement|null,frames:BallFrame[],loop:boolean){
+ if(!video||video.readyState<2||!frames.length)return null;
+ const time=Number(video.dataset.mediaTime??video.currentTime),i=Math.round(time*roomFps);
+ return frames[loop?i%frames.length:Math.min(frames.length-1,i)];
+}
+function watchFrames(video:HTMLVideoElement|null){
+ if(!video||!('requestVideoFrameCallback' in video))return;
+ const next=(_:number,meta:{mediaTime:number})=>{video.dataset.mediaTime=String(meta.mediaTime);video.requestVideoFrameCallback(next)};
+ video.requestVideoFrameCallback(next);
+}
+
+type Flight={key:string;url:string;to:Spot};
+const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFit:'cover',display:'block'} as const;
+
+// The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
+// pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
+export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin}){
+ const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
+ const [,setLoaded]=useState(0),[failed,setFailed]=useState(false);
+ const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
+ const motion=useRef({reduce}),scene=useRef<ReturnType<typeof startScene>|null>(null),state=useRef({at,flight,width,height});
+ motion.current.reduce=reduce;state.current={at,flight,width,height};
+ useEffect(()=>{const update=()=>setLoaded(n=>n+1);listeners.add(update);prefetchRoom();return()=>{listeners.delete(update)}},[]);
+ useEffect(()=>{
+  const target=flight?.to??at;
+  if(spot===target)return;
+  // A flight needs its clip in hand and a resting start; otherwise cut (or fade, for reduced motion) to the still.
+  const url=!flight&&!reduce?clips.get(flightKey(at,spot)):undefined;
+  if(url){setFlight({key:flightKey(at,spot),url,to:spot});return}
+  if(reduce)setFading(target);
+  setFlight(null);setAt(spot);
+ },[spot]);
+ // Land on the destination when the clip ends, fails, or never starts (an autoplay block must not strand the camera).
+ const land=(done:Flight)=>{if(state.current.flight===done){setAt(done.to);setFlight(null)}};
+ useEffect(()=>{
+  if(!flight)return;
+  watchFrames(fly.current);
+  fly.current?.play().catch(()=>land(flight));
+  const timer=setTimeout(()=>land(flight),4000);
+  return()=>clearTimeout(timer);
+ },[flight]);
+ // The ball canvas spans twice the ball's widest tracked diameter, so it is only ever scaled down.
+ const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4);
  useEffect(()=>{
   if(!ref.current||!width||!height)return;
   setFailed(false);
-  try{scene.current=startScene(ref.current,width,height,motion.current,spin)}catch(error){setFailed(true);console.error('crystal ball scene',error)}
+  const canvas=ref.current;
+  const aim=()=>{
+   const {at,flight,width,height}=state.current;
+   const frame=(flight?frameOf(fly.current,clipFrames(flight.key),false):frameOf(idle.current,clipFrames(idleKey(at)),true))??(flight?clipFrames(flight.key)[0]:stillFrame(at));
+   const ball=ballOnScreen(frame,width,height);
+   canvas.style.visibility=ball?'visible':'hidden';
+   if(!ball)return null;
+   const k=ball.r/(S/4);
+   canvas.style.transform=`translate(${ball.x-S/2}px,${ball.y-S/2}px) scale(${k})`;
+   // The render's depth of field and candle flicker, applied in the canvas's own (unscaled) pixels.
+   canvas.style.filter=`blur(${(ball.blur/k).toFixed(2)}px) brightness(${(1+ball.flicker).toFixed(3)})`;
+   return ball.dir;
+  };
+  try{scene.current=startScene(canvas,S,motion.current,spin,aim)}catch(error){setFailed(true);console.error('crystal ball scene',error)}
   return()=>{scene.current?.stop();scene.current=null};
  },[width,height]);
- useEffect(()=>{if(!reduce)scene.current?.resume()},[reduce]);
- // Home replaces the fog Atmosphere, so it publishes the same shell reduced-motion flag.
+ // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
+ useEffect(()=>{scene.current?.resume()},[reduce,at,flight]);
+ const idleUrl=!reduce&&!flight?clips.get(idleKey(at)):undefined;
+ useEffect(()=>watchFrames(idle.current),[idleUrl]);
+ // The room replaces the fog Atmosphere, so it publishes the same shell reduced-motion flag.
  useEffect(()=>{const shell=ref.current?.closest('[data-testid="app-shell"]');shell?.setAttribute('data-reduced',String(reduce));return()=>shell?.removeAttribute('data-reduced')},[reduce]);
- return <div aria-hidden="true" style={{position:'absolute',left:0,top:0,width,height,pointerEvents:'none',background:'#050302'}}>
-  {/* real-time 3D scene; a resize gets a fresh canvas because stop() loses the old context */}
-  <canvas key={`${width}x${height}`} ref={ref} width={width} height={height} style={{position:'absolute',left:0,top:0,width,height,display:'block'}}/>
+ const fallback=failed?ballOnScreen(stillFrame(flight?.to??at),width,height):null;
+ // During a flight the destination still waits decoded behind the start still, so landing never flashes.
+ const stills=flight?[flight.to,at]:[at];
+ return <div aria-hidden="true" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#050302'}}>
+  {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
+  {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
+  {flight?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}
+  {/* Reduced motion's fade runs on the Web Animations API: the shell's reduced-motion rule stops CSS animations. */}
+  {fading?<img key={`fade-${fading}`} alt="" data-room-fade src={Asset.fromModule(roomStills[fading]).uri} ref={img=>{if(img&&!img.getAnimations().length)img.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished.then(()=>setFading(null),()=>setFading(null))}} style={fill}/>:null}
+  {/* a resize gets a fresh canvas because stop() loses the old context */}
+  <canvas key={`${width}x${height}`} ref={ref} width={S} height={S} style={{position:'absolute',left:0,top:0,width:S,height:S,transformOrigin:'50% 50%',visibility:'hidden'}}/>
+  {fallback?<div style={{position:'absolute',left:fallback.x-fallback.r,top:fallback.y-fallback.r,width:fallback.r*2,height:fallback.r*2,borderRadius:'50%',overflow:'hidden'}}><OrbVisual size={fallback.r*2} reduce/></div>:null}
   {/* lens: vignette, grade, grain */}
   <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 75% 60% at 50% 38%, rgba(0,0,0,0) 50%, rgba(3,2,1,.6) 100%)'}}/>
   <div style={{position:'absolute',left:0,top:0,width:'100%',height:130,background:'linear-gradient(180deg, rgba(5,3,2,.75) 0%, rgba(5,3,2,0) 100%)'}}/>
   <div style={{position:'absolute',left:0,bottom:0,width:'100%',height:304,background:'linear-gradient(180deg, rgba(5,3,2,0) 0%, rgba(5,3,2,.55) 45%, rgba(5,3,2,.9) 100%)'}}/>
   <div style={{position:'absolute',inset:0,opacity:.09,mixBlendMode:'overlay'}} dangerouslySetInnerHTML={{__html:grain}}/>
-  {failed?<div style={{position:'absolute',inset:0,overflow:'hidden',background:'#050302'}}><Image source={require('../assets/home-scene.jpg')} style={{position:'absolute',top:0,left:(width-height*600/844)/2,width:height*600/844,height}}/></div>:null}
+  <style>{appCss}</style>
   <style>{'@keyframes cbBreath{0%,100%{box-shadow:0 0 14px rgba(255,170,90,.45)}50%{box-shadow:0 0 22px rgba(255,170,90,.75)}}'}</style>
  </div>;
 }
 
-// The canvas tab bar's Ask orb; HomeScene supplies its breathing keyframes.
+// The canvas tab bar's Ask orb; RoomScene supplies its breathing keyframes.
 export function AskOrb({reduce}:{reduce:boolean}){
  return <span aria-hidden="true" style={{display:'block',width:26,height:26,borderRadius:'50%',background:'radial-gradient(circle at 35% 30%, rgba(255,246,226,.95) 0%, rgba(255,246,226,0) 18%), radial-gradient(circle at 50% 60%, #f0b066 0%, #8a4a22 45%, #1e110a 85%)',boxShadow:'0 0 14px rgba(255,170,90,.45)',animation:reduce?'none':'cbBreath 4s ease-in-out infinite'}}/>;
 }

@@ -17,6 +17,14 @@ The server reads server-only variables from its shell, not Expo's public env loa
 
 School setup and the coarse-location App Store privacy note: [school boundary](docs/social/school.md). Apply the school migration after the social migration; its starter catalog covers three San Francisco schools. Name search is available on web and when location is denied.
 
+## Room renders
+
+The tabs sit in the approved AI-rendered library room. `node scripts/room-assets.mjs build <v2 render dir>` (ffmpeg on PATH) encodes it: the five spot stills and Home's loop are bundled under `assets/room/` (about 1.7 MB), `src/roomTrack.json` holds the per-frame ball track, and the 20 flights plus four other loops (about 15 MB, H.264) go to ignored `.local/room-assets/<version>/`. Those streamed clips are never committed. `node scripts/room-assets.mjs sync <destination>` rsyncs them to a local path or `host:path`.
+
+For a local preview, `sync public/room` and start Expo with `EXPO_PUBLIC_ROOM_ASSET_BASE=/room`; Metro serves `public/` on the preview's own port. Without the variable, tab changes cut straight to the stills. The app prefetches every clip after launch, keeps it in the Cache API on HTTPS or localhost origins (the HTTP cache elsewhere), and cuts to the still until a clip is cached.
+
+Production hosting is a later credential step: upload `.local/room-assets/` to a public CDN or Supabase Storage bucket keeping the `<version>/<clip>.mp4` layout, serve `video/mp4` with long-lived immutable caching and CORS for the web origin, and set `EXPO_PUBLIC_ROOM_ASSET_BASE` to its base URL. A new render build gets a new version folder, so old caches never mix with new clips. Native builds show the stills until follow-up `cb-native-room-video` adds expo-video playback.
+
 ## Native development, deferred until Xcode exists
 
 Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, the [dated check-in flow](README.md) and notification permission. These checks are separate from the browser pass.
