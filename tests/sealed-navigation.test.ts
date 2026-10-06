@@ -8,6 +8,7 @@ import * as retention from '../src/retention';
 import {circleReading} from '../src/reading-history';
 import {canRead} from '../src/profile';
 import * as billing from '../src/billing';
+import * as storyCard from '../src/story-card';
 
 const code=ts.transpileModule(readFileSync(new URL('../app/index.tsx',import.meta.url),'utf8'),{
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
@@ -36,7 +37,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
  };
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
  return {params,render};
