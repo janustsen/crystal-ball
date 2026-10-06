@@ -21,7 +21,7 @@ export type Balance={owner:string;asOf:string;plus:boolean;plusUntil:string|null
 export function validBalance(value:unknown):value is Balance{
  if(!value||typeof value!=='object')return false;
  const b=value as Record<string,unknown>;
- return typeof b.owner==='string'&&b.owner.length>0&&typeof b.asOf==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(b.asOf)&&Number.isFinite(Date.parse(b.asOf))&&typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day)&&(b.ballStyle===undefined||isStyle('ball',b.ballStyle))&&(b.cardStyle===undefined||isStyle('card',b.cardStyle));
+ return typeof b.owner==='string'&&b.owner.length>0&&typeof b.asOf==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(b.asOf)&&Number.isFinite(Date.parse(b.asOf))&&typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day)&&(b.ballStyle===undefined||isStyle(b.ballStyle,'ball'))&&(b.cardStyle===undefined||isStyle(b.cardStyle,'card'));
 }
 // The server's 402 message; the app opens Plans when it sees it.
 export const noReadings='No readings left today. Choose Plus or a reading pack to keep going.';

@@ -3,7 +3,7 @@ import {Image,Pressable,View} from 'react-native';
 import {Action,Orb,Txt,colors,styles} from './ui';
 import {OrbVisual} from './OrbVisual';
 import {useStore} from './store';
-import {selectedStyle,styleCatalog} from './delight';
+import {selectedStyle,styleCatalogs} from './delight';
 import {ballArt} from './roomAssets';
 import type {StyleOf} from './types';
 
@@ -17,8 +17,8 @@ export function InnerLibrary({onUpgrade}:{onUpgrade:()=>void}){
  }
  function group<K extends keyof StyleOf>(kind:K,label:string){
   const current=selectedStyle(state,kind);
-  return <View style={{marginTop:16}}><Txt style={styles.caption}>{label}</Txt><View accessibilityRole="radiogroup" accessibilityLabel={`${kind} style`} style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:8}}>{(Object.keys(styleCatalog[kind]) as StyleOf[K][]).map(value=>{
-   const name=(styleCatalog[kind] as Record<StyleOf[K],{name:string}>)[value].name,checked=current===value;
+  return <View style={{marginTop:16}}><Txt style={styles.caption}>{label}</Txt><View accessibilityRole="radiogroup" accessibilityLabel={`${kind} style`} style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:8}}>{(Object.keys(styleCatalogs[kind]) as StyleOf[K][]).map(value=>{
+   const name=(styleCatalogs[kind] as Record<StyleOf[K],{name:string}>)[value].name,checked=current===value;
    return <Pressable key={value} testID={`${kind}-style-${value}`} accessibilityRole="radio" accessibilityLabel={`${kind} style ${name}`} disabled={saving} accessibilityState={{disabled:saving,checked}} aria-checked={checked} onPress={()=>void choose(kind,value)} style={{minHeight:44,width:kind==='ball'?60:undefined,padding:kind==='ball'?4:12,borderRadius:12,borderWidth:checked?2:1,borderColor:checked?colors.gold:'rgba(242,231,210,.25)',alignItems:'center',backgroundColor:'rgba(8,5,3,.6)'}}>
     {kind==='ball'?<View style={{width:48,height:64,alignItems:'center',justifyContent:'center',borderRadius:8,overflow:'hidden'}}>{value==='classic'?<OrbVisual size={44} reduce/>:<Image source={ballArt[value as Exclude<StyleOf['ball'],'classic'>].preview} style={{width:48,height:64}}/>}</View>:null}
     <Txt style={kind==='ball'?[styles.caption,{marginTop:4,textAlign:'center'}]:undefined}>{name}</Txt>

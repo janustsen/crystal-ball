@@ -1,4 +1,4 @@
-import type {AccountState,Prediction,StyleOf} from './types';
+import type {AccountState,CardStyle,Prediction,StyleOf} from './types';
 
 // Golden forecasts: 1 in N readings. Cosmetic; never more likely to come true.
 export const goldenOdds=(plus:boolean)=>plus?10:50;
@@ -10,11 +10,14 @@ export function assignEdition<T extends Prediction>(prediction:T,plus:boolean):T
 }
 // Ball and card styles. Ids are stored per user on the server. The Plus ball styles are the local-AI renders in
 // assets/styles (scripts/room-assets.mjs); the live glass ball takes its interior from them.
-export const styleCatalog:{[K in keyof StyleOf]:Record<StyleOf[K],{name:string;plus:boolean}>}={
- ball:{classic:{name:'Classic',plus:false},smoke:{name:'Smoke',plus:true},aurora:{name:'Aurora',plus:true},obsidian:{name:'Obsidian',plus:true},gold:{name:'Gold-flecked',plus:true}},
- card:{classic:{name:'Classic',plus:false},gold:{name:'Gold',plus:true},obsidian:{name:'Obsidian',plus:true}},
+export const styleCatalog:Record<CardStyle,{name:string;plus:boolean}>={
+ classic:{name:'Classic',plus:false},gold:{name:'Gold',plus:true},obsidian:{name:'Obsidian',plus:true},
 };
-export const isStyle=<K extends keyof StyleOf>(kind:K,value:unknown):value is StyleOf[K]=>typeof value==='string'&&Object.hasOwn(styleCatalog[kind],value);
+export const styleCatalogs:{[K in keyof StyleOf]:Record<StyleOf[K],{name:string;plus:boolean}>}={
+ ball:{classic:styleCatalog.classic,smoke:{name:'Smoke',plus:true},aurora:{name:'Aurora',plus:true},obsidian:styleCatalog.obsidian,gold:{name:'Gold-flecked',plus:true}},
+ card:styleCatalog,
+};
+export const isStyle=<K extends keyof StyleOf = keyof StyleOf>(value:unknown,kind?:K):value is StyleOf[K]=>typeof value==='string'&&Object.hasOwn(styleCatalogs[kind??'ball'],value);
 export function selectedStyle<K extends keyof StyleOf>(state:Pick<AccountState,'plus'|'ballStyle'|'cardStyle'>,kind:K):StyleOf[K] {
  return (state.plus&&state[kind==='ball'?'ballStyle':'cardStyle']||'classic') as StyleOf[K];
 }
