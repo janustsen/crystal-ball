@@ -584,6 +584,8 @@ export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:numbe
   const timer=setTimeout(()=>land(flight),4000);
   return()=>clearTimeout(timer);
  },[flight]);
+ // Switching to reduced motion mid-flight cuts straight to the destination rather than finishing the move.
+ useEffect(()=>{if(reduce&&flight)land(flight)},[reduce]);
  // The ball canvas spans twice the ball's widest tracked diameter, so it is only ever scaled down.
  const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4);
  useEffect(()=>{
