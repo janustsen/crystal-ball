@@ -1,3 +1,5 @@
+import {serverRpcs,type ServerRpc} from '../server/rpc.ts';
+import {socialHandler} from '../server/social.ts';
 import test,{type TestContext} from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,rm,readdir} from 'node:fs/promises';
@@ -6,7 +8,7 @@ import {promisify} from 'node:util';
 import {createServer} from 'node:net';
 import {randomUUID} from 'node:crypto';
 import {billing} from '../server/billing.ts';
-import {deliverSocialPushes} from '../server/social-push.ts';
+import {deliverSocialPushes,serviceRpc} from '../server/social-push.ts';
 import {openSky} from '../server/sky.ts';
 import {webReadings} from '../server/web-reading.ts';
 import {solveProof} from '../src/web-reading.ts';
@@ -71,6 +73,15 @@ console.log('BEGIN\\nSET\\n'+JSON.stringify(fixture.result)+'\\nCOMMIT');
   assert.equal(response.status,entry.error?400:200,`${entry.name}: ${JSON.stringify(result)}`);
   assert.deepEqual(result,entry.error?{message:entry.error,code:'verification'}:entry.result);
  }
+});
+
+test('dev transport dispatches every registered server RPC', {timeout:30000}, async t=>{
+ const {base}=await startAdapter(t,"console.log('BEGIN\\nSET\\ntrue\\nCOMMIT');");
+ const rpc=serviceRpc(key=>({SUPABASE_URL:base,SUPABASE_SERVICE_ROLE_KEY:'verification-service-only'} as Record<string,string>)[key]);
+ for(const name of Object.keys(serverRpcs) as ServerRpc[]){
+  assert.equal(await rpc(name,{}),true,`${name} reaches the database`);
+ }
+ assert.equal((await serviceCall(base,'unregistered_rpc',{})).status,400);
 });
 
 const exec=promisify(execFile);
@@ -149,8 +160,30 @@ process.exit(result.status??1);`,env);
  await sql(`insert into public.circles(id,owner_id) values('${circle}','${viewer}');
  insert into public.circle_members(circle_id,user_id) values('${circle}','${viewer}');`);
  const model:ModelProvider={async json<T>(_system:string,_input:unknown,schema:JsonSchema){
-  return ('safe' in (schema.properties as Record<string,unknown>)?{safe:true}:{text:'A bright shared spark gathers over all of you tonight.'}) as T;
+  const fields=schema.properties as Record<string,unknown>;
+  return ('safe' in fields?{safe:true}:'category' in fields?{category:'allow'}:'headline' in fields?{headline:'A creative skill may bring a brighter chapter.',why:'Only a sun sign and shared activity themes are known.'}:{text:'A bright shared spark gathers over all of you tonight.'}) as T;
  }};
+ const social=socialHandler(settings,model,meter);
+ const socialRequest=(body:object)=>social(new Request(`${base}/social`,{method:'POST',headers:{authorization:`Bearer ${session.access_token}`},body:JSON.stringify(body)}));
+ const profile=await socialRequest({action:'profile',ageBand:'adult',sunSign:'gemini'});
+ assert.equal(profile.status,200);
+ assert.deepEqual(await profile.json(),{ok:true});
+ assert.equal(await sql(`select age_band||'/'||sun_sign from public.social_profiles where user_id='${viewer}'`),'adult/gemini');
+ const member=randomUUID();
+ await sql(`insert into auth.users values('${member}');
+ insert into public.social_profiles(user_id,age_band,sun_sign,friends_can_ask) values('${member}','adult','leo',true);
+ insert into public.circle_members(circle_id,user_id,theme) values('${circle}','${member}','growth');`);
+ const friendBody={action:'friend',question:'What lies ahead for Alex?',firstName:'Alex',circle,member,requestId:randomUUID()};
+ const friend=await socialRequest(friendBody),prediction=await friend.json();
+ assert.equal(friend.status,200,JSON.stringify(prediction));
+ assert.equal(prediction.headline,'A creative skill may bring a brighter chapter.');
+ assert.deepEqual(prediction.facts,{sun_sign:'leo',activity_themes:'growth'});
+ assert.deepEqual(prediction.friendTarget,{circle,member,firstName:'Alex'});
+ assert.equal(await sql(`select count(*) from public.friend_notices where user_id='${member}'`),'1');
+ await sql(`update public.social_profiles set friends_can_ask=false where user_id='${member}'`);
+ const refused=await socialRequest({...friendBody,requestId:randomUUID()});
+ assert.equal(refused.status,400);
+ assert.deepEqual(await refused.json(),{message:'This friend has not enabled friend readings'});
  assert.deepEqual(await openSky(settings,model,new Date('2026-10-09T12:00Z')),{week:'2026-10-09',targets:1,opened:1});
  assert.deepEqual(await openSky(settings,model,new Date('2026-10-09T12:00Z')),{week:'2026-10-09',targets:0,opened:0});
  const token='ExpoPushToken[transport]';
