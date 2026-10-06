@@ -406,3 +406,43 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  assert.equal(f.state().credits,before.credits);
  f.fail();await tick();
 });
+
+test('web quota refusals preserve eligibility until a reading succeeds',async()=>{
+ const f=await fixture(),h=hooks(false),params:any={};let spent=false,predicts=0;
+ const reading={...readings.circleReading(f.card),circleId:undefined};
+ const outcomes=[{kind:'error',message:webReading.webReadingUsed},{kind:'error',message:webReading.webReadingsResting},{kind:'ok',value:reading}];
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
+  '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/SocialScreen':{Social:'Social',InstallAction:'InstallAction'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
+  '../src/social':{checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
+  '../src/questions':{validateAnswer:()=>{},factLabels:{}},
+  '../src/api':{webReadingVisitor:()=>true,webReadingSpent:()=>spent,spendWebReading:()=>{spent=true},webReadingProof:async()=>({}),request:async(action:string)=>action==='predict'?outcomes[predicts++]:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}}},
+ },f.warnings);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const ask=async()=>{
+  render().find(n=>n.props.testID==='close-flow')?.props.onPress();
+  render().find(n=>n.props.testID==='tab-sky').props.onPress();
+  render().find(n=>n.type==='Social').props.onAsk('Will I learn?',false);
+  render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
+  const option=render().find(n=>n.props.testID==='option-0');
+  if(option){option.props.onPress();await tick()}
+ };
+ for(let attempt=1;attempt<=2;attempt++){
+  await ask();
+  assert.equal(predicts,attempt);
+  assert.equal(spent,false);
+  assert.equal(f.state().history.length,0);
+  assert.ok(render().some(n=>n.type==='InstallAction'));
+ }
+ await ask();
+ assert.equal(predicts,3);assert.equal(spent,true);
+ assert.equal(f.state().history.length,1);
+ await ask();assert.equal(predicts,3);
+ f.fail();await tick();
+});
