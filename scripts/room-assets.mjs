@@ -2,7 +2,7 @@
 //   node scripts/room-assets.mjs build <v2 render dir>   bundled stills + Home loop, ball track, streamed clips in .local/room-assets
 //   node scripts/room-assets.mjs sync <destination>      rsync the streamed clips (a local path such as public/room, or host:path)
 import {execFileSync} from 'node:child_process';
-import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 
 export const spots=['home','sky','ask','history','you'];
@@ -52,5 +52,8 @@ function build(src){
 
 const [command,arg]=process.argv.slice(2);
 if(command==='build'&&arg)build(arg);
-else if(command==='sync'&&arg)execFileSync('rsync',['-a',`${streamed}/`,`${arg.replace(/\/$/,'')}/`],{stdio:'inherit'});
+else if(command==='sync'&&arg){
+ if(!existsSync(streamed))build(process.env.ROOM_RENDER_SOURCE||'/Users/janustsen/dev/archive/crystal-ball-room/v2');
+ execFileSync('rsync',['-a',`${streamed}/`,`${arg.replace(/\/$/,'')}/`],{stdio:'inherit'});
+}
 else if(command){console.error('usage: room-assets.mjs build <v2 render dir> | sync <destination>');process.exit(1)}

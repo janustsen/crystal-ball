@@ -71,7 +71,7 @@ test('room asset build turns a camera frame into ball position, view direction a
  assert.deepEqual(trackFrame({...base,ball_in_frame:false},[0,0,-2],1170),[0,0,0,0,0,1,0,0]);
 });
 
-test('room keeps a static ball on the desk when WebGL creation fails, and none where the ball is out of frame',()=>{
+test('Home keeps the captured ball aligned when WebGL creation fails, including resize and reduced motion',()=>{
  let attempts=0;
  const render=component('../src/RoomScene.web.tsx',{
   three:{WebGLRenderer:class {constructor(){attempts++;throw new Error('WebGL unavailable')}}},
@@ -79,17 +79,24 @@ test('room keeps a static ball on the desk when WebGL creation fails, and none w
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
  });
  const spin={dragged:false};
- for(const props of [{spot:'Home',width:390,height:844,reduce:false,spin},{spot:'Home',width:375,height:667,reduce:true,spin}]){
+ for(const reduce of [false,true])for(const [width,height] of [[390,844],[375,667],[600,844]]){
+  const props={spot:'Home',width,height,reduce,spin};
   const tree=nodes(render('RoomScene',props)),orb=tree.find(n=>n.type==='OrbVisual'),ball=room.ballOnScreen(room.stillFrame('Home'),props.width,props.height)!;
   assert.ok(orb);
   const box=tree.find(n=>n.children.includes(orb)).props.style;
   assert.equal(box.left,ball.x-ball.r);assert.equal(box.top,ball.y-ball.r);assert.equal(orb.props.size,ball.r*2);
   assert.ok(tree.some(n=>n.type==='img'&&n.props.src==='asset:home.jpg'));
+  const image=tree.find(n=>n.type==='img'),cover=room.roomCover(width,height);
+  assert.equal(image.props.style.objectFit,'cover');
+  assert.equal(image.props.style.width,'100%');
+  assert.equal(image.props.style.height,'100%');
+  assert.equal(box.left+orb.props.size/2,cover.x+525.5*cover.scale);
+  assert.equal(box.top+orb.props.size/2,cover.y+1679.2*cover.scale);
   assert.equal(tree[0].props.style.pointerEvents,'none');
   // The room is the shell's backdrop, so it carries the shared stylesheet (entrances, reduced motion, focus rings).
   assert.ok(tree.some(n=>n.type==='style'&&n.children.includes('app-css')));
  }
- assert.equal(attempts,2);
+ assert.equal(attempts,6);
  const sky=component('../src/RoomScene.web.tsx',{
   three:{WebGLRenderer:class {constructor(){throw new Error('WebGL unavailable')}}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},

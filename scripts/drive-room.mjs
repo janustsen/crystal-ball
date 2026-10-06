@@ -28,6 +28,54 @@ const centre=async locator=>{const b=await locator.boundingBox();return {x:b.x+b
 // The loops drift the camera a few pixels; the ball follows the render's ring while the touch target stays put.
 const near=(a,b,label)=>assert.ok(Math.hypot(a.x-b.x,a.y-b.y)<8,`${label}: ball ${JSON.stringify(a)} vs target ${JSON.stringify(b)}`);
 try{
+ // Optional isolated route mounts the real RoomScene with all five controls, including outgoing Ask flights.
+ if(process.env.ROOM_SCENE_URL){
+  const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage();
+  page.on('pageerror',error=>errors.push(error.message));
+  // Cache writes can finish before the app has made playable URLs for the downloaded blobs.
+  await page.addInitScript(()=>{
+   window.roomVideosReady=0;
+   const create=URL.createObjectURL.bind(URL);
+   URL.createObjectURL=blob=>{const url=create(blob);if(blob.type==='video/mp4')window.roomVideosReady++;return url};
+  });
+  await page.goto(process.env.ROOM_SCENE_URL);
+  await page.waitForFunction(()=>window.roomVideosReady===25,null,{timeout:60000});
+  const loop=()=>page.waitForFunction(()=>{
+   const videos=[...document.querySelectorAll('video')];return videos.length===1&&videos[0].loop&&!videos[0].paused&&videos[0].currentTime>0;
+  });
+  const matches=async path=>page.evaluate(async path=>{
+   const video=document.querySelector('video:not([loop])')||document.querySelector('video');
+   const bytes=await Promise.all([video.src,path].map(async url=>new Uint8Array(await (await fetch(url)).arrayBuffer())));
+   return bytes[0].length===bytes[1].length&&bytes[0].every((byte,i)=>byte===bytes[1][i]);
+  },path);
+  await loop();
+  const homeLoop=await page.locator('video').getAttribute('src');
+  results.pairs=[];
+  let current='Home';
+  for(const from of ['Home','Sky','Ask','History','You'])for(const to of ['Home','Sky','Ask','History','You']){
+   if(from===to)continue;
+   console.log(`Room flight: ${from} → ${to}`);
+   if(current!==from){
+    await page.getByTestId(`spot-${from}`).click();
+    await page.waitForFunction(()=>document.querySelector('video:not([loop])'));
+    await loop();
+   }
+   await page.getByTestId(`spot-${to}`).click();
+   await page.waitForFunction(()=>{const v=document.querySelector('video:not([loop])');return v&&!v.paused&&v.currentTime>0});
+   const key=`${from.toLowerCase()}-${to.toLowerCase()}`;
+   assert.ok(await matches(`/room/v2/${key}.mp4`),`${key} plays the approved flight`);
+   await page.screenshot({path:`${out}/pair-${key}.png`});
+   await loop();
+   assert.ok(await matches(to==='Home'?homeLoop:`/room/v2/idle-${to.toLowerCase()}.mp4`),`${key} lands on the destination loop`);
+   const before=await page.locator('video').evaluate(v=>v.currentTime);
+   await page.waitForTimeout(200);
+   assert.notEqual(await page.locator('video').evaluate(v=>v.currentTime),before,`${key} landing loop advances`);
+   results.pairs.push(key);
+   current=to;
+  }
+  assert.equal(results.pairs.length,20);
+  await context.close();
+ }
  {const page=await open();
   await page.waitForTimeout(2500);
   let state=await room(page);
