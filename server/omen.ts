@@ -34,7 +34,7 @@ export async function chartWeather(chart:{sunSign:string;moonSign:string;risingS
    // Word range is looser than the prompt's 20-45 so a slightly long reflection does not fail closed.
    if(text.length<40||text.length>320||words.length<15||words.length>60||/[\r\n]/.test(text)||!/[.!?]$/.test(text))return {valid:false,feedback:'Write two complete sentences, 20 to 45 words in total, ending with punctuation.'};
    if(signs.some(sign=>words.includes(sign)&&!supplied.includes(sign)))return {valid:false,feedback:`Name only these signs: ${supplied.join(', ')}.`};
-   if(!supplied.some(sign=>words.includes(sign)))return {valid:false,feedback:`Name the supplied signs: ${supplied.join(', ')}.`};
+   if(!supplied.every(sign=>words.includes(sign)))return {valid:false,feedback:`Name the supplied signs: ${supplied.join(', ')}.`};
    if(voiceFlags(text).length)return {valid:false,feedback:'Keep it gentle and uncertain: no doom, certainty or claims about anyone’s secret feelings.'};
    return true;
   }

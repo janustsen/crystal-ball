@@ -43,9 +43,12 @@ try{
  const beforeCapture=await cancelCount();await page.getByTestId('record-reveal').click();await page.getByTestId('capture-reveal').waitFor();
  expect(await cancelCount()).toBeGreaterThan(beforeCapture);expect(await spoken()).toHaveLength(1);
  await page.getByTestId('close-capture').click();await expect.poll(spoken).toHaveLength(2);
+ // Share covers the reveal the same way.
+ const beforeShare=await cancelCount();await page.getByTestId('share-this-glimpse').click();await expect.poll(cancelCount).toBeGreaterThan(beforeShare);expect(await spoken()).toHaveLength(2);
+ await page.getByTestId('close-flow').click();await expect.poll(spoken).toHaveLength(3);
  const cancels=await cancelCount();
  await page.getByTestId('narration-toggle').click();await expect(page.getByTestId('narration-toggle')).toHaveText('Let the Ball speak');
- expect(await page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length)).toBeGreaterThan(cancels);expect(await spoken()).toHaveLength(2);
+ expect(await page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length)).toBeGreaterThan(cancels);expect(await spoken()).toHaveLength(3);
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).narrationMuted)).toBe(true);
 
  await home();await page.getByTestId('tab-you').click();await expect(page.getByText('Your Moon and rising shape every Why.')).toBeVisible();await page.getByTestId('chart-weather-read').click();
@@ -54,6 +57,6 @@ try{
  const chartCalls=log.filter(entry=>entry.request.action==='chart');expect(chartCalls).toHaveLength(1);expect(chartCalls[0].request.viewerChart).toEqual({moonSign:'capricorn',risingSign:'virgo'});
  expect(errors).toEqual([]);
  await writeFile(`${out}/drive.json`,JSON.stringify({freeWhy:'Sun only',plusAstrology:plusAsk.response.value.astrology,narrated,weather,chartRequests:chartCalls.length,engine:log.map(entry=>({action:entry.request.action,viewerChart:entry.request.viewerChart,kind:entry.response.kind}))},null,1));
- console.log('PASS: free sees Sun-only Why and no narration; Plus Why carries Moon and rising, narration speaks headline with label and mutes; one chart weather per month persists.');
+ console.log('PASS: free sees Sun-only Why and no narration; Plus Why carries Moon and rising, narration speaks headline with label, pauses behind replay and Share, and mutes; one chart weather per month persists.');
 }catch(error){await page.screenshot({path:`${out}/failure.png`}).catch(()=>{});await writeFile(`${out}/failure.json`,JSON.stringify({error:String(error),errors,log},null,1));throw error;}
 finally{await context.close();}

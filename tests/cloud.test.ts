@@ -37,6 +37,10 @@ test('fresh-phone and explicit restore replace facts/history without writing or 
  }
  remote.failRead=true;await assert.rejects(restoreBackup(empty,client));assert.equal(remote.writes,0);
 });
+test('restore drops the device chart weather cache, which may belong to another account',async()=>{
+ const {client}=archive();
+ assert.equal((await restoreBackup({...empty,chartWeather:{month:'2026-10',text:'Steady.'}},client)).chartWeather,undefined);
+});
 test('uploads replace the one-device archive, including forgotten facts and empty history',async()=>{
  const {remote,client}=archive();
  const restored=await restoreBackup(empty,client);

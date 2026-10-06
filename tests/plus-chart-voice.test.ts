@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {handler} from '../server/handler.ts';
-import {astrologyLine,restoreProfile,updateBirthday} from '../src/profile.ts';
+import {astrologyLine,forgetBirthChart,restoreProfile,updateBirthday} from '../src/profile.ts';
 import {narration} from '../src/delight.ts';
 import type {AccountState} from '../src/types.ts';
 
@@ -10,7 +10,7 @@ const balance=(plus:boolean)=>({owner:viewer,asOf:'2026-10-04T00:00:00.000001Z',
 const billed=(key:string)=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only'} as Record<string,string>)[key];
 
 // Fake Ollama and Supabase boundaries; the weather text is what the model "writes".
-function boundary(t:any,{plus=false,weather=['Gemini Sun, Pisces Moon and Virgo rising invite a slower, kinder pace this month. Let small rituals steady you.']}={}){
+function boundary(t:any,{plus=false,failSave=false,weather=['Gemini Sun, Pisces Moon and Virgo rising invite a slower, kinder pace this month. Let small rituals steady you.']}={}){
  const prompts:any[]=[],stored=new Map<string,string|null>(),rpcs:string[]=[];let weatherCalls=0;
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
@@ -33,7 +33,7 @@ function boundary(t:any,{plus=false,weather=['Gemini Sun, Pisces Moon and Virgo 
     if(!stored.has(key)){stored.set(key,null);return Response.json({claimed:true})}
     const text=stored.get(key);return Response.json(text?JSON.parse(text):{claimed:false});
    }
-   if(name==='save_chart_weather'){const saved=stored.get(key)??JSON.stringify({text:body.weather,chart:body.weather_chart});stored.set(key,saved);return Response.json(JSON.parse(saved).text)}
+   if(name==='save_chart_weather'){if(failSave)return Response.json({message:'unavailable'},{status:500});const saved=stored.get(key)??JSON.stringify({text:body.weather,chart:body.weather_chart});stored.set(key,saved);return Response.json(JSON.parse(saved).text)}
    if(name==='release_chart_weather'){if(stored.get(key)===null)stored.delete(key);return new Response(null,{status:204})}
   }
   throw new Error(`Unexpected URL: ${url}`);
@@ -146,12 +146,27 @@ test('chart weather is a Plus extra read once per month on the server',async t=>
 
 test('chart weather fails closed on stray or generic text and gives the month back',async t=>{
  const today=new Date().toISOString().slice(0,10);
- for(const text of ['Leo energy and your Pisces Moon invite a bright and steady month ahead, full of small brave choices and kind moments.','This month invites a slower and kinder pace. Let small rituals steady you as the days grow shorter and calmer.']){
+ for(const text of ['Leo energy and your Pisces Moon invite a bright and steady month ahead, full of small brave choices and kind moments.','This month invites a slower and kinder pace. Let small rituals steady you as the days grow shorter and calmer.','Your Gemini Sun invites a slower and kinder pace this month. Let small rituals steady you as the days grow shorter.']){
   t.mock.restoreAll();const fake=boundary(t,{plus:true,weather:[text]});
   const response=await ask(handler(billed),{action:'chart',viewerChart:chart,localDate:today});
   assert.equal(response.status,400);assert.equal(fake.weatherCalls(),2,'one repair, then fail closed');
   assert.deepEqual(fake.rpcs,['claim_chart_weather','release_chart_weather']);assert.equal(fake.stored.size,0);
  }
+});
+
+test('a failed save gives the month back for an immediate retry',async t=>{
+ const today=new Date().toISOString().slice(0,10);
+ let fake=boundary(t,{plus:true,failSave:true});
+ assert.equal((await ask(handler(billed),{action:'chart',viewerChart:chart,localDate:today})).status,400);
+ assert.deepEqual(fake.rpcs,['claim_chart_weather','save_chart_weather','release_chart_weather']);assert.equal(fake.stored.size,0);
+});
+
+test('forgetting birth details drops the birth-derived line from saved readings',()=>{
+ const reading={id:'r1',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-06T00:00:00Z',label:'Speculative',why:'Practice',facts:{birthday},sources:[],assumptions:[],friend:false,astrology:astrologyLine(birthday,chart)};
+ const state={sunSign:'gemini',ageBand:'adult',birthday,ageConfirmed:true,onboardingDone:true,...chart,birthTime:'14:30',birthPlace:'Oslo',facts:{},history:[reading],credits:0,plus:true,usage:{day:'2026-10-06',count:0},reduceMotion:false,largeText:false} as AccountState;
+ assert.equal(updateBirthday(state).history[0].astrology,undefined);
+ const forgotten=forgetBirthChart(state);
+ assert.equal(forgotten.history[0].astrology,undefined);assert.equal(forgotten.moonSign,undefined);assert.equal(forgotten.birthPlace,undefined);assert.equal(forgotten.birthday,birthday);
 });
 
 test('chart weather follows the birth chart it came from',()=>{

@@ -27,11 +27,17 @@ export function birthdayProfile(birthday?:string,ageConfirmed=false){
  return {birthday,ageConfirmed:group==='unknown'?ageConfirmed:true,sunSign:sunSign(birthday)||null,ageBand:group==='unknown'?(ageConfirmed?'teen' as const:null):group,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined,chartWeather:undefined};
 }
 
+// The Why's astrology line names birth signs, so it leaves saved readings with the birth details it came from.
+const withoutAstrology=(history:AccountState['history'])=>history.map(({astrology:_,...reading})=>reading);
+export function forgetBirthChart(state:AccountState):AccountState {
+ return {...state,birthTime:undefined,birthPlace:undefined,moonSign:undefined,risingSign:undefined,chartWeather:undefined,history:withoutAstrology(state.history)};
+}
+
 export function updateBirthday(state:AccountState,birthday?:string):AccountState {
  if(birthday&&birthday===state.birthday)return state;
  const confirmed=canRead(state),profile=birthdayProfile(birthday,confirmed);
  const facts={...state.facts};delete facts.birthday;delete facts.sun_sign;
- const history=state.history.map(reading=>{const facts={...reading.facts};delete facts.birthday;return {...reading,facts};});
+ const history=withoutAstrology(state.history).map(reading=>{const facts={...reading.facts};delete facts.birthday;return {...reading,facts};});
  return {...state,...profile,...(!birthday&&confirmed?{ageBand:state.ageBand}:{}),facts,history};
 }
 

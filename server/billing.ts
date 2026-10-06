@@ -98,10 +98,10 @@ export function billing(env:Env){
   const claim=await call('claim_chart_weather',{});
   if(typeof claim?.text==='string'){if(claim.chart===chart)return claim.text;throw new BillingError('You’ve read this month’s chart weather. A new one arrives next month.',409)}
   if(claim?.claimed!==true)throw new BillingError('Your chart weather is still arriving. Try again in a moment.',409);
-  let text:string;
-  try{text=await generate()}catch(error){await call('release_chart_weather',{}).catch(()=>{});throw error}
-  const saved=await call('save_chart_weather',{weather:text,weather_chart:chart});
-  return typeof saved==='string'?saved:text;
+  try{
+   const text=await generate(),saved=await call('save_chart_weather',{weather:text,weather_chart:chart});
+   return typeof saved==='string'?saved:text;
+  }catch(error){await call('release_chart_weather',{}).catch(()=>{});throw error}
  }
  return {user,reconcile,simulate,styles,authorizeCharge,edition,chartWeather,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }

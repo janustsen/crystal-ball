@@ -22,8 +22,8 @@ export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pi
  return result.value.text;
 }
 
-export async function requestChartWeather({birthday,ageConfirmed,moonSign,risingSign}:Pick<AccountState,'birthday'|'ageConfirmed'|'moonSign'|'risingSign'>,aiConsent=''):Promise<string>{
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...await sessionHeader()},body:JSON.stringify({action:'chart',question:'This month’s chart weather',facts:{},viewerBirthday:birthday,ageConfirmed,viewerChart:{moonSign,risingSign},localDate:localDay(),aiConsent}),signal:AbortSignal.timeout(60000)});
+export async function requestChartWeather({birthday,ageConfirmed,moonSign,risingSign}:Pick<AccountState,'birthday'|'ageConfirmed'|'moonSign'|'risingSign'>,aiConsent='',localDate=localDay()):Promise<string>{
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...await sessionHeader()},body:JSON.stringify({action:'chart',question:'This month’s chart weather',facts:{},viewerBirthday:birthday,ageConfirmed,viewerChart:{moonSign,risingSign},localDate,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json().catch(()=>null);
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error(result?.message||'Chart weather is unavailable. Please try again later.');
  return result.value.text;
