@@ -22,8 +22,8 @@ test('social refresh recovers lost publication responses and charges each Readin
  t.mock.method(supabase.auth,'getSession',async()=>({data:{session:{access_token:'test-token',user:{id:'viewer'}}},error:null}));
  const {loadSocial,syncSocialProfile,prepareSocialDraft,friendForecast,publishCircleForecast}=await import('../src/social');
  let offline=true,reads=0;
- // Keep the original ten snapshot reads covered separately from the six new collections.
- const extraCollections=['circle_inbox','circle_moments','circle_glows','circle_forecasts','circle_vote_tallies','sealed_inbox'].sort();
+ // Keep the original ten snapshot reads covered separately from the seven new collections.
+ const extraCollections=['circle_inbox','circle_moments','circle_glows','circle_forecasts','circle_vote_tallies','sealed_inbox','private_rooms'].sort();
  const collectionReads:string[]=[];
  let failSchool=false;
  const writes:unknown[]=[];
