@@ -20,7 +20,7 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 ## Navigation and the 17 states
 
-Home, Sky, raised Ask orb, History and You are the five destinations. Every destination sits over its spot in the rendered [room](motion.md#room) with the canvas header and tab bar; its content docks below the spot's focal object. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
+Home, Sky, raised Ask orb, History and You are the five destinations. Every destination sits over its spot in the rendered [room](motion.md#room) with the canvas header and tab bar; its content docks below the spot's focal object when space permits. On short screens, the content moves up to preserve a scroll viewport; notices reserve their own scrollable space, including Dismiss and Undo controls. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
 1. Home: the room's wide view with the desk ball as the reading's tap target, the reading balance (opens Plans), “What lies ahead?”, the frosted Today’s omen card, the entertainment line and a due-check-in action when applicable; see [motion](motion.md#room).
 2. Approach: the room's Ask close-up of the ball and “Come closer…” before voice.
