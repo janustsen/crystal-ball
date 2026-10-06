@@ -49,8 +49,9 @@ async function library(serverMetered=true){
  const state=()=>storeHooks.render(()=>store.Store({})).props.value;
  state();await flush();state();await flush();
  const room=()=>load('../src/InnerLibrary.tsx',{
-  react:roomHooks.react,'react-native':{Pressable:'Pressable',View:'View'},
-  './ui':{Action:'Action',Orb:'Orb',Txt:'Txt',colors:{},styles:{}},
+  react:roomHooks.react,'react-native':{Image:'Image',Pressable:'Pressable',View:'View'},
+  './ui':{Action:'Action',Orb:'Orb',Txt:'Txt',colors:{},styles:{}},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  './roomAssets':{ballArt:{smoke:{},aurora:{},obsidian:{},gold:{}}},
   './delight':delight,'./store':{useStore:state},
  });
  let component=room();

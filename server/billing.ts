@@ -77,7 +77,7 @@ export function billing(env:Env){
  }
  // The database refuses a non-classic style unless Plus is active at write time.
  async function styles(viewer:string,ball:unknown,card:unknown){
-  if(!isStyle(ball)||!isStyle(card))throw new BillingError('Choose a ball and card style.',400);
+  if(!isStyle('ball',ball)||!isStyle('card',card))throw new BillingError('Choose a ball and card style.',400);
   return rpc('set_profile_styles',{viewer,ball,card});
  }
  // The server draws the golden edition and records it before returning it; a draw that cannot be recorded is not golden.

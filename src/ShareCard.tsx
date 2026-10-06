@@ -10,7 +10,8 @@ import {Asset} from 'expo-asset';
 import {suggestedCheckIn} from './retention';
 import type {StoryCard} from './story-card';
 import {friendLink,reminder} from './native';
-import {selectedStyle,skinColors} from './delight';
+import {selectedStyle} from './delight';
+import {ballArt} from './roomAssets';
 import {useStore} from './store';
 import type {Prediction} from './types';
 const copy={
@@ -32,7 +33,7 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
   const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();ctx.drawImage(orb,270,280,540,608);
-  if(ballStyle!=='classic'){const skin=skinColors[ballStyle];ctx.fillStyle=skin.fill;ctx.strokeStyle=skin.rim;ctx.lineWidth=2;ctx.beginPath();ctx.arc(540,550,270,0,Math.PI*2);ctx.fill();ctx.stroke();}
+  if(ballStyle!=='classic'){const glass=new Image();glass.src=Asset.fromModule(ballArt[ballStyle].glass).uri;await glass.decode();ctx.save();ctx.beginPath();ctx.arc(540,550,270,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,270,280,540,540);ctx.restore();}
   if(cardStyle!=='classic'&&!golden){ctx.strokeStyle=cardStyle==='gold'?colors.gold:'#8F91A3';ctx.lineWidth=3;ctx.strokeRect(64,64,952,1792);}
   if(golden){ctx.strokeStyle=colors.gold;ctx.lineWidth=8;ctx.strokeRect(48,48,984,1824);ctx.textAlign='center';ctx.font=`38px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText('Golden edition · same uncertainty',540,1490);}
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;

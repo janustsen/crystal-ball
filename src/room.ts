@@ -1,7 +1,8 @@
 import track from './roomTrack.json';
 
-// The approved library room (renders built by scripts/room-assets.mjs). Each tab is a spot in it.
-export type Spot='Home'|'Sky'|'Ask'|'History'|'You';
+// The approved library room (renders built by scripts/room-assets.mjs). Each tab is a spot in it; Library is the Plus
+// Inner Library behind it, reached by its push-in from Home.
+export type Spot='Home'|'Sky'|'Ask'|'History'|'You'|'Library';
 // A ball frame: centre x/y and radius in render pixels (radius 0 = out of frame), the unit direction from the
 // ball to the camera, the depth-of-field blur sigma in render pixels and the candle flicker.
 export type BallFrame=number[];
@@ -32,7 +33,7 @@ export function ballOnScreen(frame:BallFrame,width:number,height:number){
 
 // Where a spot's screen content starts, as a share of the height, so the spot's focal object stays in view
 // (the canvas artboards dock their controls low). Home and Ask start below the ball itself.
-const contentShare:Record<Spot,number>={Home:0,Sky:.48,Ask:0,History:.5,You:.6};
+const contentShare:Record<Spot,number>={Home:0,Sky:.48,Ask:0,History:.5,You:.6,Library:.6};
 export function contentTop(spot:Spot,width:number,height:number){
  const ball=spot==='Home'||spot==='Ask'?ballOnScreen(stillFrame(spot),width,height):null;
  return ball?Math.round(ball.y+ball.r+16):Math.round(height*contentShare[spot]);

@@ -39,7 +39,7 @@ try{
    URL.createObjectURL=blob=>{const url=create(blob);if(blob.type==='video/mp4')window.roomVideosReady++;return url};
   });
   await page.goto(process.env.ROOM_SCENE_URL);
-  await page.waitForFunction(()=>window.roomVideosReady===25,null,{timeout:60000});
+  await page.waitForFunction(()=>window.roomVideosReady===26,null,{timeout:60000});
   const loop=()=>page.waitForFunction(()=>{
    const videos=[...document.querySelectorAll('video')];return videos.length===1&&videos[0].loop&&!videos[0].paused&&videos[0].currentTime>0;
   });

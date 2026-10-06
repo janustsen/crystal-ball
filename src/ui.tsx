@@ -4,7 +4,7 @@ import {SvgXml} from 'react-native-svg';
 import {OrbVisual} from './OrbVisual';
 import {Enter} from './Enter';
 import {motion,type MotionKind} from './motion';
-import {selectedStyle,skinColors} from './delight';
+import {selectedStyle} from './delight';
 import {haptic} from './native';
 import {useStore} from './store';
 export const colors={ink:'#120E0B',violet:'#281B10',lavender:'#9C7B4F',ice:'#F2C284',gold:'#E0A458',ivory:'#F1E9DC',muted:'#B9AB97',surface:'#1C1510',outline:'#0B0604'};
@@ -14,9 +14,8 @@ export function Txt({children,display=false,style,...props}:React.ComponentProps
 export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={({pressed})=>[styles.action,quiet&&styles.quiet,pressed&&!disabled&&(quiet?styles.quietPressed:styles.pressed),disabled&&styles.disabled]}><Txt style={{fontFamily:fonts.body,fontWeight:'600',color:disabled?colors.muted:quiet?colors.ivory:colors.ink,textAlign:'center'}}>{label}</Txt></Pressable>}
 export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;reduce?:boolean;onPress?:()=>void;phase?:'idle'|'research'|'reveal'}){
  const {state}=useStore();if(state.largeText)size=Math.min(size,96);
- const ballStyle=selectedStyle(state,'ball'),skin=skinColors[ballStyle];
  const press=useRef(new Animated.Value(1)).current;
- const art=<Animated.View style={{width:size,height:size*1.125,transform:[{scale:press}]}}><OrbVisual size={size} phase={phase} reduce={reduce}/>{ballStyle!=='classic'?<View testID="orb-skin" pointerEvents="none" style={{position:'absolute',left:0,top:0,width:size,height:size,borderRadius:size/2,backgroundColor:skin.fill,borderWidth:1,borderColor:skin.rim}}/>:null}</Animated.View>;
+ const art=<Animated.View style={{width:size,height:size*1.125,transform:[{scale:press}]}}><OrbVisual size={size} phase={phase} reduce={reduce} ball={selectedStyle(state,'ball')}/></Animated.View>;
  return onPress?<Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Ask the crystal ball" onPressIn={()=>{haptic('touch');Platform.OS!=='web'&&Animated.timing(press,{toValue:.97,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start();}} onPressOut={()=>Platform.OS!=='web'&&Animated.timing(press,{toValue:1,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start()} onPress={onPress}>{art}</Pressable>:<View accessible={false} importantForAccessibility="no-hide-descendants">{art}</View>;
 }
 export function Constellation({count,current}:{count:number;current:number}){const points=Array.from({length:count},(_,i)=>({x:14+i*28,y:i%2?18:10}));const line=points.map(p=>`${p.x},${p.y}`).join(' ');return <SvgXml width={count*28} height={30} xml={`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count*28} 30"><polyline points="${line}" stroke="#75608C" stroke-width="1" fill="none"/>${points.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="${i===current?4:3}" fill="${i===current?colors.ice:i<current?colors.gold:'#75608C'}"/>`).join('')}</svg>`}/>}

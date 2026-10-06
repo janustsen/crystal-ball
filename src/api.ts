@@ -1,5 +1,5 @@
 import {localDay} from './retention';
-import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,StyleName} from './types';
+import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,BallStyle,CardStyle} from './types';
 import type {Balance} from './billing';
 import {validBalance} from './billing';
 import {solveProof,type WebReading} from './web-reading';
@@ -46,7 +46,7 @@ async function billing(body:Record<string,unknown>):Promise<Balance>{
 export const loadBalance=()=>billing({action:'balance'});
 export const syncStoreBalance=()=>billing({action:'sync'});
 export const simulatePurchase=(kind:string)=>billing({action:'simulate',kind});
-export const saveStyles=(ball:StyleName,card:StyleName)=>billing({action:'styles',ball,card});
+export const saveStyles=(ball:BallStyle,card:CardStyle)=>billing({action:'styles',ball,card});
 
 // Browser-only markers; the server's per-browser, per-network and daily limits stay authoritative.
 const local=(run:(storage:Storage)=>string|null|void)=>{try{return typeof localStorage==='undefined'?null:run(localStorage)??null}catch{return null}};

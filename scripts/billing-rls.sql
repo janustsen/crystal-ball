@@ -36,6 +36,9 @@ select proof.assert((public.apply_store_entitlements('00000000-0000-0000-0000-00
 select proof.assert((select plus from public.social_profiles where user_id='00000000-0000-0000-0000-000000000001'),'social Plus mirrors the subscription');
 select proof.assert((select b->>'ballStyle'='obsidian' and b->>'cardStyle'='gold' from public.set_profile_styles('00000000-0000-0000-0000-000000000001','obsidian','gold') b),'Plus saves premium styles');
 select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','rainbow','gold')$q$,'23514');
+select proof.assert(public.set_profile_styles('00000000-0000-0000-0000-000000000001','aurora','gold')->>'ballStyle'='aurora','Plus saves the AI-rendered ball styles');
+select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','obsidian','smoke')$q$,'23514');
+select public.set_profile_styles('00000000-0000-0000-0000-000000000001','obsidian','gold');
 select public.charge_reading('00000000-0000-0000-0000-000000000001','plus-'||i) from generate_series(3,10) i;
 select proof.assert((public.reading_balance('00000000-0000-0000-0000-000000000001')->>'used')::int=10 and (public.reading_balance('00000000-0000-0000-0000-000000000001')->>'packs')::int=4,'Plus readings use the daily allowance before packs');
 select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000001','plus-11')->>'packs')::int=3,'eleventh Plus reading spends a pack');
