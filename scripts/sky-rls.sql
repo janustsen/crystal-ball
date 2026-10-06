@@ -74,21 +74,59 @@ select social_private.queue_sky_pushes('2026-10-10 20:01-04');
 select proof.assert((select count(*)=1 from public.sky_pushes),'Saturday never queues');
 
 -- Lease: deliver only on that same local evening, once per lease, and never after opting out.
-update public.social_profiles set time_zone='UTC' where user_id='a0000000-0000-0000-0000-000000000001';
-update public.sky_pushes set week=(now() at time zone 'UTC')::date;
+select (extract(epoch from ((now() at time zone 'UTC')-(date_trunc('week',now() at time zone 'UTC')+interval '4 days 20 hours 30 minutes')))/3600)::int as zone_offset \gset
+select 'SKY'||(:zone_offset)::text as friday_zone,'SKY'||(:zone_offset+2)::text as early_zone,'SKY'||(:zone_offset-24)::text as saturday_zone \gset
+update public.social_profiles set time_zone=:'friday_zone' where user_id='a0000000-0000-0000-0000-000000000001';
+update public.sky_pushes set week=(now() at time zone :'friday_zone')::date;
+update public.sky_omens set week=(now() at time zone :'friday_zone')::date;
 set role service_role;
 select proof.assert((select count(*)=1 from public.claim_sky_pushes() where kind='sky' and token='ExpoPushToken[sky-one]' and circle_id is null),'the worker leases a generic Sky push');
 select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'an active lease prevents duplicate claims');
 reset role;
 update public.sky_pushes set claimed_until=null;
+update public.social_profiles set school_id=null where user_id='a0000000-0000-0000-0000-000000000001';
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'removing the only school suppresses retry');
+reset role;
+insert into public.sky_omens(week,circle_id,omen) values((now() at time zone :'friday_zone')::date,'a1000000-0000-0000-0000-000000000001','A Circle omen keeps the opening available.');
+insert into public.circle_members(circle_id,user_id) values('a1000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001');
+set role service_role;
+select proof.assert((select count(*)=1 from public.claim_sky_pushes()),'a remaining Circle omen permits retry without a school');
+reset role;
+update public.sky_pushes set claimed_until=null;
+delete from public.circle_members where user_id='a0000000-0000-0000-0000-000000000001';
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'leaving the only Circle suppresses retry');
+reset role;
+update public.social_profiles set school_id='sfusd-lowell',time_zone=:'early_zone' where user_id='a0000000-0000-0000-0000-000000000001';
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'moving back before 20:00 suppresses retry');
+reset role;
+update public.social_profiles set time_zone=:'saturday_zone' where user_id='a0000000-0000-0000-0000-000000000001';
+update public.sky_pushes set week=(now() at time zone :'saturday_zone')::date;
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'Saturday does not claim even a matching queue date');
+reset role;
+update public.social_profiles set time_zone=:'friday_zone' where user_id='a0000000-0000-0000-0000-000000000001';
+update public.sky_pushes set week=(now() at time zone :'friday_zone')::date;
+
 update public.social_profiles set sky_push=false where user_id='a0000000-0000-0000-0000-000000000001';
 set role service_role;
 select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'turning the Sky push off cancels a queued push');
 reset role;
 update public.social_profiles set sky_push=true where user_id='a0000000-0000-0000-0000-000000000001';
-update public.sky_pushes set week=week-1;
 set role service_role;
-select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'a missed Friday evening is never delivered late');
+select proof.assert((select count(*)=1 from public.claim_sky_pushes()),'restoring current eligibility permits the expired lease');
+select public.finish_sky_push(id) from public.sky_pushes where user_id='a0000000-0000-0000-0000-000000000001';
+reset role;
+update public.sky_pushes set claimed_until=null;
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_sky_pushes()),'an acknowledged delivery cannot be retried');
+reset role;
+select id as missed_id from public.sky_pushes where user_id='a0000000-0000-0000-0000-000000000001' \gset
+update public.sky_pushes set delivered_at=null,week=week-7;
+set role service_role;
+select proof.assert((select count(*)=0 from public.claim_sky_pushes() where id=:'missed_id'),'a missed Friday evening is never delivered late');
 reset role;
 rollback;
 \echo 'PASS: Friday Sky week math, one omen per group, own-school and own-Circle visibility, service-only generation and once-per-week push lease'

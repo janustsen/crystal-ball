@@ -33,16 +33,16 @@ export function SealedCard({token,reduce}:{token:string;reduce:boolean}){
  return <View style={styles.panel}><Txt display style={styles.title}>{headline?'A glimpse for you.':'Someone sealed a glimpse for you.'}</Txt><Pressable testID="open-sealed-forecast" accessibilityRole="button" accessibilityLabel="Open sealed forecast" disabled={busy||!!headline} onPress={()=>void open()} style={{alignItems:'center',minHeight:52}}><Orb size={170} reduce={reduce} phase={headline?'reveal':'idle'}/></Pressable>{headline?<><Txt display>{headline}</Txt><Txt style={[styles.caption,{marginTop:12,color:colors.gold}]}>Speculative forecast · not a guarantee</Txt>{Platform.OS==='web'?<><Txt style={styles.caption}>Get Crystal Ball to ask your own questions.</Txt><Action label={process.env.EXPO_PUBLIC_INSTALL_URL?'Install Crystal Ball':'Open Crystal Ball app'} onPress={()=>void Linking.openURL(process.env.EXPO_PUBLIC_INSTALL_URL||'crystalball://').catch(()=>setNotice('Install Crystal Ball from your device’s app store to ask your own questions.'))}/></>:null}</>:<Txt style={styles.caption}>{busy?'Opening…':'Tap the ball to open. Only you can claim this card.'}</Txt>}{notice?<Txt accessibilityLiveRegion="polite">{notice}</Txt>:null}</View>;
 }
 
-export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCircles=false,aiConsent=''}:{showCircles?:boolean;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
+export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requestedSection,requestId,aiConsent=''}:{requestedSection?:'sky'|'circles';requestId?:string;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
  const {state}=useStore();
  const profile=accountSocialProfile(state);
  const [schoolOnly,setSchoolOnly]=useState(false);
  const schoolInvites=useRef(new Map<string,string>());
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
- const [section,setSection]=useState<'sky'|'circles'>(invite||showCircles?'circles':'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
+ const [section,setSection]=useState<'sky'|'circles'>(invite?'circles':requestedSection??'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
  const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
+ useEffect(()=>{if(requestedSection)setSection(requestedSection)},[requestedSection,requestId]);
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
- useEffect(()=>{if(showCircles)setSection('circles')},[showCircles]);
  useEffect(()=>{
   let active=true;
   async function refresh(){try{const snapshot=await loadSocial(profile,schoolOnly);if(active){setData(snapshot);setOffline(false)}}catch{if(active)setOffline(true)}}
@@ -62,6 +62,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,showCirc
   {section==='sky'?<>
    <Txt display>A sky full of what-ifs.</Txt>
    {data?.profile?.school_id?<View style={styles.panel}><SkyOmen testID="sky-omen-school" omen={data.omens.find(omen=>omen.school_id===data.profile?.school_id)}/></View>:null}
+   {data?.circles.map((circle,index)=><View key={circle.id} style={styles.panel}><Txt>Circle {index+1}</Txt><SkyOmen testID={`sky-omen-circle-${index+1}`} omen={data.omens.find(omen=>omen.circle_id===circle.id)}/></View>)}
    <View style={styles.row}><Txt>My school</Txt><Switch accessibilityLabel="My school" value={schoolOnly} disabled={!data?.profile?.school_id} onValueChange={setSchoolOnly}/></View>
    <Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>
    <View testID="tonights-sky" style={{minHeight:state.largeText?0:380,marginVertical:20,borderRadius:22,backgroundColor:'#150F0A',borderWidth:2,borderColor:colors.outline,boxShadow:'0 6px 0 rgba(0,0,0,.5), inset 0 0 0 1px rgba(224,164,88,.3), inset 0 3px 0 rgba(0,0,0,.45)',padding:state.largeText?16:0}}>

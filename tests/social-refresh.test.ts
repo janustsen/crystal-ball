@@ -4,9 +4,9 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 
-test('a failed refresh after a failed action keeps loaded circles visible',async()=>{
- const snapshot={owner:'A',profile:{handle:'a'},stars:[],schoolOnly:false,circles:[{id:'c1',owner_id:'A'}],members:[{circle_id:'c1',user_id:'A'}],
-  schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[]};
+test('social refresh preserves circles and repeated navigation exposes visible Sky omens',async()=>{
+ const snapshot={owner:'A',profile:{handle:'a',school_id:null as string|null},stars:[],schoolOnly:false,circles:[{id:'c1',owner_id:'A'}],members:[{circle_id:'c1',user_id:'A'}],
+  schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[{circle_id:'c1',school_id:null,omen:'A shared Circle omen.'},{circle_id:null,school_id:'school',omen:'A shared school omen.'}]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,reads=0;
  const react={
@@ -24,8 +24,8 @@ test('a failed refresh after a failed action keeps loaded circles visible',async
  };
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{},'./ui':{colors:{},styles:{}},'./social-links':{},
-  './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{},
-  './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{},socialUnavailable:'Social is offline.'},
+  './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{SkyOmen:'SkyOmen'},
+  './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
   './social':{
    loadSocial:async()=>{if(++reads>1)throw new Error('offline');return snapshot},
    createCircle:async()=>{throw new Error('Network request failed')},
@@ -37,9 +37,10 @@ test('a failed refresh after a failed action keeps loaded circles visible',async
  }).outputText;
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error,setInterval:()=>0,clearInterval:()=>{}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ let requestedSection:'sky'|'circles'='circles',requestId='first',invite:string|undefined;
  const render=()=>{
   cursor=0;
-  const tree=module.exports.Social({showCircles:true,reduce:true,onInviteHandled:()=>{}});
+  const tree=module.exports.Social({requestedSection,requestId,invite,reduce:true,onInviteHandled:()=>{}});
   effects.splice(0).forEach(effect=>effect());
   return nodes(tree);
  };
@@ -53,4 +54,20 @@ test('a failed refresh after a failed action keeps loaded circles visible',async
  assert.ok(render().some(node=>node.props.label==='Invite a friend'));
  assert.ok(texts().includes('Network request failed'));
  assert.ok(texts().includes('Social is offline.'));
+ const selected=()=>render().find(node=>node.props.testID===`social-section-${requestedSection}`).props.accessibilityState.selected;
+ requestedSection='sky';requestId='sky-one';render();assert.equal(selected(),true);
+ assert.deepEqual(render().filter(node=>node.type==='SkyOmen').map(node=>node.props.omen.omen),['A shared Circle omen.']);
+ render().find(node=>node.props.testID==='social-section-circles').props.onPress();
+ assert.equal(selected(),false);
+ requestId='sky-two';render();assert.equal(selected(),true);
+ requestedSection='circles';requestId='circles-one';render();assert.equal(selected(),true);
+ render().find(node=>node.props.testID==='social-section-sky').props.onPress();
+ assert.equal(selected(),false);
+ requestId='circles-two';render();assert.equal(selected(),true);
+ snapshot.profile.school_id='school';requestedSection='sky';requestId='sky-three';render();
+ assert.deepEqual(render().filter(node=>node.type==='SkyOmen').map(node=>node.props.omen.omen),['A shared school omen.','A shared Circle omen.']);
+ invite='circle-invitation';requestId='sky-four';render();
+ assert.equal(render().find(node=>node.props.testID==='social-section-circles').props.accessibilityState.selected,true);
+ assert.ok(render().some(node=>node.props.label==='Join this circle'));
+ requestId='sky-five';render();assert.equal(selected(),true);
 });

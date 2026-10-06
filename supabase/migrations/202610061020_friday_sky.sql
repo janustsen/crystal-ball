@@ -85,6 +85,8 @@ create function public.claim_sky_pushes() returns table(id uuid,token text,kind 
    join public.social_push_tokens t on t.user_id=s.user_id join public.social_profiles pr on pr.user_id=s.user_id
    where s.delivered_at is null and (s.claimed_until is null or s.claimed_until<now())
     and pr.sky_push and s.week=(now() at time zone pr.time_zone)::date
+    and extract(isodow from now() at time zone pr.time_zone)=5 and (now() at time zone pr.time_zone)::time>='20:00'
+    and exists(select 1 from social_private.sky_omens_for(pr.user_id,s.week))
    order by s.week limit 100 for update of s skip locked
   ), claimed as (update public.sky_pushes s set claimed_until=now()+interval '5 minutes' from pending p where s.id=p.id returning s.id)
   select c.id,p.token,'sky'::text,null::uuid from claimed c join pending p on p.id=c.id;
