@@ -36,6 +36,8 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
  renderer.shadowMap.type=T.PCFSoftShadowMap;
  renderer.shadowMap.autoUpdate=false;
  renderer.setClearColor(0x000000,0);
+ // A shader that fails to compile throws, so the scene falls back to the static orb instead of drawing nothing.
+ renderer.debug.onShaderError=()=>{throw new Error('crystal ball shader failed to compile')};
 
  const scene=new T.Scene();
  scene.fog=new T.FogExp2(0x060403,0.06);
@@ -364,7 +366,9 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
      mat3 view = mat3(viewMatrix);
      vec2 a = (view*ro).xy;
      float ra = length(a);
-     vec2 b = (view*(uRot*(transpose(view)*vec3(a, sqrt(max(0.64 - ra*ra, 0.0)))))).xy;
+     // The view rotation's inverse is its transpose (GLSL ES 1.0 has no transpose()).
+     mat3 world = mat3(view[0][0], view[1][0], view[2][0], view[0][1], view[1][1], view[2][1], view[0][2], view[1][2], view[2][2]);
+     vec2 b = (view*(uRot*(world*vec3(a, sqrt(max(0.64 - ra*ra, 0.0)))))).xy;
      vec3 turned = texture2D(uClean, b*0.5 + 0.5).rgb - texture2D(uClean, a*0.5 + 0.5).rgb;
      vec3 inside = texture2D(uStyle, a*0.5 + 0.5).rgb + turned*smoothstep(0.85, 0.75, ra);
      gl_FragColor = vec4(mix(max(inside, 0.0), tone(refl), F) + tone(spec), 1.0);
@@ -539,7 +543,9 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
    textures.forEach(texture=>texture.dispose());pmrem.dispose();renderer.dispose();renderer.forceContextLoss();
   }
  };
- try{frame()}catch(error){api.stop();throw error}
+ // Compile the ball up front (one hidden draw from straight on), so a shader failure surfaces here rather than in a
+ // later animation frame, even while the ball is out of frame.
+ try{camera.position.set(0,0,CAM_D).add(BALL);camera.lookAt(BALL);renderer.render(scene,camera);frame()}catch(error){api.stop();throw error}
  return api;
 }
 
