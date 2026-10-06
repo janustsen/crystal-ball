@@ -47,7 +47,8 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  const remembered=facts.data?.facts??{};
  if(!validFacts(remembered))throw new Error('Backup contains unreadable facts.');
  history.sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
- return {...state,facts:remembered,history,backupOwner:user_id};
+ // The chart weather cache may be another account's; the server returns this account's month on request.
+ return {...state,facts:remembered,history,backupOwner:user_id,chartWeather:undefined};
 }
 export async function mirror(state:AccountState,client:SupabaseClient|null=supabase){
  if(!client||!canRead(state))return;

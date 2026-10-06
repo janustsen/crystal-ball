@@ -27,13 +27,13 @@ Draft for a hosted engine + Supabase backup release; reconcile with final SDK ma
 | Other user content (questions, answers, predictions, remembered facts) | App functionality, inference, backup | Yes when mirrored | No |
 | Financial information / other financial info (assets, debts, savings supplied for money readings) | App functionality | Yes when saved | No |
 | Coarse location / school selection | See the [school privacy boundary](../social/school.md#app-store-privacy-and-native-release-note); volunteered city is used for readings | Yes for saved city or chosen school | No |
-| Birthday / school / sun sign and social content | Age gating, personalization and approved social features | Yes when saved or mirrored | No |
+| Birth details / signs / chart weather / school and social content | Age gating, personalization and approved social features; see the [profile/API contract](../../SETUP.md#reading-profile-and-birth-chart) for chart processing and storage | Yes for account-held chart weather and saved or mirrored content | No |
 | Purchase history | App functionality (RevenueCat and the Supabase reading ledger) | Yes | No intended tracking |
 | Email/name | No name/email scopes requested by the app; audit identity-provider claims retained by Supabase before deciding whether to declare | Potentially yes | No |
 | Audio data | App does not retain audio; verify OS speech processing and any retained third-party audio | Pending native audit | No intended tracking |
 | Diagnostics / device identifiers | No analytics added here; review Expo, RevenueCat and production server logs | Pending release audit | No intended tracking |
 
-Free text may contain additional sensitive data. Discourage it and audit actual collection; do not claim “Data Not Collected.” See [forgetting information](../../README.md) for local removal, including the birthday exception for saved reading facts, and [profile mirroring](../../SETUP.md#reading-profile-and-birth-chart) for backup propagation and its verification limits. Reset is not account deletion. Specify retention, deletion, operator/contact, subprocessors and international transfers in a public policy; the in-app prototype explanation is not a complete legal policy.
+Free text may contain additional sensitive data. Discourage it and audit actual collection; do not claim “Data Not Collected.” See [forgetting information](../../README.md) for local removal and saved-reading exceptions, and [profile mirroring](../../SETUP.md#reading-profile-and-birth-chart) for backup propagation and its verification limits. Reset is not account deletion. Specify retention, deletion, operator/contact, subprocessors and international transfers in a public policy; the in-app prototype explanation is not a complete legal policy.
 
 ## Approved audience and age-rating target
 

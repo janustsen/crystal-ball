@@ -15,3 +15,6 @@ With local Supabase plus `SOCIAL_MOCK_ENTITLEMENTS=true`, mock purchases and eve
 
 ## Gotchas
 No real purchases in the preview; sandbox purchases need a signed iOS build and the accounts in docs/launch/billing.md. Native Apple/account/notification flows need configured accounts and a development build.
+
+## Plus birth chart depth and narrated Ball
+Follow the [Plus chart and narration usage](../../../../README.md) and [profile/API contract](../../../../SETUP.md#reading-profile-and-birth-chart); `narration-toggle` controls speech. Run `VERIFY_URL=http://localhost:8097 node scripts/drive-plus-chart-voice.mjs` on an isolated live Ollama preview; it spies on browser speech synthesis only, and needs Open-Meteo city search. Evidence: docs/evidence/plus-chart-voice/. Run `SOCIAL_PG_PORT=<free port> bash scripts/verify-social-db.sh` for the server-side monthly chart-weather claim (`scripts/chart-weather-rls.sql`). Native expo-speech output needs a device check.

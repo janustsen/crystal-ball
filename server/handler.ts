@@ -1,6 +1,7 @@
 import {checkInDate} from '../src/retention.ts';
-import {readingAge,validBirthday,validPersonName} from '../src/profile.ts';
-import {personalOmen} from './omen.ts';
+import {readingAge,sunSign,validPersonName} from '../src/profile.ts';
+import {viewerChart} from './viewer-chart.ts';
+import {chartWeather,personalOmen} from './omen.ts';
 import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
@@ -20,18 +21,20 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
   try {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
    const body:unknown=JSON.parse(text);
-   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
+   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen','chart'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
    requireAiConsent(env,'aiConsent' in body?body.aiConsent:undefined);
    const raw='facts'in body?body.facts:{};
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
-   const viewerBirthday='viewerBirthday'in body?body.viewerBirthday:undefined,personName='personName'in body?body.personName:undefined;
-   if(viewerBirthday!==undefined&&(typeof viewerBirthday!=='string'||!validBirthday(viewerBirthday)))throw new Error('Please check your birthday.');
+   const rawBirthday='viewerBirthday'in body?body.viewerBirthday:undefined,personName='personName'in body?body.personName:undefined;
+   const {birthday:viewerBirthday,chart}=viewerChart(rawBirthday,'viewerChart'in body?body.viewerChart:undefined);
    const ageConfirmed='ageConfirmed'in body?body.ageConfirmed:undefined;
    if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
    readingAge(viewerBirthday,ageConfirmed);
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
    const localDate='localDate'in body?body.localDate:undefined;
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
+   // Moon and rising are a Plus depth: with billing, only a current Plus viewer's chart reaches the reading.
+   const plusChart=async(viewer:string|null)=>chart&&(!meter||(await meter.balance(viewer??await meter.user(request))).plus)?chart:undefined;
    const context={viewerBirthday,ageConfirmed,personName,localDate};
    const facts=raw as Facts,question=body.question.trim();
    if(body.action==='predict'){
@@ -40,12 +43,22 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     if(!meter&&request.headers.get('authorization'))throw new BillingError('Readings are unavailable right now. Please try again later.',503);
     const viewer=meter?await meter.user(request):null;
     const charge=viewer?await meter!.authorizeCharge(viewer,'requestId' in body?body.requestId:undefined,{question,friend:'friend' in body&&body.friend===true,personName,facts}):null;
-    const result=await predict(question,facts,'friend'in body&&body.friend===true,model,context);
+    const result=await predict(question,facts,'friend'in body&&body.friend===true,model,{...context,viewerChart:await plusChart(viewer)});
     if(result.kind!=='ok')return new Response(JSON.stringify(result),{headers});
     // Unmetered loopback preview only: the device owns its simulated plan, so its Plus claim sets the odds.
     if(!viewer)return new Response(JSON.stringify({...result,value:assignEdition(result.value,'plus'in body&&body.plus===true)}),{headers});
     const balance=await meter!.charge(viewer,charge!);
     return new Response(JSON.stringify({...result,value:await meter!.edition(viewer,result.value,balance.plus),balance}),{headers});
+   }
+   if(body.action==='chart'){
+    if(!chart)throw new Error('Add your birth time and place in You first.');
+    // The viewer's local month, which can differ from the server's by at most a day across time zones.
+    const today=new Date().toISOString().slice(0,10),day=typeof localDate==='string'?localDate:today;
+    if(Math.abs(Date.parse(day)-Date.parse(today))>86400000)throw new Error('Please check your device date.');
+    const month=day.slice(0,7),signs=[sunSign(viewerBirthday as string),chart.moonSign,chart.risingSign].join('/'),generate=()=>chartWeather({sunSign:sunSign(viewerBirthday as string)!,...chart},month,omenModel);
+    // With billing, the database enforces Plus and keeps the month's single reading; the loopback preview generates directly.
+    const text=meter?await meter.chartWeather(await meter.user(request),month,signs,generate):await generate();
+    return new Response(JSON.stringify({kind:'ok',value:{text}}),{headers});
    }
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});

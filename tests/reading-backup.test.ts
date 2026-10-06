@@ -61,7 +61,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=> 'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
-  '../src/social':{friendForecast:async(_q:string,_target:any,_signal:any,_consent:string,key:string)=>attempt(key),checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p},
+  '../src/social':{friendForecast:async(_q:string,_target:any,_signal:any,_consent:string,key:string)=>attempt(key),checkInCircles:async()=>{}},'../src/delight':{assignEdition:(p:any)=>p,narration:()=>null},
   '../src/questions':{validateAnswer:()=>{},factLabels:{}},
   '../src/api':{request:async(action:string,_q:string,_facts:any,_friend:boolean,_signal:any,_context:any,_consent:string,key:string)=>({kind:'ok',value:action==='predict'?attempt(key):{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn'],remember:false}]}})},
  },f.warnings);
@@ -148,15 +148,31 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
  render();await tick();assert.equal(render().ready,false);
  finishHydration(oldBalance);await tick();const earlier=render();await tick();
  assert.equal(earlier.remaining,0);
- const backup=earlier.backup(mode,async()=>{owner='paid'});
+ const month=day.slice(0,7);
+ earlier.update((s:any)=>({...s,chartWeather:{month,text:'Anonymous weather'}}));
+ assert.equal(render().state.chartWeather.text,'Anonymous weather');
+ let finishWeather!:(text:string)=>void;
+ const weather=new Promise<string>(resolve=>{finishWeather=resolve}).then(text=>earlier.update((s:any)=>({...s,chartWeather:{month,text}})));
+ const backup=earlier.backup(mode,async()=>{
+  assert.equal(render().state.chartWeather,undefined);
+  owner='paid';
+ });
  if(restoreFails)await assert.rejects(backup,/backup offline/);else await backup;
  let current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
+ assert.equal(current.state.chartWeather,undefined);
+ finishWeather('Late anonymous weather');await weather;
+ assert.equal(render().state.chartWeather,undefined);
+ current.update((s:any)=>({...s,chartWeather:{month,text:'Paid weather'}}));
+ assert.equal(render().state.chartWeather.text,'Paid weather');
+ current.update((s:any)=>({...s,largeText:true}));
+ assert.equal(render().state.largeText,true);
  await earlier.applyBalance(oldBalance);
  await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
  current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
  await current.applyBalance({...paidBalance,asOf:stamp(2),used:2});
  current=render();assert.equal(current.remaining,13);
  await tick();assert.equal(JSON.parse(disk).plus,true);
+ assert.equal(JSON.parse(disk).chartWeather.text,'Paid weather');
 });
 
 for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMode} purchases on Home and You`,async()=>{

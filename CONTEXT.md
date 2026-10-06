@@ -51,7 +51,7 @@ The shared activity of Circle members. See the [social boundary](docs/social/mod
 A Forecast about a friend, sent sealed; the recipient opens it by tapping the ball. Limited for free users, unlimited with Plus.
 
 **Friend reading**:
-A Plus Reading about a Circle member, allowed only if that member turned on "friends can ask about me" (off by default). It uses only their Sun sign and Circle activity themes; they are told someone asked, never what.
+A Plus Reading about a Circle member, allowed only if that member turned on "friends can ask about me" (off by default). See the [social boundary](docs/social/model.md) for the subject and viewer context and anonymous notification contract.
 
 **Golden forecast**:
 A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 in 10 with Plus. Cosmetic; never implies it is more likely to come true.

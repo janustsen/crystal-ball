@@ -45,6 +45,10 @@ SQL
 for migration in supabase/migrations/*.sql; do
   "${sql[@]}" -f "$migration" >"$cluster/migration.log"
 done
+# These once shared a version with another file, so databases that applied them under the old version re-run them.
+for migration in supabase/migrations/{202610060065_private_rooms,202610060080_chart_weather}.sql; do
+  "${sql[@]}" -f "$migration" >"$cluster/migration.log"
+done
 "${sql[@]}" -f scripts/billing-expiry.sql
 if [[ "${SOCIAL_INVITATIONS_ONLY:-0}" == 1 ]]; then
   PG_BIN="$pg_bin" python3 scripts/social-invitation-races.py
@@ -68,6 +72,7 @@ fi
 "${sql[@]}" -f scripts/sky-rls.sql
 "${sql[@]}" -f scripts/billing-rls.sql
 "${sql[@]}" -f scripts/private-room-rls.sql
+"${sql[@]}" -f scripts/chart-weather-rls.sql
 
 # Two distinct recipients race to open a fresh seal. Exactly one may succeed.
 token=$("${sql[@]}" -Atc "delete from public.social_blocks; update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated; set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; select public.seal_forecast('20000000-0000-0000-0000-000000000001');" | tail -1)

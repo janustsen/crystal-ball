@@ -1,3 +1,5 @@
+import {astrologyLine} from '../src/profile.ts';
+import {viewerChart} from './viewer-chart.ts';
 import {ballVoice} from './voice.ts';
 import {requireAiConsent,type ModelProvider} from './provider.ts';
 import type {Prediction} from '../src/types.ts';
@@ -77,6 +79,8 @@ export function socialHandler(env:(key:string)=>string|undefined,model:ModelProv
     return reply(draft);
    }
    if(body.action==='friend'){
+    const {birthday,chart}=viewerChart(body.viewerBirthday,body.viewerChart);
+    const plusChart=chart&&(!meter||(await meter.balance(user.id)).plus)?chart:undefined;
     if(!validFirstName(body.firstName)||typeof body.question!=='string'||body.question.length<4||body.question.length>500||typeof body.circle!=='string'||typeof body.member!=='string')throw new Error('Choose a friend and a question.');
     if(await safety(body.question,model))throw new Error('Try a gentler question for your friend.');
     const context=await db('rpc/authorize_friend_reading',{viewer:user.id,target_circle:body.circle,target_member:body.member});
@@ -92,7 +96,7 @@ export function socialHandler(env:(key:string)=>string|undefined,model:ModelProv
      });
     await moderateSocialLine(result.headline,'seal',teen,model);
     await moderateSocialLine(result.why,'seal',teen,model);
-    const prediction:Prediction={id:crypto.randomUUID(),question:body.question,headline:result.headline,why:result.why,createdAt:new Date().toISOString(),label:'For fun · speculative forecast, not a guarantee',facts:{sun_sign:context.sun_sign||'Not shared',activity_themes:context.themes.join(', ')||'No shared activity'},sources:[],assumptions:['Only a sun sign and broad Circle activity themes were available.'],friend:true,friendTarget:{circle:body.circle,member:body.member,firstName:body.firstName}};
+    const prediction:Prediction={id:crypto.randomUUID(),question:body.question,headline:result.headline,why:result.why,astrology:astrologyLine(birthday,plusChart),createdAt:new Date().toISOString(),label:'For fun · speculative forecast, not a guarantee',facts:{sun_sign:context.sun_sign||'Not shared',activity_themes:context.themes.join(', ')||'No shared activity'},sources:[],assumptions:['Only a sun sign and broad Circle activity themes were available.'],friend:true,friendTarget:{circle:body.circle,member:body.member,firstName:body.firstName}};
     if(!meter)return reply(assignEdition(prediction,true));
     const balance=await meter.charge(user.id,charge!);
     return reply({...await meter.edition(user.id,prediction,balance.plus),balance});
