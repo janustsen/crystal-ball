@@ -19,6 +19,9 @@ try{
  const session=await request('/auth/v1/signup',null,{}),token=session.access_token;
  const circle=await request('/rest/v1/rpc/create_circle',token,{});
  const goldenId='00000000-0000-4000-8000-000000000001';
+ const unrecorded=await fetch(base+'/rest/v1/rpc/share_circle_moment',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({reading:goldenId,moment:'golden'})});
+ assert.equal(unrecorded.status,400);
+ const rejection=await unrecorded.json();assert.match(rejection.message,/Only a drawn golden forecast/);
  for(let attempt=0;attempt<2;attempt++){
   await request('/rest/v1/golden_forecasts','verification-service-only',{user_id:session.user.id,reading_id:goldenId});
  }
@@ -33,6 +36,7 @@ try{
  await request('/rest/v1/rpc/share_circle_moment',token,{reading:goldenId,moment:'golden'});
  const moments=await request('/rest/v1/circle_moments',token);
  assert.ok(moments.some(moment=>moment.kind==='golden'&&moment.circle_id===circle));
+ console.log(JSON.stringify({unrecordedGolden:{status:unrecorded.status,body:rejection},ownerRecords:records,strangerRecords:await request(lookupGolden,stranger.access_token),clientInsertStatus:forged.status,publishedMoments:moments}));
  console.log('PASS: golden editions persist once through HTTP, retain owner isolation, and enable Circle sharing');
  const [draft]=await request('/rest/v1/circle_forecast_drafts','verification-service-only',{user_id:session.user.id,circle_id:circle,question:'Will we learn together?',headline:'A shared skill awaits.',due_date:new Date(Date.now()+86400000*2).toISOString().slice(0,10)});
  const published=await request('/rest/v1/rpc/publish_circle_forecast',token,{approved_draft:draft.id});
