@@ -2,9 +2,8 @@ import type {AccountState,Prediction,StyleName} from './types';
 
 // Golden forecasts: 1 in N readings. Cosmetic; never more likely to come true.
 export const goldenOdds=(plus:boolean)=>plus?10:50;
-// Freeze the plan-dependent result before saving; upgrades and reopened readings never reroll it.
-export function assignEdition(prediction:Prediction,plus:boolean):Prediction {
- if(prediction.golden!==undefined)return prediction;
+// Drawn once by the forecast server from its own plan; the saved result is never redrawn on a device.
+export function assignEdition<T extends Prediction>(prediction:T,plus:boolean):T {
  const prefix=prediction.id.replaceAll('-','').slice(0,8);
  const golden=/^[0-9a-f]{8}$/i.test(prefix)&&parseInt(prefix,16)%goldenOdds(plus)===0;
  return {...prediction,golden};

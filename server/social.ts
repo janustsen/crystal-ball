@@ -4,6 +4,7 @@ import type {Prediction} from '../src/types.ts';
 import {isSkyPrompt,safeSealedHeadline,sunSigns,validFirstName} from '../src/social-policy.ts';
 import {safety} from './safety.ts';
 import {BillingError,type Billing} from './billing.ts';
+import {assignEdition} from '../src/delight.ts';
 
 export async function moderateSocialLine(text:string,kind:'star'|'seal',teen:boolean,model:ModelProvider){
  if(!safeSealedHeadline(text))throw new Error('This wording cannot be shared. Try a gentler question.');
@@ -92,7 +93,9 @@ export function socialHandler(env:(key:string)=>string|undefined,model:ModelProv
     await moderateSocialLine(result.headline,'seal',teen,model);
     await moderateSocialLine(result.why,'seal',teen,model);
     const prediction:Prediction={id:crypto.randomUUID(),question:body.question,headline:result.headline,why:result.why,createdAt:new Date().toISOString(),label:'For fun · speculative forecast, not a guarantee',facts:{sun_sign:context.sun_sign||'Not shared',activity_themes:context.themes.join(', ')||'No shared activity'},sources:[],assumptions:['Only a sun sign and broad Circle activity themes were available.'],friend:true,friendTarget:{circle:body.circle,member:body.member,firstName:body.firstName}};
-    return reply(meter?{...prediction,balance:await meter.charge(user.id,charge!)}:prediction);
+    if(!meter)return reply(assignEdition(prediction,true));
+    const balance=await meter.charge(user.id,charge!);
+    return reply({...await meter.edition(user.id,prediction,balance.plus),balance});
    }
    throw new Error('Unknown social action.');
   }catch(error){return reply({message:error instanceof Error?error.message:'The shared sky could not be reached.'},error instanceof BillingError?error.status:400)}

@@ -1,5 +1,6 @@
-import {isStyle} from '../src/delight.ts';
+import {assignEdition,isStyle} from '../src/delight.ts';
 import {noReadings,packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
+import type {Prediction} from '../src/types.ts';
 type Env=(key:string)=>string|undefined;
 export class BillingError extends Error{constructor(message:string,readonly status:number){super(message)}}
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -78,7 +79,14 @@ export function billing(env:Env){
   if(!isStyle(ball)||!isStyle(card))throw new BillingError('Choose a ball and card style.',400);
   return rpc('set_profile_styles',{viewer,ball,card});
  }
- return {user,reconcile,simulate,styles,authorizeCharge,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
+ // The server draws the golden edition and records it before returning it; a draw that cannot be recorded is not golden.
+ async function edition<T extends Prediction>(viewer:string,prediction:T,plus:boolean):Promise<T>{
+  const drawn=assignEdition(prediction,plus);
+  if(!drawn.golden)return drawn;
+  const recorded=await fetch(`${base}/rest/v1/golden_forecasts`,{method:'POST',headers:{...service,Prefer:'resolution=ignore-duplicates'},body:JSON.stringify({user_id:viewer,reading_id:prediction.id}),signal:AbortSignal.timeout(5000)}).then(response=>response.ok,()=>false);
+  return recorded?drawn:{...drawn,golden:false};
+ }
+ return {user,reconcile,simulate,styles,authorizeCharge,edition,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }
 export type Billing=NonNullable<ReturnType<typeof billing>>;
 

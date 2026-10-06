@@ -22,7 +22,6 @@ import {CaptureReveal} from '../src/CaptureReveal';
 import {haptic,reminder,watchCheckIns} from '../src/native';
 import {Home,HomeTabBar} from '../src/Home';
 import {GoldenGlow} from '../src/GoldenGlow';
-import {assignEdition} from '../src/delight';
 import {InnerLibrary} from '../src/InnerLibrary';
 import {useDelight} from '../src/useDelight';
 import {DailyOmen} from '../src/DailyOmen';
@@ -54,7 +53,7 @@ export default function App(){
  useEffect(()=>{if(socialReady)void syncSocialProfile(socialProfile).catch(()=>{})},[socialReady,socialProfile.sunSign,socialProfile.ageBand,socialProfile.plus]);
  useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.history.find(p=>p.id===id);if(reading)showPrediction(reading);else{cancel();setPaywall(false);setShare(false);setTab('History')}})},[ready,state.history]);
  const [personMode,setPersonMode]=useState(false),[personName,setPersonName]=useState('');
- const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined};
+ const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined,plus:state.plus};
  const personalFacts={...state.facts,...(state.birthday?{birthday:state.birthday}:{})};
  const askIds=useRef(new Map<string,string>());
  const askIdentity=(q:string)=>JSON.stringify([q.trim(),friend,friendTarget?.circle,friendTarget?.member,friendTarget?.firstName,personMode?personName.trim():null]);
@@ -86,7 +85,7 @@ export default function App(){
   const requestId=askId(identity);
   const id=++generation.current;controller.current?.abort();const abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);
   setFlow({stage:'planning',question});setNotice('');
-  try{if(friendTarget){pendingAsks.current.add(friendKey);const {balance,...result}=await friendForecast(question,friendTarget,abort.signal,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;const reading=assignEdition(result,state.plus);lastReading.current=null;await savePrediction(reading,{},balance);askIds.current.delete(identity);pendingAsks.current.delete(friendKey);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(question)).catch(()=>{});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);return;}const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
+  try{if(friendTarget){pendingAsks.current.add(friendKey);const {balance,...result}=await friendForecast(question,friendTarget,abort.signal,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;const reading=result;lastReading.current=null;await savePrediction(reading,{},balance);askIds.current.delete(identity);pendingAsks.current.delete(friendKey);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(question)).catch(()=>{});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);return;}const result=await request<Plan>('plan',question,friend||personMode?{}:personalFacts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
    if(result.kind==='ok'){setFlow({stage:'cards',question,plan:result.value,answers:{},index:0});setChoice('');setOther('')}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else setFlow({stage:'error',question,message:result.message});
   }catch(error){if(id!==generation.current)return;if(error instanceof Error&&outOfReadings(error.message,friendKey)){setFlow({stage:'error',question,message:error.message});return}setFlow({stage:'error',question,message:`${abort.signal.aborted?'The Ball took too long.':'The mist is too thick.'} ${retryNotice}`})}finally{clearTimeout(timeout)}
@@ -100,7 +99,7 @@ export default function App(){
   predicting.current=true;lastReading.current={plan,answers,question:q};
   const id=++generation.current,abort=new AbortController();controller.current=abort;const timeout=setTimeout(()=>abort.abort(),60000);setFlow({stage:'research',question:q,plan,answers});
   try{const result=await request<Prediction>('predict',q,facts,friend,abort.signal,readingContext,aiAllowed?aiProvider:'',requestId);if(id!==generation.current)return;
-   if(result.kind==='ok'){const reading=assignEdition(result.value,state.plus);await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance);askIds.current.delete(identity);pendingAsks.current.delete(key);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
+   if(result.kind==='ok'){const reading=result.value;await savePrediction(reading,!friend&&!personMode?{...learnedFacts(plan.cards,answers),...(plan.topic==='learning'?{learning_target:plan.provided.learning_target}:{})}:{},result.balance);askIds.current.delete(identity);pendingAsks.current.delete(key);if(id!==generation.current)return;if(reading.golden)void shareCircleMoment(reading.id,'golden').catch(()=>{});void reminder(reading.headline,reading.id,suggestedCheckIn(reading),false);void checkInCircles(activityTheme(q)).catch(()=>{/* A failed social check-in never changes a private reading. */});setReviewing(false);setFlow({stage:'reveal',prediction:reading});setWhy(false);}
    else if(result.kind==='blocked')setFlow({stage:'blocked',message:result.message,category:result.category});else{setFlow({stage:'error',question:q,message:result.message,retry:{plan,answers}});outOfReadings(result.message,key)}
   }catch{if(id===generation.current)setFlow({stage:'error',question:q,message:`${abort.signal.aborted?'The Ball took too long.':'The mist is too thick.'} Your answers are kept. ${retryNotice}`,retry:{plan,answers}})}finally{clearTimeout(timeout);if(id===generation.current)predicting.current=false}
  }
