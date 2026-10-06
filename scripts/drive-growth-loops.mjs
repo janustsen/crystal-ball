@@ -37,12 +37,31 @@ async function ask(page,question){
  await page.getByTestId('seal-for-a-friend').waitFor({timeout:65000});return 'reveal';
 }
 async function clip(page,file){
+ await page.evaluate(()=>{
+  window.clipPaints={frames:0,endFrames:0};
+  if(window.clipPaintProbe)return;
+  window.clipPaintProbe=true;
+  const fillText=CanvasRenderingContext2D.prototype.fillText;
+  CanvasRenderingContext2D.prototype.fillText=function(text,...args){
+   if(this.canvas.width===1080&&this.canvas.height===1920){
+    if(text==='Crystal Ball'&&args[1]===1870)window.clipPaints.frames++;
+    if(text==='search Crystal Ball')window.clipPaints.endFrames++;
+   }
+   return fillText.call(this,text,...args);
+  };
+ });
  const download=page.waitForEvent('download');
  await page.getByTestId('make-reveal-clip').click();
  const saved=`${out}/${file}.${(await download).suggestedFilename().split('.').pop()}`;await (await download).saveAs(saved);
  execFileSync('ffmpeg',['-v','error','-y','-ss','4','-i',saved,'-frames:v','1',`${out}/${file}-4s.png`]);
  execFileSync('ffmpeg',['-v','error','-y','-ss','7.5','-i',saved,'-frames:v','1',`${out}/${file}-end.png`]);
- return {saved,probe:probe(saved),...await assertRevealEnd(page,saved,`${out}/${file}-last-title.png`)};
+ const result={saved,probe:probe(saved),painted:await page.evaluate(()=>window.clipPaints)};
+ await writeFile(`${out}/${file}-probe.json`,JSON.stringify(result,null,2));
+ const video=result.probe.streams.find(s=>s.codec_type==='video'),audio=result.probe.streams.find(s=>s.codec_type==='audio');
+ expect(video).toMatchObject({width:1080,height:1920});expect(audio).toBeDefined();
+ const end=await assertRevealEnd(page,saved,`${out}/${file}-last-title.png`);
+ expect(Math.abs(Number(video.duration)-Number(audio.duration))).toBeLessThanOrEqual(.3);
+ return {...result,...end};
 }
 try{
  const a=await visitor('first-visitor');
@@ -67,13 +86,16 @@ try{
  await a.page.evaluate(()=>{navigator.canShare=()=>true;navigator.share=async()=>{throw new DOMException('Expired activation','NotAllowedError')}});
  await a.page.getByTestId('clip-question').click();
  const withQuestion=await clip(a.page,'clip-question-on');
- log.push({clips:[plain,withQuestion],audioFailure:'visible error and controls unlocked',shareBoundary:'injected NotAllowedError falls back to actual download'});
+ const clips=[plain,withQuestion];
+ for(let i=3;i<=5;i++)clips.push(await clip(a.page,`clip-repeat-${i}`));
+ log.push({clips,audioFailure:'visible error and controls unlocked',shareBoundary:'injected NotAllowedError falls back to actual download'});
  for(const c of [plain,withQuestion]){
   const video=c.probe.streams.find(s=>s.codec_type==='video');
   expect(video).toMatchObject({width:1080,height:1920});expect(c.probe.streams.some(s=>s.codec_type==='audio')).toBe(true);
   expect(Number(c.probe.format.duration)).toBeGreaterThan(7);
   if(video.duration!==undefined)expect(Number(video.duration)).toBeGreaterThan(7);
  }
+ if(!process.env.CLIP_ONLY){
  // The spent visitor is sent to install instead of a second reading.
  await a.page.getByTestId('close-flow').click();await a.page.getByTestId('tab-ask').click();await a.page.getByTestId('type-instead').click();
  expect(await ask(a.page,'Will I get a new job this year?')).toBe('install');
@@ -85,6 +107,7 @@ try{
  await b.page.screenshot({path:`${out}/04-install-same-network.png`});
  log.push({visitor:a.name,requests:a.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading,authorization:r.authorization})),clips:[plain,withQuestion],audioFailure:'visible error and controls unlocked',shareBoundary:'injected NotAllowedError falls back to actual download',errors:a.errors},{visitor:b.name,requests:b.requests.map(r=>({action:r.body.action,webReading:!!r.body.webReading})),errors:b.errors});
  expect([...a.errors,...b.errors]).toEqual([]);
+ }
  log.push({result:'pass'});
 }catch(error){log.push({result:'fail',error:String(error?.stack||error)});process.exitCode=1}
 finally{await writeFile(`${out}/drive.json`,JSON.stringify(log,null,1));await browser.close()}

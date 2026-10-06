@@ -72,7 +72,8 @@ export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Pr
  try{
   const type=['video/mp4;codecs=avc1,mp4a','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
   if(!type)throw new Error('unsupported');
-  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d');if(!ctx)throw new Error('unsupported');
+  // Software backing avoids GPU readback stalls that truncate capture while the room animates.
+  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error('unsupported');
   paintClip(ctx,prediction,look,frame,0);
   await audio.resume();
   const tracks=await soundtrack(audio),stream=canvas.captureStream(30);

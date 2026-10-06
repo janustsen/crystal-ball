@@ -187,6 +187,7 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/purchases':{purchaseMode},'../src/questions':{factLabels:{}},
+  '../src/api':{webReadingVisitor:()=>false},
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
