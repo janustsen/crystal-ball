@@ -62,7 +62,7 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
   'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
   './RoomScene':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt'},'./store':{useStore:()=>({state:{}})},
-  './delight':{selectedStyle:()=>'classic',skinColors:{classic:{fill:'transparent',rim:'transparent'}}},
+  './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
  // The shared room now owns the scene; Home's hit target is exported as BallButton.

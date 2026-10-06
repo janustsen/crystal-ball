@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {assignEdition,goldenOdds,isStyle,selectedStyle,styleCatalog} from '../src/delight';
+import {assignEdition,goldenOdds,isStyle,selectedStyle,styleCatalog,styleCatalogs} from '../src/delight';
 import {dailyReadings,plusUnlocks} from '../src/billing';
 import type {Prediction} from '../src/types';
 const reading=(id:string):Prediction=>({id,question:'Will I finish?',headline:'You will finish.',createdAt:'2026-09-30',label:'Speculative forecast',why:'For fun',facts:{},sources:[],assumptions:[],friend:false});
@@ -30,4 +30,11 @@ test('the style catalog is the only source of style ids; Classic is the free sty
  assert.deepEqual(Object.keys(styleCatalog),['classic','gold','obsidian']);
  assert.deepEqual(Object.entries(styleCatalog).filter(([,s])=>!s.plus).map(([id])=>id),['classic']);
  for(const bad of ['rainbow','toString','__proto__',1,null])assert.equal(isStyle(bad),false);
+ assert.deepEqual(Object.keys(styleCatalogs.ball),['classic','smoke','aurora','obsidian','gold']);
+ assert.deepEqual(Object.keys(styleCatalogs.card),['classic','gold','obsidian']);
+ for(const kind of ['ball','card'] as const){
+  assert.deepEqual(Object.entries(styleCatalogs[kind]).filter(([,s])=>!s.plus).map(([id])=>id),['classic']);
+  for(const bad of ['rainbow','toString','__proto__',1,null])assert.equal(isStyle(bad,kind),false);
+ }
+ assert.equal(isStyle('aurora','ball'),true);assert.equal(isStyle('aurora','card'),false);
 });

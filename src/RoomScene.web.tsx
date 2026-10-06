@@ -5,7 +5,8 @@ import {OrbVisual} from './OrbVisual';
 import {appCss} from './motionCss';
 import type {BallSpin} from './RoomScene';
 import {ballOnScreen,clipFrames,clipUrl,flightKey,roomCover,idleKey,maxBallRadius,roomAssetBase,roomFps,roomVersion,stillFrame,type BallFrame,type Spot} from './room';
-import {homeIdle,roomStills} from './roomAssets';
+import {ballArt,homeIdle,roomStills} from './roomAssets';
+import type {BallStyle} from './types';
 
 // The glass ball is ported from the Claude Design canvas artboard project/Library.dc.html ("Library").
 // Keep its look identical to that source. Its library room now only lights and reflects in the glass (the
@@ -35,6 +36,8 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
  renderer.shadowMap.type=T.PCFSoftShadowMap;
  renderer.shadowMap.autoUpdate=false;
  renderer.setClearColor(0x000000,0);
+ // A shader that fails to compile throws, so the scene falls back to the static orb instead of drawing nothing.
+ renderer.debug.onShaderError=()=>{throw new Error('crystal ball shader failed to compile')};
 
  const scene=new T.Scene();
  scene.fog=new T.FogExp2(0x060403,0.06);
@@ -296,7 +299,8 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
   uCenter:{value:BALL.clone()},uRadius:{value:1},
   uLightPos:{value:candle.position.clone()},uLightCol:{value:new T.Color(0xffb070)},
   uGlowCol:{value:new T.Color(0xffb46a)},uMist:{value:new T.Color(0x6a3a8a)},
-  uRot:{value:new T.Matrix3()}
+  uRot:{value:new T.Matrix3()},
+  uStyle:{value:null as T.Texture|null},uClean:{value:null as T.Texture|null},uStyled:{value:0}
  };
  const ballMat=new T.ShaderMaterial({
   uniforms,
@@ -308,7 +312,8 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
     gl_Position = projectionMatrix * viewMatrix * w;
    }`,
   fragmentShader:`
-   uniform samplerCube uEnv; uniform float uTime, uSwirl, uGlow, uRadius; uniform mat3 uRot;
+   uniform samplerCube uEnv; uniform float uTime, uSwirl, uGlow, uRadius, uStyled; uniform mat3 uRot;
+   uniform sampler2D uStyle, uClean;
    uniform vec3 uCenter, uLightPos, uLightCol, uGlowCol, uMist;
    varying vec3 vWorld; varying vec3 vN;
    float hash(vec3 p){ p = fract(p*0.3183099 + 0.1); p *= 17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
@@ -328,6 +333,13 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
     float fil = exp(-pow((n - 0.6)*22.0, 2.0)) + 0.2*smoothstep(0.64, 0.8, n);
     return fil * smoothstep(0.98, 0.5, r) * smoothstep(0.08, 0.32, r);
    }
+   vec3 tone(vec3 c){
+    #if defined( TONE_MAPPING )
+     return toneMapping(c);
+    #else
+     return c;
+    #endif
+   }
    void main(){
     vec3 V = normalize(vWorld - cameraPosition);
     vec3 N = normalize(vN);
@@ -344,6 +356,26 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
     if (dot(T2, T2) < 1e-4) T2 = reflect(Tdir, -N2);
     vec3 refr = textureCube(uEnv, T2).rgb * vec3(1.0, 0.95, 0.88);
 
+    vec3 L = normalize(uLightPos - vWorld);
+    vec3 Hh = normalize(L - V);
+    vec3 spec = uLightCol * (pow(max(dot(N, Hh), 0.0), 1400.0)*14.0 + pow(max(dot(N, Hh), 0.0), 90.0)*0.25);
+    // A Plus style: its AI render of the ball, exactly as drawn at rest. Inside the rim's refraction, the render
+    // without its glints is an inner sphere that a spin turns; the rim and the glints stay with the view. The live
+    // glass adds the room's reflection and the candle highlight over it, as on Classic.
+    if (uStyled > 0.5) {
+     mat3 view = mat3(viewMatrix);
+     vec2 a = (view*ro).xy;
+     float ra = length(a);
+     // The view rotation's inverse is its transpose (GLSL ES 1.0 has no transpose()).
+     mat3 world = mat3(view[0][0], view[1][0], view[2][0], view[0][1], view[1][1], view[2][1], view[0][2], view[1][2], view[2][2]);
+     vec2 b = (view*(uRot*(world*vec3(a, sqrt(max(0.64 - ra*ra, 0.0)))))).xy;
+     vec3 turned = texture2D(uClean, b*0.5 + 0.5).rgb - texture2D(uClean, a*0.5 + 0.5).rgb;
+     vec3 inside = texture2D(uStyle, a*0.5 + 0.5).rgb + turned*smoothstep(0.85, 0.75, ra);
+     gl_FragColor = vec4(mix(max(inside, 0.0), tone(refl), F) + tone(spec), 1.0);
+     #include <colorspace_fragment>
+     return;
+    }
+
     const int STEPS = 26;
     float dt = tEx/float(STEPS);
     float jit = hash(vec3(gl_FragCoord.xy, 3.7)) * dt * 0.6;
@@ -359,12 +391,8 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
      trans *= exp(-d * dt * 2.6);
     }
     vec3 col = refr*0.9*(0.3 + 0.7*trans) + acc;
-    vec3 L = normalize(uLightPos - vWorld);
-    vec3 Hh = normalize(L - V);
-    vec3 spec = uLightCol * (pow(max(dot(N, Hh), 0.0), 1400.0)*14.0 + pow(max(dot(N, Hh), 0.0), 90.0)*0.25);
     col = mix(col, refl, F) + spec;
-    gl_FragColor = vec4(col, 1.0);
-    #include <tonemapping_fragment>
+    gl_FragColor = vec4(tone(col), 1.0);
     #include <colorspace_fragment>
    }`
  });
@@ -487,8 +515,24 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
  const resume=()=>{if(alive&&!raf&&!document.hidden){clock.getDelta();raf=requestAnimationFrame(frame)}};
  const visibility=()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else resume()};
  document.addEventListener('visibilitychange',visibility);
+ const loader=new T.TextureLoader(),textures=new Map<string,T.Texture>();
  const api={
   resume,
+  // null is Classic; otherwise the style's glass and clean discs (src/roomAssets.ts), shown once both have loaded.
+  style(look:{glass:string;clean:string}|null){
+   const load=(uri:string)=>{
+    let texture=textures.get(uri);
+    if(!texture){
+     texture=loader.load(uri,()=>{if(ready()){uniforms.uStyled.value=1;resume()}});
+     texture.colorSpace=T.SRGBColorSpace;textures.set(uri,texture);
+    }
+    return texture;
+   };
+   const ready=()=>!!(uniforms.uStyle.value?.image&&uniforms.uClean.value?.image);
+   uniforms.uStyle.value=look&&load(look.glass);uniforms.uClean.value=look&&load(look.clean);
+   uniforms.uStyled.value=ready()?1:0;
+   resume();
+  },
   stop(){
    alive=false;cancelAnimationFrame(raf);
    window.removeEventListener('pointermove',onDragMove);
@@ -496,10 +540,12 @@ function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},gr
    window.removeEventListener('pointercancel',onDragEnd);
    grip.grab=undefined;
    document.removeEventListener('visibilitychange',visibility);
-   pmrem.dispose();renderer.dispose();renderer.forceContextLoss();
+   textures.forEach(texture=>texture.dispose());pmrem.dispose();renderer.dispose();renderer.forceContextLoss();
   }
  };
- try{frame()}catch(error){api.stop();throw error}
+ // Compile the ball up front (one hidden draw from straight on), so a shader failure surfaces here rather than in a
+ // later animation frame, even while the ball is out of frame.
+ try{camera.position.set(0,0,CAM_D).add(BALL);camera.lookAt(BALL);renderer.render(scene,camera);frame()}catch(error){api.stop();throw error}
  return api;
 }
 
@@ -531,14 +577,15 @@ function loadClip(key:string,url:string,persist:boolean){
 }
 const spots:Spot[]=['Home','Sky','Ask','History','You'];
 let prefetched=false;
-// After the first screen settles, quietly fetch every streamed clip: flights from Home first, then the loops.
+// After the first screen settles, quietly fetch every streamed clip: flights from Home first, then the loops, then the
+// Inner Library's push-in (only Home leads into it; it has no loop and no flight out).
 function prefetchRoom(){
  if(prefetched)return;
  prefetched=true;
  void loadClip(idleKey('Home'),Asset.fromModule(homeIdle).uri,false);
  if(!roomAssetBase)return;
  const keys=[...spots.slice(1).map(to=>flightKey('Home',to)),...spots.slice(1).map(idleKey),
-  ...spots.slice(1).flatMap(from=>spots.filter(to=>to!==from).map(to=>flightKey(from,to)))];
+  ...spots.slice(1).flatMap(from=>spots.filter(to=>to!==from).map(to=>flightKey(from,to))),flightKey('Home','Library')];
  setTimeout(async()=>{for(const key of keys)await loadClip(key,clipUrl(key),true)},1500);
 }
 
@@ -559,7 +606,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
-export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[failed,setFailed]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
@@ -607,6 +654,7 @@ export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:numbe
   try{scene.current=startScene(canvas,S,motion.current,spin,aim)}catch(error){setFailed(true);console.error('crystal ball scene',error)}
   return()=>{scene.current?.stop();scene.current=null};
  },[width,height]);
+ useEffect(()=>{scene.current?.style(ball==='classic'?null:{glass:Asset.fromModule(ballArt[ball].glass).uri,clean:Asset.fromModule(ballArt[ball].clean).uri})},[ball,width,height]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flight]);
  const idleUrl=!reduce&&!failed&&!flight?clips.get(idleKey(at)):undefined;
@@ -624,7 +672,7 @@ export function RoomScene({spot,width,height,reduce,spin}:{spot:Spot;width:numbe
   {fading&&!failed?<img key={`fade-${fading}`} alt="" data-room-fade src={Asset.fromModule(roomStills[fading]).uri} ref={img=>{if(img&&!img.getAnimations().length)img.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished.then(()=>setFading(null),()=>setFading(null))}} style={fill}/>:null}
   {/* a resize gets a fresh canvas because stop() loses the old context */}
   <canvas key={`${width}x${height}`} ref={ref} width={S} height={S} style={{position:'absolute',left:0,top:0,width:S,height:S,transformOrigin:'50% 50%',visibility:'hidden'}}/>
-  {fallback?<div style={{position:'absolute',left:fallback.x-fallback.r,top:fallback.y-fallback.r,width:fallback.r*2,height:fallback.r*2,borderRadius:'50%',overflow:'hidden'}}><OrbVisual size={fallback.r*2} reduce/></div>:null}
+  {fallback?<div style={{position:'absolute',left:fallback.x-fallback.r,top:fallback.y-fallback.r,width:fallback.r*2,height:fallback.r*2,borderRadius:'50%',overflow:'hidden'}}><OrbVisual size={fallback.r*2} reduce ball={ball}/></div>:null}
   {/* lens: vignette, grade, grain */}
   <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 75% 60% at 50% 38%, rgba(0,0,0,0) 50%, rgba(3,2,1,.6) 100%)'}}/>
   <div style={{position:'absolute',left:0,top:0,width:'100%',height:130,background:'linear-gradient(180deg, rgba(5,3,2,.75) 0%, rgba(5,3,2,0) 100%)'}}/>

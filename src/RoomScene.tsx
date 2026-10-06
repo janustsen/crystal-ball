@@ -5,13 +5,14 @@ import {SvgXml} from 'react-native-svg';
 import {OrbVisual} from './OrbVisual';
 import {ballOnScreen,stillFrame,type Spot} from './room';
 import {roomStills} from './roomAssets';
+import type {BallStyle} from './types';
 
 // Home's ball hands its pointer-down to the web scene to spin it; a drag then suppresses the reading tap.
 export type BallSpin={grab?:(e:PointerEvent)=>void;dragged:boolean};
 
 // Native shows the room's stills (follow-up cb-native-room-video: expo-video flights cached with expo-file-system).
 // A tab change cuts to its spot, or fades for reduced motion; the ball is the static orb in the ring stand.
-export function RoomScene({spot,width,height,reduce}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin}){
+export function RoomScene({spot,width,height,reduce,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
  const [previous,setPrevious]=useState<Spot|null>(null),shown=useRef(spot),fade=useRef(new Animated.Value(0)).current;
  useEffect(()=>{
   if(spot===shown.current)return;
@@ -20,11 +21,11 @@ export function RoomScene({spot,width,height,reduce}:{spot:Spot;width:number;hei
   setPrevious(from);fade.setValue(1);
   Animated.timing(fade,{toValue:0,duration:450,useNativeDriver:true}).start(()=>setPrevious(null));
  },[spot]);
- const ball=ballOnScreen(stillFrame(spot),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
+ const placed=ballOnScreen(stillFrame(spot),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
  return <View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#050302'}}>
   <Image source={roomStills[spot]} resizeMode="cover" style={fill}/>
   {previous?<Animated.Image source={roomStills[previous]} resizeMode="cover" style={{...fill,opacity:fade}}/>:null}
-  {ball?<View style={{position:'absolute',left:ball.x-ball.r,top:ball.y-ball.r,width:ball.r*2,height:ball.r*2,borderRadius:ball.r,overflow:'hidden'}}><OrbVisual size={ball.r*2} reduce={reduce}/></View>:null}
+  {placed?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce={reduce} ball={ball}/></View>:null}
   <LinearGradient colors={['rgba(5,3,2,.75)','rgba(5,3,2,0)']} style={{position:'absolute',left:0,top:0,width,height:130}}/>
   <LinearGradient colors={['rgba(5,3,2,0)','rgba(5,3,2,.55)','rgba(5,3,2,.9)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:304}}/>
  </View>;

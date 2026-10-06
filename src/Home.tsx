@@ -4,8 +4,6 @@ import {LinearGradient} from 'expo-linear-gradient';
 import {SvgXml} from 'react-native-svg';
 import {AskOrb,type BallSpin} from './RoomScene';
 import {Txt} from './ui';
-import {useStore} from './store';
-import {selectedStyle,skinColors} from './delight';
 import {haptic} from './native';
 
 // Home is ported from the Claude Design canvas artboard project/Library.dc.html ("Library"); values below are its own.
@@ -55,10 +53,8 @@ export function RoomHeader({title,count,ready,onPlans,top}:{title:string;count:s
 
 // The room ball's touch target: a drag spins the live ball, a tap reads (Home) or asks (Ask, once the question is ready).
 export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number;home:boolean;spin:BallSpin;onPress?:()=>void}){
- const {state}=useStore(),skin=skinColors[selectedStyle(state,'ball')],hit=Math.max(r,22);
- return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} onPointerDown={e=>spin.grab?.(e.nativeEvent as unknown as PointerEvent)} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit,alignItems:'center',justifyContent:'center'}}>
-  <View pointerEvents="none" style={{width:r*2,height:r*2,borderRadius:r,backgroundColor:skin.fill,borderWidth:skin.rim==='transparent'?0:1,borderColor:skin.rim}}/>
- </Pressable>;
+ const hit=Math.max(r,22);
+ return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} onPointerDown={e=>spin.grab?.(e.nativeEvent as unknown as PointerEvent)} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
 }
 
 // The canvas omen card: frosted glass over the scene.

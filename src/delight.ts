@@ -1,4 +1,4 @@
-import type {AccountState,Prediction,StyleName} from './types';
+import type {AccountState,CardStyle,Prediction,StyleOf} from './types';
 
 // Golden forecasts: 1 in N readings. Cosmetic; never more likely to come true.
 export const goldenOdds=(plus:boolean)=>plus?10:50;
@@ -8,13 +8,19 @@ export function assignEdition<T extends Prediction>(prediction:T,plus:boolean):T
  const golden=/^[0-9a-f]{8}$/i.test(prefix)&&parseInt(prefix,16)%goldenOdds(plus)===0;
  return {...prediction,golden};
 }
-// Ball and card styles. Ids are stored per user on the server; names are placeholders until the designed styles land.
-export const styleCatalog:Record<StyleName,{name:string;plus:boolean}>={classic:{name:'Classic',plus:false},gold:{name:'Gold',plus:true},obsidian:{name:'Obsidian',plus:true}};
-export const isStyle=(value:unknown):value is StyleName=>typeof value==='string'&&Object.hasOwn(styleCatalog,value);
-export function selectedStyle(state:Pick<AccountState,'plus'|'ballStyle'|'cardStyle'>,kind:'ball'|'card'):StyleName {
- return state.plus?(state[kind==='ball'?'ballStyle':'cardStyle']||'classic'):'classic';
+// Ball and card styles. Ids are stored per user on the server. The Plus ball styles are the local-AI renders in
+// assets/styles (scripts/room-assets.mjs); the live glass ball takes its interior from them.
+export const styleCatalog:Record<CardStyle,{name:string;plus:boolean}>={
+ classic:{name:'Classic',plus:false},gold:{name:'Gold',plus:true},obsidian:{name:'Obsidian',plus:true},
+};
+export const styleCatalogs:{[K in keyof StyleOf]:Record<StyleOf[K],{name:string;plus:boolean}>}={
+ ball:{classic:styleCatalog.classic,smoke:{name:'Smoke',plus:true},aurora:{name:'Aurora',plus:true},obsidian:styleCatalog.obsidian,gold:{name:'Gold-flecked',plus:true}},
+ card:styleCatalog,
+};
+export const isStyle=<K extends keyof StyleOf = keyof StyleOf>(value:unknown,kind?:K):value is StyleOf[K]=>typeof value==='string'&&Object.hasOwn(styleCatalogs[kind??'ball'],value);
+export function selectedStyle<K extends keyof StyleOf>(state:Pick<AccountState,'plus'|'ballStyle'|'cardStyle'>,kind:K):StyleOf[K] {
+ return (state.plus&&state[kind==='ball'?'ballStyle':'cardStyle']||'classic') as StyleOf[K];
 }
-export const skinColors={classic:{fill:'transparent',rim:'transparent'},gold:{fill:'#E0A45855',rim:'#E0A458'},obsidian:{fill:'#05060B99',rim:'#8F91A3'}};
 // Plus narration: the headline is always spoken with its speculative label, never alone.
 export function narration(state:Pick<AccountState,'plus'|'narrationMuted'>,prediction:Pick<Prediction,'headline'|'label'>):string|null {
  return state.plus&&!state.narrationMuted?`${prediction.headline} ${prediction.label.replaceAll(' · ',', ')}.`:null;

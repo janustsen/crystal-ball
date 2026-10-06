@@ -56,7 +56,7 @@ await page.click('[data-testid=open-inner-library]');
 await page.click('[data-testid=ball-style-obsidian]');
 await page.click('[data-testid=card-style-obsidian]');
 await page.wait(300);
-console.log('selected orb',await page.eval(()=>getComputedStyle(document.querySelector('[data-testid=orb-skin]')).backgroundColor));
+console.log('selected orb',await page.eval(()=>!!document.querySelector('[data-testid=orb-style]')));
 await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.history[0].golden=false;localStorage.setItem('crystal-ball-v1',JSON.stringify(s));});
 await page.open('http://localhost:8093');
 await page.wait('[data-testid=tab-history]');
