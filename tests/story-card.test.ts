@@ -39,6 +39,15 @@ test('every receipt retains the speculative disclaimer alongside category and da
  }
 });
 
+test('a friend reading earns no receipt, even on Yes',()=>{
+ assert.equal(receiptCard(reading({outcome:'yes',friend:true})),null);
+ assert.equal(receiptCard(reading({outcome:'yes',friend:true,friendTarget:{circle:'circle',member:'member',firstName:'Ada'}})),null);
+});
+
+test('a Person reading earns no receipt, even on Yes',()=>{
+ assert.equal(receiptCard(reading({outcome:'yes',personName:'Alex'})),null);
+});
+
 test('the golden shelf and set include only golden forecasts',()=>{
  assert.equal(goldenSetCard([reading()]),null);
  const golden=[1,2,3,4,5].map(n=>reading({id:`0000000${n}-abcd-4000-8000-000000000000`,headline:`Golden ${n} will arrive.`,golden:true}));
