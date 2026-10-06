@@ -76,22 +76,23 @@ console.log('BEGIN\\nSET\\n'+JSON.stringify(fixture.result)+'\\nCOMMIT');
 const exec=promisify(execFile);
 
 test('engine RPC operations work through the dev adapter and PostgreSQL', {timeout:60000}, async t=>{
+ const pg=(command:string)=>process.env.PG_BIN?join(process.env.PG_BIN,command):command;
  const directory=await mkdtemp(join(process.cwd(),'.dev-transport-db-'));
  let started=false;
  t.after(async()=>{
-  if(started)await exec('pg_ctl',['-D',join(directory,'data'),'-m','immediate','-w','stop']);
+  if(started)await exec(pg('pg_ctl'),['-D',join(directory,'data'),'-m','immediate','-w','stop']);
   await rm(directory,{recursive:true,force:true});
  });
  const password=randomUUID();
  await writeFile(join(directory,'password'),password,{mode:0o600});
- await exec('initdb',['-D',join(directory,'data'),'-U','transport_test','-A','scram-sha-256','--pwfile='+join(directory,'password'),'--no-locale','-E','UTF8']);
+ await exec(pg('initdb'),['-D',join(directory,'data'),'-U','transport_test','-A','scram-sha-256','--pwfile='+join(directory,'password'),'--no-locale','-E','UTF8']);
  const listener=createServer();listener.listen(0,'127.0.0.1');await once(listener,'listening');
  const port=(listener.address() as {port:number}).port;
  await new Promise<void>((resolve,reject)=>listener.close(error=>error?reject(error):resolve()));
- await exec('pg_ctl',['-D',join(directory,'data'),'-l',join(directory,'server.log'),'-o',`-p ${port} -c unix_socket_directories='' -c listen_addresses='127.0.0.1' -c timezone=UTC`,'-w','start']);
+ await exec(pg('pg_ctl'),['-D',join(directory,'data'),'-l',join(directory,'server.log'),'-o',`-p ${port} -c unix_socket_directories='' -c listen_addresses='127.0.0.1' -c timezone=UTC`,'-w','start']);
  started=true;
  const env={...process.env,PGHOST:'127.0.0.1',PGPORT:String(port),PGDATABASE:'postgres',PGUSER:'transport_test',PGPASSWORD:password};
- const sql=async(statement:string)=>(await exec('psql',['-X','-At','-v','ON_ERROR_STOP=1','-c',statement],{env})).stdout.trim();
+ const sql=async(statement:string)=>(await exec(pg('psql'),['-X','-At','-v','ON_ERROR_STOP=1','-c',statement],{env})).stdout.trim();
  await sql(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
  create schema auth; create table auth.users(id uuid primary key);
  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
@@ -100,10 +101,10 @@ test('engine RPC operations work through the dev adapter and PostgreSQL', {timeo
  alter default privileges in schema public grant all on tables to anon,authenticated,service_role;
  alter default privileges in schema public grant execute on functions to anon,authenticated,service_role;`);
  for(const file of (await readdir('supabase/migrations')).sort()){
-  await exec('psql',['-X','-v','ON_ERROR_STOP=1','-f',join('supabase/migrations',file)],{env});
+  await exec(pg('psql'),['-X','-v','ON_ERROR_STOP=1','-f',join('supabase/migrations',file)],{env});
  }
  const {base}=await startAdapter(t,`const {spawnSync}=require('node:child_process');
-const result=spawnSync('psql',process.argv.slice(2),{stdio:'inherit'});
+const result=spawnSync(${JSON.stringify(pg('psql'))},process.argv.slice(2),{stdio:'inherit'});
 if(result.error)throw result.error;
 process.exit(result.status??1);`,env);
  const settings=(key:string)=>({SUPABASE_URL:base,SUPABASE_SERVICE_ROLE_KEY:'verification-service-only',SOCIAL_MOCK_ENTITLEMENTS:'true'} as Record<string,string>)[key];
