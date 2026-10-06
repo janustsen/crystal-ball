@@ -15,10 +15,13 @@ function boundary(t:any,{plus=false,weather=['Gemini Sun, Pisces Moon and Virgo 
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
   if(body?.messages){
-   const fields=body.format.properties;prompts.push(JSON.parse(body.messages[1].content));
-   const content=fields.prediction?{prediction:'You will finish your course.',basis:'context_1',assumption:'Your daily practice continues.'}:fields.text?{text:weather[Math.min(weatherCalls++,weather.length-1)]}:fields.safe?{safe:true}:{category:'allow'};
+   const fields=body.format.properties,input=JSON.parse(body.messages[1].content);prompts.push(input);
+   const content=fields.prediction?{prediction:input.choices?.[0]||(input.personName?`${input.personName} will finish the course.`:'You will finish your course.'),basis:'context_1',assumption:'Daily practice continues.'}:fields.headline?{headline:'A creative opportunity may arrive.',why:'Only a sun sign and broad activity themes are known.'}:fields.text?{text:weather[Math.min(weatherCalls++,weather.length-1)]}:fields.safe?{safe:true}:{category:'allow'};
    return Response.json({message:{content:JSON.stringify(content)}});
   }
+  if(url.hostname==='news.google.com')return new Response('<rss/>');
+  if(url.pathname==='/rest/v1/social_profiles')return Response.json([{age_band:'adult'}]);
+  if(url.pathname==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'leo',themes:['growth']});
   if(url.pathname==='/auth/v1/user')return Response.json({id:viewer});
   if(url.pathname==='/rest/v1/reading_charges')return Response.json([]);
   if(url.pathname==='/rest/v1/rpc/reading_balance'||url.pathname==='/rest/v1/rpc/charge_reading')return Response.json(balance(plus));
@@ -31,7 +34,7 @@ const ask=(serve:(r:Request)=>Promise<Response>,body:object)=>serve(new Request(
 test('Moon and rising join the Why astrology line',()=>{
  assert.equal(astrologyLine(birthday,chart),'Under your Gemini Sun, Pisces Moon and Virgo rising, consider this a playful invitation to your next chapter.');
  assert.equal(astrologyLine(birthday),'Under your Gemini Sun, consider this a playful invitation to your next chapter.');
- assert.equal(astrologyLine(undefined,chart),'The stars offer a playful lens on your next chapter.');
+ assert.equal(astrologyLine(),'The stars offer a playful lens on your next chapter.');
 });
 
 test('only a Plus viewer’s chart shapes the Why when billing is on',async t=>{
@@ -47,6 +50,42 @@ test('chart signs are validated at the boundary before inference',async t=>{
  for(const viewerChart of [{moonSign:'pluto',risingSign:'virgo'},{moonSign:'pisces'},'pisces'])assert.equal((await ask(serve,{action:'predict',viewerChart})).status,400);
  assert.equal((await ask(serve,{action:'chart',viewerChart:chart,viewerBirthday:undefined,ageConfirmed:true})).status,400);
  assert.equal(fake.prompts.length,0);
+});
+
+test('viewer chart survives subject filtering in every engine reading mode',async t=>{
+ const cases=[
+  {question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month'}},
+  {question:'Will Alex finish the course?',personName:'Alex',facts:{context_1:'Daily practice',horizon:'next month',birthday:'1990-01-01'}},
+  {question:'Will electric vehicles gain ground next year?',facts:{definition:'A noticeable shift',scenario:'Current conditions continue',evidence:'No additional evidence'}},
+  {question:'Who will win the 2030 World Cup?',facts:{competition:'Men’s World Cup',edition:'2030',team:'Argentina'}},
+  {question:'Will a friend finish the course?',friend:true,facts:{context_1:'Daily practice',horizon:'next month'}},
+ ];
+ for(const plus of [false,true])for(const input of cases){
+  t.mock.restoreAll();boundary(t,{plus});
+  const result=await (await ask(handler(billed),{action:'predict',viewerChart:chart,...input})).json();
+  assert.equal(result.kind,'ok',JSON.stringify(result));
+  assert.equal(result.value.astrology,astrologyLine(birthday,plus?chart:undefined),input.question);
+  assert.equal(result.value.facts.birthday,undefined);
+ }
+});
+
+test('Circle-friend Why uses the viewer chart with the server Plus gate',async t=>{
+ const send=(serve:ReturnType<typeof handler>,extra:object={})=>serve(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',question:'What lies ahead for Alex?',firstName:'Alex',circle:'circle',member:'member',requestId:'11111111-1111-4111-8111-111111111111',viewerBirthday:birthday,viewerChart:chart,...extra})}));
+ for(const plus of [false,true]){
+  t.mock.restoreAll();const fake=boundary(t,{plus}),serve=handler(billed);
+  const response=await send(serve),result=await response.json();
+  assert.equal(response.status,200,JSON.stringify(result));
+  assert.equal(result.astrology,astrologyLine(birthday,plus?chart:undefined));
+  assert.deepEqual(result.facts,{sun_sign:'leo',activity_themes:'growth'});
+  const friendPrompt=fake.prompts.find(p=>p.firstName==='Alex');
+  assert.equal(friendPrompt.sun_sign,'leo');
+  assert.equal(friendPrompt.viewerChart,undefined);
+  const before=fake.prompts.length;
+  for(const extra of [{viewerChart:{moonSign:'pluto',risingSign:'virgo'}},{viewerChart:{moonSign:'pisces'}},{viewerBirthday:undefined},{viewerBirthday:'invalid'}])assert.equal((await send(serve,extra)).status,400);
+  assert.equal(fake.prompts.length,before);
+  const legacy=await (await send(serve,{viewerBirthday:undefined,viewerChart:undefined})).json();
+  assert.equal(legacy.astrology,astrologyLine());
+ }
 });
 
 test('chart weather is a Plus extra that names only the viewer’s signs',async t=>{

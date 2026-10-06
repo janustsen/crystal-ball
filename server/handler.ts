@@ -1,6 +1,6 @@
 import {checkInDate} from '../src/retention.ts';
-import {readingAge,sunSign,validBirthday,validPersonName} from '../src/profile.ts';
-import {sunSigns} from '../src/social-policy.ts';
+import {readingAge,sunSign,validPersonName} from '../src/profile.ts';
+import {viewerChart} from './viewer-chart.ts';
 import {chartWeather,personalOmen} from './omen.ts';
 import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
@@ -25,17 +25,14 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    requireAiConsent(env,'aiConsent' in body?body.aiConsent:undefined);
    const raw='facts'in body?body.facts:{};
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
-   const viewerBirthday='viewerBirthday'in body?body.viewerBirthday:undefined,personName='personName'in body?body.personName:undefined;
-   if(viewerBirthday!==undefined&&(typeof viewerBirthday!=='string'||!validBirthday(viewerBirthday)))throw new Error('Please check your birthday.');
+   const rawBirthday='viewerBirthday'in body?body.viewerBirthday:undefined,personName='personName'in body?body.personName:undefined;
+   const {birthday:viewerBirthday,chart}=viewerChart(rawBirthday,'viewerChart'in body?body.viewerChart:undefined);
    const ageConfirmed='ageConfirmed'in body?body.ageConfirmed:undefined;
    if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
    readingAge(viewerBirthday,ageConfirmed);
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
    const localDate='localDate'in body?body.localDate:undefined;
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
-   const rawChart='viewerChart'in body?body.viewerChart:undefined,sign=(value:unknown):value is string=>sunSigns.some(s=>s===value);
-   const chart=rawChart&&typeof rawChart==='object'&&'moonSign'in rawChart&&'risingSign'in rawChart&&sign(rawChart.moonSign)&&sign(rawChart.risingSign)&&viewerBirthday?{moonSign:rawChart.moonSign,risingSign:rawChart.risingSign}:undefined;
-   if(rawChart!==undefined&&!chart)throw new Error('Please check your birth details in You.');
    // Moon and rising are a Plus depth: with billing, only a current Plus viewer's chart reaches the reading.
    const plusChart=async(viewer:string|null)=>chart&&(!meter||(await meter.balance(viewer??await meter.user(request))).plus)?chart:undefined;
    const context={viewerBirthday,ageConfirmed,personName,localDate};

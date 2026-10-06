@@ -3,7 +3,7 @@ import {anonymousOwner,supabase} from './cloud';
 import {aiProvider,engineUrl,previewHeaders} from './api';
 import type {Balance} from './billing';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
-import type {Prediction,FriendTarget} from './types';
+import type {Prediction,FriendTarget,ReadingContext} from './types';
 
 export type Identity={handle:string;display_name:string;avatar:string};
 export type CircleInvite=Identity&{id:string;circle_id:string};
@@ -45,7 +45,7 @@ async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal)
 }
 export const syncSocialProfile=(profile:SocialProfile)=>socialRequest({action:'profile',...profile});
 export const prepareSocialDraft=(kind:'star'|'seal',text:string,aiConsent='')=>socialRequest<SocialDraft>({action:'draft',kind,text,aiConsent});
-export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal,aiConsent='',requestId?:string)=>socialRequest<Prediction&{balance?:Balance}>({action:'friend',question,...target,aiConsent,requestId},signal);
+export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal,aiConsent='',requestId?:string,context:Pick<ReadingContext,'viewerBirthday'|'viewerChart'>={})=>socialRequest<Prediction&{balance?:Balance}>({action:'friend',question,...target,aiConsent,requestId,...context},signal);
 export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise<SocialSnapshot>{
  await syncSocialProfile(account);
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);
