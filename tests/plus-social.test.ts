@@ -86,7 +86,7 @@ test('History retains completed recaps across year rollover, with Plus gating fo
   './store':{useStore:()=>({state})},'./social-policy':{skyPrompts},'./recap':{yearRecap},
  };
  const code=ts.transpileModule(readFileSync(new URL('../src/YearRecap.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
- class January2027 extends Date{constructor(){super('2027-01-01T12:00:00Z')}}
+ const January2027=new Proxy(Date,{construct:(target,args)=>Reflect.construct(target,args.length?args:['2027-01-01T12:00:00Z'])});
  runInNewContext(code,{module,exports:module.exports,Date:January2027,require:(name:string)=>imports[name]});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...nodes(node.props.children)];
  const text=(node:any):string=>node==null?'':typeof node!=='object'?String(node):Array.isArray(node)?node.map(text).join(''):text(node.props.children);
