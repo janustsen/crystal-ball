@@ -407,10 +407,10 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  f.fail();await tick();
 });
 
-for(const consumed of ['success','browser refusal'])test(`web quota refusals preserve eligibility until ${consumed}`,async()=>{
+test('web quota refusals including pending browser reservations preserve eligibility until success',async()=>{
  const f=await fixture(),h=hooks(false),params:any={};let spent=false,predicts=0;
  const reading={...readings.circleReading(f.card),circleId:undefined};
- const outcomes=[{kind:'error',message:webReading.webNetworkUsed},{kind:'error',message:webReading.webReadingsResting},consumed==='success'?{kind:'ok',value:reading}:{kind:'error',message:webReading.webReadingUsed}];
+ const outcomes=[{kind:'error',message:webReading.webNetworkUsed},{kind:'error',message:webReading.webReadingsResting},{kind:'error',message:webReading.webReadingUsed},{kind:'ok',value:reading}];
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -433,7 +433,7 @@ for(const consumed of ['success','browser refusal'])test(`web quota refusals pre
   const option=render().find(n=>n.props.testID==='option-0');
   if(option){option.props.onPress();await tick()}
  };
- for(let attempt=1;attempt<=2;attempt++){
+ for(let attempt=1;attempt<=3;attempt++){
   await ask();
   assert.equal(predicts,attempt);
   assert.equal(spent,false);
@@ -441,8 +441,8 @@ for(const consumed of ['success','browser refusal'])test(`web quota refusals pre
   assert.ok(render().some(n=>n.type==='InstallAction'));
  }
  await ask();
- assert.equal(predicts,3);assert.equal(spent,true);
- assert.equal(f.state().history.length,consumed==='success'?1:0);
- await ask();assert.equal(predicts,3);
- if(consumed==='success'){f.fail();await tick()}
+ assert.equal(predicts,4);assert.equal(spent,true);
+ assert.equal(f.state().history.length,1);
+ await ask();assert.equal(predicts,4);
+ f.fail();await tick();
 });
