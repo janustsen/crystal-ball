@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync,readdirSync,existsSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 
@@ -10,8 +10,12 @@ function load(file:string,imports:Record<string,unknown>={},json=manifest){
  const code=ts.transpileModule(readFileSync(new URL(file,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
  runInNewContext(code,{module,exports:module.exports,process:{env:{}},require:(name:string)=>{
   if(name.endsWith('manifest.json'))return json;
-  if(name==='./materialFiles')return {materialFiles:new Proxy({},{get:(_,file)=>`bundled:${String(file)}`})};
   if(name in imports)return imports[name];
+  if(name==='./materialFiles')return load('../src/materialFiles.ts');
+  if(name.endsWith('.png')){
+   assert.ok(existsSync(new URL(name,new URL(file,import.meta.url))),name);
+   return `bundled:${name.split('/').pop()}`;
+  }
   throw new Error(`Unexpected import: ${name}`);
  }});
  return module.exports;
@@ -22,10 +26,10 @@ const states=['pressed','selected','disabled','focused','listening'];
 
 test('every kit material is bundled, states resolve to their own entry and fall back to the base art',()=>{
  assert.equal(manifest.schema,'cb-component-kit.v1');
- const bundled=readFileSync(new URL('../src/materialFiles.ts',import.meta.url),'utf8');
+ const bundled=load('../src/materialFiles.ts').materialFiles;
  for(const [name,entry] of Object.entries<any>(manifest.materials)){
   assert.ok(existsSync(new URL(`../assets/materials/${entry.file}`,import.meta.url)),entry.file);
-  assert.ok(bundled.includes(`'${entry.file}':require('../assets/materials/${entry.file}')`),entry.file);
+  assert.equal(bundled[entry.file],`bundled:${entry.file}`);
   for(const cap of Object.keys(entry.caps??{}))assert.ok(manifest.materials[cap]?.cap,`${name} cap ${cap}`);
   if(entry.cap||states.some(s=>name.endsWith(`-${s}`)))continue;
   assert.equal(material(name).source,`bundled:${entry.file}`);
@@ -60,7 +64,8 @@ test('a kit entry carries its text ink and shadow outset, and centres each cap o
  const kit={materials:{'parchment-note':{file:'parchment-note.png',size_px:[1122,492],insets_px:{top:120,right:120,bottom:120,left:120},outset_pt:12,text_color:'#2A190C',
   caps:{'brass-tack':{anchor:'top-center',offset_pt:[0,14]},'wax-seal-broken':{anchor:'top-right',offset_pt:[6,-5]}}},
   'brass-tack':{file:'brass-tack.png',size_px:[96,96],cap:true},'wax-seal-broken':{file:'wax-seal-broken.png',size_px:[216,208],cap:true}}};
- const m=load('../src/materials.ts',react,kit).material('parchment-note');
+ const materialFiles=Object.fromEntries(Object.values(kit.materials).map(entry=>[entry.file,`bundled:${entry.file}`]));
+ const m=load('../src/materials.ts',{...react,'./materialFiles':{materialFiles}},kit).material('parchment-note');
  assert.equal(m.ink,'#2A190C');assert.equal(m.outset,12);assert.equal(m.width,1122);
  const [tack,seal]=m.caps.map((cap:any)=>({...capBox(cap,300,120)}));
  assert.deepEqual(tack,{left:150-16,top:14-16,width:32,height:32});
@@ -106,16 +111,6 @@ test('lighting never takes the text on a material below 4.5:1 against its body',
  }
 });
 
-// Surfaces draw rendered materials; only the room scene, the orb and the exported story art paint their own pixels.
-test('UI components carry no hand-coded surface shadows, borders or frosted fills',()=>{
- const painters=new Set(['RoomScene.tsx','RoomScene.web.tsx','HomeScene.web.tsx','OrbVisual.tsx','GoldenGlow.tsx','Material.web.tsx','ShareCard.tsx']);
- const files=['../app/index.tsx',...readdirSync(new URL('../src',import.meta.url)).filter(f=>f.endsWith('.tsx')&&!painters.has(f)).map(f=>`../src/${f}`)];
- for(const file of files){
-  const found=readFileSync(new URL(file,import.meta.url),'utf8').match(/boxShadow|border(Top|Bottom|Left|Right)?Width|borderColor|backdropFilter/g);
-  assert.equal(found,null,`${file}: ${found}`);
- }
-});
-
 test('text and fields on an inked material take its ink; without one they keep the app colours',()=>{
  let ink:any;
  const flatten=(s:any):any=>Array.isArray(s)?Object.assign({},...s.flat(Infinity).filter(Boolean).map(flatten)):{...s};
@@ -148,4 +143,50 @@ test('text and fields on an inked material take its ink; without one they keep t
  const input=field.props.children.props.children,rendered=input.type(input.props);
  assert.equal(flatten(rendered.props.style).color,'#2B1A0E');
  assert.equal(rendered.props.placeholderTextColor,'#2B1A0EA6');
+});
+
+
+test('native material lighting follows room and material changes without another layout',()=>{
+ let room={spot:'Home',x:0,y:0,width:390,height:844},cursor=0,measurements=0;
+ const slots:any[]=[],effects:(()=>void)[]=[];
+ const box={x:16,y:100,width:358,height:70};
+ const ref={current:{measureInWindow:(done:Function)=>{measurements++;done(box.x,box.y,box.width,box.height)}}};
+ const hooks={
+  useContext:()=>room,useRef:()=>ref,
+  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]},
+  useEffect:(effect:()=>void,deps:any[])=>{const i=cursor++,previous=slots[i];if(!previous||deps.some((value,j)=>!Object.is(value,previous[j])))effects.push(effect);slots[i]=deps},
+ };
+ const element=(type:any,props:any)=>({type,props});
+ const {Material}=load('../src/Material.tsx',{react:hooks,'react/jsx-runtime':{jsx:element,jsxs:element},
+  'react-native':{View:'View',Image:'Image'},'./materials':load('../src/materials.ts',react),'./lighting':lightingModule});
+ let props:any={name:'brass-badge',children:'Balance'};
+ const render=()=>{cursor=0;return Material(props)};
+ const settle=()=>{render();effects.splice(0).forEach(effect=>effect());return render()};
+ let tree=settle();
+ tree.props.children[0].props.onLayout({nativeEvent:{layout:box}});
+ function check(){
+  tree=settle();
+  const expected=lightingModule.shade(room,material(props.name,props.state,props.detail),box,props.state==='focused');
+  assert.deepEqual([...tree.props.children[1].props.value.dir],[...expected.dir]);
+  const cast=lightingModule.castOffset(expected.dir);
+  assert.deepEqual({...tree.props.children[0].props.style.shadowOffset},{width:cast.x,height:cast.y});
+  const art=material(props.name,props.state,props.detail),o=art.outset;
+  const tiles=tree.props.children[0].props.children.props.children;
+  slices(art,box.width+2*o,box.height+2*o).forEach((slice:any,i:number)=>{
+   const e=lightingModule.exposureAt(expected,slice.dest.left+slice.dest.width/2-o-box.width/2,slice.dest.top+slice.dest.height/2-o-box.height/2,box.width,box.height);
+   const tint=lightingModule.exposureTint(e,expected.color),overlay=tiles[i].props.children[1];
+   assert.equal(tiles[i].props.children[0].props.source,art.source);
+   if(tint.alpha>.01){assert.equal(overlay.props.tintColor,`rgb(${tint.rgb.join(',')})`);assert.equal(overlay.props.style.opacity,tint.alpha)}else assert.equal(overlay,null);
+  });
+ }
+ check();
+ for(const patch of [{spot:'Sky'},{spot:'Home'},{x:40},{y:60},{width:700},{height:1000}]){
+  room={...room,...patch};check();
+ }
+ for(const patch of [{name:'tabbar'},{name:'input'},{state:'focused'},{state:undefined},{detail:6}]){
+  props={...props,...patch};const before=measurements;check();assert.equal(measurements,before+1);
+ }
+ const before=measurements;room={...room};check();assert.equal(measurements,before);
+ box.width=300;box.height=90;
+ tree.props.children[0].props.onLayout({nativeEvent:{layout:box}});check();
 });

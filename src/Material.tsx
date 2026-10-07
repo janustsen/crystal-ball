@@ -16,8 +16,7 @@ export function Material({name,state,detail,children}:React.PropsWithChildren<{n
   setSize({width,height});
   if(room)ref.current?.measureInWindow((x,y,w,h)=>setLight(shade(room,m,{x,y,width:w,height:h},state==='focused')));
  }
- // A state change (focus) can change the light without a layout.
- useEffect(()=>{if(size)layout(size.width,size.height)},[state]);
+ useEffect(()=>{if(size)layout(size.width,size.height)},[state,name,detail,room?.spot,room?.x,room?.y,room?.width,room?.height]);
  const art=size?slices(m,size.width+2*o,size.height+2*o).map((s,i)=>{
   const e=light?exposureAt(light,s.dest.left+s.dest.width/2-o-size.width/2,s.dest.top+s.dest.height/2-o-size.height/2,size.width,size.height):1,tint=light?exposureTint(e,light.color):null;
   return <View key={i} style={{position:'absolute',overflow:'hidden',...s.dest,left:s.dest.left-o,top:s.dest.top-o}}>
