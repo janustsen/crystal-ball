@@ -19,14 +19,15 @@ const entries=manifest.materials as unknown as Record<string,Entry>;
 export type MaterialCap={source:number;width:number;height:number;x:number;y:number;offset:[number,number]};
 // luminance: the body's 5th, 50th and 95th percentile linear luminance, for the contrast floor.
 export type Material={source:number;width:number;height:number;insets:Insets;outset:number;scale:number;ink?:string;finish?:Finish;luminance?:[number,number,number];caps:MaterialCap[]};
-// A state without its own art falls back to the base material.
-export function material(name:MaterialName,state?:MaterialState):Material{
+// A state without its own art falls back to the base material. detail: image pixels per point; above the kit's 3 the
+// art (frame, corners, caps) draws finer, for a small piece such as a card on the desk.
+export function material(name:MaterialName,state?:MaterialState,detail=scale):Material{
  const entry=state&&entries[`${name}-${state}`]||entries[name];
  const caps=Object.entries(entry.caps??{}).map(([cap,{anchor,offset_pt}])=>{
   const [v,h]=anchor.split('-'),art=entries[cap];
-  return {source:materialFiles[art.file],width:art.size_px[0]/scale,height:art.size_px[1]/scale,x:h==='left'?0:h==='right'?1:.5,y:v==='top'?0:v==='bottom'?1:.5,offset:offset_pt};
+  return {source:materialFiles[art.file],width:art.size_px[0]/detail,height:art.size_px[1]/detail,x:h==='left'?0:h==='right'?1:.5,y:v==='top'?0:v==='bottom'?1:.5,offset:offset_pt};
  });
- return {source:materialFiles[entry.file],width:entry.size_px[0],height:entry.size_px[1],insets:entry.insets_px??{top:0,right:0,bottom:0,left:0},outset:entry.outset_pt??0,scale,ink:entry.text_color,finish:entry.text_finish,luminance:entry.luminance,caps};
+ return {source:materialFiles[entry.file],width:entry.size_px[0],height:entry.size_px[1],insets:entry.insets_px??{top:0,right:0,bottom:0,left:0},outset:(entry.outset_pt??0)*scale/detail,scale:detail,ink:entry.text_color,finish:entry.text_finish,luminance:entry.luminance,caps};
 }
 // The ink of the material a Txt or Field sits on: its text colour, finish, and the direction toward the spot's light (for
 // relief shadows). Undefined keeps the app's own colours.

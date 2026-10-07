@@ -602,6 +602,14 @@ function watchFrames(video:HTMLVideoElement|null){
 }
 
 type Flight={key:string;url:string;to:Spot};
+// What the room shows right now, for UI riding its surfaces (RoomStage): the resting spot, whether a flight is on, and
+// the spot's idle loop, whose presented frame places them.
+export const roomLive:{at:Spot;flight:boolean;idle:{current:HTMLVideoElement|null}}={at:'Home',flight:false,idle:{current:null}};
+// The idle loop's presented frame, or null while it is not playing (reduced motion, not yet loaded): the still.
+export function idleFrame(){
+ const video=roomLive.idle.current;
+ return video&&video.readyState>=2&&!video.paused?Math.round(Number(video.dataset.mediaTime??video.currentTime)*roomFps):null;
+}
 const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFit:'cover',display:'block'} as const;
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
@@ -612,6 +620,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
  const motion=useRef({reduce}),scene=useRef<ReturnType<typeof startScene>|null>(null),state=useRef({at,flight,width,height});
  motion.current.reduce=reduce;state.current={at,flight,width,height};
+ roomLive.at=at;roomLive.flight=!!flight;roomLive.idle=idle;
  useEffect(()=>{const update=()=>setLoaded(n=>n+1);listeners.add(update);prefetchRoom();return()=>{listeners.delete(update)}},[]);
  useEffect(()=>{
   const target=flight?.to??at;

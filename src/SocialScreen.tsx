@@ -12,6 +12,7 @@ import type {Prediction,FriendTarget} from './types';
 import {accountSocialProfile,sampleStars,skyPrompts,socialUnavailable,validFirstName,type SkyPrompt} from './social-policy';
 import {setSkyPush,manageCircle,sendSeal,blockMember,blockStarAuthor,createCircle,createSchoolCircleInvite,dismissFriendNotices,inviteToCircle,joinCircle,leaveCircle,loadSocial,openForecast,prepareSocialDraft,publishStar,reactInCircle,removeStar,reportStar,resonate,revokeSeal,sealForecast,setFriendConsent,type SocialDraft,type SocialSnapshot} from './social';
 import {Material} from './Material';
+import {useRoomPiece} from './roomPieces';
 
 function LinkCard({url,onClose}:{url:string;onClose:()=>void}){
  const [notice,setNotice]=useState('');
@@ -74,15 +75,15 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
    {data?.circles.map((circle,index)=><View key={circle.id} style={styles.panel}><Material name="modal"><Txt>Circle {index+1}</Txt><SkyOmen testID={`sky-omen-circle-${index+1}`} omen={data.omens?.find(omen=>omen.circle_id===circle.id)} unavailable={!data.omens}/></Material></View>)}
    <View style={styles.row}><Txt>My school</Txt><Toggle accessibilityLabel="My school" value={schoolOnly} disabled={!data?.profile?.school_id} onValueChange={setSchoolOnly}/></View>
    <Txt style={[styles.caption,{marginTop:12}]}>{schoolOnly?`${stars.length} anonymous school stars today · no names or member list`:stars.length?`${stars.length} anonymous stars today · sample stars fill the quiet corners`:'Sample stars · a little inspiration until others arrive'}</Txt>
-   <View testID="tonights-sky" style={{minHeight:state.largeText?0:380,marginVertical:20,padding:state.largeText?16:0}}><Material name="plaque">
+   <SkylightMap largeText={state.largeText}>
     {templates.map(([key,prompt])=>{
      const live=stars.filter(star=>star.theme===key),points=live.length?live:schoolOnly?[]:sampleStars.filter(star=>star.theme===key);
-     return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-16}%`,top:`${prompt.y-12}%`,width:'34%',minHeight:80,alignItems:'center',justifyContent:'center'}}>
-      <View accessible={false} style={{flexDirection:'row',gap:3,alignItems:'center'}}>{points.slice(0,5).map((point,index)=><Txt key={point.id} allowFontScaling={false} style={{fontSize:index?13:26,lineHeight:30,color:selected===key?colors.gold:colors.lavender,transform:[{translateY:index%2?5:-3}]}}>✦</Txt>)}</View>
+     return <Pressable key={key} testID={`sky-theme-${key}`} accessibilityRole="button" accessibilityLabel={`${prompt.label}, ${live.length?`${live.length} anonymous stars`:schoolOnly?'no school stars yet':'sample star'}`} accessibilityState={{selected:selected===key}} onPress={()=>{setSelected(key);setDraft(null)}} style={state.largeText?{padding:16,minHeight:60}:{position:'absolute',left:`${prompt.x-12}%`,top:`${prompt.y*.85}%`,width:'24%',minHeight:44,alignItems:'center',justifyContent:'center'}}>
+      <View accessible={false} style={{flexDirection:'row',gap:3,alignItems:'center'}}>{points.slice(0,5).map((point,index)=><Txt key={point.id} allowFontScaling={false} style={{fontSize:index?13:26,lineHeight:30,color:selected===key?colors.ivory:colors.gold,transform:[{translateY:index%2?5:-3}]}}>✦</Txt>)}</View>
       <Txt style={{color:selected===key?colors.gold:colors.ivory,fontSize:14}}>{prompt.label}</Txt>
      </Pressable>;
     })}
-   </Material></View>
+   </SkylightMap>
    {schoolOnly&&!themeStars.length?<View style={styles.panel}><Material name="modal"><Txt>No school stars in {skyPrompts[selected].label.toLowerCase()} yet.</Txt><Txt style={styles.caption}>Prom, exams, a crush — ask the Ball and choose whether to share an anonymous Star.</Txt></Material></View>:null}
    {!schoolOnly&&!themeStars.length?<View style={styles.panel}><Material name="modal"><Txt style={styles.caption}>{skyPrompts[selected].label} · sample question</Txt><Txt display style={[styles.title,{marginTop:12}]}>{skyPrompts[selected].question}</Txt><Action label="Ask this too" onPress={()=>onAsk(skyPrompts[selected].question)}/></Material></View>:null}
    {themeStars.map((star,index)=><View key={star.id} style={styles.panel}><Material name="modal"><Txt style={styles.caption}>{star.mine?'Your star':'Anonymous star'} · {star.resonances} resonance{star.resonances===1?'':'s'}</Txt><Txt display style={[styles.title,{marginTop:12}]}>{star.wording}</Txt><Action label={`Ask this too${index?` · ${index+1}`:''}`} onPress={()=>onAsk(star.wording)}/><Action label={star.resonated?'✦ Resonated':`✦ This resonates${index?` · ${index+1}`:''}`} quiet disabled={busy||star.resonated} onPress={()=>void act(()=>resonate(star.id))}/>{!star.mine?<View><Action label="Report this star" quiet disabled={busy} onPress={()=>void act(()=>reportStar(star.id),'Reported. Repeated reports hide a star automatically.')}/><Action label="Block this person" quiet disabled={busy} onPress={()=>void act(()=>blockStarAuthor(star.id),'This person is blocked. Their stars and activity are hidden.')}/></View>:null}</Material></View>)}
@@ -118,3 +119,15 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
   {offline?<View style={styles.panel}><Material name="notice-error"><Txt style={styles.caption}>{socialUnavailable}</Txt><Action label="Try connecting again" quiet disabled={busy} onPress={()=>setVersion(v=>v+1)}/></Material></View>:null}
  </>;
 }
+
+// Tonight's Sky is drawn on the skylight's glass, its stars live buttons in the room; at large text, or without a room
+// stage, it stays on its plaque in the screen.
+function SkylightMap({largeText,children}:React.PropsWithChildren<{largeText:boolean}>){
+ if(largeText)return <View testID="tonights-sky" style={{marginVertical:20,padding:16}}><Material name="plaque">{children}</Material></View>;
+ return <OnGlass>{children}</OnGlass>;
+}
+function OnGlass({children}:React.PropsWithChildren){
+ const staged=useRoomPiece('sky-map',{anchor:'skylight',node:<View testID="tonights-sky" pointerEvents="box-none" style={{flex:1}}>{children}</View>});
+ return staged?null:<View testID="tonights-sky" style={{minHeight:380,marginVertical:20}}><Material name="plaque">{children}</Material></View>;
+}
+

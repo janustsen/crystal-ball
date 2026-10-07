@@ -8,8 +8,8 @@ import {RoomLightContext,shade,exposureAt,exposureTint,castOffset,type Shade} fr
 // dropping the kit's baked studio shadow, and casts its own away from the spot's light. Native draws the 9 slices as
 // clipped images, each with the room's light at its centre as a tinted copy, and the caps over the edges.
 // ponytail: the light is sampled once per slice and the cast shadow is iOS-only (Android needs a backed view for it).
-export function Material({name,state,children}:React.PropsWithChildren<{name:MaterialName;state?:MaterialState}>){
- const m=material(name,state),room=useContext(RoomLightContext),ref=useRef<View>(null),o=m.outset;
+export function Material({name,state,detail,children}:React.PropsWithChildren<{name:MaterialName;state?:MaterialState;detail?:number}>){
+ const m=material(name,state,detail),room=useContext(RoomLightContext),ref=useRef<View>(null),o=m.outset;
  const [size,setSize]=useState<{width:number;height:number}|null>(null),[light,setLight]=useState<Shade|null>(null);
  const dir=light?.dir??[0,-1],cast=castOffset(dir);
  function layout(width:number,height:number){

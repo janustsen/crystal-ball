@@ -12,9 +12,7 @@ const longFact='I practise with a conversation partner after work and review dif
 const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
 const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
 const browser=await chromium.launch({channel:'chrome',headless:true});
-const failures=[],checked=[],contrast=[],exceptions=[];
-// Known contrast exceptions, recorded with their measured ratio instead of failing the gate. Each needs a layout decision.
-const known=[{name:'listening',text:'Speak your question.',why:'The voice-unavailable notice lifts the listening title over the lit ball, which the room never dims (ui-rules); moving the title or dimming the ball is a pending layout decision.'}];
+const failures=[],checked=[],contrast=[];
 const luminance=([r,g,b])=>[r,g,b].map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
 // Every visible label against the pixels behind it: its glyphs are hidden for one screenshot (their shadow halo stays,
 // as it is drawn behind them), the box of its lines is sampled on a grid, and the worst tenth of those samples sets the ratio.
@@ -56,7 +54,7 @@ async function measureContrast(page,name){
   const fg=luminance(l.rgb.map((c,i)=>c*l.alpha+median[i]*(1-l.alpha)));
   const worst=fg>bgs[Math.floor(bgs.length/2)]?bgs[Math.floor(bgs.length*.9)]:bgs[Math.floor(bgs.length*.1)];
   const ratio=(Math.max(fg,worst)+.05)/(Math.min(fg,worst)+.05);
-  if(ratio<(l.large?3:4.5))(known.find(k=>k.name===name&&k.text===l.text)?exceptions:contrast).push({name,text:l.text,large:l.large,ratio:Number(ratio.toFixed(2)),text_luminance:Number(fg.toFixed(3)),background:[bgs[0],bgs[Math.floor(bgs.length/2)],bgs.at(-1)].map(v=>Number(v.toFixed(3))),box:l.box.map(Math.round)});
+  if(ratio<(l.large?3:4.5))contrast.push({name,text:l.text,large:l.large,ratio:Number(ratio.toFixed(2)),text_luminance:Number(fg.toFixed(3)),background:[bgs[0],bgs[Math.floor(bgs.length/2)],bgs.at(-1)].map(v=>Number(v.toFixed(3))),box:l.box.map(Math.round)});
  }
 }
 async function audit(page,width,name,marker,delay=1300){
@@ -104,6 +102,8 @@ for(const width of [360,390,430])for(const large of [false,true]){
  const planning=text('Checking the question and finding what matters.');
  const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
+ // The engine's own short error fits the desk card at normal text; the long fixture above keeps its lit panel.
+ const shortError={kind:'error',message:'The mist is too thick. Please try again.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
  await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
@@ -122,7 +122,7 @@ for(const width of [360,390,430])for(const large of [false,true]){
  await check('listening',page.getByTestId('type-instead'));
  await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));
  await tap('look-into-the-future');await check('planning',planning);
- await reply('plan',error);await check('error-plan',text('The mist is too thick.'));
+ await reply('plan',shortError);await check('error-plan',text('The mist is too thick.'));
  await tap('try-again');await expect(planning).toBeVisible();await reply('plan',blocked);
  await check('sensitive-plan',text('This one isn’t for the Ball.'));
  await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
@@ -149,7 +149,7 @@ for(const width of [360,390,430])for(const large of [false,true]){
 }
 }finally{
  await browser.close();
- await writeFile(`${evidence}/layout.json`,JSON.stringify({base,fixture:'Synthetic engine layout replies; no model or predictive-accuracy claim.',checked,failures,contrast,exceptions},null,1)+'\n');
+ await writeFile(`${evidence}/layout.json`,JSON.stringify({base,fixture:'Synthetic engine layout replies; no model or predictive-accuracy claim.',checked,failures,contrast},null,1)+'\n');
 }
-console.log(JSON.stringify({checked:checked.length,failures,contrast,exceptions},null,1));
+console.log(JSON.stringify({checked:checked.length,failures,contrast},null,1));
 if(failures.length||contrast.length)process.exit(1);

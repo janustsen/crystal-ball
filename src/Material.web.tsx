@@ -16,8 +16,8 @@ export function lightLayer(m:Art,uri:string,light:Shade){
 }
 
 // The surface clips the art to itself, dropping the kit's baked studio shadow, and casts its own away from the spot's light.
-export function Material({name,state,children}:React.PropsWithChildren<{name:MaterialName;state?:MaterialState}>){
- const m=material(name,state),room=useContext(RoomLightContext),ref=useRef<HTMLDivElement>(null),[light,setLight]=useState<Shade|null>(null);
+export function Material({name,state,detail,children}:React.PropsWithChildren<{name:MaterialName;state?:MaterialState;detail?:number}>){
+ const m=material(name,state,detail),room=useContext(RoomLightContext),ref=useRef<HTMLDivElement>(null),[light,setLight]=useState<Shade|null>(null);
  useLayoutEffect(()=>{
   const box=ref.current?.getBoundingClientRect();if(!room||!box)return;
   const next=shade(room,m,{x:box.left,y:box.top,width:box.width,height:box.height},state==='focused');
