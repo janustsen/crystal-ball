@@ -8,7 +8,7 @@ const manifest=JSON.parse(readFileSync(new URL('../assets/materials/manifest.jso
 function load(file:string,imports:Record<string,unknown>={},json=manifest){
  const module={exports:{} as any};
  const code=ts.transpileModule(readFileSync(new URL(file,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>{
+ runInNewContext(code,{module,exports:module.exports,process:{env:{}},require:(name:string)=>{
   if(name.endsWith('manifest.json'))return json;
   if(name==='./materialFiles')return {materialFiles:new Proxy({},{get:(_,file)=>`bundled:${String(file)}`})};
   if(name in imports)return imports[name];
@@ -67,10 +67,43 @@ test('a kit entry carries its text ink and shadow outset, and centres each cap o
  assert.deepEqual(seal,{left:300+6-36,top:-5-208/6,width:72,height:208/3});
 });
 
-test('web draws the material as one filled, stretched border-image reaching out by the shadow outset',()=>{
- const web=load('../src/Material.web.tsx',{react:{},'react/jsx-runtime':{jsx:()=>null},'expo-asset':{},'./materials':{}});
- const css=web.borderImage({width:360,height:150,insets:{top:36,right:30,bottom:24,left:18},outset:12,scale:3,caps:[]},'/m.png');
- assert.equal(css.borderImage,'url("/m.png") 36 30 24 18 fill / 12px 10px 8px 6px / 12px stretch');
+test('web draws the material as one filled, stretched border-image and lights it with a gradient masked to the art',()=>{
+ const web=load('../src/Material.web.tsx',{react:{},'react/jsx-runtime':{jsx:()=>null},'expo-asset':{},'./materials':{},'./lighting':lightingModule});
+ const art={width:360,height:150,insets:{top:36,right:30,bottom:24,left:18},outset:12,scale:3,caps:[]};
+ assert.equal(web.borderImage(art,'/m.png').borderImage,'url("/m.png") 36 30 24 18 fill / 12px 10px 8px 6px / 12px stretch');
+ // Light from the left: the gradient runs left (lit, warm) to right (dimmed) and is masked by the same 9-slice.
+ const layer=web.lightLayer(art,'/m.png',{near:1.1,far:.6,color:[1,.6,.3],dir:[-1,0]});
+ assert.equal(layer.background,'linear-gradient(90.0deg, rgba(255,153,77,0.100), rgba(0,0,0,0.400))');
+ assert.equal(layer.WebkitMaskBoxImage,'url("/m.png") 36 30 24 18 / 12px 10px 8px 6px stretch');
+});
+
+const lightingModule=load('../src/lighting.ts',{...react,'./room':load('../src/room.ts',{'./roomTrack.json':JSON.parse(readFileSync(new URL('../src/roomTrack.json',import.meta.url),'utf8'))}),'./materials':load('../src/materials.ts',react)});
+const lum=(hex:string)=>[1,3,5].map(i=>{const v=parseInt(hex.slice(i,i+2),16)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+test('the room lights a surface from its spot: brighter and warmer near the source, dimmer away from it',()=>{
+ const {lightAt,shade}=lightingModule,ask={spot:'Ask',x:0,y:0,width:390,height:844};
+ // Ask's candle is at the left of the desk (render x 178, y 1235): a point beside it outshines one across the room.
+ const near=lightAt(ask,60,420),far=lightAt(ask,340,780);
+ assert.ok(near.exposure>far.exposure*1.5);
+ assert.ok(near.color[0]>near.color[2]);
+ assert.ok(near.dir[0]<0&&far.dir[0]<0&&far.dir[1]<0);
+ const panel=shade(ask,material('notice'),{x:16,y:560,width:358,height:120});
+ assert.ok(panel.near>panel.far&&panel.far>=.45&&panel.near<=1.2);
+ // Sky's skylight is cool blue overhead.
+ const sky=lightAt({...ask,spot:'Sky'},195,300);
+ assert.ok(sky.color[2]>sky.color[0]);
+});
+
+test('lighting never takes the text on a material below 4.5:1 against its body',()=>{
+ const {exposureRange}=lightingModule,{inkColor}=load('../src/materials.ts',react);
+ for(const [name,entry] of Object.entries<any>(manifest.materials)){
+  if(entry.cap||!entry.text_color||name.endsWith('-disabled'))continue;
+  const m=material(name),text=lum(inkColor(m)),[p5,p50,p95]=m.luminance,[lo,hi]=exposureRange(m,inkColor(m));
+  // The worst body under the letters: toward the bright end under light text, the darkest 5% under dark ink.
+  for(const e of [lo,hi]){
+   const bg=(text>p50?Math.sqrt(p50*p95):p5)*e,ratio=(Math.max(text,bg)+.05)/(Math.min(text,bg)+.05);
+   assert.ok(ratio>=4.5-1e-9||lo===hi,`${name} at ${e}: ${ratio.toFixed(2)}`);
+  }
+ }
 });
 
 // Surfaces draw rendered materials; only the room scene, the orb and the exported story art paint their own pixels.
@@ -84,18 +117,31 @@ test('UI components carry no hand-coded surface shadows, borders or frosted fill
 });
 
 test('text and fields on an inked material take its ink; without one they keep the app colours',()=>{
- let ink:string|undefined;
+ let ink:any;
  const flatten=(s:any):any=>Array.isArray(s)?Object.assign({},...s.flat(Infinity).filter(Boolean).map(flatten)):{...s};
  const element=(type:any,props:any)=>({type,props});
  const ui=load('../src/ui.tsx',{react:{useContext:()=>ink,useRef:()=>({current:null}),useState:(v:unknown)=>[v,()=>{}]},'react/jsx-runtime':{jsx:element,jsxs:element,Fragment:'Fragment'},
-  'react-native':{StyleSheet:{create:(s:any)=>s,flatten},Text:'Text',TextInput:'TextInput',View:'View'},'./OrbVisual':{},'./Enter':{},'./motion':{},'./delight':{},'./native':{},
-  './store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./materials':{MaterialInk:{}}});
+  'react-native':{StyleSheet:{create:(s:any)=>s,flatten},Platform:{OS:'ios'},Text:'Text',TextInput:'TextInput',View:'View'},'./OrbVisual':{},'./Enter':{},'./motion':{},'./delight':{},'./native':{},
+  './store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./materials':{MaterialInk:{},gilt:'#E2C48A'}});
  const color=(style:any)=>{const s=flatten(style);return [s.color,s.opacity??1]};
- assert.deepEqual(color(ui.Txt({children:'x',style:ui.styles.caption}).props.style),[ui.colors.muted,1]);
- ink='#2B1A0E';
- assert.deepEqual(color(ui.Txt({children:'x',style:ui.styles.caption}).props.style),['#2B1A0E',.78]);
+ // Over the room, secondary text takes a lighter step so it holds contrast inside its halo.
+ assert.deepEqual(color(ui.Txt({children:'x',style:ui.styles.caption}).props.style),['#E6DDCF',1]);
+ // Over the room, display text has a soft shadow, not a hard die-cut offset.
+ assert.ok(flatten(ui.Txt({children:'x',display:true}).props.style).textShadowRadius>=4);
+ ink={color:'#2B1A0E',finish:'ink',dir:[-1,0]};
+ // Dark ink stays solid even for secondary text; only gilt keeps a lighter weight.
+ assert.deepEqual(color(ui.Txt({children:'x',style:ui.styles.caption}).props.style),['#2B1A0E',1]);
  assert.deepEqual(color(ui.Txt({children:'x',display:true}).props.style),['#2B1A0E',1]);
  assert.equal(flatten(ui.Txt({children:'x',display:true}).props.style).textShadowColor,'transparent');
+ // Gilt inlay: gold leaf with a hairline recess above; translucent labels keep their weight.
+ ink={color:'#F3E6CC',finish:'gilt',dir:[0,-1]};
+ const g=flatten(ui.Txt({children:'x',style:{color:'rgba(242,231,210,.62)'}}).props.style);
+ assert.deepEqual([g.color,g.opacity,g.textShadowOffset.height],['#E2C48A',.62,-1]);
+ // Raised brass letters: the relief shadow falls away from the light (here from the upper left, so down and right).
+ ink={color:'#F3E6CC',finish:'relief',dir:[-.7,-.7]};
+ const r=flatten(ui.Txt({children:'x'}).props.style);
+ assert.deepEqual([r.color,r.textShadowOffset.width,r.textShadowOffset.height],['#F3E6CC',1,1]);
+ ink={color:'#2B1A0E',finish:'ink',dir:[-1,0]};
  const field=ui.Field({style:[ui.styles.input,{marginTop:12}],placeholderTextColor:'#999'});
  assert.deepEqual({...field.props.style},{marginTop:12});
  assert.equal(field.props.children.props.name,'input');

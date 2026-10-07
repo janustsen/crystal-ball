@@ -1,7 +1,10 @@
 // Layout regression: no screen may overflow the phone shell horizontally at 360/390/430px.
 // Engine replies are a labeled layout fixture (not a model pass) so every screen is reachable without Ollama.
+// At 390px it also holds every visible label to WCAG AA contrast against what is actually rendered behind it: 4.5:1,
+// or 3:1 for large text (24px and up, or 18.66px and up when bold).
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
+import sharp from 'sharp';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',evidence=process.env.LAYOUT_EVIDENCE||'.local/layout';
 const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How settled is your plan right now, honestly?',options:['Barely started','Halfway there','Nearly certain','Other'],remember:false},{id:'context_b',question:'What usually gets in your way?',options:['Time','Money','Nerve','Other'],remember:false},{id:'context_c',question:'Who can help you keep going?',options:['A friend','A teacher','Just me','Other'],remember:false}]};
 // Facts and assumptions exercise their 300/200-character input limits; news titles are unbounded.
@@ -9,7 +12,53 @@ const longFact='I practise with a conversation partner after work and review dif
 const longAssumption='You keep making time for regular practice and feedback even when your weekly schedule changes. '.repeat(3).slice(0,200);
 const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
 const browser=await chromium.launch({channel:'chrome',headless:true});
-const failures=[],checked=[];
+const failures=[],checked=[],contrast=[],exceptions=[];
+// Known contrast exceptions, recorded with their measured ratio instead of failing the gate. Each needs a layout decision.
+const known=[{name:'listening',text:'Speak your question.',why:'The voice-unavailable notice lifts the listening title over the lit ball, which the room never dims (ui-rules); moving the title or dimming the ball is a pending layout decision.'}];
+const luminance=([r,g,b])=>[r,g,b].map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+// Every visible label against the pixels behind it: its glyphs are hidden for one screenshot (their shadow halo stays,
+// as it is drawn behind them), the box of its lines is sampled on a grid, and the worst tenth of those samples sets the ratio.
+// Labels scrolled out of view or under another layer (the tab bar) are skipped; disabled controls are exempt, as in WCAG.
+async function measureContrast(page,name){
+ const labels=await page.evaluate(()=>{
+  const shell=document.querySelector('[data-testid="app-shell"]'),out=[];
+  for(const el of shell.querySelectorAll('*')){
+   if(![...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))continue;
+   if(el.closest('[aria-hidden="true"],[aria-disabled="true"],[disabled]'))continue;
+   const s=getComputedStyle(el),range=document.createRange(),boxes=[...el.childNodes].filter(n=>n.nodeType===3&&n.textContent.trim()).flatMap(n=>{range.selectNodeContents(n);return [...range.getClientRects()]});
+   // The glyphs' own line boxes, not the element's: a centred caption's full-width block is mostly empty room.
+   let r=boxes.reduce((u,b)=>u?new DOMRect(Math.min(u.left,b.left),Math.min(u.top,b.top),Math.max(u.right,b.right)-Math.min(u.left,b.left),Math.max(u.bottom,b.bottom)-Math.min(u.top,b.top)):b,null);if(!r)continue;const full=r.width*r.height;
+   for(let e=el.parentElement;e&&r;e=e.parentElement)if(getComputedStyle(e).overflow!=='visible'){const c=e.getBoundingClientRect(),left=Math.max(r.left,c.left),top=Math.max(r.top,c.top),right=Math.min(r.right,c.right),bottom=Math.min(r.bottom,c.bottom);r=right>left&&bottom>top?new DOMRect(left,top,right-left,bottom-top):null}
+   if(!r||r.width<2||r.height<2||r.width*r.height<.6*full||r.bottom<0||r.top>innerHeight||s.visibility==='hidden')continue;
+   const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+   if(!hit||!(el.contains(hit)||hit.contains(el)))continue;
+   let opacity=1;for(let e=el;e;e=e.parentElement)opacity*=Number(getComputedStyle(e).opacity);
+   if(opacity<.05)continue;
+   const rgba=s.color.match(/[\d.]+/g).map(Number);
+   el.setAttribute('data-contrast',out.length);
+   out.push({text:el.textContent.trim().slice(0,40),large:parseFloat(s.fontSize)>=24||parseFloat(s.fontSize)>=18.66&&Number(s.fontWeight)>=700,box:[r.left,Math.max(0,r.top),r.width,Math.min(innerHeight,r.bottom)-Math.max(0,r.top)],rgb:rgba.slice(0,3),alpha:(rgba[3]??1)*opacity});
+  }
+  const style=document.createElement('style');style.id='contrast-hide';style.textContent='[data-contrast]{color:transparent!important;-webkit-text-fill-color:transparent!important}';document.head.append(style);
+  return out;
+ });
+ await page.waitForTimeout(50);
+ const shot=await page.screenshot();
+ await page.evaluate(()=>{document.getElementById('contrast-hide')?.remove();document.querySelectorAll('[data-contrast]').forEach(e=>e.removeAttribute('data-contrast'))});
+ const {data,info}=await sharp(shot).removeAlpha().raw().toBuffer({resolveWithObject:true}),k=info.width/page.viewportSize().width;
+ for(const l of labels){
+  const samples=[];
+  for(let i=0;i<8;i++)for(let j=0;j<3;j++){
+   const x=Math.min(info.width-1,Math.round((l.box[0]+l.box[2]*(i+.5)/8)*k)),y=Math.min(info.height-1,Math.round((l.box[1]+l.box[3]*(j+.5)/3)*k)),o=(y*info.width+x)*3;
+   samples.push([data[o],data[o+1],data[o+2]]);
+  }
+  const bgs=samples.map(luminance).sort((a,b)=>a-b),median=samples[Math.floor(samples.length/2)];
+  // The label's colour as drawn: its alpha blends it over the background.
+  const fg=luminance(l.rgb.map((c,i)=>c*l.alpha+median[i]*(1-l.alpha)));
+  const worst=fg>bgs[Math.floor(bgs.length/2)]?bgs[Math.floor(bgs.length*.9)]:bgs[Math.floor(bgs.length*.1)];
+  const ratio=(Math.max(fg,worst)+.05)/(Math.min(fg,worst)+.05);
+  if(ratio<(l.large?3:4.5))(known.find(k=>k.name===name&&k.text===l.text)?exceptions:contrast).push({name,text:l.text,large:l.large,ratio:Number(ratio.toFixed(2)),text_luminance:Number(fg.toFixed(3)),background:[bgs[0],bgs[Math.floor(bgs.length/2)],bgs.at(-1)].map(v=>Number(v.toFixed(3))),box:l.box.map(Math.round)});
+ }
+}
 async function audit(page,width,name,marker,delay=1300){
  await expect(marker).toBeVisible();
  await page.waitForTimeout(delay);
@@ -29,7 +78,7 @@ async function audit(page,width,name,marker,delay=1300){
  checked.push(`${width}:${name}`);
  console.log(`Checked ${width}:${name}`);
  if(bad.length){failures.push({width,name,bad});await page.screenshot({path:`${evidence}/fail-${width}-${name}.png`})}
- if(width===390)await page.screenshot({path:`${evidence}/${name}.png`});
+ if(width===390){await page.screenshot({path:`${evidence}/${name}.png`});await measureContrast(page,name)}
 }
 await mkdir(evidence,{recursive:true});
 try{
@@ -100,7 +149,7 @@ for(const width of [360,390,430])for(const large of [false,true]){
 }
 }finally{
  await browser.close();
- await writeFile(`${evidence}/layout.json`,JSON.stringify({base,fixture:'Synthetic engine layout replies; no model or predictive-accuracy claim.',checked,failures},null,1)+'\n');
+ await writeFile(`${evidence}/layout.json`,JSON.stringify({base,fixture:'Synthetic engine layout replies; no model or predictive-accuracy claim.',checked,failures,contrast,exceptions},null,1)+'\n');
 }
-console.log(JSON.stringify({checked:checked.length,failures},null,1));
-if(failures.length)process.exit(1);
+console.log(JSON.stringify({checked:checked.length,failures,contrast,exceptions},null,1));
+if(failures.length||contrast.length)process.exit(1);

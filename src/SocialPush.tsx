@@ -1,8 +1,8 @@
 import React,{useState} from 'react';
-import {Platform,Switch,View} from 'react-native';
+import {Platform,View} from 'react-native';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import {Action,styles,Txt} from './ui';
+import {Action,styles,Txt,Toggle} from './ui';
 import {setSocialPush,setSkyPush} from './social';
 import {Material} from './Material';
 // One shared device token; Circle and Friday Sky consent are saved separately with it.
@@ -40,7 +40,7 @@ export function SocialPush({skyPush,onSkyPush}:{skyPush:boolean;onSkyPush:(enabl
   try{await onSkyPush(enabled,enabled?await devicePushToken():undefined);}
   catch(error){setNotice(error instanceof Error?error.message:'Notifications could not be enabled.');}finally{setBusy(false);}
  }
- return <View style={styles.panel}><Material name="modal"><Txt>Circle notifications</Txt><Txt style={styles.caption}>Sealed forecasts, invitations, someone joining, and Circle forecasts and check-ins. No activity or glow notifications. Friday Sky notifications below are a separate choice; turning off Circle notifications does not change them.</Txt><Action label="Enable Circle notifications" disabled={busy} onPress={()=>void enable()}/><Action label="Turn off Circle notifications" quiet disabled={busy} onPress={()=>{setBusy(true);void setSocialPush(null).then(()=>setNotice('Circle notifications off.')).catch(()=>setNotice('Could not turn notifications off. Try again.')).finally(()=>setBusy(false))}}/><View style={[styles.row,{marginTop:16}]}><Txt>The Sky opens · Fridays 8pm</Txt><Switch testID="sky-push-toggle" accessibilityLabel="Notify me when the Sky opens on Fridays" value={skyPush} disabled={busy} onValueChange={enabled=>void changeSky(enabled)}/></View>{notice?<View style={styles.panel}><Material name="notice"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Material></View>:null}</Material></View>;
+ return <View style={styles.panel}><Material name="modal"><Txt>Circle notifications</Txt><Txt style={styles.caption}>Sealed forecasts, invitations, someone joining, and Circle forecasts and check-ins. No activity or glow notifications. Friday Sky notifications below are a separate choice; turning off Circle notifications does not change them.</Txt><Action label="Enable Circle notifications" disabled={busy} onPress={()=>void enable()}/><Action label="Turn off Circle notifications" quiet disabled={busy} onPress={()=>{setBusy(true);void setSocialPush(null).then(()=>setNotice('Circle notifications off.')).catch(()=>setNotice('Could not turn notifications off. Try again.')).finally(()=>setBusy(false))}}/><View style={[styles.row,{marginTop:16}]}><Txt>The Sky opens · Fridays 8pm</Txt><Toggle testID="sky-push-toggle" accessibilityLabel="Notify me when the Sky opens on Fridays" value={skyPush} disabled={busy} onValueChange={enabled=>void changeSky(enabled)}/></View>{notice?<View style={styles.panel}><Material name="notice"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Material></View>:null}</Material></View>;
 }
 export function watchSocialPushes(open:(section:'sky'|'circles')=>void){
  if(Platform.OS==='web')return ()=>{};
