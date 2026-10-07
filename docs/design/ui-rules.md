@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The captain's Claude Design canvas **Sky & History — UI refresh** (Sky and History artboards) is the visual authority: clean and modern (Calm, Airbnb, Spotify), and every screen plainly says what it does. It replaces the modeled walnut/brass component kit, room lighting, desk reply card and skylight star map. Every tab shows its spot's still from the library room (`src/RoomScene.web.tsx`, [motion](motion.md#room)) as a top-anchored hero that fades to the ground; the live glass ball stays where the room shows it (Home and Ask). Fonts and licenses live in assets/fonts/.
+The captain's Claude Design canvas **Sky & History — UI refresh** (Sky and History artboards) is the visual authority: clean and modern (Calm, Airbnb, Spotify), and every screen plainly says what it does. It replaces the modeled walnut/brass component kit, room lighting, desk reply card and skylight star map. Every tab shows its spot's still from the library room (`src/RoomScene.web.tsx`, [motion](motion.md#room)) as its hero, fading to the ground (the 9:19.5 renders fill a 390×844 screen exactly as the reference's top-anchored backdrop; shorter screens crop evenly so the desk ball stays clear); the live glass ball stays where the room shows it (Home and Ask). Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
