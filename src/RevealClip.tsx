@@ -40,10 +40,10 @@ export function paintBall(ctx:CanvasRenderingContext2D,{ballStyle,orb,glass}:Loo
  if(ballStyle!=='classic'&&glass){ctx.save();ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,540-270*scale,550-270*scale,540*scale,540*scale);ctx.restore();}
  ctx.globalAlpha=1;
 }
-// A label in the app's label style: Jost, spaced capitals.
+// A label in the app's label style: Jost, letter-spaced.
 export function paintLabel(ctx:CanvasRenderingContext2D,text:string,y:number,color:string=colors.label,size=34){
  ctx.font=`${size}px ${fonts.sansMedium}, sans-serif`;ctx.fillStyle=color;(ctx as unknown as {letterSpacing:string}).letterSpacing=`${Math.round(size*.14)}px`;
- ctx.fillText(text.toUpperCase(),540,y);(ctx as unknown as {letterSpacing:string}).letterSpacing='0px';
+ ctx.fillText(text,540,y);(ctx as unknown as {letterSpacing:string}).letterSpacing='0px';
 }
 
 export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
@@ -53,7 +53,7 @@ export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,lo
  if(aiLabel)paintLabel(ctx,'AI-generated · for entertainment',140,colors.muted,28);
  ctx.globalAlpha=text;
  if(golden)paintLabel(ctx,'Golden edition · same uncertainty',1510,colors.gold,30);
- if(category)paintLabel(ctx,category,question?955:975,colors.gold);
+ if(category)paintLabel(ctx,category.toUpperCase(),question?955:975,colors.gold);
  if(question){ctx.font=`38px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;let line=`“${question}”`;while(ctx.measureText(line).width>900&&line.length>4)line=line.slice(0,-3)+'…”';ctx.fillText(line,540,1000);}
  ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;
  const headline=prediction.headline.replace(/(\d+)\s+(months?|years?|weeks?|days?)/gi,'$1 $2');
