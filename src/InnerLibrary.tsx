@@ -18,7 +18,7 @@ export function InnerLibrary({onUpgrade}:{onUpgrade:()=>void}){
  }
  function group<K extends keyof StyleOf>(kind:K,label:string){
   const current=selectedStyle(state,kind);
-  return <View style={{marginTop:16}}><Txt style={styles.caption}>{label}</Txt><View accessibilityRole="radiogroup" accessibilityLabel={`${kind} style`} style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:8}}>{(Object.keys(styleCatalogs[kind]) as StyleOf[K][]).map(value=>{
+  return <View style={{marginTop:16}}><Txt style={styles.label}>{label}</Txt><View accessibilityRole="radiogroup" accessibilityLabel={`${kind} style`} style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:8}}>{(Object.keys(styleCatalogs[kind]) as StyleOf[K][]).map(value=>{
    const name=(styleCatalogs[kind] as Record<StyleOf[K],{name:string}>)[value].name,checked=current===value;
    return <Pressable key={value} testID={`${kind}-style-${value}`} accessibilityRole="radio" accessibilityLabel={`${kind} style ${name}`} disabled={saving} accessibilityState={{disabled:saving,checked}} aria-checked={checked} onPress={()=>void choose(kind,value)} style={{minHeight:44,width:kind==='ball'?60:undefined,padding:kind==='ball'?4:12,alignItems:'center'}}>
     <Surface kind="chip" state={saving?'disabled':checked?'selected':undefined}>

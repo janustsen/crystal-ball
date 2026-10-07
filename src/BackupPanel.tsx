@@ -5,7 +5,7 @@ import * as Crypto from 'expo-crypto';
 import {anonymousOwner,supabase} from './cloud';
 import {uuid} from './uuid';
 import {useStore} from './store';
-import {Action,styles,Txt} from './ui';
+import {Action,styles,Txt,CardHeader} from './ui';
 import {Surface} from './Surface';
 
 export function BackupPanel(){
@@ -34,7 +34,7 @@ export function BackupPanel(){
  }
  if(!available||!configured)return null;
  return <View style={styles.panel}><Surface kind="card">
-  <Txt>Keep your glimpses</Txt>
+  <CardHeader title="Keep your glimpses" label="Optional"/>
   <Txt style={styles.caption}>Optional Apple backup saves your readings and remembered answers to Supabase. Use one device at a time. Saving replaces the archive; Restore replaces this device’s readings and remembered answers. Test credits stay here.</Txt>
    <Action label={mode==='save'?'Restore an Apple backup':'Save this device with Apple'} quiet disabled={backupBusy} onPress={()=>{setMode(mode==='save'?'restore':'save');setNotice('')}}/>
    <Txt style={styles.caption}>{mode==='save'?'Save this device’s history':'Restore from your linked Apple account. If you haven’t linked Apple yet, sign in to choose your backup.'}</Txt>

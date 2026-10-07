@@ -36,7 +36,7 @@ export function PlansPill({count,ready,onPress}:{count:string;ready:boolean;onPr
  return <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPress} style={{minHeight:44,justifyContent:'center'}}>
   <View style={{height:32,paddingHorizontal:14,flexDirection:'row',alignItems:'center',gap:8}}>
    <Surface kind="pill" state={ready?undefined:'disabled'}>
-    <SvgXml aria-hidden xml={sparkle} width={12} height={12}/>
+    <View><SvgXml aria-hidden xml={sparkle} width={12} height={12}/></View>
     <Txt allowFontScaling={false} style={{fontFamily:fonts.sansMedium,fontSize:12,lineHeight:16,letterSpacing:.96}}>{count}</Txt>
    </Surface>
   </View>

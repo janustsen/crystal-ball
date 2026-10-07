@@ -1,5 +1,5 @@
 import {Pressable,ScrollView,View} from 'react-native';
-import {Action,Txt,colors,styles} from './ui';
+import {Action,CardHeader,Txt,styles} from './ui';
 import {goldenShelf} from './story-card';
 import type {Prediction} from './types';
 import {Surface} from './Surface';
@@ -9,7 +9,7 @@ export function GoldenShelf({history,onOpen,onShare}:{history:Prediction[];onOpe
  const shelf=goldenShelf(history);
  if(!shelf.length)return null;
  return <View testID="golden-shelf" style={styles.panel}><Surface kind="card">
-  <Txt accessibilityRole="header" style={{color:colors.gold}}>Golden shelf · {shelf.length}</Txt>
+  <CardHeader title={`Golden shelf · ${shelf.length}`} label="Rare"/>
   <Txt style={styles.caption}>Rare editions. Same uncertainty.</Txt>
   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:16,paddingVertical:12}}>
    {shelf.map(p=><Pressable testID={`golden-shelf-item-${p.id}`} key={p.id} accessibilityRole="button" accessibilityLabel={`Golden forecast: ${p.headline}`} onPress={()=>onOpen(p)} style={{width:200,minHeight:44}}>
