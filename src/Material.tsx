@@ -21,7 +21,7 @@ export function Material({name,state,detail,children}:React.PropsWithChildren<{n
   const e=light?exposureAt(light,s.dest.left+s.dest.width/2-o-size.width/2,s.dest.top+s.dest.height/2-o-size.height/2,size.width,size.height):1,tint=light?exposureTint(e,light.color):null;
   return <View key={i} style={{position:'absolute',overflow:'hidden',...s.dest,left:s.dest.left-o,top:s.dest.top-o}}>
    <Image source={m.source} resizeMode="stretch" style={{position:'absolute',...s.image}}/>
-   {tint&&tint.alpha>.01?<Image source={m.source} resizeMode="stretch" tintColor={`rgb(${tint.rgb.join(',')})`} style={{position:'absolute',...s.image,opacity:tint.alpha}}/>:null}
+   {tint&&tint.alpha>0?<Image source={m.source} resizeMode="stretch" tintColor={`rgb(${tint.rgb.join(',')})`} style={{position:'absolute',...s.image,opacity:tint.alpha}}/>:null}
   </View>;
  }):null;
  return <>

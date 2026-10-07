@@ -83,7 +83,6 @@ test('web draws the material as one filled, stretched border-image and lights it
 });
 
 const lightingModule=load('../src/lighting.ts',{...react,'./room':load('../src/room.ts',{'./roomTrack.json':JSON.parse(readFileSync(new URL('../src/roomTrack.json',import.meta.url),'utf8'))}),'./materials':load('../src/materials.ts',react)});
-const lum=(hex:string)=>[1,3,5].map(i=>{const v=parseInt(hex.slice(i,i+2),16)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
 test('the room lights a surface from its spot: brighter and warmer near the source, dimmer away from it',()=>{
  const {lightAt,shade}=lightingModule,ask={spot:'Ask',x:0,y:0,width:390,height:844};
  // Ask's candle is at the left of the desk (render x 178, y 1235): a point beside it outshines one across the room.
@@ -98,17 +97,44 @@ test('the room lights a surface from its spot: brighter and warmer near the sour
  assert.ok(sky.color[2]>sky.color[0]);
 });
 
-test('lighting never takes the text on a material below 4.5:1 against its body',()=>{
- const {exposureRange}=lightingModule,{inkColor}=load('../src/materials.ts',react);
+test('material contrast survives sRGB tint compositing and the lens on text and art',()=>{
+ const {exposureRange,exposureTint,exposureColor,shade,exposureAt,vignette}=lightingModule,{inkColor}=load('../src/materials.ts',react);
+ const decode=(c:number)=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4;
+ const encode=(c:number)=>c<=.0031308?c*12.92:1.055*c**(1/2.4)-.055;
+ const luminance=(rgb:number[])=>rgb.reduce((n,c,i)=>n+decode(c)*[.2126,.7152,.0722][i],0);
+ const lens=(rgb:number[],v:number)=>rgb.map((c,i)=>c*v+[3,2,1][i]/255*(1-v));
+ function contrast(m:any,ink:string,tint:any,v:number){
+  const text=[1,3,5].map(i=>parseInt(ink.slice(i,i+2),16)/255),[p5,p50,p95]=m.luminance;
+  const body=encode(luminance(text)>p50?Math.sqrt(p50*p95):p5);
+  const bg=luminance(lens(tint.rgb.map((c:number)=>body*(1-tint.alpha)+c/255*tint.alpha),v)),fg=luminance(lens(text,v));
+  return (Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05);
+ }
  for(const [name,entry] of Object.entries<any>(manifest.materials)){
   if(entry.cap||!entry.text_color||name.endsWith('-disabled'))continue;
-  const m=material(name),text=lum(inkColor(m)),[p5,p50,p95]=m.luminance,[lo,hi]=exposureRange(m,inkColor(m));
-  // The worst body under the letters: toward the bright end under light text, the darkest 5% under dark ink.
-  for(const e of [lo,hi]){
-   const bg=(text>p50?Math.sqrt(p50*p95):p5)*e,ratio=(Math.max(text,bg)+.05)/(Math.min(text,bg)+.05);
-   assert.ok(ratio>=4.5-1e-9||lo===hi,`${name} at ${e}: ${ratio.toFixed(2)}`);
+  const m=material(name),ink=inkColor(m);
+  for(const spot of ['Home','Ask','Sky','History','You','Library'])for(const y of [0,300,650])for(const focused of [false,true]){
+   const room={spot,x:0,y:0,width:390,height:844},box={x:16,y,width:358,height:120},light=shade(room,m,box,focused);
+   for(const x of [0,box.width/2,box.width])for(const dy of [0,box.height/2,box.height]){
+    const e=exposureAt(light,x-box.width/2,dy-box.height/2,box.width,box.height),native=exposureTint(e,light.color);
+    assert.ok(contrast(m,ink,native,1)>=4.5,`${name} ${spot} native ${e}`);
+    const ends=[light.far,light.near].map(e=>exposureColor(e,light.color).match(/[\d.]+/g)!.map(Number));
+    const reach=(Math.abs(light.dir[0])*box.width+Math.abs(light.dir[1])*box.height)/2;
+    const t=(Math.max(-1,Math.min(1,((x-box.width/2)*light.dir[0]+(dy-box.height/2)*light.dir[1])/reach))+1)/2;
+    const alpha=ends[0][3]*(1-t)+ends[1][3]*t;
+    const rgb=[0,1,2].map(i=>alpha?(ends[0][i]*ends[0][3]*(1-t)+ends[1][i]*ends[1][3]*t)/alpha:0);
+    assert.ok(contrast(m,ink,{rgb,alpha},vignette(room,box.x+x,box.y+dy))>=4.5,`${name} ${spot} web ${e}`);
+   }
+  }
+  for(const color of [[1,1,1],[1,.65,.4],[.6,.7,1]])for(const v of [1,.85,.7]){
+   const [lo,hi]=exposureRange(m,ink,color,v);
+   for(let i=0;i<=20;i++)assert.ok(contrast(m,ink,exposureTint(lo+(hi-lo)*i/20,color),v)>=4.5,`${name} range ${color} ${v}`);
   }
  }
+ const receipt=material('receipt-card'),ink=inkColor(receipt);
+ assert.ok(contrast(receipt,ink,exposureTint(.61,[1,.65,.4]),1)<4.5);
+ const [floor]=exposureRange(receipt,ink,[1,.65,.4]);
+ assert.ok(floor>.61);
+ assert.ok(contrast(receipt,ink,exposureTint(floor,[1,.65,.4]),1)>=4.5);
 });
 
 test('text and fields on an inked material take its ink; without one they keep the app colours',()=>{
@@ -176,7 +202,7 @@ test('native material lighting follows room and material changes without another
    const e=lightingModule.exposureAt(expected,slice.dest.left+slice.dest.width/2-o-box.width/2,slice.dest.top+slice.dest.height/2-o-box.height/2,box.width,box.height);
    const tint=lightingModule.exposureTint(e,expected.color),overlay=tiles[i].props.children[1];
    assert.equal(tiles[i].props.children[0].props.source,art.source);
-   if(tint.alpha>.01){assert.equal(overlay.props.tintColor,`rgb(${tint.rgb.join(',')})`);assert.equal(overlay.props.style.opacity,tint.alpha)}else assert.equal(overlay,null);
+   if(tint.alpha>0){assert.equal(overlay.props.tintColor,`rgb(${tint.rgb.join(',')})`);assert.equal(overlay.props.style.opacity,tint.alpha)}else assert.equal(overlay,null);
   });
  }
  check();
