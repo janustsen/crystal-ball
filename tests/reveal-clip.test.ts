@@ -144,3 +144,22 @@ test('a look loads only the ball and its AI glass; Classic needs no glass',async
  assert.deepEqual([aurora.cardStyle,aurora.golden],['obsidian',true]);
  assert.deepEqual(requested.slice(1).sort(),['aurora-glass.jpg','orb.png']);
 });
+
+test('export labels shrink until they fit their band with letter spacing included, as a receipt with both dates needs',async()=>{
+ const {receiptCard}=await import('../src/story-card.ts');
+ const card=receiptCard({id:'0000000a-abcd-4000-8000-000000000000',question:'Will I learn to paint this year?',headline:'You will finish your course within 2 months.',createdAt:'2026-10-01T12:00:00.000Z',checkedInAt:'2026-10-21',outcome:'yes',label:'',why:'',facts:{},sources:[],assumptions:[],friend:false})!;
+ const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const module={exports:{} as typeof import('../src/RevealClip')};
+ const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},'./ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{},'./social-policy':{},'./store':{}};
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]});
+ // A canvas whose glyph widths scale with the font size and, like the browser, add the current letter spacing per character.
+ const drawn:{text:string;width:number}[]=[];
+ const ctx={font:'',fillStyle:'',letterSpacing:'0px',
+  measureText(text:string){return {width:text.length*(parseFloat(this.font)*.55+parseFloat(this.letterSpacing))}},
+  fillText(text:string){drawn.push({text,width:this.measureText(text).width})}};
+ for(const label of card.labels)module.exports.paintLabel(ctx as unknown as CanvasRenderingContext2D,label,1400,'gold',32,760);
+ assert.ok(card.labels[1].includes('opened'));
+ assert.equal(drawn.length,2);
+ for(const {width} of drawn)assert.ok(width<=760,`label drawn ${width.toFixed(0)}px wide in a 760px band`);
+ assert.equal(ctx.letterSpacing,'0px');
+});

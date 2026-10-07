@@ -32,7 +32,7 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   if(golden)paintLabel(ctx,'Golden edition · same uncertainty',1510,colors.gold,30);
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;
   const y=drawStoryHeadlines(ctx,card.headlines,fonts.display);
-  const labelY=Math.min(y+100,1380);card.labels.forEach((label,i)=>{let size=30;do{ctx.font=`${size}px ${fonts.sansMedium}, sans-serif`;size-=2}while(ctx.measureText(label).width>760&&size>20);paintLabel(ctx,label,labelY+i*56,colors.gold,size+2)});ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;ctx.fillText('Crystal Ball',540,1600);
+  const labelY=Math.min(y+100,1380);card.labels.forEach((label,i)=>paintLabel(ctx,label,labelY+i*56,colors.gold,32,760));ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;ctx.fillText('Crystal Ball',540,1600);
   paintLabel(ctx,card.footer,1665,colors.label,28);
   // Encode asynchronously so opening Share does not block the animation frame.
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>{

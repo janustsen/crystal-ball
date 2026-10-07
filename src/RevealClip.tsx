@@ -40,10 +40,11 @@ export function paintBall(ctx:CanvasRenderingContext2D,{ballStyle,orb,glass}:Loo
  if(ballStyle!=='classic'&&glass){ctx.save();ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,540-270*scale,550-270*scale,540*scale,540*scale);ctx.restore();}
  ctx.globalAlpha=1;
 }
-// A label in the app's label style: Jost, letter-spaced.
-export function paintLabel(ctx:CanvasRenderingContext2D,text:string,y:number,color:string=colors.label,size=34){
- ctx.font=`${size}px ${fonts.sansMedium}, sans-serif`;ctx.fillStyle=color;(ctx as unknown as {letterSpacing:string}).letterSpacing=`${Math.round(size*.14)}px`;
- ctx.fillText(text,540,y);(ctx as unknown as {letterSpacing:string}).letterSpacing='0px';
+// A label in the app's label style: Jost, letter-spaced, shrunk (spacing included) until it fits the card's text band.
+export function paintLabel(ctx:CanvasRenderingContext2D,text:string,y:number,color:string=colors.label,size=34,maxWidth=860){
+ const spaced=ctx as unknown as {letterSpacing:string};
+ for(;;size-=2){ctx.font=`${size}px ${fonts.sansMedium}, sans-serif`;spaced.letterSpacing=`${Math.round(size*.14)}px`;if(size<=18||ctx.measureText(text).width<=maxWidth)break}
+ ctx.fillStyle=color;ctx.fillText(text,540,y);spaced.letterSpacing='0px';
 }
 
 export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
