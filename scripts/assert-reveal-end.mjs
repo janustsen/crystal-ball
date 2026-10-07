@@ -9,15 +9,21 @@ export async function assertRevealEnd(page,file,evidence){
  assert.ok(frames.length>=size,'Clip must contain a decoded video frame');
  const last=frames.subarray(-size);
  await sharp(last,{raw:{width,height,channels:1}}).png().toFile(evidence);
- const reference=await page.evaluate(async({width,height})=>{
-  await document.fonts.load('76px IMFellEnglish');
-  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
-  const ctx=canvas.getContext('2d');ctx.fillStyle='#120E0B';ctx.fillRect(0,0,width,height);
-  ctx.fillStyle='#F1E9DC';ctx.textAlign='center';ctx.font='76px IMFellEnglish, Georgia';ctx.fillText('search Crystal Ball',450,90);
-  return canvas.toDataURL();
- },{width,height});
- const expected=await sharp(Buffer.from(reference.split(',')[1],'base64')).removeAlpha().greyscale().raw().toBuffer();
- const error=last.reduce((sum,value,i)=>sum+Math.abs(value-expected[i]),0)/size;
- assert.ok(error<5,`Decoded last frame must show “search Crystal Ball” (pixel error ${error.toFixed(2)})`);
+ // The end card sets its title on the look's rendered plate; compare against every plate and keep the closest.
+ let error=Infinity;
+ for(const plate of ['classic','gold','obsidian','golden']){
+  const backdrop=(await sharp(`assets/share/${plate}.jpg`).extract({left:90,top:1030,width,height}).png().toBuffer()).toString('base64');
+  const reference=await page.evaluate(async({width,height,backdrop})=>{
+   await document.fonts.load('76px CormorantGaramond');
+   const image=new Image();image.src=`data:image/png;base64,${backdrop}`;await image.decode();
+   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+   const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+   ctx.fillStyle='#F1E9DC';ctx.textAlign='center';ctx.font='76px CormorantGaramond, Georgia';ctx.fillText('search Crystal Ball',450,90);
+   return canvas.toDataURL();
+  },{width,height,backdrop});
+  const expected=await sharp(Buffer.from(reference.split(',')[1],'base64')).removeAlpha().greyscale().raw().toBuffer();
+  error=Math.min(error,last.reduce((sum,value,i)=>sum+Math.abs(value-expected[i]),0)/size);
+ }
+ assert.ok(error<5,`Decoded last frame must show “search Crystal Ball” on its plate (pixel error ${error.toFixed(2)})`);
  return {endCardPixelError:error};
 }

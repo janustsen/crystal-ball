@@ -1,17 +1,15 @@
 import {drawStoryHeadlines} from './story-layout';
 import {useEffect,useRef,useState} from 'react';
-import {View,Platform,Pressable,Image as PreviewImage} from 'react-native';
-import {LinearGradient} from 'expo-linear-gradient';
+import {View,Platform,Pressable,Image as PreviewImage,ImageBackground} from 'react-native';
 import {captureRef} from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
-import {Asset} from 'expo-asset';
 import {suggestedCheckIn} from './retention';
 import type {StoryCard} from './story-card';
 import {friendLink,reminder} from './native';
 import {selectedStyle} from './delight';
-import {ballArt} from './roomAssets';
+import {loadLook,paintBall,storyPlates} from './RevealClip';
 import {useStore} from './store';
 import type {Prediction} from './types';
 import {Material} from './Material';
@@ -23,20 +21,14 @@ const copy={
 // Draws a StoryCard on the current look. Forecast cards also get the recording, link and reminder options.
 export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:StoryCard;prediction?:Prediction;onClose:()=>void;onNotice:(message:string)=>void;onRecord?:()=>void}){
  const {state}=useStore(),golden=card.golden,cardStyle=selectedStyle(state,'card'),ballStyle=selectedStyle(state,'ball');
- const cardCenter=golden||cardStyle==='gold'?'#684519':cardStyle==='obsidian'?'#12131C':colors.violet;
  const ref=useRef<View>(null),[preview,setPreview]=useState<string>(),[fullStory,setFullStory]=useState(false),[previewWidth,setPreviewWidth]=useState(212),setNotice=onNotice;
  useEffect(()=>{if(Platform.OS==='web')void stillImage().then(setPreview).catch(()=>setNotice('Preview could not load. Please reopen this card.'))},[JSON.stringify(card),cardStyle,ballStyle]);
  async function stillImage():Promise<string>{
   if(Platform.OS!=='web'){const uri=await captureRef(ref,{format:'png',quality:1,width:1080,height:1920});return 'data:image/png;base64,'+await new File(uri).base64();}
   // Keep export pixels on the CPU to avoid a synchronous GPU readback.
   const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error();
-  const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,cardCenter);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
-  for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
-  const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
-  const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();ctx.drawImage(orb,270,280,540,608);
-  if(ballStyle!=='classic'){const glass=new Image();glass.src=Asset.fromModule(ballArt[ballStyle].glass).uri;await glass.decode();ctx.save();ctx.beginPath();ctx.arc(540,550,270,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,270,280,540,540);ctx.restore();}
-  if(cardStyle!=='classic'&&!golden){ctx.strokeStyle=cardStyle==='gold'?colors.gold:'#8F91A3';ctx.lineWidth=3;ctx.strokeRect(64,64,952,1792);}
-  if(golden){ctx.strokeStyle=colors.gold;ctx.lineWidth=8;ctx.strokeRect(48,48,984,1824);ctx.textAlign='center';ctx.font=`38px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText('Golden edition · same uncertainty',540,1490);}
+  paintBall(ctx,await loadLook(cardStyle,ballStyle,golden));
+  if(golden){ctx.textAlign='center';ctx.font=`38px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText('Golden edition · same uncertainty',540,1490);}
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;
   const y=drawStoryHeadlines(ctx,card.headlines,fonts.display);
   ctx.fillStyle=colors.gold;const labelY=Math.min(y+100,1370);card.labels.forEach((label,i)=>{let size=42;do{ctx.font=`${size}px ${fonts.body}, sans-serif`;size-=2}while(ctx.measureText(label).width>900&&size>24);ctx.fillText(label,540,labelY+i*72)});ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',540,1590);
@@ -48,7 +40,7 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   },'image/png'));
  }
  async function share(){try{const image=await stillImage();if(Platform.OS==='web'){const a=document.createElement('a');a.download=card.file;a.href=image;a.click();setNotice('1080 × 1920 card downloaded. Private answers are excluded.')}else{const file=new File(Paths.cache,card.file);file.write(image.split(',')[1],{encoding:'base64'});await Sharing.shareAsync(file.uri,{mimeType:'image/png'})}}catch{setNotice('The card could not be exported. Please try again.')}}
- const composition=<View ref={ref} collapsable={false} style={{width:Platform.OS==='web'?'100%':360,aspectRatio:9/16,overflow:'hidden'}}>{Platform.OS==='web'&&preview?<PreviewImage accessibilityLabel="Your exported forecast card" source={{uri:preview}} style={{width:'100%',height:'100%'}}/>:<LinearGradient colors={[colors.ink,cardCenter,colors.ink]} style={{flex:1,alignItems:'center',justifyContent:'center',padding:24,borderWidth:cardStyle!=='classic'||golden?2:0,borderColor:golden||cardStyle==='gold'?colors.gold:'#8F91A3'}}><Orb size={180} reduce/>{golden?<Txt allowFontScaling={false} style={{color:colors.gold,textAlign:'center'}}>Golden edition · same uncertainty</Txt>:null}<Txt allowFontScaling={false} style={[styles.caption,{textAlign:'center',color:colors.gold,marginVertical:16}]}>{card.labels.join(' · ')}</Txt><View style={{width:'100%',flexShrink:1,minHeight:0}}>{card.headlines.map(headline=><Txt key={headline} display allowFontScaling={false} adjustsFontSizeToFit numberOfLines={5} style={{flexShrink:1,minHeight:0,fontSize:card.headlines.length>1?20:28,lineHeight:card.headlines.length>1?24:32,textAlign:'center',marginBottom:8}}>{headline}</Txt>)}</View><Txt display allowFontScaling={false} style={{fontFamily:fonts.italic,marginTop:24,fontSize:24}}>Crystal Ball</Txt><Txt allowFontScaling={false} style={styles.caption}>{card.footer}</Txt></LinearGradient>}</View>;
+ const composition=<View ref={ref} collapsable={false} style={{width:Platform.OS==='web'?'100%':360,aspectRatio:9/16,overflow:'hidden'}}>{Platform.OS==='web'&&preview?<PreviewImage accessibilityLabel="Your exported forecast card" source={{uri:preview}} style={{width:'100%',height:'100%'}}/>:<ImageBackground source={storyPlates[golden?'golden':cardStyle]} resizeMode="stretch" style={{flex:1,alignItems:'center',justifyContent:'center',padding:30}}><Orb size={180} reduce/>{golden?<Txt allowFontScaling={false} style={{color:colors.gold,textAlign:'center'}}>Golden edition · same uncertainty</Txt>:null}<Txt allowFontScaling={false} style={[styles.caption,{textAlign:'center',color:colors.gold,marginVertical:16}]}>{card.labels.join(' · ')}</Txt><View style={{width:'100%',flexShrink:1,minHeight:0}}>{card.headlines.map(headline=><Txt key={headline} display allowFontScaling={false} adjustsFontSizeToFit numberOfLines={5} style={{flexShrink:1,minHeight:0,fontSize:card.headlines.length>1?20:28,lineHeight:card.headlines.length>1?24:32,textAlign:'center',marginBottom:8}}>{headline}</Txt>)}</View><Txt display allowFontScaling={false} style={{fontFamily:fonts.italic,marginTop:24,fontSize:24}}>Crystal Ball</Txt><Txt allowFontScaling={false} style={styles.caption}>{card.footer}</Txt></ImageBackground>}</View>;
  const frame=<View onLayout={event=>setPreviewWidth(event.nativeEvent.layout.width)} style={{width:fullStory?'100%':'62%',alignSelf:'center',aspectRatio:9/16}}>{Platform.OS==='web'?composition:<View collapsable={false} style={{width:360,height:640,transformOrigin:'top left',transform:[{scale:previewWidth/360}]}}>{composition}</View>}<Material name="share-frame"/></View>;
  if(fullStory)return <>{frame}<Action label="Export story card" onPress={share}/><Action label="Back to sharing" quiet onPress={()=>setFullStory(false)}/></>;
  const story={label:'Story image',detail:'9:16 still, 1080 × 1920',id:'export-story-card',run:share};
