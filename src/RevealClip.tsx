@@ -20,7 +20,7 @@ export async function loadLook(cardStyle:CardStyle,ballStyle:BallStyle,golden=fa
 }
 
 // Card styles share the app's ground and glass card; each tints the ball's light and the card's outline.
-const looks:Record<CardStyle|'golden',{ground:string;light:string;line:string;width:number}>={
+export const looks:Record<CardStyle|'golden',{ground:string;light:string;line:string;width:number}>={
  classic:{ground:colors.ink,light:'232,170,90',line:'rgba(227,199,143,.22)',width:2},
  gold:{ground:colors.ink,light:'240,190,110',line:colors.gold,width:3},
  obsidian:{ground:'#0E0D11',light:'170,176,198',line:'rgba(176,180,198,.55)',width:3},
