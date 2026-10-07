@@ -5,16 +5,16 @@
 import sharp from 'sharp';
 import {mkdirSync,writeFileSync} from 'node:fs';
 
-const out='assets/materials',scale=3,feather=36;
+const out='assets/materials',scale=3,feather=18;
 // crop: [left, top, width, height] in the 1170×2532 stills. ink: the text colour the app sets on it, and the toning
 // must keep that text at 4.5:1 or better against the crop's worst 5% of pixels.
 const recipes={
  'parchment-note':{still:'library',crop:[340,1230,440,130],size:[360,150],tone:{brightness:.32,saturation:.75},ink:'muted'},
- 'oak-panel':{still:'library',crop:[340,1500,460,600],size:[360,360],tone:{brightness:.42,saturation:.9},ink:'muted',states:{selected:{brightness:.85,saturation:1.1}}},
- 'wax-card':{still:'library',crop:[0,1460,260,260],size:[300,420],tone:{brightness:.24,saturation:.7},ink:'muted'},
+ 'oak-panel':{still:'library',crop:[340,1500,460,600],size:[360,360],tone:{brightness:.42,saturation:.9},ink:'muted',states:{selected:{brightness:2.6,saturation:1.2}}},
+ 'wax-card':{still:'library',crop:[0,1460,260,260],size:[300,420],tone:{brightness:.16,saturation:.45},ink:'muted'},
  'brass-plaque':{still:'library',crop:[380,1250,380,100],size:[360,150],tone:{brightness:1.05,saturation:.8},ink:'ink',states:{pressed:{brightness:.9,saturation:.8},disabled:{brightness:.3,saturation:.3}}},
  'engraved-button':{still:'ask',crop:[100,2000,900,300],size:[360,150],tone:{brightness:.9,saturation:.85},ink:'ivory',states:{pressed:{brightness:.7,saturation:.8},disabled:{brightness:.3,saturation:.2}}},
- 'leather-strip':{still:'you',crop:[470,1000,280,120],size:[360,150],tone:{brightness:.6,saturation:.85},ink:'muted',states:{selected:{brightness:.95,saturation:1}}},
+ 'leather-strip':{still:'you',crop:[470,1000,280,120],size:[360,150],tone:{brightness:.6,saturation:.85},ink:'muted',states:{selected:{brightness:.8,saturation:1}}},
  'glass-input':{still:'you',crop:[100,2200,800,300],size:[360,180],tone:{brightness:.42,saturation:.8},ink:'muted'},
 };
 const inks={ivory:[241,233,220],muted:[185,171,151],ink:[18,14,11]};
