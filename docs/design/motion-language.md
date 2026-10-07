@@ -1,13 +1,13 @@
 # Crystal Ball motion language
 
-The ball is a small atmosphere behind glass. The [UI rules](ui-rules.md#palette-and-composition) own the rendered materials and surface finishes. The [room](motion.md#room) has its own motion contract; the shared primitives below govern other screens and controls using `src/ui.tsx`. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it squashes when touched, overshoots once when it lands and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
+The ball is a small atmosphere behind glass. The [UI rules](ui-rules.md#palette-and-composition) own the surfaces. The [room](motion.md#room) has its own motion contract; the shared primitives below govern other screens and controls using `src/ui.tsx`. Motion has two materials. **Smoke** is soft, continuous and never stops. **Brass** is solid: it squashes when touched, overshoots once when it lands and settles. The sphere remains the visual anchor; text is readable and controls respond immediately throughout motion.
 
 | Signature | Where | Timing and behavior |
 |---|---|---|
 | Living mist | Shared orbs, listening, thinking | Cel-shaded smoke over dark glass: three soft-edged tone bands, one inked contour, lit from below. A doubly domain-warped field advects upward about three times faster than the first release; fog time runs 1.5× while listening and 1.9× while thinking, integrated so speed changes never jump. No rotation or time reset. Native uses three seamless translucent fields driven off the JS thread. |
 | Levitate | Shared web orbs | The glass floats 2.2% of its size above the stand on a 6.1s (tab orb 4.7s) sine; its floor shadow narrows and fades as it rises. |
 | Gold breath | Orb halos | A quiet 7.3-second light swell. Opacity and scale only. |
-| Squash and spark | Shared tappable controls | 420ms squash (1.07×0.86), stretch (0.95×1.07), settle. The ball itself uses a 620ms jelly. Seven brass four-point sparks and a ring leave the touch point over 560ms. Button press artwork and label displacement follow the [UI rules](ui-rules.md#palette-and-composition). |
+| Squash and spark | Shared tappable controls | 420ms squash (1.07×0.86), stretch (0.95×1.07), settle. The ball itself uses a 620ms jelly. Seven brass four-point sparks and a ring leave the touch point over 560ms. Pressed buttons dim slightly ([UI rules](ui-rules.md#palette-and-composition)). |
 | Smoke wipe | Tabs, paywall, ordinary screens | 700ms. A dark smoke curtain with cream leading wisps sweeps left to right while the new screen slides in 22px with a 5° skew. |
 | Orb portal | Ball tap / Ask | 1,000ms. The listening screen opens from a circle at the orb, scaling from 60%, while a gold ring blooms outward. |
 | Ripple in | Listening | 760ms scale-in from 94% with one fine ring from the orb. |

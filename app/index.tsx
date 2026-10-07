@@ -171,7 +171,6 @@ export default function App(){
  const restingBall=shell.height&&(home||askFlow)?ballOnScreen(stillFrame(spot),shell.width,shell.height):null;
  const ball=restingBall?{x:restingBall.x,y:restingBall.y,r:restingBall.r}:null;
  const glow=askFlow&&prediction?.golden?restingBall:null;
- // Text over the bright shelves, skylight and Ask's brass stand needs the room dimmed behind it, never the ball itself.
  // Text over the room reads on the ground: the room fades out above the screen's content (below the ball at Ask).
  // The tabs keep their room visible behind glass cards (as the reference artboards do); the reading and overlays dim it further.
  const scrimAlpha=immersive?.88:.62;
