@@ -6,7 +6,7 @@ import {ageGroup,forgetBirthChart,updateBirthday} from './profile';
 import {birthChart,findBirthPlaces,type BirthPlace} from './birth-chart';
 import {requestChartWeather} from './api';
 import {localDay} from './retention';
-import {Material} from './Material';
+import {Surface} from './Surface';
 
 // aiConsent is null while AI processing still needs the user's permission in Ask.
 export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgrade:()=>void}){
@@ -27,7 +27,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
   if(ageGroup(birthday)==='under13'){update(s=>({...s,onboardingBlocked:true,onboardingDone:false}));return;}
   try{const next=updateBirthday(state,birthday.trim()||undefined);update(()=>next);setEditing(false);setNotice('');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
  }
- return <View style={styles.panel}><Material name="modal">
+ return <View style={styles.panel}><Surface kind="card">
   <Txt display style={styles.title}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
@@ -52,6 +52,6 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={()=>{update(forgetBirthChart);setTime('');setPlace('');setSelected(undefined);setPlaces([])}}/>:null}
    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
   </>:null}
-  {notice?<View style={styles.panel}><Material name="notice-error"><Txt accessibilityRole="alert">{notice}</Txt></Material></View>:null}
- </Material></View>;
+  {notice?<View style={styles.panel}><Surface kind="error"><Txt accessibilityRole="alert">{notice}</Txt></Surface></View>:null}
+ </Surface></View>;
 }

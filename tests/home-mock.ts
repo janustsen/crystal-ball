@@ -5,6 +5,8 @@ export function homeMock(react:{createElement:(type:any,props:any,...children:an
  return {
   Home:({ready,libraryLocked,onLibrary,checkIns,omen}:any)=>h('Home',{},checkIns,omen,h('Pressable',{testID:'room-inner-library',locked:libraryLocked,disabled:!ready,onPress:onLibrary})),
   RoomHeader:({title,count,ready,onPlans}:any)=>h('RoomHeader',{},h('Txt',{},title),h('Pressable',{testID:'view-plans',disabled:!ready,onPress:onPlans},h('Txt',{},count))),
+  PlansPill:({count,ready,onPress}:any)=>h('Pressable',{testID:'view-plans',disabled:!ready,onPress},h('Txt',{},count)),
+  tabBarSpace:(bottom:number)=>bottom+94,
   BallButton:({home,onPress}:any)=>h('Pressable',{testID:home?'hero-orb':'ask-ball',onPress}),
   HomeTabBar:({current,disabled,onTab}:any)=>h('HomeTabBar',{},...['Home','Sky','Ask','History','You'].map(t=>h('Pressable',{testID:`tab-${t.toLowerCase()}`,disabled,accessibilityState:{selected:t===current},onPress:()=>onTab(t)}))),
  };

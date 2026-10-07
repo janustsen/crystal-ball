@@ -2,13 +2,13 @@ import {Pressable,ScrollView,View} from 'react-native';
 import {Action,Txt,colors,styles} from './ui';
 import {goldenShelf} from './story-card';
 import type {Prediction} from './types';
-import {Material} from './Material';
+import {Surface} from './Surface';
 
 // Functional shelf on the existing panel look. The designed golden shelf replaces this body; keep the testIDs.
 export function GoldenShelf({history,onOpen,onShare}:{history:Prediction[];onOpen:(p:Prediction)=>void;onShare:()=>void}){
  const shelf=goldenShelf(history);
  if(!shelf.length)return null;
- return <View testID="golden-shelf" style={styles.panel}><Material name="plaque">
+ return <View testID="golden-shelf" style={styles.panel}><Surface kind="card">
   <Txt accessibilityRole="header" style={{color:colors.gold}}>Golden shelf · {shelf.length}</Txt>
   <Txt style={styles.caption}>Rare editions. Same uncertainty.</Txt>
   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:16,paddingVertical:12}}>
@@ -18,5 +18,5 @@ export function GoldenShelf({history,onOpen,onShare}:{history:Prediction[];onOpe
    </Pressable>)}
   </ScrollView>
   <Action testID="share-golden-set" label="Share your golden set" quiet onPress={onShare}/>
- </Material></View>;
+ </Surface></View>;
 }

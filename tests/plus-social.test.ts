@@ -27,7 +27,7 @@ function circleForecasts(){
  const code=ts.transpileModule(readFileSync(new URL('../src/SocialExtras.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const imports:Record<string,any>={
   react:{createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>[initial,()=>{}]},
-  'react-native':{},'./Material':{Material:'Material'},'./ui':{styles:{}},'./social-policy':{},'./profile':{canRead:()=>true},
+  'react-native':{},'./Surface':{Surface:'Surface'},'./ui':{styles:{}},'./social-policy':{},'./profile':{canRead:()=>true},
   './store':{useStore:()=>({state:{plus},remaining:1,backupBusy:false})},
   './social':{setPrivateRoom:(...args:unknown[])=>{calls.push(args);return Promise.resolve()}},
  };
@@ -82,7 +82,7 @@ test('History retains completed recaps across year rollover, with Plus gating fo
  const state={plus:true,history:[reading('a','2026-03-01T12:00:00Z','Will I find love?',{golden:true,outcome:'yes'}),reading('b','2025-06-01T12:00:00Z','Will I get the job?')]};
  const element=(type:any,props:any)=>({type,props:props??{}});
  const imports:Record<string,any>={
-  'react/jsx-runtime':{jsx:element,jsxs:element},'react-native':{},'./Material':{Material:'Material'},'./ui':{styles:{}},
+  'react/jsx-runtime':{jsx:element,jsxs:element},'react-native':{},'./Surface':{Surface:'Surface'},'./ui':{styles:{}},
   './store':{useStore:()=>({state})},'./social-policy':{skyPrompts},'./recap':{yearRecap},
  };
  const code=ts.transpileModule(readFileSync(new URL('../src/YearRecap.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
