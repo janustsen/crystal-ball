@@ -23,7 +23,7 @@ try{
  const page=await browser.newPage({reducedMotion:'reduce'});
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.evaluate(async modules=>{
-  const imports={'react-native':{StyleSheet:{create:x=>x}},'expo-asset':{Asset:{fromModule:uri=>({uri})}}};
+  const imports={'react-native':{StyleSheet:{create:x=>x},Platform:{OS:'web'}},'expo-asset':{Asset:{fromModule:uri=>({uri})}}};
   const require=name=>{
    if(name.startsWith('../assets/'))return name.slice(2);
    if(modules[name]&&!imports[name]){const module={exports:{}};new Function('require','module','exports',modules[name])(require,module,module.exports);imports[name]=module.exports}
@@ -36,7 +36,7 @@ try{
   window.requestAnimationFrame=callback=>raf(time=>{start??=time;if(time-start>4500)setTimeout(()=>callback(performance.now()),4000);else callback(time)});
  },modules);
  const bytes=await page.evaluate(async()=>{
-  const file=await window.recorder.recordClip({question:'Will I finish my course?',headline:'You will finish your course.',dueDate:'2026-12-01'},{cardStyle:'classic',ballStyle:'classic',orb:await window.recorder.loadOrb()},{category:'Learning'});
+  const file=await window.recorder.recordClip({question:'Will I finish my course?',headline:'You will finish your course.',dueDate:'2026-12-01'},await window.recorder.loadLook('classic','classic'),{category:'Learning'});
   return {data:Array.from(new Uint8Array(await file.arrayBuffer())),name:file.name};
  });
  const file=`${out}/${bytes.name}`;await writeFile(file,Buffer.from(bytes.data));

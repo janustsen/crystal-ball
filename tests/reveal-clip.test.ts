@@ -9,7 +9,7 @@ test('recording locks the question setting until recording completes or fails',a
  const slots:any[]=[];let cursor=0,reject!:(error:Error)=>void;
  const loading=new Promise<void>((_resolve,fail)=>{reject=fail});
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
- const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}}};
+ const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'}};
  const module={exports:{} as any},notices:string[]=[];
  runInNewContext(code,{React:react,module,exports:module.exports,require:(name:string)=>imports[name]??{},Image:class {decode(){return loading}}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
@@ -78,7 +78,7 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
  }
 });
 
-test('reveal clips paint AI glass inside the ball with the opening fade; Classic keeps the base orb',()=>{
+test('reveal clips paint on the modeled plate with AI glass inside the ball and the opening fade; Classic keeps the base orb',()=>{
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX},
  }).outputText;
@@ -87,17 +87,19 @@ test('reveal clips paint AI glass inside the ball with the opening fade; Classic
   react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},
   './Material':{Material:'Material'},'./ui':{colors:{},fonts:{}},'./retention':{suggestedCheckIn:()=>'December 1'},
   './delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},
+  ...Object.fromEntries(['classic','gold','obsidian','golden'].map(style=>[`../assets/share/${style}.jpg`,style])),
  };
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>{
   assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name];
  }});
- const orb={} as HTMLImageElement,glass={} as HTMLImageElement;
+ const orb={} as HTMLImageElement,glass={} as HTMLImageElement,plate={} as HTMLImageElement,light={} as HTMLImageElement;
  for(const ballStyle of ['aurora','classic'] as const)for(const open of [1,.5]){
   const calls:unknown[][]=[];
   const ctx={
    globalAlpha:1,
-   createLinearGradient:()=>({addColorStop:()=>{}}),
-   fillRect(){},fill(){},stroke(){},moveTo(){},lineTo(){},fillText(){},
+   globalCompositeOperation:'source-over',
+   createLinearGradient(){calls.push(['gradient']);return {addColorStop:()=>{}}},
+   fillRect(){calls.push(['fillRect'])},fill(){},stroke(){},moveTo(){},lineTo(){},fillText(){},
    measureText:()=>({width:100}),
    save(){calls.push(['save'])},restore(){calls.push(['restore'])},
    beginPath(){calls.push(['beginPath'])},arc(...args:number[]){calls.push(['arc',...args])},
@@ -106,7 +108,9 @@ test('reveal clips paint AI glass inside the ball with the opening fade; Classic
   };
   module.exports.paintStory(ctx as unknown as CanvasRenderingContext2D,
    {headline:'You will finish your course.'} as Parameters<typeof module.exports.paintStory>[1],
-   {cardStyle:'classic',ballStyle,orb,glass},{orb:open});
+   {ballStyle,orb,glass,plate,light},{orb:open});
+  assert.deepEqual(calls.find(call=>call[0]==='drawImage'),['drawImage',plate,0,0,1080,1920,1]);
+  assert.equal(calls.some(call=>call[0]==='gradient'||call[0]==='fillRect'),false);
   const scale=.86+.14*open;
   assert.equal(calls.filter(call=>call[0]==='drawImage'&&call[1]===orb).length,1);
   if(ballStyle==='aurora'){

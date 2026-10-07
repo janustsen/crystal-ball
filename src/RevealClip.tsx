@@ -9,25 +9,32 @@ import {activityTheme,skyPrompts} from './social-policy';
 import {useStore} from './store';
 import type {Prediction,BallStyle,CardStyle} from './types';
 
-type Look={cardStyle:CardStyle;ballStyle:BallStyle;orb:HTMLImageElement;glass?:HTMLImageElement};
+type Look={ballStyle:BallStyle;orb:HTMLImageElement;glass?:HTMLImageElement;plate:HTMLImageElement;light:HTMLImageElement};
 // Animation inputs (0-1) plus the clip-only lines. Defaults paint the still story card.
 type Frame={orb?:number;text?:number;glow?:number;category?:string;question?:string;aiLabel?:boolean};
 
-export async function loadOrb(){const orb=new Image();orb.src=Asset.fromModule(require('../assets/orb.png')).uri;await orb.decode();return orb}
+// The modeled plates every export is painted on (scripts/render-share-plates.py): per card style a framed leather panel
+// lit by the room, the golden edition's gilt frame, and the ball's rendered light, which adds over any of them.
+export const storyPlates:Record<CardStyle|'golden',number>={classic:require('../assets/share/classic.jpg'),gold:require('../assets/share/gold.jpg'),obsidian:require('../assets/share/obsidian.jpg'),golden:require('../assets/share/golden.jpg')};
+async function image(module:number){const image=new Image();image.src=Asset.fromModule(module).uri;await image.decode();return image}
+export async function loadLook(cardStyle:CardStyle,ballStyle:BallStyle,golden=false):Promise<Look>{
+ const [orb,plate,light,glass]=await Promise.all([require('../assets/orb.png'),storyPlates[golden?'golden':cardStyle],require('../assets/share/glow.jpg')].map(image).concat(ballStyle==='classic'?[]:[image(ballArt[ballStyle].glass)]));
+ return {ballStyle,orb,plate,light,glass};
+}
 
-// Design hook: swap this painter for the designed card/clip template when it lands.
-export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,{cardStyle,ballStyle,orb,glass}:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
- const golden=prediction.golden,cardCenter=golden||cardStyle==='gold'?'#684519':cardStyle==='obsidian'?'#12131C':colors.violet;
- ctx.globalAlpha=1;ctx.textAlign='center';
- const gradient=ctx.createLinearGradient(0,0,0,1920);gradient.addColorStop(0,colors.ink);gradient.addColorStop(.5,cardCenter);gradient.addColorStop(1,colors.ink);ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1920);
- for(let i=0;i<48;i++){ctx.globalAlpha=.18+(i%3)*.12;ctx.fillStyle=i%4===0?colors.gold:colors.ivory;ctx.beginPath();ctx.arc((i*193+71)%1080,(i*337+93)%1920,i%5===0?2.3:1.2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
- const stars=[[150,1670],[350,1570],[590,1710],[810,1550],[970,1640]];ctx.strokeStyle=colors.lavender;ctx.globalAlpha=.3;ctx.lineWidth=1.5;ctx.beginPath();stars.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=colors.gold;for(const [x,y] of stars){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
- if(glow>0){const halo=ctx.createRadialGradient(540,584,60,540,584,460);halo.addColorStop(0,colors.gold);halo.addColorStop(1,'transparent');ctx.globalAlpha=glow*.55;ctx.fillStyle=halo;ctx.fillRect(0,100,1080,980);ctx.globalAlpha=1;}
+// The plate and the ball on it: open scales and fades the ball in, glow adds the ball's light.
+export function paintBall(ctx:CanvasRenderingContext2D,{ballStyle,orb,glass,plate,light}:Look,open=1,glow=0){
+ ctx.globalAlpha=1;ctx.drawImage(plate,0,0,1080,1920);
+ if(glow>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=glow;ctx.drawImage(light,0,0,1080,1920);ctx.globalCompositeOperation='source-over';}
  const scale=.86+.14*open,w=540*scale,h=608*scale;ctx.globalAlpha=open;ctx.drawImage(orb,540-w/2,584-h/2,w,h);
  if(ballStyle!=='classic'&&glass){ctx.save();ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,540-270*scale,550-270*scale,540*scale,540*scale);ctx.restore();}
  ctx.globalAlpha=1;
- if(cardStyle!=='classic'&&!golden){ctx.strokeStyle=cardStyle==='gold'?colors.gold:'#8F91A3';ctx.lineWidth=3;ctx.strokeRect(64,64,952,1792);}
- if(golden){ctx.strokeStyle=colors.gold;ctx.lineWidth=8;ctx.strokeRect(48,48,984,1824);}
+}
+
+export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,{orb:open=1,text=1,glow=0,category,question,aiLabel=false}:Frame={}){
+ const golden=prediction.golden;
+ ctx.textAlign='center';
+ paintBall(ctx,look,open,glow*.6);
  if(aiLabel){ctx.font=`32px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.muted;ctx.fillText('AI-generated · for entertainment',540,140);}
  ctx.globalAlpha=text;
  if(golden){ctx.font=`38px ${fonts.body}, sans-serif`;ctx.fillStyle=colors.gold;ctx.fillText('Golden edition · same uncertainty',540,1490);}
@@ -49,12 +56,12 @@ function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,
  paintStory(ctx,prediction,look,{...frame,aiLabel:true,orb:ease(ms/1800),glow:Math.sin(Math.PI*Math.min(1,ms/2400))*.9,text:ease((ms-1600)/1000)});
  const end=ease((ms-6200)/600);
  if(end>0){
-  ctx.globalAlpha=end;ctx.fillStyle=colors.ink;ctx.fillRect(0,0,1080,1920);ctx.drawImage(look.orb,360,520,360,405);
+  ctx.globalAlpha=end;ctx.drawImage(look.plate,0,0,1080,1920);ctx.drawImage(look.orb,360,520,360,405);
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`76px ${fonts.display}, Georgia`;ctx.fillText('search Crystal Ball',540,1120);
   ctx.fillStyle=colors.gold;ctx.font=`44px ${fonts.body}, sans-serif`;ctx.fillText('Ask the Ball your own question',540,1200);
   ctx.fillStyle=colors.muted;ctx.font=`32px ${fonts.body}, sans-serif`;ctx.fillText('AI-generated · for entertainment',540,140);
  }
- ctx.globalAlpha=.55;ctx.textAlign='right';ctx.fillStyle=colors.ivory;ctx.font=`30px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',1020,1870);ctx.globalAlpha=1;ctx.textAlign='center';
+ ctx.globalAlpha=.55;ctx.textAlign='right';ctx.fillStyle=colors.ivory;ctx.font=`30px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',990,1810);ctx.globalAlpha=1;ctx.textAlign='center';
 }
 
 // The app's own generated chime and hum (assets/audio); no licensed music.
@@ -106,9 +113,8 @@ export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice
  async function make(){
   setBusy(true);onNotice('');
   try{
-   const orb=await loadOrb(),ballStyle=selectedStyle(state,'ball');let glass:HTMLImageElement|undefined;
-   if(ballStyle!=='classic'){glass=new Image();glass.src=Asset.fromModule(ballArt[ballStyle].glass).uri;await glass.decode();}
-   await save(await recordClip(prediction,{cardStyle:selectedStyle(state,'card'),ballStyle,orb,glass},{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
+   const look=await loadLook(selectedStyle(state,'card'),selectedStyle(state,'ball'),prediction.golden);
+   await save(await recordClip(prediction,look,{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
   }catch(error){onNotice(error instanceof Error&&error.message==='unsupported'?'This browser cannot record video. Use Story image or Replay for recording instead.':'The clip could not be recorded. Please try again.')}
   finally{setBusy(false)}
  }
