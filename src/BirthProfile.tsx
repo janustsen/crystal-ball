@@ -52,6 +52,6 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={()=>{update(forgetBirthChart);setTime('');setPlace('');setSelected(undefined);setPlaces([])}}/>:null}
    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
   </>:null}
-  {notice?<View style={styles.panel}><Material name="parchment-note-error"><Txt accessibilityRole="alert">{notice}</Txt></Material></View>:null}
+  {notice?<View style={styles.panel}><Material name="notice-error"><Txt accessibilityRole="alert">{notice}</Txt></Material></View>:null}
  </Material></View>;
 }

@@ -8,7 +8,7 @@ import {Material} from './Material';
 export function GoldenShelf({history,onOpen,onShare}:{history:Prediction[];onOpen:(p:Prediction)=>void;onShare:()=>void}){
  const shelf=goldenShelf(history);
  if(!shelf.length)return null;
- return <View testID="golden-shelf" style={styles.panel}><Material name="brass-plaque">
+ return <View testID="golden-shelf" style={styles.panel}><Material name="plaque">
   <Txt accessibilityRole="header" style={{color:colors.gold}}>Golden shelf · {shelf.length}</Txt>
   <Txt style={styles.caption}>Rare editions. Same uncertainty.</Txt>
   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:16,paddingVertical:12}}>

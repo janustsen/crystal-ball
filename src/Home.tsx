@@ -56,10 +56,10 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
 // The omen card, on its wax-card material over the scene.
 export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string}>){
  return <View {...props} accessibilityState={{busy}} style={{paddingTop:18,paddingHorizontal:22,paddingBottom:20,gap:8}}>
-  <Material name="brass-plaque">
+  <Material name="plaque">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
    <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.76,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Today’s omen</Txt>
-   <View style={{paddingVertical:3,paddingHorizontal:8}}><Material name="oak-chip"><Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.32,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Free</Txt></Material></View>
+   <View style={{paddingVertical:3,paddingHorizontal:8}}><Material name="walnut-chip"><Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.32,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Free</Txt></Material></View>
   </View>
   {children}
  </Material></View>;

@@ -41,6 +41,6 @@ export function SchoolPicker({schools,selected,onSaved}:{schools:School[];select
    {selected?<Action label="Remove my school" quiet disabled={busy} onPress={()=>void save(null)}/>:null}
    <Action label="Skip school selection" quiet disabled={busy} onPress={()=>{setEditing(false);setNearby(null);setQuery('')}}/>
   </>}
-  {notice?<View style={styles.panel}><Material name="parchment-note"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Material></View>:null}
+  {notice?<View style={styles.panel}><Material name="notice"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Material></View>:null}
  </Material></View>;
 }

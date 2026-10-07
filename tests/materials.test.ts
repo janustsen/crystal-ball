@@ -32,8 +32,8 @@ test('every kit material is bundled, states resolve to their own entry and fall 
   for(const state of states)assert.equal(material(name,state).source,`bundled:${(manifest.materials[`${name}-${state}`]??entry).file}`);
  }
  assert.equal(material('brass-button','pressed').source,'bundled:brass-button-pressed.png');
- assert.equal(material('oak-button','disabled').source,'bundled:oak-button.png');
- assert.equal(material('oak-chip','selected').ink,manifest.materials['oak-chip-selected'].text_color);
+ assert.equal(material('walnut-button','disabled').source,'bundled:walnut-button.png');
+ assert.equal(material('walnut-chip','selected').ink,manifest.materials['walnut-chip-selected'].text_color);
 });
 
 test('9-slice tiles the box exactly, keeps corner size, shrinks corners in a small box, and maps each window to its source region',()=>{

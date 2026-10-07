@@ -39,6 +39,6 @@ export function BackupPanel(){
    <Action label={mode==='save'?'Restore an Apple backup':'Save this device with Apple'} quiet disabled={backupBusy} onPress={()=>{setMode(mode==='save'?'restore':'save');setNotice('')}}/>
    <Txt style={styles.caption}>{mode==='save'?'Save this device’s history':'Restore from your linked Apple account. If you haven’t linked Apple yet, sign in to choose your backup.'}</Txt>
    {backupBusy?<Txt accessibilityLiveRegion="polite">Saving your glimpses…</Txt>:<Apple.AppleAuthenticationButton buttonType={Apple.AppleAuthenticationButtonType.CONTINUE} buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE} cornerRadius={12} style={{height:52,marginTop:12}} onPress={()=>{if(mode==='restore')Alert.alert('Replace this device’s data?','Restore from your linked Apple account replaces this device’s readings and remembered answers. If you haven’t linked Apple yet, sign in to choose your backup. Use one device at a time.',[{text:'Cancel',style:'cancel'},{text:'Restore and replace',style:'destructive',onPress:()=>{void connect('restore')}}]);else void connect('save')}}/>}
-  {notice?<View style={styles.panel}><Material name="parchment-note"><Txt accessibilityLiveRegion="polite" style={styles.caption}>{notice}</Txt></Material></View>:null}
+  {notice?<View style={styles.panel}><Material name="notice"><Txt accessibilityLiveRegion="polite" style={styles.caption}>{notice}</Txt></Material></View>:null}
  </Material></View>;
 }

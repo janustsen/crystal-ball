@@ -9,7 +9,7 @@ const plural=(n:number,word:string)=>`${n} ${word}${n===1?'':'s'}`;
 export function YearRecap({onPlus}:{onPlus:()=>void}){
  const {state}=useStore(),currentYear=new Date().getFullYear();
  const years=[currentYear,...[...new Set(state.history.map(p=>new Date(p.createdAt).getFullYear()))].filter(year=>year<currentYear).sort((a,b)=>b-a)];
- return <View testID="year-recap">{years.map(year=>{const recap=yearRecap(state.history,year);return <View key={year} testID={`year-recap-${year}`} style={styles.panel}><Material name="brass-plaque"><Txt display style={styles.title}>Your {recap.year} in forecasts</Txt>{state.plus?<>
+ return <View testID="year-recap">{years.map(year=>{const recap=yearRecap(state.history,year);return <View key={year} testID={`year-recap-${year}`} style={styles.panel}><Material name="plaque"><Txt display style={styles.title}>Your {recap.year} in forecasts</Txt>{state.plus?<>
   <Txt>{plural(recap.readings,'reading')} · {plural(recap.golden,'golden find')} · {plural(recap.yes,'Yes check-in')}</Txt>
   {recap.themes.length?<Txt style={styles.caption}>Most asked: {recap.themes.map(t=>`${skyPrompts[t.theme].label} ${t.count}`).join(' · ')}</Txt>:null}
   <Txt style={styles.caption}>Counts only · no accuracy score.</Txt>
