@@ -5,6 +5,7 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import sharp from 'sharp';
+import {labelContrast} from './layout-contrast.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',evidence=process.env.LAYOUT_EVIDENCE||'.local/layout';
 const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How settled is your plan right now, honestly?',options:['Barely started','Halfway there','Nearly certain','Other'],remember:false},{id:'context_b',question:'What usually gets in your way?',options:['Time','Money','Nerve','Other'],remember:false},{id:'context_c',question:'Who can help you keep going?',options:['A friend','A teacher','Just me','Other'],remember:false}]};
 // Facts and assumptions exercise their 300/200-character input limits; news titles are unbounded.
@@ -13,12 +14,11 @@ const longAssumption='You keep making time for regular practice and feedback eve
 const prediction={id:'layout-fixture',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:`Recorded context: ${longFact} This scenario assumes ${longAssumption} Dated news headlines below add background; they do not verify this prediction.`,facts:{context_a:longFact,context_b:longFact,context_c:longFact},sources:Array.from({length:3},(_,index)=>({title:`Layout source ${index+1}: ${'Language learners describe sustained practice, changing schedules and community conversation groups. '.repeat(5).slice(0,400)}`,url:`https://example.com/layout-source-${index+1}`,date:'2026-10-01',publisher:'Synthetic international language and education research publication'})),assumptions:[longAssumption],friend:false};
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const failures=[],checked=[],contrast=[];
-const luminance=([r,g,b])=>[r,g,b].map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
 // Every visible label against the pixels behind it: its glyphs are hidden for one screenshot (their shadow halo stays,
 // as it is drawn behind them), the box of its lines is sampled on a grid, and the worst tenth of those samples sets the ratio.
 // Labels scrolled out of view or under another layer (the tab bar) are skipped; disabled controls are exempt, as in WCAG.
 async function measureContrast(page,name){
- const labels=await page.evaluate(()=>{
+ const {labels,lens}=await page.evaluate(()=>{
   const shell=document.querySelector('[data-testid="app-shell"]'),out=[];
   for(const el of shell.querySelectorAll('*')){
    if(![...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))continue;
@@ -37,7 +37,8 @@ async function measureContrast(page,name){
    out.push({text:el.textContent.trim().slice(0,40),large:parseFloat(s.fontSize)>=24||parseFloat(s.fontSize)>=18.66&&Number(s.fontWeight)>=700,box:[r.left,Math.max(0,r.top),r.width,Math.min(innerHeight,r.bottom)-Math.max(0,r.top)],rgb:rgba.slice(0,3),alpha:(rgba[3]??1)*opacity});
   }
   const style=document.createElement('style');style.id='contrast-hide';style.textContent='[data-contrast]{color:transparent!important;-webkit-text-fill-color:transparent!important}';document.head.append(style);
-  return out;
+  const lens=document.querySelector('[data-testid="room-lens"]'),rect=lens?.getBoundingClientRect();
+  return {labels:out,lens:rect?.width&&rect.height&&getComputedStyle(lens).visibility!=='hidden'?{x:rect.left,y:rect.top,width:rect.width,height:rect.height}:null};
  });
  await page.waitForTimeout(50);
  const shot=await page.screenshot();
@@ -47,14 +48,10 @@ async function measureContrast(page,name){
   const samples=[];
   for(let i=0;i<8;i++)for(let j=0;j<3;j++){
    const x=Math.min(info.width-1,Math.round((l.box[0]+l.box[2]*(i+.5)/8)*k)),y=Math.min(info.height-1,Math.round((l.box[1]+l.box[3]*(j+.5)/3)*k)),o=(y*info.width+x)*3;
-   samples.push([data[o],data[o+1],data[o+2]]);
+   samples.push({rgb:[data[o],data[o+1],data[o+2]],x:x/k,y:y/k});
   }
-  const bgs=samples.map(luminance).sort((a,b)=>a-b),median=samples[Math.floor(samples.length/2)];
-  // The label's colour as drawn: its alpha blends it over the background.
-  const fg=luminance(l.rgb.map((c,i)=>c*l.alpha+median[i]*(1-l.alpha)));
-  const worst=fg>bgs[Math.floor(bgs.length/2)]?bgs[Math.floor(bgs.length*.9)]:bgs[Math.floor(bgs.length*.1)];
-  const ratio=(Math.max(fg,worst)+.05)/(Math.min(fg,worst)+.05);
-  if(ratio<(l.large?3:4.5))contrast.push({name,text:l.text,large:l.large,ratio:Number(ratio.toFixed(2)),text_luminance:Number(fg.toFixed(3)),background:[bgs[0],bgs[Math.floor(bgs.length/2)],bgs.at(-1)].map(v=>Number(v.toFixed(3))),box:l.box.map(Math.round)});
+  const result=labelContrast(l,samples,lens);
+  if(result.ratio<(l.large?3:4.5))contrast.push({name,text:l.text,large:l.large,ratio:Number(result.ratio.toFixed(2)),text_luminance:Number(result.foreground.toFixed(3)),background:result.background.map(v=>Number(v.toFixed(3))),box:l.box.map(Math.round)});
  }
 }
 async function audit(page,width,name,marker,delay=1300){
