@@ -18,7 +18,7 @@ function fixture(platform='ios'){
  const setSkyPush=async(enabled:boolean,token?:string)=>{calls.push(token?`sky:${enabled}:${token}`:`sky:${enabled}`);if(saveFails)throw new Error('Save failed');account.answered=true;account.enabled=enabled;if(token)account.token=token;};
  const imports:Record<string,any>={
   react,'react-native':{Platform:{OS:platform},View:'View',Switch:'Switch'},
-  './ui':{Action:'Action',Txt:'Txt',styles:{row:{}}},
+  './Material':{Material:'Material'},'./ui':{Action:'Action',Txt:'Txt',styles:{row:{}}},
   'expo-constants':{expoConfig:{extra:{eas:{projectId:'test-project'}}}},
   'expo-notifications':{
    requestPermissionsAsync:async()=>{calls.push('permission');return {status:permission}},

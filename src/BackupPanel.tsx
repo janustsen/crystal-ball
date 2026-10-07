@@ -6,6 +6,7 @@ import {anonymousOwner,supabase} from './cloud';
 import {uuid} from './uuid';
 import {useStore} from './store';
 import {Action,styles,Txt} from './ui';
+import {Material} from './Material';
 
 export function BackupPanel(){
  const {backup,backupBusy}=useStore();
@@ -32,7 +33,7 @@ export function BackupPanel(){
   }catch{setNotice(action==='save'?'Backup could not finish. Already saved with Apple? Choose Restore. Your local readings are safe.':'Restore could not finish. Your local readings are safe. Try again when connected.')}
  }
  if(!available||!configured)return null;
- return <View style={styles.panel}>
+ return <View style={styles.panel}><Material name="oak-panel"/>
   <Txt>Keep your glimpses</Txt>
   <Txt style={styles.caption}>Optional Apple backup saves your readings and remembered answers to Supabase. Use one device at a time. Saving replaces the archive; Restore replaces this device’s readings and remembered answers. Test credits stay here.</Txt>
    <Action label={mode==='save'?'Restore an Apple backup':'Save this device with Apple'} quiet disabled={backupBusy} onPress={()=>{setMode(mode==='save'?'restore':'save');setNotice('')}}/>

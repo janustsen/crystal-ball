@@ -110,7 +110,7 @@ test('the room ball supplies touch feedback before reading, and a drag spins it 
  const render=component('../src/Home.tsx',{
   'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './RoomScene':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt'},'./store':{useStore:()=>({state:{}})},
+  './RoomScene':{AskOrb:'AskOrb'},'./Material':{Material:'Material'},'./ui':{Txt:'Txt',fonts:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });

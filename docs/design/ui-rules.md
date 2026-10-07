@@ -1,6 +1,6 @@
 # Crystal Ball UI rules
 
-The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, IM Fell English display type and Hanken Grotesk body type. Every tab sits in the captain-approved AI-rendered library room (`src/RoomScene.web.tsx`, [motion](motion.md#room)) with the canvas Library artboard's three.js glass ball, drag-to-spin, Cormorant Garamond and Instrument Sans header and tab bar (`src/Home.tsx`); each tab's existing screen content keeps the 17-screen design. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
+The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority is a warm, dark room, drifting smoke, a gold-glass orb on a brass stand, one typeface for all UI text. Every tab sits in the captain-approved AI-rendered library room (`src/RoomScene.web.tsx`, [motion](motion.md#room)) with the canvas Library artboard's three.js glass ball, drag-to-spin, header and tab bar (`src/Home.tsx`); each tab's existing screen content keeps the 17-screen design. Reusable art is extracted with `scripts/import-design.py`; see [motion](motion.md) for the fog implementation. Fonts and licenses live in assets/fonts/.
 
 ## Palette and composition
 
@@ -14,9 +14,9 @@ The supplied 17-screen **Crystal Ball.html** design supersedes A4. Its authority
 | Secondary text | #B9AB97 |
 | Gold / focus | #E0A458 / #F2C284 |
 | Borders | #614C34 / #79634A |
-| Display / body | IM Fell English / Hanken Grotesk |
+| All UI text | Cormorant Garamond (regular and italic; `fonts` in `src/ui.tsx`) |
 
-The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark and tab labels retain their graphic size; task text scales. Touch targets remain at least 44 pt. Surfaces are illustrated rather than flat: a near-black #0B0604 ink outline, a thin gold inner rim, a hard drop shadow and soft ambient shadow. Primary buttons are warm ivory on a brass lip that sinks when pressed; secondary buttons are dark glass on an ink lip; answer options are inked chips. The [motion language](motion-language.md) owns these finishes alongside movement. Smoke and embers are decorative and cannot intercept input. Reduced motion stops the shader animation and CSS motion.
+The web app stays centered at a maximum width of 390 px. Content scrolls on smaller screens and at 200% text. Nothing may overflow the shell horizontally at 360–430 px, at either text size; rows let their text column shrink and wrap (`scripts/check-layout.mjs` enforces this). The wordmark and tab labels retain their graphic size; task text scales. Touch targets remain at least 44 pt. Surfaces are rendered, never hand-drawn: every notice, button, input, chip, card, panel, header pill and tab bar draws a named material from `assets/materials/manifest.json` behind its live content (`src/Material.tsx`, 9-slice; `src/materials.ts` has the swap point). Until the modeled component kit lands, the materials are room-still crops from `scripts/material-placeholders.mjs`, which keeps their text at 4.5:1. Primary buttons use `brass-plaque`, secondary buttons `engraved-button`, answer and style chips `leather-strip`, panels `oak-panel`, notices `parchment-note`, cards `wax-card` and fields `glass-input`; pressed buttons still sink. The [motion language](motion-language.md) owns movement. Smoke and embers are decorative and cannot intercept input. Reduced motion stops the shader animation and CSS motion.
 
 ## Navigation and the 17 states
 
