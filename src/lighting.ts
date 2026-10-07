@@ -54,11 +54,11 @@ export function vignette(room:RoomLight,x:number,y:number){
 
 export type Shade={near:number;far:number;color:[number,number,number];dir:[number,number]};
 // A material's lighting across its box (window coordinates): exposure at the edge facing the main source and at the
-// opposite edge, clamped to its contrast range.
-export function shade(room:RoomLight,m:Material,box:{x:number;y:number;width:number;height:number}):Shade{
+// opposite edge, clamped to its contrast range. A focused field takes at least the full light, so its focus frame shows.
+export function shade(room:RoomLight,m:Material,box:{x:number;y:number;width:number;height:number},focused=false):Shade{
  const centre=lightAt(room,box.x+box.width/2,box.y+box.height/2),[dx,dy]=centre.dir,reach=(Math.abs(dx)*box.width+Math.abs(dy)*box.height)/2;
  // The contrast range holds for what reaches the eye: the room's exposure after the lens vignette.
- const [lo,hi]=exposureRange(m,inkColor(m));
+ const [range,hi]=exposureRange(m,inkColor(m)),lo=focused?Math.max(1,range):range;
  const at=(s:number)=>{const x=box.x+box.width/2+dx*reach*s,y=box.y+box.height/2+dy*reach*s,v=vignette(room,x,y);return Math.min(hi,Math.max(lo,lightAt(room,x,y).exposure*v))/v};
  return {near:at(1),far:at(-1),color:centre.color,dir:centre.dir};
 }

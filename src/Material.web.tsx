@@ -20,7 +20,7 @@ export function Material({name,state,children}:React.PropsWithChildren<{name:Mat
  const m=material(name,state),room=useContext(RoomLightContext),ref=useRef<HTMLDivElement>(null),[light,setLight]=useState<Shade|null>(null);
  useLayoutEffect(()=>{
   const box=ref.current?.getBoundingClientRect();if(!room||!box)return;
-  const next=shade(room,m,{x:box.left,y:box.top,width:box.width,height:box.height});
+  const next=shade(room,m,{x:box.left,y:box.top,width:box.width,height:box.height},state==='focused');
   setLight(old=>old&&JSON.stringify(old)===JSON.stringify(next)?old:next);
  });
  const uri=Asset.fromModule(m.source).uri,o=m.outset,dir=light?.dir??[0,-1],cast=castOffset(dir);
