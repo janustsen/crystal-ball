@@ -33,7 +33,7 @@ try{
   for(const name of ['CormorantGaramond','CormorantGaramondItalic'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
  },modules);
  const bytes=await page.evaluate(async()=>{
-  const look=await window.recorder.loadLook('classic','classic');
+  const look=await window.recorder.loadLook('classic','classic',false,true);
   // Stall both animation schedulers across the end-card transition and nominal clip deadline.
   const raf=window.requestAnimationFrame,timer=window.setTimeout,start=performance.now();
   const delayed={animation:0,timer:0};

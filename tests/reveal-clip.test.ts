@@ -126,3 +126,18 @@ test('reveal clips paint on the modeled plate with AI glass inside the ball and 
   assert.equal(ctx.globalAlpha,1);
  }
 });
+
+test('still cards never load the clip glow, so a broken light pass cannot block a still export',async()=>{
+ const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const module={exports:{} as typeof import('../src/RevealClip')},requested:string[]=[];
+ const assets=['orb.png','share/glow.jpg',...['classic','gold','obsidian','golden'].map(style=>`share/${style}.jpg`)];
+ const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{Asset:{fromModule:(uri:string)=>({uri})}},
+  './Material':{},'./ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},
+  ...Object.fromEntries(assets.map(asset=>[`../assets/${asset}`,asset]))};
+ class BrokenGlow{src='';decode(){requested.push(this.src);return this.src==='share/glow.jpg'?Promise.reject(new Error('glow decode failed')):Promise.resolve()}}
+ runInNewContext(code,{module,exports:module.exports,Image:BrokenGlow,Promise,require:(name:string)=>{assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name]}});
+ const still=await module.exports.loadLook('gold','classic');
+ assert.equal(still.light,undefined);
+ assert.deepEqual(requested.sort(),['orb.png','share/gold.jpg']);
+ await assert.rejects(module.exports.loadLook('classic','classic',false,true),/glow decode failed/);
+});
