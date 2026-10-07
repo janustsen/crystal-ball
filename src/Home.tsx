@@ -58,7 +58,7 @@ export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?
  return <View {...props} accessibilityState={{busy}} style={{paddingTop:18,paddingHorizontal:22,paddingBottom:20,gap:8}}>
   <Material name="plaque">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-   <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.76,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Today’s omen</Txt>
+   <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.76,textTransform:'uppercase',color:'rgb(246,214,166)'}}>Today’s omen</Txt>
    <View style={{paddingVertical:3,paddingHorizontal:8}}><Material name="walnut-chip"><Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.32,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Free</Txt></Material></View>
   </View>
   {children}
@@ -82,7 +82,7 @@ export function HomeTabBar({current,disabled,reduce,bottom,onTab}:{current:strin
   {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=><Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={t===current} accessibilityState={{selected:t===current}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?6:4,paddingBottom:8}}>
    {t===current?<Material name="tabslot"/>:null}
    {t==='Ask'?<View style={{width:26,height:26}}><View style={{position:'absolute',left:-15,top:-15,width:56,height:56}}><Material name="cradle"/></View><View style={{zIndex:1}}><AskOrb reduce={reduce}/></View></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',t===current?active:muted)} width={22} height={22}/>}
-   <Txt allowFontScaling={false} style={[label,{color:t===current?active:muted}]}>{t}</Txt>
+   <Txt allowFontScaling={false} style={[label,{color:t===current?active:'rgba(242,231,210,.8)'}]}>{t}</Txt>
   </Pressable>)}
  </Material></View>;
 }

@@ -193,7 +193,9 @@ test('native material lighting follows room and material changes without another
  function check(){
   tree=settle();
   const expected=lightingModule.shade(room,material(props.name,props.state,props.detail),box,props.state==='focused');
-  assert.deepEqual([...tree.props.children[1].props.value.dir],[...expected.dir]);
+  const ink=tree.props.children[1].props.value;
+  if(material(props.name,props.state,props.detail).ink)assert.deepEqual([...ink.dir],[...expected.dir]);
+  else assert.equal(ink,undefined);
   const cast=lightingModule.castOffset(expected.dir);
   assert.deepEqual({...tree.props.children[0].props.style.shadowOffset},{width:cast.x,height:cast.y});
   const art=material(props.name,props.state,props.detail),o=art.outset;
