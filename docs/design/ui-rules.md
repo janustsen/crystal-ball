@@ -48,7 +48,7 @@ See [sharing usage](../../README.md) for story-image and recording contents and 
 
 ## Verification
 
-The project verify-crystal-ball skill owns the executable gate. Current evidence is docs/evidence/design-2026-09-30/, including all 17 screens, actual engine responses, accessibility scans, small-screen/large-text checks and preserved failed rounds. Earlier violet/A4 and modeled-kit evidence is historical. Match the exported reference visually while using live data; do not seed personal facts or successful readings merely to reproduce reference copy.
+The project verify-crystal-ball skill owns the executable gate. Current appearance evidence is [the modern UI refresh](../evidence/modern-ui-2026-10-07/README.md): fixture-based screen and export captures plus small-screen/large-text layout and contrast measurements, not model-behavior or predictive-accuracy proof. Earlier engine responses, accessibility scans and preserved failed rounds remain in docs/evidence/design-2026-09-30/; those captures and the violet/A4 and modeled-kit evidence are historical visual references. Match the exported reference visually while using live data; do not seed personal facts or successful readings merely to reproduce reference copy.
 
 ## Short, personal readings
 

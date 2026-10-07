@@ -119,4 +119,3 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
   {offline?<View style={styles.panel}><Surface kind="error"><Txt style={styles.caption}>{socialUnavailable}</Txt><Action label="Try connecting again" quiet disabled={busy} onPress={()=>setVersion(v=>v+1)}/></Surface></View>:null}
  </>;
 }
-
