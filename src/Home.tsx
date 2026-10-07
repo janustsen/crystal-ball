@@ -53,7 +53,6 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
  return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} onPointerDown={e=>spin.grab?.(e.nativeEvent as unknown as PointerEvent)} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
 }
 
-// The omen card, on its wax-card material over the scene.
 export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string}>){
  return <View {...props} accessibilityState={{busy}} style={{paddingTop:18,paddingHorizontal:22,paddingBottom:20,gap:8}}>
   <Material name="plaque">

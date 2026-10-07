@@ -130,4 +130,3 @@ function OnGlass({children}:React.PropsWithChildren){
  const staged=useRoomPiece('sky-map',{anchor:'skylight',node:<View testID="tonights-sky" pointerEvents="box-none" style={{flex:1}}>{children}</View>});
  return staged?null:<View testID="tonights-sky" style={{minHeight:380,marginVertical:20}}><Material name="plaque">{children}</Material></View>;
 }
-
