@@ -41,9 +41,9 @@ export function RoomHeader({title,count,ready,onPlans,top}:{title:string;count:s
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,right:0,top:top+26,alignItems:'center'}}>
   <Txt accessibilityRole="header" allowFontScaling={false} style={{fontFamily:homeFonts.italic,fontSize:30,lineHeight:30,letterSpacing:.3,color:cream}}>{title}</Txt>
   <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPlans} style={{minHeight:44,marginTop:-7,paddingHorizontal:16,flexDirection:'row',alignItems:'center'}}>
-   <Material name="leather-strip"/>
+   <Material name="brass-plaque">
    <Txt style={{fontFamily:homeFonts.sans,fontSize:11.5,lineHeight:14,letterSpacing:2.07,textTransform:'uppercase',color:'rgba(242,231,210,.74)'}}>{count}</Txt>
-  </Pressable>
+  </Material></Pressable>
  </View>;
 }
 
@@ -56,13 +56,13 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
 // The omen card, on its wax-card material over the scene.
 export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string}>){
  return <View {...props} accessibilityState={{busy}} style={{paddingTop:18,paddingHorizontal:22,paddingBottom:20,gap:8}}>
-  <Material name="wax-card"/>
+  <Material name="brass-plaque">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
    <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.76,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Today’s omen</Txt>
-   <View style={{paddingVertical:3,paddingHorizontal:8}}><Material name="leather-strip"/><Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.32,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Free</Txt></View>
+   <View style={{paddingVertical:3,paddingHorizontal:8}}><Material name="oak-chip"><Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.32,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Free</Txt></Material></View>
   </View>
   {children}
- </View>;
+ </Material></View>;
 }
 export const omenTextStyle={fontFamily:homeFonts.serif,fontSize:21,lineHeight:26.88,color:'#f5ecdc'};
 
@@ -78,11 +78,11 @@ type Tab='Home'|'Sky'|'Ask'|'History'|'You';
 export function HomeTabBar({current,disabled,reduce,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
  const label={fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:.44};
  return <View accessibilityRole="tablist" style={{position:'absolute',left:0,right:0,bottom:0,height:homeTabBarHeight+1+bottom,paddingBottom:bottom,flexDirection:'row'}}>
-  <Material name="leather-strip"/>
+  <Material name="leather-strip">
   {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=><Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={t===current} accessibilityState={{selected:t===current}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?6:4,paddingBottom:8}}>
    {t===current?<Material name="leather-strip" state="selected"/>:null}
    {t==='Ask'?<AskOrb reduce={reduce}/>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',t===current?active:muted)} width={22} height={22}/>}
    <Txt allowFontScaling={false} style={[label,{color:t===current?active:muted}]}>{t}</Txt>
   </Pressable>)}
- </View>;
+ </Material></View>;
 }

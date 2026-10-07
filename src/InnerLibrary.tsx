@@ -21,10 +21,10 @@ export function InnerLibrary({onUpgrade}:{onUpgrade:()=>void}){
   return <View style={{marginTop:16}}><Txt style={styles.caption}>{label}</Txt><View accessibilityRole="radiogroup" accessibilityLabel={`${kind} style`} style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:8}}>{(Object.keys(styleCatalogs[kind]) as StyleOf[K][]).map(value=>{
    const name=(styleCatalogs[kind] as Record<StyleOf[K],{name:string}>)[value].name,checked=current===value;
    return <Pressable key={value} testID={`${kind}-style-${value}`} accessibilityRole="radio" accessibilityLabel={`${kind} style ${name}`} disabled={saving} accessibilityState={{disabled:saving,checked}} aria-checked={checked} onPress={()=>void choose(kind,value)} style={{minHeight:44,width:kind==='ball'?60:undefined,padding:kind==='ball'?4:12,alignItems:'center'}}>
-    <Material name="leather-strip" state={saving?'disabled':checked?'selected':undefined}/>
+    <Material name="oak-chip" state={saving?'disabled':checked?'selected':undefined}>
     {kind==='ball'?<View style={{width:48,height:64,alignItems:'center',justifyContent:'center',borderRadius:8,overflow:'hidden'}}>{value==='classic'?<OrbVisual size={44} reduce/>:<Image source={ballArt[value as Exclude<StyleOf['ball'],'classic'>].preview} style={{width:48,height:64}}/>}</View>:null}
     <Txt style={kind==='ball'?[styles.caption,{marginTop:4,textAlign:'center'}]:undefined}>{name}</Txt>
-   </Pressable>})}</View></View>;
+   </Material></Pressable>})}</View></View>;
  }
- return <View testID="inner-library-open"><Txt style={styles.muted}>Choose how your ball and share card look.</Txt>{group('ball','Ball')}{group('card','Share card')}{notice?<Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{notice}</Txt>:null}</View>;
+ return <View testID="inner-library-open"><Txt style={styles.muted}>Choose how your ball and share card look.</Txt>{group('ball','Ball')}{group('card','Share card')}{notice?<View style={styles.panel}><Material name="parchment-note"><Txt accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{notice}</Txt></Material></View>:null}</View>;
 }

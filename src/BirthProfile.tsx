@@ -27,7 +27,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
   if(ageGroup(birthday)==='under13'){update(s=>({...s,onboardingBlocked:true,onboardingDone:false}));return;}
   try{const next=updateBirthday(state,birthday.trim()||undefined);update(()=>next);setEditing(false);setNotice('');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
  }
- return <View style={styles.panel}><Material name="oak-panel"/>
+ return <View style={styles.panel}><Material name="oak-panel">
   <Txt display style={styles.title}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
@@ -52,6 +52,6 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
    {state.birthPlace?<Action label="Forget birth time and place" quiet onPress={()=>{update(forgetBirthChart);setTime('');setPlace('');setSelected(undefined);setPlaces([])}}/>:null}
    <Txt style={styles.caption}>City search: Open-Meteo / GeoNames. Only the city name is sent.</Txt>
   </>:null}
-  {notice?<Txt accessibilityRole="alert">{notice}</Txt>:null}
- </View>;
+  {notice?<View style={styles.panel}><Material name="parchment-note-error"><Txt accessibilityRole="alert">{notice}</Txt></Material></View>:null}
+ </Material></View>;
 }

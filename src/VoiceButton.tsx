@@ -10,5 +10,5 @@ export function VoiceButton({onText,onNotice,autoStart=false}:{onText:(text:stri
  useSpeechRecognitionEvent('result',event=>{const text=event.results[0]?.transcript;if(text)onText(text)});
  useSpeechRecognitionEvent('end',()=>setActive(false));
  useSpeechRecognitionEvent('error',()=>{setActive(false);onNotice('Voice is unavailable. You can type your question instead.')});
- return <Pressable accessibilityRole="button" accessibilityLabel={active?'Stop listening':'Start listening'} onPress={()=>active?voice.pressOut():void voice.pressIn()} style={styles.action}><Material name="engraved-button"/><Txt style={{textAlign:'center'}}>{active?'Listening… tap to finish':'Start listening'}</Txt></Pressable>;
+ return <Pressable accessibilityRole="button" accessibilityLabel={active?'Stop listening':'Start listening'} onPress={()=>active?voice.pressOut():void voice.pressIn()} style={styles.action}><Material name="oak-button"><Txt style={{textAlign:'center'}}>{active?'Listening… tap to finish':'Start listening'}</Txt></Material></Pressable>;
 }

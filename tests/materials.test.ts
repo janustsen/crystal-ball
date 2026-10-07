@@ -16,14 +16,33 @@ function load(file:string,imports:Record<string,unknown>={}){
  }});
  return module.exports;
 }
-const {material,slices}=load('../src/materials.ts');
+const {material,slices,capBox}=load('../src/materials.ts',{react:{createContext:(value:unknown)=>({value})}});
 
-test('every material and state resolves to a bundled file that exists, and missing states fall back to the base art',()=>{
+const states=['pressed','selected','disabled'];
+test('every material and state resolves to a bundled kit-schema image that exists, and missing states fall back to the base art',()=>{
+ assert.equal(manifest.schema,'cb-component-kit.v1');
  for(const [name,entry] of Object.entries<any>(manifest.materials)){
-  for(const file of [entry.file,...Object.values(entry.states??{})])assert.ok(existsSync(new URL(`../assets/materials/${file}`,import.meta.url)),file);
-  assert.equal(material(name).source,`bundled:${entry.file}`);
-  for(const state of ['pressed','selected','disabled'])assert.equal(material(name,state).source,`bundled:${entry.states?.[state]??entry.file}`);
+  for(const image of [entry.image,...states.map(s=>entry[s]).filter(Boolean)])assert.ok(existsSync(new URL(`../assets/materials/${image}`,import.meta.url)),image);
+  assert.equal(material(name).source,`bundled:${entry.image}`);
+  assert.deepEqual([...[material(name).width,material(name).height]],entry.size_px);
+  for(const state of states)assert.equal(material(name,state).source,`bundled:${entry[state]??entry.image}`);
  }
+});
+
+test('a kit entry carries its text ink and centres each cap on its anchor plus offset, in points',()=>{
+ const kit={schema:'cb-component-kit.v1',materials:{'parchment-note':{image:'parchment-note.png',size_px:[1050,420],insets_px:{top:84,right:84,bottom:84,left:84},repeat:'round',text_color:'#2B1A0E',
+  caps:{'brass-tack':{image:'parchment-note.png',size_px:[96,96],anchor:'top-center',offset_pt:[0,-10]},seal:{image:'parchment-note.png',size_px:[180,180],anchor:'top-right',offset_pt:[-8,-16]}}}}};
+ const module={exports:{} as any};
+ const code=ts.transpileModule(readFileSync(new URL('../src/materials.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText;
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>name==='react'?{createContext:()=>({})}:name.endsWith('.json')?kit:name});
+ const m=module.exports.material('parchment-note');
+ assert.equal(m.ink,'#2B1A0E');assert.equal(m.fill,'round');assert.equal(m.width,1050);
+ assert.deepEqual({...m.insets},{top:84,right:84,bottom:84,left:84});
+ const [tack,seal]=m.caps.map((cap:any)=>({...capBox(cap,300,120)}));
+ assert.deepEqual(tack,{left:150-16,top:-10-16,width:32,height:32});
+ assert.deepEqual(seal,{left:300-8-30,top:-16-30,width:60,height:60});
+ // Placeholders carry no ink, so the app keeps its own colours on them.
+ assert.equal(material('parchment-note').ink,undefined);
 });
 
 test('9-slice tiles the box exactly, keeps corner size, shrinks corners in a small box, and maps each window to its source region',()=>{
@@ -60,4 +79,24 @@ test('UI components carry no hand-coded surface shadows, borders or frosted fill
   const found=readFileSync(new URL(file,import.meta.url),'utf8').match(/boxShadow|border(Top|Bottom|Left|Right)?Width|borderColor|backdropFilter/g);
   assert.equal(found,null,`${file}: ${found}`);
  }
+});
+
+test('text and fields on an inked material take its ink; without one they keep the app colours',()=>{
+ let ink:string|undefined;
+ const flatten=(s:any):any=>Array.isArray(s)?Object.assign({},...s.flat(Infinity).filter(Boolean).map(flatten)):{...s};
+ const element=(type:any,props:any)=>({type,props});
+ const ui=load('../src/ui.tsx',{react:{useContext:()=>ink,useRef:()=>({current:null})},'react/jsx-runtime':{jsx:element,jsxs:element,Fragment:'Fragment'},
+  'react-native':{StyleSheet:{create:(s:any)=>s,flatten},Text:'Text',TextInput:'TextInput',View:'View'},'./OrbVisual':{},'./Enter':{},'./motion':{},'./delight':{},'./native':{},
+  './store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./materials':{MaterialInk:{}}});
+ const color=(style:any)=>{const s=flatten(style);return [s.color,s.opacity??1]};
+ assert.deepEqual(color(ui.Txt({children:'x',style:ui.styles.caption}).props.style),[ui.colors.muted,1]);
+ ink='#2B1A0E';
+ assert.deepEqual(color(ui.Txt({children:'x',style:ui.styles.caption}).props.style),['#2B1A0E',.78]);
+ assert.deepEqual(color(ui.Txt({children:'x',display:true}).props.style),['#2B1A0E',1]);
+ assert.equal(flatten(ui.Txt({children:'x',display:true}).props.style).textShadowColor,'transparent');
+ const field=ui.Field({style:[ui.styles.input,{marginTop:12}],placeholderTextColor:'#999'});
+ assert.deepEqual({...field.props.style},{marginTop:12});
+ const input=field.props.children.props.children,rendered=input.type(input.props);
+ assert.equal(flatten(rendered.props.style).color,'#2B1A0E');
+ assert.equal(rendered.props.placeholderTextColor,'#2B1A0EA6');
 });

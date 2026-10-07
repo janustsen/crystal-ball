@@ -1,13 +1,18 @@
 import React,{useState} from 'react';
 import {Image,StyleSheet,View} from 'react-native';
-import {material,slices,type MaterialName,type MaterialState} from './materials';
+import {material,slices,capBox,MaterialInk,type MaterialName,type MaterialState} from './materials';
 
-// A surface's rendered material, stretched behind its live content: put it first inside the surface, which keeps its own
-// layout, padding, accessibility and testID. Native draws the 9 slices as clipped images.
+// A surface's rendered material: put it first inside the surface (which keeps its own layout, padding, accessibility and
+// testID) and the surface's content inside it, so text takes the material's ink. Native draws the 9 slices as clipped
+// images under the content, and the caps over its edges.
 // ponytail: native always stretches; a kit material that must tile ("repeat"/"round") needs pre-cut edge tiles here.
-export function Material({name,state}:{name:MaterialName;state?:MaterialState}){
+export function Material({name,state,children}:React.PropsWithChildren<{name:MaterialName;state?:MaterialState}>){
  const [size,setSize]=useState<{width:number;height:number}|null>(null),m=material(name,state);
- return <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" testID={`material-${name}`} onLayout={e=>setSize(e.nativeEvent.layout)} style={StyleSheet.absoluteFill}>
-  {size?slices(m,size.width,size.height).map((s,i)=><View key={i} style={{position:'absolute',overflow:'hidden',...s.dest}}><Image source={m.source} resizeMode="stretch" style={{position:'absolute',...s.image}}/></View>):null}
- </View>;
+ return <>
+  <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" testID={`material-${name}`} onLayout={e=>setSize(e.nativeEvent.layout)} style={StyleSheet.absoluteFill}>
+   {size?slices(m,size.width,size.height).map((s,i)=><View key={i} style={{position:'absolute',overflow:'hidden',...s.dest}}><Image source={m.source} resizeMode="stretch" style={{position:'absolute',...s.image}}/></View>):null}
+  </View>
+  {children===undefined?null:<MaterialInk.Provider value={m.ink}>{children}</MaterialInk.Provider>}
+  {size?m.caps.map((cap,i)=><View key={i} pointerEvents="none" accessible={false} style={{position:'absolute',...capBox(cap,size.width,size.height)}}><Image source={cap.source} style={{width:'100%',height:'100%'}}/></View>):null}
+ </>;
 }

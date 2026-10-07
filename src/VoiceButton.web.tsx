@@ -13,5 +13,5 @@ export function VoiceButton({onText,onNotice,autoStart=false}:{onText:(s:string)
   try{speech.start();setActive(true)}catch{setActive(false);callbacks.current.onNotice('Voice could not start. Type your question instead.')}
  }
  useEffect(()=>{if(autoStart)start();return()=>{const speech=ref.current;if(speech){speech.onresult=null;speech.onend=null;speech.onerror=null;speech.stop()}}},[]);
- return <Pressable accessibilityRole="button" accessibilityLabel={active?'Stop listening':'Start listening'} onPress={()=>active?ref.current?.stop():start()} style={styles.action}><Material name="engraved-button"/><Txt style={{textAlign:'center'}}>{active?'Listening… tap to finish':'Start listening'}</Txt></Pressable>;
+ return <Pressable accessibilityRole="button" accessibilityLabel={active?'Stop listening':'Start listening'} onPress={()=>active?ref.current?.stop():start()} style={styles.action}><Material name="oak-button"><Txt style={{textAlign:'center'}}>{active?'Listening… tap to finish':'Start listening'}</Txt></Material></Pressable>;
 }
