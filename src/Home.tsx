@@ -41,7 +41,7 @@ export function RoomHeader({title,count,ready,onPlans,top}:{title:string;count:s
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,right:0,top:top+26,alignItems:'center'}}>
   <Txt accessibilityRole="header" allowFontScaling={false} style={{fontFamily:homeFonts.italic,fontSize:30,lineHeight:30,letterSpacing:.3,color:cream}}>{title}</Txt>
   <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPlans} style={{minHeight:44,marginTop:-7,paddingHorizontal:16,flexDirection:'row',alignItems:'center'}}>
-   <Material name="brass-plaque">
+   <Material name="brass-badge">
    <Txt style={{fontFamily:homeFonts.sans,fontSize:11.5,lineHeight:14,letterSpacing:2.07,textTransform:'uppercase',color:'rgba(242,231,210,.74)'}}>{count}</Txt>
   </Material></Pressable>
  </View>;
@@ -78,10 +78,10 @@ type Tab='Home'|'Sky'|'Ask'|'History'|'You';
 export function HomeTabBar({current,disabled,reduce,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
  const label={fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:.44};
  return <View accessibilityRole="tablist" style={{position:'absolute',left:0,right:0,bottom:0,height:homeTabBarHeight+1+bottom,paddingBottom:bottom,flexDirection:'row'}}>
-  <Material name="leather-strip">
+  <Material name="tabbar">
   {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=><Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={t===current} accessibilityState={{selected:t===current}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?6:4,paddingBottom:8}}>
-   {t===current?<Material name="leather-strip" state="selected"/>:null}
-   {t==='Ask'?<AskOrb reduce={reduce}/>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',t===current?active:muted)} width={22} height={22}/>}
+   {t===current?<Material name="tabslot"/>:null}
+   {t==='Ask'?<View style={{width:26,height:26}}><View style={{position:'absolute',left:-15,top:-15,width:56,height:56}}><Material name="cradle"/></View><View style={{zIndex:1}}><AskOrb reduce={reduce}/></View></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',t===current?active:muted)} width={22} height={22}/>}
    <Txt allowFontScaling={false} style={[label,{color:t===current?active:muted}]}>{t}</Txt>
   </Pressable>)}
  </Material></View>;

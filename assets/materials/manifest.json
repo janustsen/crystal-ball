@@ -1,177 +1,485 @@
 {
  "schema": "cb-component-kit.v1",
+ "source": "/Users/janustsen/dev/archive/crystal-ball-components",
  "materials": {
-  "parchment-note": {
-   "image": "parchment-note.png",
-   "size_px": [
-    360,
-    150
-   ],
-   "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
-   },
-   "repeat": "stretch",
-   "placeholder": "room library crop 340,1230,440,130"
-  },
-  "parchment-note-error": {
-   "image": "parchment-note-error.png",
-   "size_px": [
-    360,
-    150
-   ],
-   "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
-   },
-   "repeat": "stretch",
-   "placeholder": "room history crop 180,765,255,390"
-  },
   "brass-button": {
-   "image": "brass-button.png",
+   "file": "brass-button.png",
    "size_px": [
-    360,
-    150
+    1092,
+    252
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 0,
+    "right": 96,
+    "bottom": 0,
+    "left": 96
    },
-   "repeat": "stretch",
-   "placeholder": "room library crop 380,1250,380,100",
-   "pressed": "brass-button-pressed.png",
-   "disabled": "brass-button-disabled.png"
+   "outset_pt": 12,
+   "fixed_height_pt": 60,
+   "text_color": "#2A190C"
+  },
+  "brass-button-pressed": {
+   "file": "brass-button-pressed.png",
+   "size_px": [
+    1092,
+    252
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 96,
+    "bottom": 0,
+    "left": 96
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": 60,
+   "text_color": "#2A190C"
+  },
+  "brass-button-disabled": {
+   "file": "brass-button-disabled.png",
+   "size_px": [
+    1092,
+    252
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 96,
+    "bottom": 0,
+    "left": 96
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": 60,
+   "text_color": "#6B5236"
   },
   "oak-button": {
-   "image": "oak-button.png",
+   "file": "oak-button.png",
    "size_px": [
-    360,
-    150
+    1092,
+    252
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 0,
+    "right": 96,
+    "bottom": 0,
+    "left": 96
    },
-   "repeat": "stretch",
-   "placeholder": "room ask crop 100,2000,900,300",
-   "pressed": "oak-button-pressed.png",
-   "disabled": "oak-button-disabled.png"
+   "outset_pt": 12,
+   "fixed_height_pt": 60,
+   "text_color": "#F3E6CC"
+  },
+  "oak-button-pressed": {
+   "file": "oak-button-pressed.png",
+   "size_px": [
+    1092,
+    252
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 96,
+    "bottom": 0,
+    "left": 96
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": 60,
+   "text_color": "#F3E6CC"
   },
   "oak-chip": {
-   "image": "oak-chip.png",
+   "file": "oak-chip.png",
    "size_px": [
-    360,
-    150
+    792,
+    216
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 0,
+    "right": 114,
+    "bottom": 0,
+    "left": 114
    },
-   "repeat": "stretch",
-   "placeholder": "room you crop 470,1000,280,120",
-   "selected": "oak-chip-selected.png"
+   "outset_pt": 12,
+   "fixed_height_pt": 48,
+   "text_color": "#F3E6CC"
   },
-  "vellum-card": {
-   "image": "vellum-card.png",
+  "oak-chip-selected": {
+   "file": "oak-chip-selected.png",
    "size_px": [
-    300,
-    420
+    792,
+    216
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 0,
+    "right": 114,
+    "bottom": 0,
+    "left": 114
    },
-   "repeat": "stretch",
-   "placeholder": "room library crop 0,1460,260,260"
+   "outset_pt": 12,
+   "fixed_height_pt": 48,
+   "text_color": "#2A190C"
+  },
+  "brass-badge": {
+   "file": "brass-badge.png",
+   "size_px": [
+    492,
+    174
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 93,
+    "bottom": 0,
+    "left": 93
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": 34,
+   "text_color": "#2A190C"
   },
   "brass-plaque": {
-   "image": "brass-plaque.png",
+   "file": "brass-plaque.png",
    "size_px": [
-    360,
-    150
+    1122,
+    402
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 108,
+    "right": 108,
+    "bottom": 108,
+    "left": 108
    },
-   "repeat": "stretch",
-   "placeholder": "room ask crop 200,1680,700,120"
+   "outset_pt": 12,
+   "fixed_height_pt": null,
+   "text_color": "#2A190C"
   },
-  "oak-panel": {
-   "image": "oak-panel.png",
+  "parchment-note": {
+   "file": "parchment-note.png",
+   "size_px": [
+    1122,
+    492
+   ],
+   "insets_px": {
+    "top": 120,
+    "right": 120,
+    "bottom": 120,
+    "left": 120
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": null,
+   "text_color": "#2A190C",
+   "caps": {
+    "brass-tack": {
+     "anchor": "top-center",
+     "offset_pt": [
+      0,
+      14
+     ]
+    }
+   }
+  },
+  "parchment-note-error": {
+   "file": "parchment-note-error.png",
+   "size_px": [
+    1122,
+    492
+   ],
+   "insets_px": {
+    "top": 138,
+    "right": 138,
+    "bottom": 138,
+    "left": 138
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": null,
+   "text_color": "#2A190C",
+   "caps": {
+    "wax-seal-broken": {
+     "anchor": "top-right",
+     "offset_pt": [
+      6,
+      -5
+     ]
+    }
+   }
+  },
+  "vellum-card": {
+   "file": "vellum-card.png",
+   "size_px": [
+    1122,
+    1332
+   ],
+   "insets_px": {
+    "top": 114,
+    "right": 114,
+    "bottom": 114,
+    "left": 114
+   },
+   "outset_pt": 12,
+   "fixed_height_pt": null,
+   "text_color": "#2A190C",
+   "caps": {
+    "wax-seal": {
+     "anchor": "bottom-center",
+     "offset_pt": [
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "wax-seal": {
+   "file": "wax-seal.png",
+   "size_px": [
+    252,
+    239
+   ],
+   "cap": true
+  },
+  "wax-seal-broken": {
+   "file": "wax-seal-broken.png",
+   "size_px": [
+    216,
+    208
+   ],
+   "cap": true
+  },
+  "brass-tack": {
+   "file": "brass-tack.png",
+   "size_px": [
+    96,
+    96
+   ],
+   "cap": true
+  },
+  "medallion": {
+   "file": "medallion.png",
+   "size_px": [
+    132,
+    132
+   ],
+   "cap": true
+  },
+  "badge-ribbon": {
+   "file": "badge-ribbon.png",
+   "size_px": [
+    84,
+    226
+   ],
+   "cap": true
+  },
+  "modal": {
+   "file": "modal.png",
+   "size_px": [
+    1080,
+    900
+   ],
+   "insets_px": {
+    "top": 96,
+    "right": 96,
+    "bottom": 96,
+    "left": 96
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "plan": {
+   "file": "plan.png",
+   "size_px": [
+    1080,
+    408
+   ],
+   "insets_px": {
+    "top": 96,
+    "right": 96,
+    "bottom": 96,
+    "left": 96
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "plan-selected": {
+   "file": "plan-selected.png",
+   "size_px": [
+    1080,
+    408
+   ],
+   "insets_px": {
+    "top": 96,
+    "right": 96,
+    "bottom": 96,
+    "left": 96
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null,
+   "caps": {
+    "badge-ribbon": {
+     "anchor": "top-right",
+     "offset_pt": [
+      -8,
+      30
+     ]
+    }
+   }
+  },
+  "sheet": {
+   "file": "sheet.png",
+   "size_px": [
+    1170,
+    1560
+   ],
+   "insets_px": {
+    "top": 96,
+    "right": 96,
+    "bottom": 60,
+    "left": 96
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "input": {
+   "file": "input.png",
+   "size_px": [
+    1080,
+    192
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 72,
+    "bottom": 0,
+    "left": 72
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "input-focused": {
+   "file": "input-focused.png",
+   "size_px": [
+    1080,
+    192
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 72,
+    "bottom": 0,
+    "left": 72
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "tabbar": {
+   "file": "tabbar.png",
+   "size_px": [
+    1170,
+    276
+   ],
+   "insets_px": {
+    "top": 60,
+    "right": 30,
+    "bottom": 20,
+    "left": 30
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "tabslot": {
+   "file": "tabslot.png",
+   "size_px": [
+    270,
+    216
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 0,
+    "bottom": 0,
+    "left": 0
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "cradle": {
+   "file": "cradle.png",
    "size_px": [
     360,
     360
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 0,
+    "right": 0,
+    "bottom": 0,
+    "left": 0
    },
-   "repeat": "stretch",
-   "placeholder": "room library crop 340,1500,460,600",
-   "selected": "oak-panel-selected.png"
+   "outset_pt": 0,
+   "fixed_height_pt": null
   },
-  "leather-strip": {
-   "image": "leather-strip.png",
+  "mic": {
+   "file": "mic.png",
    "size_px": [
-    360,
-    150
-   ],
-   "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
-   },
-   "repeat": "stretch",
-   "placeholder": "room library crop 0,1180,220,200",
-   "selected": "leather-strip-selected.png"
-  },
-  "glass-input": {
-   "image": "glass-input.png",
-   "size_px": [
-    360,
-    180
-   ],
-   "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
-   },
-   "repeat": "stretch",
-   "placeholder": "room you crop 100,2200,800,300"
-  },
-  "wax-card": {
-   "image": "wax-card.png",
-   "size_px": [
-    360,
+    240,
     240
    ],
    "insets_px": {
-    "top": 18,
-    "right": 18,
-    "bottom": 18,
-    "left": 18
+    "top": 0,
+    "right": 0,
+    "bottom": 0,
+    "left": 0
    },
-   "repeat": "stretch",
-   "placeholder": "room library crop 260,40,640,180"
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "mic-listening": {
+   "file": "mic-listening.png",
+   "size_px": [
+    240,
+    240
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 0,
+    "bottom": 0,
+    "left": 0
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "mic-disabled": {
+   "file": "mic-disabled.png",
+   "size_px": [
+    240,
+    240
+   ],
+   "insets_px": {
+    "top": 0,
+    "right": 0,
+    "bottom": 0,
+    "left": 0
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "share-frame": {
+   "file": "share-frame.png",
+   "size_px": [
+    648,
+    1152
+   ],
+   "insets_px": {
+    "top": 54,
+    "right": 54,
+    "bottom": 54,
+    "left": 54
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null
+  },
+  "receipt-card": {
+   "file": "receipt-card.png",
+   "size_px": [
+    900,
+    1197
+   ],
+   "insets_px": {
+    "top": 80,
+    "right": 80,
+    "bottom": 80,
+    "left": 80
+   },
+   "outset_pt": 0,
+   "fixed_height_pt": null,
+   "text_color": "#2A190C"
   }
  }
 }

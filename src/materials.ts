@@ -1,50 +1,30 @@
 import {createContext} from 'react';
 import manifest from '../assets/materials/manifest.json';
+import {materialFiles} from './materialFiles';
 
 // The UI's rendered materials: every surface (notice, button, input, chip, card, bar) draws one of these behind its
-// live content instead of hand-coded fills, borders and shadows. assets/materials/manifest.json follows the component
-// kit's cb-component-kit.v1 schema: each name's @3x image, 9-slice insets in image pixels, state images, optional
-// text_color and decorative caps. scripts/material-placeholders.mjs writes the interim room crops.
+// live content instead of hand-coded fills, borders and shadows. assets/materials/manifest.json is the modeled
+// component kit in its cb-component-kit.v1 schema (scripts/import-kit.mjs imports it): each material's @3x image,
+// 9-slice insets in image pixels, shadow outset, optional text_color and caps. A state is its own entry, <name>-<state>.
 const scale=3;
-export type MaterialName=keyof typeof manifest.materials;
-export type MaterialState='pressed'|'selected'|'disabled';
+export type MaterialState='pressed'|'selected'|'disabled'|'focused'|'listening';
+type Key=keyof typeof manifest.materials;
+export type MaterialName=Exclude<Key,`${string}-${MaterialState}`>;
 type Insets={top:number;right:number;bottom:number;left:number};
-type Cap={image:string;size_px:[number,number];anchor:string;offset_pt:[number,number]};
-type Entry={image:string;size_px:[number,number];insets_px:Insets;repeat?:'stretch'|'repeat'|'round';text_color?:string;caps?:Record<string,Cap>}&Partial<Record<MaterialState,string>>;
+type Entry={file:string;size_px:[number,number];insets_px?:Insets;outset_pt?:number;text_color?:string;caps?:Record<string,{anchor:string;offset_pt:[number,number]}>};
+const entries=manifest.materials as unknown as Record<string,Entry>;
 
-// Swap point: a kit image that keeps its file name drops in with no code change; a new file name is one line here.
-const files:Record<string,number>={
- 'parchment-note.png':require('../assets/materials/parchment-note.png'),
- 'parchment-note-error.png':require('../assets/materials/parchment-note-error.png'),
- 'brass-button.png':require('../assets/materials/brass-button.png'),
- 'brass-button-pressed.png':require('../assets/materials/brass-button-pressed.png'),
- 'brass-button-disabled.png':require('../assets/materials/brass-button-disabled.png'),
- 'oak-button.png':require('../assets/materials/oak-button.png'),
- 'oak-button-pressed.png':require('../assets/materials/oak-button-pressed.png'),
- 'oak-button-disabled.png':require('../assets/materials/oak-button-disabled.png'),
- 'oak-chip.png':require('../assets/materials/oak-chip.png'),
- 'oak-chip-selected.png':require('../assets/materials/oak-chip-selected.png'),
- 'vellum-card.png':require('../assets/materials/vellum-card.png'),
- 'brass-plaque.png':require('../assets/materials/brass-plaque.png'),
- 'oak-panel.png':require('../assets/materials/oak-panel.png'),
- 'oak-panel-selected.png':require('../assets/materials/oak-panel-selected.png'),
- 'leather-strip.png':require('../assets/materials/leather-strip.png'),
- 'leather-strip-selected.png':require('../assets/materials/leather-strip-selected.png'),
- 'glass-input.png':require('../assets/materials/glass-input.png'),
- 'wax-card.png':require('../assets/materials/wax-card.png'),
-};
-
-// Sizes and offsets in points. A cap is a decorative piece (tack, seal) centred on its anchor point plus its offset.
+// Sizes and offsets in points. A cap is a decorative piece (tack, seal, ribbon) centred on its anchor plus its offset.
 export type MaterialCap={source:number;width:number;height:number;x:number;y:number;offset:[number,number]};
-export type Material={source:number;width:number;height:number;insets:Insets;fill:'stretch'|'repeat'|'round';scale:number;ink?:string;caps:MaterialCap[]};
-// A state without its own art falls back to the base image.
+export type Material={source:number;width:number;height:number;insets:Insets;outset:number;scale:number;ink?:string;caps:MaterialCap[]};
+// A state without its own art falls back to the base material.
 export function material(name:MaterialName,state?:MaterialState):Material{
- const entry=manifest.materials[name] as unknown as Entry,image=state&&entry[state]||entry.image;
- const caps=Object.values(entry.caps??{}).map(cap=>{
-  const [v,h]=cap.anchor.split('-');
-  return {source:files[cap.image],width:cap.size_px[0]/scale,height:cap.size_px[1]/scale,x:h==='left'?0:h==='right'?1:.5,y:v==='top'?0:v==='bottom'?1:.5,offset:cap.offset_pt};
+ const entry=state&&entries[`${name}-${state}`]||entries[name];
+ const caps=Object.entries(entry.caps??{}).map(([cap,{anchor,offset_pt}])=>{
+  const [v,h]=anchor.split('-'),art=entries[cap];
+  return {source:materialFiles[art.file],width:art.size_px[0]/scale,height:art.size_px[1]/scale,x:h==='left'?0:h==='right'?1:.5,y:v==='top'?0:v==='bottom'?1:.5,offset:offset_pt};
  });
- return {source:files[image],width:entry.size_px[0],height:entry.size_px[1],insets:entry.insets_px,fill:entry.repeat??'stretch',scale,ink:entry.text_color,caps};
+ return {source:materialFiles[entry.file],width:entry.size_px[0],height:entry.size_px[1],insets:entry.insets_px??{top:0,right:0,bottom:0,left:0},outset:entry.outset_pt??0,scale,ink:entry.text_color,caps};
 }
 // The text colour of the material a Txt or Field sits on; undefined keeps the app's own colours.
 export const MaterialInk=createContext<string|undefined>(undefined);

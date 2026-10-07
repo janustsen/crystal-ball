@@ -2,10 +2,10 @@ import React from 'react';
 import {Asset} from 'expo-asset';
 import {material,MaterialInk,type Material as Art,type MaterialName,type MaterialState} from './materials';
 
-// The browser's own 9-slice: one border-image (stretch, repeat or round, as the material asks) filling the surface.
+// The browser's own 9-slice: one stretched, filled border-image reaching past the surface by the shadow outset.
 export function borderImage(m:Art,uri:string){
  const {top,right,bottom,left}=m.insets,px=(n:number)=>`${n/m.scale}px`;
- return {borderStyle:'solid',borderWidth:0,borderImage:`url("${uri}") ${top} ${right} ${bottom} ${left} fill / ${px(top)} ${px(right)} ${px(bottom)} ${px(left)} / 0 ${m.fill}`};
+ return {borderStyle:'solid',borderWidth:0,borderImage:`url("${uri}") ${top} ${right} ${bottom} ${left} fill / ${px(top)} ${px(right)} ${px(bottom)} ${px(left)} / ${m.outset}px stretch`};
 }
 
 export function Material({name,state,children}:React.PropsWithChildren<{name:MaterialName;state?:MaterialState}>){

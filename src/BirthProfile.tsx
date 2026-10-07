@@ -27,7 +27,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
   if(ageGroup(birthday)==='under13'){update(s=>({...s,onboardingBlocked:true,onboardingDone:false}));return;}
   try{const next=updateBirthday(state,birthday.trim()||undefined);update(()=>next);setEditing(false);setNotice('');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
  }
- return <View style={styles.panel}><Material name="oak-panel">
+ return <View style={styles.panel}><Material name="modal">
   <Txt display style={styles.title}>Your sky</Txt>
   <Txt>{state.sunSign?`${state.sunSign} Sun`:'Your Sun sign is a mystery'}</Txt>
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
