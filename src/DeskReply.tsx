@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {PixelRatio,View} from 'react-native';
 import {Txt} from './ui';
 import {Material} from './Material';
 import {useRoomPiece} from './roomPieces';
@@ -8,9 +8,9 @@ import {useRoomPiece} from './roomPieces';
 // 16 pt margins (the vellum's gilt rule sits inside them). Cormorant runs about 0.38 em per character; 0.4 leaves a margin.
 const card={margin:16,title:{size:18,line:22},body:{size:12.5,line:18}};
 const lines=(text:string,perLine:number)=>text.split(/\s+/).reduce(([n,used],word)=>used&&used+1+word.length>perLine?[n+1,word.length]:[n,used?used+1+word.length:word.length],[1,0])[0];
-// Whether a reply fits the card (its size on screen) at normal text size; otherwise it stays on its lit panel.
-export function fitsDesk(title:string,body:string,size:{width:number;height:number}){
- const inner=size.width-2*card.margin,height=lines(title,inner/(card.title.size*.4))*card.title.line+lines(body,inner/(card.body.size*1.12*.4))*card.body.line;
+// Whether a reply fits the card (its size on screen) at the device's text size; otherwise it stays on its lit panel.
+export function fitsDesk(title:string,body:string,size:{width:number;height:number},fontScale=PixelRatio.getFontScale()){
+ const k=fontScale,inner=size.width-2*card.margin,height=(lines(title,inner/(card.title.size*k*.4))*card.title.line+lines(body,inner/(card.body.size*k*1.12*.4))*card.body.line)*k;
  return height<=size.height-2*card.margin+6;
 }
 

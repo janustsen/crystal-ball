@@ -41,13 +41,17 @@ test('the skylight and desk anchors ride every idle frame of their spot, close t
  }
 });
 
-test('the desk card takes a short reply and leaves long copy or a narrow card to the panel',()=>{
- const {fitsDesk}=load('../src/DeskReply.tsx',{react:{},'react/jsx-runtime':{jsx:()=>null},'react-native':{},'./ui':{},'./Material':{},'./roomPieces':{}});
+test('the desk card takes a short reply and leaves long copy, a narrow card or enlarged device text to the panel',()=>{
+ let fontScale=1;
+ const {fitsDesk}=load('../src/DeskReply.tsx',{react:{},'react/jsx-runtime':{jsx:()=>null},'react-native':{PixelRatio:{getFontScale:()=>fontScale}},'./ui':{},'./Material':{},'./roomPieces':{}});
  const card=room.quadBox(room.anchorOnScreen('desk',null,390,844));
  assert.ok(fitsDesk('The mist is too thick.','Please try again.',card));
  assert.ok(fitsDesk('The mist is too thick.','The engine could not complete this reading. Nothing was charged.',card));
  assert.ok(!fitsDesk('The mist is too thick.','Layout fixture: the engine could not complete this reading. Nothing was charged. Please try again later.',card));
  assert.ok(!fitsDesk('This one isn’t for the Ball.','Please try again.',{width:120,height:60}));
+ // The device's own text size counts too: enlarged system text keeps even a short reply on its panel.
+ fontScale=1.6;
+ assert.ok(!fitsDesk('The mist is too thick.','Please try again.',card));
 });
 
 test('the stage shows and hides pieces and tells its host each time',()=>{

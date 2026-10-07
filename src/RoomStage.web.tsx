@@ -11,6 +11,7 @@ export function RoomStage({width,height,stage}:{spot:Spot;width:number;height:nu
  const layers=useRef(new Map<Anchor,HTMLElement>());
  const anchors=[...new Set(Object.values(pieces).map(p=>p.anchor))];
  useEffect(()=>{
+  if(!anchors.length)return;
   let raf=0;
   const tick=()=>{
    for(const [anchor,el] of layers.current){
