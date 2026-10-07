@@ -1,7 +1,7 @@
 import {useState} from 'react';
-import {Platform,Switch,View} from 'react-native';
+import {Platform,View} from 'react-native';
 import {Asset} from 'expo-asset';
-import {Action,Txt,colors,fonts,styles} from './ui';
+import {Action,Txt,colors,fonts,styles,Toggle} from './ui';
 import {suggestedCheckIn} from './retention';
 import {selectedStyle} from './delight';
 import {ballArt} from './roomAssets';
@@ -119,7 +119,7 @@ export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice
  }
  return <View style={{marginTop:12}}>
   <Action testID="make-reveal-clip" label={busy?'Recording the reveal…':'Make clip'} quiet disabled={busy} onPress={()=>void make()}/>
-  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Switch testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} disabled={busy} onValueChange={setQuestion}/></View>
+  <View style={[styles.row,{marginTop:8}]}><Txt style={styles.caption}>Show my question in the clip</Txt><Toggle testID="clip-question" accessibilityLabel="Show my question in the clip" value={question} disabled={busy} onValueChange={setQuestion}/></View>
   <Txt style={styles.caption}>9:16 video with sound: the ball opening, theme, headline and check-back date, labeled AI-generated. Your question stays out unless you turn it on.</Txt>
  </View>;
 }

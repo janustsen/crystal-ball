@@ -1,9 +1,10 @@
 import {useState} from 'react';
-import {TextInput,View} from 'react-native';
-import {Action,Txt,styles,colors} from './ui';
+import {View} from 'react-native';
+import {Action,Txt,styles,colors,Field} from './ui';
 import {ageGroup,sunSign} from './profile';
 import {validateFact} from './questions';
 import type {Facts} from './types';
+import {Material} from './Material';
 
 export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Facts,ageConfirmed?:boolean)=>void;onBlock:()=>void;blocked?:boolean}){
  const [step,setStep]=useState(0),[birthday,setBirthday]=useState(''),[focus,setFocus]=useState(''),[error,setError]=useState(''),[confirming,setConfirming]=useState(false);
@@ -32,8 +33,8 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>13 and up. Your birthday sets your Sun sign.</Txt>
   {step===0?<>
    <Txt style={styles.caption}>Birthday · YYYY-MM-DD</Txt>
-   <TextInput testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
-   {error?<Txt accessibilityRole="alert">{error}</Txt>:null}
+   <Field testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
+   {error?<View style={styles.panel}><Material name="notice-error"><Txt accessibilityRole="alert">{error}</Txt></Material></View>:null}
    <Action label="Continue" onPress={next}/>
   </>:<>
    {sunSign(birthday)?<Txt style={styles.caption}>Your Sun sign · {sunSign(birthday)}</Txt>:null}

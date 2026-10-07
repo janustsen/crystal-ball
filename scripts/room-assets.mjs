@@ -2,6 +2,7 @@
 //   node scripts/room-assets.mjs build <v2 render dir> [plus dir]   bundled stills + Home loop, ball track, streamed clips in
 //                                                                    .local/room-assets, then the Plus art (see plus())
 //   node scripts/room-assets.mjs sync <destination>      rsync the streamed clips (a local path such as public/room, or host:path)
+//   node scripts/room-assets.mjs anchors <v2 render dir>  room surfaces UI can sit on, tracked per frame, into src/roomTrack.json
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -80,12 +81,44 @@ function build(src,plusSrc=process.env.PLUS_RENDER_SOURCE||plusSource){
  }
  plus(plusSrc,track);
  writeFileSync('src/roomTrack.json',JSON.stringify(track)+'\n');
+ anchors(src);
+}
+
+// Room surfaces the UI sits on: a quad on the spot's still (corners in render pixels, top-left clockwise) at a depth
+// in metres, placed in the room by the still's camera and re-projected through every frame of the spot's idle loop, so
+// a piece on it rides the camera's sway like the ball. The skylight's glass at Sky; a reply card standing on the desk in
+// front of Ask's ball (its depth just nearer than the ball's 1.1 m).
+const anchorQuads={
+ skylight:{spot:'sky',depth:3,corners:[[60,645],[1110,645],[1110,1200],[60,1200]]},
+ desk:{spot:'ask',depth:1,corners:[[270,1530],[900,1530],[900,1850],[270,1850]]},
+};
+const rotation=([w,x,y,z])=>[[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w)],[2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w)],[2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]];
+const focal=(f,width)=>width/2/Math.tan(f.hfov_deg*Math.PI/360);
+// Blender camera: -Z forward, +Y up.
+function unproject(f,[w,h],[u,v],depth){
+ const R=rotation(f.cam_quat_wxyz),k=depth/focal(f,w),c=[(u-w/2)*k,-(v-h/2)*k,-depth];
+ return [0,1,2].map(i=>f.cam_location[i]+R[i][0]*c[0]+R[i][1]*c[1]+R[i][2]*c[2]);
+}
+function project(f,[w,h],p){
+ const R=rotation(f.cam_quat_wxyz),d=p.map((v,i)=>v-f.cam_location[i]),c=[0,1,2].map(j=>R[0][j]*d[0]+R[1][j]*d[1]+R[2][j]*d[2]),k=focal(f,w)/-c[2];
+ return [round(w/2+c[0]*k),round(h/2-c[1]*k)];
+}
+function anchors(src){
+ const track=JSON.parse(readFileSync('src/roomTrack.json','utf8')),load=name=>JSON.parse(readFileSync(join(src,'camera',`${name}.json`),'utf8'));
+ track.anchors={};
+ for(const [name,{spot,depth,corners}] of Object.entries(anchorQuads)){
+  const still=load(`still_${spot}`),idle=load(`idle_${spot}`),world=corners.map(c=>unproject(still.frames[0],still.res,c,depth));
+  const quad=f=>world.flatMap(p=>project(f,still.res,p));
+  track.anchors[name]={spot,still:quad(still.frames[0]),idle:idle.frames.map(quad)};
+ }
+ writeFileSync('src/roomTrack.json',JSON.stringify(track)+'\n');
 }
 
 const [command,arg]=process.argv.slice(2);
 if(command==='build'&&arg)build(arg,process.argv[4]);
+else if(command==='anchors'&&arg)anchors(arg);
 else if(command==='sync'&&arg){
  if(!existsSync(streamed))build(process.env.ROOM_RENDER_SOURCE||'/Users/janustsen/dev/archive/crystal-ball-room/v2');
  execFileSync('rsync',['-a',`${streamed}/`,`${arg.replace(/\/$/,'')}/`],{stdio:'inherit'});
 }
-else if(command){console.error('usage: room-assets.mjs build <v2 render dir> [plus dir] | sync <destination>');process.exit(1)}
+else if(command){console.error('usage: room-assets.mjs build <v2 render dir> [plus dir] | sync <destination> | anchors <v2 render dir>');process.exit(1)}

@@ -31,6 +31,14 @@ export function RoomScene({spot,width,height,reduce,ball='classic'}:{spot:Spot;w
  </View>;
 }
 
+// The room's lens over everything on screen, UI included: the grain tile the web lens draws as SVG noise.
+// ponytail: native has no vignette over the UI; the room's own top and bottom fades carry it.
+export function RoomLens(_:{reduce:boolean}){
+ return <View pointerEvents="none" accessible={false} style={{position:'absolute',left:0,top:0,right:0,bottom:0,zIndex:20}}>
+  <Image source={require('../assets/grain.png')} resizeMode="repeat" style={{width:'100%',height:'100%',opacity:.06}}/>
+ </View>;
+}
+
 const orb='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26"><defs><radialGradient id="b" cx="50%" cy="60%" r="70.7%"><stop offset="0" stop-color="#f0b066"/><stop offset=".45" stop-color="#8a4a22"/><stop offset=".85" stop-color="#1e110a"/></radialGradient><radialGradient id="h" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#fff6e2" stop-opacity=".95"/><stop offset=".18" stop-color="#fff6e2" stop-opacity="0"/></radialGradient></defs><circle cx="13" cy="13" r="13" fill="url(#b)"/><circle cx="13" cy="13" r="13" fill="url(#h)"/></svg>';
 export function AskOrb(_:{reduce:boolean}){
  return <View style={{width:26,height:26,borderRadius:13,boxShadow:'0 0 14px rgba(255,170,90,.45)'}}><SvgXml xml={orb} width={26} height={26}/></View>;

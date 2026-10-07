@@ -44,11 +44,11 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
  let sealCursor=0;
  const sealReact={...react,useState:(initial:any)=>{const i=sealCursor++;if(!(i in sealSlots))sealSlots[i]=initial;return [sealSlots[i],(value:any)=>{sealSlots[i]=value}]}};
  const socialModule={exports:{} as any};
- const socialImports:Record<string,any>={react:sealReact,'react-native':{Platform:{OS:'web'},View:'View',Pressable:'Pressable'},'./ui':{Action:'Action',Txt:'Txt',Orb:'Orb',styles:{},colors:{}},'./social':{openForecast:async()=>reading.headline},'./api':{webReadingSpent:()=>spent}};
+ const socialImports:Record<string,any>={react:sealReact,'react-native':{Platform:{OS:'web'},View:'View',Pressable:'Pressable'},'./Material':{Material:'Material'},'./ui':{Action:'Action',Txt:'Txt',Orb:'Orb',styles:{},colors:{}},'./social':{openForecast:async()=>reading.headline},'./api':{webReadingSpent:()=>spent}};
  runInNewContext(socialCode,{module:socialModule,exports:socialModule.exports,process:{env:{}},require:(name:string)=>socialImports[name]??{}});
  imports['../src/SocialScreen'].SealedCard=(props:any)=>{sealCursor=0;return react.createElement('SealedCard',props,socialModule.exports.SealedCard(props))};
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/lighting'?{RoomLightContext:{Provider:'Provider'}}:name==='../src/roomPieces'?{createStage:()=>({}),RoomStageContext:{Provider:'Provider'}}:name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
  return {params,render};

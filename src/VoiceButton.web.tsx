@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
-import {Pressable} from 'react-native';
-import {Txt,styles} from './ui';
+import {Pressable,View} from 'react-native';
+import {Txt} from './ui';
+import {Material} from './Material';
 type Recognition={start:()=>void;stop:()=>void;lang:string;interimResults:boolean;onresult:((event:{results:{[key:number]:{[key:number]:{transcript:string}};length:number}})=>void)|null;onend:(()=>void)|null;onerror:(()=>void)|null};
 export function VoiceButton({onText,onNotice,autoStart=false}:{onText:(s:string)=>void;onNotice:(s:string)=>void;autoStart?:boolean}){
  const ref=useRef<Recognition|null>(null),[active,setActive]=useState(false),callbacks=useRef({onText,onNotice});callbacks.current={onText,onNotice};
@@ -12,5 +13,5 @@ export function VoiceButton({onText,onNotice,autoStart=false}:{onText:(s:string)
   try{speech.start();setActive(true)}catch{setActive(false);callbacks.current.onNotice('Voice could not start. Type your question instead.')}
  }
  useEffect(()=>{if(autoStart)start();return()=>{const speech=ref.current;if(speech){speech.onresult=null;speech.onend=null;speech.onerror=null;speech.stop()}}},[]);
- return <Pressable accessibilityRole="button" accessibilityLabel={active?'Stop listening':'Start listening'} onPress={()=>active?ref.current?.stop():start()} style={[styles.action,styles.quiet]}><Txt style={{textAlign:'center'}}>{active?'Listening… tap to finish':'Start listening'}</Txt></Pressable>;
+ return <Pressable accessibilityRole="button" accessibilityLabel={active?'Stop listening':'Start listening'} onPress={()=>active?ref.current?.stop():start()} style={{alignItems:'center',marginTop:14,minHeight:44}}><View style={{width:80,height:80}}><Material name="mic" state={active?'listening':undefined}/></View><Txt style={{textAlign:'center',marginTop:6}}>{active?'Listening… tap to finish':'Start listening'}</Txt></Pressable>;
 }

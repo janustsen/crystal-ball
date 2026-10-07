@@ -20,7 +20,7 @@ function fixture(){
   useEffect:(effect:()=>void,deps:any[])=>{const i=cursor++;if(!slots[i]||deps.some((v,j)=>v!==slots[i].deps[j])){const prior=slots[i];slots[i]={deps};effects.push(()=>{prior?.cleanup?.();slots[i].cleanup=effect()})}},
  };
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{},'./ui':{colors:{},styles:{}},'./social-links':{},
+  react,'react-native':{},'expo-linking':{},'./Material':{Material:'Material'},'./ui':{colors:{},styles:{}},'./social-links':{},
   './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SkyOmen':{},
   './SocialPush':{SkyPushPrompt:'Prompt',SocialPush:'Settings'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},

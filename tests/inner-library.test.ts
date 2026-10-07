@@ -50,7 +50,7 @@ async function library(serverMetered=true){
  state();await flush();state();await flush();
  const room=()=>load('../src/InnerLibrary.tsx',{
   react:roomHooks.react,'react-native':{Image:'Image',Pressable:'Pressable',View:'View'},
-  './ui':{Action:'Action',Orb:'Orb',Txt:'Txt',colors:{},styles:{}},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  './Material':{Material:'Material'},'./ui':{Action:'Action',Orb:'Orb',Txt:'Txt',colors:{},styles:{}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './roomAssets':{ballArt:{smoke:{},aurora:{},obsidian:{},gold:{}}},
   './delight':delight,'./store':{useStore:state},
  });

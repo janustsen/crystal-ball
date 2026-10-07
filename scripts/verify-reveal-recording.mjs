@@ -30,7 +30,7 @@ try{
    return imports[name]||{};
   };
   window.recorder=require('./RevealClip');
-  for(const name of ['IMFellEnglish','IMFellEnglishItalic','HankenGrotesk'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
+  for(const name of ['CormorantGaramond','CormorantGaramondItalic'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
   // Reproduce a rendering pause across the end-card transition while wall-clock time advances.
   const raf=requestAnimationFrame;let start;
   window.requestAnimationFrame=callback=>raf(time=>{start??=time;if(time-start>4500)setTimeout(()=>callback(performance.now()),4000);else callback(time)});

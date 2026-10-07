@@ -602,6 +602,14 @@ function watchFrames(video:HTMLVideoElement|null){
 }
 
 type Flight={key:string;url:string;to:Spot};
+// What the room shows right now, for UI riding its surfaces (RoomStage): the resting spot, whether a flight is on, and
+// the spot's idle loop, whose presented frame places them.
+export const roomLive:{at:Spot;flight:boolean;idle:{current:HTMLVideoElement|null}}={at:'Home',flight:false,idle:{current:null}};
+// The idle loop's presented frame, or null while it is not playing (reduced motion, not yet loaded): the still.
+export function idleFrame(){
+ const video=roomLive.idle.current;
+ return video&&video.readyState>=2&&!video.paused?Math.round(Number(video.dataset.mediaTime??video.currentTime)*roomFps):null;
+}
 const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFit:'cover',display:'block'} as const;
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
@@ -612,6 +620,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
  const motion=useRef({reduce}),scene=useRef<ReturnType<typeof startScene>|null>(null),state=useRef({at,flight,width,height});
  motion.current.reduce=reduce;state.current={at,flight,width,height};
+ roomLive.at=at;roomLive.flight=!!flight;roomLive.idle=idle;
  useEffect(()=>{const update=()=>setLoaded(n=>n+1);listeners.add(update);prefetchRoom();return()=>{listeners.delete(update)}},[]);
  useEffect(()=>{
   const target=flight?.to??at;
@@ -673,13 +682,20 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   {/* a resize gets a fresh canvas because stop() loses the old context */}
   <canvas key={`${width}x${height}`} ref={ref} width={S} height={S} style={{position:'absolute',left:0,top:0,width:S,height:S,transformOrigin:'50% 50%',visibility:'hidden'}}/>
   {fallback?<div style={{position:'absolute',left:fallback.x-fallback.r,top:fallback.y-fallback.r,width:fallback.r*2,height:fallback.r*2,borderRadius:'50%',overflow:'hidden'}}><OrbVisual size={fallback.r*2} reduce ball={ball}/></div>:null}
-  {/* lens: vignette, grade, grain */}
-  <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 75% 60% at 50% 38%, rgba(0,0,0,0) 50%, rgba(3,2,1,.6) 100%)'}}/>
+  {/* the room's grade; the vignette and grain sit over the UI too (RoomLens) */}
   <div style={{position:'absolute',left:0,top:0,width:'100%',height:130,background:'linear-gradient(180deg, rgba(5,3,2,.75) 0%, rgba(5,3,2,0) 100%)'}}/>
   <div style={{position:'absolute',left:0,bottom:0,width:'100%',height:304,background:'linear-gradient(180deg, rgba(5,3,2,0) 0%, rgba(5,3,2,.55) 45%, rgba(5,3,2,.9) 100%)'}}/>
-  <div style={{position:'absolute',inset:0,opacity:.09,mixBlendMode:'overlay'}} dangerouslySetInnerHTML={{__html:grain}}/>
   <style>{appCss}</style>
   <style>{'@keyframes cbBreath{0%,100%{box-shadow:0 0 14px rgba(255,170,90,.45)}50%{box-shadow:0 0 22px rgba(255,170,90,.75)}}'}</style>
+ </div>;
+}
+
+// The room's lens over everything on screen, UI included, so panels share the room's vignette and grain. Its vignette
+// matches lighting.ts vignette(), which the materials' contrast floor accounts for.
+export function RoomLens(_:{reduce:boolean}){
+ return <div aria-hidden="true" data-testid="room-lens" style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:20}}>
+  <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 75% 60% at 50% 38%, rgba(0,0,0,0) 50%, rgba(3,2,1,.3) 100%)'}}/>
+  <div style={{position:'absolute',inset:0,opacity:.09,mixBlendMode:'overlay'}} dangerouslySetInnerHTML={{__html:grain}}/>
  </div>;
 }
 
