@@ -31,20 +31,33 @@ try{
   };
   window.recorder=require('./RevealClip');
   for(const name of ['CormorantGaramond','CormorantGaramondItalic'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
-  // Reproduce a rendering pause across the end-card transition while wall-clock time advances.
-  const raf=requestAnimationFrame;let start;
-  window.requestAnimationFrame=callback=>raf(time=>{start??=time;if(time-start>4500)setTimeout(()=>callback(performance.now()),4000);else callback(time)});
  },modules);
  const bytes=await page.evaluate(async()=>{
-  const file=await window.recorder.recordClip({question:'Will I finish my course?',headline:'You will finish your course.',dueDate:'2026-12-01'},await window.recorder.loadLook('classic','classic'),{category:'Learning'});
-  return {data:Array.from(new Uint8Array(await file.arrayBuffer())),name:file.name};
+  const look=await window.recorder.loadLook('classic','classic');
+  // Stall both animation schedulers across the end-card transition and nominal clip deadline.
+  const raf=window.requestAnimationFrame,timer=window.setTimeout,start=performance.now();
+  const delayed={animation:0,timer:0};
+  const stalled=()=>performance.now()-start>=4500&&performance.now()-start<8500;
+  window.requestAnimationFrame=callback=>raf(time=>{
+   if(stalled()){delayed.animation++;timer(()=>callback(performance.now()),4000)}else callback(time);
+  });
+  window.setTimeout=(callback,ms,...args)=>{
+   if(ms===1000/30&&stalled()){delayed.timer++;return timer(callback,4000,...args)}
+   return timer(callback,ms,...args);
+  };
+  try{
+   const file=await window.recorder.recordClip({question:'Will I finish my course?',headline:'You will finish your course.',dueDate:'2026-12-01'},look,{category:'Learning'});
+   return {data:Array.from(new Uint8Array(await file.arrayBuffer())),name:file.name,delayed};
+  }finally{window.requestAnimationFrame=raf;window.setTimeout=timer}
  });
+ assert.ok(bytes.delayed.timer>0,'The recorder frame timer must actually be delayed');
+ console.log({delayedCallbacks:bytes.delayed});
  const file=`${out}/${bytes.name}`;await writeFile(file,Buffer.from(bytes.data));
  const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','stream=codec_type,width,height,duration','-of','json',file],{encoding:'utf8'}));
  const video=probe.streams.find(stream=>stream.codec_type==='video');
  assert.equal(video.width,1080);assert.equal(video.height,1920);
  assert.ok(probe.streams.some(stream=>stream.codec_type==='audio'));
- if(video.duration!==undefined)assert.ok(Number(video.duration)>7,'Video must include the complete reveal');
  console.log(probe);
  console.log(await assertRevealEnd(page,file,`${out}/last-title.png`));
+ if(video.duration!==undefined)assert.ok(Number(video.duration)>7,'Video must include the complete reveal');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
