@@ -1,9 +1,6 @@
-# Renders the plates the exported story card and reveal clip are painted on: per card style, a framed leather panel
-# modeled in Blender and lit like the room (candle key upper left, ember fill lower right, the Home still as the
-# reflection environment), plus the ball's glow as a light pass (the same scene with only the ball's light, so it adds).
-# Live text and the ball are drawn over them in src/storyPlate.ts. Uses the component kit's AI material tiles.
-#   uv run --python 3.11 --with bpy --with pillow --with numpy python scripts/render-share-plates.py [scale]
-# scale < 1 renders a quick low-resolution preview into .local/share-plates instead of assets/share.
+# Renders export plates and a separate ball-light pass for additive compositing.
+# Live text and the ball are drawn over them in src/RevealClip.tsx and src/ShareCard.tsx.
+# See SETUP.md for render prerequisites and usage.
 import math, os, sys, bpy, bmesh, numpy as np
 from PIL import Image
 
