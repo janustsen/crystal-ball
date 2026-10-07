@@ -167,8 +167,9 @@ export default function App(){
  const dockTop=!shell.height?14:!immersive?contentTop(spot,shell.width,shell.height):askFlow?Math.max(14,contentTop('Ask',shell.width,shell.height)-headerHeight):14;
  const availableHeight=Math.max(0,shell.height-bottomPadding-(immersive&&!onboarding?headerHeight:0));
  const noticeHeight=notice?Math.min(260,availableHeight/2):0,noticeSpace=notice?noticeHeight+8:0;
- // A notice lifts the content to keep a scroll viewport, except while listening: its title stays below the ball.
- const screenTop=askFlow&&flow.stage==='listening'?dockTop:Math.min(dockTop,Math.max(0,availableHeight-noticeSpace-160));
+ // A notice lifts the content to keep a scroll viewport. Listening keeps a smaller one (its title, mic and Type
+ // instead) so on a phone its title stays below the ball rather than over it; only a very short screen lifts it.
+ const screenTop=Math.min(dockTop,Math.max(0,availableHeight-noticeSpace-(askFlow&&flow.stage==='listening'?100:160)));
  const restingBall=shell.height&&(home||askFlow)?ballOnScreen(stillFrame(spot),shell.width,shell.height):null;
  const ball=restingBall?{x:restingBall.x,y:restingBall.y,r:restingBall.r}:null;
  const glow=askFlow&&prediction?.golden?restingBall:null;
