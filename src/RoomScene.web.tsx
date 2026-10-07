@@ -601,7 +601,7 @@ function watchFrames(video:HTMLVideoElement|null){
 }
 
 type Flight={key:string;url:string;to:Spot};
-const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'50% 0',display:'block'} as const;
+const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFit:'cover',display:'block'} as const;
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.

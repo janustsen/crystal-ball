@@ -11,7 +11,6 @@ export const roomFps=30;
 // Flights and the other loops stream from here; unset means tab changes cut straight to the stills.
 export const roomAssetBase=(process.env.EXPO_PUBLIC_ROOM_ASSET_BASE??'').replace(/\/+$/,'');
 export const roomVersion=track.version;
-export const roomSize={width:track.width,height:track.height};
 
 export const flightKey=(from:Spot,to:Spot)=>`${from.toLowerCase()}-${to.toLowerCase()}`;
 export const idleKey=(spot:Spot)=>`idle-${spot.toLowerCase()}`;
@@ -21,11 +20,11 @@ export const stillFrame=(spot:Spot):BallFrame=>(track.stills as Record<string,Ba
 // The largest radius any clip gives the ball, so one overlay canvas covers every frame without upscaling.
 export const maxBallRadius=Math.max(...Object.values(track.clips).flat().map(f=>f[2]));
 
-// The renders fill the screen like CSS object-fit: cover, anchored to the top: the room is the screen's hero and a
-// taller-than-render screen keeps its full width with the crop at the bottom, under the ground scrim.
+// The renders fill the room like CSS object-fit: cover. They are 9:19.5, so on a 390×844 screen this is the reference's
+// top-anchored, full-width hero; a shorter screen crops top and bottom evenly, keeping the desk ball clear of the content.
 export function roomCover(width:number,height:number){
  const scale=Math.max(width/track.width,height/track.height);
- return {scale,x:(width-track.width*scale)/2,y:0};
+ return {scale,x:(width-track.width*scale)/2,y:(height-track.height*scale)/2};
 }
 export function ballOnScreen(frame:BallFrame,width:number,height:number){
  if(!frame[2])return null;

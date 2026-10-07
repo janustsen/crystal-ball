@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {Animated,Image,View} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {OrbVisual} from './OrbVisual';
-import {ballOnScreen,roomCover,roomSize,stillFrame,type Spot} from './room';
+import {ballOnScreen,stillFrame,type Spot} from './room';
 import {roomStills} from './roomAssets';
 import type {BallStyle} from './types';
 
@@ -20,12 +20,10 @@ export function RoomScene({spot,width,height,reduce,ball='classic'}:{spot:Spot;w
   setPrevious(from);fade.setValue(1);
   Animated.timing(fade,{toValue:0,duration:450,useNativeDriver:true}).start(()=>setPrevious(null));
  },[spot]);
- const placed=ballOnScreen(stillFrame(spot),width,height),fill={position:'absolute' as const,left:0,top:0,width,height},cover=roomCover(width,height);
- // Top-anchored cover, the same framing as the web room and the ball's placement.
- const still={position:'absolute' as const,left:cover.x,top:0,width:roomSize.width*cover.scale,height:roomSize.height*cover.scale};
+ const placed=ballOnScreen(stillFrame(spot),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
  return <View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#140E0A'}}>
-  <Image source={roomStills[spot]} style={still}/>
-  {previous?<Animated.Image source={roomStills[previous]} style={{...still,opacity:fade}}/>:null}
+  <Image source={roomStills[spot]} resizeMode="cover" style={fill}/>
+  {previous?<Animated.Image source={roomStills[previous]} resizeMode="cover" style={{...fill,opacity:fade}}/>:null}
   {placed?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce={reduce} ball={ball}/></View>:null}
   <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>
   <LinearGradient colors={['rgba(20,14,10,0)','rgba(20,14,10,.6)','rgba(20,14,10,.94)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:320}}/>
