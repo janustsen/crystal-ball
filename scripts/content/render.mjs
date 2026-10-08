@@ -69,6 +69,8 @@ function encode(frames,windows,overlays,file,dir){
 
 async function session(browser,{state,clock}={}){
  const context=await browser.newContext({httpCredentials,storageState:state,viewport:{width:360,height:640},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+ // Headless Chrome has no microphone; a silent recognizer keeps Ask's real listening screen without a voice-error notice.
+ await context.addInitScript(()=>{window.SpeechRecognition=window.webkitSpeechRecognition=class{start(){}stop(){this.onend?.()}}});
  const page=await context.newPage();page.setDefaultTimeout(30000);
  if(clock)await page.clock.setFixedTime(clock);
  return page;
@@ -161,8 +163,8 @@ async function omenVideo(browser,state,half,file,dir){
   await page.goto(base);await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(1500);
   await assertHomeSafe(page);
   app=(await page.screenshot()).toString('base64');
-  if(!await page.locator('[data-testid="app-shell"]>.atmosphere').count())throw new Error('Format C requires the .atmosphere art layer; no background captured.');
-  await page.addStyleTag({content:'[data-testid="app-shell"]>:not(.atmosphere){visibility:hidden!important}'});await page.waitForTimeout(500);
+  if(!await page.locator('[data-testid="app-shell"]>.room').count())throw new Error('Format C requires the .room art layer; no background captured.');
+  await page.addStyleTag({content:'[data-testid="app-shell"]>:not(.room){visibility:hidden!important}'});await page.waitForTimeout(500);
   art=(await page.screenshot()).toString('base64');
  }finally{await page.context().close()}
  const bg=`<div class="art" style="background-image:url(data:image/png;base64,${art})"></div><div class="veil"></div>`;

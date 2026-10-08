@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | A · sealed-forecast reveal | Home → tap the Ask ball → type the hook's question → real follow-up cards → reveal with due date. Model thinking time is cut. The hook shows until the reveal. | 10–15 s (enforced) |
 | B · example check-in | A real reading made off camera, then the app reopened with its clock fixed to noon on the due date solely to reach the check-in screen: Home → History → the reading → a demo Yes / Not quite / Not yet. Caption: `How a check-in works`. The `AI-generated demo` label stays on screen throughout. | ~8 s |
-| C · daily-omen slideshow | Live engine omens for six signs (Aries–Virgo or Libra–Pisces) over the app's own background art, then the real Home with today's omen. Faceless. | 8 slides, ~22 s |
+| C · daily-omen slideshow | Live engine omens for six signs (Aries–Virgo or Libra–Pisces) over the app’s own library-room art, then the real Home with today's omen. Faceless. | 8 slides, ~22 s |
 
 ## Render a day's batch
 
@@ -39,8 +39,9 @@ Before adding a question, run it through the live engine once. Small local model
 
 ## Boundaries
 
+- Capture replaces browser speech recognition with a silent stub to keep microphone errors off the Ask screen; questions are typed. These videos do not verify voice input.
 - Drive through stable testIDs (`tab-*`, `type-instead`, `question-input`, `option-0`, `record-reveal`, `check-in-*`, `daily-omen`), Action labels (`continue`, `meet-the-ball`, `try-again`) and the History row's question text. After a UI change, render a small batch and check each format before rendering the bank.
-- Format C requires the `.atmosphere` art layer and fails with an explicit error if it is absent. Background capture hides everything else in the app shell.
+- Format C requires the room art layer (`.room` in `RoomScene.web.tsx`) and fails with an explicit error if it is absent. Background capture hides everything else in the app shell.
 - Capture uses a CDP screencast at device pixels. Playwright's `recordVideo` would upscale a 360×640 capture.
 - Local engine only. The renderer refuses a hosted provider, because hosted inference requires the viewer's own in-app AI consent.
 - Model headlines and omens pass the same content rules as hooks. A video that fails any check is deleted and listed under `failures`.

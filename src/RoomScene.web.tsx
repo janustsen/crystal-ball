@@ -663,7 +663,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  const fallback=failed?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
  const stills=failed?[spot]:flight?[flight.to,at]:[at];
- return <div aria-hidden="true" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A'}}>
+ return <div aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A'}}>
   {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
   {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
   {flight&&!failed?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}
