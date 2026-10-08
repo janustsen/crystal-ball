@@ -1,6 +1,6 @@
 # Motion
 
-The [motion language](motion-language.md) defines the shared primitives, reference lessons, easing and timings. `src/motion.ts` owns screen entrance tokens; `src/Enter.web.tsx` uses compositor transforms/opacity, while `src/Enter.tsx` uses React Native’s native animation driver.
+The [motion language](motion-language.md) defines the shared entrance and feedback primitives, implementations, reference lessons, easing and timings.
 
 `src/fogShader.ts` adapts the supplied reference into continuously advected domain-warped fog, without rotating the field. Outside the [room](#room), one persistent WebGL context draws the shared orbs, including escaping wisps. While visible with motion enabled, it runs at display cadence and keeps its clock across state changes. Glow, embers and sky discoveries animate only transforms/opacity. Native `FogTiles` moves three seamless translucent fields with the native driver beneath transparent glass artwork; native wisps recycle only at zero opacity. Run `node scripts/render-fog.mjs` to regenerate those assets. No frame-sequence assets or per-frame React updates are used.
 
