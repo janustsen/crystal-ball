@@ -1,10 +1,11 @@
-import React from 'react';
+import React,{useState} from 'react';
 import {Pressable,ScrollView,View} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {type BallSpin} from './RoomScene';
 import {Txt,RowLink,colors,fonts,styles} from './ui';
 import {haptic} from './native';
 import {Surface} from './Surface';
+import {Enter} from './Enter';
 
 // The floating glass tab bar: 68 pt tall, inset 14 pt from the sides and 18 pt from the bottom safe area.
 export const homeTabBarHeight=68;
@@ -32,21 +33,24 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom}:{r
 
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 1 14.2 9.8 23 12 14.2 14.2 12 23 9.8 14.2 1 12 9.8 9.8z"/></svg>';
 // The readings-left pill (or Plus), which opens Plans.
-export function PlansPill({count,ready,onPress}:{count:string;ready:boolean;onPress:()=>void}){
+export function PlansPill({count,ready,reduce=false,onPress}:{count:string;ready:boolean;reduce?:boolean;onPress:()=>void}){
+ // The count pops only when a shown balance changes (not when it first loads).
+ const [shown,setShown]=useState({count,ready,pop:false});
+ if(shown.count!==count||shown.ready!==ready)setShown({count,ready,pop:shown.count!==count&&shown.ready&&ready});
  return <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPress} style={{minHeight:44,justifyContent:'center'}}>
   <View style={{height:32,paddingHorizontal:14,flexDirection:'row',alignItems:'center',gap:8}}>
    <Surface kind="pill" state={ready?undefined:'disabled'}>
     <View><SvgXml aria-hidden xml={sparkle} width={12} height={12}/></View>
-    <Txt allowFontScaling={false} style={{fontFamily:fonts.sansMedium,fontSize:12,lineHeight:16,letterSpacing:.96}}>{count}</Txt>
+    <Enter key={count} kind="count" reduce={reduce||!shown.pop}><Txt allowFontScaling={false} style={{fontFamily:fonts.sansMedium,fontSize:12,lineHeight:16,letterSpacing:.96}}>{count}</Txt></Enter>
    </Surface>
   </View>
  </Pressable>;
 }
 // The header every tab shares: the italic title and the readings-left pill.
-export function RoomHeader({title,count,ready,onPlans,top}:{title:string;count:string;ready:boolean;onPlans:()=>void;top:number}){
+export function RoomHeader({title,count,ready,reduce,onPlans,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;top:number}){
  return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:Math.max(52,top+6),flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}}>
   <Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{flexShrink:1,fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt>
-  <PlansPill count={count} ready={ready} onPress={onPlans}/>
+  <PlansPill count={count} ready={ready} reduce={reduce} onPress={onPlans}/>
  </View>;
 }
 

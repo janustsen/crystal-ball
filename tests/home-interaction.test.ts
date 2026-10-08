@@ -61,7 +61,7 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
  const render=component('../src/Home.tsx',{
   'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
@@ -75,4 +75,18 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
  ball.props.onPointerDown({nativeEvent:{pointerId:4}});
  ball.props.onPress();assert.deepEqual(events,['touch','ask','grab 4']);
  ball.props.onPress();assert.deepEqual(events,['touch','ask','grab 4','ask']);
+});
+
+test('the readings-left count pops only when a loaded balance changes',()=>{
+ const render=component('../src/Home.tsx',{
+  'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './delight':{selectedStyle:()=>'classic'},'./native':{haptic:()=>{}},
+ });
+ const pop=(count:string,ready:boolean,reduce=false)=>{const enter=nodes(render('PlansPill',{count,ready,reduce,onPress:()=>{}})).find(n=>n.type==='Enter');assert.equal(enter.props.kind,'count');return !enter.props.reduce};
+ assert.equal(pop('Loading…',false),false);
+ assert.equal(pop('1 reading left',true),false);
+ assert.equal(pop('0 readings left',true),true);
+ assert.equal(pop('0 readings left',true,true),false);
 });

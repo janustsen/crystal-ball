@@ -22,6 +22,15 @@ export const motionCss = `
 @keyframes inhale{0%{opacity:0;transform:scale(var(--enter-scale,1.12)) rotate(-3deg)}100%{opacity:1;transform:none}}
 @keyframes glimpse-burst{0%{opacity:0;transform:scale(var(--enter-scale,.55))}45%{opacity:1;transform:scale(1.05,.95)}68%{transform:scale(.97,1.04)}86%{transform:scale(1.01,.99)}100%{opacity:1;transform:none}}
 @keyframes card-deal{0%{opacity:0;transform:translate3d(0,var(--enter-y,80px),0) rotate(8deg)}35%{opacity:1}100%{opacity:1;transform:none}}
+/* Micro entrances (count, status, toast, check): small, quick, no veil. Blur only on text-sized layers; glass keeps its backdrop. */
+.count-pop{animation-name:count-pop;animation-timing-function:${spring}}
+.status-swap{animation-name:status-swap;animation-timing-function:${ease}}
+.toast-rise{animation-name:toast-rise;animation-timing-function:${spring}}
+.check-pop{animation-name:check-pop;animation-timing-function:${spring}}
+@keyframes count-pop{0%{opacity:0;filter:blur(3px);transform:translate3d(0,var(--enter-y),0) scale(var(--enter-scale))}55%{opacity:1;filter:blur(0)}100%{opacity:1;filter:none;transform:none}}
+@keyframes status-swap{0%{opacity:0;filter:blur(4px);transform:translate3d(0,var(--enter-y),0)}100%{opacity:1;filter:none;transform:none}}
+@keyframes toast-rise{0%{opacity:0;transform:translate3d(0,var(--enter-y),0) scale(var(--enter-scale))}40%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes check-pop{0%{opacity:0;filter:blur(4px);transform:scale(var(--enter-scale)) rotate(var(--enter-rotate))}50%{opacity:1;filter:blur(0)}100%{opacity:1;filter:none;transform:none}}
 .screen-veil::after{content:'';position:absolute;pointer-events:none;z-index:20;opacity:0;animation:inherit;animation-delay:0ms}
 .smoke-wipe.screen-veil::after{top:-12%;bottom:-12%;left:-60%;width:120%;background:radial-gradient(70px 90px at 86% 14%,rgba(232,212,178,.55),transparent 70%),radial-gradient(80px 110px at 92% 36%,rgba(214,190,152,.6),transparent 70%),radial-gradient(70px 90px at 84% 58%,rgba(232,212,178,.5),transparent 70%),radial-gradient(90px 120px at 91% 80%,rgba(214,190,152,.55),transparent 70%),radial-gradient(70px 80px at 85% 98%,rgba(232,212,178,.5),transparent 70%),linear-gradient(90deg,rgba(14,9,6,0),rgba(14,9,6,.94) 45%,rgba(30,21,13,.96) 76%,rgba(30,21,13,0) 96%);animation-name:veil-sweep;animation-timing-function:cubic-bezier(.45,0,.35,1)}
 @keyframes veil-sweep{0%{opacity:1;transform:translate3d(-10%,0,0)}60%{opacity:1}100%{opacity:0;transform:translate3d(150%,0,0) scale(1.15)}}

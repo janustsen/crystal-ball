@@ -25,6 +25,8 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   createElement:(type:any,props:any,...children:any[]):any=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
+  // A memoized callback holds one hook slot and keeps its first identity, as its empty dependency list does in React.
+  useCallback:(callback:any)=>{const i=cursor++;return slots[i]??(slots[i]=callback)},
   useEffect:()=>{},
  };
  const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
