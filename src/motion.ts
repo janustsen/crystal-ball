@@ -11,5 +11,12 @@ export const entrances={
  thinking:{duration:900,y:6,scale:1.12,name:'inhale'},
  reveal:{duration:1000,y:18,scale:.55,name:'glimpse-burst'},
  share:{duration:720,y:80,scale:1,name:'card-deal'},
+ // Micro entrances: replayed by keying Enter on the value that changed.
+ count:{duration:460,y:10,scale:.9,name:'count-pop'},
+ status:{duration:480,y:8,scale:1,name:'status-swap'},
+ toast:{duration:520,y:16,scale:.96,name:'toast-rise'},
+ check:{duration:560,y:0,scale:.5,rotate:-45,name:'check-pop'},
 } as const;
+// A refused action (an empty answer) shakes its field once.
+export const shake={duration:420,x:[0,-8,7,-5,3,-1,0]} as const;
 export type MotionKind=keyof typeof entrances;

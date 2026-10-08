@@ -26,7 +26,15 @@ export function Txt({children,display=false,style,...props}:React.ComponentProps
 }
 
 // Primary actions are a gold pill; quiet ones a glass row.
-export function Action({label,onPress,quiet=false,disabled=false,testID}: {label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string}){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={[styles.action,quiet&&styles.quiet]}>{({pressed})=><Surface kind={quiet?'row':'primary'} state={disabled?'disabled':pressed?'pressed':undefined}><Txt style={{fontFamily:fonts.semibold,fontSize:quiet?17:18,lineHeight:24,color:quiet?colors.ivory:colors.onGold,textAlign:'center',opacity:disabled?.6:1}}>{label}</Txt></Surface>}</Pressable>}
+// `onBlocked` hears a press on the disabled action from a wrapper, so the button itself stays disabled for assistive technology.
+// A disabled button swallows click on web, so the wrapper listens for the lift instead (pointer up on web, touch end on native).
+export function Action({onBlocked,...props}:ActionProps&{onBlocked?:()=>void}){
+ if(!onBlocked)return <ActionButton {...props}/>;
+ const blocked=props.disabled?onBlocked:undefined;
+ return <View {...(Platform.OS==='web'?{onPointerUp:blocked}:{onTouchEnd:blocked})}><ActionButton {...props}/></View>;
+}
+type ActionProps={label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string};
+function ActionButton({label,onPress,quiet=false,disabled=false,testID}:ActionProps){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={[styles.action,quiet&&styles.quiet]}>{({pressed})=><Surface kind={quiet?'row':'primary'} state={disabled?'disabled':pressed?'pressed':undefined}><Txt style={{fontFamily:fonts.semibold,fontSize:quiet?17:18,lineHeight:24,color:quiet?colors.ivory:colors.onGold,textAlign:'center',opacity:disabled?.6:1}}>{label}</Txt></Surface>}</Pressable>}
 const chevron='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 // A row that goes somewhere: its label on the left, an optional label-style detail and a gold chevron on the right.
 export function RowLink({label,detail,onPress,disabled=false,testID,accessibilityLabel}:{label:string;detail?:string;onPress:()=>void;disabled?:boolean;testID?:string;accessibilityLabel?:string}){
