@@ -1,7 +1,7 @@
 # Motion
 
 ## Sub-features
-The [room](../../../../docs/design/motion.md#room) flights, loops and live ball, and shared orbs’ continuous cel-shaded fog, levitating glass, escaping wisps and warm glow; named transitions (smoke wipe, orb portal, ripple in, ink settle, card flip, inhale, glimpse burst, card deal); squash-and-spark feedback on shared tappable controls; parallax star layers and ambient sky; reduced motion. Names and timings: docs/design/motion-language.md.
+The [room](../../../../docs/design/motion.md#room) flights, loops and live ball, and shared orbs’ continuous cel-shaded fog, levitating glass, escaping wisps and warm glow; shared entrances and feedback effects; squash-and-spark feedback on shared tappable controls; parallax star layers and ambient sky; reduced motion. The [motion language](../../../../docs/design/motion-language.md) owns the effect inventory, triggers and timings.
 
 ## How to get to it (user POV)
 Home orb or Ask tab starts the reading. Follow a real reading through the returned one or two questions, reveal and Share. You contains Reduce motion and Large text.
