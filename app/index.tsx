@@ -1,5 +1,5 @@
 import {uuid} from '../src/uuid';
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useCallback,useEffect,useRef,useState} from 'react';
 import {AccessibilityInfo,Alert,BackHandler,Linking,Platform,Pressable,ScrollView,View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
@@ -52,6 +52,7 @@ export default function App(){
  const params=useLocalSearchParams<{social?:string;socialRequest?:string;question?:string;friend?:string;circle?:string;seal?:string}>();
  const [tab,setCurrentTab]=useState<Tab>('Home'),[flow,setFlow]=useState<Flow>({stage:'ask'}),[question,setQuestion]=useState(''),[choice,setChoice]=useState(''),[other,setOther]=useState(''),[notice,setNoticeText]=useState(''),[noticeDone,setNoticeDone]=useState(false),[undoFact,setUndoFact]=useState<{key:string;value:string}|null>(null),[why,setWhy]=useState(false),[reviewing,setReviewing]=useState(false),[share,setShare]=useState<StoryCard['kind']|false>(false),[capture,setCapture]=useState(false),[paywall,setPlansVisible]=useState(false),[systemReduce,setSystemReduce]=useState(false),[edit,setEdit]=useState<string|null>(null),[editValue,setEditValue]=useState(''),[longWait,setLongWait]=useState(false),[planChoice,setPlanChoice]=useState<PlanKind>('weekly'),[offers,setOffers]=useState<Offer[]|null>(null),[buying,setBuying]=useState(false);
  const [refused,setRefused]=useState(0);
+ const setNotice=useCallback((text:string,done=false)=>{setNoticeText(text);setNoticeDone(done)},[]);
  function setTab(next:Tab){router.setParams({seal:undefined});setCurrentTab(next)}
  function setPaywall(visible:boolean){if(visible)router.setParams({seal:undefined});setPlansVisible(visible)}
  useEffect(()=>{
@@ -180,8 +181,6 @@ export default function App(){
  const tapBegins=flow.stage==='ask'&&!askBlocked;
  const backing=flow.stage==='cards'&&!paywall&&!share;
  const header=<View onLayout={e=>setHeaderHeight(e.nativeEvent.layout.height)} style={[styles.row,{paddingTop:Math.max(insets.top,Platform.OS==='web'?40:14),paddingHorizontal:20,paddingBottom:8,minHeight:96}]}><Pressable testID="close-flow" accessibilityRole="button" accessibilityLabel={backing?'Back':'Close'} onPress={()=>backing?back():close()} style={{width:44,height:44,alignItems:'center',justifyContent:'center'}}><Surface kind="pill"/><View><SvgXml aria-hidden xml={backing?backIcon:closeIcon} width={20} height={20}/></View></Pressable>{backing?<View style={{flexDirection:'row',alignItems:'center',gap:12}}><View style={{flexDirection:'row',gap:4}}>{flow.plan.cards.map((c,i)=><View key={c.id} style={{width:Math.min(24,120/flow.plan.cards.length),height:3,borderRadius:2,backgroundColor:i<=flow.index?colors.gold:'rgba(227,199,143,.25)'}}/>)}</View><Txt style={styles.meta}>{flow.index+1} of {flow.plan.cards.length}</Txt></View>:['approach','listening','planning','research'].includes(flow.stage)&&!paywall&&!share&&tab==='Ask'?null:<PlansPill reduce={reduce} ready={ready&&!backupBusy} count={!ready?'Loading…':state.plus?(purchaseMode==='mock'?'Plus · test':'Plus'):`${remaining} reading${remaining===1?'':'s'}`} onPress={()=>{setPaywall(true);setNotice('')}}/>}</View>;
- // `done` marks a completed action; its notice opens with a check.
- function setNotice(text:string,done=false){setNoticeText(text);setNoticeDone(done)}
  function textLink(label:string,onPress:()=>void,testID?:string){return <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={{minHeight:44,justifyContent:'center',paddingVertical:10}}><Txt style={{color:colors.ice,textAlign:'center'}}>{label}</Txt></Pressable>}
  const aiPermission=<>{aiProvider?<View style={styles.panel}><Surface kind="card"><Txt style={styles.caption}>Allow {aiProvider} to process your questions, relevant answers and saved headlines for readings, omens and sharing checks? Friend readings also use their sun sign and shared themes. Avoid sensitive details.</Txt><Toggle accessibilityLabel="Allow AI processing" value={aiAllowed} onValueChange={setAiAllowed}/></Surface></View>:null}</>;
  function reply(title:string,panel:React.ReactNode){
