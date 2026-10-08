@@ -7,7 +7,7 @@ export function Enter({children,reduce=false,variant=0,zoom=false,kind="screen",
 }
 // Shakes its children once each time `trigger` changes after mount; children stay mounted, so a field keeps focus.
 export function Shake({trigger,reduce=false,children}:PropsWithChildren<{trigger:number;reduce?:boolean}>){
- const ref=useRef<HTMLDivElement>(null),mounted=useRef(trigger);
- useEffect(()=>{if(reduce||trigger===mounted.current)return;const animation=ref.current?.animate(shake.x.map(x=>({transform:`translate3d(${x}px,0,0)`})),{duration:shake.duration});return()=>animation?.cancel()},[trigger,reduce]);
+ const ref=useRef<HTMLDivElement>(null),consumed=useRef(trigger);
+ useEffect(()=>{const changed=trigger!==consumed.current;consumed.current=trigger;if(reduce||!changed)return;const animation=ref.current?.animate(shake.x.map(x=>({transform:`translate3d(${x}px,0,0)`})),{duration:shake.duration});return()=>animation?.cancel()},[trigger,reduce]);
  return <div ref={ref} style={{display:'flex',flexDirection:'column',minWidth:0}}>{children}</div>;
 }

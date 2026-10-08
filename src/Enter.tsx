@@ -10,7 +10,7 @@ export function Enter({children,reduce=false,variant=0,zoom=false,kind="screen",
 }
 // Shakes its children once each time `trigger` changes after mount; children stay mounted, so a field keeps focus.
 export function Shake({trigger,reduce=false,children}:PropsWithChildren<{trigger:number;reduce?:boolean}>){
- const value=useRef(new Animated.Value(0)).current,mounted=useRef(trigger);
- useEffect(()=>{if(reduce||trigger===mounted.current)return;value.setValue(0);const animation=Animated.timing(value,{toValue:1,duration:shake.duration,easing:Easing.linear,useNativeDriver:true});animation.start();return()=>animation.stop()},[trigger,reduce,value]);
+ const value=useRef(new Animated.Value(0)).current,consumed=useRef(trigger);
+ useEffect(()=>{const changed=trigger!==consumed.current;consumed.current=trigger;if(reduce){value.setValue(0);return}if(!changed)return;value.setValue(0);const animation=Animated.timing(value,{toValue:1,duration:shake.duration,easing:Easing.linear,useNativeDriver:true});animation.start();return()=>animation.stop()},[trigger,reduce,value]);
  return <Animated.View style={{transform:[{translateX:value.interpolate({inputRange:shake.x.map((_,i)=>i/(shake.x.length-1)),outputRange:[...shake.x]})}]}}>{children}</Animated.View>;
 }
