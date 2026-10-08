@@ -1,7 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {Animated,Image,View} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
-import {SvgXml} from 'react-native-svg';
 import {OrbVisual} from './OrbVisual';
 import {ballOnScreen,stillFrame,type Spot} from './room';
 import {roomStills} from './roomAssets';
@@ -22,24 +21,11 @@ export function RoomScene({spot,width,height,reduce,ball='classic'}:{spot:Spot;w
   Animated.timing(fade,{toValue:0,duration:450,useNativeDriver:true}).start(()=>setPrevious(null));
  },[spot]);
  const placed=ballOnScreen(stillFrame(spot),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
- return <View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#050302'}}>
+ return <View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#140E0A'}}>
   <Image source={roomStills[spot]} resizeMode="cover" style={fill}/>
   {previous?<Animated.Image source={roomStills[previous]} resizeMode="cover" style={{...fill,opacity:fade}}/>:null}
   {placed?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce={reduce} ball={ball}/></View>:null}
-  <LinearGradient colors={['rgba(5,3,2,.75)','rgba(5,3,2,0)']} style={{position:'absolute',left:0,top:0,width,height:130}}/>
-  <LinearGradient colors={['rgba(5,3,2,0)','rgba(5,3,2,.55)','rgba(5,3,2,.9)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:304}}/>
+  <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>
+  <LinearGradient colors={['rgba(20,14,10,0)','rgba(20,14,10,.6)','rgba(20,14,10,.94)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:320}}/>
  </View>;
-}
-
-// The room's lens over everything on screen, UI included: the grain tile the web lens draws as SVG noise.
-// ponytail: native has no vignette over the UI; the room's own top and bottom fades carry it.
-export function RoomLens(_:{reduce:boolean}){
- return <View pointerEvents="none" accessible={false} style={{position:'absolute',left:0,top:0,right:0,bottom:0,zIndex:20}}>
-  <Image source={require('../assets/grain.png')} resizeMode="repeat" style={{width:'100%',height:'100%',opacity:.06}}/>
- </View>;
-}
-
-const orb='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26"><defs><radialGradient id="b" cx="50%" cy="60%" r="70.7%"><stop offset="0" stop-color="#f0b066"/><stop offset=".45" stop-color="#8a4a22"/><stop offset=".85" stop-color="#1e110a"/></radialGradient><radialGradient id="h" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#fff6e2" stop-opacity=".95"/><stop offset=".18" stop-color="#fff6e2" stop-opacity="0"/></radialGradient></defs><circle cx="13" cy="13" r="13" fill="url(#b)"/><circle cx="13" cy="13" r="13" fill="url(#h)"/></svg>';
-export function AskOrb(_:{reduce:boolean}){
- return <View style={{width:26,height:26,borderRadius:13,boxShadow:'0 0 14px rgba(255,170,90,.45)'}}><SvgXml xml={orb} width={26} height={26}/></View>;
 }

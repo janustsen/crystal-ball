@@ -5,8 +5,8 @@ import * as Crypto from 'expo-crypto';
 import {anonymousOwner,supabase} from './cloud';
 import {uuid} from './uuid';
 import {useStore} from './store';
-import {Action,styles,Txt} from './ui';
-import {Material} from './Material';
+import {Action,styles,Txt,CardHeader} from './ui';
+import {Surface} from './Surface';
 
 export function BackupPanel(){
  const {backup,backupBusy}=useStore();
@@ -33,12 +33,12 @@ export function BackupPanel(){
   }catch{setNotice(action==='save'?'Backup could not finish. Already saved with Apple? Choose Restore. Your local readings are safe.':'Restore could not finish. Your local readings are safe. Try again when connected.')}
  }
  if(!available||!configured)return null;
- return <View style={styles.panel}><Material name="modal">
-  <Txt>Keep your glimpses</Txt>
+ return <View style={styles.panel}><Surface kind="card">
+  <CardHeader title="Keep your glimpses" label="Optional"/>
   <Txt style={styles.caption}>Optional Apple backup saves your readings and remembered answers to Supabase. Use one device at a time. Saving replaces the archive; Restore replaces this device’s readings and remembered answers. Test credits stay here.</Txt>
    <Action label={mode==='save'?'Restore an Apple backup':'Save this device with Apple'} quiet disabled={backupBusy} onPress={()=>{setMode(mode==='save'?'restore':'save');setNotice('')}}/>
    <Txt style={styles.caption}>{mode==='save'?'Save this device’s history':'Restore from your linked Apple account. If you haven’t linked Apple yet, sign in to choose your backup.'}</Txt>
    {backupBusy?<Txt accessibilityLiveRegion="polite">Saving your glimpses…</Txt>:<Apple.AppleAuthenticationButton buttonType={Apple.AppleAuthenticationButtonType.CONTINUE} buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE} cornerRadius={12} style={{height:52,marginTop:12}} onPress={()=>{if(mode==='restore')Alert.alert('Replace this device’s data?','Restore from your linked Apple account replaces this device’s readings and remembered answers. If you haven’t linked Apple yet, sign in to choose your backup. Use one device at a time.',[{text:'Cancel',style:'cancel'},{text:'Restore and replace',style:'destructive',onPress:()=>{void connect('restore')}}]);else void connect('save')}}/>}
-  {notice?<View style={styles.panel}><Material name="notice"><Txt accessibilityLiveRegion="polite" style={styles.caption}>{notice}</Txt></Material></View>:null}
- </Material></View>;
+  {notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite" style={styles.caption}>{notice}</Txt></Surface></View>:null}
+ </Surface></View>;
 }

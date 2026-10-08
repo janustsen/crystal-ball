@@ -61,7 +61,7 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
  const render=component('../src/Home.tsx',{
   'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './RoomScene':{AskOrb:'AskOrb'},'./Material':{Material:'Material'},'./ui':{Txt:'Txt',fonts:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });

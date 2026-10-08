@@ -1,49 +1,52 @@
 import React from 'react';
 import {Pressable,ScrollView,View} from 'react-native';
 import {SvgXml} from 'react-native-svg';
-import {AskOrb,type BallSpin} from './RoomScene';
-import {Txt,fonts} from './ui';
+import {type BallSpin} from './RoomScene';
+import {Txt,RowLink,colors,fonts,styles} from './ui';
 import {haptic} from './native';
-import {Material} from './Material';
+import {Surface} from './Surface';
 
-// Home is ported from the Claude Design canvas artboard project/Library.dc.html ("Library"); values below are its own.
-export const homeFonts={serif:fonts.display,italic:fonts.italic,sans:fonts.body};
-const cream='#f4ead8',muted='rgba(242,231,210,.62)',active='#f4e2bc';
-export const homeTabBarHeight=74;
+// The floating glass tab bar: 68 pt tall, inset 14 pt from the sides and 18 pt from the bottom safe area.
+export const homeTabBarHeight=68;
+const barInset=18;
+// Space the tab bar takes from the bottom of the screen, so content ends above it.
+export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 // Web lets a drag on the ball spin it instead of scrolling the page.
 const noScroll={touchAction:'none'} as object;
 
-// Home's screen content, docked below the room's ball (top) with the canvas's own copy and omen card.
+// Home's screen content, docked below the room's ball (top): what to do, today's omen and the Inner Library.
 export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number}){
- return <View style={{position:'absolute',left:0,top,right:0,bottom:homeTabBarHeight+1+bottom}}>
-  <ScrollView contentContainerStyle={{paddingBottom:16}}>
-   <View pointerEvents="none" style={{alignItems:'center',gap:10}}>
-    <Txt style={{fontFamily:homeFonts.italic,fontSize:25,lineHeight:27.5,color:cream,textShadowColor:'rgba(0,0,0,.8)',textShadowOffset:{width:0,height:2},textShadowRadius:12}}>What lies ahead?</Txt>
-    <View style={{flexDirection:'row',alignItems:'center',gap:12}}>
-     <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:2.64,textTransform:'uppercase',color:'rgba(242,231,210,.66)'}}>Touch the ball</Txt>
-    </View>
+ return <View style={{position:'absolute',left:0,top,right:0,bottom}}>
+  <ScrollView contentContainerStyle={{paddingHorizontal:20,paddingBottom:16,gap:14}}>
+   <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
+    <Txt display style={{fontSize:30,lineHeight:34}}>What lies ahead?</Txt>
+    <Txt style={styles.label}>Touch the ball to ask</Txt>
    </View>
-   <View style={{paddingHorizontal:20,marginTop:22.5,gap:14}}>
-    {checkIns}
-    {omen}
-    {/* Placeholder room spot: the designed Inner Library door replaces this link and keeps its testID. */}
-    <Pressable testID="room-inner-library" accessibilityRole="button" accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary} style={{minHeight:44,alignItems:'center',justifyContent:'center'}}>
-     <Txt style={{fontFamily:homeFonts.sans,fontSize:11.5,lineHeight:14,letterSpacing:2.07,textTransform:'uppercase',color:'rgba(242,231,210,.74)'}}>{libraryLocked?'Inner Library · Plus':'Inner Library'}</Txt>
-    </Pressable>
-    <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:.44,textAlign:'center',color:muted}}>For entertainment. Never a guarantee.</Txt>
-   </View>
+   {checkIns}
+   {omen}
+   <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
+   <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </ScrollView>
  </View>;
 }
 
-// The canvas header every tab shares: the italic title and the reading balance, which opens Plans.
+const sparkle='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 1 14.2 9.8 23 12 14.2 14.2 12 23 9.8 14.2 1 12 9.8 9.8z"/></svg>';
+// The readings-left pill (or Plus), which opens Plans.
+export function PlansPill({count,ready,onPress}:{count:string;ready:boolean;onPress:()=>void}){
+ return <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPress} style={{minHeight:44,justifyContent:'center'}}>
+  <View style={{height:32,paddingHorizontal:14,flexDirection:'row',alignItems:'center',gap:8}}>
+   <Surface kind="pill" state={ready?undefined:'disabled'}>
+    <View><SvgXml aria-hidden xml={sparkle} width={12} height={12}/></View>
+    <Txt allowFontScaling={false} style={{fontFamily:fonts.sansMedium,fontSize:12,lineHeight:16,letterSpacing:.96}}>{count}</Txt>
+   </Surface>
+  </View>
+ </Pressable>;
+}
+// The header every tab shares: the italic title and the readings-left pill.
 export function RoomHeader({title,count,ready,onPlans,top}:{title:string;count:string;ready:boolean;onPlans:()=>void;top:number}){
- return <View pointerEvents="box-none" style={{position:'absolute',left:0,right:0,top:top+26,alignItems:'center'}}>
-  <Txt accessibilityRole="header" allowFontScaling={false} style={{fontFamily:homeFonts.italic,fontSize:30,lineHeight:30,letterSpacing:.3,color:cream}}>{title}</Txt>
-  <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPlans} style={{minHeight:44,marginTop:-7,paddingHorizontal:16,flexDirection:'row',alignItems:'center'}}>
-   <Material name="brass-badge">
-   <Txt style={{fontFamily:homeFonts.sans,fontSize:11.5,lineHeight:14,letterSpacing:2.07,textTransform:'uppercase',color:'rgba(242,231,210,.74)'}}>{count}</Txt>
-  </Material></Pressable>
+ return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:Math.max(52,top+6),flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}}>
+  <Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{flexShrink:1,fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt>
+  <PlansPill count={count} ready={ready} onPress={onPlans}/>
  </View>;
 }
 
@@ -54,34 +57,35 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
 }
 
 export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string}>){
- return <View {...props} accessibilityState={{busy}} style={{paddingTop:18,paddingHorizontal:22,paddingBottom:20,gap:8}}>
-  <Material name="plaque">
+ return <View {...props} accessibilityState={{busy}} style={{padding:18,gap:10}}>
+  <Surface kind="card">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-   <Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.76,textTransform:'uppercase',color:'rgb(246,214,166)'}}>Today’s omen</Txt>
-   <View style={{paddingVertical:3,paddingHorizontal:8}}><Material name="walnut-chip"><Txt style={{fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:1.32,textTransform:'uppercase',color:'rgba(246,214,166,.85)'}}>Free</Txt></Material></View>
+   <Txt style={styles.label}>Today’s omen</Txt>
+   <Txt style={[styles.label,{color:colors.gold}]}>Free</Txt>
   </View>
   {children}
- </Material></View>;
+ </Surface></View>;
 }
-export const omenTextStyle={fontFamily:homeFonts.serif,fontSize:21,lineHeight:26.88,color:'#f5ecdc'};
+export const omenTextStyle={fontFamily:fonts.display,fontSize:21,lineHeight:27,color:colors.ivory};
 
+// The reference artboards' line icons.
 const icon=(d:string)=>`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const tabIcons:Record<string,string>={
- Home:icon('<path d="M8 21h8M10 21v-9h4v9M12 12v-1.5M12 3.5c1.6 2 1.6 3.6 0 5.2c-1.6-1.6-1.6-3.2 0-5.2z"/>'),
- Sky:icon('<rect x="3.5" y="5" width="10" height="14" rx="1.5" transform="rotate(-10 8.5 12)"/><rect x="10.5" y="4" width="10" height="14" rx="1.5" transform="rotate(8 15.5 11)"/>'),
- History:icon('<path d="M6 3h12M6 21h12M7.5 3c0 5 9 6 9 9s-9 4-9 9M16.5 3c0 5-9 6-9 9s9 4 9 9"/>'),
- You:icon('<circle cx="12" cy="8.5" r="5.5"/><path d="M12 14v7.5M9.5 18.5h5"/>')
+ Home:icon('<path d="M12 2.8c1.6 1.9 1.6 3.4 0 4.5-1.6-1.1-1.6-2.6 0-4.5z"/><rect x="9.5" y="9.5" width="5" height="9.5" rx="0.8"/><path d="M6.5 21h11"/>'),
+ Sky:icon('<rect x="3.5" y="5" width="9" height="13.5" rx="1.6" transform="rotate(-9 8 11.75)"/><rect x="11.5" y="5" width="9" height="13.5" rx="1.6" transform="rotate(9 16 11.75)"/>'),
+ History:icon('<path d="M6.5 3h11M6.5 21h11M8 3c0 4.5 8 5 8 9s-8 4.5-8 9M16 3c0 4.5-8 5-8 9s8 4.5 8 9"/>'),
+ You:icon('<circle cx="12" cy="8.5" r="5"/><path d="M12 13.5V22M8.5 18.5h7"/>')
 };
+const askBall='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54"><defs><radialGradient id="g" cx="36%" cy="30%" r="75%"><stop offset="0" stop-color="#FBE7BE"/><stop offset=".38" stop-color="#D49A4C"/><stop offset=".78" stop-color="#6B3E18"/><stop offset="1" stop-color="#2A1709"/></radialGradient></defs><circle cx="27" cy="27" r="27" fill="url(#g)"/></svg>';
 type Tab='Home'|'Sky'|'Ask'|'History'|'You';
-// The canvas tab bar, shared by every tab.
-export function HomeTabBar({current,disabled,reduce,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
- const label={fontFamily:homeFonts.sans,fontSize:11,lineHeight:14,letterSpacing:.44};
- return <View accessibilityRole="tablist" style={{position:'absolute',left:0,right:0,bottom:0,height:homeTabBarHeight+1+bottom,paddingBottom:bottom,flexDirection:'row'}}>
-  <Material name="tabbar">
-  {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=><Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={t===current} accessibilityState={{selected:t===current}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?6:4,paddingBottom:8}}>
-   {t===current?<Material name="tabslot"/>:null}
-   {t==='Ask'?<View style={{width:26,height:26}}><View style={{position:'absolute',left:-15,top:-15,width:56,height:56}}><Material name="cradle"/></View><View style={{zIndex:1}}><AskOrb reduce={reduce}/></View></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',t===current?active:muted)} width={22} height={22}/>}
-   <Txt allowFontScaling={false} style={[label,{color:t===current?active:'rgba(242,231,210,.8)'}]}>{t}</Txt>
-  </Pressable>)}
- </Material></View>;
+// The floating glass tab bar shared by every tab, with the raised gold ball for Ask in the centre.
+export function HomeTabBar({current,disabled,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
+ const label={fontFamily:fonts.sansMedium,fontSize:11,lineHeight:14,letterSpacing:.44};
+ return <View accessibilityRole="tablist" style={{position:'absolute',left:14,right:14,bottom:bottom+barInset,height:homeTabBarHeight,flexDirection:'row'}}>
+  <View pointerEvents="none" style={{position:'absolute',left:0,top:0,right:0,bottom:0,borderRadius:26,borderWidth:1,borderColor:'rgba(227,199,143,.2)',backgroundColor:'rgba(18,12,9,.74)',boxShadow:'0 10px 30px rgba(0,0,0,.35)',...{backdropFilter:'blur(18px) saturate(1.2)'}}}/>
+  {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=>{const on=t===current;return <Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={on} accessibilityState={{selected:on}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?4:5}}>
+   {t==='Ask'?<View style={{marginTop:-26,width:54,height:54,borderRadius:27,boxShadow:'0 0 0 1px rgba(227,199,143,.55), 0 0 0 5px rgba(20,14,10,.9), 0 0 28px rgba(232,170,90,.4)'}}><SvgXml aria-hidden xml={askBall} width={54} height={54}/></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',on?colors.gold:colors.inactive)} width={22} height={22}/>}
+   <Txt allowFontScaling={false} style={[label,{color:on?colors.ivory:colors.inactive}]}>{t}</Txt>
+  </Pressable>})}
+ </View>;
 }

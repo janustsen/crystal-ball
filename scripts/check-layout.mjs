@@ -18,7 +18,7 @@ const failures=[],checked=[],contrast=[];
 // as it is drawn behind them), the box of its lines is sampled on a grid, and the worst tenth of those samples sets the ratio.
 // Labels scrolled out of view or under another layer (the tab bar) are skipped; disabled controls are exempt, as in WCAG.
 async function measureContrast(page,name){
- const {labels,lens}=await page.evaluate(()=>{
+ const labels=await page.evaluate(()=>{
   const shell=document.querySelector('[data-testid="app-shell"]'),out=[];
   for(const el of shell.querySelectorAll('*')){
    if(![...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))continue;
@@ -37,8 +37,7 @@ async function measureContrast(page,name){
    out.push({text:el.textContent.trim().slice(0,40),large:parseFloat(s.fontSize)>=24||parseFloat(s.fontSize)>=18.66&&Number(s.fontWeight)>=700,box:[r.left,Math.max(0,r.top),r.width,Math.min(innerHeight,r.bottom)-Math.max(0,r.top)],rgb:rgba.slice(0,3),alpha:(rgba[3]??1)*opacity});
   }
   const style=document.createElement('style');style.id='contrast-hide';style.textContent='[data-contrast]{color:transparent!important;-webkit-text-fill-color:transparent!important}';document.head.append(style);
-  const lens=document.querySelector('[data-testid="room-lens"]'),rect=lens?.getBoundingClientRect();
-  return {labels:out,lens:rect?.width&&rect.height&&getComputedStyle(lens).visibility!=='hidden'?{x:rect.left,y:rect.top,width:rect.width,height:rect.height}:null};
+  return out;
  });
  await page.waitForTimeout(50);
  const shot=await page.screenshot();
@@ -50,7 +49,7 @@ async function measureContrast(page,name){
    const x=Math.min(info.width-1,Math.round((l.box[0]+l.box[2]*(i+.5)/8)*k)),y=Math.min(info.height-1,Math.round((l.box[1]+l.box[3]*(j+.5)/3)*k)),o=(y*info.width+x)*3;
    samples.push({rgb:[data[o],data[o+1],data[o+2]],x:x/k,y:y/k});
   }
-  const result=labelContrast(l,samples,lens);
+  const result=labelContrast(l,samples);
   if(result.ratio<(l.large?3:4.5))contrast.push({name,text:l.text,large:l.large,ratio:Number(result.ratio.toFixed(2)),text_luminance:Number(result.foreground.toFixed(3)),background:result.background.map(v=>Number(v.toFixed(3))),box:l.box.map(Math.round)});
  }
 }

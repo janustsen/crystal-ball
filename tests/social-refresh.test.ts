@@ -23,7 +23,7 @@ test('social refresh preserves circles and repeated navigation exposes visible S
   },
  };
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{},'./Material':{Material:'Material'},'./ui':{colors:{},styles:{}},'./social-links':{},
+  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{}},'./social-links':{},
   './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{SkyOmen:'SkyOmen'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
   './social':{

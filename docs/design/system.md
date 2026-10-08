@@ -25,7 +25,7 @@ Reading generation has loading, timeout, retry and cancel; facts load before Ask
 
 ## Rendered review and component states
 
-See [current verification evidence](../evidence/design-2026-09-30/README.md) for captures of the replacement design and platform limits. Earlier violet captures are historical.
+See [UI verification](ui-rules.md#verification) for current appearance evidence, earlier validation and their limits.
 
 [UI rules](ui-rules.md) owns component appearance and interaction; [motion](motion.md) owns orb and entrance states. Preserve these accessibility constraints:
 

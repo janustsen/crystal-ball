@@ -31,9 +31,10 @@ try{
   };
   window.recorder=require('./RevealClip');
   for(const name of ['CormorantGaramond','CormorantGaramondItalic'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
+  document.fonts.add(await new FontFace('JostMedium','url(/assets/fonts/JostMedium.ttf)').load());
  },modules);
  const bytes=await page.evaluate(async()=>{
-  const look=await window.recorder.loadLook('classic','classic',false,true);
+  const look=await window.recorder.loadLook('classic','classic');
   // Stall both animation schedulers across the end-card transition and nominal clip deadline.
   const raf=window.requestAnimationFrame,timer=window.setTimeout,start=performance.now();
   const delayed={animation:0,timer:0};

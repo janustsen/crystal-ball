@@ -9,7 +9,7 @@ test('recording locks the question setting until recording completes or fails',a
  const slots:any[]=[];let cursor=0,reject!:(error:Error)=>void;
  const loading=new Promise<void>((_resolve,fail)=>{reject=fail});
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
- const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'}};
+ const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./Surface':{Surface:'Surface'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'}};
  const module={exports:{} as any},notices:string[]=[];
  runInNewContext(code,{React:react,module,exports:module.exports,require:(name:string)=>imports[name]??{},Image:class {decode(){return loading}}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
@@ -36,7 +36,7 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
  const ctx=new Proxy({},{get:(_target,key)=>key==='measureText'?()=>({width:10}):key==='createLinearGradient'||key==='createRadialGradient'?()=>({addColorStop:()=>{}}):()=>{},set:()=>true});
  const track={stop:()=>{},requestFrame:()=>{}},stream={addTrack:()=>{addedAudio++},getTracks:()=>[track],getVideoTracks:()=>[track]};
- const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'asset'})}},'./store':{useStore:()=>({state:{}})},'./Material':{Material:'Material'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'},'./social-policy':{activityTheme:()=>'learning',skyPrompts:{learning:{label:'Learning'}}},'./retention':{suggestedCheckIn:()=>'2026-12-01'}};
+ const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'asset'})}},'./store':{useStore:()=>({state:{}})},'./Surface':{Surface:'Surface'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'},'./social-policy':{activityTheme:()=>'learning',skyPrompts:{learning:{label:'Learning'}}},'./retention':{suggestedCheckIn:()=>'2026-12-01'}};
  class Audio{
   currentTime=0;
   async resume(){}
@@ -78,28 +78,27 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
  }
 });
 
-test('reveal clips paint on the modeled plate with AI glass inside the ball and the opening fade; Classic keeps the base orb',()=>{
+test('reveal clips paint the ground, the ball\'s light and the glass card, with AI glass inside the ball and the opening fade; Classic keeps the base orb',()=>{
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX},
  }).outputText;
  const module={exports:{} as typeof import('../src/RevealClip')};
  const imports:Record<string,unknown>={
   react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},
-  './Material':{Material:'Material'},'./ui':{colors:{},fonts:{}},'./retention':{suggestedCheckIn:()=>'December 1'},
+  './ui':{colors:{},fonts:{}},'./retention':{suggestedCheckIn:()=>'December 1'},
   './delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},
-  ...Object.fromEntries(['classic','gold','obsidian','golden'].map(style=>[`../assets/share/${style}.jpg`,style])),
  };
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>{
   assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name];
  }});
- const orb={} as HTMLImageElement,glass={} as HTMLImageElement,plate={} as HTMLImageElement,light={} as HTMLImageElement;
+ const orb={} as HTMLImageElement,glass={} as HTMLImageElement;
  for(const ballStyle of ['aurora','classic'] as const)for(const open of [1,.5]){
   const calls:unknown[][]=[];
   const ctx={
    globalAlpha:1,
    globalCompositeOperation:'source-over',
-   createLinearGradient(){calls.push(['gradient']);return {addColorStop:()=>{}}},
-   fillRect(){calls.push(['fillRect'])},fill(){},stroke(){},moveTo(){},lineTo(){},fillText(){},
+   createRadialGradient(){calls.push(['gradient']);return {addColorStop:()=>{}}},
+   fillRect(...args:number[]){calls.push(['fillRect',...args])},fill(){calls.push(['fill'])},stroke(){calls.push(['stroke'])},moveTo(){},lineTo(){},arcTo(){},closePath(){},fillText(){},
    measureText:()=>({width:100}),
    save(){calls.push(['save'])},restore(){calls.push(['restore'])},
    beginPath(){calls.push(['beginPath'])},arc(...args:number[]){calls.push(['arc',...args])},
@@ -108,9 +107,12 @@ test('reveal clips paint on the modeled plate with AI glass inside the ball and 
   };
   module.exports.paintStory(ctx as unknown as CanvasRenderingContext2D,
    {headline:'You will finish your course.'} as Parameters<typeof module.exports.paintStory>[1],
-   {ballStyle,orb,glass,plate,light},{orb:open});
-  assert.deepEqual(calls.find(call=>call[0]==='drawImage'),['drawImage',plate,0,0,1080,1920,1]);
-  assert.equal(calls.some(call=>call[0]==='gradient'||call[0]==='fillRect'),false);
+   {cardStyle:'classic',golden:false,ballStyle,orb,glass},{orb:open});
+  // No artwork behind the ball: the ground fills the frame, then the light and the card, before any image.
+  assert.deepEqual(calls[0],['fillRect',0,0,1080,1920]);
+  const firstImage=calls.findIndex(call=>call[0]==='drawImage');
+  assert.ok(['gradient','fill','stroke'].every(op=>calls.findIndex(call=>call[0]===op)<firstImage));
+  assert.equal(calls[firstImage][1],orb);
   const scale=.86+.14*open;
   assert.equal(calls.filter(call=>call[0]==='drawImage'&&call[1]===orb).length,1);
   if(ballStyle==='aurora'){
@@ -127,17 +129,37 @@ test('reveal clips paint on the modeled plate with AI glass inside the ball and 
  }
 });
 
-test('still cards never load the clip glow, so a broken light pass cannot block a still export',async()=>{
+test('a look loads only the ball and its AI glass; Classic needs no glass',async()=>{
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  const module={exports:{} as typeof import('../src/RevealClip')},requested:string[]=[];
- const assets=['orb.png','share/glow.jpg',...['classic','gold','obsidian','golden'].map(style=>`share/${style}.jpg`)];
  const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{Asset:{fromModule:(uri:string)=>({uri})}},
-  './Material':{},'./ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},
-  ...Object.fromEntries(assets.map(asset=>[`../assets/${asset}`,asset]))};
- class BrokenGlow{src='';decode(){requested.push(this.src);return this.src==='share/glow.jpg'?Promise.reject(new Error('glow decode failed')):Promise.resolve()}}
- runInNewContext(code,{module,exports:module.exports,Image:BrokenGlow,Promise,require:(name:string)=>{assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name]}});
- const still=await module.exports.loadLook('gold','classic');
- assert.equal(still.light,undefined);
- assert.deepEqual(requested.sort(),['orb.png','share/gold.jpg']);
- await assert.rejects(module.exports.loadLook('classic','classic',false,true),/glow decode failed/);
+  './ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{ballArt:{aurora:{glass:'aurora-glass.jpg'}}},'./social-policy':{},'./store':{},
+  '../assets/orb.png':'orb.png'};
+ class Loaded{src='';decode(){requested.push(this.src);return Promise.resolve()}}
+ runInNewContext(code,{module,exports:module.exports,Image:Loaded,Promise,require:(name:string)=>{assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name]}});
+ const classic=await module.exports.loadLook('gold','classic');
+ assert.equal(classic.glass,undefined);
+ assert.deepEqual(requested,['orb.png']);
+ const aurora=await module.exports.loadLook('obsidian','aurora',true);
+ assert.deepEqual([aurora.cardStyle,aurora.golden],['obsidian',true]);
+ assert.deepEqual(requested.slice(1).sort(),['aurora-glass.jpg','orb.png']);
+});
+
+test('export labels shrink until they fit their band with letter spacing included, as a receipt with both dates needs',async()=>{
+ const {receiptCard}=await import('../src/story-card.ts');
+ const card=receiptCard({id:'0000000a-abcd-4000-8000-000000000000',question:'Will I learn to paint this year?',headline:'You will finish your course within 2 months.',createdAt:'2026-10-01T12:00:00.000Z',checkedInAt:'2026-10-21',outcome:'yes',label:'',why:'',facts:{},sources:[],assumptions:[],friend:false})!;
+ const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const module={exports:{} as typeof import('../src/RevealClip')};
+ const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},'./ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{},'./social-policy':{},'./store':{}};
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]});
+ // A canvas whose glyph widths scale with the font size and, like the browser, add the current letter spacing per character.
+ const drawn:{text:string;width:number}[]=[];
+ const ctx={font:'',fillStyle:'',letterSpacing:'0px',
+  measureText(text:string){return {width:text.length*(parseFloat(this.font)*.55+parseFloat(this.letterSpacing))}},
+  fillText(text:string){drawn.push({text,width:this.measureText(text).width})}};
+ for(const label of card.labels)module.exports.paintLabel(ctx as unknown as CanvasRenderingContext2D,label,1400,'gold',32,760);
+ assert.ok(card.labels[1].includes('opened'));
+ assert.equal(drawn.length,2);
+ for(const {width} of drawn)assert.ok(width<=760,`label drawn ${width.toFixed(0)}px wide in a 760px band`);
+ assert.equal(ctx.letterSpacing,'0px');
 });

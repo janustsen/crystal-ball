@@ -4,7 +4,7 @@ import {Action,Txt,styles,colors,Field} from './ui';
 import {ageGroup,sunSign} from './profile';
 import {validateFact} from './questions';
 import type {Facts} from './types';
-import {Material} from './Material';
+import {Surface} from './Surface';
 
 export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Facts,ageConfirmed?:boolean)=>void;onBlock:()=>void;blocked?:boolean}){
  const [step,setStep]=useState(0),[birthday,setBirthday]=useState(''),[focus,setFocus]=useState(''),[error,setError]=useState(''),[confirming,setConfirming]=useState(false);
@@ -28,13 +28,13 @@ export function Onboarding({onFinish,onBlock,blocked=false}:{onFinish:(facts:Fac
   {blocked?<Txt accessibilityRole="alert">Crystal Ball is for ages 13 and up.</Txt>:null}
   <Txt display style={{marginBottom:16}}>Your forecast. Then check back.</Txt>
   <Txt style={styles.caption}>Ask what’s ahead. Get a forecast and a due date. Come back to say Yes, Not quite, or Not yet. The Ball can miss — your story matters either way.</Txt>
-  <Txt style={styles.caption}>A little about you · {step+1} of 2</Txt>
-  <Txt display style={{marginTop:16}}>{step===0?'When is your birthday?':'What’s on your mind lately?'}</Txt>
+  <Txt style={[styles.label,{marginTop:20}]}>A little about you · {step+1} of 2</Txt>
+  <Txt display style={{marginTop:8,fontSize:30,lineHeight:34}}>{step===0?'When is your birthday?':'What’s on your mind lately?'}</Txt>
   <Txt style={[styles.caption,{marginTop:12,marginBottom:24}]}>13 and up. Your birthday sets your Sun sign.</Txt>
   {step===0?<>
-   <Txt style={styles.caption}>Birthday · YYYY-MM-DD</Txt>
-   <Field testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
-   {error?<View style={styles.panel}><Material name="notice-error"><Txt accessibilityRole="alert">{error}</Txt></Material></View>:null}
+   <Txt style={[styles.label,{marginBottom:8}]}>Birthday · YYYY-MM-DD</Txt>
+   <Field testID="onboarding-birthday" accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" value={birthday} onChangeText={setBirthday} maxLength={10} style={styles.input}/>
+   {error?<View style={styles.panel}><Surface kind="error"><Txt accessibilityRole="alert">{error}</Txt></Surface></View>:null}
    <Action label="Continue" onPress={next}/>
   </>:<>
    {sunSign(birthday)?<Txt style={styles.caption}>Your Sun sign · {sunSign(birthday)}</Txt>:null}
