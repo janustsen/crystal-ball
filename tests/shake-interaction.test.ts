@@ -51,8 +51,24 @@ function shakeComponent(platform:'native'|'web'){
    assert.equal(tree.props.children,child);
   },
   state:()=>({starts,stops,position}),
+  // The web entrance's CSS animation name after one render; `none` holds it still.
+  enter(reduce:boolean){cursor=0;return module.exports.Enter({kind:'count',reduce,children:child}).props.style.animationName},
  };
 }
+
+test('web entrances never replay once reduced motion has held them still',()=>{
+ const moving=shakeComponent('web');
+ assert.equal(moving.enter(false),undefined);
+ assert.equal(moving.enter(false),undefined);
+ const held=shakeComponent('web');
+ assert.equal(held.enter(true),'none');
+ // Lifting the preference would otherwise restart the finished (or suppressed) entrance.
+ assert.equal(held.enter(false),'none');
+ const lifted=shakeComponent('web');
+ assert.equal(lifted.enter(false),undefined);
+ assert.equal(lifted.enter(true),'none');
+ assert.equal(lifted.enter(false),'none');
+});
 
 for(const platform of ['native','web'] as const){
  test(`${platform} consumes suppressed shake triggers without replaying them`,()=>{
