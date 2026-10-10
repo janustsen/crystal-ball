@@ -541,7 +541,7 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(f.render().state.ritual.counts.appOpens,3);
  assert.equal(subscriptions,1);
  assert.equal(scheduled.at(-1),f.render().state);
- f.fail();await tick();
+ await tick();
 });
 
 for(const result of ['cached text',null,'error'] as const)test(`omen progress requires actual text: ${result}`,async()=>{
@@ -584,7 +584,7 @@ for(const exit of ['close','another','plans','tab'])test(`leaving the notificati
  };
  render();let tree=await ask();assert.ok(tree.some(n=>n.type==='NotifyOffer'));
  if(exit==='tab')jump('circles');
- else tree.find(n=>n.props.testID===({close:'close-flow',another:'ask-another-question',plans:'view-plans'}[exit as 'close'|'another'|'plans])).props.onPress();
+ else tree.find(n=>n.props.testID===({close:'close-flow',another:'ask-another-question',plans:'view-plans'}[exit as 'close'|'another'|'plans'])).props.onPress();
  render();
  if(exit==='plans'){render().find(n=>n.props.testID==='close-flow').props.onPress();render()}
  tree=await ask();assert.ok(!tree.some(n=>n.type==='NotifyOffer'));assert.equal(state.ritual.counts.optInShown,1);

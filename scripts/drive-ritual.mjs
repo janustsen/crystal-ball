@@ -8,6 +8,7 @@ await mkdir(out,{recursive:true});await mkdir('.local',{recursive:true});
 const profile=await mkdtemp(`${process.cwd()}/.local/ritual-browser-`);
 const context=await chromium.launchPersistentContext(profile,{httpCredentials,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 const page=await context.newPage(),log=[],errors=[];
+page.setDefaultNavigationTimeout(180000);
 page.on('pageerror',error=>errors.push(error.message));
 const top=id=>page.getByTestId(id).evaluate(el=>el.scrollIntoView({block:'start'}));
 const shot=async name=>{await page.waitForTimeout(900);await page.screenshot({path:`${out}/${name}.png`})};

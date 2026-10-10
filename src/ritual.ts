@@ -63,7 +63,7 @@ export function constellation(stars:number){
  return {name:current.name,stars:current.stars,lit:stars%7,collected:index,names:Array.from({length:index},(_,i)=>constellations[i%constellations.length].name)};
 }
 
-// The notification opt-in: offered after the first forecast, offered once more on the third day the app is opened after that, then only the toggle in You.
+// The notification opt-in: offered after the first forecast, offered once more after two further distinct open days, then only the toggle in You.
 export function offerNotifications(ritual:Ritual,moment:'reveal'|'home',today=localDay()):boolean{
  const {notify}=ritual;
  if(notify.daily)return false;

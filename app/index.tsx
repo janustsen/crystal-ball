@@ -104,7 +104,6 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  useEffect(()=>{currentAccount.current=state},[state]);
  const currentRitualUpdate=useRef(ritualUpdate);
  useEffect(()=>{currentRitualUpdate.current=ritualUpdate},[update]);
- // A forecast saved (or a check-in answered) completes the day's ask step; the first one also offers notifications.
  function readingDone(){ritualUpdate(r=>countEvent(markStep(r,'ask'),'readings'));if(offerNotifications(ritual,'reveal',today)){setOffering('reveal');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,offered:today}}))}}
  useEffect(()=>{if(!ready)return;const open=()=>currentRitualUpdate.current(r=>countEvent(markOpened(r),'appOpens'));open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
  const plannedFor=JSON.stringify([ritual.notify,today,dayProgress(ritual,today).done,state.sunSign,state.history.map(p=>[p.id,p.dueDate,p.createdAt,p.outcome,p.circleId])]);

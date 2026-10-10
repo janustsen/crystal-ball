@@ -21,7 +21,7 @@ function fixture(disk=new Map<string,string>(),pending=new Map<string,any>([['ch
  };
  const module={exports:{} as any};
  const code=ts.transpileModule(readFileSync(new URL('../src/notify.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
- runInNewContext(code,{module,exports:module.exports,Date,require:(name:string)=>({'@react-native-async-storage/async-storage':{default:storage},'react-native':{Platform:{get OS(){return platform}}},'expo-notifications':notifications,'./ritual':ritual,'./retention':retention} as Record<string,unknown>)[name]});
+ runInNewContext(code,{module,exports:module.exports,Date,require:(name:string)=>({'@react-native-async-storage/async-storage':{__esModule:true,default:storage},'react-native':{Platform:{get OS(){return platform}}},'expo-notifications':notifications,'./ritual':ritual,'./retention':retention} as Record<string,unknown>)[name]});
  return {api:module.exports,disk,storage,pending,permissions,notifications,deny:()=>{granted=false},web:()=>{platform='web'},cleared:()=>cleared};
 }
 const account=()=>({sunSign:null,ritual:{...ritual.emptyRitual(),notify:{daily:true,time:'08:30'}},history:[reading,{...reading,id:'friend',friend:true}]});

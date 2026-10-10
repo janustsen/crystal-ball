@@ -249,7 +249,7 @@ for(const scenario of [
  const banner=home.find(n=>n.props.label==='Your check-ins are ready');
  assert.equal(!!banner,scenario.banner);
  today.props.onStep('ask');
- assert.ok(render().some(n=>scenario.ready?n.props.testID==='tab-history'&&n.props.accessibilityState.selected:n.props.testID==='question-input'));
+ assert.ok(render().some(n=>scenario.ready?n.props.testID==='tab-history'&&n.props.accessibilityState.selected:n.props.zoom===true));
  if(!scenario.ready)render().find(n=>n.props.testID==='close-flow').props.onPress();
  if(banner){
   render().find(n=>n.props.testID==='tab-home').props.onPress();
