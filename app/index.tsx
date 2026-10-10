@@ -99,17 +99,19 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  const aiAllowed=!!aiProvider&&state.aiConsent===aiProvider,setAiAllowed=(allowed:boolean)=>update(s=>({...s,aiConsent:allowed?aiProvider:undefined}));
  const [privacyOpen,setPrivacyOpen]=useState(false),[debug,setDebug]=useState(false),[offering,setOffering]=useState<'reveal'|'home'|null>(null);
  const ritual=ritualOf(state),checkInReady=state.history.some(p=>personalCheckInDue(p)),todayCheckInReady=state.history.some(p=>personalCheckInDueToday(p,today));
- const ritualUpdate=(fn:(r:Ritual)=>Ritual)=>update(s=>({...s,ritual:fn(ritualOf(s))}));
+ const pendingRitual=useRef<((r:Ritual)=>Ritual)[]>([]);
+ const ritualUpdate=(fn:(r:Ritual)=>Ritual)=>{if(!ready||backupBusy){pendingRitual.current.push(fn);return}update(s=>({...s,ritual:fn(ritualOf(s))}))};
+ useEffect(()=>{if(!ready||backupBusy||!pendingRitual.current.length)return;const pending=pendingRitual.current.splice(0);update(s=>({...s,ritual:pending.reduce((r,fn)=>fn(r),ritualOf(s))}))},[ready,backupBusy,update]);
  const currentAccount=useRef(state);
  useEffect(()=>{currentAccount.current=state},[state]);
  const currentRitualUpdate=useRef(ritualUpdate);
- useEffect(()=>{currentRitualUpdate.current=ritualUpdate},[update]);
+ useEffect(()=>{currentRitualUpdate.current=ritualUpdate},[update,ready,backupBusy]);
  function readingDone(){ritualUpdate(r=>countEvent(markStep(r,'ask'),'readings'));if(offerNotifications(ritual,'reveal',today)){setOffering('reveal');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,offered:today}}))}}
- useEffect(()=>{if(!ready)return;const open=()=>currentRitualUpdate.current(r=>countEvent(markOpened(r),'appOpens'));open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
+ useEffect(()=>{if(!ready)return;const open=()=>{const day=localDay();currentRitualUpdate.current(r=>countEvent(markOpened(r,day),'appOpens'))};open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
  const plannedFor=JSON.stringify([ritual.notify,today,dayProgress(ritual,today).done,state.sunSign,state.history.map(p=>[p.id,p.dueDate,p.createdAt,p.outcome,p.circleId])]);
- useEffect(()=>{if(ready)void scheduleRitual(state).catch(()=>Alert.alert('Notification update failed','Your changes are saved, but reminders could not be updated. Reopen the app to try again.'))},[ready,plannedFor,ritual.counts.appOpens]);
+ useEffect(()=>{if(ready&&!backupBusy)void scheduleRitual(state).catch(()=>Alert.alert('Notification update failed','Your changes are saved, but reminders could not be updated. Reopen the app to try again.'))},[ready,backupBusy,plannedFor,ritual.counts.appOpens]);
  useEffect(()=>{if(!ready)return;return watchRitualTaps(kind=>{currentRitualUpdate.current(r=>countEvent(r,`tap:${kind}`));cancel();setPaywall(false);setShare(false);setTab('Home')})},[ready]);
- useEffect(()=>{if(ready&&tab==='Home'&&!offering&&offerNotifications(ritual,'home',today)){setOffering('home');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,reoffered:true}}))}},[ready,tab,ritual.opened.length]);
+ useEffect(()=>{if(ready&&!backupBusy&&tab==='Home'&&!offering&&offerNotifications(ritual,'home',today)){setOffering('home');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,reoffered:true}}))}},[ready,backupBusy,tab,ritual.opened.length]);
  async function remindReading(id:string){const text=await requestCheckIn(()=>currentAccount.current,id);setNotice(text,/reminder set/.test(text))}
  async function answerNotifications(time:string|null){
   setOffering(null);

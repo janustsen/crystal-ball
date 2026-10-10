@@ -483,7 +483,8 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
   './whisper':{keepWhisper,lastWhisper,answerWhisper},
   './ui':{colors:{},fonts:{},styles:{}},'./Home':{OmenCard:'OmenCard'},
  },[]);
- const renderOmen=()=>omenHooks.render(()=>omen.DailyOmen({}));
+ let reads=0;
+ const renderOmen=()=>omenHooks.render(()=>omen.DailyOmen({onRead:()=>{reads++;renderStore().update((s:any)=>({...s,ritual:ritual.markStep(ritual.ritualOf(s),'omen')}))}}));
  renderOmen();pause=true;
  const applying=renderStore().applyBalance({owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:0,used:0,day});
  await writing;
@@ -492,11 +493,15 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(renderStore().backupBusy,true);
  assert.ok(nodes(renderOmen()).some(n=>n.props.testID==='omen-whisper'));
  assert.equal(renderStore().state.whispers,undefined);
+ assert.equal(reads,0);
  pause=false;release();await applying;
  assert.equal(renderStore().backupBusy,false);
  renderOmen();renderStore();await tick();
  assert.deepEqual(JSON.parse(disk).whispers,[{day,text:whisper}]);
+ assert.equal(JSON.parse(disk).ritual.days[day].omen,1);
+ assert.equal(reads,1);
  renderOmen();renderStore();await tick();
+ assert.equal(reads,1);
  const saved=JSON.parse(disk).whispers;
  assert.equal(saved.length,1);
  const tomorrow=addDays(day,1);
