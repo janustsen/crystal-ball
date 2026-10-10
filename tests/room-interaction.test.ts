@@ -71,16 +71,17 @@ test('room asset build turns a camera frame into ball position, view direction a
  assert.deepEqual(trackFrame({...base,ball_in_frame:false},[0,0,-2],1170),[0,0,0,0,0,1,0,0]);
 });
 
-test('room Home fallback stays aligned across resize and reduced motion',()=>{
+test('room Home fallback stays aligned across resize and reduced motion',async()=>{
  let attempts=0;
  const render=component('../src/RoomScene.web.tsx',{
-  three:{WebGLRenderer:class {constructor(){attempts++;throw new Error('WebGL unavailable')}}},
+  './glassWeb':{startWebGlass:async()=>{attempts++;throw new Error('WebGL unavailable')}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
  });
  const spin={dragged:false};
  for(const reduce of [false,true])for(const [width,height] of [[390,844],[375,667],[600,844]]){
   const props={spot:'Home',width,height,reduce,spin};
+  render('RoomScene',props);await new Promise(resolve=>setImmediate(resolve));
   const tree=nodes(render('RoomScene',props)),orb=tree.find(n=>n.type==='OrbVisual'),ball=room.ballOnScreen(room.stillFrame('Home'),props.width,props.height)!;
   assert.ok(orb);
   const box=tree.find(n=>n.children.includes(orb)).props.style;
@@ -98,7 +99,7 @@ test('room Home fallback stays aligned across resize and reduced motion',()=>{
  }
  assert.equal(attempts,6);
  const sky=component('../src/RoomScene.web.tsx',{
-  three:{WebGLRenderer:class {constructor(){throw new Error('WebGL unavailable')}}},
+  './glassWeb':{startWebGlass:async()=>{throw new Error('WebGL unavailable')}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
  });
@@ -106,11 +107,11 @@ test('room Home fallback stays aligned across resize and reduced motion',()=>{
 });
 
 test('the room ball supplies touch feedback before reading, and a drag spins it instead',()=>{
- const events:string[]=[];
+ const events:string[]=[],Platform={OS:'web'};
  const render=component('../src/Home.tsx',{
-  'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native':{Platform,Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./AskOrb':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
@@ -129,4 +130,12 @@ test('the room ball supplies touch feedback before reading, and a drag spins it 
  const ask=render('BallButton',{x:195,y:422,r:58,home:false,spin});
  assert.equal(ask.props.testID,'ask-ball');assert.equal(ask.props.style.width,116);
  ask.props.onPress();assert.deepEqual(events,['touch','ask','grab 4','ask']);
+ // Native forwards each touch to the scene: down grabs, moves drag, lifting releases.
+ Platform.OS='ios';events.length=0;
+ const touch=(id:number,x:number)=>({nativeEvent:{changedTouches:[{identifier:id,pageX:x,pageY:500}]}});
+ Object.assign(spin,{grab:(e:any)=>events.push(`grab ${e.pointerId} ${e.clientX}`),drag:(e:any)=>events.push(`drag ${e.pointerId} ${e.clientX}`),release:(e:any)=>events.push(`release ${e.pointerId}`)});
+ const native=render('BallButton',{x:175,y:560,r:18.7,home:true,spin});
+ assert.equal(native.props.onPointerDown,undefined);
+ native.props.onTouchStart(touch(3,170));native.props.onTouchMove(touch(3,190));native.props.onTouchEnd(touch(3,190));native.props.onTouchCancel(touch(5,0));
+ assert.deepEqual(events,['grab 3 170','drag 3 190','release 3','release 5']);
 });

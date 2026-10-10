@@ -40,8 +40,8 @@ export type GlassOptions={
  aim:()=>number[]|null;
  // The platform's frame end (expo-gl presents explicitly) and whether the app is hidden (no frames then).
  present?:()=>void;hidden:()=>boolean;
- // A Plus style's disc textures, loaded by the platform.
- load:(uri:string)=>Promise<T.Texture>;
+ // A Plus style's disc texture (a bundled image module), loaded by the platform.
+ load:(asset:number)=>Promise<T.Texture>;
  // Extra per-frame animation, given the time and the frame's glow.
  decorate?:(scene:T.Scene,camera:T.Camera)=>(t:number,glow:number)=>void;
 };
@@ -265,19 +265,19 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
  };
  function wake(){if(alive&&!raf&&!hidden())raf=requestAnimationFrame(frame)}
  const resume=()=>{if(alive&&!raf&&!hidden()){clock.getDelta();raf=requestAnimationFrame(frame)}};
- const textures=new Map<string,Promise<T.Texture>>();
+ const textures=new Map<number,Promise<T.Texture>>();
  let look=0;
  const api={
   resume,
   pause(){cancelAnimationFrame(raf);raf=0},
   // null is Classic; otherwise the style's glass and clean discs (src/roomAssets.ts), shown once both have loaded.
-  style(uris:{glass:string;clean:string}|null){
+  style(art:{glass:number;clean:number}|null){
    const id=++look;
    uniforms.uStyled.value=0;uniforms.uStyle.value=uniforms.uClean.value=null;
    resume();
-   if(!uris)return;
-   const get=(uri:string)=>{let texture=textures.get(uri);if(!texture){texture=load(uri);textures.set(uri,texture)}return texture};
-   Promise.all([get(uris.glass),get(uris.clean)]).then(([glass,clean])=>{
+   if(!art)return;
+   const get=(asset:number)=>{let texture=textures.get(asset);if(!texture){texture=load(asset);textures.set(asset,texture)}return texture};
+   Promise.all([get(art.glass),get(art.clean)]).then(([glass,clean])=>{
     if(id!==look||!alive)return;
     uniforms.uStyle.value=glass;uniforms.uClean.value=clean;uniforms.uStyled.value=1;resume();
    },error=>console.warn('ball style unavailable',error));

@@ -1,48 +1,13 @@
 import {useEffect,useRef,useState} from 'react';
-import * as T from 'three';
 import {Asset} from 'expo-asset';
 import {OrbVisual} from './OrbVisual';
 import {appCss} from './motionCss';
 import type {BallSpin} from './RoomScene';
 import {ballOnScreen,clipFrames,clipUrl,flightKey,roomCover,idleKey,maxBallRadius,roomAssetBase,roomFps,roomVersion,stillFrame,type BallFrame,type Spot} from './room';
-import {ballArt,ballEnv,homeIdle,roomStills} from './roomAssets';
-import {envTexture,startGlass} from './glassBall';
+import {ballArt,homeIdle,roomStills} from './roomAssets';
+import {startWebGlass} from './glassWeb';
 import type {BallStyle} from './types';
 
-// The live glass ball (src/glassBall.ts) draws alone on this canvas over the rendered room video.
-// aim() runs before every frame: it places the canvas and returns the camera's direction from the ball,
-// or null while the ball is out of frame.
-function startScene(canvas:HTMLCanvasElement,S:number,motion:{reduce:boolean},grip:BallSpin,aim:()=>number[]|null,env:ArrayBuffer){
- const renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
- renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
- renderer.setSize(S,S,false);
- const loader=new T.TextureLoader();
- let glass:ReturnType<typeof startGlass>;
- try{
-  glass=startGlass(renderer,{env:envTexture(env),motion,aim,hidden:()=>document.hidden,
-   load:uri=>loader.loadAsync(uri).then(texture=>{texture.colorSpace=T.SRGBColorSpace;return texture})},grip);
- }catch(error){renderer.dispose();renderer.forceContextLoss();throw error}
- // The ball's own pointer-down grabs it; the drag follows the pointer anywhere on the page.
- const grab=grip.grab;
- grip.grab=e=>{grab?.(e);try{((e as PointerEvent).target as Element).setPointerCapture(e.pointerId)}catch(err){}};
- const drag=(e:PointerEvent)=>grip.drag?.(e),release=(e:PointerEvent)=>grip.release?.(e);
- const visibility=()=>{if(document.hidden)glass.pause();else glass.resume()};
- window.addEventListener('pointermove',drag);
- window.addEventListener('pointerup',release);
- window.addEventListener('pointercancel',release);
- document.addEventListener('visibilitychange',visibility);
- return {...glass,stop(){
-  glass.stop();
-  window.removeEventListener('pointermove',drag);
-  window.removeEventListener('pointerup',release);
-  window.removeEventListener('pointercancel',release);
-  document.removeEventListener('visibilitychange',visibility);
-  renderer.forceContextLoss();
- }};
-}
-// The baked room the glass reflects, fetched once per page.
-let envJob:Promise<ArrayBuffer>|null=null;
-const ballEnvBytes=()=>envJob??=fetch(Asset.fromModule(ballEnv).uri).then(r=>{if(!r.ok)throw new Error(`ball environment: ${r.status}`);return r.arrayBuffer()}).catch(error=>{envJob=null;throw error});
 
 
 // Clips play from object URLs once fully loaded, so a cut never waits on the network. Streamed clips persist in
@@ -104,7 +69,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[failed,setFailed]=useState(false),[started,setStarted]=useState(0);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
- const motion=useRef({reduce}),scene=useRef<ReturnType<typeof startScene>|null>(null),state=useRef({at,flight,width,height});
+ const motion=useRef({reduce}),scene=useRef<Awaited<ReturnType<typeof startWebGlass>>|null>(null),state=useRef({at,flight,width,height});
  motion.current.reduce=reduce;state.current={at,flight,width,height};
  useEffect(()=>{const update=()=>setLoaded(n=>n+1);listeners.add(update);prefetchRoom();return()=>{listeners.delete(update)}},[]);
  useEffect(()=>{
@@ -146,14 +111,16 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
    canvas.style.filter=`blur(${(ball.blur/k).toFixed(2)}px) brightness(${(1+ball.flicker).toFixed(3)})`;
    return ball.dir;
   };
-  ballEnvBytes().then(env=>{
-   if(!live)return;
-   scene.current=startScene(canvas,S,motion.current,spin,aim,env);
+  // The live glass ball (src/glassBall.ts) draws alone on this canvas over the rendered room video. aim() runs before
+  // every frame: it places the canvas and returns the camera's direction from the ball, or null while out of frame.
+  startWebGlass(canvas,S,{motion:motion.current,aim},spin).then(glass=>{
+   if(!live){glass.stop();return}
+   scene.current=glass;
    setStarted(n=>n+1);
   }).catch(error=>{if(live){setFailed(true);console.error('crystal ball scene',error)}});
   return()=>{live=false;scene.current?.stop();scene.current=null};
  },[width,height]);
- useEffect(()=>{scene.current?.style(ball==='classic'?null:{glass:Asset.fromModule(ballArt[ball].glass).uri,clean:Asset.fromModule(ballArt[ball].clean).uri})},[ball,started]);
+ useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,started]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flight]);
  const idleUrl=!reduce&&!failed&&!flight?clips.get(idleKey(at)):undefined;
