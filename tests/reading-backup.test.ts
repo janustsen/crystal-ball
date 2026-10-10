@@ -510,8 +510,9 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(weekRecap([],answerWhisper(saved,day,'yes',tomorrow),tomorrow).landed,1);
 });
 
- test('ritual launch taps wait for hydration and listeners keep writing after backup',async()=>{
+ test('ritual launch taps wait for hydration and listeners keep writing after backup',async t=>{
  const f=await fixture(),h=hooks();
+ t.after(()=>h.unmount());
  let ready=false,subscriptions=0,cleared=0;
  const scheduled:any[]=[],alerts:string[]=[];
  let failScheduling=true;
