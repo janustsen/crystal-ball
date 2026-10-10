@@ -5,19 +5,19 @@ import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import * as room from '../src/room';
 
-function component(file:string,imports:Record<string,any>){
- const slots:any[]=[],effects:(()=>void)[]=[];
+function component(file:string,imports:Record<string,any>,globals:Record<string,any>={}){
+ const slots:any[]=[],effects:(()=>void)[]=[],cleanups:any[]=[];
  let cursor=0;
  const react={
   createElement:(type:any,props:any,...children:any[])=>{
-   if(props?.ref)props.ref.current={closest:()=>null};
+   if(props?.ref)props.ref.current={closest:()=>null,play:async()=>{}};
    return {type,props:props??{},children};
   },
-  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]},
+  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:(effect:()=>void,deps:any[])=>{
    const i=cursor++,previous=slots[i];
-   if(!previous||deps.some((value,j)=>value!==previous[j]))effects.push(effect);
+   if(!previous||deps.some((value,j)=>value!==previous[j]))effects.push(()=>{cleanups[i]?.();cleanups[i]=effect()});
    slots[i]=deps;
   },
  };
@@ -26,7 +26,7 @@ function component(file:string,imports:Record<string,any>){
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true},
  }).outputText;
  const jsx=(type:any,props:any)=>react.createElement(type,props,...[props.children??[]].flat());
- runInNewContext(code,{module,exports:module.exports,console:{error:()=>{},warn:()=>{}},require:(name:string)=>{
+ runInNewContext(code,{module,exports:module.exports,AbortController,...globals,console:{error:()=>{},warn:()=>{}},require:(name:string)=>{
   if(name==='react')return react;
   if(name==='react/jsx-runtime')return {jsx,jsxs:jsx};
   if(name in imports)return imports[name];
@@ -71,16 +71,17 @@ test('room asset build turns a camera frame into ball position, view direction a
  assert.deepEqual(trackFrame({...base,ball_in_frame:false},[0,0,-2],1170),[0,0,0,0,0,1,0,0]);
 });
 
-test('room Home fallback stays aligned across resize and reduced motion',()=>{
+test('room Home fallback stays aligned across resize and reduced motion',async()=>{
  let attempts=0;
  const render=component('../src/RoomScene.web.tsx',{
-  three:{WebGLRenderer:class {constructor(){attempts++;throw new Error('WebGL unavailable')}}},
+  './glassWeb':{startWebGlass:async()=>{attempts++;throw new Error('WebGL unavailable')}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
  });
  const spin={dragged:false};
  for(const reduce of [false,true])for(const [width,height] of [[390,844],[375,667],[600,844]]){
   const props={spot:'Home',width,height,reduce,spin};
+  render('RoomScene',props);await new Promise(resolve=>setImmediate(resolve));
   const tree=nodes(render('RoomScene',props)),orb=tree.find(n=>n.type==='OrbVisual'),ball=room.ballOnScreen(room.stillFrame('Home'),props.width,props.height)!;
   assert.ok(orb);
   const box=tree.find(n=>n.children.includes(orb)).props.style;
@@ -98,19 +99,89 @@ test('room Home fallback stays aligned across resize and reduced motion',()=>{
  }
  assert.equal(attempts,6);
  const sky=component('../src/RoomScene.web.tsx',{
-  three:{WebGLRenderer:class {constructor(){throw new Error('WebGL unavailable')}}},
+  './glassWeb':{startWebGlass:async()=>{throw new Error('WebGL unavailable')}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
  });
  assert.ok(!nodes(sky('RoomScene',{spot:'Sky',width:390,height:844,reduce:true,spin})).some(n=>n.type==='OrbVisual'));
 });
 
+test('web room keeps loading and failed glass aligned with stills across navigation and resize',async()=>{
+ const pending:{resolve:(glass:any)=>void;reject:(error:Error)=>void;signal:AbortSignal}[]=[];
+ const timers:(()=>void)[]=[];
+ const render=component('../src/RoomScene.web.tsx',{
+  './glassWeb':{startWebGlass:(_:unknown,__:number,{signal}:{signal:AbortSignal})=>new Promise((resolve,reject)=>pending.push({resolve,reject,signal}))},
+  'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  './room':{...room,roomAssetBase:'room'},
+  './roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),homeIdle:'idle.mp4',ballArt:{}},
+  './motionCss':{appCss:''},
+ },{
+  fetch:async()=>({ok:true,blob:async()=>({})}),URL:{createObjectURL:()=>`clip:${Math.random()}`},
+  setTimeout:(fn:()=>void)=>{timers.push(fn);return timers.length},clearTimeout:()=>{},
+ });
+ const tick=()=>new Promise(resolve=>setImmediate(resolve));
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const draw=()=>nodes(render('RoomScene',props));
+ const aligned=()=>{
+  const tree=draw(),placed=room.ballOnScreen(room.stillFrame(props.spot as room.Spot),props.width,props.height);
+  const orb=tree.find(n=>n.type==='OrbVisual');
+  assert.equal(Boolean(orb),Boolean(placed));
+  if(placed){
+   const box=tree.find(n=>n.children.includes(orb)).props.style;
+   assert.equal(box.left,placed.x-placed.r);assert.equal(box.top,placed.y-placed.r);
+   assert.equal(orb.props.size,placed.r*2);
+  }
+  assert.ok(tree.some(n=>n.type==='img'&&n.props.src===`asset:${props.spot}.jpg`));
+  assert.ok(!tree.some(n=>n.type==='video'||n.props['data-room-fade']!==undefined));
+ };
+ aligned();timers.shift()!();await tick();
+ for(const reduce of [false,true])for(const spot of ['Ask','Sky','History','You','Library','Home']){
+  Object.assign(props,{spot,reduce});aligned();
+ }
+ props.reduce=false;
+ pending[0].resolve({stop(){},style(){},resume(){}});await tick();
+ let tree=draw();
+ assert.ok(!tree.some(n=>n.type==='OrbVisual'));
+ assert.ok(tree.some(n=>n.type==='video'&&n.props.loop),'ready glass enables the idle clip');
+ props.spot='Ask';tree=draw();
+ assert.ok(tree.some(n=>n.type==='video'&&!n.props.loop),'ready glass enables flights');
+ props.width=375;aligned();
+ assert.equal(pending[0].signal.aborted,true);
+ props.height=667;aligned();
+ let stopped=false;
+ pending[1].resolve({stop(){stopped=true},style(){},resume(){}});await tick();aligned();
+ assert.equal(stopped,true,'obsolete startup cannot remove the current fallback');
+ pending[2].reject(new Error('unavailable'));await tick();aligned();
+});
+
+test('native room keeps the static orb on the stand until the live glass has started',async()=>{
+ let resolve!:(glass:unknown)=>void;
+ const render=component('../src/RoomScene.tsx',{
+  'react-native':{Animated:{Value:class {setValue(){}},timing:()=>({start(){}}),Image:'Animated.Image'},Image:'Image',View:'View'},
+  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  './room':room,'./roomAssets':{roomStills:{Home:'home.jpg'},ballArt:{}},
+  './glassNative':{startNativeGlass:()=>new Promise(r=>{resolve=r})},
+ });
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const ball=room.ballOnScreen(room.stillFrame('Home'),390,844)!;
+ let tree=nodes(render('RoomScene',props));
+ const orb=tree.find(n=>n.type==='OrbVisual'),gl=tree.find(n=>n.type==='GLView');
+ assert.ok(orb,'the static orb rests on the stand while the glass starts');
+ assert.equal(orb.props.size,ball.r*2);
+ assert.equal(gl.props.style.opacity,0);
+ gl.props.onContextCreate({});
+ resolve({stop(){},style(){},resume(){}});await new Promise(r=>setImmediate(r));
+ tree=nodes(render('RoomScene',props));
+ assert.ok(!tree.some(n=>n.type==='OrbVisual'),'the live glass replaces the static orb');
+ assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,1);
+});
+
 test('the room ball supplies touch feedback before reading, and a drag spins it instead',()=>{
- const events:string[]=[];
+ const events:string[]=[],Platform={OS:'web'};
  const render=component('../src/Home.tsx',{
-  'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native':{Platform,Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./AskOrb':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
@@ -129,4 +200,12 @@ test('the room ball supplies touch feedback before reading, and a drag spins it 
  const ask=render('BallButton',{x:195,y:422,r:58,home:false,spin});
  assert.equal(ask.props.testID,'ask-ball');assert.equal(ask.props.style.width,116);
  ask.props.onPress();assert.deepEqual(events,['touch','ask','grab 4','ask']);
+ // Native forwards each touch to the scene: down grabs, moves drag, lifting releases.
+ Platform.OS='ios';events.length=0;
+ const touch=(id:number,x:number)=>({nativeEvent:{changedTouches:[{identifier:id,pageX:x,pageY:500}]}});
+ Object.assign(spin,{grab:(e:any)=>events.push(`grab ${e.pointerId} ${e.clientX}`),drag:(e:any)=>events.push(`drag ${e.pointerId} ${e.clientX}`),release:(e:any)=>events.push(`release ${e.pointerId}`)});
+ const native=render('BallButton',{x:175,y:560,r:18.7,home:true,spin});
+ assert.equal(native.props.onPointerDown,undefined);
+ native.props.onTouchStart(touch(3,170));native.props.onTouchMove(touch(3,190));native.props.onTouchEnd(touch(3,190));native.props.onTouchCancel(touch(5,0));
+ assert.deepEqual(events,['grab 3 170','drag 3 190','release 3','release 5']);
 });

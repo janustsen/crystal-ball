@@ -1,11 +1,12 @@
 import React,{useState} from 'react';
-import {Pressable,ScrollView,View} from 'react-native';
+import {Platform,Pressable,ScrollView,View,type GestureResponderEvent} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {type BallSpin} from './RoomScene';
 import {Txt,RowLink,colors,fonts,styles} from './ui';
 import {haptic} from './native';
 import {Surface} from './Surface';
 import {Enter} from './Enter';
+import {AskOrb} from './AskOrb';
 
 // The floating glass tab bar: 68 pt tall, inset 14 pt from the sides and 18 pt from the bottom safe area.
 export const homeTabBarHeight=68;
@@ -57,7 +58,10 @@ export function RoomHeader({title,count,ready,reduce,onPlans,top}:{title:string;
 // The room ball's touch target: a drag spins the live ball, a tap reads (Home) or asks (Ask, once the question is ready).
 export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number;home:boolean;spin:BallSpin;onPress?:()=>void}){
  const hit=Math.max(r,22);
- return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} onPointerDown={e=>spin.grab?.(e.nativeEvent as unknown as PointerEvent)} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
+ // Web hands over the pointer-down (the scene follows the page's pointer); native forwards each touch.
+ const touch=(to:'grab'|'drag'|'release')=>(e:GestureResponderEvent)=>e.nativeEvent.changedTouches.forEach(t=>spin[to]?.({pointerId:Number(t.identifier),clientX:t.pageX,clientY:t.pageY}));
+ const grip=Platform.OS==='web'?{onPointerDown:(e:{nativeEvent:unknown})=>spin.grab?.(e.nativeEvent as PointerEvent)}:{onTouchStart:touch('grab'),onTouchMove:touch('drag'),onTouchEnd:touch('release'),onTouchCancel:touch('release')};
+ return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} {...grip} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
 }
 
 export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string}>){
@@ -83,12 +87,12 @@ const tabIcons:Record<string,string>={
 const askBall='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54"><defs><radialGradient id="g" cx="36%" cy="30%" r="75%"><stop offset="0" stop-color="#FBE7BE"/><stop offset=".38" stop-color="#D49A4C"/><stop offset=".78" stop-color="#6B3E18"/><stop offset="1" stop-color="#2A1709"/></radialGradient></defs><circle cx="27" cy="27" r="27" fill="url(#g)"/></svg>';
 type Tab='Home'|'Sky'|'Ask'|'History'|'You';
 // The floating glass tab bar shared by every tab, with the raised gold ball for Ask in the centre.
-export function HomeTabBar({current,disabled,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
+export function HomeTabBar({current,disabled,reduce,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
  const label={fontFamily:fonts.sansMedium,fontSize:11,lineHeight:14,letterSpacing:.44};
  return <View accessibilityRole="tablist" style={{position:'absolute',left:14,right:14,bottom:bottom+barInset,height:homeTabBarHeight,flexDirection:'row'}}>
   <View pointerEvents="none" style={{position:'absolute',left:0,top:0,right:0,bottom:0,borderRadius:26,borderWidth:1,borderColor:'rgba(227,199,143,.2)',backgroundColor:'rgba(18,12,9,.74)',boxShadow:'0 10px 30px rgba(0,0,0,.35)',...{backdropFilter:'blur(18px) saturate(1.2)'}}}/>
   {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=>{const on=t===current;return <Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={on} accessibilityState={{selected:on}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?4:5}}>
-   {t==='Ask'?<View style={{marginTop:-26,width:54,height:54,borderRadius:27,boxShadow:'0 0 0 1px rgba(227,199,143,.55), 0 0 0 5px rgba(20,14,10,.9), 0 0 28px rgba(232,170,90,.4)'}}><SvgXml aria-hidden xml={askBall} width={54} height={54}/></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',on?colors.gold:colors.inactive)} width={22} height={22}/>}
+   {t==='Ask'?<View style={{marginTop:-26,width:54,height:54,borderRadius:27,boxShadow:'0 0 0 1px rgba(227,199,143,.55), 0 0 0 5px rgba(20,14,10,.9), 0 0 28px rgba(232,170,90,.4)'}}><AskOrb size={54} reduce={reduce} fallback={<SvgXml aria-hidden xml={askBall} width={54} height={54}/>}/></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',on?colors.gold:colors.inactive)} width={22} height={22}/>}
    <Txt allowFontScaling={false} style={[label,{color:on?colors.ivory:colors.inactive}]}>{t}</Txt>
   </Pressable>})}
  </View>;

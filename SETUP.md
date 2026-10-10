@@ -1,6 +1,6 @@
 # Run Crystal Ball
 
-This checkout is an Expo React Native prototype. It runs anonymously, using local Ollama and optional local Supabase. No hosted credentials are included. For recorded web and Simulator coverage, see [verification evidence](README.md); individual native integration limits remain listed below.
+This checkout is an Expo React Native prototype. It runs anonymously, using local Ollama and optional local Supabase. No hosted credentials are included. For recorded web and Simulator coverage, see [verification evidence](README.md), including the [native glass record](docs/evidence/native-glass-2026-10-09/README.md). Individual native integration limits remain listed below.
 
 ## Local development
 
@@ -33,7 +33,7 @@ Production hosting is a later credential step: upload `.local/room-assets/` to a
 
 ## Native development
 
-Install Xcode and an iOS Simulator runtime, accept the license, then `npx expo run:ios`. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, the [dated check-in flow](README.md) and notification permission. These checks are separate from the browser pass.
+With Xcode and an iOS Simulator runtime installed and the license accepted, run `npx expo run:ios`. Xcode 27 builds require the scene life cycle on iOS 27: the `plugins/scene-lifecycle.js` config plugin in `app.json` adopts `EXExpoAppSceneDelegate` during prebuild. Regenerate existing native projects with `npx expo prebuild --platform ios` before rebuilding this change. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, the [dated check-in flow](README.md) and notification permission. These checks are separate from the browser pass.
 
 ## Accounts Janus must create before hosted use
 
@@ -59,7 +59,7 @@ The iOS `DailyOmen` widget uses the `expo-widgets` config plugin in app.json; `n
 
 Check-in scheduling uses a valid forecast `dueDate` (YYYY-MM-DD) at local noon, falling back to creation date plus 30 days when the date is absent or invalid. The engine produces ball-set `dueDate` values for new forecasts; retention consumes them without generating dates. See [README](README.md) for automatic scheduling, permission and outcome controls.
 
-Device widget rendering and notification delivery/tap navigation are not established by The Ball asks Simulator evidence. Evidence and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
+Device widget rendering and notification delivery/tap navigation remain unverified. Evidence and boundary limits are in `docs/evidence/retention-validation.md`. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
 
 For concurrent local verification, use the engine-port settings in [Local development](#local-development). Keep `EXPO_PUBLIC_ENGINE_URL` unset so browser calls retain the same-origin bridge.
 

@@ -7,6 +7,8 @@ export const roomStills:Record<Spot,number>={
  History:require('../assets/room/history.jpg'),You:require('../assets/room/you.jpg'),Library:require('../assets/room/library.jpg'),
 };
 export const homeIdle=require('../assets/room/home-idle.mp4');
+// The room as the glass ball sees it (scripts/bake-ball-env.mjs).
+export const ballEnv=require('../assets/room/ball-env.bin');
 // The Plus ball styles' local-AI renders: glass is the ball's disc as rendered, clean the same disc without its glints
 // (the interior a spin turns), preview the ball on its stand for the picker.
 export const ballArt:Record<Exclude<BallStyle,'classic'>,{glass:number;clean:number;preview:number}>={

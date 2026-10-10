@@ -38,30 +38,12 @@ function component(file:string,imports:Record<string,any>){
 }
 const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
 
-test('Home keeps the captured ball aligned when WebGL creation fails, including resize and reduced motion',()=>{
- let attempts=0;
- const render=component('../src/HomeScene.web.tsx',{
-  three:{WebGLRenderer:class {constructor(){attempts++;throw new Error('WebGL unavailable')}}},
-  'react-native':{Image:'Image'},'../assets/home-scene.jpg':'captured-scene',
- });
- for(const props of [{width:390,height:844,reduce:false},{width:375,height:667,reduce:true},{width:600,height:844,reduce:true}]){
-  const tree=render('HomeScene',props),image=nodes(tree).find(n=>n.type==='Image');
-  assert.ok(image);
-  assert.equal(image.props.source,'captured-scene');
-  assert.equal(image.props.style.height,props.height);
-  assert.equal(image.props.style.width,props.height*600/844);
-  assert.equal(image.props.style.left+image.props.style.width/2,props.width/2);
-  assert.equal(tree.props.style.pointerEvents,'none');
- }
- assert.equal(attempts,3);
-});
-
 test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
-  'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
@@ -79,9 +61,9 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
 
 test('the readings-left count pops only when a loaded balance changes',()=>{
  const render=component('../src/Home.tsx',{
-  'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},'./native':{haptic:()=>{}},
  });
  const pop=(count:string,ready:boolean,reduce=false)=>{const enter=nodes(render('PlansPill',{count,ready,reduce,onPress:()=>{}})).find(n=>n.type==='Enter');assert.equal(enter.props.kind,'count');return !enter.props.reduce};
