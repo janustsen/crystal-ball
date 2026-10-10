@@ -7,6 +7,7 @@ import * as asks from '../src/ball-asks';
 import * as billing from '../src/billing';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
+import {dayProgress,emptyRitual,markStep} from '../src/ritual';
 
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function hooks(){
@@ -138,4 +139,41 @@ for(const metered of [false,true])test(`${metered?'server':'local'} bonus storag
  find(tree,'ask-bonus-retry').props.onPress();f.render(null);await tick();tree=f.render(null);
  assert.equal(find(tree,'ask-bonus-retry'),undefined);assert.equal(f.notices.length,1);
  assert.equal(f.state().asks.bonus,1);assert.equal(f.state().credits,1);
+});
+
+ test('existing-answer controls complete Today after the deck is exhausted',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,9,12)});
+ const deck=asks.deckFor(false),f=await fixture(deck.length);
+ f.render(null);await tick();f.render(null);await tick();
+ t.mock.timers.setTime(new Date(2026,9,10,12).getTime());
+ f.store().update((s:any)=>({...s,ritual:markStep(markStep(emptyRitual(),'omen'),'ask')}));
+ await tick();
+ find(f.render(null),'ask-answers').props.onPress();
+ const before=f.state();
+ assert.equal(asks.nextAsk(before,false),undefined);
+ const nodes=(tree:any):any[]=>!tree||typeof tree!=='object'?[]:Array.isArray(tree)?tree.flatMap(nodes):[tree,...(tree.children??[]).flatMap(nodes)];
+ const edit=(index:number,option:number)=>{
+  const card=nodes(f.render(null)).find(n=>n.props.key===asks.selfKey(deck[index].id));
+  const control=nodes(card).find(n=>n.props.accessibilityRole==='radio'&&n.props.key===deck[index].options[option]);
+  assert.ok(control);control.props.onPress();f.render(null);
+ };
+ edit(0,0);await tick();
+ assert.equal(dayProgress(f.state().ritual).steps.find(s=>s.id==='questions')!.count,0);
+ for(let i=0;i<3;i++){
+  edit(i,1);await tick();
+  const state=f.state();
+  assert.equal(state.facts[asks.selfKey(deck[i].id)],deck[i].options[1]);
+  assert.equal(dayProgress(state.ritual).steps.find(s=>s.id==='questions')!.count,i+1);
+  assert.equal(dayProgress(state.ritual).done,i===2);
+ }
+ edit(3,1);await tick();
+ assert.deepEqual(f.state().ritual.stars,['2026-10-10']);
+ assert.equal(f.state().ritual.counts.fullDays,1);
+ assert.deepEqual(f.state().asks.seen,before.asks.seen);
+ assert.equal(f.state().asks.bonus,before.asks.bonus);
+ assert.equal(f.state().credits,before.credits);
+ t.mock.timers.setTime(new Date(2026,9,11,0,1).getTime());
+ edit(0,0);await tick();
+ assert.equal(dayProgress(f.state().ritual).steps.find(s=>s.id==='questions')!.count,1);
+ assert.deepEqual(f.state().ritual.stars,['2026-10-10']);
 });
