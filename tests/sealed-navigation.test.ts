@@ -31,18 +31,18 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   useCallback:(callback:any)=>{const i=cursor++;return slots[i]??(slots[i]=callback)},
   useEffect:()=>{},
  };
- const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
+ const state={ritual:ritual.emptyRitual(),onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
  const imports:Record<string,any>={
   '../src/api':{webReadingVisitor:()=>false,webReadingSpent:()=>spent},'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
-  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1,update:(fn:(value:typeof state)=>typeof state)=>Object.assign(state,fn(state))})},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
   '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social',SealForecast:'SealForecast',InstallAction:'InstallAction'},'../src/RevealClip':{RevealClip:'RevealClip'},
   '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
-  '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},
+  '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},'../src/DailyOmen':{DailyOmen:'DailyOmen'},
  };
  const sealSlots:any[]=[];
  let sealCursor=0;
@@ -55,7 +55,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
- return {params,render};
+ return {params,render,state};
 }
 
 test('sealed landing allows existing users to navigate every tab and plans',()=>{
@@ -187,4 +187,20 @@ test('sealed landing offers anonymous visitors only an unspent free reading',asy
   assert.equal(landing.some(n=>n.children.includes('One free reading here. No account needed.')),!spent);
   assert.ok(landing.some(n=>n.props.label==='Open Crystal Ball app'));
  }
+});
+
+
+test('an omen callback retained across midnight records the new day once',t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,23,59)});
+ const previous=ritual.markStep(ritual.markStep(ritual.emptyRitual(),'ask'),'omen');
+ const {render,state}=app(true,[],'',{ritual:previous});
+ const onRead=render().find(n=>n.type==='DailyOmen').props.onRead;
+ onRead();
+ assert.equal(state.ritual.days['2026-10-07'].omen,1);
+ t.mock.timers.setTime(new Date(2026,9,8,0,1).getTime());
+ state.ritual=ritual.markStep(state.ritual,'ask');
+ onRead();onRead();
+ assert.equal(state.ritual.days['2026-10-08'].omen,1);
+ assert.deepEqual(state.ritual.stars,['2026-10-07','2026-10-08']);
+ assert.equal(state.ritual.counts.fullDays,2);
 });
