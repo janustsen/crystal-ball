@@ -17,7 +17,7 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 const noScroll={touchAction:'none'} as object;
 
 // Home's screen content, docked below the room's ball (top): what to do, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number;reduce:boolean}){
+export function Home({ready,libraryLocked,onLibrary,checkIns,omen,today,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;today?:React.ReactNode;top:number;bottom:number;reduce:boolean}){
  // The ball above stays the tap target, so Home's content scrolls only below it, softening at the edges.
  return <View style={{position:'absolute',left:0,top:Math.max(0,top-24),right:0,bottom}}><EdgeFade bottom={24}><Enter reduce={reduce} fill>
   <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:20,paddingTop:Math.min(24,top),paddingBottom:24,gap:14}}>
@@ -27,6 +27,7 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom,red
    </View>
    {checkIns}
    {omen}
+   {today}
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
    <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </ScrollView>

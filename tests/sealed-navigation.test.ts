@@ -6,6 +6,7 @@ import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import {homeMock} from './home-mock';
 import * as retention from '../src/retention';
+import * as ritual from '../src/ritual';
 import {circleReading} from '../src/reading-history';
 import {canRead} from '../src/profile';
 import * as billing from '../src/billing';
@@ -32,7 +33,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
  };
  const state={onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
  const imports:Record<string,any>={
-  '../src/api':{webReadingVisitor:()=>false,webReadingSpent:()=>spent},'../src/retention':retention,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
+  '../src/api':{webReadingVisitor:()=>false,webReadingSpent:()=>spent},'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1})},

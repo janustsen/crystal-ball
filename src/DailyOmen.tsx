@@ -24,7 +24,7 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
  </Surface></View>;
 }
 
-export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
+export function DailyOmen({aiConsent='',onRead}:{aiConsent?:string;onRead?:()=>void}){
  const {state,update,backupBusy}=useStore(),[omen,setOmen]=useState<Omen|null>(null),today=localDay(),last=lastWhisper(state.whispers,today);
  useEffect(()=>{
   let mounted=true;
@@ -43,6 +43,7 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
   const unsaved=[current&&whisper?{day:current.day,whisper}:null,previous].filter((w):w is {day:string;whisper:string}=>!!w&&!state.whispers?.some(saved=>saved.day===w.day));
   if(!backupBusy&&unsaved.length)update(s=>({...s,whispers:unsaved.reduce((list,w)=>keepWhisper(list,w.day,w.whisper),s.whispers)}));
  },[current?.day,whisper,previous?.day,previous?.whisper,state.whispers,backupBusy]);
+ useEffect(()=>{if(current)onRead?.()},[current?.day,current?.text]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
