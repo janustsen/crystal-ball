@@ -197,7 +197,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  function content(){
  if(!ready)return hydrationError?<View style={[styles.panel,{paddingHorizontal:30}]}><Surface kind="error"><Txt accessibilityLiveRegion="polite">{hydrationError}</Txt><Action testID="retry-hydration" label="Try opening again" onPress={retryHydration}/></Surface></View>:<Txt>Opening your sky…</Txt>;
  if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} webTrial={webTrial} onAsk={webTrial&&webReadingSpent()?undefined:()=>openAsk()}/>;
- if(onboarding)return <Onboarding blocked={state.onboardingBlocked} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed)=>update(s=>({...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,facts:{...s.facts,...facts}}))}/>;
+ if(onboarding)return <Onboarding reduce={reduce} blocked={state.onboardingBlocked} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed)=>update(s=>({...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,facts:{...s.facts,...facts}}))}/>;
  if(paywall){
   const cost=(kind:PlanKind|PackKind)=>offers?.find(o=>o.kind===kind)?.price??[...plans,...packs].find(p=>p.kind===kind)!.price;
   // The yearly saving is computed from the prices actually shown; it is hidden when they are unavailable.

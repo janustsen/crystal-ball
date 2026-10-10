@@ -24,7 +24,7 @@ async function read(question){
 }
 async function home(){while(await page.getByTestId('close-flow').count())await page.getByTestId('close-flow').click();}
 try{
- await page.goto(url);await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();
+ await page.goto(url);await page.getByTestId('birthday-month').fill('1995-06-15');await page.getByTestId('continue').click();
  await page.getByTestId('tab-you').click();await page.getByTestId('add-birth-time-and-place').click();await page.getByLabel('Birth time HH:MM').fill('12:30');await page.getByLabel('Birth city',{exact:true}).fill('Copenhagen');await page.getByTestId('find-birth-city').click();await page.getByRole('button').filter({hasText:/Copenhagen.*Denmark/}).first().click({timeout:20000});await page.getByTestId('reveal-moon-and-rising').click();
  await expect(page.getByText('capricorn Moon · virgo rising')).toBeVisible();await expect(page.getByText('With Plus, your Moon and rising shape every Why.')).toBeVisible();await expect(page.getByTestId('chart-weather-plus')).toBeVisible();await expect(page.getByTestId('chart-weather-read')).toHaveCount(0);await shot('free-chart');
 

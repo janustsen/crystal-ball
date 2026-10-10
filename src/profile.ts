@@ -73,3 +73,28 @@ export function personQuestionIssue(question:string,name?:string):string|undefin
  const matches=subject.some((_,i)=>!/\p{L}/u.test(subject[i-1]||'')&&letters.every((letter,j)=>letter===subject[i+j])&&!/\p{L}/u.test(subject[i+letters.length]||''));
  if(!matches)return `Include ${name} in your question, or change the first name to match.`;
 }
+
+// A birthday entered as three fields: month, day and year.
+export type BirthdayParts=[month:string,day:string,year:string];
+const partWidth=[2,2,4];
+// Types `text` into one field: digits overflow into the next field, a month of 2–9 or a day of 4–9 is complete at one digit,
+// and a pasted full date (YYYY-MM-DD or M/D/YYYY) fills all three. Returns the fields and the field that takes focus.
+export function typeBirthday(parts:BirthdayParts,index:number,text:string):{parts:BirthdayParts;focus:number}{
+ const iso=/^\s*(\d{4})-(\d{1,2})-(\d{1,2})\s*$/.exec(text),us=/^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/.exec(text);
+ if(iso)return {parts:[iso[2],iso[3],iso[1]],focus:2};
+ if(us)return {parts:[us[1],us[2],us[3]],focus:2};
+ const next=[...parts] as BirthdayParts;let digits=text.replace(/\D/g,''),focus=index;
+ for(let i=index;i<3;i++){
+  const width=(i===0&&/^[2-9]/.test(digits))||(i===1&&/^[4-9]/.test(digits))?1:partWidth[i];
+  const kept=digits.slice(0,width);digits=digits.slice(width);
+  next[i]=kept;focus=kept.length===width&&i<2?i+1:i;
+  if(!digits)break;
+ }
+ return {parts:next,focus};
+}
+// The fields as YYYY-MM-DD, '' when all are empty, or undefined when they are partly filled.
+export function joinBirthday([month,day,year]:BirthdayParts):string|undefined{
+ if(!month&&!day&&!year)return '';
+ if(!month||!day||year.length!==4)return;
+ return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+}

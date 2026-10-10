@@ -14,7 +14,7 @@ try{
   if(body.action==='omen')return route.fulfill({json:{kind:'ok',value:{text:'Your daily reflection is ready.'}}});
   await route.continue();
  });
- await page.goto(base);await page.getByTestId('onboarding-birthday').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
+ await page.goto(base);await page.getByTestId('birthday-month').fill('1995-06-15');await page.getByTestId('continue').click();
  await expect.poll(()=>requests.filter(r=>r.action==='omen').length).toBe(1);expect(requests[0].facts.sun_sign).toBe('gemini');
  await page.getByTestId('tab-you').click();
  await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));Object.assign(state,{birthTime:'14:30',birthPlace:'Copenhagen',moonSign:'aries',risingSign:'leo',history:[{id:'birthday-fixture',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-01T12:00:00Z',label:'Speculative',why:'Practice continues.',facts:{birthday:'1995-06-15',level:'Beginner'},sources:[],assumptions:[],friend:false}]});localStorage.setItem('crystal-ball-v1',JSON.stringify(state));}); // test fixture, no user-controlled data; nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
