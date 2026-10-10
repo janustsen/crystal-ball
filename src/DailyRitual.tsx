@@ -1,11 +1,11 @@
-import React,{useState} from 'react';
+import React,{useEffect,useState} from 'react';
 import {Platform,Pressable,View} from 'react-native';
 import Svg,{Circle,Polyline} from 'react-native-svg';
 import {Action,CardHeader,colors,fonts,styles,Toggle,Txt} from './ui';
 import {Surface} from './Surface';
 import {Enter} from './Enter';
-import {constellation,dayProgress,morningTimes,planNotifications,type NotifyPrefs,type Ritual} from './ritual';
-import {testNotification} from './notify';
+import {constellation,dayProgress,morningTimes,type Planned,type NotifyPrefs,type Ritual} from './ritual';
+import {previewNotifications,testNotification} from './notify';
 import type {AccountState} from './types';
 
 // Seven stars of the current constellation; lit ones glow gold. Static, so reduced motion needs nothing extra.
@@ -73,13 +73,14 @@ export function NotifySettings({prefs,onChange}:{prefs:NotifyPrefs;onChange:(pre
 
 // Private, on-device usage counts. Nothing here is sent anywhere.
 export function RitualDebug({state,ritual,onNotice}:{state:AccountState;ritual:Ritual;onNotice:(text:string)=>void}){
- const plan=planNotifications(state),offered=ritual.counts.optInShown??0;
+ const [plan,setPlan]=useState<Planned[]>([]),offered=ritual.counts.optInShown??0;
+ useEffect(()=>{let active=true;void previewNotifications(state).then(next=>{if(active)setPlan(next)}).catch(()=>{if(active)setPlan([])});return()=>{active=false}},[state]);
  const rows:[string,string|number][]=[['Days opened',ritual.opened.length],['Finished days (stars)',ritual.stars.length],['App opens',ritual.counts.appOpens??0],['Opt-in shown',offered],['Opt-in yes',ritual.counts.optInYes??0],['Opt-in not now',ritual.counts.optInNo??0],['Permission denied',ritual.counts.optInDenied??0],['Morning taps',ritual.counts['tap:morning']??0],['Evening taps',ritual.counts['tap:evening']??0],['Today steps tapped',ritual.counts.todayTap??0],['Readings',ritual.counts.readings??0],['Check-ins',ritual.counts.checkIns??0],...Object.entries(ritual.counts).filter(([key])=>!['appOpens','optInShown','optInYes','optInNo','optInDenied','tap:morning','tap:evening','todayTap','readings','checkIns','fullDays'].includes(key)) as [string,number][]];
  return <View testID="ritual-debug" style={styles.panel}><Surface kind="card">
   <CardHeader title="Ritual counts" label="This device only"/>
   {rows.map(([name,value])=><View key={name} style={[styles.row,{marginTop:6}]}><Txt style={styles.caption}>{name}</Txt><Txt style={{fontFamily:fonts.sansMedium,fontSize:13}}>{String(value)}</Txt></View>)}
-  <Txt style={[styles.label,{marginTop:16}]}>{`Planned notifications · ${plan.length}`}</Txt>
+  <Txt style={[styles.label,{marginTop:16}]}>{`Next notification plan · ${plan.length}`}</Txt>
   {plan.slice(0,8).map(p=><Txt key={p.id} style={styles.caption}>{`${p.at.toLocaleString(undefined,{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${p.body}`}</Txt>)}
-  {Platform.OS!=='web'?<Action testID="test-notification" label="Send a test notification in 5 seconds" quiet onPress={()=>void testNotification().then(ok=>onNotice(ok?'Test notification scheduled. Lock the phone or leave the app to see it.':'Notifications are off for Crystal Ball in Settings.'))}/>:null}
+  {Platform.OS!=='web'?<Action testID="test-notification" label="Send a test notification next minute" quiet onPress={()=>void testNotification(state).then(ok=>onNotice(ok?'Test notification scheduled. Lock the phone or leave the app to see it.':'No test scheduled: check permission, quiet hours, or today’s notification limit.')).catch(()=>onNotice('Test notification could not be scheduled.'))}/>:null}
  </Surface></View>;
 }

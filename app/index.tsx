@@ -42,7 +42,7 @@ import {RevealClip} from '../src/RevealClip';
 import {shareCircleMoment,checkInCircles,friendForecast,syncSocialProfile} from '../src/social';
 import {accountSocialProfile,activityTheme,readingIdentity} from '../src/social-policy';
 import {Surface} from '../src/Surface';
-import {countEvent,dayProgress,markOpened,markStep,offerNotifications,planNotifications,ritualOf,type Ritual} from '../src/ritual';
+import {countEvent,dayProgress,markOpened,markStep,offerNotifications,ritualOf,type Ritual} from '../src/ritual';
 import {allowNotifications,requestCheckIn,scheduleRitual,watchRitualTaps} from '../src/notify';
 import {NotifyOffer,NotifySettings,RitualDebug,TodayCard,YourSky} from '../src/DailyRitual';
 import {SvgXml} from 'react-native-svg';
@@ -108,7 +108,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  function readingDone(){ritualUpdate(r=>countEvent(markStep(r,'ask'),'readings'));if(offerNotifications(ritual,'reveal',today)){setOffering('reveal');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,offered:today}}))}}
  useEffect(()=>{if(!ready)return;const open=()=>currentRitualUpdate.current(r=>countEvent(markOpened(r),'appOpens'));open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
  const plannedFor=JSON.stringify([ritual.notify,today,dayProgress(ritual,today).done,state.sunSign,state.history.map(p=>[p.id,p.dueDate,p.createdAt,p.outcome,p.circleId])]);
- useEffect(()=>{if(ready)void scheduleRitual(planNotifications(state)).catch(()=>Alert.alert('Notification update failed','Your changes are saved, but reminders could not be updated. Reopen the app to try again.'))},[ready,plannedFor]);
+ useEffect(()=>{if(ready)void scheduleRitual(state).catch(()=>Alert.alert('Notification update failed','Your changes are saved, but reminders could not be updated. Reopen the app to try again.'))},[ready,plannedFor]);
  useEffect(()=>{if(!ready)return;return watchRitualTaps(kind=>{currentRitualUpdate.current(r=>countEvent(r,`tap:${kind}`));cancel();setPaywall(false);setShare(false);setTab('Home')})},[ready]);
  useEffect(()=>{if(ready&&tab==='Home'&&!offering&&offerNotifications(ritual,'home',today)){setOffering('home');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,reoffered:true}}))}},[ready,tab,ritual.opened.length]);
  async function remindReading(id:string){const text=await requestCheckIn(()=>currentAccount.current,id);setNotice(text,/reminder set/.test(text))}

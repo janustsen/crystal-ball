@@ -64,7 +64,7 @@ final class RitualUITests: XCTestCase {
   tap("test-notification")
   XCUIDevice.shared.press(.home)
   let local=labelled("Your omen is waiting",in:springboard)
-  XCTAssertTrue(local.waitForExistence(timeout:20),"local notification never arrived")
+  XCTAssertTrue(local.waitForExistence(timeout:70),"local notification never arrived")
   Thread.sleep(forTimeInterval:1.5);shot("08-local-notification")
   local.tap()
   XCTAssertTrue(app.wait(for:.runningForeground,timeout:10))

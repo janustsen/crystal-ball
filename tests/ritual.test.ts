@@ -64,7 +64,7 @@ test('a finished day drops its evening nudge; turning notifications off plans no
 });
 
 test('another feature’s candidate wins its slot by priority and weekly beats survive back-off',()=>{
- const unregister=registerNotifications(({now}):Candidate[]=>[{day:localDay(new Date(now.getTime()+11*86400000)),slot:'evening',priority:1,title:'Crystal Ball',body:'Your week in the Ball is ready.',data:{recap:'1'} as Record<string,string>,time:'18:00',weekly:true},{day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:1,title:'Crystal Ball',body:'Did it land?',data:{whisper:'1'} as Record<string,string>},{day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:2,title:'Crystal Ball',body:'Too early',data:{},time:'07:00'}]);
+ const unregister=registerNotifications(({now}):Candidate[]=>[{id:'recap',day:localDay(new Date(now.getTime()+11*86400000)),slot:'evening',priority:1,title:'Crystal Ball',body:'Your week in the Ball is ready.',data:{recap:'1'} as Record<string,string>,time:'18:00',weekly:true},{id:'whisper',day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:1,title:'Crystal Ball',body:'Did it land?',data:{whisper:'1'} as Record<string,string>},{id:'early',day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:2,title:'Crystal Ball',body:'Too early',data:{},time:'07:00'}]);
  try{
   const plan=planNotifications(state(enabled()),now);
   assert.equal(plan.find(p=>at(p)==='2026-10-08'&&p.data.ritual!=='evening')?.body,'Did it land?');
@@ -88,15 +88,31 @@ for(const time of ['08:30','12:30','18:00'])test(`replanning retains today's ${t
 test('check-ins group each day, use the shared evening slot, and keep distant due dates',()=>{
  const reading:Prediction={id:'one',createdAt:'2026-10-01T12:00:00',dueDate:'2026-10-08',question:'Private',headline:'Private',label:'',why:'',facts:{},sources:[],assumptions:[],friend:false};
  const history=[reading,{...reading,id:'two',friend:true},{...reading,id:'later',dueDate:'2027-09-01'},{...reading,id:'circle',circleId:'circle',dueDate:'2026-10-09'}];
- const unregister=registerNotifications(()=>[{day:'2026-10-08',slot:'evening',priority:1,title:'Recap',body:'Your week',data:{recap:'1'},time:'19:30'}]);
+ const unregister=registerNotifications(()=>[{id:'recap',day:'2026-10-08',slot:'evening',priority:1,title:'Recap',body:'Your week',data:{recap:'1'},time:'19:30'}]);
  try{
   const plan=planNotifications(state(enabled(),history),now);
   const counts=new Map<string,number>();for(const p of plan)counts.set(at(p),(counts.get(at(p))??0)+1);
   assert.ok([...counts.values()].every(n=>n<=2));
   assert.deepEqual(plan.filter(p=>p.data.checkIns).map(at),['2026-10-08','2026-10-11','2027-09-01','2027-09-04']);
   assert.ok(plan.filter(p=>p.data.checkIns).every(p=>p.at.getHours()===19&&p.at.getMinutes()===30));
-  assert.ok(!plan.some(p=>p.data.recap));
+  assert.ok(plan.some(p=>p.data.recap));
   const after=planNotifications(state(enabled(),history.map(p=>({...p,outcome:'yes' as const}))),new Date(2026,9,8,19,31));
   assert.ok(!after.some(p=>at(p)==='2026-10-08'));
+ }finally{unregister()}
+});
+
+
+test('the daily budget chooses the top two priorities across all slots',()=>{
+ const unregister=registerNotifications(():Candidate[]=>[
+  {id:'whisper',day:'2026-10-08',slot:'evening',priority:20,title:'Ball',body:'Whisper',data:{whisper:'1'},time:'18:00'},
+  {id:'recap',day:'2026-10-08',slot:'evening',priority:10,title:'Ball',body:'Recap',data:{recap:'1'},time:'20:00'},
+ ]);
+ try{
+  const due=planNotifications(state(enabled()),now).filter(p=>at(p)==='2026-10-08');
+  assert.deepEqual(due.map(p=>p.body),['Whisper','Recap']);
+  const delivered={'2026-10-08':['ritual-2026-10-08-morning']};
+  const remaining=planNotifications(state(enabled('12:30')),new Date(2026,9,8,9),28,delivered).filter(p=>at(p)==='2026-10-08');
+  assert.deepEqual(remaining.map(p=>p.body),['Whisper']);
+  assert.equal(planNotifications(state(enabled()),now,28,{'2026-10-08':[due[0].id,due[1].id]}).filter(p=>at(p)==='2026-10-08').length,0);
  }finally{unregister()}
 });

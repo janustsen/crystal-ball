@@ -72,10 +72,8 @@ export function offerNotifications(ritual:Ritual,moment:'reveal'|'home',today=lo
 }
 
 // ---- Scheduling ----
-// A candidate is one notification a feature would like to send. The planner keeps at most one per slot per day
-// (so at most two a day), enforces quiet hours and backs off when the app goes unopened.
 export type Slot='morning'|'evening';
-export type Candidate={day:string;slot:Slot;priority:number;title:string;body:string;data:Record<string,string>;time?:string;
+export type Candidate={id:string;day:string;slot:Slot;priority:number;title:string;body:string;data:Record<string,string>;time?:string;
  // Weekly beats (such as a Sunday recap) still send once daily notifications have backed off to weekly.
  weekly?:boolean};
 export type Planned={id:string;at:Date;title:string;body:string;data:Record<string,string>};
@@ -107,8 +105,8 @@ export function dailyCandidates({state,now,horizon}:PlanContext):Candidate[]{
  for(let offset=0;offset<=horizon;offset++){
   const day=dayAfter(now,offset),n=dayNumber(day),signed=state.sunSign&&n%3===0;
   const morning=signed?signCopy(sign(state.sunSign))[n%3]:morningCopy[n%morningCopy.length];
-  out.push({day,slot:'morning',priority:0,title,body:offset===7?backOffCopy:morning,data:{ritual:'morning'}});
-  if(!(offset===0&&done))out.push({day,slot:'evening',priority:0,title,body:eveningCopy[n%eveningCopy.length],data:{ritual:'evening'},time:eveningTime});
+  out.push({id:'morning',day,slot:'morning',priority:0,title,body:offset===7?backOffCopy:morning,data:{ritual:'morning'}});
+  if(!(offset===0&&done))out.push({id:'evening',day,slot:'evening',priority:0,title,body:eveningCopy[n%eveningCopy.length],data:{ritual:'evening'},time:eveningTime});
  }
  return out;
 }
@@ -129,16 +127,24 @@ export function checkInCandidates({state}:PlanContext):Candidate[]{
   if(!date)continue;
   days.add(localDay(date));date.setDate(date.getDate()+3);days.add(localDay(date));
  }
- return [...days].map(day=>({day,slot:'evening',priority:100,title:'Did it come true?',body:'Your forecasts are waiting in History.',data:{checkIns:'1'},time:eveningTime,weekly:true}));
+ return [...days].map(day=>({id:'check-ins',day,slot:'evening',priority:100,title:'Did it come true?',body:'Your forecasts are waiting in History.',data:{checkIns:'1'},time:eveningTime,weekly:true}));
 }
-export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28):Planned[]{
+export type Delivered=Record<string,string[]>;
+export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28,delivered:Delivered={},additional:Candidate[]=[]):Planned[]{
  const context={state,now,horizon},ritual=ritualOf(state),today=localDay(now);
- const best=new Map<string,Candidate>();
- for(const candidate of notificationSources.flatMap(source=>source(context))){
+ const candidates=new Map<string,Candidate>();
+ for(const candidate of [...notificationSources.flatMap(source=>source(context)),...additional]){
   const offset=dayNumber(candidate.day)-dayNumber(today),time=candidate.time??(candidate.slot==='morning'?ritual.notify.time:eveningTime);
-  if(offset<0||(offset>horizon&&!candidate.data.checkIns)||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly))continue;
-  const key=`${candidate.day}-${candidate.slot}`,current=best.get(key);
-  if(!current||candidate.priority>current.priority)best.set(key,{...candidate,time});
+  const id=`ritual-${candidate.day}-${candidate.id}`,at=new Date(`${candidate.day}T${time}:00`);
+  if(offset<0||(offset>horizon&&!candidate.data.checkIns)||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly)||!(at.getTime()>now.getTime())||delivered[candidate.day]?.includes(id))continue;
+  const current=candidates.get(id);
+  if(!current||candidate.priority>current.priority)candidates.set(id,{...candidate,time});
  }
- return [...best.entries()].map(([key,c])=>({id:`ritual-${key}`,at:new Date(`${c.day}T${c.time}:00`),title:c.title,body:c.body,data:c.data})).filter(p=>p.at.getTime()>now.getTime()).sort((a,b)=>a.at.getTime()-b.at.getTime());
+ const counts=new Map(Object.entries(delivered).map(([day,ids])=>[day,new Set(ids).size]));
+ const plan:Planned[]=[];
+ for(const [id,c] of [...candidates].sort(([,a],[,b])=>b.priority-a.priority||a.time!.localeCompare(b.time!))){
+  const count=counts.get(c.day)??0;if(count>=2)continue;
+  plan.push({id,at:new Date(`${c.day}T${c.time}:00`),title:c.title,body:c.body,data:c.data});counts.set(c.day,count+1);
+ }
+ return plan.sort((a,b)=>a.at.getTime()-b.at.getTime());
 }
