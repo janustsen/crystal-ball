@@ -164,3 +164,19 @@ test('Person readings isolate all owner topics and repair wrong-subject cards an
   assert.equal(rejected.kind,'error');assert.equal(forecasts,12);
  }finally{globalThis.fetch=original;}
 });
+
+test('answer options read as the asker’s own replies, not statements about them',async()=>{
+ const original=globalThis.fetch;
+ let drafts=0;
+ globalThis.fetch=async(_url,init)=>{
+  const body=JSON.parse(String(init?.body));
+  const content=body.format.properties.cards?(drafts++?{cards:[{factor:'free time',question:'What do you do most weekends?',options:['Hiking in nature.','Cooking with family','I’ve been reading']}]}:{cards:[{factor:'free time',question:'What do you enjoy most right now?',options:['You enjoy hiking in nature.','You like cooking with family.','You prefer reading books.']}]}):{category:'allow'};
+  return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
+ };
+ try{
+  const plan=await makePlan('What will make me happiest this year?',{},provider(()=>undefined));
+  assert.equal(plan.kind,'ok');if(plan.kind!=='ok')return;
+  assert.equal(drafts,2);
+  assert.deepEqual(plan.value.cards[0].options,['Hiking in nature','Cooking with family','Been reading','Other']);
+ }finally{globalThis.fetch=original}
+});
