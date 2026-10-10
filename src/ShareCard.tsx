@@ -5,9 +5,8 @@ import {captureRef} from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
-import {suggestedCheckIn} from './retention';
 import type {StoryCard} from './story-card';
-import {friendLink,reminder} from './native';
+import {friendLink} from './native';
 import {selectedStyle} from './delight';
 import {looks,loadLook,paintBackdrop,paintBall,paintLabel} from './RevealClip';
 import {useStore} from './store';
@@ -19,7 +18,7 @@ const copy={
  'golden-set':{title:'Share your golden set',note:'Only your golden headlines and how many you hold are shared. Never your questions, answers or reasoning.',back:'Back to History'},
 };
 // Draws a StoryCard on the current look. Forecast cards also get the recording, link and reminder options.
-export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:StoryCard;prediction?:Prediction;onClose:()=>void;onNotice:(message:string,done?:boolean)=>void;onRecord?:()=>void}){
+export function ShareCard({card,prediction,onClose,onNotice,onRecord,onRemind}:{card:StoryCard;prediction?:Prediction;onClose:()=>void;onNotice:(message:string,done?:boolean)=>void;onRecord?:()=>void;onRemind?:()=>void}){
  const {state}=useStore(),golden=card.golden,cardStyle=selectedStyle(state,'card'),ballStyle=selectedStyle(state,'ball');
  const look=looks[golden?'golden':cardStyle];
  const ref=useRef<View>(null),[preview,setPreview]=useState<string>(),[fullStory,setFullStory]=useState(false),[previewWidth,setPreviewWidth]=useState(212),setNotice=onNotice;
@@ -49,6 +48,6 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord}:{card:Stor
   {label:'Replay for recording',detail:'Clean reveal · use your device’s screen recorder',id:'share-record-reveal',run:onRecord},
   story,
   {label:'Private friend link',detail:'Private to this friend reading.',id:'share-friend-link',run:async()=>{try{setNotice(`Friend link: ${await friendLink('What will my life look like next year?')}`)}catch{setNotice('Sharing was canceled. No link was sent.')}}},
-  {label:'Remind me to check back',detail:'Yes, Not quite, or Not yet — tell your side.',id:'share-reminder',run:async()=>{const text=await reminder(prediction.headline,prediction.id,suggestedCheckIn(prediction));setNotice(text,/reminder set/.test(text))}}
+  ...(onRemind?[{label:'Remind me to check back',detail:'Yes, Not quite, or Not yet — tell your side.',id:'share-reminder',run:onRemind}]:[])
  ]:[story]).map(item=><Pressable key={item.id} testID={item.id} accessibilityRole="button" accessibilityLabel={item.label} onPress={item.run} style={{padding:16,marginTop:10}}><Surface kind="row"><Txt>{item.label} ↗</Txt><Txt style={[styles.caption,{color:colors.ivory}]}>{item.detail}</Txt></Surface></Pressable>)}</Surface></View><Txt style={[styles.caption,{marginTop:24}]}>{copy[card.kind].note}</Txt><Action label={copy[card.kind].back} quiet onPress={onClose}/></>;
 }

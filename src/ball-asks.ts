@@ -1,6 +1,7 @@
 import type {AccountState,Asks,Facts,InsightKind} from './types.ts';
 import {activityTheme} from './social-policy.ts';
 import {askBonuses} from './billing.ts';
+import {markStep,ritualOf} from './ritual.ts';
 import {ageGroup} from './profile.ts';
 
 // "The Ball asks": a hand-written deck of one-tap questions about yourself. Answers are remembered facts under
@@ -192,7 +193,7 @@ export const bonusDue=(asks:Asks)=>Math.max(0,askBonuses(asks.seen.length)-asks.
 export function answerAsk(state:AccountState,id:string,answer:string):AccountState {
  const ask=byId.get(id),current=asksOf(state);
  if(!ask||!ask.options.includes(answer))return state;
- return {...state,facts:{...state.facts,[selfKey(id)]:answer},asks:{...current,seen:current.seen.includes(id)?current.seen:[...current.seen,id],skipped:current.skipped.filter(s=>s!==id)}};
+ return {...state,ritual:state.facts[selfKey(id)]===answer?state.ritual:markStep(ritualOf(state),'questions'),facts:{...state.facts,[selfKey(id)]:answer},asks:{...current,seen:current.seen.includes(id)?current.seen:[...current.seen,id],skipped:current.skipped.filter(s=>s!==id)}};
 }
 export function skipAsk(state:AccountState,id:string):AccountState {
  const current=asksOf(state);

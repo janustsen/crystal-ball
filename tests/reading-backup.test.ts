@@ -8,6 +8,8 @@ import {homeMock} from './home-mock';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
+import * as whisper from '../src/whisper';
+import * as ritual from '../src/ritual';
 import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
 import * as webReading from '../src/web-reading';
@@ -62,7 +64,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
-  '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,
+  '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=> 'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
@@ -187,7 +189,7 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams:()=>{}}},
-  '../src/store':{useStore:f.render},'../src/profile':profile,'../src/retention':retention,
+  '../src/store':{useStore:f.render},'../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/purchases':{purchaseMode},'../src/questions':{factLabels:{}},
@@ -297,8 +299,8 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   react:h.react,'react-native':{Platform:{OS:'ios'},AppState:{addEventListener:()=>({remove(){}})},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
-  '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{}})},
-  '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs,plusUnlocks:billing.plusUnlocks},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{},update(){}})},'../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':{plans,packs,plusUnlocks:billing.plusUnlocks},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
@@ -358,7 +360,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(value:any)=>Object.assign(params,value)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining,applyBalance:async()=>{}})},
-  '../src/profile':profile,'../src/retention':retention,'../src/billing':billing,
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/native':{haptic:()=>{}},'../src/social':{friendForecast:async()=>{predicts++;throw new Error(next==='empty'?billing.noReadings:'response lost')}},
@@ -423,7 +425,7 @@ test('web quota refusals including pending browser reservations preserve eligibi
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
-  '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,
+  '../src/store':{useStore:f.render,learnedFacts:()=>({})},'../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
   '../src/SocialScreen':{Social:'Social',InstallAction:'InstallAction'},'../src/native':{haptic:()=>{},reminder:async()=>{}},
@@ -482,7 +484,8 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
   './whisper':{keepWhisper,lastWhisper,answerWhisper},
   './ui':{colors:{},fonts:{},styles:{}},'./Home':{OmenCard:'OmenCard'},
  },[]);
- const renderOmen=()=>omenHooks.render(()=>omen.DailyOmen({}));
+ let reads=0;
+ const renderOmen=()=>omenHooks.render(()=>omen.DailyOmen({onRead:()=>{reads++;renderStore().update((s:any)=>({...s,ritual:ritual.markStep(ritual.ritualOf(s),'omen')}))}}));
  renderOmen();pause=true;
  const applying=renderStore().applyBalance({owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:0,used:0,day});
  await writing;
@@ -491,14 +494,159 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(renderStore().backupBusy,true);
  assert.ok(nodes(renderOmen()).some(n=>n.props.testID==='omen-whisper'));
  assert.equal(renderStore().state.whispers,undefined);
+ assert.equal(reads,0);
  pause=false;release();await applying;
  assert.equal(renderStore().backupBusy,false);
  renderOmen();renderStore();await tick();
  assert.deepEqual(JSON.parse(disk).whispers,[{day,text:whisper}]);
+ assert.equal(JSON.parse(disk).ritual.days[day].omen,1);
+ assert.equal(reads,1);
  renderOmen();renderStore();await tick();
+ assert.equal(reads,1);
  const saved=JSON.parse(disk).whispers;
  assert.equal(saved.length,1);
  const tomorrow=addDays(day,1);
  assert.equal(lastWhisper(saved,tomorrow)?.text,whisper);
  assert.equal(weekRecap([],answerWhisper(saved,day,'yes',tomorrow),tomorrow).landed,1);
+});
+
+ test('ritual launch taps wait for hydration and listeners keep writing after backup',async t=>{
+ const f=await fixture(),h=hooks();
+ t.after(()=>h.unmount());
+ let ready=false,subscriptions=0,cleared=0;
+ const scheduled:any[]=[],alerts:string[]=[];
+ let failScheduling=true;
+ let onTap:((kind:string)=>void)|undefined,onActive:((state:string)=>void)|undefined;
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Alert:{alert:(title:string)=>alerts.push(title)},Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_event:string,callback:(state:string)=>void)=>{onActive=callback;return {remove(){onActive=undefined}}}}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>{const store=f.render();return {...store,ready,update:ready?store.update:()=>{}}}},
+  '../src/notify':{scheduleRitual:async(state:any)=>{scheduled.push(state);if(failScheduling)throw new Error('offline')},watchRitualTaps:(callback:(kind:string)=>void)=>{subscriptions++;onTap=callback;if(!cleared){callback('morning');cleared++}return ()=>{onTap=undefined}}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
+  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/purchases':{purchaseMode:'mock'},'../src/api':{webReadingVisitor:()=>false},
+ },[]);
+ const render=()=>h.render(app.default);
+ render();assert.equal(subscriptions,0);assert.equal(cleared,0);
+ ready=true;render();render();
+ assert.equal(f.render().state.ritual.counts['tap:morning'],1);
+ assert.equal(f.render().state.ritual.counts.appOpens,1);
+ assert.equal(cleared,1);assert.equal(subscriptions,1);
+ await tick();assert.ok(alerts.length>0);assert.ok(alerts.every(title=>title==='Notification update failed'));
+ failScheduling=false;
+ const before=scheduled.length;
+ onActive!('background');render();assert.equal(scheduled.length,before);
+ onActive!('active');render();
+ assert.equal(scheduled.length,before+1);
+ assert.equal(scheduled.at(-1),f.render().state);
+ await f.render().backup('restore',async()=>{});render();
+ onActive!('active');onTap!('evening');render();
+ assert.equal(f.render().state.ritual.counts['tap:evening'],1);
+ assert.equal(f.render().state.ritual.counts.appOpens,3);
+ assert.equal(subscriptions,1);
+ assert.equal(scheduled.at(-1),f.render().state);
+ await tick();
+});
+
+for(const result of ['cached text',null,'error'] as const)test(`omen progress requires actual text: ${result}`,async()=>{
+ const h=hooks(),state={facts:{},sunSign:null,ageConfirmed:true};let reads=0;
+ const component=load('../src/DailyOmen.tsx',{
+  react:h.react,'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
+  './store':{useStore:()=>({state})},'./retention':retention,'./daily-omen':{loadDailyOmen:async()=>{if(result==='error')throw new Error('offline');return {day:retention.localDay(),text:result}}},
+  './whisper':whisper,'./ui':{},'./Home':{},
+ },[]);
+ const render=()=>h.render(()=>component.DailyOmen({onRead:()=>{reads++}}));
+ render();assert.equal(reads,0);await tick();render();render();
+ assert.equal(reads,result==='cached text'?1:0);
+});
+
+for(const exit of ['close','another','plans','tab'])test(`leaving the notification offer through ${exit} does not repeat it`,async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
+ const h=hooks();t.after(()=>h.unmount());let jump!:(section:string)=>void;const foreground:((state:string)=>void)[]=[];
+ let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
+ const reading={id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-07T12:00:00',dueDate:'2026-11-07',label:'Speculative',why:'',facts:{},sources:[],assumptions:[],friend:true};
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_type:string,listener:(state:string)=>void)=>{foreground.push(listener);return {remove(){}}}}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)},savePrediction:async()=>{state={...state,history:[reading]}}})},
+  '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/social':{syncSocialProfile:async()=>{},friendForecast:async()=>reading,checkInCircles:async()=>{}},
+  '../src/native':{watchCheckIns:()=>()=>{},haptic(){}},'../src/SocialPush':{watchSocialPushes:(fn:any)=>{jump=fn;return ()=>{}}},
+  '../src/SocialScreen':{Social:'Social'},'../src/DailyRitual':{NotifyOffer:'NotifyOffer'},
+  '../src/delight':{narration:()=>null},
+  '../src/purchases':{purchaseMode:'mock'},'../src/api':{webReadingVisitor:()=>false},
+ },[]);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const ask=async()=>{
+  jump('circles');render().find(n=>n.type==='Social').props.onAsk('Will I learn?',true,{id:'friend'});
+  await render().find(n=>n.props.testID==='look-into-the-future').props.onPress();
+  await tick();return render();
+ };
+ render();let tree=await ask();assert.ok(tree.some(n=>n.type==='NotifyOffer'));
+ if(exit==='tab')jump('circles');
+ else tree.find(n=>n.props.testID===({close:'close-flow',another:'ask-another-question',plans:'view-plans'}[exit as 'close'|'another'|'plans'])).props.onPress();
+ render();
+ if(exit==='plans'){render().find(n=>n.props.testID==='close-flow').props.onPress();render()}
+ tree=await ask();assert.ok(!tree.some(n=>n.type==='NotifyOffer'));assert.equal(state.ritual.counts.optInShown,1);
+ tree.find(n=>n.props.testID==='close-flow').props.onPress();render();
+ t.mock.timers.setTime(new Date(2026,9,9,12).getTime());
+ foreground.forEach(listener=>listener('active'));render();
+ state={...state,ritual:{...state.ritual,opened:['2026-10-07','2026-10-08','2026-10-09']}};
+ render();render();assert.equal(state.ritual.counts.optInShown,2);assert.equal(state.ritual.notify.reoffered,true);
+});
+
+// Shared shallow app for the ritual tests below: real ritual model, stubbed native and social edges.
+function ritualApp(h:ReturnType<typeof hooks>,store:()=>any,foreground:((state:string)=>void)[],social:Record<string,unknown>={}){
+ return load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_type:string,listener:(state:string)=>void)=>{foreground.push(listener);return {remove(){}}}}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:store,learnedFacts:()=>({})},'../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/social':{syncSocialProfile:async()=>{},checkInCircles:async()=>{},...social},
+  '../src/native':{watchCheckIns:()=>()=>{},haptic(){}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/SocialScreen':{Social:'Social'},'../src/DailyRitual':{NotifyOffer:'NotifyOffer'},'../src/delight':{narration:()=>null},
+  '../src/purchases':{purchaseMode:'mock'},'../src/api':{webReadingVisitor:()=>false},
+ },[]);
+}
+
+test('the day-3 offer still appears once sixty opened days are stored',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
+ const h=hooks();t.after(()=>h.unmount());const foreground:((state:string)=>void)[]=[];
+ const opened=Array.from({length:60},(_,i)=>retention.localDay(new Date(2026,9,7-59+i,12)));
+ let state:any={onboardingDone:true,ageConfirmed:true,tourSeen:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99,ritual:{...ritual.emptyRitual(),opened,notify:{daily:false,time:'08:30',offered:'2026-10-07'}}};
+ const app=ritualApp(h,()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)}}),foreground);
+ const render=()=>h.render(app.default);
+ render();render();assert.equal(state.ritual.notify.reoffered,undefined);
+ for(const day of [8,9]){t.mock.timers.setTime(new Date(2026,9,day,12).getTime());foreground.forEach(listener=>listener('active'));render();render()}
+ assert.equal(state.ritual.opened.length,60);
+ assert.equal(state.ritual.notify.reoffered,true);assert.equal(state.ritual.counts.optInShown,1);
+});
+
+test('a reading saved while a balance update holds the archive still completes Today',async t=>{
+ const f=await fixture(),h=hooks();t.after(()=>h.unmount());const day=new Date().toISOString().slice(0,10);
+ const reading={...readings.circleReading(f.card),circleId:undefined,friend:true};
+ const balance={owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:5,used:1,day};
+ let render!:()=>any[];
+ // An automatic balance refresh queues behind the reading's save, so the save resolves while the archive is still locked.
+ const store=()=>{const s=f.render();return {...s,savePrediction:async(...args:any[])=>{const saving=s.savePrediction(...(args as [any]));void s.applyBalance(balance);render();await saving}}};
+ const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ render=()=>nodes(h.render(app.default));
+ render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});
+ await render().find(n=>n.props.testID==='look-into-the-future').props.onPress();
+ assert.equal(f.render().backupBusy,true);
+ for(let i=0;i<4;i++){await tick();render()}
+ assert.equal(f.render().backupBusy,false);
+ const saved=ritual.ritualOf(f.state());
+ assert.equal(saved.counts.readings,1);assert.equal(saved.days[retention.localDay()]?.ask,1);
 });

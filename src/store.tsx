@@ -4,7 +4,7 @@ import {publishCircleForecast,type CircleForecast} from './social';
 import {loadBalance,saveStyles,serverMetered} from './api';
 import type {Balance} from './billing';
 import {Alert} from 'react-native';
-import {forgetCheckIns,reopenCheckIn,cancelCheckIn} from './native';
+import {forgetCheckIns} from './native';
 import {forgetOmen} from './daily-omen';
 import {updateOmenWidget} from './omen-widget';
 import {restoreProfile,canRead,updateBirthday} from './profile';
@@ -60,7 +60,6 @@ export function Store({children}:React.PropsWithChildren){
    if(!locked.current&&latest.backupOwner&&canRead(latest))await mirror(latest);
   }).catch(()=>console.warn('Automatic backup failed; it will retry on the next update.'));
  }).catch(()=>console.warn('Automatic archive persistence failed; it will retry on the next update.'));}},[state,ready,backupBusy]);
- useEffect(()=>{if(ready)for(const reading of state.history)if(reading.outcome)void cancelCheckIn(reading.id).catch(()=>Alert.alert('Reminder cleanup failed','Your answer is saved, but its reminder could not be canceled. Please try checking in again.'));else reopenCheckIn(reading.id);},[ready,state.history]);
  async function backup(mode:'save'|'restore',authenticate:()=>Promise<void>){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
