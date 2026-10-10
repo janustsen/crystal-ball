@@ -74,3 +74,13 @@ test('another feature’s candidate wins its slot by priority and weekly beats s
  }finally{unregister()}
  assert.ok(!planNotifications(state(enabled()),now).some(p=>p.data.recap),'unregistered sources stop planning');
 });
+
+for(const time of ['08:30','12:30','18:00'])test(`replanning retains today's ${time} omen only while it is in the future`,()=>{
+ const [hour,minute]=time.split(':').map(Number),account=state(enabled(time));
+ const before=new Date(2026,9,7,hour,minute-1),scheduled=new Date(2026,9,7,hour,minute);
+ const morning=(when:Date)=>planNotifications(account,when).find(p=>p.id==='ritual-2026-10-07-morning');
+ assert.equal(morning(new Date(2026,9,7,8))?.at.getTime(),scheduled.getTime());
+ assert.equal(morning(before)?.at.getTime(),scheduled.getTime());
+ assert.equal(morning(scheduled),undefined);
+ assert.equal(morning(new Date(2026,9,7,hour,minute+1)),undefined);
+});

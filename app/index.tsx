@@ -100,12 +100,14 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  const [privacyOpen,setPrivacyOpen]=useState(false),[debug,setDebug]=useState(false),[offering,setOffering]=useState<'reveal'|'home'|null>(null);
  const ritual=ritualOf(state),today=localDay(),checkInReady=state.history.some(p=>personalCheckInDue(p));
  const ritualUpdate=(fn:(r:Ritual)=>Ritual)=>update(s=>({...s,ritual:fn(ritualOf(s))}));
+ const currentRitualUpdate=useRef(ritualUpdate);
+ useEffect(()=>{currentRitualUpdate.current=ritualUpdate},[update]);
  // A forecast saved (or a check-in answered) completes the day's ask step; the first one also offers notifications.
  function readingDone(){ritualUpdate(r=>countEvent(markStep(r,'ask'),'readings'));if(offerNotifications(ritual,'reveal',today)){setOffering('reveal');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,offered:today}}))}}
- useEffect(()=>{if(!ready)return;const open=()=>ritualUpdate(r=>countEvent(markOpened(r),'appOpens'));open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
+ useEffect(()=>{if(!ready)return;const open=()=>currentRitualUpdate.current(r=>countEvent(markOpened(r),'appOpens'));open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
  const plannedFor=JSON.stringify([ritual.notify,today,dayProgress(ritual,today).done,state.sunSign,state.history.map(p=>[p.id,p.dueDate,p.outcome])]);
  useEffect(()=>{if(ready)void scheduleRitual(planNotifications(state)).catch(()=>{})},[ready,plannedFor]);
- useEffect(()=>watchRitualTaps(kind=>{ritualUpdate(r=>countEvent(r,`tap:${kind}`));cancel();setPaywall(false);setShare(false);setTab('Home')}),[]);
+ useEffect(()=>{if(!ready)return;return watchRitualTaps(kind=>{currentRitualUpdate.current(r=>countEvent(r,`tap:${kind}`));cancel();setPaywall(false);setShare(false);setTab('Home')})},[ready]);
  useEffect(()=>{if(ready&&tab==='Home'&&!offering&&offerNotifications(ritual,'home',today)){setOffering('home');ritualUpdate(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,reoffered:true}}))}},[ready,tab,ritual.opened.length]);
  async function answerNotifications(time:string|null){
   setOffering(null);
