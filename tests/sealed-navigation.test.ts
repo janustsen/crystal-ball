@@ -41,7 +41,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
   '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social',SealForecast:'SealForecast',InstallAction:'InstallAction'},'../src/RevealClip':{RevealClip:'RevealClip'},
-  '../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
+  '../src/social':{shareCircleMoment:async()=>{}},'../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
   '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},'../src/DailyOmen':{DailyOmen:'DailyOmen'},
  };
  const sealSlots:any[]=[];
@@ -203,4 +203,33 @@ test('an omen callback retained across midnight records the new day once',t=>{
  assert.equal(state.ritual.days['2026-10-08'].omen,1);
  assert.deepEqual(state.ritual.stars,['2026-10-07','2026-10-08']);
  assert.equal(state.ritual.counts.fullDays,2);
+});
+
+
+for(const outcome of ['yes','no','pending'])test(`Today progress requires a fresh due-today check-in, answer=${outcome}`,t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,12)});
+ for(const dueDate of ['2026-10-09','2026-10-10','2026-11-10'])for(const previous of [undefined,'yes','no','pending']){
+  const {render,state}=app(true,[{...reading,dueDate,outcome:previous}],'',{ritual:ritual.markStep(ritual.emptyRitual(),'omen','2026-10-10')});
+  const control=openReading(render).find(n=>n.props.testID===`check-in-${outcome}`);
+  control.props.onPress();
+  assert.equal(state.history[0].outcome,outcome);
+  assert.equal(state.history[0].checkedInAt,'2026-10-10');
+  const eligible=dueDate==='2026-10-10'&&previous===undefined;
+  assert.equal(ritual.dayProgress(state.ritual,'2026-10-10').done,eligible);
+  assert.equal(state.ritual.stars.length,eligible?1:0);
+  control.props.onPress();assert.equal(state.ritual.stars.length,eligible?1:0);
+  t.mock.timers.setTime(new Date(2026,9,11,12).getTime());
+  control.props.onPress();assert.equal(ritual.dayProgress(state.ritual,'2026-10-11').lit,0);
+  t.mock.timers.setTime(new Date(2026,9,10,12).getTime());
+ }
+});
+
+test('check-in eligibility reads the latest saved forecast rather than the open reveal',t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,12)});
+ const {render,state}=app(true,[{...reading,dueDate:'2026-10-10'}],'');
+ const control=openReading(render).find(n=>n.props.testID==='check-in-yes');
+ state.history[0]={...state.history[0],dueDate:'2026-11-10'};
+ control.props.onPress();
+ assert.equal(state.history[0].outcome,'yes');
+ assert.equal(ritual.dayProgress(state.ritual,'2026-10-10').lit,0);
 });

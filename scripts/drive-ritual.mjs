@@ -32,7 +32,7 @@ try{
  while(await page.getByTestId('close-flow').count())await page.getByTestId('close-flow').click();
  await page.getByTestId('tab-you').click();await expect(page.getByTestId('your-sky')).toContainText('1 star');await expect(page.getByTestId('notify-toggle')).toHaveAttribute('aria-checked','true');
  await top('your-sky');await shot('you-sky-notifications');
- await page.getByTestId('you-footer').click({delay:900});await expect(page.getByTestId('ritual-debug')).toBeVisible();await expect(page.getByTestId('ritual-debug')).toContainText('Planned notifications');
+ await page.getByTestId('you-footer').click({delay:900});await expect(page.getByTestId('ritual-debug')).toBeVisible();await expect(page.getByTestId('ritual-debug')).toContainText('Next notification plan');
  await top('ritual-debug');await shot('you-debug-counts');
  const debugText=await page.getByTestId('ritual-debug').innerText();log.push({debugText});
  await page.reload();const persisted=await saved();

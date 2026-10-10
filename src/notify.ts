@@ -2,7 +2,7 @@ import {Platform} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {planNotifications,type Planned,type PlanContext,type Candidate,type Delivered} from './ritual';
-import {personalCheckInDue,localDay} from './retention';
+import {personalCheckInDue,localDay,suggestedCheckIn} from './retention';
 
 // Foreground notifications are shown (social, check-ins), except the ritual's own: the app is already open.
 if(Platform.OS!=='web')Notifications.setNotificationHandler({handleNotification:async notification=>{const ritual=!!notification.request.content.data?.ritual;return {shouldShowBanner:!ritual,shouldShowList:!ritual,shouldPlaySound:false,shouldSetBadge:false}}});
@@ -66,8 +66,8 @@ export async function requestCheckIn(getState:()=>PlanContext['state'],id:string
   const state=getState(),reading=state.history.find(p=>p.id===id);
   if(!reading||reading.circleId||reading.outcome)return 'Your check-in is saved. Return to History whenever you like.';
   if(personalCheckInDue(reading))return 'This forecast is ready for a Check-in. Open it from History.';
-  await scheduleRitual(state);
-  return 'Check-back reminder set. Forecasts due together share one evening notification.';
+  const plan=await scheduleRitual(state);
+  return plan.some(p=>p.data.checkIns&&localDay(p.at)===suggestedCheckIn(reading))?'Check-back reminder set. Forecasts due together share one evening notification.':'No reminder scheduled within your notification limits. You can still check back from History.';
  }catch{return 'The reminder could not be scheduled. You can still check back from History.'}
 }
 export async function testNotification(state:PlanContext['state']){

@@ -38,7 +38,7 @@ test('automatic and manual scheduling share the budget and replace legacy remind
  for(const day of ['2026-10-10','2026-10-13']){
   const due=[...f.pending.values()].filter(p=>retention.localDay(p.trigger.date)===day);
   assert.ok(due.length<=2);
-  assert.equal(due.filter(p=>p.content.data.checkIns).length,1);
+  assert.equal(due.filter(p=>p.content.data.checkIns).length,day==='2026-10-10'?1:0);
   assert.ok(due.every(p=>!JSON.stringify(p).includes('Private')));
  }
  f.deny();assert.match(await f.api.requestCheckIn(()=>state,'reading'),/off/);
@@ -54,7 +54,7 @@ test('answers remove grouped check-ins only after the last unanswered forecast; 
   assert.ok(![...f.pending.values()].some(p=>p.content.data.checkIns));
   assert.match(await f.api.requestCheckIn(()=>answered,'reading'),/check-in is saved/);
   await f.api.scheduleRitual({...answered,history:[answered.history[0],state.history[1]]});
-  assert.equal([...f.pending.values()].filter(p=>p.content.data.checkIns).length,2);
+  assert.equal([...f.pending.values()].filter(p=>p.content.data.checkIns).length,1);
  }
 });
 
@@ -149,4 +149,12 @@ test('quiet hours and the daily budget apply to debug notifications too',async t
  const f=fixture();
  assert.equal(await f.api.testNotification(account()),false);
  assert.ok([...f.pending.values()].every(p=>p.trigger.date.getHours()>=8&&p.trigger.date.getHours()<21));
+});
+
+
+test('manual reminders do not bypass back-off or claim a suppressed reminder was set',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,9,8)});
+ const f=fixture(),state={...account(),history:[{...reading,dueDate:'2026-10-20'}]};
+ assert.match(await f.api.requestCheckIn(()=>state,'reading'),/No reminder scheduled/);
+ assert.ok(![...f.pending.values()].some(p=>p.content.data.checkIns));
 });

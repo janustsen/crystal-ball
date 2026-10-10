@@ -127,7 +127,7 @@ export function checkInCandidates({state}:PlanContext):Candidate[]{
   if(!date)continue;
   days.add(localDay(date));date.setDate(date.getDate()+3);days.add(localDay(date));
  }
- return [...days].map(day=>({id:'check-ins',day,slot:'evening',priority:100,title:'Did it come true?',body:'Your forecasts are waiting in History.',data:{checkIns:'1'},time:eveningTime,weekly:true}));
+ return [...days].map(day=>({id:'check-ins',day,slot:'evening',priority:100,title:'Did it come true?',body:'Your forecasts are waiting in History.',data:{checkIns:'1'},time:eveningTime}));
 }
 export type Delivered=Record<string,string[]>;
 export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28,delivered:Delivered={},additional:Candidate[]=[]):Planned[]{
@@ -136,7 +136,7 @@ export function planNotifications(state:PlanContext['state'],now=new Date(),hori
  for(const candidate of [...notificationSources.flatMap(source=>source(context)),...additional]){
   const offset=dayNumber(candidate.day)-dayNumber(today),time=candidate.time??(candidate.slot==='morning'?ritual.notify.time:eveningTime);
   const id=`ritual-${candidate.day}-${candidate.id}`,at=new Date(`${candidate.day}T${time}:00`);
-  if(offset<0||(offset>horizon&&!candidate.data.checkIns)||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly)||!(at.getTime()>now.getTime())||delivered[candidate.day]?.includes(id))continue;
+  if(offset<0||offset>horizon||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly)||!(at.getTime()>now.getTime())||delivered[candidate.day]?.includes(id))continue;
   const current=candidates.get(id);
   if(!current||candidate.priority>current.priority)candidates.set(id,{...candidate,time});
  }
