@@ -15,7 +15,6 @@ export type Ritual={
  // On-device usage counts for the private debug screen. Never sent anywhere.
  counts:Record<string,number>;
 };
-// The steps a day asks for. Other features add theirs here (for example three answers to the Ball's questions).
 export const ritualSteps:{id:string;label:string;target:number}[]=[
  {id:'omen',label:'Read today’s omen',target:1},
  {id:'ask',label:'Ask the Ball or check in',target:1},
