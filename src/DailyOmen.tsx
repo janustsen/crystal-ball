@@ -38,7 +38,9 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
  },[state.facts,state.sunSign,state.birthday,state.ageConfirmed,aiConsent]);
  const current=currentOmen(omen),whisper=current?.text?current.whisper:null;
  // The first whisper shown each day is the one checked next morning.
- useEffect(()=>{if(!current||!whisper||state.whispers?.some(w=>w.day===current.day))return;update(s=>({...s,whispers:keepWhisper(s.whispers,current.day,whisper)}));void scheduleWhisperCheck(current.day)},[current?.day,whisper,state.whispers]);
+ useEffect(()=>{if(current&&whisper&&!state.whispers?.some(w=>w.day===current.day))update(s=>({...s,whispers:keepWhisper(s.whispers,current.day,whisper)}))},[current?.day,whisper,state.whispers]);
+ // Rescheduling replaces the same notification, so permission granted later today still covers tomorrow morning.
+ useEffect(()=>{if(current&&whisper)void scheduleWhisperCheck(current.day)},[current?.day,whisper]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
