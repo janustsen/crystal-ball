@@ -300,7 +300,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs,plusUnlocks:billing.plusUnlocks},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
-  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{},scheduleWeekRecap:async()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{},watchRitualReminders:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(resolve=>pending.push(resolve)),buy:()=>new Promise(resolve=>{finishPurchase=()=>resolve('purchased')}),restore:()=>new Promise(resolve=>{finishRestore=()=>resolve({})})},
   '../src/api':{webReadingVisitor:()=>false,syncStoreBalance:async()=>({})},
  },[]);
@@ -452,4 +452,27 @@ test('web quota refusals including pending browser reservations preserve eligibi
  assert.equal(f.state().history.length,1);
  await ask();assert.equal(predicts,4);
  // No backup upload to release: an anonymous visitor has no linked account.
+});
+
+test('ritual notification navigation leaves Ask and You for Home and History',()=>{
+ const h=hooks();let openRitual!:(destination:'whisper'|'recap')=>void;
+ const state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>({state,ready:true,remaining:1})},
+  '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs,plusUnlocks:billing.plusUnlocks},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
+  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:(_reading:any,ritual:any)=>{openRitual=ritual;return ()=>{};},watchRitualReminders:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/api':{webReadingVisitor:()=>false},'../src/DailyOmen':{DailyOmen:'DailyOmen'},'../src/WeekRecap':{WeekRecap:'WeekRecap'},
+ },[]);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ for(const tab of ['ask','you'])for(const destination of ['whisper','recap'] as const){
+  render().find(n=>n.props.testID===`tab-${tab}`).props.onPress();render();
+  openRitual(destination);
+  assert.ok(render().some(n=>n.type===(destination==='whisper'?'DailyOmen':'WeekRecap')));
+ }
 });

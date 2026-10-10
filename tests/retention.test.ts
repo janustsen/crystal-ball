@@ -159,3 +159,19 @@ test('durable omen erasure rejects failed writes and completes only after retry 
  const cached=await loadDailyOmen(storage,{},async()=>{throw new Error('Must preserve daily claim')});
  assert.equal(cached.text,null);
 });
+
+test('whispers outside character bounds repair once or fail closed before publication',async()=>{
+ const original=globalThis.fetch;
+ const {personalOmen}=await import('../server/omen');const {provider}=await import('../server/provider');
+ const long='By tonight, reorganizing your workspace may unexpectedly simplify several complicated responsibilities and make tomorrow feel wonderfully manageable.';
+ const valid='By tonight, a small plan may change for the better.';
+ try{
+  for(const invalid of [long,'By tonight,a b c d.'])for(const repaired of [true,false]){
+   let calls=0;
+   globalThis.fetch=async()=>new Response(JSON.stringify({message:{content:JSON.stringify({text:'A little starlight invites a fresh beginning.',whisper:++calls===2&&repaired?valid:invalid})}}));
+   if(repaired)assert.equal((await personalOmen({},provider(()=>undefined,160))).whisper,valid);
+   else await assert.rejects(personalOmen({},provider(()=>undefined,160)));
+   assert.equal(calls,2);
+  }
+ }finally{globalThis.fetch=original;}
+});

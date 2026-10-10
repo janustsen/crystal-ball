@@ -9,7 +9,7 @@ import {CardHeader,Txt,colors,fonts,styles} from './ui';
 import {Surface} from './Surface';
 import {OmenCard,omenTextStyle} from './Home';
 import {answerWhisper,keepWhisper,lastWhisper,whisperQuestion} from './whisper';
-import {cancelWhisperCheck,haptic,scheduleWhisperCheck} from './native';
+import {cancelWhisperCheck,haptic} from './native';
 import type {Whisper} from './types';
 
 const outcomes={yes:'Yes',no:'Not quite',pending:'Not yet'} as const;
@@ -39,8 +39,6 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
  const current=currentOmen(omen),whisper=current?.text?current.whisper:null;
  // The first whisper shown each day is the one checked next morning.
  useEffect(()=>{if(current&&whisper&&!state.whispers?.some(w=>w.day===current.day))update(s=>({...s,whispers:keepWhisper(s.whispers,current.day,whisper)}))},[current?.day,whisper,state.whispers]);
- // Rescheduling replaces the same notification, so permission granted later today still covers tomorrow morning.
- useEffect(()=>{if(current&&whisper)void scheduleWhisperCheck(current.day)},[current?.day,whisper]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
