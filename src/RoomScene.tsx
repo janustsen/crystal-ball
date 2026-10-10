@@ -5,9 +5,10 @@ import {OrbVisual} from './OrbVisual';
 import {ballOnScreen,stillFrame,type Spot} from './room';
 import {roomStills} from './roomAssets';
 import type {BallStyle} from './types';
+import type {Pointer} from './glassBall';
 
-// Home's ball hands its pointer-down to the web scene to spin it; a drag then suppresses the reading tap.
-export type BallSpin={grab?:(e:PointerEvent)=>void;dragged:boolean};
+// The room ball's touch target hands its pointer to the live scene to spin it; a drag then suppresses the tap.
+export type BallSpin={grab?:(e:Pointer)=>void;drag?:(e:Pointer)=>void;release?:(e:Pointer)=>void;dragged:boolean};
 
 // Native shows the room's stills (follow-up cb-native-room-video: expo-video flights cached with expo-file-system).
 // A tab change cuts to its spot, or fades for reduced motion; the ball is the static orb in the ring stand.
