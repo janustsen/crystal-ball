@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createClient,type Session} from '@supabase/supabase-js';
 import {anonymousOwner,mirror,restoreBackup} from '../src/cloud.ts';
+import {answerAsk,asksOf,bonusDue,deckFor,insightDue,nextAsk,selfKey} from '../src/ball-asks';
 import type {AccountState} from '../src/types.ts';
 const empty:AccountState={sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,facts:{},history:[],credits:5,plus:false,usage:{day:'2026-09-30',count:0},reduceMotion:false,largeText:false};
 const reading={id:'12345678-1234-1234-1234-123456789abc',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-30T00:00:00Z',label:'Speculative',why:'Practice',facts:{practice:'daily'},sources:[],assumptions:[],friend:false};
@@ -136,4 +137,24 @@ test('older backup restore leaves the reading balance alone',async()=>{
  const local={...empty,onboardingDone:true,ageConfirmed:true};
  const restored=await restoreBackup(local,client);
  assert.equal(restored.credits,local.credits);assert.deepEqual(restored.history,[]);
+});
+
+for(const teen of [false,true])test(`restore reconciles ${teen?'teen':'adult'} answers into distinct progress`,async()=>{
+ const {remote,client}=archive(),deck=deckFor(teen),local={...empty,ageBand:teen?'teen' as const:'adult' as const};
+ let original:AccountState=local;
+ for(const ask of deck.slice(0,24))original=answerAsk(original,ask.id,ask.options[0]);
+ await mirror({...original,backupOwner:remote.owner},client);
+ remote.facts.self_bogus='Yes';remote.facts[selfKey(deck[24].id)]='Not an option';
+ if(teen)remote.facts.self_date_idea='A cozy night in';
+ let restored=await restoreBackup(local,client);
+ assert.equal(asksOf(restored).seen.length,24);assert.equal(insightDue(asksOf(restored)),true);
+ const next=nextAsk(restored,teen)!;
+ restored=answerAsk(restored,next.id,next.options[0]);
+ assert.equal(asksOf(restored).seen.length,25);assert.equal(bonusDue(asksOf(restored)),1);
+ const insight={kind:'portrait' as const,title:'Portrait',text:'Reflection',at:'2026-10-09'};
+ restored={...restored,asks:{...asksOf(restored),bonus:1,insights:[insight],skipped:[deck[0].id,deck[30].id]}};
+ const again=await restoreBackup(restored,client);
+ assert.equal(asksOf(again).seen.length,25);assert.equal(bonusDue(asksOf(again)),0);
+ assert.deepEqual(asksOf(again).insights,[insight]);assert.deepEqual(asksOf(again).skipped,[deck[30].id]);
+ assert.equal(again.credits,local.credits);
 });

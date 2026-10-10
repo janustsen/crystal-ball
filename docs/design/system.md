@@ -21,7 +21,7 @@ No sign-up gate. See [UI rules](ui-rules.md#navigation-and-the-17-states) for Sk
 Paywall offers, allowances, selection default and billing disclosures follow [prototype pricing](../research/pricing.md#paywall-rules-and-test). Purchase and restore behavior follows the [billing contract](../launch/billing.md).
 
 ## States and verification
-Reading generation has loading, timeout, retry and cancel; facts load before Ask becomes available. Daily omen availability follows the [daily generation policy](../../SETUP.md#daily-omen-widget-and-check-ins). Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items until Xcode/accounts exist. Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
+Reading generation has loading, timeout, retry and cancel; facts load before Ask becomes available. Daily omen availability follows the [daily generation policy](../../SETUP.md#daily-omen-widget-and-check-ins). Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items; see [recorded verification coverage](../../README.md). Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
 
 ## Rendered review and component states
 

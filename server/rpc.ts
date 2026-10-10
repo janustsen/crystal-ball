@@ -2,6 +2,7 @@ export const serverRpcs={
  reading_balance:'rpc/reading_balance',
  charge_reading:'rpc/charge_reading',
  apply_store_entitlements:'rpc/apply_store_entitlements',
+ grant_ask_bonus:'rpc/grant_ask_bonus',
  set_profile_styles:'rpc/set_profile_styles',
  claim_chart_weather:'rpc/claim_chart_weather',
  save_chart_weather:'rpc/save_chart_weather',

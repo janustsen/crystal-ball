@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import * as ballAsks from '../src/ball-asks';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
@@ -50,7 +51,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
  runInNewContext(socialCode,{module:socialModule,exports:socialModule.exports,process:{env:{}},require:(name:string)=>socialImports[name]??{}});
  imports['../src/SocialScreen'].SealedCard=(props:any)=>{sealCursor=0;return react.createElement('SealedCard',props,socialModule.exports.SealedCard(props))};
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:{})});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
  return {params,render};

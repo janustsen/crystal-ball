@@ -1,7 +1,8 @@
 import {checkInDate} from '../src/retention.ts';
 import {readingAge,sunSign,validPersonName} from '../src/profile.ts';
 import {viewerChart} from './viewer-chart.ts';
-import {chartWeather,personalOmen} from './omen.ts';
+import {chartWeather,personalOmen,selfInsight} from './omen.ts';
+import {insightKinds,selfAnswers} from '../src/ball-asks.ts';
 import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
@@ -10,7 +11,7 @@ import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
 import {webReadings} from './web-reading.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
- const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160);
+ const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240);
  const meter=billing(env),web=webReadings(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;
@@ -22,7 +23,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
   try {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
    const body:unknown=JSON.parse(text);
-   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen','chart'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
+   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','omen','chart','insight'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
    requireAiConsent(env,'aiConsent' in body?body.aiConsent:undefined);
    const raw='facts'in body?body.facts:{};
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
@@ -30,7 +31,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    const {birthday:viewerBirthday,chart}=viewerChart(rawBirthday,'viewerChart'in body?body.viewerChart:undefined);
    const ageConfirmed='ageConfirmed'in body?body.ageConfirmed:undefined;
    if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
-   readingAge(viewerBirthday,ageConfirmed);
+   const teen=readingAge(viewerBirthday,ageConfirmed)!=='adult';
    if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
    const localDate='localDate'in body?body.localDate:undefined;
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
@@ -67,6 +68,13 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     // With billing, the database enforces Plus and keeps the month's single reading; the loopback preview generates directly.
     const text=meter?await meter.chartWeather(await meter.user(request),month,signs,generate):await generate();
     return new Response(JSON.stringify({kind:'ok',value:{text}}),{headers});
+   }
+   if(body.action==='insight'){
+    const kind='insightKind'in body?body.insightKind:undefined;
+    if(!insightKinds.some(k=>k===kind))throw new Error('Choose an insight.');
+    const answers=selfAnswers(facts,teen).slice(-30).map(({question,answer})=>({question,answer}));
+    if(answers.length<3)throw new Error('Answer a few more questions first.');
+    return new Response(JSON.stringify({kind:'ok',value:await selfInsight(answers,kind as typeof insightKinds[number],teen,insightModel)}),{headers});
    }
    const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});

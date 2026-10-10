@@ -2,6 +2,8 @@ import {serverRpcs,type ServerRpc} from './rpc.ts';
 import {assignEdition,isStyle} from '../src/delight.ts';
 import {noReadings,packReadings,packs,plans,plusEntitlement,readingsLeft,validBalance,type Balance} from '../src/billing.ts';
 import type {Prediction} from '../src/types.ts';
+import {isAskId,maxAskBonuses} from '../src/ball-asks.ts';
+import {askBonuses} from '../src/billing.ts';
 type Env=(key:string)=>string|undefined;
 export class BillingError extends Error{constructor(message:string,readonly status:number){super(message)}}
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -75,6 +77,12 @@ export function billing(env:Env){
   const entitled_until=plan?new Date(Date.now()+periodDays[plan.period]*86400000).toISOString():kind==='off'?null:(await rpc('reading_balance',{viewer})).plusUntil;
   return rpc('apply_store_entitlements',{viewer,entitled_until,purchases:pack?[{id:`mock:${crypto.randomUUID()}`,readings:pack.readings}]:[]});
  }
+ // The Ball asks: one bonus reading per 25 distinct bank questions answered. The claim sends ids rather than answers, so the
+ // server checks the ids against the bank; each bonus number credits once per account, capped by the bank's size.
+ async function askBonus(viewer:string,answered:unknown){
+  if(!Array.isArray(answered)||answered.length>500||!answered.every(isAskId))throw new BillingError('Answer questions from The Ball asks first.',400);
+  return rpc('grant_ask_bonus',{viewer,bonuses:Math.min(maxAskBonuses,askBonuses(new Set(answered).size))});
+ }
  // The database refuses a non-classic style unless Plus is active at write time.
  async function styles(viewer:string,ball:unknown,card:unknown){
   if(!isStyle(ball,'ball')||!isStyle(card,'card'))throw new BillingError('Choose a ball and card style.',400);
@@ -104,7 +112,7 @@ export function billing(env:Env){
    return typeof saved==='string'?saved:text;
   }catch(error){await call('release_chart_weather',{}).catch(()=>{});throw error}
  }
- return {user,reconcile,simulate,styles,authorizeCharge,edition,chartWeather,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
+ return {user,reconcile,simulate,styles,askBonus,authorizeCharge,edition,chartWeather,balance:(viewer:string)=>rpc('reading_balance',{viewer}),charge:(viewer:string,reading:string)=>rpc('charge_reading',{viewer,reading})};
 }
 export type Billing=NonNullable<ReturnType<typeof billing>>;
 
@@ -126,6 +134,7 @@ export function billingHandler(env:Env){
    if(body?.action==='balance')return reply(await service.balance(viewer));
    if(body?.action==='sync')return reply(await service.reconcile(viewer));
    if(body?.action==='styles')return reply(await service.styles(viewer,body.ball,body.card));
+   if(body?.action==='askBonus')return reply(await service.askBonus(viewer,body.answered));
    if(body?.action==='simulate')return reply(await service.simulate(viewer,body.kind));
    return reply({message:'Choose a billing action.'},400);
   }catch(error){return reply({message:error instanceof Error?error.message:'Billing is unavailable.'},error instanceof BillingError?error.status:500)}

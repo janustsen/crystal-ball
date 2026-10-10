@@ -14,7 +14,7 @@ import {mirror,restoreBackup,supabase,anonymousOwner} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1';
 const initial=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false,largeText:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance|null)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;chooseStyle:<K extends keyof StyleOf>(kind:K,value:StyleOf[K])=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance|null)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;saveAskProgress:(fn:(s:AccountState)=>AccountState,balance?:Balance)=>Promise<void>;chooseStyle:<K extends keyof StyleOf>(kind:K,value:StyleOf[K])=>Promise<void>;remaining:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
@@ -91,7 +91,8 @@ export function Store({children}:React.PropsWithChildren){
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});await uploads.catch(()=>{});await forgetOmen(AsyncStorage);
    void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));
-   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[]}));
+   // The Ball asks progress restarts, but granted bonuses stay counted so re-answering never earns them twice.
+   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[],...(s.asks?{asks:{seen:[],skipped:[],insights:[],bonus:s.asks.bonus}}:{})}));
    await AsyncStorage.setItem(key,JSON.stringify(current.current));
    if(current.current.backupOwner&&canRead(current.current))await mirror(current.current);
   });
@@ -120,6 +121,15 @@ export function Store({children}:React.PropsWithChildren){
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
   });
  }
+ async function saveAskProgress(fn:(s:AccountState)=>AccountState,balance?:Balance){
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});
+   if(version!==accountVersion.current)throw new Error('Your account changed. Please try again.');
+   const next=fn(balance?await balanced(current.current,balance):current.current);
+   await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+  });
+ }
  async function savePrediction(prediction:Prediction,facts:Facts={},balance?:Balance|null){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
@@ -144,7 +154,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,daily=state.plus?10:1;
- return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:Math.max(0,daily-used)+state.credits,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}
