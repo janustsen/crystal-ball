@@ -27,6 +27,9 @@ const hidden=()=>AppState.currentState==='background';
 
 export async function startNativeGlass(gl:ExpoWebGLRenderingContext,options:Omit<GlassOptions,'env'|'present'|'hidden'|'load'>,grip?:BallSpin){
  const env=envTexture(await ballEnvBytes());
+ // expo-gl logs every pixelStorei it lacks (three.js sets premultiply and colour-space conversion per upload).
+ const pixelStorei=gl.pixelStorei.bind(gl);
+ gl.pixelStorei=(name,value)=>{if(name===gl.UNPACK_FLIP_Y_WEBGL||name===gl.UNPACK_ALIGNMENT)pixelStorei(name,value)};
  const {drawingBufferWidth:width,drawingBufferHeight:height}=gl;
  const canvas={width,height,style:{},clientWidth:width,clientHeight:height,addEventListener(){},removeEventListener(){}} as unknown as HTMLCanvasElement;
  const renderer=new T.WebGLRenderer({canvas,context:gl as unknown as WebGLRenderingContext,antialias:true});

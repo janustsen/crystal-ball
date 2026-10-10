@@ -10,7 +10,7 @@ export function AskOrb({size,reduce,fallback}:{size:number;reduce:boolean;fallba
  const motion=useRef({reduce}).current,[live,setLive]=useState(false);
  const scene=useRef<Awaited<ReturnType<typeof startNativeGlass>>|null>(null),mounted=useRef(true);
  motion.reduce=reduce;
- useEffect(()=>()=>{mounted.current=false;scene.current?.stop();scene.current=null},[]);
+ useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;scene.current?.stop();scene.current=null}},[]);
  useEffect(()=>{scene.current?.resume()},[reduce]);
  return <View pointerEvents="none" style={{width:size,height:size}}>
   {live?null:fallback}
