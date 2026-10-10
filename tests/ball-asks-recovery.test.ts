@@ -5,23 +5,53 @@ import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import * as asks from '../src/ball-asks';
 import * as billing from '../src/billing';
+import * as readings from '../src/reading-history';
+import * as profile from '../src/profile';
 
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function fixture(count:number,api:Record<string,unknown>={}){
- let state:any={sunSign:null,ageBand:'adult',facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-09',count:0},reduceMotion:true,largeText:false};
- for(const ask of asks.deckFor(false).slice(0,count))state=asks.answerAsk(state,ask.id,ask.options[0]);
+function hooks(){
  const slots:any[]=[],effects:(()=>void)[]=[];let cursor=0;
  const react={
+  createContext:()=>({Provider:'Provider'}),
   createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
-  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
+  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:(effect:()=>unknown,deps:any[])=>{const i=cursor++;if(!slots[i]||deps.some((d,j)=>d!==slots[i].deps[j])){const previous=slots[i];slots[i]={deps};effects.push(()=>{previous?.cleanup?.();slots[i].cleanup=effect()})}},
  };
- const imports:Record<string,any>={react,'react-native':{View:'View',Pressable:'Pressable'},'./ui':{Action:'Action',Txt:'Txt',CardHeader:'CardHeader',colors:{},fonts:{},styles:{}},'./Enter':{Enter:'Enter'},'./Surface':{Surface:'Surface'},'./native':{haptic:()=>{}},'./ball-asks':asks,'./billing':billing,'./api':{serverMetered:false,...api},'./store':{useStore:()=>({state,update:(fn:any)=>{state=fn(state)},applyBalance:async()=>{}})}};
- const code=ts.transpileModule(readFileSync(new URL('../src/BallAsks.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
- const module={exports:{} as any};runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]});
- const render=(aiConsent:string|null='')=>{cursor=0;const tree=module.exports.BallAsks({aiConsent,reduce:true,onNotice:()=>{}});effects.splice(0).forEach(effect=>effect());return tree};
- return {render,state:()=>state};
+ return {react,render:(component:()=>any)=>{cursor=0;const tree=component();effects.splice(0).forEach(effect=>effect());return tree}};
+}
+function load(path:string,imports:Record<string,any>){
+ const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
+ const module={exports:{} as any};
+ runInNewContext(code,{module,exports:module.exports,React:imports.react,require:(name:string)=>imports[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
+ return module.exports;
+}
+async function fixture(count:number,api:Record<string,unknown>={}){
+ let initial:any={sunSign:null,ageBand:'adult',facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-09',count:0},reduceMotion:true,largeText:false};
+ for(const ask of asks.deckFor(false).slice(0,count))initial=asks.answerAsk(initial,ask.id,ask.options[0]);
+ let disk=JSON.stringify(initial),writeGate:{started:()=>void;wait:Promise<void>}|undefined,failWrite=false;
+ const balance={owner:'owner',asOf:'2026-10-09T00:00:00.000001Z',plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-09'};
+ const storeHooks=hooks(),h=hooks();
+ const storeModule=load('../src/store.tsx',{
+  react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,
+  './cloud':{anonymousOwner:async()=>'owner',mirror:async()=>{},restoreBackup:async(s:any)=>s},
+  './api':{serverMetered:false,loadBalance:async()=>balance,...api},'./social':{},
+  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{const gate=writeGate;writeGate=undefined;if(gate){gate.started();await gate.wait}if(failWrite){failWrite=false;throw new Error('disk unavailable')}disk=value}},
+  './native':{reopenCheckIn:()=>{}},'./daily-omen':{},'./omen-widget':{},
+ });
+ const store=()=>storeHooks.render(()=>storeModule.Store({})).props.value;
+ store();await tick();store();await tick();
+ const notices:string[]=[];
+ const module=load('../src/BallAsks.tsx',{
+  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},'./ui':{Action:'Action',Txt:'Txt',CardHeader:'CardHeader',colors:{},fonts:{},styles:{}},'./Enter':{Enter:'Enter'},'./Surface':{Surface:'Surface'},'./native':{haptic:()=>{}},'./ball-asks':asks,'./billing':billing,'./api':{serverMetered:false,...api},'./store':{useStore:store},
+ });
+ const render=(aiConsent:string|null='')=>h.render(()=>module.BallAsks({aiConsent,reduce:true,onNotice:(text:string)=>notices.push(text)}));
+ const blockWrite=()=>{
+  let started!:()=>void,release!:()=>void;
+  const began=new Promise<void>(resolve=>{started=resolve}),wait=new Promise<void>(resolve=>{release=resolve});
+  writeGate={started,wait};return {began,release};
+ };
+ return {render,store,notices,balance,blockWrite,failWrite:()=>{failWrite=true},state:()=>JSON.parse(disk)};
 }
 function find(tree:any,id:string):any{
  if(!tree||typeof tree!=='object')return undefined;
@@ -31,7 +61,7 @@ function find(tree:any,id:string):any{
 
 test('catch-up insights wait for dismissal, advance without remounting, and return to questions',async()=>{
  const kinds:string[]=[];
- const f=fixture(20,{requestInsight:async(_facts:any,kind:string)=>{kinds.push(kind);return {kind,title:kind,text:'Reflection',at:String(kinds.length)}}});
+ const f=await fixture(20,{requestInsight:async(_facts:any,kind:string)=>{kinds.push(kind);return {kind,title:kind,text:'Reflection',at:String(kinds.length)}}});
  f.render(null);await tick();assert.equal(kinds.length,0);
  f.render();await tick();let tree=f.render();
  assert.equal(kinds.length,1);assert.ok(find(tree,'ask-insight'));
@@ -45,7 +75,7 @@ test('catch-up insights wait for dismissal, advance without remounting, and retu
 
 test('failed catch-up insight can defer, resume on the next answer, and retry',async()=>{
  let attempts=0;
- const f=fixture(20,{requestInsight:async()=>{attempts++;if(attempts<3)throw new Error('offline');return {kind:'portrait',title:'Portrait',text:'Reflection',at:'1'}}});
+ const f=await fixture(20,{requestInsight:async()=>{attempts++;if(attempts<3)throw new Error('offline');return {kind:'portrait',title:'Portrait',text:'Reflection',at:'1'}}});
  f.render();await tick();let tree=f.render();assert.ok(find(tree,'ask-insight-retry'));
  find(tree,'ask-insight-later').props.onPress();tree=f.render();assert.ok(find(tree,'ask-question'));
  find(tree,'ask-option-0').props.onPress();f.render();await tick();tree=f.render();
@@ -55,10 +85,57 @@ test('failed catch-up insight can defer, resume on the next answer, and retry',a
 
 test('failed bonus claims expose a retry without another answer and credit once',async()=>{
  const claims:string[][]=[];
- const f=fixture(25,{serverMetered:true,claimAskBonus:async(ids:string[])=>{claims.push([...ids]);if(claims.length===1)throw new Error('offline');return {}},requestInsight:async()=>{throw new Error('unused')}});
+ const f=await fixture(25,{serverMetered:true,claimAskBonus:async(ids:string[])=>{claims.push([...ids]);if(claims.length===1)throw new Error('offline');return {owner:'owner',asOf:'2026-10-09T00:00:00.000002Z',plus:false,plusUntil:null,packs:1,used:0,day:'2026-10-09'}},requestInsight:async()=>{throw new Error('unused')}});
  f.render(null);await tick();let tree=f.render(null);
  assert.equal(f.state().asks.bonus,0);assert.ok(find(tree,'ask-bonus-retry'));
  find(tree,'ask-bonus-retry').props.onPress();f.render(null);await tick();tree=f.render(null);
  assert.equal(f.state().asks.bonus,1);assert.deepEqual(claims[0],claims[1]);assert.equal(find(tree,'ask-bonus-retry'),undefined);
  f.render(null);await tick();assert.equal(claims.length,2);
+});
+
+for(const metered of [false,true])test(`insight and ${metered?'server':'local'} bonus persist behind an archive lock`,async()=>{
+ let resolveInsight!:(value:any)=>void,requests=0;
+ const insight={kind:'portrait',title:'Portrait',text:'Reflection',at:'2026-10-09'};
+ const pending=new Promise(resolve=>{resolveInsight=resolve});
+ const bonusBalance={owner:'owner',asOf:'2026-10-09T00:00:00.000002Z',plus:false,plusUntil:null,packs:2,used:0,day:'2026-10-09'};
+ const f=await fixture(50,{serverMetered:metered,claimAskBonus:async()=>bonusBalance,requestInsight:()=>{requests++;return pending}});
+ const gate=f.blockWrite();
+ f.render();await gate.began;
+ resolveInsight(insight);await tick();
+ let tree=f.render();
+ assert.equal(find(tree,'ask-insight'),undefined);assert.equal(f.notices.length,0);
+ assert.equal(f.state().asks.insights.length,0);assert.equal(f.state().asks.bonus,0);
+ const refresh=f.store().applyBalance({...bonusBalance,asOf:'2026-10-09T00:00:00.000003Z'});
+ gate.release();await refresh;await tick();tree=f.render();
+ assert.ok(find(tree,'ask-insight'));assert.equal(f.state().asks.insights.length,1);
+ assert.equal(f.state().asks.bonus,2);assert.equal(f.state().credits,2);assert.equal(f.notices.length,1);
+ f.render();await tick();assert.equal(requests,1);
+});
+
+test('insight storage failure shows retry without displaying or counting the insight',async()=>{
+ let requests=0;
+ const f=await fixture(10,{requestInsight:async()=>({kind:'portrait',title:'Portrait',text:'Reflection',at:String(++requests)})});
+ f.failWrite();f.render();await tick();let tree=f.render();
+ assert.ok(find(tree,'ask-insight-retry'));assert.equal(find(tree,'ask-insight'),undefined);
+ assert.equal(f.state().asks.insights.length,0);
+ find(tree,'ask-insight-retry').props.onPress();f.render();await tick();tree=f.render();
+ assert.ok(find(tree,'ask-insight'));assert.equal(f.state().asks.insights.length,1);
+});
+
+test('queued progress rejects an archive replacement instead of announcing success',async()=>{
+ const f=await fixture(10),store=f.store();
+ await store.backup('restore',async()=>{});
+ await assert.rejects(store.saveAskProgress((s:any)=>({...s,credits:99})),/account changed/);
+ assert.equal(f.state().credits,0);
+});
+
+for(const metered of [false,true])test(`${metered?'server':'local'} bonus storage failure stays retryable and credits once`,async()=>{
+ const balance={owner:'owner',asOf:'2026-10-09T00:00:00.000002Z',plus:false,plusUntil:null,packs:1,used:0,day:'2026-10-09'};
+ const f=await fixture(25,{serverMetered:metered,claimAskBonus:async()=>balance});
+ f.failWrite();f.render(null);await tick();let tree=f.render(null);
+ assert.ok(find(tree,'ask-bonus-retry'));assert.equal(f.notices.length,0);
+ assert.equal(f.state().asks.bonus,0);assert.equal(f.state().credits,0);
+ find(tree,'ask-bonus-retry').props.onPress();f.render(null);await tick();tree=f.render(null);
+ assert.equal(find(tree,'ask-bonus-retry'),undefined);assert.equal(f.notices.length,1);
+ assert.equal(f.state().asks.bonus,1);assert.equal(f.state().credits,1);
 });

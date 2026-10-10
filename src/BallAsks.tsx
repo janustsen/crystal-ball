@@ -15,22 +15,21 @@ const kindLabels:Record<InsightKind,string>={portrait:'Your portrait',enjoy:'You
 // Answering from anywhere (this page or a Home shortcut) goes through here, so every 25th distinct answer grants its bonus reading.
 // Without Supabase the preview credits the device; with it the server credits each bonus once.
 export function useBallAsks(onNotice:(text:string,done?:boolean)=>void){
- const {state,update,applyBalance}=useStore(),teen=state.ageBand!=='adult',progress=asksOf(state),claiming=useRef(false);
+ const {state,update,saveAskProgress}=useStore(),teen=state.ageBand!=='adult',progress=asksOf(state),claiming=useRef(false);
  const due=bonusDue(progress);
  const [bonusFailed,setBonusFailed]=useState(false),[bonusAttempt,setBonusAttempt]=useState(0);
  useEffect(()=>{
   if(!due||claiming.current)return;
   const granted=askBonuses(progress.seen.length),done=`${answersPerBonus} answers. A bonus reading is yours.`;
-  if(!serverMetered){update(s=>({...s,credits:s.credits+due,asks:{...asksOf(s),bonus:granted}}));onNotice(done,true);return}
   claiming.current=true;setBonusFailed(false);
-  void claimAskBonus(progress.seen).then(applyBalance).then(()=>{update(s=>({...s,asks:{...asksOf(s),bonus:Math.max(asksOf(s).bonus,granted)}}));onNotice(done,true)}).catch(()=>{setBonusFailed(true)}).finally(()=>{claiming.current=false});
+  void (serverMetered?claimAskBonus(progress.seen):Promise.resolve(undefined)).then(balance=>saveAskProgress(s=>({...s,credits:s.credits+(serverMetered?0:Math.max(0,granted-asksOf(s).bonus)),asks:{...asksOf(s),bonus:Math.max(asksOf(s).bonus,granted)}}),balance)).then(()=>{onNotice(done,true)}).catch(()=>{setBonusFailed(true)}).finally(()=>{claiming.current=false});
  },[due,progress.seen.length,bonusAttempt]);
  return {teen,progress,bonusPending:due>0,bonusFailed,retryBonus:()=>setBonusAttempt(n=>n+1),next:nextAsk(state,teen),answer:(id:string,value:string)=>{haptic();update(s=>answerAsk(s,id,value))},skip:(id:string)=>update(s=>skipAsk(s,id))};
 }
 
 // aiConsent is null while AI processing still needs the user's permission in Ask.
 export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;reduce:boolean;onNotice:(text:string,done?:boolean)=>void}){
- const {state,update}=useStore(),{teen,progress,next,answer,skip,bonusPending,bonusFailed,retryBonus}=useBallAsks(onNotice);
+ const {state,update,saveAskProgress}=useStore(),{teen,progress,next,answer,skip,bonusPending,bonusFailed,retryBonus}=useBallAsks(onNotice);
  const [status,setStatus]=useState<'idle'|'forming'|'failed'>('idle'),[fresh,setFresh]=useState<Insight|null>(null),[deferredAt,setDeferredAt]=useState(-1),[attempt,setAttempt]=useState(0),[tapped,setTapped]=useState(false),[answersOpen,setAnswersOpen]=useState(false);
  const answered=progress.seen.length,mine=selfAnswers(state.facts,teen);
  // An insight is owed every 10 answers; it waits while answers are too few to read (after Forget everything) or the user defers it.
@@ -38,9 +37,10 @@ export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;redu
  useEffect(()=>{
   if(!owed||fresh||aiConsent===null)return;
   let active=true;setStatus('forming');
-  void requestInsight(state.facts,nextInsightKind(progress),state,aiConsent).then(insight=>{
+  void requestInsight(state.facts,nextInsightKind(progress),state,aiConsent).then(async insight=>{
    if(!active)return;
-   update(s=>({...s,asks:{...asksOf(s),insights:[...asksOf(s).insights,insight]}}));setFresh(insight);setStatus('idle');
+   await saveAskProgress(s=>active?{...s,asks:{...asksOf(s),insights:[...asksOf(s).insights,insight]}}:s);
+   if(active){setFresh(insight);setStatus('idle')}
   }).catch(()=>{if(active)setStatus('failed')});
   return()=>{active=false;setStatus('idle')};
  },[owed,progress.insights.length,fresh,aiConsent,attempt]);
