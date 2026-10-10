@@ -38,6 +38,21 @@ try{
   assert.equal(slides,!reduced,label+' respects motion preferences');
   console.log(label+': passed '+JSON.stringify(result.samples));
  }
+ // Turning reduced motion on while the knob is moving must stop the slide and land it at once.
+ async function flipMidSlide(label){
+  const at=()=>ambient.evaluate(element=>new DOMMatrixReadOnly(getComputedStyle(element.firstElementChild.lastElementChild).transform).m41);
+  const target=await ambient.getAttribute('aria-checked')==='true'?0:20;
+  await ambient.click();
+  await page.clock.runFor(60);
+  const moving=await at();
+  assert.ok(moving>0&&moving<20,label+' is mid-slide before the flip ('+moving+')');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.waitForTimeout(100);
+  await page.clock.runFor(20);
+  const landed=await at();
+  assert.equal(landed,target,label+' lands at once');
+  console.log(label+': passed '+JSON.stringify([moving,landed]));
+ }
  await toggle('Initial OS preference',true);
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.waitForTimeout(100);
@@ -51,7 +66,6 @@ try{
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.waitForTimeout(100);
  await toggle('Both preferences disabled',false);
- await page.emulateMedia({reducedMotion:'reduce'});
- await page.waitForTimeout(100);
+ await flipMidSlide('OS preference enabled mid-slide');
  await toggle('OS preference enabled live',true);
 }finally{await browser.close()}

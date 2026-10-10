@@ -15,7 +15,7 @@ export type BallSpin={grab?:(e:Pointer)=>void;drag?:(e:Pointer)=>void;release?:(
 const spots:Spot[]=['Home','Sky','Ask','History','You','Library'];
 
 // Native shows the room's stills (follow-up cb-native-room-video: expo-video flights cached with expo-file-system).
-// A tab change cuts to its spot, or fades for reduced motion; the live glass ball (src/glassBall.ts) rests on the
+// A tab change cross-fades from the previous spot's still; the live glass ball (src/glassBall.ts) rests on the
 // still's stand, and the static orb stands in until it starts, or for good if GL fails.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
 export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
@@ -26,9 +26,8 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  useEffect(()=>{
   if(spot===shown.current)return;
   const from=shown.current;shown.current=spot;
-  if(!reduce)return;
   setPrevious(from);fade.setValue(1);
-  Animated.timing(fade,{toValue:0,duration:450,useNativeDriver:true}).start(()=>setPrevious(null));
+  Animated.timing(fade,{toValue:0,duration:450,useNativeDriver:true}).start(({finished})=>finished&&setPrevious(null));
  },[spot]);
  // A resize gets a fresh GL view (and context); the old scene stops with it.
  const generation=useRef(0),pending=useRef<AbortController|null>(null);
