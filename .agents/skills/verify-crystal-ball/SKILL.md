@@ -58,7 +58,7 @@ After the required Ollama drive, the Node loopback server can be restarted with 
 
 ## Reading-flow gate
 
-The reading flow now asks one or two engine-selected cards, with a qualitative forecast when numeric inputs are incomplete. New profiles see the intro line, then a skippable birthday sheet (month/day/year fields; `birthday-month` also accepts a pasted YYYY-MM-DD); complete it or use its real Skip control in design drives. Why is short for free accounts; mock Plus reveals the deeper inputs and sources. Person readings take a first name.
+The reading flow now asks one or two engine-selected cards, with a qualitative forecast when numeric inputs are incomplete. New profiles see the intro line, then a skippable birthday sheet (fill `birthday-month`, `birthday-day` and `birthday-year` separately); complete it or use its real Skip control in design drives. Why is short for free accounts; mock Plus reveals the deeper inputs and sources. Person readings take a first name.
 
 Run `VERIFY_URL=http://localhost:8092 node scripts/drive-reading-flow.mjs`, `VERIFY_URL=http://localhost:8092 VERIFY_ENGINE_URL=http://localhost:8092/engine node scripts/drive-reading-extras.mjs`, `VERIFY_URL=http://localhost:8092 node scripts/verify-profile-migration.mjs` and `VERIFY_ENGINE_URL=http://127.0.0.1:8792 npx tsx scripts/verify-short-forecast.ts` for the changed contracts. Launch isolated ports with `CRYSTAL_BALL_ENGINE_PORT=8792 APP_ORIGIN=http://localhost:8092 npm run server` and `CRYSTAL_BALL_ENGINE_PORT=8792 npm run web -- --no-dev --minify --port 8092`. Evidence before the redesign is historical; re-drive on the final head. Native birth chart, share and accessibility still require device verification.
 

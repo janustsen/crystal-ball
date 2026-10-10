@@ -64,7 +64,7 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
  }
  if(confirming&&!blocked)return <><Txt display>Are you 13 or older?</Txt><Txt style={styles.caption}>No birthday needed. Teen-safe defaults apply.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
  return <View style={{flex:1,paddingBottom:Math.max(0,keyboard-insets.bottom-40)}}>
-  <Pressable testID="onboarding-intro" accessible={false} disabled={sheet} onPress={()=>setSheet(true)} style={{flex:1,minHeight:140,justifyContent:'center',alignItems:'center'}}>
+  <View testID="onboarding-intro" accessible={false} style={{flex:1,minHeight:140,justifyContent:'center',alignItems:'center'}}>
    {/* Centered on the whole screen until the sheet rises beneath it. */}
    <Animated.View style={{opacity:line,transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[sheetHeight/2,0]})},{translateY:line.interpolate({inputRange:[0,1],outputRange:[14,0]})},{scale:line.interpolate({inputRange:[0,1],outputRange:[.96,1]})}]}}>
     <View>
@@ -72,7 +72,7 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
      <Txt display accessibilityRole="header" style={[styles.overRoom,{fontFamily:fonts.italic,fontSize:46,lineHeight:50,textAlign:'center'}]}>I know your{'\n'}future.</Txt>
     </View>
    </Animated.View>
-  </Pressable>
+  </View>
   <Animated.View pointerEvents={sheet?'auto':'none'} aria-hidden={!sheet} importantForAccessibility={sheet?'auto':'no-hide-descendants'} onLayout={e=>setSheetHeight(e.nativeEvent.layout.height)} style={{opacity:rise.interpolate({inputRange:[0,.3,1],outputRange:[0,1,1]}),transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[360,0]})}]}}>
    <View style={{padding:22,paddingBottom:12}}><Surface kind="card">
     {blocked?<Txt accessibilityRole="alert" style={{marginBottom:8}}>Crystal Ball is for ages 13 and up.</Txt>:null}

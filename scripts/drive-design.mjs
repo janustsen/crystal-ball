@@ -22,7 +22,7 @@ const dismiss=async()=>{if(await page.getByTestId('dismiss-notice').count())awai
 async function ask(q){await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(q);await page.getByTestId('look-into-the-future').click()}
 async function scan(name){const r=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();log.push({accessibility:name,violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)}))});expect(r.violations).toEqual([])}
 try{
- await page.goto(base);await page.getByTestId('birthday-month').fill('1995-06-15');await page.getByTestId('continue').click();await page.getByTestId('tab-ask').waitFor();await shot('01-home');await scan('home');
+ await page.goto(base);await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('tab-ask').waitFor();await shot('01-home');await scan('home');
  await page.getByTestId('hero-orb').click();await expect(page.getByText('Come closer…')).toBeVisible();await shot('02-approach');await page.getByTestId('type-instead').waitFor();await shot('03-listening-fallback');await expect(page.getByTestId('tab-home')).toHaveCount(0);
  await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await shot('04-typing');await scan('typing');
  await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').waitFor({timeout:65000});
