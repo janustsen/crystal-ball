@@ -1,6 +1,6 @@
 # Run Crystal Ball
 
-This checkout is an Expo React Native prototype. It runs anonymously, using local Ollama and optional local Supabase. No hosted credentials are included. For recorded web and Simulator coverage, see [verification evidence](README.md), including the [native glass record](docs/evidence/native-glass-2026-10-09/README.md). Individual native integration limits remain listed below.
+This checkout is an Expo React Native prototype. It runs anonymously, using local Ollama and optional local Supabase. No hosted credentials are included. For recorded web and Simulator coverage, see [verification evidence](README.md), including the [native glass record](docs/evidence/native-glass-2026-10-09/README.md). For native setup and remaining device verification limits, see [Native development](#native-development).
 
 ## Local development
 
@@ -34,6 +34,12 @@ Production hosting is a later credential step: upload `.local/room-assets/` to a
 ## Native development
 
 With Xcode and an iOS Simulator runtime installed and the license accepted, run `npx expo run:ios`. Xcode 27 builds require the scene life cycle on iOS 27: the `plugins/scene-lifecycle.js` config plugin in `app.json` adopts `EXExpoAppSceneDelegate` during prebuild. Regenerate existing native projects with `npx expo prebuild --platform ios` before rebuilding this change. Use an Expo development build, not Expo Go, for speech recognition and purchase integrations. App scheme crystalball; bundle com.janustsen.crystalball. Verify VoiceOver, Dynamic Type200%, keyboard avoidance, safe-area, Android back, automatic listening, tap-to-stop and cleanup when leaving voice, the [dated check-in flow](README.md) and notification permission. These checks are separate from the browser pass.
+
+For a physical phone using the private preview bridge, start the preview as above, then build with `EXPO_PUBLIC_ENGINE_URL` set to its reachable URL including `/engine` (for example, `http://janus-mac.tail8d2280.ts.net:8087/engine`) and `EXPO_PUBLIC_PREVIEW_SECRET` set to the value in that preview checkout’s `.local/preview-secret`. Native requests supply the engine URL’s origin alongside the token; browsers supply their own Origin header. Rebuild the native client after rotating the embedded token. Supabase also needs a phone-reachable URL when enabled.
+
+At build time, `app.config.js` adds an iOS ATS insecure-HTTP exception for exactly the configured engine hostname only when the URL uses HTTP and the hostname ends in `.ts.net`; other URLs keep `app.json`’s local-networking policy. Rebuild after changing that hostname. The `plugins/ios-scene.js` prebuild plugin adopts Expo’s scene delegate for iOS 27 launch and rejects unexpected AppDelegate templates; update the plugin if an Expo template change triggers that error.
+
+The [iOS launch evidence](docs/evidence/ux-feedback-2026-10-09/ios-build/README.md) records a simulator Release build from the combined feedback branch. It does not prove a physical iPhone engine request, VoiceOver, purchases, or all native integrations.
 
 ## Accounts Janus must create before hosted use
 
