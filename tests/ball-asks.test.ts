@@ -123,7 +123,7 @@ test('the insight action reads only valid answers, needs a few, and returns a ge
 
 test('the daily omen never carries self answers, so a long deck cannot break the engine limit',async()=>{
  const original=globalThis.fetch;let sent:any;
- globalThis.fetch=async(_url,init)=>{sent=JSON.parse(String(init?.body));return Response.json({kind:'ok',value:{text:'A calm star lights a patient path today.'}})};
+ globalThis.fetch=async(_url,init)=>{sent=JSON.parse(String(init?.body));return Response.json({kind:'ok',value:{text:'A calm star lights a patient path today.',whisper:'By tonight, a small plan may change for the better.'}})};
  try{
   const facts=Object.fromEntries([...asks.slice(0,40).map(ask=>[selfKey(ask.id),ask.options[0]]),['current_focus','Rest']]);
   await requestOmen(facts,{sunSign:null,birthday:undefined,ageConfirmed:true});
