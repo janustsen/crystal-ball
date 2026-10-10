@@ -77,7 +77,7 @@ test('room Home fallback stays aligned across resize and reduced motion',async()
   './glassWeb':{startWebGlass:async()=>{attempts++;throw new Error('WebGL unavailable')}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
- });
+ },{setTimeout:()=>0});
  const spin={dragged:false};
  for(const reduce of [false,true])for(const [width,height] of [[390,844],[375,667],[600,844]]){
   const props={spot:'Home',width,height,reduce,spin};
@@ -102,7 +102,7 @@ test('room Home fallback stays aligned across resize and reduced motion',async()
   './glassWeb':{startWebGlass:async()=>{throw new Error('WebGL unavailable')}},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
- });
+ },{setTimeout:()=>0});
  assert.ok(!nodes(sky('RoomScene',{spot:'Sky',width:390,height:844,reduce:true,spin})).some(n=>n.type==='OrbVisual'));
 });
 
@@ -113,7 +113,7 @@ test('web room keeps loading and failed glass aligned with stills across navigat
   './glassWeb':{startWebGlass:(_:unknown,__:number,{signal}:{signal:AbortSignal})=>new Promise((resolve,reject)=>pending.push({resolve,reject,signal}))},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':{...room,roomAssetBase:'room'},
-  './roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),homeIdle:'idle.mp4',ballArt:{}},
+  './roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{},homeIdle:'idle.mp4',ballArt:{}},
   './motionCss':{appCss:''},
  },{
   fetch:async()=>({ok:true,blob:async()=>({})}),URL:{createObjectURL:()=>`clip:${Math.random()}`},
@@ -154,14 +154,52 @@ test('web room keeps loading and failed glass aligned with stills across navigat
  pending[2].reject(new Error('unavailable'));await tick();aligned();
 });
 
+function nativeRoom(startNativeGlass:()=>Promise<unknown>){
+ const listeners:Record<string,(e?:any)=>void>={},fades:number[]=[],played:unknown[]=[];
+ const player={muted:false,audioMixingMode:'',replaceAsync:async(clip:unknown)=>{played.push(clip)},play(){},pause(){},
+  addListener:(name:string,fn:(e?:any)=>void)=>{listeners[name]=fn;return {remove(){}}}};
+ const render=component('../src/RoomScene.tsx',{
+  'react-native':{Animated:{Value:class {setValue(){}stopAnimation(){}interpolate(){return 'tracked'}},timing:(_:unknown,{toValue}:{toValue:number})=>({start(){fades.push(toValue)}}),Image:'Animated.Image',View:'Animated.View'},Easing:{linear:'linear'},Image:'Image',View:'View'},
+  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  'expo-video':{useVideoPlayer:(_:unknown,setup:(p:typeof player)=>void)=>{setup(player);return player},VideoView:'VideoView'},
+  './room':room,'./roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{'home-ask':'home-ask.mp4'},ballArt:{}},
+  './glassNative':{startNativeGlass},
+ },{setTimeout:()=>0,clearTimeout:()=>{}});
+ return {render,listeners,fades,played,player};
+}
+
+test('native room flies the camera to the new spot and lands on its still',async()=>{
+ const {render,listeners,fades,played,player}=nativeRoom(()=>new Promise(()=>{}));
+ const tick=()=>new Promise(r=>setImmediate(r));
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const draw=()=>nodes(render('RoomScene',props));
+ const stills=()=>draw().filter(n=>n.type==='Image').map(n=>n.props.source);
+ draw();
+ assert.equal(player.muted,true);
+ props.spot='Ask';draw();await tick();
+ assert.deepEqual(played,['home-ask.mp4']);
+ // Until the clip plays, the start still covers the decoded destination and the video stays hidden.
+ assert.deepEqual(stills(),['Ask.jpg','Home.jpg']);
+ assert.equal(draw().find(n=>n.type==='VideoView').props.style.opacity,0);
+ listeners.playingChange({isPlaying:true});
+ let tree=draw();
+ assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,1);
+ assert.equal(tree.find(n=>n.type==='Animated.View').props.style.transform[0].translateX,'tracked','the ball rides the flight track');
+ assert.deepEqual(fades,[44],'the track runs over the clip\'s 45 frames');
+ listeners.playToEnd();
+ tree=draw();
+ assert.deepEqual(stills(),['Ask.jpg']);
+ assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,0);
+ // Reduced motion (and spot pairs without a clip) cross-fade the stills instead of flying.
+ Object.assign(props,{spot:'Home',reduce:true});draw();
+ assert.deepEqual(played,['home-ask.mp4']);
+ assert.equal(fades.at(-1),0);
+ assert.ok(draw().some(n=>n.type==='Animated.Image'&&n.props.source==='Ask.jpg'));
+});
+
 test('native room keeps the static orb on the stand until the live glass has started',async()=>{
  let resolve!:(glass:unknown)=>void;
- const render=component('../src/RoomScene.tsx',{
-  'react-native':{Animated:{Value:class {setValue(){}},timing:()=>({start(){}}),Image:'Animated.Image'},Image:'Image',View:'View'},
-  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
-  './room':room,'./roomAssets':{roomStills:{Home:'home.jpg'},ballArt:{}},
-  './glassNative':{startNativeGlass:()=>new Promise(r=>{resolve=r})},
- });
+ const {render}=nativeRoom(()=>new Promise(r=>{resolve=r}));
  const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
  const ball=room.ballOnScreen(room.stillFrame('Home'),390,844)!;
  let tree=nodes(render('RoomScene',props));

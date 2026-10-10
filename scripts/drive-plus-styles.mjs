@@ -1,6 +1,6 @@
 // Drives the Plus room unlocks in headless Chrome: the locked Inner Library door, the simulated Plus unlock, Home's
 // push-in into the chamber, and every ball style on the live glass ball at Home and Ask, at rest and spun.
-// Run against a web preview built with EXPO_PUBLIC_ROOM_ASSET_BASE: PREVIEW_URL=http://localhost:8087 node scripts/drive-plus-styles.mjs
+// Run against a web preview: PREVIEW_URL=http://localhost:8087 node scripts/drive-plus-styles.mjs
 // Screenshots land in PLUS_EVIDENCE (default .local/plus-evidence); crops of the ball sit beside them.
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
@@ -45,15 +45,16 @@ try{
 
  // Home's entry pushes in through the arch to the tome and rests on the chamber's still.
  await page.getByTestId('tab-home').click();
- await page.waitForFunction(()=>performance.getEntriesByType('resource').some(e=>e.name.endsWith('/room/v2/home-library.mp4')),null,{timeout:60000});
+ const pushin=()=>performance.getEntriesByType('resource').map(e=>e.name).find(n=>n.includes('flights')&&n.includes('home-library.mp4'));
+ await page.waitForFunction(pushin,null,{timeout:60000});
  await page.waitForTimeout(2500);
  await page.getByTestId('room-inner-library').click();
  await page.waitForFunction(()=>{const v=document.querySelector('video:not([loop])');return v&&!v.paused&&v.currentTime>.3});
- const flight=await page.evaluate(async()=>{
+ const flight=await page.evaluate(async pushin=>{
   const v=document.querySelector('video:not([loop])');
-  const bytes=await Promise.all([v.src,'/room/v2/home-library.mp4'].map(async u=>new Uint8Array(await (await fetch(u)).arrayBuffer())));
+  const bytes=await Promise.all([v.src,pushin].map(async u=>new Uint8Array(await (await fetch(u)).arrayBuffer())));
   return bytes[0].length===bytes[1].length&&bytes[0].every((b,i)=>b===bytes[1][i]);
- });
+ },await page.evaluate(pushin));
  assert.ok(flight,'the Inner Library entry plays the approved push-in');
  await page.screenshot({path:`${out}/library-pushin.png`});
  await page.waitForFunction(()=>!document.querySelector('video:not([loop])'),null,{timeout:5000});

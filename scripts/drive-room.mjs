@@ -1,6 +1,7 @@
 // Drives the rendered room in headless Chrome: Home rests on its loop, streamed clips prefetch, each tab flies to its
 // spot and lands on that spot's loop, the live ball tracks the render's ring stand, and reduced motion fades stills.
-// Run against a web preview built with EXPO_PUBLIC_ROOM_ASSET_BASE: PREVIEW_URL=http://localhost:8087 node scripts/drive-room.mjs
+// Run against a web preview built with EXPO_PUBLIC_ROOM_ASSET_BASE (the landing loops stream from it; flights are bundled):
+// PREVIEW_URL=http://localhost:8087 node scripts/drive-room.mjs
 // Screenshots land in ROOM_EVIDENCE (default .local/room-evidence).
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
@@ -48,6 +49,8 @@ try{
    const bytes=await Promise.all([video.src,path].map(async url=>new Uint8Array(await (await fetch(url)).arrayBuffer())));
    return bytes[0].length===bytes[1].length&&bytes[0].every((byte,i)=>byte===bytes[1][i]);
   },path);
+  // The bundled flight's asset URL, as the app fetched it.
+  const flightUrl=key=>page.evaluate(key=>performance.getEntriesByType('resource').map(e=>e.name).find(n=>n.includes('flights')&&n.includes(`${key}.mp4`)),key);
   await loop();
   const homeLoop=await page.locator('video').getAttribute('src');
   results.pairs=[];
@@ -63,7 +66,7 @@ try{
    await page.getByTestId(`spot-${to}`).click();
    await page.waitForFunction(()=>{const v=document.querySelector('video:not([loop])');return v&&!v.paused&&v.currentTime>0});
    const key=`${from.toLowerCase()}-${to.toLowerCase()}`;
-   assert.ok(await matches(`/room/v2/${key}.mp4`),`${key} plays the approved flight`);
+   assert.ok(await matches(await flightUrl(key)),`${key} plays the approved flight`);
    await page.screenshot({path:`${out}/pair-${key}.png`});
    await loop();
    assert.ok(await matches(to==='Home'?homeLoop:`/room/v2/idle-${to.toLowerCase()}.mp4`),`${key} lands on the destination loop`);
@@ -82,9 +85,9 @@ try{
   assert.ok(state.videos.some(v=>v.src==='blob:'&&!v.paused),'Home rests on its living loop');
   near(state.ball,await centre(page.getByTestId('hero-orb')),'Home');
   await page.screenshot({path:`${out}/home.png`});
-  // Every streamed clip is fetched in the background.
-  await page.waitForFunction(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('/room/v')).length>=24,null,{timeout:60000});
-  results.prefetched=await page.evaluate(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('/room/v')).length);
+  // Every bundled flight and streamed loop is fetched in the background.
+  await page.waitForFunction(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('flights')||e.name.includes('/room/v')).length>=25,null,{timeout:60000});
+  results.prefetched=await page.evaluate(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('flights')||e.name.includes('/room/v')).length);
   for(const [tab,back] of [['sky','home'],['history','sky'],['you','history'],['home','you']]){
    await page.getByTestId(`tab-${tab}`).click();
    await page.waitForTimeout(700);

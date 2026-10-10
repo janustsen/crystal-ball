@@ -1,6 +1,6 @@
 // Encodes the approved room renders for the app and syncs the streamed clips to their host.
-//   node scripts/room-assets.mjs build <v2 render dir> [plus dir]   bundled stills + Home loop, ball track, streamed clips in
-//                                                                    .local/room-assets, then the Plus art (see plus())
+//   node scripts/room-assets.mjs build <v2 render dir> [plus dir]   bundled stills, flights + Home loop, ball track, the other
+//                                                                    loops streamed in .local/room-assets, then the Plus art (see plus())
 //   node scripts/room-assets.mjs sync <destination>      rsync the streamed clips (a local path such as public/room, or host:path)
 import {execFileSync} from 'node:child_process';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
@@ -9,7 +9,7 @@ import {join} from 'node:path';
 export const spots=['home','sky','ask','history','you'];
 // Bump with the renders: the version is part of every streamed URL, so caches never mix two room builds.
 export const roomVersion='v2';
-const streamed='.local/room-assets';
+const streamed='.local/room-assets',flights='assets/room/flights';
 // ponytail: one CRF for every clip; tune per clip only if a spot shows banding.
 const h264=['-c:v','libx264','-preset','slow','-crf','25','-pix_fmt','yuv420p','-profile:v','high','-movflags','+faststart','-an'];
 
@@ -39,9 +39,9 @@ function plus(src,track){
  const frames=JSON.parse(readFileSync(join(src,'camera','inner-library-pushin.json'),'utf8')).frames.length;
  track.stills.library=[0,0,0,0,0,1,0,0];
  track.clips['home-library']=Array.from({length:frames},()=>track.stills.library);
- // The push-in ends on the bundled resting still; it streams like the other flights.
+ // The push-in ends on the bundled resting still; it ships in the bundle like the other flights.
  ffmpeg('-i',join(src,'frames',`pushin_f${String(frames-1).padStart(4,'0')}.png`),'-q:v','4','assets/room/library.jpg');
- ffmpeg('-i',join(src,'inner-library-pushin_1170x2532_30fps.mp4'),...h264,join(streamed,roomVersion,'home-library.mp4'));
+ ffmpeg('-i',join(src,'inner-library-pushin_1170x2532_30fps.mp4'),...h264,join(flights,'home-library.mp4'));
  mkdirSync('assets/styles',{recursive:true});
  for(const style of ballStyles){
   const still=join(src,`ball-${styleRender[style]}_1170x2532.png`),d=ball.r*2;
@@ -60,6 +60,7 @@ function plus(src,track){
 function build(src,plusSrc=process.env.PLUS_RENDER_SOURCE||plusSource){
  mkdirSync('assets/room',{recursive:true});
  mkdirSync(join(streamed,roomVersion),{recursive:true});
+ mkdirSync(flights,{recursive:true});
  const track={version:roomVersion,width:0,height:0,stills:{},clips:{}};
  const load=name=>JSON.parse(readFileSync(join(src,'camera',`${name}.json`),'utf8'));
  for(const spot of spots){
@@ -75,7 +76,8 @@ function build(src,plusSrc=process.env.PLUS_RENDER_SOURCE||plusSource){
    if(to===spot)continue;
    const flight=load(`flight_${spot}_${to}`);
    track.clips[`${spot}-${to}`]=flight.frames.map(f=>trackFrame(f,flight.ball_world,flight.res[0]));
-   ffmpeg('-i',join(src,'flights',`${spot}_to_${to}_1170x2532_30fps.mp4`),...h264,join(streamed,roomVersion,`${spot}-${to}.mp4`));
+   // Flights ship in the bundle so a tab change can always fly, on web and native, with no clip host.
+   ffmpeg('-i',join(src,'flights',`${spot}_to_${to}_1170x2532_30fps.mp4`),...h264,join(flights,`${spot}-${to}.mp4`));
   }
  }
  plus(plusSrc,track);
