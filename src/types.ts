@@ -15,6 +15,6 @@ export type Flow = { stage: 'approach' } | { stage: 'listening' } | { stage: 'as
 export type ReadingContext = { localDate?: string; viewerBirthday?: string; ageConfirmed?: boolean; personName?: string; plus?: boolean; viewerChart?: {moonSign:string;risingSign:string} };
 export type InsightKind = 'portrait' | 'enjoy' | 'try' | 'shift';
 export type Insight = {kind: InsightKind; title: string; text: string; at: string};
-// The Ball asks progress: question ids ever answered (never shrinks), skipped ids, insights received and bonus readings granted.
+// The Ball asks progress: question ids ever answered (cleared by Forget everything), skipped ids, insights received and bonus readings granted.
 export type Asks = {seen: string[]; skipped: string[]; insights: Insight[]; bonus: number};
 export type AccountState = { balanceSnapshot?: {owner:string;asOf:string}; backupOwner?: string; birthday?: string; sunSign: string|null; ageBand: 'teen'|'adult'|null; birthTime?: string; birthPlace?: string; moonSign?: string; risingSign?: string; chartWeather?: {month:string;text:string}; narrationMuted?: boolean; ageConfirmed?: boolean; onboardingBlocked?: boolean; onboardingDone?: boolean; facts: Facts; history: Prediction[]; credits: number; plus: boolean; usage: { day: string; count: number }; reduceMotion: boolean; ambientSound?: boolean; ballStyle?: BallStyle; cardStyle?: CardStyle; largeText: boolean; asks?: Asks };

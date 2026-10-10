@@ -1,7 +1,7 @@
 # The Ball asks
 
 ## Sub-features
-Endless one-tap questions about yourself (adult and teen decks in `src/ball-asks.ts`), skip, change and forget answers, a free AI insight every 10 answers (engine `insight` action), one bonus reading per 25 distinct answers, theme-relevant answers on readings and the reveal's "Shaped by your answer" chip.
+A finite bank of one-tap questions about yourself (adult and teen decks in `src/ball-asks.ts`), skip, change and forget answers, a free AI insight every 10 answers (engine `insight` action), one bonus reading per 25 distinct answers, theme-relevant answers on readings and the reveal's "Shaped by your answer" chip.
 
 ## How to get to it (user POV)
 You › The Ball asks. Tapping a reveal's Shaped by chip also opens it.

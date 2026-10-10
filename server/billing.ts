@@ -77,7 +77,7 @@ export function billing(env:Env){
   const entitled_until=plan?new Date(Date.now()+periodDays[plan.period]*86400000).toISOString():kind==='off'?null:(await rpc('reading_balance',{viewer})).plusUntil;
   return rpc('apply_store_entitlements',{viewer,entitled_until,purchases:pack?[{id:`mock:${crypto.randomUUID()}`,readings:pack.readings}]:[]});
  }
- // The Ball asks: one bonus reading per 25 distinct bank questions answered. Answers stay on the device, so the
+ // The Ball asks: one bonus reading per 25 distinct bank questions answered. The claim sends ids rather than answers, so the
  // server checks the ids against the bank; each bonus number credits once per account, capped by the bank's size.
  async function askBonus(viewer:string,answered:unknown){
   if(!Array.isArray(answered)||answered.length>500||!answered.every(isAskId))throw new BillingError('Answer questions from The Ball asks first.',400);
