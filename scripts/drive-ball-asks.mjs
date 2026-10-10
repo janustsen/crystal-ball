@@ -19,11 +19,20 @@ async function open(birthday,name){
  await page.getByTestId('tab-you').click();await page.getByTestId('open-ball-asks').click();await page.getByTestId('ask-question').waitFor();
  return {context,page,errors,shot:async file=>{await page.waitForTimeout(1800);await page.screenshot({path:`${out}/${file}.png`})}};
 }
+// A live insight can time out under load; the user's Try again is retried once and the failure is kept in the log.
+async function insight(page){
+ for(let attempt=0;;attempt++){
+  await page.getByTestId('ask-insight').or(page.getByTestId('ask-insight-retry')).first().waitFor({timeout:120000});
+  if(await page.getByTestId('ask-insight').count())return;
+  if(attempt)throw new Error('The live insight failed twice.');
+  log.push({insightFailed:new Date().toISOString(),retried:true});await page.getByTestId('ask-insight-retry').click();
+ }
+}
 async function answer(page,count,seen=[]){
  for(let i=0;i<count;i++){
   // An insight every 10 answers pauses the deck until it lands; a failed one is a failure here.
-  await page.getByTestId('ask-question').or(page.getByTestId('ask-insight')).or(page.getByTestId('ask-insight-retry')).first().waitFor({timeout:120000});
-  if(await page.getByTestId('ask-insight-retry').count())throw new Error('The live insight failed.');
+  await page.getByTestId('ask-question').or(page.getByTestId('ask-insight')).or(page.getByTestId('ask-insight-forming')).or(page.getByTestId('ask-insight-retry')).first().waitFor({timeout:120000});
+  if(!await page.getByTestId('ask-question').count())await insight(page);
   if(await page.getByTestId('ask-insight').count()){log.push({insight:await page.getByTestId('ask-insight').innerText()});await page.getByTestId('ask-keep-going').click();i--;continue}
   const question=await page.getByTestId('ask-question').innerText();seen.push(question);
   await page.getByTestId('ask-option-0').click();
@@ -40,7 +49,7 @@ try{
  await answer(page,3);await expect(page.getByTestId('ask-reflection')).toBeVisible();await shot('02-reflection-progress');
  await answer(page,7);
  await shot('03-insight-forming');
- await page.getByTestId('ask-insight').waitFor({timeout:120000});await shot('04-insight');
+ await insight(page);await shot('04-insight');
  await answer(page,15);
  await expect(page.getByTestId('notice')).toContainText('A bonus reading is yours',{timeout:120000});
  await expect(page.getByTestId('view-plans')).toContainText('2 readings');await shot('05-bonus-reading');
@@ -64,7 +73,7 @@ try{
  if(predict.response.value?.shapedBy)await expect(page.getByTestId('shaped-by')).toBeVisible();
  await shot('08-reveal');
  if(adult.errors.length)throw new Error(adult.errors.join('\n'));
-}catch(error){await adult.shot('failure-adult');throw error}finally{await adult.context.close()}
+}catch(error){await adult.shot('failure-adult');await writeFile(`${process.env.LOG_DIR||out}/drive-ball-asks.json`,JSON.stringify(log,null,2));throw error}finally{await adult.context.close()}
 
 const teen=await open('2011-03-03','teen');
 try{

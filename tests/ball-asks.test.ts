@@ -104,6 +104,7 @@ test('the insight action reads only valid answers, needs a few, and returns a ge
  const model={async json<T>(_system:string,value:unknown,_schema:unknown,valid:Validator){
   input=value;
   assert.notEqual(await valid({title:'The Certain One',text:'You will definitely succeed at everything you try, guaranteed, because your answers prove it beyond any doubt at all.'}),true);
+  assert.notEqual(await valid({title:'The Midnight Planner',text:'The Midnight Planner: you come alive after dark and like a steady shape to your days, which suits a creative ritual.'}),true);
   const insight={title:'The Midnight Planner',text:'You come alive after dark and like a steady shape to your days, so a small late-evening creative ritual could suit you well.'};
   assert.equal(await valid(insight),true);
   return insight as T;
