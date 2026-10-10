@@ -104,7 +104,7 @@ export function dailyCandidates({state,now,horizon}:PlanContext):Candidate[]{
  const today=localDay(now),done=dayProgress(ritual,today).done,out:Candidate[]=[];
  for(let offset=0;offset<=horizon;offset++){
   const day=dayAfter(now,offset),n=dayNumber(day),signed=state.sunSign&&n%3===0;
-  const morning=signed?signCopy(sign(state.sunSign))[n%3]:morningCopy[n%morningCopy.length];
+  const morning=signed?signCopy(sign(state.sunSign))[Math.floor(n/3)%3]:morningCopy[n%morningCopy.length];
   out.push({id:'morning',day,slot:'morning',priority:0,title,body:offset===7?backOffCopy:morning,data:{ritual:'morning'}});
   if(!(offset===0&&done))out.push({id:'evening',day,slot:'evening',priority:0,title,body:eveningCopy[n%eveningCopy.length],data:{ritual:'evening'},time:eveningTime});
  }

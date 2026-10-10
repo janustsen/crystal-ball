@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {type Candidate,constellation,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
+import {type Candidate,constellation,dailyCandidates,signCopy,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
 import {localDay} from '../src/retention';
 import type {Prediction} from '../src/types';
 
@@ -129,4 +129,9 @@ test('unopened check-ins and their follow-ups obey central back-off and quiet ho
  assert.deepEqual(reopened.filter(p=>p.data.checkIns).map(at),['2026-10-21','2026-10-22','2026-10-23','2026-10-24']);
  const followUp=planNotifications(state(enabled(),[{...history[0],dueDate:'2026-10-08'}]),now);
  assert.deepEqual(followUp.filter(p=>p.data.checkIns).map(at),['2026-10-08']);
+});
+
+test('signed morning reminders rotate through every signed message',()=>{
+ const mornings=dailyCandidates({state:state(enabled()),now,horizon:27}).filter(c=>c.id==='morning').map(c=>c.body);
+ assert.deepEqual(new Set(mornings.filter(body=>signCopy('Leo').includes(body))),new Set(signCopy('Leo')));
 });
