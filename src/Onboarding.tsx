@@ -18,7 +18,7 @@ const fields=[{label:'Month',placeholder:'MM',autoComplete:'birthdate-month',wid
 function Sparkle({x,y,size,delay,reduce}:{x:number;y:number;size:number;delay:number;reduce:boolean}){
  const glint=useRef(new Animated.Value(reduce?.6:0)).current;
  useEffect(()=>{
-  if(reduce)return;
+  if(reduce){glint.setValue(.6);return}
   const loop=Animated.loop(Animated.sequence([Animated.timing(glint,{toValue:1,duration:520,easing:Easing.bezier(...motion.ease),useNativeDriver:native}),Animated.timing(glint,{toValue:.15,duration:900,easing:Easing.inOut(Easing.quad),useNativeDriver:native}),Animated.delay(1100)]));
   const start=setTimeout(()=>loop.start(),delay);
   return()=>{clearTimeout(start);loop.stop()};
@@ -34,7 +34,7 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
  // The sheet rides just above the keyboard so the intro line stays in view instead of scrolling away.
  useEffect(()=>{const show=Keyboard.addListener('keyboardWillShow',e=>setKeyboard(e.endCoordinates.height)),hide=Keyboard.addListener('keyboardWillHide',()=>setKeyboard(0));return()=>{show.remove();hide.remove()}},[]);
  useEffect(()=>{
-  if(reduce)return;
+  if(reduce){line.setValue(1);setSheet(true);return}
   const animation=Animated.timing(line,{toValue:1,duration:1200,delay:300,easing:Easing.bezier(...motion.ease),useNativeDriver:native});animation.start();
   const timer=setTimeout(()=>setSheet(true),introHold);
   return()=>{animation.stop();clearTimeout(timer)};
