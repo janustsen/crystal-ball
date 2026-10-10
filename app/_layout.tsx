@@ -7,9 +7,9 @@ import {Store} from '../src/store';
 const ui={Jost:require('../assets/fonts/Jost.ttf'),JostMedium:require('../assets/fonts/JostMedium.ttf')};
 export default function Layout(){
  const [loaded,error]=useFonts(Platform.OS==='web'?{
-  ...ui,CormorantGaramond:require('../assets/fonts/CormorantGaramond.woff2'),CormorantGaramondItalic:require('../assets/fonts/CormorantGaramondItalic.woff2'),CormorantGaramondSemiBold:require('../assets/fonts/CormorantGaramondSemiBold.woff2')
+  ...ui,CormorantGaramond:require('../assets/fonts/CormorantGaramond.woff2'),IMFellEnglish:require('../assets/fonts/IMFellEnglish.woff2'),IMFellEnglishItalic:require('../assets/fonts/IMFellEnglishItalic.woff2'),CormorantGaramondSemiBold:require('../assets/fonts/CormorantGaramondSemiBold.woff2')
  }:{
-  ...ui,CormorantGaramond:require('../assets/fonts/CormorantGaramond.ttf'),CormorantGaramondItalic:require('../assets/fonts/CormorantGaramondItalic.ttf'),CormorantGaramondSemiBold:require('../assets/fonts/CormorantGaramondSemiBold.ttf')
+  ...ui,CormorantGaramond:require('../assets/fonts/CormorantGaramond.ttf'),IMFellEnglish:require('../assets/fonts/IMFellEnglish.ttf'),IMFellEnglishItalic:require('../assets/fonts/IMFellEnglishItalic.ttf'),CormorantGaramondSemiBold:require('../assets/fonts/CormorantGaramondSemiBold.ttf')
  });
  if(!loaded&&!error)return null;
  return <Store><StatusBar style="light"/><Stack screenOptions={{headerShown:false,contentStyle:{backgroundColor:'#140E0A'}}}/></Store>;

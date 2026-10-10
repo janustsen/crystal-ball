@@ -11,10 +11,10 @@ export async function assertRevealEnd(page,file,evidence){
  await sharp(last,{raw:{width,height,channels:1}}).png().toFile(evidence);
  // The end card sets its title on the app's ground.
  const reference=await page.evaluate(async({width,height})=>{
-  await document.fonts.load('76px CormorantGaramond');
+  await document.fonts.load('76px IMFellEnglish');
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
   const ctx=canvas.getContext('2d');ctx.fillStyle='#140E0A';ctx.fillRect(0,0,width,height);
-  ctx.fillStyle='#F4EBDD';ctx.textAlign='center';ctx.font='76px CormorantGaramond, Georgia';ctx.fillText('search Crystal Ball',450,90);
+  ctx.fillStyle='#F4EBDD';ctx.textAlign='center';ctx.font='76px IMFellEnglish, Georgia';ctx.fillText('search Crystal Ball',450,90);
   return canvas.toDataURL();
  },{width,height});
  const expected=await sharp(Buffer.from(reference.split(',')[1],'base64')).removeAlpha().greyscale().raw().toBuffer();
