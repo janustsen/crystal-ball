@@ -600,3 +600,52 @@ for(const exit of ['close','another','plans','tab'])test(`leaving the notificati
  state={...state,ritual:{...state.ritual,opened:['2026-10-07','2026-10-08','2026-10-09']}};
  render();render();assert.equal(state.ritual.counts.optInShown,2);assert.equal(state.ritual.notify.reoffered,true);
 });
+
+// Shared shallow app for the ritual tests below: real ritual model, stubbed native and social edges.
+function ritualApp(h:ReturnType<typeof hooks>,store:()=>any,foreground:((state:string)=>void)[],social:Record<string,unknown>={}){
+ return load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_type:string,listener:(state:string)=>void)=>{foreground.push(listener);return {remove(){}}}}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:store,learnedFacts:()=>({})},'../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/social':{syncSocialProfile:async()=>{},checkInCircles:async()=>{},...social},
+  '../src/native':{watchCheckIns:()=>()=>{},haptic(){}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/SocialScreen':{Social:'Social'},'../src/DailyRitual':{NotifyOffer:'NotifyOffer'},'../src/delight':{narration:()=>null},
+  '../src/purchases':{purchaseMode:'mock'},'../src/api':{webReadingVisitor:()=>false},
+ },[]);
+}
+
+test('the day-3 offer still appears once sixty opened days are stored',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
+ const h=hooks();t.after(()=>h.unmount());const foreground:((state:string)=>void)[]=[];
+ const opened=Array.from({length:60},(_,i)=>retention.localDay(new Date(2026,9,7-59+i,12)));
+ let state:any={onboardingDone:true,ageConfirmed:true,tourSeen:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99,ritual:{...ritual.emptyRitual(),opened,notify:{daily:false,time:'08:30',offered:'2026-10-07'}}};
+ const app=ritualApp(h,()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)}}),foreground);
+ const render=()=>h.render(app.default);
+ render();render();assert.equal(state.ritual.notify.reoffered,undefined);
+ for(const day of [8,9]){t.mock.timers.setTime(new Date(2026,9,day,12).getTime());foreground.forEach(listener=>listener('active'));render();render()}
+ assert.equal(state.ritual.opened.length,60);
+ assert.equal(state.ritual.notify.reoffered,true);assert.equal(state.ritual.counts.optInShown,1);
+});
+
+test('a reading saved while a balance update holds the archive still completes Today',async t=>{
+ const f=await fixture(),h=hooks();t.after(()=>h.unmount());const day=new Date().toISOString().slice(0,10);
+ const reading={...readings.circleReading(f.card),circleId:undefined,friend:true};
+ const balance={owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:5,used:1,day};
+ let render!:()=>any[];
+ // An automatic balance refresh queues behind the reading's save, so the save resolves while the archive is still locked.
+ const store=()=>{const s=f.render();return {...s,savePrediction:async(...args:any[])=>{const saving=s.savePrediction(...(args as [any]));void s.applyBalance(balance);render();await saving}}};
+ const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ render=()=>nodes(h.render(app.default));
+ render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});
+ await render().find(n=>n.props.testID==='look-into-the-future').props.onPress();
+ assert.equal(f.render().backupBusy,true);
+ for(let i=0;i<4;i++){await tick();render()}
+ assert.equal(f.render().backupBusy,false);
+ const saved=ritual.ritualOf(f.state());
+ assert.equal(saved.counts.readings,1);assert.equal(saved.days[retention.localDay()]?.ask,1);
+});

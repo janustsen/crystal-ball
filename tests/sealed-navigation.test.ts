@@ -258,6 +258,14 @@ for(const scenario of [
  }
 });
 
+test('Today omen step brings the omen into view instead of doing nothing',()=>{
+ const {render}=app();
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ assert.equal(render().find(n=>n.type==='Home').props.omenFocus,0);
+ render().find(n=>n.type==='TodayCard').props.onStep('omen');
+ assert.equal(render().find(n=>n.type==='Home').props.omenFocus,1);
+});
+
 test('Today questions opens The Ball asks without requiring AI consent',()=>{
  const {render}=app();
  render().find(n=>n.props.testID==='tab-home').props.onPress();

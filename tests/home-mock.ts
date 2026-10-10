@@ -3,7 +3,7 @@
 export function homeMock(react:{createElement:(type:any,props:any,...children:any[])=>any}){
  const h=react.createElement;
  return {
-  Home:({ready,libraryLocked,onLibrary,checkIns,omen,today}:any)=>h('Home',{},checkIns,omen,today,h('Pressable',{testID:'room-inner-library',locked:libraryLocked,disabled:!ready,onPress:onLibrary})),
+  Home:({ready,libraryLocked,onLibrary,checkIns,omen,today,omenFocus}:any)=>h('Home',{omenFocus},checkIns,omen,today,h('Pressable',{testID:'room-inner-library',locked:libraryLocked,disabled:!ready,onPress:onLibrary})),
   RoomHeader:({title,count,ready,onPlans}:any)=>h('RoomHeader',{},h('Txt',{},title),h('Pressable',{testID:'view-plans',disabled:!ready,onPress:onPlans},h('Txt',{},count))),
   PlansPill:({count,ready,onPress}:any)=>h('Pressable',{testID:'view-plans',disabled:!ready,onPress},h('Txt',{},count)),
   tabBarSpace:(bottom:number)=>bottom+94,
