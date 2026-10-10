@@ -98,7 +98,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  // The AI-processing choice is saved with the account, for the provider it was given to.
  const aiAllowed=!!aiProvider&&state.aiConsent===aiProvider,setAiAllowed=(allowed:boolean)=>update(s=>({...s,aiConsent:allowed?aiProvider:undefined}));
  const [privacyOpen,setPrivacyOpen]=useState(false),[debug,setDebug]=useState(false),[offering,setOffering]=useState<'reveal'|'home'|null>(null);
- const ritual=ritualOf(state),today=localDay(),checkInReady=state.history.some(p=>personalCheckInDue(p)),todayCheckInReady=state.history.some(p=>personalCheckInDueToday(p,today));
+ const ritual=ritualOf(state),checkInReady=state.history.some(p=>personalCheckInDue(p)),todayCheckInReady=state.history.some(p=>personalCheckInDueToday(p,today));
  const ritualUpdate=(fn:(r:Ritual)=>Ritual)=>update(s=>({...s,ritual:fn(ritualOf(s))}));
  const currentAccount=useRef(state);
  useEffect(()=>{currentAccount.current=state},[state]);
