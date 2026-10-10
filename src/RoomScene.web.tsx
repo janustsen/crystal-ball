@@ -67,7 +67,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
 export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
- const [,setLoaded]=useState(0),[failed,setFailed]=useState(false),[started,setStarted]=useState(0);
+ const [,setLoaded]=useState(0),[ready,setReady]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
  const motion=useRef({reduce}),scene=useRef<Awaited<ReturnType<typeof startWebGlass>>|null>(null),state=useRef({at,flight,width,height});
  motion.current.reduce=reduce;state.current={at,flight,width,height};
@@ -76,9 +76,9 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   const target=flight?.to??at;
   if(spot===target)return;
   // A flight needs its clip in hand and a resting start; otherwise cut (or fade, for reduced motion) to the still.
-  const url=!flight&&!reduce&&!failed?clips.get(flightKey(at,spot)):undefined;
+  const url=!flight&&!reduce&&ready?clips.get(flightKey(at,spot)):undefined;
   if(url){setFlight({key:flightKey(at,spot),url,to:spot});return}
-  if(reduce&&!failed)setFading(target);
+  if(reduce&&ready)setFading(target);
   setFlight(null);setAt(spot);
  },[spot]);
  // Land on the destination when the clip ends, fails, or never starts (an autoplay block must not strand the camera).
@@ -91,12 +91,12 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   return()=>clearTimeout(timer);
  },[flight]);
  // Switching to reduced motion mid-flight cuts straight to the destination rather than finishing the move.
- useEffect(()=>{if((reduce||failed)&&flight)land(flight)},[reduce,failed]);
+ useEffect(()=>{if((reduce||!ready)&&flight)land(flight)},[reduce,ready]);
  // The ball canvas spans twice the ball's widest tracked diameter, so it is only ever scaled down.
  const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4);
  useEffect(()=>{
   if(!ref.current||!width||!height)return;
-  setFailed(false);
+  setReady(false);
   const canvas=ref.current;
   let live=true;
   const controller=new AbortController();
@@ -118,26 +118,26 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
    if(!glass)return;
    if(!live){glass.stop();return}
    scene.current=glass;
-   setStarted(n=>n+1);
-  }).catch(error=>{if(live){setFailed(true);console.error('crystal ball scene',error)}});
+   setReady(true);
+  }).catch(error=>{if(live){setReady(false);console.error('crystal ball scene',error)}});
   return()=>{live=false;controller.abort();scene.current?.stop();scene.current=null};
  },[width,height]);
- useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,started]);
+ useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,ready]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flight]);
- const idleUrl=!reduce&&!failed&&!flight?clips.get(idleKey(at)):undefined;
+ const idleUrl=!reduce&&ready&&!flight?clips.get(idleKey(at)):undefined;
  useEffect(()=>watchFrames(idle.current),[idleUrl]);
  // The room replaces the fog Atmosphere, so it publishes the same shell reduced-motion flag.
  useEffect(()=>{const shell=ref.current?.closest('[data-testid="app-shell"]');shell?.setAttribute('data-reduced',String(reduce));return()=>shell?.removeAttribute('data-reduced')},[reduce]);
- const fallback=failed?ballOnScreen(stillFrame(spot),width,height):null;
+ const fallback=!ready?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
- const stills=failed?[spot]:flight?[flight.to,at]:[at];
+ const stills=!ready?[spot]:flight?[flight.to,at]:[at];
  return <div aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A'}}>
   {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
   {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
-  {flight&&!failed?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}
+  {flight&&ready?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}
   {/* Reduced motion's fade runs on the Web Animations API: the shell's reduced-motion rule stops CSS animations. */}
-  {fading&&!failed?<img key={`fade-${fading}`} alt="" data-room-fade src={Asset.fromModule(roomStills[fading]).uri} ref={img=>{if(img&&!img.getAnimations().length)img.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished.then(()=>setFading(null),()=>setFading(null))}} style={fill}/>:null}
+  {fading&&ready?<img key={`fade-${fading}`} alt="" data-room-fade src={Asset.fromModule(roomStills[fading]).uri} ref={img=>{if(img&&!img.getAnimations().length)img.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished.then(()=>setFading(null),()=>setFading(null))}} style={fill}/>:null}
   {/* a resize gets a fresh canvas because stop() loses the old context */}
   <canvas key={`${width}x${height}`} ref={ref} width={S} height={S} style={{position:'absolute',left:0,top:0,width:S,height:S,transformOrigin:'50% 50%',visibility:'hidden'}}/>
   {fallback?<div style={{position:'absolute',left:fallback.x-fallback.r,top:fallback.y-fallback.r,width:fallback.r*2,height:fallback.r*2,borderRadius:'50%',overflow:'hidden'}}><OrbVisual size={fallback.r*2} reduce ball={ball}/></div>:null}

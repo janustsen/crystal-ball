@@ -5,19 +5,19 @@ import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import * as room from '../src/room';
 
-function component(file:string,imports:Record<string,any>){
- const slots:any[]=[],effects:(()=>void)[]=[];
+function component(file:string,imports:Record<string,any>,globals:Record<string,any>={}){
+ const slots:any[]=[],effects:(()=>void)[]=[],cleanups:any[]=[];
  let cursor=0;
  const react={
   createElement:(type:any,props:any,...children:any[])=>{
-   if(props?.ref)props.ref.current={closest:()=>null};
+   if(props?.ref)props.ref.current={closest:()=>null,play:async()=>{}};
    return {type,props:props??{},children};
   },
-  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]},
+  useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>{const i=cursor++;return slots[i]??(slots[i]={current:initial})},
   useEffect:(effect:()=>void,deps:any[])=>{
    const i=cursor++,previous=slots[i];
-   if(!previous||deps.some((value,j)=>value!==previous[j]))effects.push(effect);
+   if(!previous||deps.some((value,j)=>value!==previous[j]))effects.push(()=>{cleanups[i]?.();cleanups[i]=effect()});
    slots[i]=deps;
   },
  };
@@ -26,7 +26,7 @@ function component(file:string,imports:Record<string,any>){
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true},
  }).outputText;
  const jsx=(type:any,props:any)=>react.createElement(type,props,...[props.children??[]].flat());
- runInNewContext(code,{module,exports:module.exports,AbortController,console:{error:()=>{},warn:()=>{}},require:(name:string)=>{
+ runInNewContext(code,{module,exports:module.exports,AbortController,...globals,console:{error:()=>{},warn:()=>{}},require:(name:string)=>{
   if(name==='react')return react;
   if(name==='react/jsx-runtime')return {jsx,jsxs:jsx};
   if(name in imports)return imports[name];
@@ -104,6 +104,54 @@ test('room Home fallback stays aligned across resize and reduced motion',async()
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg',Sky:'sky.jpg'},homeIdle:'home-idle.mp4'},'./motionCss':{appCss:'app-css'},
  });
  assert.ok(!nodes(sky('RoomScene',{spot:'Sky',width:390,height:844,reduce:true,spin})).some(n=>n.type==='OrbVisual'));
+});
+
+test('web room keeps loading and failed glass aligned with stills across navigation and resize',async()=>{
+ const pending:{resolve:(glass:any)=>void;reject:(error:Error)=>void;signal:AbortSignal}[]=[];
+ const timers:(()=>void)[]=[];
+ const render=component('../src/RoomScene.web.tsx',{
+  './glassWeb':{startWebGlass:(_:unknown,__:number,{signal}:{signal:AbortSignal})=>new Promise((resolve,reject)=>pending.push({resolve,reject,signal}))},
+  'expo-asset':{Asset:{fromModule:(m:string)=>({uri:`asset:${m}`})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  './room':{...room,roomAssetBase:'room'},
+  './roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),homeIdle:'idle.mp4',ballArt:{}},
+  './motionCss':{appCss:''},
+ },{
+  fetch:async()=>({ok:true,blob:async()=>({})}),URL:{createObjectURL:()=>`clip:${Math.random()}`},
+  setTimeout:(fn:()=>void)=>{timers.push(fn);return timers.length},clearTimeout:()=>{},
+ });
+ const tick=()=>new Promise(resolve=>setImmediate(resolve));
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const draw=()=>nodes(render('RoomScene',props));
+ const aligned=()=>{
+  const tree=draw(),placed=room.ballOnScreen(room.stillFrame(props.spot as room.Spot),props.width,props.height);
+  const orb=tree.find(n=>n.type==='OrbVisual');
+  assert.equal(Boolean(orb),Boolean(placed));
+  if(placed){
+   const box=tree.find(n=>n.children.includes(orb)).props.style;
+   assert.equal(box.left,placed.x-placed.r);assert.equal(box.top,placed.y-placed.r);
+   assert.equal(orb.props.size,placed.r*2);
+  }
+  assert.ok(tree.some(n=>n.type==='img'&&n.props.src===`asset:${props.spot}.jpg`));
+  assert.ok(!tree.some(n=>n.type==='video'||n.props['data-room-fade']!==undefined));
+ };
+ aligned();timers.shift()!();await tick();
+ for(const reduce of [false,true])for(const spot of ['Ask','Sky','History','You','Library','Home']){
+  Object.assign(props,{spot,reduce});aligned();
+ }
+ props.reduce=false;
+ pending[0].resolve({stop(){},style(){},resume(){}});await tick();
+ let tree=draw();
+ assert.ok(!tree.some(n=>n.type==='OrbVisual'));
+ assert.ok(tree.some(n=>n.type==='video'&&n.props.loop),'ready glass enables the idle clip');
+ props.spot='Ask';tree=draw();
+ assert.ok(tree.some(n=>n.type==='video'&&!n.props.loop),'ready glass enables flights');
+ props.width=375;aligned();
+ assert.equal(pending[0].signal.aborted,true);
+ props.height=667;aligned();
+ let stopped=false;
+ pending[1].resolve({stop(){stopped=true},style(){},resume(){}});await tick();aligned();
+ assert.equal(stopped,true,'obsolete startup cannot remove the current fallback');
+ pending[2].reject(new Error('unavailable'));await tick();aligned();
 });
 
 test('native room keeps the static orb on the stand until the live glass has started',async()=>{
