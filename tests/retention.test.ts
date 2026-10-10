@@ -31,7 +31,7 @@ test('personal omen claims each local day before generation, caches failures and
  invalidateOmen();const values=new Map<string,string>();let calls=0;
  const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value)}};
  const facts={sun_sign:'Libra',learning_target:'Spanish'};
- const generate=async(input:Record<string,string>)=>{calls++;assert.deepEqual(input,facts);assert.equal(JSON.parse(values.get(omenKey)!).text,null);return {text:'Libra, let a new Spanish word be your little constellation today.'}};
+ const generate=async(input:Record<string,string>)=>{calls++;assert.deepEqual(input,facts);assert.equal(JSON.parse(values.get(omenKey)!).text,null);return {text:'Libra, let a new Spanish word be your little constellation today.',whisper:'By tonight, a small plan may change for the better.'}};
  const today=new Date(2026,8,30,10);
  const [first,second]=await Promise.all([loadDailyOmen(storage,facts,generate,()=>today),loadDailyOmen(storage,facts,generate,()=>today)]);
  assert.deepEqual(first,second);assert.equal(calls,1);
@@ -62,7 +62,7 @@ test('reset during generation prevents a private omen from being saved after res
  const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value)}};
  const call=loadDailyOmen(storage,{},()=>new Promise(resolve=>{finish=resolve}));
  while(!finish)await new Promise(resolve=>setTimeout(resolve,0));
- invalidateOmen();values.clear();finish({text:'Private old omen'});assert.equal((await call).text,null);assert.equal(values.size,0);
+ invalidateOmen();values.clear();finish({text:'Private old omen',whisper:'By tonight, a small plan may change for the better.'});assert.equal((await call).text,null);assert.equal(values.size,0);
 });
 test('omen endpoint shares input limits and forwards Sun sign and facts to the real generator',async()=>{
  const fetch=globalThis.fetch;let calls=0;
@@ -126,7 +126,7 @@ test('forget serializes overlapping cache reads and writes without exposing old 
     value=next;
    },
   };
-  const generate=async()=>{calls++;return {text:'Private old omen'}};
+  const generate=async()=>{calls++;return {text:'Private old omen',whisper:'By tonight, a small plan may change for the better.'}};
   const first=phase==='erase'?undefined:loadDailyOmen(storage,{},generate);
   if(first)await started;
   const erasing=forgetOmen(storage);

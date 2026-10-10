@@ -4,7 +4,7 @@ import {updateOmenWidget} from './omen-widget';
 
 // whisper: the day's one-day forecast, generated in the same request as the omen.
 export type Omen = {day:string;text:string|null;whisper?:string|null;tries?:number};
-export type OmenReply = {text:string;whisper?:string|null};
+export type OmenReply = {text:string;whisper:string};
 export const omenKey='crystal-ball-personal-omen-v1';
 // One retry after a failed or interrupted generation, then the day stays quiet: this caps model cost at two requests a day.
 export const omenTries=2;
@@ -43,7 +43,7 @@ export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null
   });
   if(version!==generation)return omen;
   if(cached)return cached;
-  try{const reply=await generate(facts);omen.text=reply.text;omen.whisper=reply.whisper??null;}catch{return omen;}
+  try{const reply=await generate(facts);omen.text=reply.text;omen.whisper=reply.whisper;}catch{return omen;}
   await serialize(async()=>{
    if(version===generation)await storage.setItem(omenKey,JSON.stringify(omen));
   });

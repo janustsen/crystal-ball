@@ -25,8 +25,9 @@ export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pi
  const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
- const whisper=result.value.whisper;
- return {text:result.value.text,whisper:typeof whisper==='string'&&whisper.length<=140?whisper:null};
+ const whisper=typeof result.value.whisper==='string'?result.value.whisper.trim():'';
+ if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper))throw new Error('Omen unavailable.');
+ return {text:result.value.text,whisper};
 }
 
 // The Ball asks: a free insight from the most recent answers (the engine accepts at most 30 facts).

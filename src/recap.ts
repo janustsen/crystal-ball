@@ -12,7 +12,7 @@ export function yearRecap(history:Prediction[],year:number):YearRecap{
 }
 
 // "Your week in the Ball": the seven local days ending today, in counts only.
-export type WeekRecap={from:string;to:string;readings:number;golden:number;checkIns:number;whispers:number;landed:number;theme:SkyPrompt|null;suggestion:string};
+export type WeekRecap={from:string;to:string;readings:number;golden:number;landed:number;theme:SkyPrompt|null;suggestion:string};
 // Next week's suggestion tries an area not asked about this week; teens skip love and money.
 const suggestionOrder:SkyPrompt[]=['growth','learning','work','moving','love','money'];
 export function weekRecap(history:Prediction[],whispers:Whisper[]=[],today=localDay(),teen=false):WeekRecap{
@@ -21,6 +21,5 @@ export function weekRecap(history:Prediction[],whispers:Whisper[]=[],today=local
  for(const p of readings){const theme=activityTheme(p.question);counts.set(theme,(counts.get(theme)??0)+1)}
  const theme=[...counts].sort((a,b)=>b[1]-a[1])[0]?.[0]??null;
  const open=suggestionOrder.filter(t=>!(teen&&(t==='love'||t==='money'))),next=open.find(t=>!counts.has(t))??open[0];
- const checked=whispers.filter(w=>w.outcome&&inWeek(w.day));
- return {from,to:today,readings:readings.length,golden:readings.filter(p=>p.golden).length,checkIns:history.filter(p=>!p.circleId&&p.outcome&&inWeek(p.checkedInAt)).length,whispers:checked.length,landed:checked.filter(w=>w.outcome==='yes').length,theme,suggestion:skyPrompts[next].question};
+ return {from,to:today,readings:readings.length,golden:readings.filter(p=>p.golden).length,landed:whispers.filter(w=>w.outcome==='yes'&&inWeek(w.day)).length,theme,suggestion:skyPrompts[next].question};
 }

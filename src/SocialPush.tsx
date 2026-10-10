@@ -1,4 +1,3 @@
-import {requestNotificationPermission} from './native';
 import React,{useState} from 'react';
 import {Platform,View} from 'react-native';
 import Constants from 'expo-constants';
@@ -11,7 +10,7 @@ async function devicePushToken(){
  const projectId=Constants.expoConfig?.extra?.eas?.projectId??Constants.easConfig?.projectId;
  if(!projectId)throw new Error('Push notifications are not configured in this build.');
  if(Platform.OS==='android')await Notifications.setNotificationChannelAsync('default',{name:'Circle invitations and forecasts',importance:Notifications.AndroidImportance.DEFAULT});
- if((await requestNotificationPermission()).status!=='granted')throw new Error('Notifications are off. You can enable them in device settings.');
+ if((await Notifications.requestPermissionsAsync()).status!=='granted')throw new Error('Notifications are off. You can enable them in device settings.');
  return (await Notifications.getExpoPushTokenAsync({projectId})).data;
 }
 export function SkyPushPrompt({answered,onAnswered}:{answered:boolean;onAnswered:(enabled:boolean)=>void}){

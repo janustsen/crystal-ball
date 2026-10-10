@@ -24,7 +24,7 @@ import {ShareCard} from '../src/ShareCard';
 import {forecastCard,goldenSetCard,receiptCard,type StoryCard} from '../src/story-card';
 import {GoldenShelf} from '../src/GoldenShelf';
 import {CaptureReveal} from '../src/CaptureReveal';
-import {haptic,reminder,watchRitualReminders,watchCheckIns} from '../src/native';
+import {haptic,reminder,watchCheckIns} from '../src/native';
 import {BallButton,Home,HomeTabBar,PlansPill,RoomHeader,tabBarSpace} from '../src/Home';
 import {GoldenGlow} from '../src/GoldenGlow';
 import {narration,selectedStyle} from '../src/delight';
@@ -71,8 +71,7 @@ export default function App(){
  const [{friend,friendTarget},setReadingIdentity]=useState(()=>readingIdentity({friend:false}));
  const socialProfile=accountSocialProfile(state),socialReady=ready&&canRead(state);
  useEffect(()=>{if(socialReady)void syncSocialProfile(socialProfile).catch(()=>{})},[socialReady,socialProfile.sunSign,socialProfile.ageBand,socialProfile.plus]);
- useEffect(()=>{if(ready)return watchRitualReminders(state.whispers)},[ready,state.whispers]);
-useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.history.find(p=>p.id===id);if(reading)showPrediction(reading);else{cancel();setPaywall(false);setShare(false);setTab('History')}},destination=>{cancel();setPaywall(false);setShare(false);setCapture(false);setTab(destination==='whisper'?'Home':'History')})},[ready,state.history]);
+useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.history.find(p=>p.id===id);if(reading)showPrediction(reading);else{cancel();setPaywall(false);setShare(false);setTab('History')}})},[ready,state.history]);
  const [personMode,setPersonMode]=useState(false),[personName,setPersonName]=useState('');
  // A sealed-link browser visitor asking their one free web reading.
  const [visitedSeal,setVisitedSeal]=useState(()=>Platform.OS==='web'&&(!!params.seal||webReadingVisitor()));

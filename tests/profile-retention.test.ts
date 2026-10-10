@@ -56,7 +56,7 @@ test('mirror replaces birthday-bearing payloads and retains owner-scoped deletio
 
 test('omen transport maps the current profile sign without changing the daily claim',async()=>{
  const originalFetch=globalThis.fetch,requests:any[]=[];
- globalThis.fetch=async(_url,init)=>{requests.push(JSON.parse(String(init?.body)));return Response.json({kind:'ok',value:{text:'A quiet moment brings a fresh perspective to your day.'}});};
+ globalThis.fetch=async(_url,init)=>{requests.push(JSON.parse(String(init?.body)));return Response.json({kind:'ok',value:{text:'A quiet moment brings a fresh perspective to your day.',whisper:'By tonight, a small plan may change for the better.'}});};
  try{
   for(const state of [account(),updateBirthday(account(),'1996-07-15'),restoreProfile(account()),updateBirthday(account())]){
    await requestOmen({...state.facts,sun_sign:'wrong'},state);

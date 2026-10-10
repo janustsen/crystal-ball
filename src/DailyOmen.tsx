@@ -8,8 +8,8 @@ import {useStore} from './store';
 import {CardHeader,Txt,colors,fonts,styles} from './ui';
 import {Surface} from './Surface';
 import {OmenCard,omenTextStyle} from './Home';
-import {answerWhisper,keepWhisper,lastWhisper,whisperQuestion} from './whisper';
-import {cancelWhisperCheck,haptic} from './native';
+import {answerWhisper,keepWhisper,lastWhisper} from './whisper';
+import {haptic} from './native';
 import type {Whisper} from './types';
 
 const outcomes={yes:'Yes',no:'Not quite',pending:'Not yet'} as const;
@@ -18,9 +18,9 @@ const thanks={yes:'Yes saved. Today’s whisper waits below.',no:'Not quite save
 function WhisperCheck({whisper}:{whisper:Whisper}){
  const {state,update}=useStore();
  return <View testID="whisper-check" style={{padding:18}}><Surface kind="card">
-  <CardHeader title={whisperQuestion(whisper)} label="Whisper"/>
+  <CardHeader title="Did yesterday’s whisper land?" label="Whisper"/>
   <Txt style={[omenTextStyle,{fontSize:19,lineHeight:25,marginTop:10}]}>{whisper.text}</Txt>
-  {whisper.outcome?<Txt testID="whisper-check-saved" accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{thanks[whisper.outcome]}</Txt>:<View style={[styles.row,state.largeText?{flexDirection:'column',alignItems:'stretch'}:{}]}>{(Object.keys(outcomes) as (keyof typeof outcomes)[]).map(outcome=><Pressable testID={`whisper-check-${outcome}`} key={outcome} accessibilityRole="button" onPress={()=>{haptic('success');update(s=>({...s,whispers:answerWhisper(s.whispers,whisper.day,outcome)}));cancelWhisperCheck(whisper.day)}} style={{paddingVertical:10,paddingHorizontal:12,minHeight:44,marginTop:12,alignItems:'center'}}><Surface kind="chip"><Txt style={styles.chip}>{outcomes[outcome]}</Txt></Surface></Pressable>)}</View>}
+  {whisper.outcome?<Txt testID="whisper-check-saved" accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{thanks[whisper.outcome]}</Txt>:<View style={[styles.row,state.largeText?{flexDirection:'column',alignItems:'stretch'}:{}]}>{(Object.keys(outcomes) as (keyof typeof outcomes)[]).map(outcome=><Pressable testID={`whisper-check-${outcome}`} key={outcome} accessibilityRole="button" onPress={()=>{haptic('success');update(s=>({...s,whispers:answerWhisper(s.whispers,whisper.day,outcome)}))}} style={{paddingVertical:10,paddingHorizontal:12,minHeight:44,marginTop:12,alignItems:'center'}}><Surface kind="chip"><Txt style={styles.chip}>{outcomes[outcome]}</Txt></Surface></Pressable>)}</View>}
  </Surface></View>;
 }
 
