@@ -80,8 +80,14 @@ export type Candidate={day:string;slot:Slot;priority:number;title:string;body:st
  weekly?:boolean};
 export type Planned={id:string;at:Date;title:string;body:string;data:Record<string,string>};
 export type PlanContext={state:Pick<AccountState,'ritual'|'sunSign'|'history'>;now:Date;horizon:number};
-// Features add their candidate source here; each sees the whole plan context and returns its candidates.
-export const notificationSources:((context:PlanContext)=>Candidate[])[]=[dailyCandidates];
+export type NotificationSource=(context:PlanContext)=>Candidate[];
+const notificationSources:NotificationSource[]=[dailyCandidates];
+// Other features (a whisper, a weekly recap) register a source of candidates. The planner applies the two-a-day cap,
+// quiet hours, check-in days and back-off to every source alike, so a source only proposes. Returns an unregister.
+export function registerNotifications(source:NotificationSource){
+ if(!notificationSources.includes(source))notificationSources.push(source);
+ return ()=>{const i=notificationSources.indexOf(source);if(i>=0)notificationSources.splice(i,1)};
+}
 
 const title='Crystal Ball';
 const sign=(s:string|null)=>s?s[0].toUpperCase()+s.slice(1):'';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {type Candidate,constellation,emptyRitual,markOpened,markStep,dayProgress,notificationSources,offerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
+import {type Candidate,constellation,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
 import {localDay} from '../src/retention';
 import type {Prediction} from '../src/types';
 
@@ -65,11 +65,12 @@ test('a finished day drops its evening nudge; turning notifications off plans no
 });
 
 test('another feature’s candidate wins its slot by priority and weekly beats survive back-off',()=>{
- notificationSources.push(({now}):Candidate[]=>[{day:localDay(new Date(now.getTime()+11*86400000)),slot:'evening',priority:1,title:'Crystal Ball',body:'Your week in the Ball is ready.',data:{recap:'1'} as Record<string,string>,time:'18:00',weekly:true},{day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:1,title:'Crystal Ball',body:'Did it land?',data:{whisper:'1'} as Record<string,string>},{day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:2,title:'Crystal Ball',body:'Too early',data:{},time:'07:00'}]);
+ const unregister=registerNotifications(({now}):Candidate[]=>[{day:localDay(new Date(now.getTime()+11*86400000)),slot:'evening',priority:1,title:'Crystal Ball',body:'Your week in the Ball is ready.',data:{recap:'1'} as Record<string,string>,time:'18:00',weekly:true},{day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:1,title:'Crystal Ball',body:'Did it land?',data:{whisper:'1'} as Record<string,string>},{day:localDay(new Date(now.getTime()+86400000)),slot:'morning',priority:2,title:'Crystal Ball',body:'Too early',data:{},time:'07:00'}]);
  try{
   const plan=planNotifications(state(enabled()),now);
   assert.equal(plan.find(p=>at(p)==='2026-10-08'&&p.data.ritual!=='evening')?.body,'Did it land?');
   assert.equal(plan.find(p=>at(p)==='2026-10-18')?.body,'Your week in the Ball is ready.');
   assert.equal(plan.find(p=>at(p)==='2026-10-18')?.at.getHours(),18);
- }finally{notificationSources.pop()}
+ }finally{unregister()}
+ assert.ok(!planNotifications(state(enabled()),now).some(p=>p.data.recap),'unregistered sources stop planning');
 });
