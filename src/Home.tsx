@@ -2,7 +2,7 @@ import React,{useState} from 'react';
 import {Platform,Pressable,ScrollView,View,type GestureResponderEvent} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {type BallSpin} from './RoomScene';
-import {Txt,RowLink,colors,fonts,styles} from './ui';
+import {Txt,RowLink,EdgeFade,colors,fonts,styles} from './ui';
 import {haptic} from './native';
 import {Surface} from './Surface';
 import {Enter} from './Enter';
@@ -18,8 +18,9 @@ const noScroll={touchAction:'none'} as object;
 
 // Home's screen content, docked below the room's ball (top): what to do, today's omen and the Inner Library.
 export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number;reduce:boolean}){
- return <View style={{position:'absolute',left:0,top,right:0,bottom}}><Enter reduce={reduce} fill>
-  <ScrollView contentContainerStyle={{paddingHorizontal:20,paddingBottom:16,gap:14}}>
+ // The ball above stays the tap target, so Home's content scrolls only below it, softening at the edges.
+ return <View style={{position:'absolute',left:0,top:Math.max(0,top-24),right:0,bottom}}><EdgeFade bottom={24}><Enter reduce={reduce} fill>
+  <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:20,paddingTop:Math.min(24,top),paddingBottom:24,gap:14}}>
    <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
     <Txt display style={{fontSize:30,lineHeight:34}}>What lies ahead?</Txt>
     <Txt style={styles.label}>Touch the ball to ask</Txt>
@@ -29,7 +30,7 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom,red
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
    <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </ScrollView>
- </Enter></View>;
+ </Enter></EdgeFade></View>;
 }
 
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 1 14.2 9.8 23 12 14.2 14.2 12 23 9.8 14.2 1 12 9.8 9.8z"/></svg>';
@@ -48,8 +49,10 @@ export function PlansPill({count,ready,reduce=false,onPress}:{count:string;ready
  </Pressable>;
 }
 // The header every tab shares: the italic title and the readings-left pill.
+// Where the shared tab header ends, below the safe area.
+export const headerBottom=(top:number)=>Math.max(52,top+6)+44;
 export function RoomHeader({title,count,ready,reduce,onPlans,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;top:number}){
- return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:Math.max(52,top+6),flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}}>
+ return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:headerBottom(top)-44,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}}>
   <Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{flexShrink:1,fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt>
   <PlansPill count={count} ready={ready} reduce={reduce} onPress={onPlans}/>
  </View>;
