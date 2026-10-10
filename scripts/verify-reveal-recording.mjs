@@ -30,7 +30,7 @@ try{
    return imports[name]||{};
   };
   window.recorder=require('./RevealClip');
-  for(const name of ['IMFellEnglish','IMFellEnglishItalic'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
+  for(const name of ['IMFellEnglish','IMFellEnglishItalic','CormorantGaramond'])document.fonts.add(await new FontFace(name,`url(/assets/fonts/${name}.woff2)`).load());
   document.fonts.add(await new FontFace('JostMedium','url(/assets/fonts/JostMedium.ttf)').load());
  },modules);
  const bytes=await page.evaluate(async()=>{

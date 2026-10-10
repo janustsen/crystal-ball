@@ -10,8 +10,8 @@ import {SvgXml} from 'react-native-svg';
 import {Surface,SurfaceInk,onGold} from './Surface';
 // The design system's palette (docs/design/ui-rules.md): one warm ground, cream ink, a single gold accent.
 export const colors={ink:'#140E0A',ivory:'#F4EBDD',gold:'#E3C78F',ice:'#E3C78F',muted:'#DCCFBA',label:'#CDB98F',inactive:'#A8987F',onGold,line:'rgba(227,199,143,.22)'};
-// Cormorant Garamond for display, copy and buttons; Jost for labels, captions and navigation. app/_layout.tsx loads these.
-export const fonts={display:'CormorantGaramond',italic:'CormorantGaramondItalic',semibold:'CormorantGaramondSemiBold',body:'CormorantGaramond',sans:'Jost',sansMedium:'JostMedium'};
+// IM Fell English for display and italics; Cormorant Garamond for copy and buttons; Jost for labels, captions and navigation. app/_layout.tsx loads these.
+export const fonts={display:'IMFellEnglish',italic:'IMFellEnglishItalic',semibold:'CormorantGaramondSemiBold',body:'CormorantGaramond',sans:'Jost',sansMedium:'JostMedium'};
 // Cormorant's small x-height reads a size smaller than a text face at body sizes, so serif body text sets a step larger
 // (large text's doubling already covers it).
 const bodyScale=1.12;
