@@ -37,8 +37,12 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
   return()=>{mounted=false;clearInterval(timer);listener.remove()};
  },[state.facts,state.sunSign,state.birthday,state.ageConfirmed,aiConsent]);
  const current=currentOmen(omen),whisper=current?.text?current.whisper:null;
- // The first whisper shown each day is the one checked next morning.
- useEffect(()=>{if(!backupBusy&&current&&whisper&&!state.whispers?.some(w=>w.day===current.day))update(s=>({...s,whispers:keepWhisper(s.whispers,current.day,whisper)}))},[current?.day,whisper,state.whispers,backupBusy]);
+ // The first whisper shown each day is the one checked next morning; the carried previous whisper covers a day Home missed.
+ const previous=current?.previous;
+ useEffect(()=>{
+  const unsaved=[current&&whisper?{day:current.day,whisper}:null,previous].filter((w):w is {day:string;whisper:string}=>!!w&&!state.whispers?.some(saved=>saved.day===w.day));
+  if(!backupBusy&&unsaved.length)update(s=>({...s,whispers:unsaved.reduce((list,w)=>keepWhisper(list,w.day,w.whisper),s.whispers)}));
+ },[current?.day,whisper,previous?.day,previous?.whisper,state.whispers,backupBusy]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}

@@ -81,7 +81,7 @@ test('midnight completion hides expired text without spending the new day quota'
    assert.equal(JSON.parse(values.get(omenKey)!).day,oldDay);
    assert.equal(calls,phase==='generation'?1:0);
    const today=await loadDailyOmen(storage,{},async()=>{calls++;return {text:'Today’s omen.',whisper:'By tonight, a small plan may change for the better.'};},()=>now,publish);
-   assert.deepEqual(today,{day:localDay(now),text:'Today’s omen.',whisper:'By tonight, a small plan may change for the better.',tries:1});
+   assert.deepEqual(today,{day:localDay(now),text:'Today’s omen.',whisper:'By tonight, a small plan may change for the better.',tries:1,...(phase==='generation'&&!reset?{previous:{day:oldDay,whisper:'By tonight, a small plan may change for the better.'}}:{})},'only a whisper that finished and was not forgotten carries over');
    await loadDailyOmen(storage,{},generate,()=>now,publish);
    assert.equal(calls,phase==='generation'?2:1);
   }
@@ -110,7 +110,7 @@ test('Home drops an expired displayed omen while the next day load is pending',a
  assert.equal(currentOmen(null,localDay(now)),null);
  release({text:'Today’s personal text.',whisper:'By tonight, a small plan may change for the better.'});
  displayed=currentOmen(await loading,localDay(now));
- assert.deepEqual(displayed,{day:localDay(now),text:'Today’s personal text.',whisper:'By tonight, a small plan may change for the better.',tries:1});
+ assert.deepEqual(displayed,{day:localDay(now),text:'Today’s personal text.',whisper:'By tonight, a small plan may change for the better.',tries:1,previous:{day:old!.day,whisper:'By tonight, a small plan may change for the better.'}});
  assert.deepEqual(published.at(-1),displayed);
  await loadDailyOmen(storage,{},async()=>{calls++;return {text:'Duplicate',whisper:'By tonight, a small plan may change for the better.'};},()=>now,publish);
  assert.equal(calls,2);

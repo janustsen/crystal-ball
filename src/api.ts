@@ -2,7 +2,7 @@ import {localDay} from './retention';
 import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,BallStyle,CardStyle,Insight,InsightKind} from './types';
 import {selfAnswers,teenSafe,withoutSelf} from './ball-asks';
 import type {Balance} from './billing';
-import type {OmenReply} from './daily-omen';
+import {secondSentence,type OmenReply} from './daily-omen';
 import {validBalance} from './billing';
 import {solveProof,type WebReading} from './web-reading';
 export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
@@ -26,7 +26,7 @@ export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pi
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
  const whisper=typeof result.value.whisper==='string'?result.value.whisper.trim():'';
- if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper))throw new Error('Omen unavailable.');
+ if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper)||secondSentence.test(whisper))throw new Error('Omen unavailable.');
  return {text:result.value.text,whisper};
 }
 

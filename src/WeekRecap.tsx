@@ -1,14 +1,18 @@
-import {View} from 'react-native';
+import {useEffect,useState} from 'react';
+import {AppState,View} from 'react-native';
 import {Action,CardHeader,Txt,styles} from './ui';
 import {useStore} from './store';
 import {skyPrompts} from './social-policy';
 import {weekRecap} from './recap';
 import {Surface} from './Surface';
+import {localDay,watchLocalDay} from './retention';
 
 const plural=(n:number,word:string)=>`${n} ${word}${n===1?'':'s'}`;
 // "Your week in the Ball": free, counts only, the seven days ending today.
 export function WeekRecap({onAsk}:{onAsk:(question:string)=>void}){
- const {state}=useStore(),recap=weekRecap(state.history,state.whispers,undefined,state.ageBand==='teen');
+ // The window follows the local day even while History stays open across midnight.
+ const {state}=useStore(),[today,setToday]=useState(localDay),recap=weekRecap(state.history,state.whispers,today,state.ageBand==='teen');
+ useEffect(()=>watchLocalDay(setToday,AppState),[]);
  // Only non-zero counts: the recap celebrates what happened and never lists misses.
  const counts=[recap.landed?`${plural(recap.landed,'whisper')} landed`:'',[recap.readings&&plural(recap.readings,'reading'),recap.golden&&plural(recap.golden,'golden find')].filter(Boolean).join(' · ')].filter(Boolean);
  return <View testID="week-recap" style={styles.panel}><Surface kind="card">

@@ -3,6 +3,7 @@ import {phraseSafety} from '../src/safety-policy.ts';
 import {sunSigns as signs} from '../src/social-policy.ts';
 import type {Facts,InsightKind} from '../src/types.ts';
 import type {ModelProvider} from './provider.ts';
+import {secondSentence} from '../src/daily-omen.ts';
 // The whisper is a one-day forecast checked next morning; it shares the omen's single request, repair and failure.
 export async function personalOmen(facts:Facts,model:ModelProvider):Promise<{text:string;whisper:string}>{
  const sunSign=signs.find(sign=>sign===facts.sun_sign?.toLowerCase())??null;
@@ -13,12 +14,12 @@ export async function personalOmen(facts:Facts,model:ModelProvider):Promise<{tex
   value=>{
    if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string'||!('whisper'in value)||typeof value.whisper!=='string')return false;
    const text=value.text.trim();
-   if(text.length<10||text.length>140||/[\r\n]/.test(text)||!/[.!?]$/.test(text))return {valid:false,feedback:'Rewrite much shorter: 8 to 14 words total, ending with punctuation. Do not truncate a word.'};
+   if(text.length<10||text.length>140||/[\r\n]/.test(text)||!/[.!?]$/.test(text)||secondSentence.test(text))return {valid:false,feedback:'Rewrite much shorter: one sentence of 8 to 14 words, ending with punctuation. Do not truncate a word.'};
    const words=text.toLowerCase().split(/\W+/);
    const named=signs.filter(sign=>words.includes(sign));
    if(named.some(sign=>sign!==sunSign)||(sunSign&&!named.includes(sunSign)))return {valid:false,feedback:sunSign?`Address ${sunSign} by name, without naming other Sun signs.`:'No Sun sign was supplied. Do not name any Sun sign.'};
    const whisper=value.whisper.trim(),whisperWords=whisper.toLowerCase().split(/\W+/).filter(Boolean);
-   if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||whisperWords.length<6||whisperWords.length>18||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper))return {valid:false,feedback:'The whisper must be 20 to 140 characters, begin "By tonight," and be one sentence of 6 to 16 words ending with punctuation.'};
+   if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||whisperWords.length<6||whisperWords.length>18||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper)||secondSentence.test(whisper))return {valid:false,feedback:'The whisper must be 20 to 140 characters, begin "By tonight," and be one sentence of 6 to 16 words ending with punctuation.'};
    if(signs.some(sign=>whisperWords.includes(sign))||voiceFlags(whisper).length)return {valid:false,feedback:'Keep the whisper gentle and uncertain, about the asker’s own day, naming no Sun sign.'};
    return true;
   }

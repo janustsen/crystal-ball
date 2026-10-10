@@ -3,9 +3,12 @@ import {currentOmen,localDay} from './retention';
 import {updateOmenWidget} from './omen-widget';
 
 // whisper: the day's one-day forecast, generated in the same request as the omen.
-export type Omen = {day:string;text:string|null;whisper?:string|null;tries?:number};
+// previous: the last day's whisper, carried across the rollover so its morning check survives a Home that never saw it finish.
+export type Omen = {day:string;text:string|null;whisper?:string|null;tries?:number;previous?:{day:string;whisper:string}|null};
 export type OmenReply = {text:string;whisper:string};
 export const omenKey='crystal-ball-personal-omen-v1';
+// A sentence end followed by more text: the omen and its whisper are each exactly one sentence.
+export const secondSentence=/[.!?…]["”’)]*\s+\S/;
 // Bound app requests after failure or interruption; each request can also use the provider’s one repair.
 export const omenTries=2;
 let pending:Promise<Omen>|undefined;
@@ -36,8 +39,9 @@ export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null
     // A claim without a recorded try count predates retries and counts as one try.
     const tries=Number.isInteger(value.tries)?value.tries:1;
     if(typeof value.text==='string'||tries>=omenTries)return {...value,tries} as Omen;
-    omen.tries=tries+1;
-   }}catch{/* Replace an unreadable cache before requesting a new omen. */}}
+    omen.tries=tries+1;if(value.previous)omen.previous=value.previous;
+   }else if(typeof value.day==='string'&&value.day<day&&typeof value.whisper==='string')omen.previous={day:value.day,whisper:value.whisper};
+   }catch{/* Replace an unreadable cache before requesting a new omen. */}}
    // Claim the try durably before inference: reloads and failures must not spend more than the bounded tries.
    await storage.setItem(omenKey,JSON.stringify(omen));
   });
