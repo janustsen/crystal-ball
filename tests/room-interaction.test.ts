@@ -106,6 +106,28 @@ test('room Home fallback stays aligned across resize and reduced motion',async()
  assert.ok(!nodes(sky('RoomScene',{spot:'Sky',width:390,height:844,reduce:true,spin})).some(n=>n.type==='OrbVisual'));
 });
 
+test('native room keeps the static orb on the stand until the live glass has started',async()=>{
+ let resolve!:(glass:unknown)=>void;
+ const render=component('../src/RoomScene.tsx',{
+  'react-native':{Animated:{Value:class {setValue(){}},timing:()=>({start(){}}),Image:'Animated.Image'},Image:'Image',View:'View'},
+  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+  './room':room,'./roomAssets':{roomStills:{Home:'home.jpg'},ballArt:{}},
+  './glassNative':{startNativeGlass:()=>new Promise(r=>{resolve=r})},
+ });
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const ball=room.ballOnScreen(room.stillFrame('Home'),390,844)!;
+ let tree=nodes(render('RoomScene',props));
+ const orb=tree.find(n=>n.type==='OrbVisual'),gl=tree.find(n=>n.type==='GLView');
+ assert.ok(orb,'the static orb rests on the stand while the glass starts');
+ assert.equal(orb.props.size,ball.r*2);
+ assert.equal(gl.props.style.opacity,0);
+ gl.props.onContextCreate({});
+ resolve({stop(){},style(){},resume(){}});await new Promise(r=>setImmediate(r));
+ tree=nodes(render('RoomScene',props));
+ assert.ok(!tree.some(n=>n.type==='OrbVisual'),'the live glass replaces the static orb');
+ assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,1);
+});
+
 test('the room ball supplies touch feedback before reading, and a drag spins it instead',()=>{
  const events:string[]=[],Platform={OS:'web'};
  const render=component('../src/Home.tsx',{

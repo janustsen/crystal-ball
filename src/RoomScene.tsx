@@ -16,7 +16,7 @@ const spots:Spot[]=['Home','Sky','Ask','History','You','Library'];
 
 // Native shows the room's stills (follow-up cb-native-room-video: expo-video flights cached with expo-file-system).
 // A tab change cuts to its spot, or fades for reduced motion; the live glass ball (src/glassBall.ts) rests on the
-// still's stand, and the static orb stands in only if GL fails.
+// still's stand, and the static orb stands in until it starts, or for good if GL fails.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
 export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
  const [previous,setPrevious]=useState<Spot|null>(null),shown=useRef(spot),fade=useRef(new Animated.Value(0)).current;
@@ -32,7 +32,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  },[spot]);
  // A resize gets a fresh GL view (and context); the old scene stops with it.
  const generation=useRef(0),pending=useRef<AbortController|null>(null);
- useEffect(()=>{const mine=++generation.current;return()=>{if(generation.current===mine)generation.current++;pending.current?.abort();scene.current?.stop();scene.current=null}},[width,height]);
+ useEffect(()=>{const mine=++generation.current;setStarted(0);return()=>{if(generation.current===mine)generation.current++;pending.current?.abort();scene.current?.stop();scene.current=null}},[width,height]);
  const start=(gl:Parameters<typeof startNativeGlass>[0])=>{
   const mine=generation.current;
   pending.current?.abort();
@@ -54,7 +54,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   <Image source={roomStills[spot]} resizeMode="cover" style={fill}/>
   {previous?<Animated.Image source={roomStills[previous]} resizeMode="cover" style={{...fill,opacity:fade}}/>:null}
   <GLView key={`${width}x${height}`} onContextCreate={start} style={{position:'absolute',left:(placed?.x??0)-S/2,top:(placed?.y??0)-S/2,width:S,height:S,opacity:placed&&!failed&&started?1:0,transform:[{scale:placed?placed.r/(S/4):1}]}}/>
-  {placed&&failed?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce ball={ball}/></View>:null}
+  {placed&&(failed||!started)?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce ball={ball}/></View>:null}
   <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>
   <LinearGradient colors={['rgba(20,14,10,0)','rgba(20,14,10,.6)','rgba(20,14,10,.94)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:320}}/>
  </View>;
