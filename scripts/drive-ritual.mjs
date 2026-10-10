@@ -1,7 +1,7 @@
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
-// The daily ritual on the web preview: Today strip, the omen and ask steps lighting a star, the notification offer
+// The daily ritual on the web preview: Today strip, omen, ask and question steps lighting a star, the notification offer
 // after the first forecast, You's sky and notification settings, and the private counts. Real local engine and model.
 const url=process.env.VERIFY_URL||'http://localhost:8087',out=process.env.EVIDENCE_DIR||'.local/ritual-evidence';
 await mkdir(out,{recursive:true});await mkdir('.local',{recursive:true});
