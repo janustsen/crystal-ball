@@ -8,6 +8,7 @@ import {homeMock} from './home-mock';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
+import * as whisper from '../src/whisper';
 import * as ritual from '../src/ritual';
 import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
@@ -554,7 +555,7 @@ for(const result of ['cached text',null,'error'] as const)test(`omen progress re
  const component=load('../src/DailyOmen.tsx',{
   react:h.react,'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
   './store':{useStore:()=>({state})},'./retention':retention,'./daily-omen':{loadDailyOmen:async()=>{if(result==='error')throw new Error('offline');return {day:retention.localDay(),text:result}}},
-  './ui':{},'./Home':{},
+  './whisper':whisper,'./ui':{},'./Home':{},
  },[]);
  const render=()=>h.render(()=>component.DailyOmen({onRead:()=>{reads++}}));
  render();assert.equal(reads,0);await tick();render();render();
@@ -563,11 +564,11 @@ for(const result of ['cached text',null,'error'] as const)test(`omen progress re
 
 for(const exit of ['close','another','plans','tab'])test(`leaving the notification offer through ${exit} does not repeat it`,async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
- const h=hooks();let jump!:(section:string)=>void;
+ const h=hooks();t.after(()=>h.unmount());let jump!:(section:string)=>void;const foreground:((state:string)=>void)[]=[];
  let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
  const reading={id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-07T12:00:00',dueDate:'2026-11-07',label:'Speculative',why:'',facts:{},sources:[],assumptions:[],friend:true};
  const app=load('../app/index.tsx',{
-  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:()=>({remove(){}})}},
+  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_type:string,listener:(state:string)=>void)=>{foreground.push(listener);return {remove(){}}}}},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)},savePrediction:async()=>{state={...state,history:[reading]}}})},
   '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
@@ -595,6 +596,7 @@ for(const exit of ['close','another','plans','tab'])test(`leaving the notificati
  tree=await ask();assert.ok(!tree.some(n=>n.type==='NotifyOffer'));assert.equal(state.ritual.counts.optInShown,1);
  tree.find(n=>n.props.testID==='close-flow').props.onPress();render();
  t.mock.timers.setTime(new Date(2026,9,9,12).getTime());
+ foreground.forEach(listener=>listener('active'));render();
  state={...state,ritual:{...state.ritual,opened:['2026-10-07','2026-10-08','2026-10-09']}};
  render();render();assert.equal(state.ritual.counts.optInShown,2);assert.equal(state.ritual.notify.reoffered,true);
 });
