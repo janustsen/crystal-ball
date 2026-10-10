@@ -6,10 +6,9 @@ Records implementation and verification of the captain's September 30 retention 
 
 - The date contract and reading-flow dependency are in [SETUP](../../SETUP.md#daily-omen-widget-and-check-ins). There is no editable `checkInOn` field or headline-duration parser. History and notification scheduling consume the same date helper. Cloud mirroring already stores the complete forecast JSON; no SQL migration is needed.
 - Omen input uses the existing `Facts` map, including `facts.sun_sign` when onboarding supplies it. A skipped Sun sign stays unknown; the generator cannot invent one. The producer of this key is an integration boundary with the launch lane, not another onboarding implementation here.
-- `action: "omen"` reuses handler input limits and the configured provider. Its 160-token cap is opt-in; existing local-provider calls retain 600 tokens and existing hosted calls remain uncapped by this change. One short generation request per day retains the shared provider's one-repair-then-fail-closed rule. Default local Qwen costs no service money; hosted provider pricing/ranking belongs to launch, not a claimed cost measurement here.
-- The private cache is separate from AccountState's reading balance. It durably claims the local day before inference, coalesces simultaneous calls in the app, and keeps failures cached. Forget everything erases its text while keeping the daily generation claim and invalidates in-flight results so old private omens cannot repopulate it. Like the existing reading allowance, this is device-local anonymous-profile state; it does not enforce a cross-device server quota.
+- Current omen generation, caching, retry and reset contracts are owned by [SETUP](../../SETUP.md#daily-omen-widget-and-check-ins); transport output limits are owned by [hosted-model setup](../launch/hosted-model.md#implemented-boundary).
 
-The safety facts are executable in `tests/retention.test.ts`: legacy Due date fallback, supplied Due date precedence, invalid date rejection, native reading-id/date forwarding, web no-schedule boundary, one generation per day, cached failure/reload behavior, concurrent calls, reset during generation, shared handler validation, rejected invented Sun signs and clipped output, and unchanged provider defaults. Native OS calls and HTTP provider payloads are boundary mocks in those tests, not device proof.
+`tests/retention.test.ts` exercises the date, cache, retry, reset and provider boundaries. Native OS calls and HTTP provider payloads are boundary mocks in those tests, not device proof. The observations below predate whispers and bounded omen retries; they do not establish coverage of those additions.
 
 ## Automatic check-ins
 
@@ -19,7 +18,7 @@ The scheduling behavior is described in [README](../../README.md). Tests in `tes
 
 `omen-initial-failure.txt` and `retention-model-probe.txt` preserve actual failures. The initial model output invented Pisces without a supplied Sun sign and clipped a sentence at the schema limit. A later probe still clipped after repair. The validator rejects both cases; a shorter 8–14-word instruction addresses the observed length failure. `retention-model-short-probe.txt` records the complete Spanish-specific sentence from the real local model after that prompt change.
 
-`retention-personal-model.json` records a real local call using Libra, Spanish and practice facts. `retention-skipped-sign-model.json` records a complete no-sign omen. These are output observations, not predictive-accuracy evidence. No made-up omen is substituted when inference fails; Home shows an unavailable state until the next day.
+`retention-personal-model.json` records a real local call using Libra, Spanish and practice facts. `retention-skipped-sign-model.json` records a complete no-sign omen. These are output observations, not predictive-accuracy evidence. For current failure and retry behavior, see [README](../../README.md).
 
 ## Verification
 

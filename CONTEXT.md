@@ -59,6 +59,12 @@ A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 
 **Daily omen**:
 A short, fully personal omen shown on Home once a day, separate from the daily free Reading.
 
+**Whisper**:
+A one-day forecast (“By tonight, …”) delivered with the Daily omen and checked the next morning with Yes, Not quite or Not yet. Never scored.
+
+**Weekly recap**:
+“Your week in the Ball”: free counts of the last seven days, never an accuracy score; the weekly sibling of the Plus Year in review.
+
 **Teen**:
 A user aged 13 to 17, known from the onboarding birthday, which is also the age gate (under 13 is blocked). Forecast output follows the [all-age safety policy](docs/research/safety-policy.md).
 

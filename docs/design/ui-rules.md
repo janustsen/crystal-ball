@@ -25,7 +25,7 @@ The web app stays centered at a maximum width of 390 px. Content scrolls on smal
 
 Home, Sky, raised Ask orb, History and You are the five destinations. Every destination sits over its [room backdrop](motion.md#room) with the shared header and tab bar; its content docks below the spot's focal object when space permits. On short screens, the content moves up to preserve a scroll viewport; notices reserve their own scrollable space, including Dismiss and Undo controls. Main navigation disappears during the reading, plans and sharing; a back/close control remains. Android Back closes the recording replay first, then sharing or plans; within a reading it cancels to typing, then returns Home on the next press. Native keyboard/safe-area behavior still needs a device drive.
 
-1. Home: the room's wide view with the desk ball as the reading's tap target, the reading balance (opens Plans), “What lies ahead?”, the Today’s omen card, the entertainment line and a due-check-in action when applicable; see [motion](motion.md#room).
+1. Home: the room's wide view with the desk ball as the reading's tap target, the reading balance (opens Plans), “What lies ahead?”, the Today’s omen card, the entertainment line and a due-check-in action when applicable; see [motion](motion.md#room). Whisper and weekly recap availability follows [user guidance](../../README.md).
 2. Approach: the room's Ask close-up of the ball and “Come closer…” before voice.
 3. Listening: actual voice integration, transcript, confirmation and Type instead. Denied/unavailable speech exposes typing.
 4. Typing: the Ask ball above a glass serif question field, Speak instead and the gold Ask the Ball action.
@@ -38,7 +38,7 @@ Home, Sky, raised Ask orb, History and You are the five destinations. Every dest
 13. Sensitive redirect: real engine classification, no new charge or history entry for the blocked attempt; retain the interruption caveat from [user guidance](../../README.md). Self-harm exposes support.
 14. Plans: subscription selection per [prototype pricing](../research/pricing.md#paywall-rules-and-test), packs and Restore. Purchase labels follow the [billing mode](../launch/billing.md).
 15. Sky: Tonight’s Sky has clearly labeled synthetic samples and approved anonymous Stars; Circles follows the [social visibility and interaction contract](../social/model.md#social-v2).
-16. History: date, question, real saved headline and outcome.
+16. History: date, question, real saved headline and outcome, plus recaps described in [user guidance](../../README.md).
 17. You: plan balance, editable/forgettable facts, Undo, large text, reduced motion, sound controls, and Forget everything. See [usage](../../README.md) for sound preferences, Plus styles and what Forget everything clears or preserves.
 
 ## Behavioral invariants

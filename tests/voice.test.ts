@@ -27,7 +27,7 @@ test('the actual forecast and omen prompts carry the shared voice instruction',a
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),system=body.messages[0].content;
   seen.push(system);
-  const response=system.includes('Classify')?{category:'allow'}:system.includes('daily omen')?{text:'A little starlight invites a fresh beginning.'}:{prediction:'You will finish a first draft.',basis:'context_1',assumption:'You keep writing for an hour each day.'};
+  const response=system.includes('Classify')?{category:'allow'}:system.includes('daily omen')?{text:'A little starlight invites a fresh beginning.',whisper:'By tonight, a small plan may change for the better.'}:{prediction:'You will finish a first draft.',basis:'context_1',assumption:'You keep writing for an hour each day.'};
   return new Response(JSON.stringify({message:{content:JSON.stringify(response)}}));
  };
  try{

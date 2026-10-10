@@ -2,8 +2,15 @@ import type {Facts} from './types';
 import {currentOmen,localDay} from './retention';
 import {updateOmenWidget} from './omen-widget';
 
-export type Omen = {day:string;text:string|null};
+// whisper: the day's one-day forecast, generated in the same request as the omen.
+// previous: the last day's whisper, carried across the rollover so its morning check survives a Home that never saw it finish.
+export type Omen = {day:string;text:string|null;whisper?:string|null;tries?:number;previous?:{day:string;whisper:string}|null};
+export type OmenReply = {text:string;whisper:string};
 export const omenKey='crystal-ball-personal-omen-v1';
+// A sentence end followed by more text: the omen and its whisper are each exactly one sentence.
+export const secondSentence=/[.!?…]["”’)]*\s+\S/;
+// Bound app requests after failure or interruption; each request can also use the provider’s one repair.
+export const omenTries=2;
 let pending:Promise<Omen>|undefined;
 let generation=0;
 let storageWork:Promise<unknown>=Promise.resolve();
@@ -17,24 +24,30 @@ export async function forgetOmen(storage:{getItem:(key:string)=>Promise<string|n
  invalidateOmen();
  await serialize(async()=>{
   const raw=await storage.getItem(omenKey);
-  if(raw){const cached=JSON.parse(raw);await storage.setItem(omenKey,JSON.stringify({day:cached.day,text:null}));}
+  if(raw){const cached=JSON.parse(raw);await storage.setItem(omenKey,JSON.stringify({day:cached.day,text:null,whisper:null,tries:omenTries}));}
  });
 }
-export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null>;setItem:(key:string,value:string)=>Promise<void>},facts:Facts,generate:(facts:Facts)=>Promise<string>,now:()=>Date=()=>new Date(),publish:(omen:Omen|null)=>void=updateOmenWidget):Promise<Omen>{
+export function loadDailyOmen(storage:{getItem:(key:string)=>Promise<string|null>;setItem:(key:string,value:string)=>Promise<void>},facts:Facts,generate:(facts:Facts)=>Promise<OmenReply>,now:()=>Date=()=>new Date(),publish:(omen:Omen|null)=>void=updateOmenWidget):Promise<Omen>{
  if(pending)return pending;
  const day=localDay(now()),version=generation;
  const work=(async()=>{
-  const omen:Omen={day,text:null};
+  const omen:Omen={day,text:null,whisper:null,tries:1};
   const cached=await serialize(async()=>{
    const raw=await storage.getItem(omenKey);
    if(version!==generation)return omen;
-   if(raw){try{const value=JSON.parse(raw);if(value.day===day&&(value.text===null||typeof value.text==='string'))return value as Omen;}catch{/* Replace an unreadable cache before requesting a new omen. */}}
-   // Claim the day durably before inference: reloads and failures must not spend a second request.
+   if(raw){try{const value=JSON.parse(raw);if(value.day===day&&(value.text===null||typeof value.text==='string')){
+    // A claim without a recorded try count predates retries and counts as one try.
+    const tries=Number.isInteger(value.tries)?value.tries:1;
+    if(typeof value.text==='string'||tries>=omenTries)return {...value,tries} as Omen;
+    omen.tries=tries+1;if(value.previous)omen.previous=value.previous;
+   }else if(typeof value.day==='string'&&value.day<day&&typeof value.whisper==='string')omen.previous={day:value.day,whisper:value.whisper};
+   }catch{/* Replace an unreadable cache before requesting a new omen. */}}
+   // Claim the try durably before inference: reloads and failures must not spend more than the bounded tries.
    await storage.setItem(omenKey,JSON.stringify(omen));
   });
   if(version!==generation)return omen;
   if(cached)return cached;
-  try{omen.text=await generate(facts)}catch{return omen;}
+  try{const reply=await generate(facts);omen.text=reply.text;omen.whisper=reply.whisper;}catch{return omen;}
   await serialize(async()=>{
    if(version===generation)await storage.setItem(omenKey,JSON.stringify(omen));
   });

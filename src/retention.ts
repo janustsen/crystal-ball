@@ -26,3 +26,11 @@ export function checkInLabel(p:Prediction,today=localDay()):string {
 export function currentOmen(omen:Omen|null,today=localDay()):Omen|null {
  return omen?.day===today?omen:null;
 }
+
+// Calls onDay with the new local day when it changes, checked every minute and on return to the foreground.
+export function watchLocalDay(onDay:(day:string)=>void,appState:{addEventListener:(type:'change',listener:(state:string)=>void)=>{remove:()=>void}}):()=>void {
+ let day=localDay();
+ const check=()=>{const next=localDay();if(next!==day){day=next;onDay(next)}};
+ const timer=setInterval(check,60000),listener=appState.addEventListener('change',state=>{if(state==='active')check()});
+ return ()=>{clearInterval(timer);listener.remove()};
+}

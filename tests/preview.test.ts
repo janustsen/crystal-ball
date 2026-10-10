@@ -7,13 +7,14 @@ const bridge=createRequire(import.meta.url)('../server/preview.cjs');
 test('authenticated clients reach the configured engine port through every preview route',async()=>{
  const secret=randomBytes(32).toString('hex');
  let forwarded=0;
+ let omenValue:Record<string,unknown>={text:'Your personal omen'};
  const upstream=createServer(async(req,res)=>{
   forwarded++;
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   const body=Buffer.concat(chunks).toString();
   if(body&&JSON.parse(body).question==='Today’s personal omen')assert.equal(JSON.parse(body).aiConsent,'Candidate AI');
   res.writeHead(200,{'content-type':'application/json'});
-  res.end(JSON.stringify({kind:'ok',value:{text:'Your personal omen'},path:req.url,body:body?JSON.parse(body):null}));
+  res.end(JSON.stringify({kind:'ok',value:omenValue,path:req.url,body:body?JSON.parse(body):null}));
  });
  const server=createServer(bridge((_req:any,res:any)=>res.end('public client bundle'),secret));
  const keys=['CRYSTAL_BALL_ENGINE_PORT','EXPO_PUBLIC_ENGINE_URL','EXPO_PUBLIC_PREVIEW_SECRET'] as const;
@@ -31,7 +32,25 @@ test('authenticated clients reach the configured engine port through every previ
    const headers=new Headers(init?.headers);headers.set('origin',base);
    return originalFetch(input,{...init,headers});
   };
-  assert.equal(await requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI'),'Your personal omen');
+  const {invalidateOmen,loadDailyOmen,omenKey}=await import('../src/daily-omen');
+  const whisper='By tonight, a small plan may change for the better.';
+  for(const invalid of [undefined,null,42,'','By tonight, short.',`By tonight, ${'a'.repeat(140)}.`,'A small plan may change for the better.'])for(const recover of [true,false]){
+   invalidateOmen();omenValue={text:'Your personal omen',whisper:invalid};
+   const values=new Map<string,string>(),before=forwarded;
+   const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value);}};
+   const generate=()=>requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI');
+   const first=await loadDailyOmen(storage,{},generate,undefined,()=>{});
+   assert.equal(first.text,null);assert.equal(first.tries,1);
+   assert.equal(JSON.parse(values.get(omenKey)!).text,null,'invalid whispers cannot cache a successful omen');
+   if(recover)omenValue={text:'Your personal omen',whisper};
+   const second=await loadDailyOmen(storage,{},generate,undefined,()=>{});
+   assert.equal(second.tries,2);assert.equal(second.text,recover?'Your personal omen':null);
+   assert.equal(second.whisper,recover?whisper:null);
+   await loadDailyOmen(storage,{},generate,undefined,()=>{});
+   assert.equal(forwarded,before+2,'a valid reply is cached and repeated failures stop at two requests');
+  }
+  invalidateOmen();omenValue={text:'Your personal omen',whisper};
+  assert.deepEqual(await requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI'),omenValue);
   for(const action of ['plan','predict'] as const){
    assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
   }

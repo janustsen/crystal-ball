@@ -76,7 +76,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     if(answers.length<3)throw new Error('Answer a few more questions first.');
     return new Response(JSON.stringify({kind:'ok',value:await selfInsight(answers,kind as typeof insightKinds[number],teen,insightModel)}),{headers});
    }
-   const result=body.action==='omen'?{kind:'ok',value:{text:await personalOmen(facts,omenModel)}}:await makePlan(question,facts,model,context);
+   const result=body.action==='omen'?{kind:'ok',value:await personalOmen(facts,omenModel)}:await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});
   } catch(error){return new Response(JSON.stringify({kind:'error',message:error instanceof Error?error.message:'Please try again.'}),{status:error instanceof BillingError?error.status:400,headers});}
  };

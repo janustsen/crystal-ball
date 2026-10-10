@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {forgetOmen,invalidateOmen,loadDailyOmen,omenKey,type Omen} from '../src/daily-omen.ts';
+import {forgetOmen,invalidateOmen,loadDailyOmen,omenKey,type Omen,type OmenReply} from '../src/daily-omen.ts';
 import {currentOmen,localDay} from '../src/retention.ts';
 
 test('omen completion publishes after its Home consumer detaches, unless reset invalidates it',async()=>{
@@ -8,7 +8,7 @@ test('omen completion publishes after its Home consumer detaches, unless reset i
   invalidateOmen();
   const values=new Map<string,string>(),published:(Omen|null)[]=[];
   const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value);}};
-  let finish!:(text:string)=>void,started!:()=>void;
+  let finish!:(reply:OmenReply)=>void,started!:()=>void;
   const generating=new Promise<void>(resolve=>{started=resolve;});
   let mounted=true,screen:Omen|null=null;
   const load=loadDailyOmen(storage,{},()=>{started();return new Promise(resolve=>{finish=resolve;});},()=>new Date(),omen=>{published.push(omen);});
@@ -16,10 +16,10 @@ test('omen completion publishes after its Home consumer detaches, unless reset i
   await generating;
   mounted=false;
   if(reset)await forgetOmen(storage);
-  finish('Your private constellation shines today.');
+  finish({text:'Your private constellation shines today.',whisper:'By tonight, a small plan may change for the better.'});
   await consumer;
   assert.equal(screen,null);
-  assert.deepEqual(published,reset?[]:[{day:localDay(),text:'Your private constellation shines today.'}]);
+  assert.deepEqual(published,reset?[]:[{day:localDay(),text:'Your private constellation shines today.',whisper:'By tonight, a small plan may change for the better.',tries:1}]);
   assert.equal(JSON.parse(values.get(omenKey)!).text,reset?null:'Your private constellation shines today.');
  }
 });
@@ -46,7 +46,7 @@ test('cached and failed omens publish, but a cache read crossing reset does not'
  assert.equal(published[1]!.text,null);
  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
  await loadDailyOmen(storage,{},async()=>{throw new Error('offline');},()=>tomorrow,publish);
- assert.deepEqual(published[2],{day:localDay(tomorrow),text:null});
+ assert.deepEqual(published[2],{day:localDay(tomorrow),text:null,whisper:null,tries:1});
 });
 
 test('midnight completion hides expired text without spending the new day quota',async()=>{
@@ -65,7 +65,7 @@ test('midnight completion hides expired text without spending the new day quota'
     getItem:async(key:string)=>{const raw=values.get(key)??null;if(pause&&phase==='cache'){started();await gate;}return raw;},
     setItem:async(key:string,value:string)=>{values.set(key,value);},
    };
-   const generate=async()=>{calls++;if(pause&&phase==='generation'){started();await gate;}return 'Yesterday’s private omen.';};
+   const generate=async()=>{calls++;if(pause&&phase==='generation'){started();await gate;}return {text:'Yesterday’s private omen.',whisper:'By tonight, a small plan may change for the better.'};};
    const publish=(omen:Omen|null)=>{published.push(omen);};
    const loading=loadDailyOmen(storage,{},generate,()=>now,publish);
    await waiting;
@@ -80,8 +80,8 @@ test('midnight completion hides expired text without spending the new day quota'
    assert.deepEqual(published,reset?[]:[null]);
    assert.equal(JSON.parse(values.get(omenKey)!).day,oldDay);
    assert.equal(calls,phase==='generation'?1:0);
-   const today=await loadDailyOmen(storage,{},async()=>{calls++;return 'Today’s omen.';},()=>now,publish);
-   assert.deepEqual(today,{day:localDay(now),text:'Today’s omen.'});
+   const today=await loadDailyOmen(storage,{},async()=>{calls++;return {text:'Today’s omen.',whisper:'By tonight, a small plan may change for the better.'};},()=>now,publish);
+   assert.deepEqual(today,{day:localDay(now),text:'Today’s omen.',whisper:'By tonight, a small plan may change for the better.',tries:1,...(phase==='generation'&&!reset?{previous:{day:oldDay,whisper:'By tonight, a small plan may change for the better.'}}:{})},'only a whisper that finished and was not forgotten carries over');
    await loadDailyOmen(storage,{},generate,()=>now,publish);
    assert.equal(calls,phase==='generation'?2:1);
   }
@@ -94,13 +94,13 @@ test('Home drops an expired displayed omen while the next day load is pending',a
  const values=new Map<string,string>(),published:(Omen|null)[]=[];
  const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value);}};
  const publish=(omen:Omen|null)=>{published.push(omen);};
- let displayed:Omen|null=await loadDailyOmen(storage,{},async()=>{calls++;return 'Yesterday’s personal text.';},()=>now,publish);
+ let displayed:Omen|null=await loadDailyOmen(storage,{},async()=>{calls++;return {text:'Yesterday’s personal text.',whisper:'By tonight, a small plan may change for the better.'};},()=>now,publish);
  const old=displayed;
  assert.equal(currentOmen(displayed,localDay(now)),displayed);
  now=new Date(2026,9,1,8);
  assert.equal(currentOmen(displayed,localDay(now)),null);
  displayed=currentOmen(displayed,localDay(now));
- let release!:(text:string)=>void,started!:()=>void;
+ let release!:(reply:OmenReply)=>void,started!:()=>void;
  const waiting=new Promise<void>(resolve=>{started=resolve;});
  const loading=loadDailyOmen(storage,{},()=>{calls++;started();return new Promise(resolve=>{release=resolve;});},()=>now,publish);
  await waiting;
@@ -108,11 +108,11 @@ test('Home drops an expired displayed omen while the next day load is pending',a
  assert.equal(currentOmen(old,localDay(now)),null);
  assert.equal(currentOmen({day:'2026-10-02',text:'Future text'},localDay(now)),null);
  assert.equal(currentOmen(null,localDay(now)),null);
- release('Today’s personal text.');
+ release({text:'Today’s personal text.',whisper:'By tonight, a small plan may change for the better.'});
  displayed=currentOmen(await loading,localDay(now));
- assert.deepEqual(displayed,{day:localDay(now),text:'Today’s personal text.'});
+ assert.deepEqual(displayed,{day:localDay(now),text:'Today’s personal text.',whisper:'By tonight, a small plan may change for the better.',tries:1,previous:{day:old!.day,whisper:'By tonight, a small plan may change for the better.'}});
  assert.deepEqual(published.at(-1),displayed);
- await loadDailyOmen(storage,{},async()=>{calls++;return 'Duplicate';},()=>now,publish);
+ await loadDailyOmen(storage,{},async()=>{calls++;return {text:'Duplicate',whisper:'By tonight, a small plan may change for the better.'};},()=>now,publish);
  assert.equal(calls,2);
  const quiet={day:localDay(now),text:null};
  assert.equal(currentOmen(quiet,localDay(now)),quiet);
