@@ -1,5 +1,5 @@
 import React,{useContext,useEffect,useRef,useState} from 'react';
-import {Animated,Pressable,StyleSheet,Text,TextInput,View,ScrollView,Platform,Easing,type TextStyle,type TextInputProps,type ViewStyle} from 'react-native';
+import {AccessibilityInfo,Animated,Pressable,StyleSheet,Text,TextInput,View,ScrollView,Platform,Easing,type TextStyle,type TextInputProps,type ViewStyle} from 'react-native';
 import {OrbVisual} from './OrbVisual';
 import {Enter} from './Enter';
 import {motion,type MotionKind} from './motion';
@@ -52,8 +52,12 @@ const outer=['margin','marginTop','marginBottom','marginLeft','marginRight','mar
 export function Field({style,...props}:TextInputProps){const [focused,setFocused]=useState(false),flat=StyleSheet.flatten(style)||{},frame:ViewStyle={},field:Record<string,unknown>={...flat};for(const key of outer)if(key in field){(frame as Record<string,unknown>)[key]=field[key];delete field[key]}return <View style={frame}><Surface kind="input" state={focused?'focused':undefined}><TextInput placeholderTextColor={colors.inactive} {...props} onFocus={e=>{setFocused(true);props.onFocus?.(e)}} onBlur={e=>{setFocused(false);props.onBlur?.(e)}} style={[{position:'relative'},field]}/></Surface></View>}
 // A pill switch: a glass track that fills gold when on, with a cream knob.
 export function Toggle({value,onValueChange,disabled=false,testID,accessibilityLabel}:{value:boolean;onValueChange:(value:boolean)=>void;disabled?:boolean;testID?:string;accessibilityLabel:string}){
- const {state}=useStore(),knob=useRef(new Animated.Value(value?20:0)).current;
- useEffect(()=>{const slide=Animated.timing(knob,{toValue:value?20:0,duration:state.reduceMotion?0:200,easing:Easing.bezier(...motion.ease),useNativeDriver:Platform.OS!=='web'});slide.start();return()=>slide.stop()},[value,knob,state.reduceMotion]);
+ const {state}=useStore(),knob=useRef(new Animated.Value(value?20:0)).current,[systemReduce,setSystemReduce]=useState(false),reduce=state.reduceMotion||systemReduce;
+ useEffect(()=>{
+  if(Platform.OS==='web'){const media=window.matchMedia('(prefers-reduced-motion: reduce)'),change=()=>setSystemReduce(media.matches);change();media.addEventListener('change',change);return()=>media.removeEventListener('change',change)}
+  AccessibilityInfo.isReduceMotionEnabled().then(setSystemReduce);const listener=AccessibilityInfo.addEventListener('reduceMotionChanged',setSystemReduce);return()=>listener.remove();
+ },[]);
+ useEffect(()=>{const slide=Animated.timing(knob,{toValue:value?20:0,duration:reduce?0:200,easing:Easing.bezier(...motion.ease),useNativeDriver:Platform.OS!=='web'});slide.start();return()=>slide.stop()},[value,knob,reduce]);
  return <Pressable testID={testID} accessibilityRole="switch" accessibilityLabel={accessibilityLabel} aria-checked={value} accessibilityState={{checked:value,disabled}} disabled={disabled} onPress={()=>onValueChange(!value)} style={{minWidth:52,minHeight:44,justifyContent:'center',opacity:disabled?.5:1}}>
   <View style={{width:52,height:32}}><Surface kind="chip" state={value?'selected':undefined}/><Animated.View style={{position:'absolute',top:3,left:3,width:26,height:26,borderRadius:13,backgroundColor:value?colors.onGold:colors.ivory,transform:[{translateX:knob}]}}/></View>
  </Pressable>;
