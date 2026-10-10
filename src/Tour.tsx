@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Pressable,View} from 'react-native';
+import {Pressable,ScrollView,View} from 'react-native';
 import Svg,{Circle,Defs,Mask,Rect} from 'react-native-svg';
 import {Enter} from './Enter';
 import {Surface} from './Surface';
@@ -26,13 +26,13 @@ export function Tour({width,height,top,bottom,reduce,onDone}:{width:number;heigh
    <Circle cx={x} cy={y} r={r} fill="none" stroke={colors.gold} strokeWidth={1.5} strokeOpacity={.8}/>
   </Svg>
   <View testID="tour" style={{position:'absolute',left:20,right:20,top:headerBottom(top)+12}}>
-   <Enter key={index} kind="toast" reduce={reduce}><View style={{padding:20}}><Surface kind="card">
+   <Enter key={index} kind="toast" reduce={reduce}><View style={{maxHeight:height-headerBottom(top)-12-bottom-barInset-homeTabBarHeight-24,overflow:'hidden',borderRadius:22}}><Surface kind="card"><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{padding:20}}>
     <Txt style={styles.label}>{index+1} of {steps.length}</Txt>
     <Txt display accessibilityLiveRegion="polite" style={{fontSize:26,lineHeight:30,marginTop:6}}>{step.title}</Txt>
     <Txt style={{marginTop:6}}>{step.text}</Txt>
     <Action testID="tour-next" label={last?'Got it':'Next'} onPress={()=>last?onDone():setIndex(index+1)}/>
     {last?null:<Pressable testID="tour-skip" accessibilityRole="button" onPress={onDone} style={{minHeight:44,justifyContent:'center'}}><Txt style={[styles.caption,{textAlign:'center'}]}>Skip tour</Txt></Pressable>}
-   </Surface></View></Enter>
+   </ScrollView></Surface></View></Enter>
   </View>
  </View>;
 }
