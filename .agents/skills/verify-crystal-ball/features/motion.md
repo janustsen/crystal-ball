@@ -9,6 +9,8 @@ Home orb or Ask tab starts the reading. Follow a real reading through the return
 ## Driving it
 Run `node scripts/drive-motion.mjs` serially after functional drives. It creates its own Chrome session, records a DevTools trace and actual WebGL draw cadence at 390×844, then closes only that browser. `node scripts/check-motion-accessibility.mjs` proves OS/app reduced motion, resume, large text and skipped approach delay.
 
+Run `PREVIEW_URL=<owned preview> node scripts/check-toggle-motion.mjs` against a fresh onboarding state to check the Ambient sound switch with app and OS motion preferences, including live OS changes. This is browser coverage; native preference handling still needs a device drive.
+
 `PREVIEW_URL=<owned preview> node scripts/check-room-webgl.mjs` checks the room ball with a Plus style across GL support: WebGL1 (WebGL2 disabled) must compile the glass shader and draw the live ball; without WebGL the static orb must wear the chosen style. A shader that fails to compile throws at scene start, so the room falls back to that static orb.
 
 ## Gotchas
