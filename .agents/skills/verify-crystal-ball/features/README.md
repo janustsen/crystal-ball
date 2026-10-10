@@ -1,5 +1,6 @@
 # Verification feature map
 
+- [First run](first-run.md): intro, birthday sheet, age gate, tour, Sky explanations, tab and chip fades.
 - [Ask and reveal](ask.md): typed/suggested/voice entry, cards, safety, research, retry.
 - [Personal memory](memory.md): knowledge editing, history persistence, check-back.
 - [The Ball asks](ball-asks.md): self-question deck, insights, bonus readings, Shaped by.
