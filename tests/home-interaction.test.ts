@@ -9,7 +9,7 @@ function component(file:string,imports:Record<string,any>){
  let cursor=0;
  const react={
   createElement:(type:any,props:any,...children:any[])=>{
-   if(props?.ref)props.ref.current={closest:()=>null};
+   if(props?.ref)props.ref.current??={closest:()=>null};
    return {type,props:props??{},children};
   },
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]},
@@ -71,4 +71,23 @@ test('the readings-left count pops only when a loaded balance changes',()=>{
  assert.equal(pop('1 reading left',true),false);
  assert.equal(pop('0 readings left',true),true);
  assert.equal(pop('0 readings left',true,true),false);
+});
+
+test('Today omen step scrolls to the omen, not Sunday’s recap above it',()=>{
+ const scrolls:number[]=[];
+ const imports={
+  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',RowLink:'RowLink',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},
+  './native':{haptic:()=>{}},
+ };
+ const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap:{type:'WeekRecap',props:{},children:[]},omen:{type:'DailyOmen',props:{},children:[]},top:24,bottom:0,reduce:true};
+ const render=component('../src/Home.tsx',imports);
+ const tree=nodes(render('Home',{...props,omenFocus:0}));
+ const measured=tree.find(n=>n.props.onLayout);
+ assert.ok(tree.some(n=>n.type==='WeekRecap'));
+ assert.deepEqual(nodes(measured).filter(n=>n.type==='WeekRecap'||n.type==='DailyOmen').map(n=>n.type),['DailyOmen']);
+ measured.props.onLayout({nativeEvent:{layout:{y:400}}});
+ tree.find(n=>n.type==='ScrollView').props.ref.current={scrollTo:({y}:{y:number})=>scrolls.push(y)};
+ render('Home',{...props,omenFocus:1});
+ assert.deepEqual(scrolls,[412]);
 });

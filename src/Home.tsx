@@ -16,8 +16,8 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 // Web lets a drag on the ball spin it instead of scrolling the page.
 const noScroll={touchAction:'none'} as object;
 
-// Home's screen content, docked below the room's ball (top): what to do, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,checkIns,omen,today,omenFocus=0,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;bottom:number;reduce:boolean}){
+// Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
+export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;bottom:number;reduce:boolean}){
  // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
  const scroll=useRef<ScrollView>(null),omenY=useRef(0),pad=Math.min(24,top);
  useEffect(()=>{if(omenFocus)scroll.current?.scrollTo({y:Math.max(0,omenY.current+pad-12),animated:!reduce})},[omenFocus]);
@@ -30,6 +30,8 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,omen,today,omenFocu
    </View>
    {checkIns}
    {today}
+   {recap}
+   {/* Only the omen is measured, so Today's omen step lands on it rather than Sunday's recap above. */}
    <View style={{gap:14}} onLayout={e=>{omenY.current=e.nativeEvent.layout.y}}>{omen}</View>
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
    <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
