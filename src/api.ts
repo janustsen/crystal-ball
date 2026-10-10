@@ -2,6 +2,7 @@ import {localDay} from './retention';
 import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,BallStyle,CardStyle,Insight,InsightKind} from './types';
 import {selfAnswers,teenSafe,withoutSelf} from './ball-asks';
 import type {Balance} from './billing';
+import type {OmenReply} from './daily-omen';
 import {validBalance} from './billing';
 import {solveProof,type WebReading} from './web-reading';
 export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
@@ -18,13 +19,14 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
  return result;
 }
 
-export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent=''):Promise<string>{
+export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent=''):Promise<OmenReply>{
  facts=withoutSelf(facts);delete facts.sun_sign;
  if(sunSign)facts.sun_sign=sunSign;
  const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
- return result.value.text;
+ const whisper=result.value.whisper;
+ return {text:result.value.text,whisper:typeof whisper==='string'&&whisper.length<=140?whisper:null};
 }
 
 // The Ball asks: a free insight from the most recent answers (the engine accepts at most 30 facts).

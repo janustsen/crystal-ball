@@ -300,7 +300,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   '../src/profile':profile,'../src/retention':retention,'../src/billing':{plans,packs,plusUnlocks:billing.plusUnlocks},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
-  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{},scheduleWeekRecap:async()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:()=>new Promise(resolve=>pending.push(resolve)),buy:()=>new Promise(resolve=>{finishPurchase=()=>resolve('purchased')}),restore:()=>new Promise(resolve=>{finishRestore=()=>resolve({})})},
   '../src/api':{webReadingVisitor:()=>false,syncStoreBalance:async()=>({})},
  },[]);

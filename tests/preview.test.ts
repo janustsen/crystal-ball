@@ -31,7 +31,7 @@ test('authenticated clients reach the configured engine port through every previ
    const headers=new Headers(init?.headers);headers.set('origin',base);
    return originalFetch(input,{...init,headers});
   };
-  assert.equal(await requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI'),'Your personal omen');
+  assert.deepEqual(await requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI'),{text:'Your personal omen',whisper:null},'an engine without whispers still serves the omen');
   for(const action of ['plan','predict'] as const){
    assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
   }
