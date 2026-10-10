@@ -4,7 +4,7 @@ import {GLView} from 'expo-gl';
 import {askOrbAim,askOrbDecor} from './askOrbScene';
 import {startNativeGlass} from './glassNative';
 
-// The tab bar's live glass Ask orb (src/askOrb.ts) at size points; its aura spills past the slot. The fallback stands
+// The tab bar's live glass Ask orb (src/askOrbScene.ts) at size points; its aura spills past the slot. The fallback stands
 // in until the glass draws, and for good if GL fails.
 export function AskOrb({size,reduce,fallback}:{size:number;reduce:boolean;fallback:React.ReactNode}){
  const motion=useRef({reduce}).current,[live,setLive]=useState(false);

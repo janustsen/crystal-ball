@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {askOrbAim,askOrbDecor} from './askOrbScene';
 import {startWebGlass} from './glassWeb';
 
-// The tab bar's live glass Ask orb (src/askOrb.ts) at size points; its aura spills past the slot. The fallback stands
+// The tab bar's live glass Ask orb (src/askOrbScene.ts) at size points; its aura spills past the slot. The fallback stands
 // in until the glass draws, and for good if WebGL fails.
 export function AskOrb({size,reduce,fallback}:{size:number;reduce:boolean;fallback:React.ReactNode}){
  const ref=useRef<HTMLCanvasElement>(null),motion=useRef({reduce}).current,[live,setLive]=useState(false);
