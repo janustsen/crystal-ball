@@ -52,7 +52,6 @@ test('morning copy never repeats within two weeks and never carries private text
  const mornings=plan.filter(p=>p.data.ritual==='morning').map(p=>p.body);
  assert.equal(new Set(mornings).size,mornings.length);
  assert.ok(plan.every(p=>!/crush|secret|hear from/i.test(p.body)));
- // The check-in already fires on its due day and three days later: those days keep the morning and drop the evening.
  assert.ok(!plan.some(p=>at(p)==='2026-10-09'&&p.data.ritual==='evening'));
  assert.ok(plan.some(p=>at(p)==='2026-10-09'&&p.data.ritual==='morning'));
 });
@@ -83,4 +82,21 @@ for(const time of ['08:30','12:30','18:00'])test(`replanning retains today's ${t
  assert.equal(morning(before)?.at.getTime(),scheduled.getTime());
  assert.equal(morning(scheduled),undefined);
  assert.equal(morning(new Date(2026,9,7,hour,minute+1)),undefined);
+});
+
+
+test('check-ins group each day, use the shared evening slot, and keep distant due dates',()=>{
+ const reading:Prediction={id:'one',createdAt:'2026-10-01T12:00:00',dueDate:'2026-10-08',question:'Private',headline:'Private',label:'',why:'',facts:{},sources:[],assumptions:[],friend:false};
+ const history=[reading,{...reading,id:'two',friend:true},{...reading,id:'later',dueDate:'2027-09-01'},{...reading,id:'circle',circleId:'circle',dueDate:'2026-10-09'}];
+ const unregister=registerNotifications(()=>[{day:'2026-10-08',slot:'evening',priority:1,title:'Recap',body:'Your week',data:{recap:'1'},time:'19:30'}]);
+ try{
+  const plan=planNotifications(state(enabled(),history),now);
+  const counts=new Map<string,number>();for(const p of plan)counts.set(at(p),(counts.get(at(p))??0)+1);
+  assert.ok([...counts.values()].every(n=>n<=2));
+  assert.deepEqual(plan.filter(p=>p.data.checkIns).map(at),['2026-10-08','2026-10-11','2027-09-01','2027-09-04']);
+  assert.ok(plan.filter(p=>p.data.checkIns).every(p=>p.at.getHours()===19&&p.at.getMinutes()===30));
+  assert.ok(!plan.some(p=>p.data.recap));
+  const after=planNotifications(state(enabled(),history.map(p=>({...p,outcome:'yes' as const}))),new Date(2026,9,8,19,31));
+  assert.ok(!after.some(p=>at(p)==='2026-10-08'));
+ }finally{unregister()}
 });

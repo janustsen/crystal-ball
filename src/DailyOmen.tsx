@@ -43,7 +43,7 @@ export function DailyOmen({aiConsent='',onRead}:{aiConsent?:string;onRead?:()=>v
   const unsaved=[current&&whisper?{day:current.day,whisper}:null,previous].filter((w):w is {day:string;whisper:string}=>!!w&&!state.whispers?.some(saved=>saved.day===w.day));
   if(!backupBusy&&unsaved.length)update(s=>({...s,whispers:unsaved.reduce((list,w)=>keepWhisper(list,w.day,w.whisper),s.whispers)}));
  },[current?.day,whisper,previous?.day,previous?.whisper,state.whispers,backupBusy]);
- useEffect(()=>{if(current)onRead?.()},[current?.day,current?.text]);
+ useEffect(()=>{if(current?.text!=null)onRead?.()},[current?.day,current?.text]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}

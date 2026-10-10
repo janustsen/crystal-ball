@@ -533,3 +533,53 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(subscriptions,1);
  f.fail();await tick();
 });
+
+for(const result of ['cached text',null,'error'] as const)test(`omen progress requires actual text: ${result}`,async()=>{
+ const h=hooks(),state={facts:{},sunSign:null,ageConfirmed:true};let reads=0;
+ const component=load('../src/DailyOmen.tsx',{
+  react:h.react,'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
+  './store':{useStore:()=>({state})},'./retention':retention,'./daily-omen':{loadDailyOmen:async()=>{if(result==='error')throw new Error('offline');return {day:retention.localDay(),text:result}}},
+  './ui':{},'./Home':{},
+ },[]);
+ const render=()=>h.render(()=>component.DailyOmen({onRead:()=>{reads++}}));
+ render();assert.equal(reads,0);await tick();render();render();
+ assert.equal(reads,result==='cached text'?1:0);
+});
+
+for(const exit of ['close','another','plans','tab'])test(`leaving the notification offer through ${exit} does not repeat it`,async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
+ const h=hooks();let jump!:(section:string)=>void;
+ let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
+ const reading={id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-07T12:00:00',dueDate:'2026-11-07',label:'Speculative',why:'',facts:{},sources:[],assumptions:[],friend:true};
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:()=>({remove(){}})}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)},savePrediction:async()=>{state={...state,history:[reading]}}})},
+  '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/social':{syncSocialProfile:async()=>{},friendForecast:async()=>reading,checkInCircles:async()=>{}},
+  '../src/native':{watchCheckIns:()=>()=>{},haptic(){}},'../src/SocialPush':{watchSocialPushes:(fn:any)=>{jump=fn;return ()=>{}}},
+  '../src/SocialScreen':{Social:'Social'},'../src/DailyRitual':{NotifyOffer:'NotifyOffer'},
+  '../src/delight':{narration:()=>null},
+  '../src/purchases':{purchaseMode:'mock'},'../src/api':{webReadingVisitor:()=>false},
+ },[]);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const ask=async()=>{
+  jump('circles');render().find(n=>n.type==='Social').props.onAsk('Will I learn?',true,{id:'friend'});
+  await render().find(n=>n.props.testID==='look-into-the-future').props.onPress();
+  await tick();return render();
+ };
+ render();let tree=await ask();assert.ok(tree.some(n=>n.type==='NotifyOffer'));
+ if(exit==='tab')jump('circles');
+ else tree.find(n=>n.props.testID===({close:'close-flow',another:'ask-another-question',plans:'view-plans'}[exit as 'close'|'another'|'plans])).props.onPress();
+ render();
+ if(exit==='plans'){render().find(n=>n.props.testID==='close-flow').props.onPress();render()}
+ tree=await ask();assert.ok(!tree.some(n=>n.type==='NotifyOffer'));assert.equal(state.ritual.counts.optInShown,1);
+ tree.find(n=>n.props.testID==='close-flow').props.onPress();render();
+ t.mock.timers.setTime(new Date(2026,9,9,12).getTime());
+ state={...state,ritual:{...state.ritual,opened:['2026-10-07','2026-10-08','2026-10-09']}};
+ render();render();assert.equal(state.ritual.counts.optInShown,2);assert.equal(state.ritual.notify.reoffered,true);
+});

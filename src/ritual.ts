@@ -81,7 +81,7 @@ export type Candidate={day:string;slot:Slot;priority:number;title:string;body:st
 export type Planned={id:string;at:Date;title:string;body:string;data:Record<string,string>};
 export type PlanContext={state:Pick<AccountState,'ritual'|'sunSign'|'history'>;now:Date;horizon:number};
 export type NotificationSource=(context:PlanContext)=>Candidate[];
-const notificationSources:NotificationSource[]=[dailyCandidates];
+const notificationSources:NotificationSource[]=[dailyCandidates,checkInCandidates];
 // Other features (a whisper, a weekly recap) register a source of candidates. The planner applies the two-a-day cap,
 // quiet hours, check-in days and back-off to every source alike, so a source only proposes. Returns an unregister.
 export function registerNotifications(source:NotificationSource){
@@ -121,24 +121,22 @@ export function backedOff(offset:number,slot:Slot,weekly=false){
  if(offset<=7)return slot==='evening'||offset%2===0;
  return slot==='evening'||offset%7!==0;
 }
-// Days a check-in reminder already fires (at noon): they keep the morning and drop the evening.
-export function checkInDays(state:Pick<AccountState,'history'>){
+export function checkInCandidates({state}:PlanContext):Candidate[]{
  const days=new Set<string>();
  for(const reading of state.history){
   if(reading.circleId||reading.outcome)continue;
-  const due=suggestedCheckIn(reading),date=checkInDate(due);
+  const date=checkInDate(suggestedCheckIn(reading));
   if(!date)continue;
-  days.add(due);date.setDate(date.getDate()+3);days.add(localDay(date));
+  days.add(localDay(date));date.setDate(date.getDate()+3);days.add(localDay(date));
  }
- return days;
+ return [...days].map(day=>({day,slot:'evening',priority:100,title:'Did it come true?',body:'Your forecasts are waiting in History.',data:{checkIns:'1'},time:eveningTime,weekly:true}));
 }
 export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28):Planned[]{
- const context={state,now,horizon},ritual=ritualOf(state),busy=checkInDays(state),today=localDay(now);
+ const context={state,now,horizon},ritual=ritualOf(state),today=localDay(now);
  const best=new Map<string,Candidate>();
  for(const candidate of notificationSources.flatMap(source=>source(context))){
   const offset=dayNumber(candidate.day)-dayNumber(today),time=candidate.time??(candidate.slot==='morning'?ritual.notify.time:eveningTime);
-  if(offset<0||offset>horizon||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly))continue;
-  if(candidate.slot==='evening'&&busy.has(candidate.day))continue;
+  if(offset<0||(offset>horizon&&!candidate.data.checkIns)||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly))continue;
   const key=`${candidate.day}-${candidate.slot}`,current=best.get(key);
   if(!current||candidate.priority>current.priority)best.set(key,{...candidate,time});
  }
