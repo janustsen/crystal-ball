@@ -26,8 +26,8 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,omen,today,top,bott
     <Txt style={styles.label}>Touch the ball to ask</Txt>
    </View>
    {checkIns}
-   {omen}
    {today}
+   {omen}
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
    <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </ScrollView>

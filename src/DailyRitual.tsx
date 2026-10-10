@@ -34,7 +34,7 @@ export function TodayCard({ritual,day,reduce,onStep,hint}:{ritual:Ritual;day:str
    {!step.done?<Txt aria-hidden style={{color:colors.gold}}>›</Txt>:null}
   </Pressable>)}
   <View style={{alignItems:'center',marginTop:4}}>
-   <Constellation stars={sky.stars} lit={sky.lit}/>
+   <Constellation stars={sky.stars} lit={sky.lit} width={170}/>
    {star?<Enter kind="check" reduce={reduce}><Txt accessibilityLiveRegion="polite" style={[styles.caption,{textAlign:'center',color:colors.gold}]}>{`Today’s star is in ${sky.lit?sky.name:constellation(ritual.stars.length-1).name}.`}</Txt></Enter>:<Txt style={[styles.caption,{textAlign:'center'}]}>{`Finish today to add a star to ${sky.name} · ${sky.lit} of 7`}</Txt>}
    {sky.collected?<Txt style={[styles.label,{marginTop:6}]}>{`${sky.collected} constellation${sky.collected===1?'':'s'} collected`}</Txt>:null}
   </View>
