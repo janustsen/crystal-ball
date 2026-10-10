@@ -18,6 +18,10 @@ export function personalCheckInDue(p:Prediction,today=localDay()):boolean {
  return !p.circleId&&!p.outcome&&suggestedCheckIn(p)<=today;
 }
 
+export function personalCheckInDueToday(p:Prediction,today=localDay()):boolean {
+ return personalCheckInDue(p,today)&&suggestedCheckIn(p)===today;
+}
+
 export function checkInLabel(p:Prediction,today=localDay()):string {
  if(p.circleId)return `Circle check-in · ${suggestedCheckIn(p)<=today?'Vote in Circles':suggestedCheckIn(p)}`;
  return p.outcome==='yes'?'Yes':p.outcome==='no'?'Not quite':p.outcome==='pending'?'Not yet':suggestedCheckIn(p)<=today?'Ready to check in':`Check back ${suggestedCheckIn(p)}`;

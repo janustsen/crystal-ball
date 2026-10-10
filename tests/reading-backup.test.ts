@@ -507,13 +507,15 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  test('ritual launch taps wait for hydration and listeners keep writing after backup',async()=>{
  const f=await fixture(),h=hooks();
  let ready=false,subscriptions=0,cleared=0;
+ const scheduled:any[]=[],alerts:string[]=[];
+ let failScheduling=true;
  let onTap:((kind:string)=>void)|undefined,onActive:((state:string)=>void)|undefined;
  const app=load('../app/index.tsx',{
-  react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_event:string,callback:(state:string)=>void)=>{onActive=callback;return {remove(){onActive=undefined}}}}},
+  react:h.react,'react-native':{Alert:{alert:(title:string)=>alerts.push(title)},Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_event:string,callback:(state:string)=>void)=>{onActive=callback;return {remove(){onActive=undefined}}}}},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>{const store=f.render();return {...store,ready,update:ready?store.update:()=>{}}}},
-  '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:(callback:(kind:string)=>void)=>{subscriptions++;onTap=callback;if(!cleared){callback('morning');cleared++}return ()=>{onTap=undefined}}},
+  '../src/notify':{scheduleRitual:async(state:any)=>{scheduled.push(state);if(failScheduling)throw new Error('offline')},watchRitualTaps:(callback:(kind:string)=>void)=>{subscriptions++;onTap=callback;if(!cleared){callback('morning');cleared++}return ()=>{onTap=undefined}}},
   '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
@@ -526,11 +528,19 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(f.render().state.ritual.counts['tap:morning'],1);
  assert.equal(f.render().state.ritual.counts.appOpens,1);
  assert.equal(cleared,1);assert.equal(subscriptions,1);
+ await tick();assert.ok(alerts.length>0);assert.ok(alerts.every(title=>title==='Notification update failed'));
+ failScheduling=false;
+ const before=scheduled.length;
+ onActive!('background');render();assert.equal(scheduled.length,before);
+ onActive!('active');render();
+ assert.equal(scheduled.length,before+1);
+ assert.equal(scheduled.at(-1),f.render().state);
  await f.render().backup('restore',async()=>{});render();
  onActive!('active');onTap!('evening');render();
  assert.equal(f.render().state.ritual.counts['tap:evening'],1);
- assert.equal(f.render().state.ritual.counts.appOpens,2);
+ assert.equal(f.render().state.ritual.counts.appOpens,3);
  assert.equal(subscriptions,1);
+ assert.equal(scheduled.at(-1),f.render().state);
  f.fail();await tick();
 });
 

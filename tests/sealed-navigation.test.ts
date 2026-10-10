@@ -42,7 +42,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
   '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social',SealForecast:'SealForecast',InstallAction:'InstallAction'},'../src/RevealClip':{RevealClip:'RevealClip'},
   '../src/social':{shareCircleMoment:async()=>{}},'../src/Onboarding':{Onboarding:'Onboarding'},'../src/native':{haptic:()=>{}},
-  '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},'../src/DailyOmen':{DailyOmen:'DailyOmen'},
+  '../src/InnerLibrary':{InnerLibrary:'InnerLibrary'},'../src/DailyOmen':{DailyOmen:'DailyOmen'},'../src/DailyRitual':{TodayCard:'TodayCard'},
  };
  const sealSlots:any[]=[];
  let sealCursor=0;
@@ -232,4 +232,28 @@ test('check-in eligibility reads the latest saved forecast rather than the open 
  control.props.onPress();
  assert.equal(state.history[0].outcome,'yes');
  assert.equal(ritual.dayProgress(state.ritual,'2026-10-10').lit,0);
+});
+
+for(const scenario of [
+ {dueDate:'2026-10-09',ready:false,banner:true},
+ {dueDate:'2026-10-10',ready:true,banner:true},
+ {dueDate:'2026-10-11',ready:false,banner:false},
+ {dueDate:'2026-10-10',outcome:'yes',ready:false,banner:false},
+ {dueDate:'2026-10-10',circleId:'circle',ready:false,banner:false},
+])test(`Today check-in routing matches eligibility: ${JSON.stringify(scenario)}`,t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,12)});
+ const {render}=app(true,[{...reading,...scenario}]);
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ const home=render(),today=home.find(n=>n.type==='TodayCard');
+ assert.equal(today.props.hint('ask'),scenario.ready?'A check-in is ready in History.':undefined);
+ const banner=home.find(n=>n.props.label==='Your check-ins are ready');
+ assert.equal(!!banner,scenario.banner);
+ today.props.onStep('ask');
+ assert.ok(render().some(n=>scenario.ready?n.props.testID==='tab-history'&&n.props.accessibilityState.selected:n.props.testID==='question-input'));
+ if(!scenario.ready)render().find(n=>n.props.testID==='close-flow').props.onPress();
+ if(banner){
+  render().find(n=>n.props.testID==='tab-home').props.onPress();
+  render().find(n=>n.props.label==='Your check-ins are ready').props.onPress();
+  assert.ok(render().some(n=>n.props.testID==='tab-history'&&n.props.accessibilityState.selected));
+ }
 });
