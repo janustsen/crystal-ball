@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
-import {Animated,Easing,Platform,Pressable,TextInput,View} from 'react-native';
+import {Animated,Easing,Keyboard,Platform,Pressable,TextInput,View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {SvgXml} from 'react-native-svg';
 import {Action,Txt,styles,colors,fonts,Field} from './ui';
 import {ageGroup,joinBirthday,typeBirthday,type BirthdayParts} from './profile';
@@ -29,7 +30,9 @@ function Sparkle({x,y,size,delay,reduce}:{x:number;y:number;size:number;delay:nu
 export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFinish:(facts:Facts,ageConfirmed?:boolean)=>void;onBlock:()=>void;blocked?:boolean;reduce?:boolean}){
  const [sheet,setSheet]=useState(reduce||blocked),[parts,setParts]=useState<BirthdayParts>(['','','']),[error,setError]=useState(''),[confirming,setConfirming]=useState(false),[sheetHeight,setSheetHeight]=useState(0);
  const line=useRef(new Animated.Value(reduce?1:0)).current,rise=useRef(new Animated.Value(sheet?1:0)).current;
- const inputs=useRef<(TextInput|null)[]>([]);
+ const inputs=useRef<(TextInput|null)[]>([]),insets=useSafeAreaInsets(),[keyboard,setKeyboard]=useState(0);
+ // The sheet rides just above the keyboard so the intro line stays in view instead of scrolling away.
+ useEffect(()=>{const show=Keyboard.addListener('keyboardWillShow',e=>setKeyboard(e.endCoordinates.height)),hide=Keyboard.addListener('keyboardWillHide',()=>setKeyboard(0));return()=>{show.remove();hide.remove()}},[]);
  useEffect(()=>{
   if(reduce)return;
   const animation=Animated.timing(line,{toValue:1,duration:1200,delay:300,easing:Easing.bezier(...motion.ease),useNativeDriver:native});animation.start();
@@ -60,8 +63,8 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
   setConfirming(true);
  }
  if(confirming&&!blocked)return <><Txt display>Are you 13 or older?</Txt><Txt style={styles.caption}>No birthday needed. Teen-safe defaults apply.</Txt><Action testID="confirm-age" label="I’m 13 or older" onPress={()=>onFinish({},true)}/><Action testID="decline-age" label="I’m under 13" quiet onPress={()=>{setConfirming(false);onBlock()}}/></>;
- return <View style={{flex:1}}>
-  <Pressable testID="onboarding-intro" accessible={false} disabled={sheet} onPress={()=>setSheet(true)} style={{flex:1,minHeight:200,justifyContent:'center',alignItems:'center'}}>
+ return <View style={{flex:1,paddingBottom:Math.max(0,keyboard-insets.bottom-40)}}>
+  <Pressable testID="onboarding-intro" accessible={false} disabled={sheet} onPress={()=>setSheet(true)} style={{flex:1,minHeight:140,justifyContent:'center',alignItems:'center'}}>
    {/* Centered on the whole screen until the sheet rises beneath it. */}
    <Animated.View style={{opacity:line,transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[sheetHeight/2,0]})},{translateY:line.interpolate({inputRange:[0,1],outputRange:[14,0]})},{scale:line.interpolate({inputRange:[0,1],outputRange:[.96,1]})}]}}>
     <View>
