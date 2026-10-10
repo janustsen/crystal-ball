@@ -25,7 +25,7 @@ function hooks(effectsEnabled=true){
   useCallback:(callback:any)=>{const i=cursor++;return slots[i]??(slots[i]=callback)},
   useEffect:(effect:()=>void|(()=>void),deps:any[])=>{const i=cursor++;if(effectsEnabled&&(!slots[i]||deps.some((d,j)=>d!==slots[i].deps[j]))){const previous=slots[i];slots[i]={deps};effects.push(()=>{previous?.cleanup?.();slots[i].cleanup=effect()})}},
  };
- return {react,render:(component:()=>any)=>{cursor=0;const result=component();effects.splice(0).forEach(effect=>effect());return result}};
+ return {react,unmount:()=>slots.forEach(slot=>slot?.cleanup?.()),render:(component:()=>any)=>{cursor=0;const result=component();effects.splice(0).forEach(effect=>effect());return result}};
 }
 function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
@@ -288,12 +288,13 @@ test('database snapshot time wins over request order and ignores other owners',a
  assert.equal(f.state().balanceSnapshot.asOf,stamp(3));
 });
 
-test('Plans refreshes trial eligibility after reopen, purchase, restore and owner changes',async()=>{
+test('Plans refreshes trial eligibility after reopen, purchase, restore and owner changes',async t=>{
  const h=hooks(),pending:((offers:any[])=>void)[]=[];
+ t.after(h.unmount);
  let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,balanceSnapshot:{owner:'one'}};
  let busy=false,finishPurchase!:()=>void,finishRestore!:()=>void;
  const app=load('../app/index.tsx',{
-  react:h.react,'react-native':{Platform:{OS:'ios'},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
+  react:h.react,'react-native':{Platform:{OS:'ios'},AppState:{addEventListener:()=>({remove(){}})},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{}})},
