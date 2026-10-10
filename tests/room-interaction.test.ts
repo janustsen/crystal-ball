@@ -26,7 +26,7 @@ function component(file:string,imports:Record<string,any>){
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true},
  }).outputText;
  const jsx=(type:any,props:any)=>react.createElement(type,props,...[props.children??[]].flat());
- runInNewContext(code,{module,exports:module.exports,console:{error:()=>{},warn:()=>{}},require:(name:string)=>{
+ runInNewContext(code,{module,exports:module.exports,AbortController,console:{error:()=>{},warn:()=>{}},require:(name:string)=>{
   if(name==='react')return react;
   if(name==='react/jsx-runtime')return {jsx,jsxs:jsx};
   if(name in imports)return imports[name];

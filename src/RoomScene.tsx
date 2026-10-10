@@ -31,13 +31,16 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   Animated.timing(fade,{toValue:0,duration:450,useNativeDriver:true}).start(()=>setPrevious(null));
  },[spot]);
  // A resize gets a fresh GL view (and context); the old scene stops with it.
- const generation=useRef(0);
- useEffect(()=>{const mine=++generation.current;return()=>{if(generation.current===mine)generation.current++;scene.current?.stop();scene.current=null}},[width,height]);
+ const generation=useRef(0),pending=useRef<AbortController|null>(null);
+ useEffect(()=>{const mine=++generation.current;return()=>{if(generation.current===mine)generation.current++;pending.current?.abort();scene.current?.stop();scene.current=null}},[width,height]);
  const start=(gl:Parameters<typeof startNativeGlass>[0])=>{
   const mine=generation.current;
+  pending.current?.abort();
+  const controller=new AbortController();pending.current=controller;
   setFailed(false);
-  startNativeGlass(gl,{motion,aim:()=>ballOnScreen(stillFrame(at.current),width,height)?.dir??null},spin).then(glass=>{
-   if(mine!==generation.current){glass.stop();return}
+  startNativeGlass(gl,{motion,signal:controller.signal,aim:()=>ballOnScreen(stillFrame(at.current),width,height)?.dir??null},spin).then(glass=>{
+   if(!glass)return;
+   if(controller.signal.aborted||mine!==generation.current){glass.stop();return}
    scene.current=glass;setStarted(n=>n+1);
   }).catch(error=>{if(mine===generation.current){setFailed(true);console.error('crystal ball scene',error)}});
  };

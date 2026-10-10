@@ -13,7 +13,7 @@ module.exports=config=>withAppDelegate(withInfoPlist(config,plist=>{
  const adopted=source
   .replace('class AppDelegate: ExpoAppDelegate {','class AppDelegate: ExpoAppDelegate, ExpoReactNativeFactoryProvider {')
   .replace(/#if os\(iOS\) \|\| os\(tvOS\)\n\s*window = UIWindow\(frame: UIScreen\.main\.bounds\)[\s\S]*?#endif\n/,'');
- if(adopted===source||adopted.includes('window = UIWindow('))throw new Error('scene-lifecycle: AppDelegate template changed; update plugins/scene-lifecycle.js');
+ if(!adopted.includes('class AppDelegate: ExpoAppDelegate, ExpoReactNativeFactoryProvider {')||adopted.includes('window = UIWindow('))throw new Error('scene-lifecycle: AppDelegate template changed; update plugins/scene-lifecycle.js');
  delegate.modResults.contents=adopted;
  return delegate;
 });

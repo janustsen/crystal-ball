@@ -10,11 +10,13 @@ export function AskOrb({size,reduce,fallback}:{size:number;reduce:boolean;fallba
  motion.reduce=reduce;
  useEffect(()=>{
   let on=true;
-  startWebGlass(ref.current!,size*2,{motion,aim:()=>askOrbAim,decorate:askOrbDecor}).then(glass=>{
+  const controller=new AbortController();
+  startWebGlass(ref.current!,size*2,{motion,aim:()=>askOrbAim,decorate:askOrbDecor,signal:controller.signal}).then(glass=>{
+   if(!glass)return;
    if(!on){glass.stop();return}
    scene.current=glass;setLive(true);
   }).catch(error=>console.warn('ask orb',error));
-  return()=>{on=false;scene.current?.stop();scene.current=null};
+  return()=>{on=false;controller.abort();scene.current?.stop();scene.current=null};
  },[size]);
  useEffect(()=>{scene.current?.resume()},[reduce]);
  return <div aria-hidden="true" data-testid="ask-orb" style={{position:'relative',width:size,height:size}}>

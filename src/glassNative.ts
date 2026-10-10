@@ -23,10 +23,20 @@ function loadTexture(module:number){
 }
 
 // iOS ends an app that draws GL in the background, so frames stop there.
-const hidden=()=>AppState.currentState==='background';
+const hidden=()=>AppState.currentState!=='active';
 
-export async function startNativeGlass(gl:ExpoWebGLRenderingContext,options:Omit<GlassOptions,'env'|'present'|'hidden'|'load'>,grip?:BallSpin){
- const env=envTexture(await ballEnvBytes());
+export async function startNativeGlass(gl:ExpoWebGLRenderingContext,options:Omit<GlassOptions,'env'|'present'|'hidden'|'load'>&{signal:AbortSignal},grip?:BallSpin){
+ const bytes=await ballEnvBytes();
+ while(hidden()&&!options.signal.aborted){
+  await new Promise<void>(resolve=>{
+   const done=()=>{watch.remove();options.signal.removeEventListener('abort',done);resolve()};
+   const watch=AppState.addEventListener('change',state=>{if(state==='active')done()});
+   options.signal.addEventListener('abort',done,{once:true});
+   if(options.signal.aborted||!hidden())done();
+  });
+ }
+ if(options.signal.aborted)return null;
+ const env=envTexture(bytes);
  // expo-gl logs every pixelStorei it lacks (three.js sets premultiply and colour-space conversion per upload).
  const pixelStorei=gl.pixelStorei.bind(gl);
  gl.pixelStorei=(name,value)=>{if(name===gl.UNPACK_FLIP_Y_WEBGL||name===gl.UNPACK_ALIGNMENT)pixelStorei(name,value)};
@@ -36,6 +46,6 @@ export async function startNativeGlass(gl:ExpoWebGLRenderingContext,options:Omit
  renderer.setPixelRatio(1);
  renderer.setSize(width,height,false);
  const glass=startGlass(renderer,{...options,env,present:()=>gl.endFrameEXP(),hidden,load:loadTexture},grip);
- const watch=AppState.addEventListener('change',state=>{if(state==='background')glass.pause();else glass.resume()});
+ const watch=AppState.addEventListener('change',state=>{if(state==='active')glass.resume();else glass.pause()});
  return {...glass,stop(){watch.remove();glass.stop()}};
 }

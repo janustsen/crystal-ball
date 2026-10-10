@@ -99,6 +99,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   setFailed(false);
   const canvas=ref.current;
   let live=true;
+  const controller=new AbortController();
   const aim=()=>{
    const {at,flight,width,height}=state.current;
    const frame=(flight?frameOf(fly.current,clipFrames(flight.key),false):frameOf(idle.current,clipFrames(idleKey(at)),true))??(flight?clipFrames(flight.key)[0]:stillFrame(at));
@@ -113,12 +114,13 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   };
   // The live glass ball (src/glassBall.ts) draws alone on this canvas over the rendered room video. aim() runs before
   // every frame: it places the canvas and returns the camera's direction from the ball, or null while out of frame.
-  startWebGlass(canvas,S,{motion:motion.current,aim},spin).then(glass=>{
+  startWebGlass(canvas,S,{motion:motion.current,aim,signal:controller.signal},spin).then(glass=>{
+   if(!glass)return;
    if(!live){glass.stop();return}
    scene.current=glass;
    setStarted(n=>n+1);
   }).catch(error=>{if(live){setFailed(true);console.error('crystal ball scene',error)}});
-  return()=>{live=false;scene.current?.stop();scene.current=null};
+  return()=>{live=false;controller.abort();scene.current?.stop();scene.current=null};
  },[width,height]);
  useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,started]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.

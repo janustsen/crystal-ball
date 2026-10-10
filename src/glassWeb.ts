@@ -8,8 +8,10 @@ import type {BallSpin} from './RoomScene';
 let envJob:Promise<ArrayBuffer>|null=null;
 const ballEnvBytes=()=>envJob??=fetch(Asset.fromModule(ballEnv).uri).then(r=>{if(!r.ok)throw new Error(`ball environment: ${r.status}`);return r.arrayBuffer()}).catch(error=>{envJob=null;throw error});
 
-export async function startWebGlass(canvas:HTMLCanvasElement,S:number,options:Omit<GlassOptions,'env'|'present'|'hidden'|'load'>,grip?:BallSpin){
- const env=envTexture(await ballEnvBytes());
+export async function startWebGlass(canvas:HTMLCanvasElement,S:number,options:Omit<GlassOptions,'env'|'present'|'hidden'|'load'>&{signal:AbortSignal},grip?:BallSpin){
+ const bytes=await ballEnvBytes();
+ if(options.signal.aborted)return null;
+ const env=envTexture(bytes);
  const renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
  renderer.setSize(S,S,false);
@@ -20,10 +22,10 @@ export async function startWebGlass(canvas:HTMLCanvasElement,S:number,options:Om
    load:asset=>loader.loadAsync(Asset.fromModule(asset).uri).then(texture=>{texture.colorSpace=T.SRGBColorSpace;return texture})},grip);
  }catch(error){renderer.dispose();renderer.forceContextLoss();throw error}
  // The ball's own pointer-down grabs it; the drag follows the pointer anywhere on the page.
- const drag=(e:PointerEvent)=>grip?.drag?.(e),release=(e:PointerEvent)=>grip?.release?.(e);
- if(grip){
-  const grab=grip.grab;
-  grip.grab=e=>{grab?.(e);try{((e as PointerEvent).target as Element).setPointerCapture(e.pointerId)}catch(err){}};
+ const grab=grip?.grab,drag=grip?.drag,release=grip?.release;
+ const capture=(e:Parameters<NonNullable<BallSpin['grab']>>[0])=>{grab?.(e);try{((e as PointerEvent).target as Element).setPointerCapture(e.pointerId)}catch(err){}};
+ if(grip&&drag&&release){
+  grip.grab=capture;
   window.addEventListener('pointermove',drag);
   window.addEventListener('pointerup',release);
   window.addEventListener('pointercancel',release);
@@ -31,10 +33,11 @@ export async function startWebGlass(canvas:HTMLCanvasElement,S:number,options:Om
  const visibility=()=>{if(document.hidden)glass.pause();else glass.resume()};
  document.addEventListener('visibilitychange',visibility);
  return {...glass,stop(){
+  if(grip?.grab===capture)grip.grab=grab;
   glass.stop();
-  window.removeEventListener('pointermove',drag);
-  window.removeEventListener('pointerup',release);
-  window.removeEventListener('pointercancel',release);
+  if(drag)window.removeEventListener('pointermove',drag);
+  if(release)window.removeEventListener('pointerup',release);
+  if(release)window.removeEventListener('pointercancel',release);
   document.removeEventListener('visibilitychange',visibility);
   renderer.forceContextLoss();
  }};

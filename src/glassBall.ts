@@ -202,9 +202,10 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
    // Reduced motion keeps the hand's turn but drops the coasting spin afterwards.
    if(motion.reduce||performance.now()-spin.lt>90){spin.vx=0;spin.vy=0}
    // The ball's press, if any, follows this release; after it no drag may swallow a later activation.
-   setTimeout(()=>{grip.dragged=false});
+   setTimeout(()=>{if(grip.release===owned?.release)grip.dragged=false});
   };
  }
+ const owned=grip?{grab:grip.grab,drag:grip.drag,release:grip.release}:null;
  const rotQ=new T.Quaternion(),dq=new T.Quaternion(),invQ=new T.Quaternion();
  const rotM4=new T.Matrix4(),axis=new T.Vector3(),right=new T.Vector3(),UP=new T.Vector3(0,1,0);
  const turn=(ah:number,av:number,orb:number)=>{
@@ -223,7 +224,7 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
  let t=0,swirl=0,raf=0,alive=true;
  const frame=()=>{
   raf=0;
-  if(!alive)return;
+  if(!alive||hidden())return;
   const reduced=motion.reduce;
   const dt=Math.min(clock.getDelta(),0.05);
   t+=dt;
@@ -259,7 +260,7 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
   halo.material.opacity=0.13*g;
   extra?.(t,g);
 
-  if(dir){renderer.render(scene,camera);present?.()}
+  if(dir&&!hidden()){renderer.render(scene,camera);if(!hidden())present?.()}
   // Reduced motion and a hidden app hold the last frame without scheduling callbacks.
   if(!reduced&&!hidden())raf=requestAnimationFrame(frame);
  };
@@ -284,13 +285,17 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
   },
   stop(){
    alive=false;cancelAnimationFrame(raf);
-   if(grip){grip.grab=grip.drag=grip.release=undefined}
+   if(grip&&owned){
+    if(grip.grab===owned.grab)grip.grab=undefined;
+    if(grip.drag===owned.drag)grip.drag=undefined;
+    if(grip.release===owned.release)grip.release=undefined;
+   }
    textures.forEach(texture=>texture.then(t=>t.dispose(),()=>{}));
    env.dispose();haloTex.dispose();renderer.dispose();
   }
  };
  // Compile the ball up front (one hidden draw from straight on), so a shader failure surfaces here rather than in a
  // later animation frame, even while the ball is out of frame.
- try{camera.position.set(0,0,CAM_D).add(BALL);camera.lookAt(BALL);renderer.render(scene,camera);frame()}catch(error){api.stop();throw error}
+ try{camera.position.set(0,0,CAM_D).add(BALL);camera.lookAt(BALL);if(!hidden())renderer.render(scene,camera);frame()}catch(error){api.stop();throw error}
  return api;
 }
