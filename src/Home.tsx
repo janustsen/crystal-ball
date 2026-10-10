@@ -17,8 +17,8 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 const noScroll={touchAction:'none'} as object;
 
 // Home's screen content, docked below the room's ball (top): what to do, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number}){
- return <View style={{position:'absolute',left:0,top,right:0,bottom}}>
+export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;top:number;bottom:number;reduce:boolean}){
+ return <View style={{position:'absolute',left:0,top,right:0,bottom}}><Enter reduce={reduce} fill>
   <ScrollView contentContainerStyle={{paddingHorizontal:20,paddingBottom:16,gap:14}}>
    <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
     <Txt display style={{fontSize:30,lineHeight:34}}>What lies ahead?</Txt>
@@ -29,7 +29,7 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,omen,top,bottom}:{r
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
    <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </ScrollView>
- </View>;
+ </Enter></View>;
 }
 
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 1 14.2 9.8 23 12 14.2 14.2 12 23 9.8 14.2 1 12 9.8 9.8z"/></svg>';
