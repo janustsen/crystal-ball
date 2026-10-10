@@ -30,6 +30,9 @@ function Sparkle({x,y,size,delay,reduce}:{x:number;y:number;size:number;delay:nu
 export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFinish:(facts:Facts,ageConfirmed?:boolean)=>void;onBlock:()=>void;blocked?:boolean;reduce?:boolean}){
  const [sheet,setSheet]=useState(reduce||blocked),[parts,setParts]=useState<BirthdayParts>(['','','']),[error,setError]=useState(''),[confirming,setConfirming]=useState(false),[sheetHeight,setSheetHeight]=useState(0);
  const line=useRef(new Animated.Value(reduce?1:0)).current,rise=useRef(new Animated.Value(sheet?1:0)).current;
+ const sheetRef=useRef<View>(null);
+ // Until it rises, the sheet stays out of web keyboard navigation too (aria-hidden and pointerEvents leave it tabbable).
+ useEffect(()=>{const node=sheetRef.current as unknown as {inert?:boolean}|null;if(Platform.OS==='web'&&node)node.inert=!sheet},[sheet]);
  const inputs=useRef<(TextInput|null)[]>([]),insets=useSafeAreaInsets(),[keyboard,setKeyboard]=useState(0);
  // The sheet rides just above the keyboard so the intro line stays in view instead of scrolling away.
  useEffect(()=>{const show=Keyboard.addListener('keyboardWillShow',e=>setKeyboard(e.endCoordinates.height)),hide=Keyboard.addListener('keyboardWillHide',()=>setKeyboard(0));return()=>{show.remove();hide.remove()}},[]);
@@ -73,7 +76,7 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
     </View>
    </Animated.View>
   </View>
-  <Animated.View pointerEvents={sheet?'auto':'none'} aria-hidden={!sheet} importantForAccessibility={sheet?'auto':'no-hide-descendants'} onLayout={e=>setSheetHeight(e.nativeEvent.layout.height)} style={{opacity:rise.interpolate({inputRange:[0,.3,1],outputRange:[0,1,1]}),transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[360,0]})}]}}>
+  <Animated.View ref={sheetRef} pointerEvents={sheet?'auto':'none'} aria-hidden={!sheet} importantForAccessibility={sheet?'auto':'no-hide-descendants'} onLayout={e=>setSheetHeight(e.nativeEvent.layout.height)} style={{opacity:rise.interpolate({inputRange:[0,.3,1],outputRange:[0,1,1]}),transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[360,0]})}]}}>
    <View style={{padding:22,paddingBottom:12}}><Surface kind="card">
     {blocked?<Txt accessibilityRole="alert" style={{marginBottom:8}}>Crystal Ball is for ages 13 and up.</Txt>:null}
     <Txt display style={{fontSize:32,lineHeight:36,textAlign:'center'}}>What’s your birthday?</Txt>
