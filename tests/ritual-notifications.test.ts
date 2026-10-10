@@ -7,7 +7,7 @@ import {nativeActions} from '../src/integration-actions';
 import * as retention from '../src/retention';
 
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function nativeFixture(){
+function nativeFixture(now=new Date()){
  let granted=false,last:any=null,response:((value:any)=>void)|undefined,foreground:((state:string)=>void)|undefined;
  const scheduled=new Map<string,any>();
  const notifications={
@@ -28,8 +28,8 @@ function nativeFixture(){
  };
  const module={exports:{} as typeof import('../src/native')};
  const code=ts.transpileModule(readFileSync(new URL('../src/native.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]});
- return {api:module.exports,scheduled,grant:()=>{granted=true;},foreground:()=>foreground?.('active'),tap:(data:any,cold=false)=>{const value={notification:{request:{content:{data}}}};if(cold)last=value;else response?.(value);}};
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Date:class extends Date{static now(){return now.getTime();}}});
+ return {api:module.exports,scheduled,notifications,grant:()=>{granted=true;},foreground:()=>foreground?.('active'),tap:(data:any,cold=false)=>{const value={notification:{request:{content:{data}}}};if(cold)last=value;else response?.(value);}};
 }
 
 test('ritual schedules reconcile on reminder and social permission grants, foreground and forget',async()=>{
@@ -59,4 +59,64 @@ test('both cold and running notification responses route rituals and preserve re
   assert.deepEqual(opened,'social'in data?[]:['readingId'in data?data.readingId:data.destination]);
   stop();f.tap({destination:'recap'});assert.equal(opened.length,'social'in data?0:1);
  }
+});
+
+function deferred(){let resolve!:()=>void;const promise=new Promise<void>(done=>{resolve=done;});return {promise,resolve};}
+
+test('answer, forget and disposal invalidate reconciliation awaiting permission',async()=>{
+ for(const action of ['answer','forget','dispose']){
+  const f=nativeFixture(new Date(2026,9,9,7)),day='2026-10-08',permission=deferred();
+  let checks=0;
+  f.notifications.getPermissionsAsync=async()=>{if(++checks===1)await permission.promise;return {status:'granted'};};
+  const stop=f.api.watchRitualReminders([{day,text:'Yesterday’s whisper'}]);
+  await tick();assert.equal(checks,1);
+  let cleanup:Promise<void>|undefined;
+  if(action==='answer')f.api.cancelWhisperCheck(day);
+  if(action==='forget')cleanup=f.api.forgetCheckIns();
+  if(action==='dispose')stop();
+  permission.resolve();await cleanup;await tick();
+  assert.equal(f.scheduled.has(`whisper-check-${day}`),false);
+  assert.deepEqual([...f.scheduled.keys()],action==='forget'?['week-recap']:[]);
+  f.foreground();await f.api.requestNotificationPermission();await tick();
+  assert.equal(f.scheduled.has(`whisper-check-${day}`),false,'old subscriptions remain invalid after another signal');
+  stop();
+  const next=f.api.watchRitualReminders([{day,text:'Yesterday’s whisper',outcome:'yes'},{day:'2026-10-09',text:'Today’s whisper'}]);
+  await tick();
+  assert.equal(f.scheduled.has(`whisper-check-${day}`),false);
+  assert.equal(f.scheduled.has('whisper-check-2026-10-09'),true,'the next current snapshot still schedules');
+  assert.equal(f.scheduled.has('week-recap'),true);
+  next();
+ }
+});
+
+test('answer and forget wait for an already executing native schedule before cleanup',async()=>{
+ for(const action of ['answer','forget']){
+  const f=nativeFixture(new Date(2026,9,9,7)),day='2026-10-08',entered=deferred(),finish=deferred();
+  f.grant();
+  const schedule=f.notifications.scheduleNotificationAsync;
+  f.notifications.scheduleNotificationAsync=async value=>{
+   if(value.identifier===`whisper-check-${day}`){entered.resolve();await finish.promise;}
+   await schedule(value);
+  };
+  const stop=f.api.watchRitualReminders([{day,text:'Yesterday’s whisper'}]);
+  await entered.promise;
+  let cleanup:Promise<void>|undefined;
+  if(action==='answer')f.api.cancelWhisperCheck(day);else cleanup=f.api.forgetCheckIns();
+  finish.resolve();await cleanup;await tick();
+  assert.deepEqual([...f.scheduled.keys()],['week-recap']);
+  stop();
+ }
+});
+
+test('disposing a subscription invalidates reconciliation waiting behind native writes',async()=>{
+ const f=nativeFixture(new Date(2026,9,9,7)),entered=deferred(),finish=deferred();
+ f.grant();
+ const schedule=f.notifications.scheduleNotificationAsync;
+ let calls=0;
+ f.notifications.scheduleNotificationAsync=async value=>{if(++calls===1){entered.resolve();await finish.promise;}await schedule(value);};
+ const first=f.api.watchRitualReminders([]);await entered.promise;
+ const second=f.api.watchRitualReminders([{day:'2026-10-08',text:'Yesterday’s whisper'}]);
+ await tick();second();finish.resolve();await tick();
+ assert.equal(calls,1);assert.deepEqual([...f.scheduled.keys()],['week-recap']);
+ first();
 });
