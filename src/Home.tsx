@@ -16,21 +16,22 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 // Web lets a drag on the ball spin it instead of scrolling the page.
 const noScroll={touchAction:'none'} as object;
 
-// Home's screen content, docked below the room's ball (top): what to do, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,checkIns,omen,today,omenFocus=0,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;omen:React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;bottom:number;reduce:boolean}){
+// Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
+export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;bottom:number;reduce:boolean}){
  // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
- const scroll=useRef<ScrollView>(null),omenY=useRef(0),pad=Math.min(24,top);
- useEffect(()=>{if(omenFocus)scroll.current?.scrollTo({y:Math.max(0,omenY.current+pad-12),animated:!reduce})},[omenFocus]);
+ const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),pad=Math.min(24,top);
+ useEffect(()=>{if(omenFocus&&content.current)omenRef.current?.measureLayout(content.current,(_x,y)=>scroll.current?.scrollTo({y:Math.max(0,y+pad-12),animated:!reduce}))},[omenFocus]);
  // The ball above stays the tap target, so Home's content scrolls only below it, softening at the edges.
  return <View style={{position:'absolute',left:0,top:Math.max(0,top-24),right:0,bottom}}><EdgeFade bottom={24}>
-  <ScrollView ref={scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:20,paddingTop:pad,paddingBottom:24}}><Enter reduce={reduce}><View style={{gap:14}}>
+  <ScrollView ref={scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{paddingHorizontal:20,paddingTop:pad,paddingBottom:24}}><Enter reduce={reduce}><View ref={content} collapsable={false} style={{gap:14}}>
    <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
     <Txt display style={{fontSize:30,lineHeight:34}}>What lies ahead?</Txt>
     <Txt style={styles.label}>Touch the ball to ask</Txt>
    </View>
    {checkIns}
    {today}
-   <View style={{gap:14}} onLayout={e=>{omenY.current=e.nativeEvent.layout.y}}>{omen}</View>
+   {recap}
+   {omen(omenRef)}
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
    <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </View></Enter></ScrollView>
@@ -71,7 +72,7 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
  return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} {...grip} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
 }
 
-export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string}>){
+export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string;ref?:React.Ref<View>}>){
  return <View {...props} accessibilityState={{busy}} style={{padding:18,gap:10}}>
   <Surface kind="card">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>

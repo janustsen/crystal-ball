@@ -28,7 +28,20 @@ try{
  await seed(base());await page.evaluate(state=>{localStorage.removeItem('crystal-ball-personal-omen-v1');localStorage.setItem('crystal-ball-v1',JSON.stringify(state))},base());await page.reload();
  await expect(page.getByTestId('today-omen')).not.toHaveAttribute('aria-label',/done/);await expect(page.getByTestId('daily-omen')).not.toBeInViewport();
  await page.getByTestId('today-omen').click();await expect(page.getByTestId('daily-omen')).toBeInViewport();await page.screenshot({path:`${out}/omen-step-scroll.png`});
- await page.unrouteAll({behavior:'ignoreErrors'});
  console.log('PASS omen step scrolls to a pending omen');
+ // On a Sunday on a short phone, the weekly recap sits above the omen; the step still lands on the omen.
+ const sunday=new Date();sunday.setDate(sunday.getDate()+(7-sunday.getDay())%7);sunday.setHours(12,0,0,0);
+ await page.setViewportSize({width:375,height:667});await page.clock.setFixedTime(sunday);
+ await page.evaluate(state=>{
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const day=`${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+  localStorage.setItem('crystal-ball-v1',JSON.stringify({...state,whispers:[{day,text:'By tonight, a message may bring a welcome change.'}]}));
+  localStorage.removeItem('crystal-ball-personal-omen-v1');
+ },base());
+ await page.reload();await page.getByTestId('week-recap').waitFor();await page.getByTestId('whisper-check').waitFor();
+ await expect(page.getByTestId('daily-omen')).not.toBeInViewport();
+ await page.getByTestId('today-omen').click();await expect(page.getByTestId('daily-omen')).toBeInViewport({ratio:1});await page.screenshot({path:`${out}/omen-step-scroll-sunday.png`});
+ await page.unrouteAll({behavior:'ignoreErrors'});
+ console.log('PASS Sunday omen step scrolls past the weekly recap and yesterday’s whisper to the omen');
  console.log('PASS due-today eligibility, overdue/future exclusion, answer editing, day-3 offer once, seven-star constellation persistence');
 }catch(e){results.push({failure:String(e)});await page.screenshot({path:`${out}/failure.png`}).catch(()=>{});throw e}finally{await writeFile(`${out}/results.json`,JSON.stringify(results,null,2));await browser.close();await rm(profile,{recursive:true,force:true})}
