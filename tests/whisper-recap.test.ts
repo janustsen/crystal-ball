@@ -58,14 +58,16 @@ test('a whisper finished while Home was away survives the next day’s omen load
 
 import {watchLocalDay} from '../src/retention';
 test('the recap’s local day advances at local midnight and on return to the app',t=>{
- t.mock.timers.enable({apis:['Date','setInterval'],now:new Date(2026,9,4,23,59,30)});
+ t.mock.timers.enable({apis:['Date','setInterval'],now:new Date(2026,9,3,23,59,30)});
  const days:string[]=[];let foreground!:(state:string)=>void,removed=false;
  const stop=watchLocalDay(day=>days.push(day),{addEventListener:(_type,listener)=>{foreground=listener;return {remove:()=>{removed=true}}}});
  t.mock.timers.tick(60000);
- assert.deepEqual(days,['2026-10-05'],'the minute check crosses local midnight');
- t.mock.timers.setTime(new Date(2026,9,6,7).getTime());foreground('background');assert.equal(days.length,1);
- foreground('active');assert.deepEqual(days,['2026-10-05','2026-10-06'],'returning to the app picks up the new day at once');
- foreground('active');t.mock.timers.tick(60000);assert.equal(days.length,2,'an unchanged day is not reported again');
+ assert.deepEqual(days,['2026-10-04'],'the minute check enters Sunday at local midnight');
+ t.mock.timers.tick(24*60*60000);
+ assert.deepEqual(days,['2026-10-04','2026-10-05'],'the minute check leaves Sunday at local midnight');
+ t.mock.timers.setTime(new Date(2026,9,6,7).getTime());foreground('background');assert.equal(days.length,2);
+ foreground('active');assert.deepEqual(days,['2026-10-04','2026-10-05','2026-10-06'],'returning to the app picks up the new day at once');
+ foreground('active');t.mock.timers.tick(60000);assert.equal(days.length,3,'an unchanged day is not reported again');
  stop();assert.ok(removed);
 });
 
