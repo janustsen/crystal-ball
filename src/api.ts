@@ -1,6 +1,6 @@
 import {localDay} from './retention';
 import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,BallStyle,CardStyle,Insight,InsightKind} from './types';
-import {selfAnswers,withoutSelf} from './ball-asks';
+import {selfAnswers,teenSafe,withoutSelf} from './ball-asks';
 import type {Balance} from './billing';
 import {validBalance} from './billing';
 import {solveProof,type WebReading} from './web-reading';
@@ -28,8 +28,8 @@ export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pi
 }
 
 // The Ball asks: a free insight from the most recent answers (the engine accepts at most 30 facts).
-export async function requestInsight(facts:Facts,kind:InsightKind,{birthday,ageConfirmed,ageBand}:Pick<AccountState,'birthday'|'ageConfirmed'|'ageBand'>,aiConsent=''):Promise<Insight>{
- const recent=Object.fromEntries(selfAnswers(facts,ageBand!=='adult').slice(-30).map(({key,answer})=>[key,answer]));
+export async function requestInsight(facts:Facts,kind:InsightKind,{birthday,ageConfirmed}:Pick<AccountState,'birthday'|'ageConfirmed'>,aiConsent=''):Promise<Insight>{
+ const recent=Object.fromEntries(selfAnswers(facts,teenSafe({birthday})).slice(-30).map(({key,answer})=>[key,answer]));
  const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'insight',question:'The Ball asks insight',insightKind:kind,facts:recent,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json().catch(()=>null);
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.title!=='string'||typeof result.value?.text!=='string')throw new Error('Insight unavailable.');

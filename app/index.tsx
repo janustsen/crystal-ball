@@ -42,7 +42,7 @@ import {accountSocialProfile,activityTheme,readingIdentity} from '../src/social-
 import {Surface} from '../src/Surface';
 import {SvgXml} from 'react-native-svg';
 import {BallAsks} from '../src/BallAsks';
-import {asksOf,isSelfKey,selfContext,withoutSelf} from '../src/ball-asks';
+import {asksOf,isSelfKey,selfContext,teenSafe,withoutSelf} from '../src/ball-asks';
 const lockIcon='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#CDB98F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',closeIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',backIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 const doneCheck='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
 // Library is the Inner Library room: reached from Home and You, not the tab bar. Asks (The Ball asks) opens from You and reveals.
@@ -79,7 +79,7 @@ export default function App(){
  useEffect(()=>{if(Platform.OS==='web'&&params.seal){markWebReadingVisitor();setVisitedSeal(true)}},[params.seal]);
  const readingContext={viewerBirthday:state.birthday,ageConfirmed:state.ageConfirmed,personName:personMode?personName.trim():undefined,plus:state.plus,viewerChart:state.plus&&state.moonSign&&state.risingSign?{moonSign:state.moonSign,risingSign:state.risingSign}:undefined};
  // Only the few self answers relevant to this question travel with it.
- const personalFacts=(q:string)=>({...withoutSelf(state.facts),...selfContext(q,state.facts,state.ageBand!=='adult'),...(state.birthday?{birthday:state.birthday}:{})});
+ const personalFacts=(q:string)=>({...withoutSelf(state.facts),...selfContext(q,state.facts,teenSafe(state)),...(state.birthday?{birthday:state.birthday}:{})});
  const askIds=useRef(new Map<string,string>());
  const askIdentity=(q:string)=>JSON.stringify([q.trim(),friend,friendTarget?.circle,friendTarget?.member,friendTarget?.firstName,personMode?personName.trim():null]);
  function askId(identity:string){let id=askIds.current.get(identity);if(!id){id=uuid();askIds.current.set(identity,id)}return id}

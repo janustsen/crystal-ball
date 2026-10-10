@@ -7,7 +7,7 @@ import {useStore} from './store';
 import {haptic} from './native';
 import {claimAskBonus,requestInsight,serverMetered} from './api';
 import {askBonuses,answersPerBonus} from './billing';
-import {answerAsk,areaLabels,askFor,asksOf,bonusDue,insightDue,insightEvery,nextAsk,nextInsightKind,reflection,selfAnswers,skipAsk} from './ball-asks';
+import {answerAsk,areaLabels,askFor,asksOf,bonusDue,insightDue,insightEvery,nextAsk,nextInsightKind,reflection,selfAnswers,skipAsk,teenSafe} from './ball-asks';
 import type {Insight,InsightKind} from './types';
 
 const kindLabels:Record<InsightKind,string>={portrait:'Your portrait',enjoy:'You might enjoy',try:'Something to try',shift:'One small shift'};
@@ -15,7 +15,7 @@ const kindLabels:Record<InsightKind,string>={portrait:'Your portrait',enjoy:'You
 // Answering from anywhere (this page or a Home shortcut) goes through here, so every 25th distinct answer grants its bonus reading.
 // Without Supabase the preview credits the device; with it the server credits each bonus once.
 export function useBallAsks(onNotice:(text:string,done?:boolean)=>void){
- const {state,update,saveAskProgress}=useStore(),teen=state.ageBand!=='adult',progress=asksOf(state),claiming=useRef(false);
+ const {state,update,saveAskProgress}=useStore(),teen=teenSafe(state),progress=asksOf(state),claiming=useRef(false);
  const due=bonusDue(progress);
  const [bonusFailed,setBonusFailed]=useState(false),[bonusAttempt,setBonusAttempt]=useState(0);
  useEffect(()=>{

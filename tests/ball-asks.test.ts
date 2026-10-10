@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {answerAsk,asks,asksOf,bonusDue,deckFor,insightDue,maxAskBonuses,nextAsk,selfContext,selfKey,skipAsk,validSelf} from '../src/ball-asks.ts';
+import {answerAsk,asks,asksOf,bonusDue,deckFor,insightDue,maxAskBonuses,nextAsk,selfContext,selfKey,skipAsk,teenSafe,validSelf} from '../src/ball-asks.ts';
 import {phraseSafety} from '../src/safety-policy.ts';
 import {predict} from '../server/engine.ts';
 import {handler} from '../server/handler.ts';
-import {requestOmen} from '../src/api.ts';
+import {requestInsight,requestOmen} from '../src/api.ts';
+import {updateBirthday} from '../src/profile.ts';
 import type {ModelProvider,Validator} from '../server/provider.ts';
 import type {AccountState} from '../src/types.ts';
 
@@ -128,4 +129,31 @@ test('the daily omen never carries self answers, so a long deck cannot break the
   await requestOmen(facts,{sunSign:null,birthday:undefined,ageConfirmed:true});
   assert.deepEqual(sent.facts,{current_focus:'Rest'});
  }finally{globalThis.fetch=original}
+});
+
+test('forgetting an adult birthday switches the deck and the answers sent to teen-safe, matching the engine',async()=>{
+ const adultOnly=new Set(asks.filter(ask=>ask.only==='adult').map(ask=>ask.id));
+ const shown=(state:AccountState)=>{const ids:string[]=[];for(let ask=nextAsk(state,teenSafe(state));ask;ask=nextAsk(state,teenSafe(state))){ids.push(ask.id);state=answerAsk(state,ask.id,ask.options[0])}return ids};
+ const adult={...account(),ageConfirmed:true,onboardingDone:true,birthday:'1990-05-01'};
+ assert.ok(shown(adult).some(id=>adultOnly.has(id)));
+ const forgot=updateBirthday(adult,undefined);
+ assert.equal(forgot.ageBand,'adult');
+ assert.equal(forgot.birthday,undefined);
+ assert.ok(!shown(forgot).some(id=>adultOnly.has(id)));
+ const original=globalThis.fetch;let sent:any;
+ globalThis.fetch=async(_url,init)=>{sent=JSON.parse(String(init?.body));return Response.json({kind:'ok',value:{title:'A Quiet Spark',text:'You like calm evenings and small plans, so a slow walk with a friend could suit your week nicely.'}})};
+ try{
+  await requestInsight({self_date_idea:'A cozy night in',self_routines:'Grounding',self_sunrise_3am:'3 a.m.',self_colors:'Bright'},'portrait',forgot);
+  assert.deepEqual(Object.keys(sent.facts).sort(),['self_colors','self_routines','self_sunrise_3am']);
+ }finally{globalThis.fetch=original}
+});
+
+test('a restored answer that is no longer an option is asked again and can be answered',()=>{
+ const target=deckFor(false)[0];
+ let state=account({[selfKey(target.id)]:'An option the bank no longer has'});
+ const asked=new Set<string>();
+ for(let ask=nextAsk(state,false);ask;ask=nextAsk(state,false)){asked.add(ask.id);state=answerAsk(state,ask.id,ask.options[1])}
+ assert.ok(asked.has(target.id));
+ assert.equal(state.facts[selfKey(target.id)],target.options[1]);
+ assert.ok(asksOf(state).seen.includes(target.id));
 });

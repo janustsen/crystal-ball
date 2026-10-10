@@ -1,6 +1,7 @@
 import type {AccountState,Asks,Facts,InsightKind} from './types.ts';
 import {activityTheme} from './social-policy.ts';
 import {askBonuses} from './billing.ts';
+import {ageGroup} from './profile.ts';
 
 // "The Ball asks": a hand-written deck of one-tap questions about yourself. Answers are remembered facts under
 // `self_<id>`; the engine only accepts a value that is one of its question's own options, so no free text reaches a prompt.
@@ -155,6 +156,9 @@ export const isSelfKey=(key:string)=>key.startsWith(selfPrefix);
 export const askFor=(key:string)=>isSelfKey(key)?byId.get(key.slice(selfPrefix.length)):undefined;
 export const isAskId=(id:unknown):id is string=>typeof id==='string'&&byId.has(id);
 // Teen-safe unless the account is a confirmed adult, matching the engine's teen-safe default.
+// The engine treats anyone without a valid adult birthday as teen-safe (forgetting a birthday keeps the stored age band),
+// so the client chooses the deck and the answers it sends by the same birthday rule.
+export const teenSafe=(state:Pick<AccountState,'birthday'>)=>ageGroup(state.birthday)!=='adult';
 export const deckFor=(teen:boolean)=>asks.filter(ask=>ask.only!==(teen?'adult':'teen'));
 export const maxAskBonuses=askBonuses(Math.max(deckFor(true).length,deckFor(false).length));
 
@@ -194,9 +198,10 @@ export function skipAsk(state:AccountState,id:string):AccountState {
  const current=asksOf(state);
  return {...state,asks:{...current,skipped:[...current.skipped.filter(s=>s!==id),id]}};
 }
+// An outdated or invalid stored answer (for example from a restored backup) counts as unanswered, so it can be answered again.
 // Unanswered questions first; skipped ones come back once the rest are answered. Undefined when every question has an answer.
 export function nextAsk(state:Pick<AccountState,'facts'|'asks'>,teen:boolean):Ask|undefined {
- const open=deckFor(teen).filter(ask=>!(selfKey(ask.id) in state.facts)),skipped=new Set(asksOf(state).skipped);
+ const open=deckFor(teen).filter(ask=>!validSelf(selfKey(ask.id),state.facts[selfKey(ask.id)],teen)),skipped=new Set(asksOf(state).skipped);
  return open.find(ask=>!skipped.has(ask.id))??asksOf(state).skipped.map(id=>open.find(ask=>ask.id===id)).find(Boolean);
 }
 // The Ball's instant acknowledgement after each answer, in rotation.
