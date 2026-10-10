@@ -37,9 +37,7 @@ With Xcode and an iOS Simulator runtime installed and the license accepted, run 
 
 For a physical phone using the private preview bridge, start the preview as above, then build with `EXPO_PUBLIC_ENGINE_URL` set to its reachable URL including `/engine` (for example, `http://janus-mac.tail8d2280.ts.net:8087/engine`) and `EXPO_PUBLIC_PREVIEW_SECRET` set to the value in that preview checkout’s `.local/preview-secret`. Native requests supply the engine URL’s origin alongside the token; browsers supply their own Origin header. Rebuild the native client after rotating the embedded token. Supabase also needs a phone-reachable URL when enabled.
 
-At build time, `app.config.js` adds an iOS ATS insecure-HTTP exception for exactly the configured engine hostname only when the URL uses HTTP and the hostname ends in `.ts.net`; other URLs keep `app.json`’s local-networking policy. Rebuild after changing that hostname. The `plugins/ios-scene.js` prebuild plugin adopts Expo’s scene delegate for iOS 27 launch and rejects unexpected AppDelegate templates; update the plugin if an Expo template change triggers that error.
-
-The [iOS launch evidence](docs/evidence/ux-feedback-2026-10-09/ios-build/README.md) records a simulator Release build from the combined feedback branch. It does not prove a physical iPhone engine request, VoiceOver, purchases, or all native integrations.
+At build time, `app.config.js` adds an iOS ATS insecure-HTTP exception for exactly the configured engine hostname only when the URL uses HTTP and the hostname ends in `.ts.net`; other URLs keep `app.json`’s local-networking policy. Rebuild after changing that hostname.
 
 ## Accounts Janus must create before hosted use
 
