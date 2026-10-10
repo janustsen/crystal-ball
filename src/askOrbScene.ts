@@ -23,12 +23,14 @@ export function askOrbDecor(scene:T.Scene,camera:T.Camera){
  const additive={blending:T.AdditiveBlending,depthTest:false,depthWrite:false,transparent:true,toneMapped:false,fog:false};
  const aura=new T.Sprite(new T.SpriteMaterial({map:glow,color:0xa77cf0,opacity:.4,...additive}));
  aura.position.copy(BALL);aura.renderOrder=9;scene.add(aura);
- // Stars on a loose ring in the view plane around the ball; a seeded scatter so every launch matches.
+ // Stars on a loose ring in the view plane around the ball, leaving the sector below it (the tab's label) dark;
+ // a seeded scatter so every launch matches.
+ const gap=1.8,from=-Math.PI/2+gap/2;
  let seed=11;
  const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
  const stars=Array.from({length:14},(_,i)=>{
   const s=new T.Sprite(new T.SpriteMaterial({map:i%3?dot:star,color:i%4?0xfff0d0:0xd8c4ff,...additive}));
-  const angle=i/14*Math.PI*2+rnd()*.35,radius=1.25+rnd()*.65;
+  const angle=from+(i+rnd()*.6)/14*(Math.PI*2-gap),radius=1.25+rnd()*.65;
   s.renderOrder=11;scene.add(s);
   return {s,angle,radius,size:(i%3?.2:.42)*(.7+rnd()*.6),rate:.6+rnd()*1.4,phase:rnd()*6.28};
  });
@@ -40,10 +42,10 @@ export function askOrbDecor(scene:T.Scene,camera:T.Camera){
   camera.updateMatrixWorld();
   right.setFromMatrixColumn(camera.matrixWorld,0);up.setFromMatrixColumn(camera.matrixWorld,1);
   const breath=.5+.5*Math.sin(t*.9);
-  aura.scale.setScalar(3.4+.3*breath);aura.material.opacity=(.3+.15*breath)*g;
+  aura.scale.setScalar(2.9+.2*breath);aura.material.opacity=(.3+.15*breath)*g;
   for(const {s,angle,radius,size,rate,phase} of stars){
    const twinkle=Math.max(0,Math.sin(t*rate+phase))**3;
-   at(angle+t*.04,radius,s.position);
+   at(angle+.12*Math.sin(t*.05+phase),radius,s.position);
    s.scale.setScalar(size*(.5+.5*twinkle));s.material.opacity=.35+.65*twinkle;
   }
   for(const {s,phase} of glints){
