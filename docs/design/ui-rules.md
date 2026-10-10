@@ -13,7 +13,8 @@ The captain's Claude Design canvas **Sky & History — UI refresh** (Sky and His
 | Inactive (tab bar) | #A8987F |
 | Accent gold / text on gold | #E3C78F / #20160F |
 | Glass card | rgba(22,15,11,.58–.62), 18 px backdrop blur on web, 1 px rgba(227,199,143,.22) border, 22 px radius |
-| Display | Cormorant Garamond: italic 36 px screen titles, 24–46 px headings, copy and buttons |
+| Display | IM Fell English: italic 36 px screen titles and 24–46 px headings |
+| Copy | Cormorant Garamond: body copy and buttons |
 | UI | Jost: labels 11 px, 0.14 em, uppercase; pills, captions and tab labels |
 
 `src/ui.tsx` owns the tokens and primitives and `src/Surface.tsx` the surfaces: glass `card` (and `error`), `row` buttons and `input` fields at 14 px radius, `chip` and `pill` at 999 px, and the gold `primary` pill for a screen's one main action; a selected chip or segment fills gold, a selected card takes a gold outline. Every tab shares the header (italic title, top-right glass readings-left pill that opens Plans) and the floating glass tab bar (14 px inset, 68 px, 26 px radius) with the reference's Home, Sky, History and You line icons and the raised gold ball for Ask. Rows that go somewhere use `RowLink` (label, optional detail, gold chevron); cards open with `CardHeader` (display title, label on the right). Text sits on glass or on the ground: the room fades to the ground behind each screen's content (more strongly in the reading and overlays), and the few labels set directly on the room photo take `styles.overRoom`'s soft shadow.

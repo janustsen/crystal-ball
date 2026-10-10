@@ -69,7 +69,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
   {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {section==='sky'?<>
-   <Txt display style={{fontSize:40,lineHeight:44,marginTop:8}}>A sky full of what-ifs.</Txt>
+   <Txt display style={{fontSize:34,lineHeight:40,marginTop:8}}>A sky full of what-ifs.</Txt>
    {data?.profile?<SkyPushPrompt key={data.owner} answered={data.profile.sky_push_answered===true} onAnswered={skyPushSaved}/>:null}
    {data?.profile?.school_id?<View style={styles.panel}><Surface kind="card"><SkyOmen testID="sky-omen-school" omen={data.omens?.find(omen=>omen.school_id===data.profile?.school_id)} unavailable={!data.omens}/></Surface></View>:null}
    {data?.circles.map((circle,index)=><View key={circle.id} style={styles.panel}><Surface kind="card"><Txt>Circle {index+1}</Txt><SkyOmen testID={`sky-omen-circle-${index+1}`} omen={data.omens?.find(omen=>omen.circle_id===circle.id)} unavailable={!data.omens}/></Surface></View>)}
