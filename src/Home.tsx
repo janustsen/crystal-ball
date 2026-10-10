@@ -10,7 +10,7 @@ import {AskOrb} from './AskOrb';
 
 // The floating glass tab bar: 68 pt tall, inset 14 pt from the sides and 18 pt from the bottom safe area.
 export const homeTabBarHeight=68;
-const barInset=18;
+export const barInset=18;
 // Space the tab bar takes from the bottom of the screen, so content ends above it.
 export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 // Web lets a drag on the ball spin it instead of scrolling the page.
@@ -88,13 +88,14 @@ const tabIcons:Record<string,string>={
  You:icon('<circle cx="12" cy="8.5" r="5"/><path d="M12 13.5V22M8.5 18.5h7"/>')
 };
 const askBall='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54"><defs><radialGradient id="g" cx="36%" cy="30%" r="75%"><stop offset="0" stop-color="#FBE7BE"/><stop offset=".38" stop-color="#D49A4C"/><stop offset=".78" stop-color="#6B3E18"/><stop offset="1" stop-color="#2A1709"/></radialGradient></defs><circle cx="27" cy="27" r="27" fill="url(#g)"/></svg>';
-type Tab='Home'|'Sky'|'Ask'|'History'|'You';
+export const tabs=['Home','Sky','Ask','History','You'] as const;
+export type Tab=typeof tabs[number];
 // The floating glass tab bar shared by every tab, with the raised gold ball for Ask in the centre.
 export function HomeTabBar({current,disabled,reduce,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;bottom:number;onTab:(tab:Tab)=>void}){
  const label={fontFamily:fonts.sansMedium,fontSize:11,lineHeight:14,letterSpacing:.44};
  return <View accessibilityRole="tablist" style={{position:'absolute',left:14,right:14,bottom:bottom+barInset,height:homeTabBarHeight,flexDirection:'row'}}>
   <View pointerEvents="none" style={{position:'absolute',left:0,top:0,right:0,bottom:0,borderRadius:26,borderWidth:1,borderColor:'rgba(227,199,143,.2)',backgroundColor:'rgba(18,12,9,.74)',boxShadow:'0 10px 30px rgba(0,0,0,.35)',...{backdropFilter:'blur(18px) saturate(1.2)'}}}/>
-  {(['Home','Sky','Ask','History','You'] as Tab[]).map(t=>{const on=t===current;return <Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={on} accessibilityState={{selected:on}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?4:5}}>
+  {tabs.map(t=>{const on=t===current;return <Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={on} accessibilityState={{selected:on}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?4:5}}>
    {t==='Ask'?<View style={{marginTop:-26,width:54,height:54,borderRadius:27,boxShadow:'0 0 0 1px rgba(227,199,143,.55), 0 0 0 5px rgba(20,14,10,.9), 0 0 28px rgba(232,170,90,.4)'}}><AskOrb size={54} reduce={reduce} fallback={<SvgXml aria-hidden xml={askBall} width={54} height={54}/>}/></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',on?colors.gold:colors.inactive)} width={22} height={22}/>}
    <Txt allowFontScaling={false} style={[label,{color:on?colors.ivory:colors.inactive}]}>{t}</Txt>
   </Pressable>})}
