@@ -25,7 +25,7 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
 }
 
 export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
- const {state,update}=useStore(),[omen,setOmen]=useState<Omen|null>(null),today=localDay(),last=lastWhisper(state.whispers,today);
+ const {state,update,backupBusy}=useStore(),[omen,setOmen]=useState<Omen|null>(null),today=localDay(),last=lastWhisper(state.whispers,today);
  useEffect(()=>{
   let mounted=true;
   const refresh=()=>{
@@ -38,7 +38,7 @@ export function DailyOmen({aiConsent=''}:{aiConsent?:string}){
  },[state.facts,state.sunSign,state.birthday,state.ageConfirmed,aiConsent]);
  const current=currentOmen(omen),whisper=current?.text?current.whisper:null;
  // The first whisper shown each day is the one checked next morning.
- useEffect(()=>{if(current&&whisper&&!state.whispers?.some(w=>w.day===current.day))update(s=>({...s,whispers:keepWhisper(s.whispers,current.day,whisper)}))},[current?.day,whisper,state.whispers]);
+ useEffect(()=>{if(!backupBusy&&current&&whisper&&!state.whispers?.some(w=>w.day===current.day))update(s=>({...s,whispers:keepWhisper(s.whispers,current.day,whisper)}))},[current?.day,whisper,state.whispers,backupBusy]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}

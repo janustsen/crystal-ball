@@ -454,3 +454,50 @@ test('web quota refusals including pending browser reservations preserve eligibi
  // No backup upload to release: an anonymous visitor has no linked account.
 });
 
+
+test('DailyOmen saves a displayed whisper after the balance archive lock releases',async()=>{
+ const storeHooks=hooks(),omenHooks=hooks();
+ const {keepWhisper,lastWhisper,answerWhisper,addDays}=await import('../src/whisper');
+ const {weekRecap}=await import('../src/recap');
+ const day=retention.localDay(),whisper='By tonight, a small plan may change for the better.';
+ let disk=JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day,count:0}}),pause=false;
+ let release!:()=>void,entered!:()=>void;
+ const blocked=new Promise<void>(resolve=>{release=resolve;});
+ const writing=new Promise<void>(resolve=>{entered=resolve;});
+ const store=load('../src/store.tsx',{
+  react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,
+  './cloud':{anonymousOwner:async()=>'owner'},'./api':{},
+  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{if(pause){entered();await blocked;}disk=value;}},
+  './native':{cancelCheckIn:async()=>{},reopenCheckIn:()=>{}},
+ },[]);
+ const renderStore=()=>storeHooks.render(()=>store.Store({})).props.value;
+ renderStore();await tick();renderStore();await tick();
+ let finish!:(value:unknown)=>void;
+ const response=new Promise(resolve=>{finish=resolve;});
+ const omen=load('../src/DailyOmen.tsx',{
+  react:omenHooks.react,'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
+  './store':{useStore:renderStore},'./retention':retention,
+  './daily-omen':{loadDailyOmen:()=>response,omenTries:2},
+  './whisper':{keepWhisper,lastWhisper,answerWhisper},
+  './ui':{colors:{},fonts:{},styles:{}},'./Home':{OmenCard:'OmenCard'},
+ },[]);
+ const renderOmen=()=>omenHooks.render(()=>omen.DailyOmen({}));
+ renderOmen();pause=true;
+ const applying=renderStore().applyBalance({owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:0,used:0,day});
+ await writing;
+ finish({day,text:'A little starlight invites a fresh beginning.',whisper,tries:1});await tick();
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ assert.equal(renderStore().backupBusy,true);
+ assert.ok(nodes(renderOmen()).some(n=>n.props.testID==='omen-whisper'));
+ assert.equal(renderStore().state.whispers,undefined);
+ pause=false;release();await applying;
+ assert.equal(renderStore().backupBusy,false);
+ renderOmen();renderStore();await tick();
+ assert.deepEqual(JSON.parse(disk).whispers,[{day,text:whisper}]);
+ renderOmen();renderStore();await tick();
+ const saved=JSON.parse(disk).whispers;
+ assert.equal(saved.length,1);
+ const tomorrow=addDays(day,1);
+ assert.equal(lastWhisper(saved,tomorrow)?.text,whisper);
+ assert.equal(weekRecap([],answerWhisper(saved,day,'yes',tomorrow),tomorrow).landed,1);
+});
