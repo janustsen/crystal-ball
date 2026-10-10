@@ -11,4 +11,3 @@ test('check-ins clamp both bounds without shortening the forecast horizon',()=>{
  assert.equal(checkInDueDate('in 6 months','2026-10-03'),'2027-04-03');
  assert.equal(forecastDueDate('in 10 years','2026-10-03'),'2036-10-03');
 });
-
