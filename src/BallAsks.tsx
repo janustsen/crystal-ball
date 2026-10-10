@@ -54,7 +54,7 @@ export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;redu
  }
  const insight=moment();
  return <View testID="ball-asks">
-  <Txt style={styles.muted}>One tap each, skip anything. The Ball uses a few of your answers to make your forecasts more personal.</Txt>
+  {answered?null:<Txt style={styles.muted}>One tap each, skip anything. The Ball uses a few of your answers to make your forecasts more personal.</Txt>}
   <View style={styles.panel}><Surface kind="card">
    <View style={styles.row}><Txt testID="ask-count" style={styles.label}>{`${answered} answered`}</Txt><View accessibilityLabel={`${insightEvery-untilInsight} of ${insightEvery} toward your next insight`} style={{flexDirection:'row',gap:4}}>{Array.from({length:insightEvery},(_,i)=><View key={i} style={{width:10,height:3,borderRadius:2,backgroundColor:i<insightEvery-untilInsight?colors.gold:'rgba(227,199,143,.25)'}}/>)}</View></View>
    <Txt style={[styles.caption,{marginTop:8}]}>{`Free insight in ${untilInsight} · bonus reading in ${untilBonus}`}</Txt>
@@ -63,7 +63,7 @@ export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;redu
    {tapped?<Txt testID="ask-reflection" style={[styles.caption,{color:colors.gold,textAlign:'center',marginBottom:12}]}>{reflection(answered)}</Txt>:null}
    <Txt style={[styles.label,{textAlign:'center'}]}>{areaLabels[next.area]}</Txt>
    <Txt testID="ask-question" display accessibilityRole="header" style={{fontSize:32,lineHeight:36,textAlign:'center',marginTop:10}}>{next.question}</Txt>
-   <View accessibilityRole="radiogroup" style={{marginTop:18,alignItems:'center'}}>{next.options.map((option,i)=><Pressable testID={`ask-option-${i}`} key={option} accessibilityRole="radio" aria-checked={false} accessibilityState={{checked:false}} onPress={()=>{setTapped(true);answer(next.id,option)}} style={{minHeight:52,paddingHorizontal:18,paddingVertical:12,marginVertical:5}}><Surface kind="chip"><Txt style={{fontSize:19,lineHeight:28,textAlign:'center'}}>{option}</Txt></Surface></Pressable>)}</View>
+   <View accessibilityRole="radiogroup" style={{marginTop:14,flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:8}}>{next.options.map((option,i)=><Pressable testID={`ask-option-${i}`} key={option} accessibilityRole="radio" aria-checked={false} accessibilityState={{checked:false}} onPress={()=>{setTapped(true);answer(next.id,option)}} style={{minHeight:52,paddingHorizontal:18,paddingVertical:12}}><Surface kind="chip"><Txt style={{fontSize:19,lineHeight:28,textAlign:'center'}}>{option}</Txt></Surface></Pressable>)}</View>
    <Pressable testID="ask-skip" accessibilityRole="button" onPress={()=>skip(next.id)} style={{minHeight:44,justifyContent:'center',alignItems:'center',marginTop:6}}><Txt style={{color:colors.ice}}>Skip</Txt></Pressable>
   </View></Enter>:<View style={styles.panel}><Surface kind="card"><Txt display style={{fontSize:26,lineHeight:30}}>You’ve answered every question the Ball has, for now.</Txt><Txt style={styles.caption}>Change any answer below whenever you change.</Txt></Surface></View>)}
   {progress.insights.length?<><Txt display style={[styles.title,{marginTop:32}]}>Your insights</Txt>{[...progress.insights].reverse().map(item=><View key={item.at} style={styles.panel}><Surface kind="card"><CardHeader title={item.title} label={kindLabels[item.kind]}/><Txt style={{marginTop:8}}>{item.text}</Txt></Surface></View>)}</>:null}

@@ -166,10 +166,11 @@ export default function App(){
  const home=ready&&tab==='Home'&&!immersive&&!(params.seal&&Platform.OS==='web');
  const close=()=>{router.setParams({seal:undefined});if(share){setShare(false);return}if(paywall){setPaywall(false);return}cancel();setTab('Home')};
  // The room spot behind the screen; content docks below the spot's focal object (the ball, at Home and Ask).
+ // The Ball asks docks higher than You, its spot, so a whole question card fits above the tab bar.
  // The locked Inner Library keeps its door upsell over the You spot; Plus enters the chamber itself.
  const spot:Spot=onboarding?'Home':paywall?'You':tab==='Library'?state.plus?'Library':'You':tab==='Asks'?'You':tab,askFlow=tab==='Ask'&&!immersiveOverlay;
  const bottomPadding=immersive?Math.max(insets.bottom,12):tabBarSpace(insets.bottom);
- const dockTop=!shell.height?14:onboarding?Math.max(insets.top+24,56):!immersive?contentTop(spot,shell.width,shell.height):askFlow?Math.max(14,contentTop('Ask',shell.width,shell.height)-headerHeight):14;
+ const dockTop=!shell.height?14:onboarding?Math.max(insets.top+24,56):!immersive?(tab==='Asks'?Math.round(shell.height*.3):contentTop(spot,shell.width,shell.height)):askFlow?Math.max(14,contentTop('Ask',shell.width,shell.height)-headerHeight):14;
  const availableHeight=Math.max(0,shell.height-bottomPadding-(immersive&&!onboarding?headerHeight:0));
  const noticeHeight=notice?Math.min(260,availableHeight/2):0,noticeSpace=notice?noticeHeight+8:0;
  // A notice lifts the content to keep a scroll viewport. Listening keeps a smaller one (its title, mic and Type
