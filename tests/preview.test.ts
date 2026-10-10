@@ -4,7 +4,7 @@ import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {randomBytes} from 'node:crypto';
 const bridge=createRequire(import.meta.url)('../server/preview.cjs');
-test('authenticated clients reach the configured engine port through every preview route',async()=>{
+test('native clients supply their own origin to every preview route',async()=>{
  const secret=randomBytes(32).toString('hex');
  let forwarded=0;
  let omenValue:Record<string,unknown>={text:'Your personal omen'};
@@ -27,11 +27,7 @@ test('authenticated clients reach the configured engine port through every previ
   const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
   process.env.EXPO_PUBLIC_ENGINE_URL=base+'/engine';
   process.env.EXPO_PUBLIC_PREVIEW_SECRET=secret;
-  const {requestOmen,request}=await import('../src/api');
-  globalThis.fetch=(input,init)=>{
-   const headers=new Headers(init?.headers);headers.set('origin',base);
-   return originalFetch(input,{...init,headers});
-  };
+  const {requestOmen,request,requestChartWeather,previewHeaders}=await import('../src/api');
   const {invalidateOmen,loadDailyOmen,omenKey}=await import('../src/daily-omen');
   const whisper='By tonight, a small plan may change for the better.';
   for(const invalid of [undefined,null,42,'','By tonight, short.',`By tonight, ${'a'.repeat(140)}.`,'A small plan may change for the better.'])for(const recover of [true,false]){
@@ -51,11 +47,12 @@ test('authenticated clients reach the configured engine port through every previ
   }
   invalidateOmen();omenValue={text:'Your personal omen',whisper};
   assert.deepEqual(await requestOmen({},{sunSign:null,ageConfirmed:true},'Candidate AI'),omenValue);
+  assert.equal(await requestChartWeather({ageConfirmed:true}),'Your personal omen');
   for(const action of ['plan','predict'] as const){
    assert.equal((await request(action,'Question',{},false,new AbortController().signal)).kind,'ok');
   }
-  for(const [path,target] of [['/engine','/'],['/engine/social','/social'],['/engine/health','/health']]){
-   const init={method:path.endsWith('health')?'GET':'POST',headers:{origin:base,'x-preview-token':secret},...(path.endsWith('health')?{}:{body:JSON.stringify({action:'omen'})})};
+  for(const [path,target] of [['/engine','/'],['/engine/social','/social'],['/engine/billing','/billing'],['/engine/health','/health']]){
+   const init={method:path.endsWith('health')?'GET':'POST',headers:previewHeaders,...(path.endsWith('health')?{}:{body:JSON.stringify({action:'omen'})})};
    const response=await originalFetch(base+path,init);
    assert.equal(response.status,200);
    const result=await response.json();assert.equal(result.path,target);
@@ -71,7 +68,6 @@ test('authenticated clients reach the configured engine port through every previ
    assert.equal(forwarded,before);
   }
  }finally{
-  globalThis.fetch=originalFetch;
   keys.forEach((key,index)=>{if(previous[index]===undefined)delete process.env[key];else process.env[key]=previous[index]});
   await Promise.all([server,upstream].map(server=>new Promise<void>(resolve=>server.close(()=>resolve()))));
  }
