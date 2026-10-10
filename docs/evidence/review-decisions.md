@@ -2,7 +2,7 @@
 
 ## Captain age decision and review handoff — 2026-10-01
 
-Birthday Skip requires one “I’m 13 or older” confirmation, including friend-link entry and legacy no-birthday profiles. Declining blocks access and survives reload. Confirmed skippers retain no birthday or Sun sign and use teen-safe defaults. A supplied under-13 birthday overrides confirmation. Focus remains skippable.
+Birthday Skip requires one “I’m 13 or older” confirmation, including friend-link entry and legacy no-birthday profiles. Declining blocks access and survives reload. Confirmed skippers retain no birthday or Sun sign and use teen-safe defaults. A supplied under-13 birthday overrides confirmation. The former focus step is superseded by the [current onboarding usage](../../README.md).
 
 `canRead` gates the app, reading saves and cloud mirroring. `restoreProfile` no longer treats old history or remembered facts as proof of age. Successful onboarding sets confirmation and completion before a friend reading can start, so its first save is eligible for mirroring without reload. The [profile contract](../../SETUP.md#reading-profile-and-birth-chart) owns API eligibility; the flag is an explicit self-attestation, not verified identity. The original birthday-removal decision was superseded; see the [profile contract](../../SETUP.md#reading-profile-and-birth-chart). Forget everything clears personal data while retaining 13+ eligibility; it does not restart onboarding.
 

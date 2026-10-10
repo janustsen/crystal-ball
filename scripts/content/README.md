@@ -40,7 +40,7 @@ Before adding a question, run it through the live engine once. Small local model
 ## Boundaries
 
 - Capture replaces browser speech recognition with a silent stub to keep microphone errors off the Ask screen; questions are typed. These videos do not verify voice input.
-- Drive through stable testIDs (`tab-*`, `type-instead`, `question-input`, `option-0`, `record-reveal`, `check-in-*`, `daily-omen`), Action labels (`continue`, `meet-the-ball`, `try-again`) and the History row's question text. After a UI change, render a small batch and check each format before rendering the bank.
+- Drive through stable testIDs (`tab-*`, `type-instead`, `question-input`, `option-0`, `record-reveal`, `check-in-*`, `daily-omen`), Action labels (`continue`, `try-again`) and the History row's question text. After a UI change, render a small batch and check each format before rendering the bank.
 - Format C requires the room art layer (`.room` in `RoomScene.web.tsx`) and fails with an explicit error if it is absent. Background capture hides everything else in the app shell.
 - Capture uses a CDP screencast at device pixels. Playwright's `recordVideo` would upscale a 360×640 capture.
 - Local engine only. The renderer refuses a hosted provider, because hosted inference requires the viewer's own in-app AI consent.

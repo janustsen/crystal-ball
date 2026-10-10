@@ -80,10 +80,12 @@ const latest=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ba
 // Adult profile through the real onboarding, off camera; each video starts a fresh copy with today's free reading.
 async function profile(browser){
  const page=await session(browser);await page.goto(base);
- await page.getByTestId('onboarding-birthday').fill(profileBirthday);
+ await page.getByTestId('birthday-month').fill(profileBirthday.slice(5,7));
+ await page.getByTestId('birthday-day').fill(profileBirthday.slice(8,10));
+ await page.getByTestId('birthday-year').fill(profileBirthday.slice(0,4));
  // The app claims the day's omen before inference; snapshotting mid-request would cache an empty omen into every copy.
  const omen=page.waitForResponse(r=>{try{return r.request().postDataJSON()?.action==='omen'}catch{return false}},{timeout:90000});
- await page.getByTestId('continue').click();await page.getByTestId('meet-the-ball').click();
+ await page.getByTestId('continue').click();
  await omen;await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}').text,null,{timeout:10000}); // omenKey in src/daily-omen.ts
  await assertHomeSafe(page);
  const state=await page.context().storageState();await page.context().close();return state;

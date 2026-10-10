@@ -73,3 +73,20 @@ export function personQuestionIssue(question:string,name?:string):string|undefin
  const matches=subject.some((_,i)=>!/\p{L}/u.test(subject[i-1]||'')&&letters.every((letter,j)=>letter===subject[i+j])&&!/\p{L}/u.test(subject[i+letters.length]||''));
  if(!matches)return `Include ${name} in your question, or change the first name to match.`;
 }
+
+// A birthday entered as three fields: month, day and year.
+export type BirthdayParts=[month:string,day:string,year:string];
+const partWidth=[2,2,4];
+export function typeBirthday(parts:BirthdayParts,index:number,text:string):{parts:BirthdayParts;focus:number}{
+ const next=[...parts] as BirthdayParts;
+ const digits=text.replace(/\D/g,'').slice(0,partWidth[index]);
+ next[index]=digits;
+ const complete=digits.length===partWidth[index]||(index===0&&/^[2-9]$/.test(digits))||(index===1&&/^[4-9]$/.test(digits));
+ return {parts:next,focus:complete&&index<2?index+1:index};
+}
+// The fields as YYYY-MM-DD, '' when all are empty, or undefined when they are partly filled.
+export function joinBirthday([month,day,year]:BirthdayParts):string|undefined{
+ if(!month&&!day&&!year)return '';
+ if(!month||!day||year.length!==4)return;
+ return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+}

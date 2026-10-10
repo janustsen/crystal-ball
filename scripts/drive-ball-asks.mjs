@@ -15,7 +15,7 @@ async function open(birthday,name){
  context.setDefaultTimeout(120000);const page=await context.newPage(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  page.on('response',async response=>{if(response.request().method()==='POST'&&response.url().includes('/engine'))try{log.push({profile:name,request:response.request().postDataJSON(),response:await response.json()})}catch{}});
- await page.goto(url,{timeout:300000});await page.getByTestId('onboarding-birthday').fill(birthday);await page.getByTestId('continue').click();await page.getByTestId('learning-growth').click();await page.getByTestId('meet-the-ball').click();
+ await page.goto(url,{timeout:300000});await page.getByTestId('birthday-month').fill(birthday.slice(5,7));await page.getByTestId('birthday-day').fill(birthday.slice(8,10));await page.getByTestId('birthday-year').fill(birthday.slice(0,4));await page.getByTestId('continue').click();
  await page.getByTestId('tab-you').click();await page.getByTestId('open-ball-asks').click();await page.getByTestId('ask-question').waitFor();
  return {context,page,errors,shot:async file=>{await page.waitForTimeout(1800);await page.screenshot({path:`${out}/${file}.png`})}};
 }

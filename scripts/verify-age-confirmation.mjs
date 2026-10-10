@@ -18,7 +18,7 @@ try{
     await route.fulfill({contentType:'application/json',body:JSON.stringify({kind:'ok',value})});
    });
    await page.goto(entry==='friend'?`${base}/?friend=1&question=${encodeURIComponent('Will I finish writing in six months?')}`:base);
-   await expect(page.getByTestId('onboarding-birthday')).toBeVisible();await expect(page.getByTestId('tab-ask')).toHaveCount(0);
+   await expect(page.getByTestId('birthday-month')).toBeVisible();await expect(page.getByTestId('tab-ask')).toHaveCount(0);
    await page.getByTestId('skip-for-now').click();await expect(page.getByTestId('confirm-age')).toBeVisible();expect(requests).toHaveLength(0);
    await page.getByTestId(accept?'confirm-age':'decline-age').click();
    await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).onboardingBlocked)).toBe(!accept);
