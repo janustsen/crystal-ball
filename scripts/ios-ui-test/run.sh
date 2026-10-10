@@ -15,5 +15,5 @@ xcrun simctl install "$udid" "$app"
 (until [ -e "$out/ready-for-push" ]; do sleep 1; done; cd "$root" && npx tsx scripts/simulator-push.mts "$udid" sky > "$out/push.log" 2>&1; touch "$out/pushed") &
 watcher=$!
 trap 'kill $watcher 2>/dev/null || true' EXIT
-cd "$root" && xcodebuild test -workspace ios/CrystalBall.xcworkspace -scheme RitualUITests -destination "id=$udid" \
- -derivedDataPath .local/ui-test-build -resultBundlePath "$out/RitualUITests-$(date +%s).xcresult" TEST_RUNNER_RITUAL_OUT="$out" TEST_RUNNER_RITUAL_METRO="$metro"
+cd "$root" && TEST_RUNNER_RITUAL_OUT="$out" TEST_RUNNER_RITUAL_METRO="$metro" xcodebuild test -workspace ios/CrystalBall.xcworkspace -scheme RitualUITests \
+ -destination "id=$udid" -derivedDataPath .local/ui-test-build -resultBundlePath "$out/RitualUITests-$(date +%s).xcresult"
