@@ -27,16 +27,22 @@ function consumeDue(budget:Budget){
  }
 }
 const saveBudget=(budget:Budget)=>AsyncStorage.setItem(budgetKey,JSON.stringify(budget));
+async function cancelPending(budget:Budget,all=false){
+ for(const pending of await Notifications.getAllScheduledNotificationsAsync())if(all||pending.identifier.startsWith('ritual-')||pending.identifier.startsWith('check-in-')){
+  await Notifications.cancelScheduledNotificationAsync(pending.identifier);
+  consumeDue(budget);delete budget.scheduled[pending.identifier];await saveBudget(budget);
+ }
+ consumeDue(budget);budget.scheduled={};await saveBudget(budget);
+}
 export function scheduleRitual(state:PlanContext['state'],additional:Candidate[]=[]):Promise<Planned[]>{
  if(Platform.OS==='web')return Promise.resolve([]);
  const next=work.catch(()=>{}).then(async()=>{
   const budget=await readBudget();consumeDue(budget);await saveBudget(budget);
   if(!await allowNotifications(false))return [];
-  for(const pending of await Notifications.getAllScheduledNotificationsAsync())if(pending.identifier.startsWith('ritual-')||pending.identifier.startsWith('check-in-'))await Notifications.cancelScheduledNotificationAsync(pending.identifier);
-  consumeDue(budget);budget.scheduled={};await saveBudget(budget);
+  await cancelPending(budget);
   const plan=planNotifications(state,new Date(),28,budget.delivered,additional);
-  budget.scheduled=Object.fromEntries(plan.map(p=>[p.id,p.at.getTime()]));await saveBudget(budget);
   for(const p of plan){
+   budget.scheduled[p.id]=p.at.getTime();await saveBudget(budget);
    await Notifications.scheduleNotificationAsync({identifier:p.id,content:{title:p.title,body:p.body,data:p.data},trigger:{type:Notifications.SchedulableTriggerInputTypes.DATE,date:p.at}});
   }
   return plan;
@@ -47,8 +53,7 @@ export function forgetNotifications(){
  if(Platform.OS==='web')return Promise.resolve();
  const next=work.catch(()=>{}).then(async()=>{
   const budget=await readBudget();consumeDue(budget);await saveBudget(budget);
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  consumeDue(budget);budget.scheduled={};await saveBudget(budget);
+  await cancelPending(budget,true);
   await Notifications.dismissAllNotificationsAsync();
   await Notifications.clearLastNotificationResponseAsync();
  });

@@ -158,3 +158,58 @@ test('manual reminders do not bypass back-off or claim a suppressed reminder was
  assert.match(await f.api.requestCheckIn(()=>state,'reading'),/No reminder scheduled/);
  assert.ok(![...f.pending.values()].some(p=>p.content.data.checkIns));
 });
+
+for(const failAt of [1,2])for(const accepted of [false,true])test(`failed scheduling reserves only attempted notifications, failAt=${failAt}, accepted=${accepted}`,async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,9,8)});
+ let f=fixture();const state=account(),schedule=f.notifications.scheduleNotificationAsync;
+ const attempted:string[]=[];
+ f.notifications.scheduleNotificationAsync=async value=>{
+  attempted.push(value.identifier);
+  if(attempted.length<failAt||accepted)await schedule(value);
+  if(attempted.length===failAt)throw new Error('native failure');
+ };
+ await assert.rejects(f.api.scheduleRitual(state),/native failure/);
+ const budget=JSON.parse([...f.disk.values()][0]);
+ assert.deepEqual(Object.keys(budget.scheduled),attempted);
+ t.mock.timers.setTime(new Date(2026,9,10,9).getTime());
+ f=fixture(f.disk,f.pending);state.ritual.notify.time='12:30';
+ const preview=await f.api.previewNotifications(state);
+ assert.ok(preview.some((p:any)=>p.id==='ritual-2026-10-10-morning'));
+ await f.api.scheduleRitual(state);
+ assert.ok(f.pending.has('ritual-2026-10-10-morning'));
+ const saved=JSON.parse([...f.disk.values()][0]);
+ assert.ok(Object.values(saved.delivered).some((ids:any)=>ids.includes(attempted.at(-1))));
+ assert.equal(saved.delivered['2026-10-10'],undefined);
+});
+
+for(const action of ['replan','forget'])test(`completed cancellations release reservations before later deadlines during ${action}`,async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,8)});
+ const f=fixture(),state=account();
+ await f.api.scheduleRitual(state);
+ const cancel=f.notifications.cancelScheduledNotificationAsync;
+ let calls=0;
+ f.notifications.cancelScheduledNotificationAsync=async id=>{
+  await cancel(id);
+  if(++calls===2)t.mock.timers.setTime(new Date(2026,9,10,9).getTime());
+ };
+ state.ritual.notify.time='12:30';
+ if(action==='forget')await f.api.forgetNotifications();else await f.api.scheduleRitual(state);
+ const saved=JSON.parse([...f.disk.values()][0]);
+ assert.equal(saved.delivered['2026-10-10'],undefined);
+ const preview=await f.api.previewNotifications(state);
+ assert.ok(preview.some((p:any)=>p.id==='ritual-2026-10-10-morning'));
+ await f.api.scheduleRitual(state);
+ assert.ok(f.pending.has('ritual-2026-10-10-morning'));
+});
+
+test('a deadline crossed during cancellation remains potentially delivered',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,8)});
+ const f=fixture(),state=account();await f.api.scheduleRitual(state);
+ const cancel=f.notifications.cancelScheduledNotificationAsync;
+ f.notifications.cancelScheduledNotificationAsync=async id=>{
+  t.mock.timers.setTime(new Date(2026,9,10,9).getTime());await cancel(id);
+ };
+ await f.api.forgetNotifications();state.ritual.notify.time='12:30';
+ const preview=await f.api.previewNotifications(state);
+ assert.ok(!preview.some((p:any)=>p.id==='ritual-2026-10-10-morning'));
+});
