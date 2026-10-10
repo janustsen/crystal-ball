@@ -26,6 +26,9 @@ export function validBalance(value:unknown):value is Balance{
 // The server's 402 message; the app opens Plans when it sees it.
 export const noReadings='No readings left today. Choose Plus or a reading pack to keep going.';
 export const dailyReadings=(plus:boolean)=>plus?10:1;
+// The Ball asks: one bonus reading for every 25 distinct questions answered. Bonuses are credited like a pack and never expire.
+export const answersPerBonus=25;
+export const askBonuses=(answered:number)=>Math.floor(answered/answersPerBonus);
 export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'>)=>Math.max(0,dailyReadings(b.plus)-b.used)+b.packs;
 // Paywall copy: everything Plus unlocks, in order.
 export const plusUnlocks=[`${dailyReadings(true)} readings a day`,'The deeper Why: your answers, assumptions and news leads, with your Moon and rising','Monthly chart weather','A narrated Ball',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];

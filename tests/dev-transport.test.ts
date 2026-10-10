@@ -1,4 +1,5 @@
 import {serverRpcs,type ServerRpc} from '../server/rpc.ts';
+import {asks} from '../src/ball-asks.ts';
 import {socialHandler} from '../server/social.ts';
 import test,{type TestContext} from 'node:test';
 import assert from 'node:assert/strict';
@@ -129,6 +130,13 @@ process.exit(result.status??1);`,env);
  assert.equal((await meter.styles(viewer,'classic','classic')).plus,true);
  const reading=await meter.authorizeCharge(viewer,randomUUID(),{question:'Will I learn?',friend:false});
  assert.equal((await meter.charge(viewer,reading)).used,1);
+ // The Ball asks bonus: one per 25 distinct bank answers, each credited once however often it is claimed.
+ await assert.rejects(meter.askBonus(viewer,['not_a_question']),/The Ball asks/);
+ const answered=asks.slice(0,50).map(ask=>ask.id);
+ assert.equal((await meter.askBonus(viewer,answered.slice(0,24))).packs,0);
+ assert.equal((await meter.askBonus(viewer,[...answered.slice(0,25),...answered.slice(0,25)])).packs,1);
+ assert.equal((await meter.askBonus(viewer,answered)).packs,2);
+ assert.equal((await meter.askBonus(viewer,answered)).packs,2);
 
  const weather="Gemini's skies invite a slower pace.";
  let generated=0;

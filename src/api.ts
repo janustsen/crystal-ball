@@ -1,5 +1,6 @@
 import {localDay} from './retention';
-import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,BallStyle,CardStyle} from './types';
+import type {Facts,Result,Plan,Prediction,ReadingContext,AccountState,BallStyle,CardStyle,Insight,InsightKind} from './types';
+import {selfAnswers,withoutSelf} from './ball-asks';
 import type {Balance} from './billing';
 import {validBalance} from './billing';
 import {solveProof,type WebReading} from './web-reading';
@@ -18,12 +19,21 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
 }
 
 export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent=''):Promise<string>{
- facts={...facts};delete facts.sun_sign;
+ facts=withoutSelf(facts);delete facts.sun_sign;
  if(sunSign)facts.sun_sign=sunSign;
  const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
  return result.value.text;
+}
+
+// The Ball asks: a free insight from the most recent answers (the engine accepts at most 30 facts).
+export async function requestInsight(facts:Facts,kind:InsightKind,{birthday,ageConfirmed,ageBand}:Pick<AccountState,'birthday'|'ageConfirmed'|'ageBand'>,aiConsent=''):Promise<Insight>{
+ const recent=Object.fromEntries(selfAnswers(facts,ageBand!=='adult').slice(-30).map(({key,answer})=>[key,answer]));
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'insight',question:'The Ball asks insight',insightKind:kind,facts:recent,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
+ const result=await response.json().catch(()=>null);
+ if(!response.ok||result?.kind!=='ok'||typeof result.value?.title!=='string'||typeof result.value?.text!=='string')throw new Error('Insight unavailable.');
+ return {kind,title:result.value.title,text:result.value.text,at:new Date().toISOString()};
 }
 
 export async function requestChartWeather({birthday,ageConfirmed,moonSign,risingSign}:Pick<AccountState,'birthday'|'ageConfirmed'|'moonSign'|'risingSign'>,aiConsent='',localDate=localDay()):Promise<string>{
@@ -46,6 +56,7 @@ async function billing(body:Record<string,unknown>):Promise<Balance>{
 export const loadBalance=()=>billing({action:'balance'});
 export const syncStoreBalance=()=>billing({action:'sync'});
 export const simulatePurchase=(kind:string)=>billing({action:'simulate',kind});
+export const claimAskBonus=(answered:string[])=>billing({action:'askBonus',answered});
 export const saveStyles=(ball:BallStyle,card:CardStyle)=>billing({action:'styles',ball,card});
 
 // Browser-only markers; the server's per-browser, per-network and daily limits stay authoritative.

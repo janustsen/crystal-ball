@@ -91,7 +91,8 @@ export function Store({children}:React.PropsWithChildren){
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});await uploads.catch(()=>{});await forgetOmen(AsyncStorage);
    void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));
-   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[]}));
+   // The Ball asks progress restarts, but granted bonuses stay counted so re-answering never earns them twice.
+   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[],...(s.asks?{asks:{seen:[],skipped:[],insights:[],bonus:s.asks.bonus}}:{})}));
    await AsyncStorage.setItem(key,JSON.stringify(current.current));
    if(current.current.backupOwner&&canRead(current.current))await mirror(current.current);
   });
