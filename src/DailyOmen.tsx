@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react';
-import {AppState,Pressable,View} from 'react-native';
+import {AppState,Pressable,View,type LayoutChangeEvent} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadDailyOmen,omenTries,type Omen} from './daily-omen';
 import {currentOmen,localDay} from './retention';
@@ -24,7 +24,7 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
  </Surface></View>;
 }
 
-export function DailyOmen({aiConsent='',onRead}:{aiConsent?:string;onRead?:()=>void}){
+export function DailyOmen({aiConsent='',onRead,onLayout}:{aiConsent?:string;onRead?:()=>void;onLayout?:(event:LayoutChangeEvent)=>void}){
  const {state,update,backupBusy}=useStore(),[omen,setOmen]=useState<Omen|null>(null),today=localDay(),last=lastWhisper(state.whispers,today);
  useEffect(()=>{
   let mounted=true;
@@ -47,7 +47,7 @@ export function DailyOmen({aiConsent='',onRead}:{aiConsent?:string;onRead?:()=>v
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
-  <OmenCard testID="daily-omen" busy={!current||!!retrying}>
+  <OmenCard onLayout={onLayout} testID="daily-omen" busy={!current||!!retrying}>
    <Txt accessibilityLiveRegion="polite" style={omenTextStyle}>{current?(current.text??(retrying?'The stars are gathering. The Ball will look again shortly.':'The stars are quiet today. Come back tomorrow.')):'A little starlight is finding you…'}</Txt>
    {whisper?<View testID="omen-whisper" style={{borderTopWidth:1,borderTopColor:colors.line,paddingTop:12,marginTop:4,gap:6}}>
     <Txt style={styles.label}>Tonight’s whisper</Txt>

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 
-function component(file:string,imports:Record<string,any>){
+function component(file:string,imports:Record<string,any>,effectsEnabled=true){
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0;
  const react={
@@ -33,7 +33,7 @@ function component(file:string,imports:Record<string,any>){
  }});
  return (name:string,props:any)=>{
   const render=()=>{cursor=0;return module.exports[name](props)};
-  render();effects.splice(0).forEach(effect=>effect());return render();
+  render();effects.splice(0).forEach(effect=>{if(effectsEnabled)effect()});return render();
  };
 }
 const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
@@ -73,21 +73,37 @@ test('the readings-left count pops only when a loaded balance changes',()=>{
  assert.equal(pop('0 readings left',true,true),false);
 });
 
-test('Today omen step scrolls to the omen, not Sunday’s recap above it',()=>{
- const scrolls:number[]=[];
+test('Today omen step targets the actual card after recap and yesterday’s whisper',()=>{
  const imports={
   'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',RowLink:'RowLink',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},
   './native':{haptic:()=>{}},
  };
- const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap:{type:'WeekRecap',props:{},children:[]},omen:{type:'DailyOmen',props:{},children:[]},top:24,bottom:0,reduce:true};
- const render=component('../src/Home.tsx',imports);
- const tree=nodes(render('Home',{...props,omenFocus:0}));
- const measured=tree.find(n=>n.props.onLayout);
- assert.ok(tree.some(n=>n.type==='WeekRecap'));
- assert.deepEqual(nodes(measured).filter(n=>n.type==='WeekRecap'||n.type==='DailyOmen').map(n=>n.type),['DailyOmen']);
- measured.props.onLayout({nativeEvent:{layout:{y:400}}});
- tree.find(n=>n.type==='ScrollView').props.ref.current={scrollTo:({y}:{y:number})=>scrolls.push(y)};
- render('Home',{...props,omenFocus:1});
- assert.deepEqual(scrolls,[412]);
+ for(const recap of [null,{type:'WeekRecap',props:{},children:[]}]){
+  for(const last of [undefined,{day:'2026-10-10',text:'A message may arrive.'},{day:'2026-10-10',text:'A message may arrive.',outcome:'yes',checkedInAt:'2026-10-11'}]){
+   for(const current of [null,{day:'2026-10-11',text:null,tries:2},{day:'2026-10-11',text:'A door opens.'}]){
+    const scrolls:{y:number;animated:boolean}[]=[];
+    const daily=component('../src/DailyOmen.tsx',{
+     ...imports,'@react-native-async-storage/async-storage':{},
+     './daily-omen':{omenTries:2},'./retention':{localDay:()=>'2026-10-11',currentOmen:()=>current},
+     './api':{},'./store':{useStore:()=>({state:{whispers:last?[last]:[]}})},
+     './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},
+    },false);
+    const render=component('../src/Home.tsx',imports);
+    const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap,omen:(onLayout:any)=>daily('DailyOmen',{onLayout}),top:24,bottom:0,reduce:true};
+    const tree=nodes(render('Home',{...props,omenFocus:0}));
+    assert.equal(tree.some(n=>typeof n.type==='function'),!!last);
+    const card=tree.find(n=>n.type==='OmenCard');
+    const view=render('OmenCard',card.props);
+    const y=100+(recap?300:0)+(last?220:0);
+    view.props.onLayout({nativeEvent:{layout:{y}}});
+    tree.find(n=>n.type==='ScrollView').props.ref.current={scrollTo:(position:{y:number;animated:boolean})=>scrolls.push(position)};
+    render('Home',{...props,omenFocus:1});
+    assert.deepEqual(scrolls,[{y:y+12,animated:false}]);
+    view.props.onLayout({nativeEvent:{layout:{y:y+40}}});
+    render('Home',{...props,omenFocus:2,reduce:false});
+    assert.deepEqual(scrolls[1],{y:y+52,animated:true});
+   }
+  }
+ }
 });
