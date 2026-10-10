@@ -1,3 +1,4 @@
+import {dayProgress,emptyRitual,markStep} from '../src/ritual.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {answerAsk,asks,asksOf,bonusDue,deckFor,insightDue,maxAskBonuses,nextAsk,selfContext,selfKey,skipAsk,teenSafe,validSelf} from '../src/ball-asks.ts';
@@ -156,4 +157,28 @@ test('a restored answer that is no longer an option is asked again and can be an
  assert.ok(asked.has(target.id));
  assert.equal(state.facts[selfKey(target.id)],target.options[1]);
  assert.ok(asksOf(state).seen.includes(target.id));
+});
+
+test('saved answers complete Today after three local-day answers and keep existing stars',t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,23,59)});
+ let state:AccountState={...account(),ritual:markStep(markStep(emptyRitual(),'omen'),'ask')};
+ const deck=deckFor(false).slice(0,4);
+ state=skipAsk(state,deck[0].id);
+ state=answerAsk(state,deck[0].id,'invalid');
+ assert.equal(dayProgress(state.ritual!).steps.find(s=>s.id==='questions')!.count,0);
+ for(let i=0;i<3;i++){
+  state=answerAsk(state,deck[i].id,deck[i].options[0]);
+  state=answerAsk(state,deck[i].id,deck[i].options[0]);
+  assert.equal(dayProgress(state.ritual!).steps.find(s=>s.id==='questions')!.count,i+1);
+  assert.equal(dayProgress(state.ritual!).done,i===2);
+ }
+ state=answerAsk(state,deck[3].id,deck[3].options[0]);
+ assert.deepEqual(state.ritual!.stars,['2026-10-10']);
+ assert.equal(state.ritual!.counts.fullDays,1);
+ state=JSON.parse(JSON.stringify(state));
+ t.mock.timers.setTime(new Date(2026,9,11,0,1).getTime());
+ state=answerAsk(state,deck[0].id,deck[0].options[1]);
+ assert.equal(dayProgress(state.ritual!).steps.find(s=>s.id==='questions')!.count,1);
+ assert.equal(dayProgress(state.ritual!).done,false);
+ assert.deepEqual(state.ritual!.stars,['2026-10-10']);
 });

@@ -13,8 +13,10 @@ test('a day lights one star when every step is done, and stars never reset',()=>
  let r=markStep(emptyRitual(),'omen','2026-10-07');
  assert.equal(dayProgress(r,'2026-10-07').lit,1);assert.deepEqual(r.stars,[]);
  r=markStep(markStep(r,'ask','2026-10-07'),'ask','2026-10-07');
+ assert.deepEqual(r.stars,[]);
+ r=markStep(r,'questions','2026-10-07',3);
  assert.deepEqual(r.stars,['2026-10-07']);assert.equal(r.counts.fullDays,1);
- for(const day of ['2026-10-09','2026-10-12','2026-10-20','2026-11-01','2026-11-02','2026-11-03'])r=markStep(markStep(r,'omen',day),'ask',day);
+ for(const day of ['2026-10-09','2026-10-12','2026-10-20','2026-11-01','2026-11-02','2026-11-03'])r=markStep(markStep(markStep(r,'omen',day),'ask',day),'questions',day,3);
  assert.equal(r.stars.length,7);
  const sky=constellation(r.stars.length);
  assert.equal(sky.collected,1);assert.equal(sky.lit,0);assert.deepEqual(sky.names,['Ursa Major']);assert.equal(sky.name,'Orion');
@@ -57,7 +59,7 @@ test('morning copy never repeats within two weeks and never carries private text
 });
 
 test('a finished day drops its evening nudge; turning notifications off plans nothing',()=>{
- let r=enabled();r=markStep(markStep(r,'omen','2026-10-07'),'ask','2026-10-07');
+ let r=enabled();r=markStep(markStep(markStep(r,'omen','2026-10-07'),'ask','2026-10-07'),'questions','2026-10-07',3);
  assert.ok(!planNotifications(state(r),now).some(p=>at(p)==='2026-10-07'));
  assert.deepEqual(planNotifications(state({...r,notify:{...r.notify,daily:false}}),now),[]);
  assert.ok(planNotifications(state(enabled()),new Date(2026,9,7,20,0)).every(p=>at(p)!=='2026-10-07'),'tonight’s 19:30 already passed');

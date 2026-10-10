@@ -55,7 +55,10 @@ final class RitualUITests: XCTestCase {
   shot("03-ios-permission")
   allow.tap()
   while element("close-flow").exists{element("close-flow").tap();Thread.sleep(forTimeInterval:1)}
-  XCTAssertTrue(reach("today-card").label.contains("2 of 2")||labelled("Today’s star",in:app).waitForExistence(timeout:10))
+  tap("today-questions")
+  for _ in 0..<3{tap("ask-option-0");Thread.sleep(forTimeInterval:1)}
+  tap("tab-home")
+  XCTAssertTrue(reach("today-card").label.contains("3 of 3")||labelled("Today’s star",in:app).waitForExistence(timeout:10))
   element("today-card").swipeUp(velocity:.slow);shot("04-home-star")
   tap("tab-you");_=reach("your-sky");shot("05-you-sky")
   _=reach("notify-settings");shot("06-you-notifications")

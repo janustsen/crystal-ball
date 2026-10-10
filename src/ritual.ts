@@ -19,6 +19,7 @@ export type Ritual={
 export const ritualSteps:{id:string;label:string;target:number}[]=[
  {id:'omen',label:'Read today’s omen',target:1},
  {id:'ask',label:'Ask the Ball or check in',target:1},
+ {id:'questions',label:'Answer 3 questions about yourself',target:3},
 ];
 export const morningTimes=['08:30','12:30','18:00'];
 // No notification before 8am or from 9pm; the same window keeps teen evenings quiet.

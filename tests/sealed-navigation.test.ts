@@ -192,13 +192,13 @@ test('sealed landing offers anonymous visitors only an unspent free reading',asy
 
 test('an omen callback retained across midnight records the new day once',t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,23,59)});
- const previous=ritual.markStep(ritual.markStep(ritual.emptyRitual(),'ask'),'omen');
+ const previous=ritual.markStep(ritual.markStep(ritual.markStep(ritual.emptyRitual(),'questions',retention.localDay(),3),'ask'),'omen');
  const {render,state}=app(true,[],'',{ritual:previous});
  const onRead=render().find(n=>n.type==='DailyOmen').props.onRead;
  onRead();
  assert.equal(state.ritual.days['2026-10-07'].omen,1);
  t.mock.timers.setTime(new Date(2026,9,8,0,1).getTime());
- state.ritual=ritual.markStep(state.ritual,'ask');
+ state.ritual=ritual.markStep(ritual.markStep(state.ritual,'questions',retention.localDay(),3),'ask');
  onRead();onRead();
  assert.equal(state.ritual.days['2026-10-08'].omen,1);
  assert.deepEqual(state.ritual.stars,['2026-10-07','2026-10-08']);
@@ -209,7 +209,7 @@ test('an omen callback retained across midnight records the new day once',t=>{
 for(const outcome of ['yes','no','pending'])test(`Today progress requires a fresh due-today check-in, answer=${outcome}`,t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,12)});
  for(const dueDate of ['2026-10-09','2026-10-10','2026-11-10'])for(const previous of [undefined,'yes','no','pending']){
-  const {render,state}=app(true,[{...reading,dueDate,outcome:previous}],'',{ritual:ritual.markStep(ritual.emptyRitual(),'omen','2026-10-10')});
+  const {render,state}=app(true,[{...reading,dueDate,outcome:previous}],'',{ritual:ritual.markStep(ritual.markStep(ritual.emptyRitual(),'questions','2026-10-10',3),'omen','2026-10-10')});
   const control=openReading(render).find(n=>n.props.testID===`check-in-${outcome}`);
   control.props.onPress();
   assert.equal(state.history[0].outcome,outcome);
@@ -256,4 +256,11 @@ for(const scenario of [
   render().find(n=>n.props.label==='Your check-ins are ready').props.onPress();
   assert.ok(render().some(n=>n.props.testID==='tab-history'&&n.props.accessibilityState.selected));
  }
+});
+
+test('Today questions opens The Ball asks without requiring AI consent',()=>{
+ const {render}=app();
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ render().find(n=>n.type==='TodayCard').props.onStep('questions');
+ assert.ok(render().some(n=>n.type==='BallAsks'));
 });
