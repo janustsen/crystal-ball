@@ -42,9 +42,10 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
   const timer=setTimeout(()=>setSheet(true),introHold);
   return()=>{animation.stop();clearTimeout(timer)};
  },[reduce,line]);
+ // Focus follows the sheet only, so turning Reduce Motion on mid-typing does not pull the cursor back to Month.
+ useEffect(()=>{if(sheet&&native)inputs.current[0]?.focus()},[sheet]);
  useEffect(()=>{
   if(!sheet)return;
-  if(native)inputs.current[0]?.focus();
   if(reduce){rise.setValue(1);return}
   const animation=Animated.timing(rise,{toValue:1,duration:620,easing:Easing.bezier(...motion.ease),useNativeDriver:native});animation.start();
   return()=>animation.stop();
