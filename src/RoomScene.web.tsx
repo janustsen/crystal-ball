@@ -4,13 +4,13 @@ import {OrbVisual} from './OrbVisual';
 import {appCss} from './motionCss';
 import type {BallSpin} from './RoomScene';
 import {ballOnScreen,clipFrames,clipUrl,flightKey,roomCover,idleKey,maxBallRadius,roomAssetBase,roomFps,roomVersion,stillFrame,type BallFrame,type Spot} from './room';
-import {ballArt,homeIdle,roomStills} from './roomAssets';
+import {ballArt,homeIdle,roomFlights,roomStills} from './roomAssets';
 import {startWebGlass} from './glassWeb';
 import type {BallStyle} from './types';
 
 
 
-// Clips play from object URLs once fully loaded, so a cut never waits on the network. Streamed clips persist in
+// Clips play from object URLs once fully loaded, so a cut never waits on the network. Streamed loops persist in
 // the Cache API where the origin allows it (HTTPS or localhost) and in the HTTP cache elsewhere.
 const clips=new Map<string,string>(),loading=new Map<string,Promise<void>>();
 const listeners=new Set<()=>void>();
@@ -36,16 +36,18 @@ function loadClip(key:string,url:string,persist:boolean){
 }
 const spots:Spot[]=['Home','Sky','Ask','History','You'];
 let prefetched=false;
-// After the first screen settles, quietly fetch every streamed clip: flights from Home first, then the loops, then the
-// Inner Library's push-in (only Home leads into it; it has no loop and no flight out).
+// After the first screen settles, quietly load the bundled flights (from Home first, then the rest, then the Inner
+// Library's push-in: only Home leads into it, and it has no loop or flight out), then any streamed loops.
 function prefetchRoom(){
  if(prefetched)return;
  prefetched=true;
  void loadClip(idleKey('Home'),Asset.fromModule(homeIdle).uri,false);
- if(!roomAssetBase)return;
- const keys=[...spots.slice(1).map(to=>flightKey('Home',to)),...spots.slice(1).map(idleKey),
+ const flights=[...spots.slice(1).map(to=>flightKey('Home',to)),
   ...spots.slice(1).flatMap(from=>spots.filter(to=>to!==from).map(to=>flightKey(from,to))),flightKey('Home','Library')];
- setTimeout(async()=>{for(const key of keys)await loadClip(key,clipUrl(key),true)},1500);
+ setTimeout(async()=>{
+  for(const key of flights)await loadClip(key,Asset.fromModule(roomFlights[key]).uri,false);
+  if(roomAssetBase)for(const key of spots.slice(1).map(idleKey))await loadClip(key,clipUrl(key),true);
+ },1500);
 }
 
 // The presented frame's media time (requestVideoFrameCallback where supported, so the ball lands on the exact frame).
@@ -65,7 +67,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[ready,setReady]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);

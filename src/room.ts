@@ -8,7 +8,7 @@ export type Spot='Home'|'Sky'|'Ask'|'History'|'You'|'Library';
 export type BallFrame=number[];
 export const roomFps=30;
 
-// Flights and the other loops stream from here; unset means tab changes cut straight to the stills.
+// The loops other than Home's stream from here; unset means those spots rest on their stills. Flights are bundled.
 export const roomAssetBase=(process.env.EXPO_PUBLIC_ROOM_ASSET_BASE??'').replace(/\/+$/,'');
 export const roomVersion=track.version;
 
