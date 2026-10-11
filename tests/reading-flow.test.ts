@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {makePlan,predict,formatForecast} from '../server/engine.ts';
-import {provider} from '../server/provider.ts';
+import {provider,validatedProvider} from '../server/provider.ts';
 import {validateFact} from '../src/questions.ts';
 import {ageGroup,birthdayProfile,sunSign} from '../src/profile.ts';
 import {birthChart} from '../src/birth-chart.ts';
@@ -179,4 +179,27 @@ test('answer options read as the asker’s own replies, not statements about the
   assert.equal(drafts,2);
   assert.deepEqual(plan.value.cards[0].options,['Hiking in nature','Cooking with family','Been reading','Other']);
  }finally{globalThis.fetch=original}
+});
+
+
+test('model cards reject reserved labels after normalization and repair once',async()=>{
+ for(const reserved of ['Other','Other.','other.','I am Other.'])for(const personName of [undefined,'Alex'])for(const badIndex of [0,1])for(const repair of [false,true]){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if(!Array.isArray(schema.required)||!schema.required.includes('cards'))return JSON.stringify({category:'allow'});
+   attempts++;
+   const cards=[
+    {question:personName?'How often does Alex practice?':'How often do you practice?',options:['Daily','Weekly','Rarely']},
+    {question:personName?'Where does Alex practice?':'Where do you practice?',options:['At home','At school','At a club']},
+   ];
+   if(attempts===1||!repair)cards[badIndex].options=['Daily','Weekly',reserved];
+   return JSON.stringify({cards});
+  });
+  const plan=await makePlan(personName?'Will Alex make the team this year?':'Will I make the team this year?',{},model,{personName});
+  assert.equal(attempts,2,reserved);
+  assert.equal(plan.kind,repair?'ok':'error',reserved);
+  if(plan.kind==='ok')assert.deepEqual(plan.value.cards.map(card=>card.options),[
+   ['Daily','Weekly','Rarely','Other'],['At home','At school','At a club','Other'],
+  ]);
+ }
 });
