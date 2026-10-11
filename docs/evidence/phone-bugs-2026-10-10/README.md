@@ -1,0 +1,12 @@
+# Phone bugs, 2026-10-10
+
+Captures come from the iPhone 18 Pro Max simulator (440×956 pt, the same size as an iPhone 17 Pro Max), running a debug build that loads this checkout's JavaScript. Taps were driven by an XCUITest that is not checked in.
+
+- `ios-cards-before.png` / `ios-cards-after.png`: the captain's second follow-up card, replayed from a labeled engine fixture. Each image shows the card at rest, then after a swipe up. Before, the staggered chips differ in width, size and type. The answers overflow, so a swipe slides the question under the ball and clips In my own words. After, the chips are full width and share one size and type. The card fits, so the swipe moves nothing.
+- `ios-real-reading.png`: a real reading from local Ollama (Qwen3 4B) on the final code: both follow-up cards and the reveal.
+- `ask-still-before-after.png`: the Ask room still around the stand, before and after the repair. The darkened disc marks the area the live ball covers. The simulator's software GL does not draw the live ball within capture time, so it is absent from the iOS captures.
+- `plans-before.json` / `plans-after.json`: `makePlan` output for six fixed questions with the real local model, before and after the planner change. `heldout-*.json` uses six questions that played no part in tuning the prompt. Before, 2 of 6 and 1 of 6 plans failed validation; after, none failed.
+
+These files show layout, real model output and the repaired still. They are not evidence of predictive accuracy, and none of them show the live ball on a device.
+
+The phone's forecast error was not a stale session. The preview engine meters readings (`SUPABASE_URL` is set), but the phone build had no `EXPO_PUBLIC_SUPABASE_URL` or `EXPO_PUBLIC_SUPABASE_ANON_KEY`, so it never opened a session or sent one. `tests/cloud.test.ts` covers the separate stale-session recovery.
