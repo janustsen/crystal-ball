@@ -22,16 +22,17 @@ type Flight={key:string;to:Spot;playing:boolean};
 // ponytail: the static orb rides the flight because the iOS Simulator drops the GL ball over a playing video; try the
 // glass in flight again once a device shows it composites.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange,onTravel}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[flying,setFlying]=useState(false);
  const [previous,setPrevious]=useState<Spot|null>(null),fade=useRef(new Animated.Value(0)).current,along=useRef(new Animated.Value(0)).current;
  const [failed,setFailed]=useState(false),[started,setStarted]=useState(0);
- const motion=useRef({reduce}).current,room=useRef({at,onPlaybackChange,flight:null as Flight|null}).current,scene=useRef<Awaited<ReturnType<typeof startNativeGlass>>|null>(null);
- motion.reduce=reduce;room.at=at;room.onPlaybackChange=onPlaybackChange;
+ const motion=useRef({reduce}).current,room=useRef({at,onPlaybackChange,onTravel,flight:null as Flight|null}).current,scene=useRef<Awaited<ReturnType<typeof startNativeGlass>>|null>(null);
+ motion.reduce=reduce;room.at=at;room.onPlaybackChange=onPlaybackChange;room.onTravel=onTravel;
  const player=useVideoPlayer(null,p=>{p.muted=true;p.audioMixingMode='mixWithOthers'});
  const land=(done:Flight)=>{
   if(room.flight!==done)return;
-  room.flight=null;along.stopAnimation();
+  // A clip that stalled or never started is stopped too, so it cannot resume hidden.
+  room.flight=null;along.stopAnimation();player.pause();
   setAt(done.to);setFlight(null);setFlying(false);
  };
  useEffect(()=>{
@@ -75,7 +76,14 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
   return()=>clearTimeout(timer);
  },[flight]);
  // Switching to reduced motion mid-flight cuts straight to the destination rather than finishing the move.
- useEffect(()=>{if(reduce&&room.flight){player.pause();land(room.flight)}},[reduce]);
+ useEffect(()=>{if(reduce&&room.flight)land(room.flight)},[reduce]);
+ // The Ask flow waits for travel before recording: expo-video rewrites the shared audio session (to playback) a moment
+ // after playback stops, so the room reports itself settled only after that.
+ useEffect(()=>{
+  if(flight){room.onTravel?.(true);return}
+  const timer=setTimeout(()=>room.onTravel?.(false),300);
+  return()=>clearTimeout(timer);
+ },[flight]);
  const frameNow=()=>{
   const current=room.flight;
   if(!current?.playing)return stillFrame(room.at);

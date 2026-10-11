@@ -155,6 +155,7 @@ test('web room keeps loading and failed glass aligned with stills across navigat
 });
 
 function nativeRoom(startNativeGlass:()=>Promise<unknown>){
+ const timers=new Map<number,{fn:()=>void;ms:number}>();let timerId=0;
  const listeners:Record<string,(e?:any)=>void>={},fades:number[]=[],played:unknown[]=[],positions:number[]=[],durations:number[]=[];
  const player={currentTime:0,muted:false,audioMixingMode:'',replaceAsync:async(clip:unknown)=>{played.push(clip)},play(){},pause(){},
   addListener:(name:string,fn:(e?:any)=>void)=>{listeners[name]=fn;return {remove(){}}}};
@@ -162,10 +163,13 @@ function nativeRoom(startNativeGlass:()=>Promise<unknown>){
   'react-native':{Animated:{Value:class {setValue(value:number){positions.push(value)}stopAnimation(){}interpolate(){return 'tracked'}},timing:(_:unknown,{toValue,duration}:{toValue:number;duration:number})=>({start(){fades.push(toValue);durations.push(duration)}}),Image:'Animated.Image',View:'Animated.View'},Easing:{linear:'linear'},Image:'Image',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
   'expo-video':{useVideoPlayer:(_:unknown,setup:(p:typeof player)=>void)=>{setup(player);return player},VideoView:'VideoView'},
-  './room':room,'./roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{'home-ask':'home-ask.mp4'},ballArt:{}},
+  './room':room,'./roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{'home-ask':'home-ask.mp4','ask-home':'ask-home.mp4'},ballArt:{}},
   './glassNative':{startNativeGlass},
- },{setTimeout:()=>0,clearTimeout:()=>{}});
- return {render,listeners,fades,played,player,positions,durations};
+ },{setTimeout:(fn:()=>void,ms:number)=>{timers.set(++timerId,{fn,ms});return timerId},clearTimeout:(id:number)=>{timers.delete(id)}});
+ // Fires every pending timer of the given delay, as if that much time passed.
+ const elapse=(ms:number)=>[...timers].filter(([,t])=>t.ms===ms).forEach(([id,t])=>{timers.delete(id);t.fn()});
+ const pending=(ms:number)=>[...timers.values()].filter(t=>t.ms===ms);
+ return {render,listeners,fades,played,player,positions,durations,elapse,pending};
 }
 
 test('native room flies the camera to the new spot and lands on its still',async()=>{
@@ -210,6 +214,39 @@ test('native room flies the camera to the new spot and lands on its still',async
  assert.deepEqual(played,['home-ask.mp4']);
  assert.equal(fades.at(-1),0);
  assert.ok(draw().some(n=>n.type==='Animated.Image'&&n.props.source==='Ask.jpg'));
+});
+
+test('native room lands a flight that never plays, and a finished trip\'s fallback cannot touch the next one',async()=>{
+ const {render,listeners,played,player,elapse,pending}=nativeRoom(()=>new Promise(()=>{}));
+ const tick=()=>new Promise(r=>setImmediate(r));
+ const travel:boolean[]=[];let paused=0;player.pause=()=>{paused++};
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false},onTravel:(t:boolean)=>travel.push(t)};
+ const draw=()=>nodes(render('RoomScene',props));
+ const stills=()=>draw().filter(n=>n.type==='Image').map(n=>n.props.source);
+ draw();travel.length=0;
+ props.spot='Ask';draw();await tick();draw();
+ assert.deepEqual(played,['home-ask.mp4']);
+ assert.deepEqual(travel,[true],'the Ask flow hears that the room is flying');
+ // The clip never plays: after four seconds the player is stopped and the room lands on the destination.
+ assert.equal(pending(4000).length,1);
+ elapse(4000);
+ assert.equal(paused,1);
+ assert.deepEqual(stills(),['Ask.jpg']);
+ assert.equal(draw().find(n=>n.type==='VideoView').props.style.opacity,0);
+ // The room reports itself settled only after expo-video's audio-session write.
+ assert.deepEqual(travel,[true]);
+ elapse(300);
+ assert.deepEqual(travel,[true,false]);
+ // A trip that ends normally clears its fallback, and a stale one cannot stop or land the next trip.
+ props.spot='Home';draw();await tick();draw();
+ const stale=pending(4000)[0].fn;
+ listeners.playingChange({isPlaying:true});listeners.playToEnd();draw();
+ assert.equal(pending(4000).length,0,'landing clears the fallback');
+ props.spot='Ask';draw();await tick();draw();
+ const before=paused;
+ stale();
+ assert.equal(paused,before);
+ assert.deepEqual(stills(),['Ask.jpg','Home.jpg'],'the next trip is still on its way');
 });
 
 test('native room keeps the static orb on the stand until the live glass has started',async()=>{
