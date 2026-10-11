@@ -116,7 +116,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
    <GLView key={`${width}x${height}`} onContextCreate={start} style={{width:S,height:S,opacity:!failed&&started&&!flying?1:0}}/>
    {flying?<View style={{position:'absolute',left:S/4,top:S/4,width:S/2,height:S/2,borderRadius:S/4,overflow:'hidden'}}><OrbVisual size={S/2} reduce ball={ball}/></View>:null}
   </Animated.View>
-  {placed&&!flight&&(failed||!started)?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce ball={ball}/></View>:null}
+  {placed&&!flying&&(failed||!started)?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce ball={ball}/></View>:null}
   <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>
   <LinearGradient colors={['rgba(20,14,10,0)','rgba(20,14,10,.6)','rgba(20,14,10,.94)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:320}}/>
  </View>;

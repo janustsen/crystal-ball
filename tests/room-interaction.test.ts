@@ -229,6 +229,38 @@ test('native room keeps the static orb on the stand until the live glass has sta
  assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,1);
 });
 
+test('native fallback stays on the visible stand while travel waits or stalls',async()=>{
+ for(const failed of [false,true]){
+  const {render,listeners}=nativeRoom(()=>failed?Promise.reject(new Error('GL unavailable')):new Promise(()=>{}));
+  const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+  const draw=()=>nodes(render('RoomScene',props));
+  draw().find(n=>n.type==='GLView').props.onContextCreate({});
+  await new Promise(r=>setImmediate(r));
+  const resting=(spot:room.Spot)=>{
+   const tree=draw(),orbs=tree.filter(n=>n.type==='OrbVisual');
+   assert.equal(orbs.length,1);
+   const ball=room.ballOnScreen(room.stillFrame(spot),props.width,props.height)!;
+   const box=tree.find(n=>n.children.includes(orbs[0])).props.style;
+   assert.equal(box.left,ball.x-ball.r);assert.equal(box.top,ball.y-ball.r);
+   assert.equal(orbs[0].props.size,ball.r*2);
+   assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,0);
+   assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,0);
+   assert.equal(tree.filter(n=>n.type==='Image').at(-1).props.source,`${spot}.jpg`);
+  };
+  resting('Home');
+  props.spot='Ask';draw();await new Promise(r=>setImmediate(r));
+  resting('Home');
+  for(let i=0;i<2;i++){
+   listeners.playingChange({isPlaying:true});
+   const tree=draw();
+   assert.equal(tree.filter(n=>n.type==='OrbVisual').length,1);
+   assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,1);
+   listeners.playingChange({isPlaying:false});resting('Home');
+  }
+  listeners.playToEnd();resting('Ask');
+ }
+});
+
 test('the room ball supplies touch feedback before reading, and a drag spins it instead',()=>{
  const events:string[]=[],Platform={OS:'web'};
  const render=component('../src/Home.tsx',{
