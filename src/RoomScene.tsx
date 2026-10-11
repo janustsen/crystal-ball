@@ -7,6 +7,7 @@ import {OrbVisual} from './OrbVisual';
 import {ballOnScreen,clipFrames,flightKey,maxBallRadius,roomCover,roomFps,stillFrame,type Spot} from './room';
 import {ballArt,roomFlights,roomStills} from './roomAssets';
 import {startNativeGlass} from './glassNative';
+import {applyAudioMode} from './useDelight';
 import type {BallStyle} from './types';
 import type {Pointer} from './glassBall';
 
@@ -17,9 +18,11 @@ export type BallSpin={grab?:(e:Pointer)=>void;drag?:(e:Pointer)=>void;release?:(
 type Flight={key:string;to:Spot;start:number};
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → bundled flight → still,
-// cut pixel-exact) while the live glass ball (src/glassBall.ts) rides each frame's tracked position on the native
-// driver. Reduced motion, or a change mid-flight, cross-fades the stills instead. The static orb stands in until the
-// glass starts, or for good if GL fails. Native plays no loops: each spot rests on its still.
+// cut pixel-exact) while the ball rides each frame's tracked position on the native driver, then the live glass ball
+// (src/glassBall.ts) rests on the stand. Reduced motion, or a change mid-flight, cross-fades the stills instead. The
+// static orb stands in until the glass starts, or for good if GL fails. Native plays no loops: each spot rests on its still.
+// ponytail: the static orb rides the flight because the iOS Simulator drops the GL ball over a playing video; try the
+// glass in flight again once a device shows it composites.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
 export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[flying,setFlying]=useState(false);
@@ -50,9 +53,17 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  },[spot]);
  useEffect(()=>{
   const subs=[
+   // replaceAsync resolves before the clip is ready, so a play() can start and stall at once: play again when ready.
+   player.addListener('statusChange',({status})=>{if(status==='readyToPlay'&&room.flight&&!room.flight.start)player.play()}),
    player.addListener('playingChange',({isPlaying})=>{
+    // expo-video sets the shared audio session to playback (ignoring the silent switch) as it starts and stops, so the
+    // app's own sound mode is re-applied after it. ponytail: timed to land after expo-video's async session write.
+    setTimeout(()=>void applyAudioMode().catch(()=>{}),300);
     const current=room.flight;
-    if(!isPlaying||!current||current.start)return;
+    if(!current)return;
+    // A stall mid-flight shows the start still again and restarts the ride when playback resumes.
+    if(!isPlaying){if(current.start){current.start=0;along.stopAnimation();setFlying(false)}return}
+    if(current.start)return;
     const frames=clipFrames(current.key).length;
     current.start=Date.now();along.setValue(0);setFlying(true);
     Animated.timing(along,{toValue:frames-1,duration:(frames-1)/roomFps*1000,easing:Easing.linear,useNativeDriver:true}).start();
@@ -107,7 +118,8 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   <VideoView player={player} contentFit="cover" nativeControls={false} allowsPictureInPicture={false} style={{...fill,backgroundColor:'transparent',opacity:flying?1:0}}/>
   {previous?<Animated.Image source={roomStills[previous]} resizeMode="cover" style={{...fill,opacity:fade}}/>:null}
   <Animated.View style={{position:'absolute',left:0,top:0,width:S,height:S,...carry}}>
-   <GLView key={`${width}x${height}`} onContextCreate={start} style={{width:S,height:S,opacity:!failed&&started?1:0}}/>
+   <GLView key={`${width}x${height}`} onContextCreate={start} style={{width:S,height:S,opacity:!failed&&started&&!flying?1:0}}/>
+   {flying?<View style={{position:'absolute',left:S/4,top:S/4,width:S/2,height:S/2,borderRadius:S/4,overflow:'hidden'}}><OrbVisual size={S/2} reduce ball={ball}/></View>:null}
   </Animated.View>
   {placed&&!flight&&(failed||!started)?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce ball={ball}/></View>:null}
   <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>

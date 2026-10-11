@@ -4,6 +4,9 @@ import {setAudioModeAsync,useAudioPlayer} from 'expo-audio';
 import {haptic} from './native';
 import {motion} from './motion';
 
+// The app's sound respects the silent switch and mixes with other audio; other modules that take the session re-apply it.
+export const applyAudioMode=()=>setAudioModeAsync({playsInSilentMode:false,shouldPlayInBackground:false,interruptionMode:'mixWithOthers'});
+
 export function useDelight({enabled,thinking,revealId,listening=false}:{enabled:boolean;thinking:boolean;revealId?:string;listening?:boolean}){
  const hum=useAudioPlayer(require('../assets/audio/hum.wav'));
  const chime=useAudioPlayer(require('../assets/audio/chime.wav'));
@@ -17,7 +20,7 @@ export function useDelight({enabled,thinking,revealId,listening=false}:{enabled:
  useEffect(()=>{
   setConfigured(false);if(listening)return;
   let mounted=true;
-  void setAudioModeAsync({playsInSilentMode:false,shouldPlayInBackground:false,interruptionMode:'mixWithOthers'}).then(()=>{if(mounted)setConfigured(true);}).catch(()=>{});
+  void applyAudioMode().then(()=>{if(mounted)setConfigured(true);}).catch(()=>{});
   return()=>{mounted=false;};
  },[listening]);
  const audible=enabled&&configured&&foreground&&!listening;

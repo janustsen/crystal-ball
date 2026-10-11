@@ -163,7 +163,7 @@ function nativeRoom(startNativeGlass:()=>Promise<unknown>){
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
   'expo-video':{useVideoPlayer:(_:unknown,setup:(p:typeof player)=>void)=>{setup(player);return player},VideoView:'VideoView'},
   './room':room,'./roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{'home-ask':'home-ask.mp4'},ballArt:{}},
-  './glassNative':{startNativeGlass},
+  './glassNative':{startNativeGlass},'./useDelight':{applyAudioMode:async()=>{}},
  },{setTimeout:()=>0,clearTimeout:()=>{}});
  return {render,listeners,fades,played,player};
 }
@@ -186,6 +186,13 @@ test('native room flies the camera to the new spot and lands on its still',async
  assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,1);
  assert.equal(tree.find(n=>n.type==='Animated.View').props.style.transform[0].translateX,'tracked','the ball rides the flight track');
  assert.deepEqual(fades,[44],'the track runs over the clip\'s 45 frames');
+ assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,0,'the static orb rides the flight');
+ assert.ok(tree.some(n=>n.type==='OrbVisual'));
+ // A stall mid-flight returns to the start still until the clip plays again.
+ listeners.playingChange({isPlaying:false});
+ assert.deepEqual(stills(),['Ask.jpg','Home.jpg']);
+ listeners.playingChange({isPlaying:true});
+ assert.deepEqual(fades,[44,44]);
  listeners.playToEnd();
  tree=draw();
  assert.deepEqual(stills(),['Ask.jpg']);
