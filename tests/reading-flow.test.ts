@@ -13,7 +13,7 @@ test('one and two card model plans reach a forecast; missing timeframe reserves 
  let count=1;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}].slice(0,Math.min(count,body.format.properties.cards.maxItems))}:body.format.properties.prediction?{prediction:'You will finish your novel.',basis:'context_1',assumption:'Your writing routine continues.'}:{category:'allow'};
+  const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}].slice(0,Math.min(count,body.format.properties.cards.maxItems))}:body.format.properties.prediction?{prediction:'You will finish your novel.',basis:'context_1',assumption:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   if(body.format.properties.cards)assert.equal(input.known.current_focus,'Learning & growth');
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
@@ -29,7 +29,7 @@ test('one and two card model plans reach a forecast; missing timeframe reserves 
 
 test('typed scenarios ask only missing inputs and keep their actual calculation',async()=>{
  const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);return new Response(JSON.stringify({message:{content:JSON.stringify(input.choices?{prediction:input.choices[0]}:{category:'allow'})}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);return new Response(JSON.stringify({message:{content:JSON.stringify(input.choices?{prediction:input.choices[0]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'}))}}));};
  try{
   const question='How many users will my project have?',known={current_users:'100'};
   const plan=await makePlan(question,known,provider(()=>undefined));assert.equal(plan.kind,'ok');if(plan.kind!=='ok')return;
@@ -114,7 +114,7 @@ test('forecast outputs resolve typed and general horizons before rendering both 
  globalThis.fetch=async(url,init)=>{
   if(String(url).includes('/rss/'))return new Response('<rss/>');
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Your regular effort continues.'}):{category:'allow'};
+  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Your regular effort continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  const move={location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'6 months'};
@@ -140,7 +140,7 @@ test('Person readings isolate all owner topics and repair wrong-subject cards an
  let cards=0,forecasts=0,alwaysWrong=false;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  let content:unknown={category:'allow'};
+  let content:unknown=body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'};
   if(body.format.properties.cards){
    cards++;assert.deepEqual(input.known,{});
    content={cards:[{question:body.messages.length===2?'How often do you practice?':'How often does Alex practice?',options:['Daily','Weekly','Rarely']}]};
@@ -170,7 +170,7 @@ test('answer options read as the asker’s own replies, not statements about the
  let drafts=0;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?(drafts++?{cards:[{factor:'free time',question:'What do you do most weekends?',options:['Hiking in nature.','Cooking with family','I’ve been reading']}]}:{cards:[{factor:'free time',question:'What do you enjoy most right now?',options:['You enjoy hiking in nature.','You like cooking with family.','You prefer reading books.']}]}):{category:'allow'};
+  const content=body.format.properties.cards?(drafts++?{cards:[{factor:'free time',question:'What do you do most weekends?',options:['Hiking in nature.','Cooking with family','I’ve been reading']}]}:{cards:[{factor:'free time',question:'What do you enjoy most right now?',options:['You enjoy hiking in nature.','You like cooking with family.','You prefer reading books.']}]}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
@@ -186,6 +186,7 @@ test('model cards reject reserved labels after normalization and repair once',as
  for(const reserved of ['Other','Other.','other.','I am Other.'])for(const personName of [undefined,'Alex'])for(const badIndex of [0,1])for(const repair of [false,true]){
   let attempts=0;
   const model=validatedProvider(async(_messages,schema)=>{
+   if(Array.isArray(schema.required)&&schema.required.includes('fits'))return JSON.stringify({reason:'fixture',fits:true});
    if(!Array.isArray(schema.required)||!schema.required.includes('cards'))return JSON.stringify({category:'allow'});
    attempts++;
    const cards=[
@@ -201,5 +202,22 @@ test('model cards reject reserved labels after normalization and repair once',as
   if(plan.kind==='ok')assert.deepEqual(plan.value.cards.map(card=>card.options),[
    ['Daily','Weekly','Rarely','Other'],['At home','At school','At a club','Other'],
   ]);
+ }
+});
+
+test('cards whose answers miss their question are judged, repaired once, then fail closed',async()=>{
+ for(const fixed of [true,false]){
+  let drafts=0,judged=0;
+  const model=validatedProvider(async(messages,schema)=>{
+   const required=Array.isArray(schema.required)?schema.required:[];
+   if(required.includes('fits')){judged++;return JSON.stringify({reason:'test',fits:!JSON.parse(messages[1].content).options.includes('Drove 30 miles')})}
+   if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+   drafts++;
+   return JSON.stringify({cards:[{question:'How did your last practice session go?',options:drafts===1||!fixed?['Drove 30 miles','With a mentor','Did 5 drills']:['Went well','Mixed','Rough']}]});
+  });
+  const plan=await makePlan('Will I pass my driving test next month?',{},model);
+  assert.equal(drafts,2);assert.equal(judged,2);
+  assert.equal(plan.kind,fixed?'ok':'error');
+  if(plan.kind==='ok')assert.deepEqual(plan.value.cards[0].options,['Went well','Mixed','Rough','Other']);
  }
 });

@@ -46,31 +46,31 @@ test('ordinary word senses do not trigger sensitive-topic phrase rules',()=>{for
 
 test('general planning does not send unrelated domain memories into model cards',async()=>{
  const {makePlan}=await import('../server/engine.ts');const original=globalThis.fetch;const inputs:unknown[]=[];
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));inputs.push(JSON.parse(body.messages[1].content));const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));inputs.push(JSON.parse(body.messages[1].content));const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await makePlan('Will I finish writing my novel this year?',{learning_target:'Spanish',assets:'25000'},provider(()=>undefined));assert.equal(result.kind,'ok');assert.ok(!JSON.stringify(inputs).includes('Spanish'));assert.ok(!JSON.stringify(inputs).includes('25000'));}finally{globalThis.fetch=original;}
 });
 
 test('duplicate model cards earn a repair instead of repeating the same question',async()=>{
  const {makePlan}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.cards){drafts++;content={cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:drafts===1?'How much have you written?':'How often do you write?',options:['Daily','Weekly','Rarely']}]};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown=(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});if(body.format.properties.cards){drafts++;content={cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:drafts===1?'How much have you written?':'How often do you write?',options:['Daily','Weekly','Rarely']}]};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await makePlan('Will I finish writing my novel this year?',{},provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);}finally{globalThis.fetch=original;}
 });
 test('learning explanation preserves the chosen baseline and conversational target',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('Will I be conversational in Spanish in six months?',{level:'New beginner',practice:'30 minutes',conversation:'Weekly',deadline:'In 6 months'},false,provider(()=>undefined));assert.equal(result.kind,'ok');if(result.kind==='ok'){assert.match(result.value.headline,/conversational Spanish/);assert.match(result.value.why,/new beginner/);assert.doesNotMatch(result.value.why,/intermediate/);assert.match(result.value.why,/conversation practice/);assert.ok(!result.value.assumptions.some(a=>a.includes('News headlines')));}}finally{globalThis.fetch=original;}
  assert.equal(planFor('Will my side project gain customers?',{}).topic,'general');
 });
 
 test('bounded forecasts never replace the server explanation with extra model fields',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0],reason:42,assumption:{untrusted:true}}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0],reason:42,assumption:{untrusted:true}}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('How many users will my project have in four weeks?',{current_users:'100',weekly_growth:'2',growth_weeks:'4'},false,provider(()=>undefined));assert.equal(result.kind,'ok');if(result.kind==='ok')assert.match(result.value.why,/100.*2.*4.*108/);}finally{globalThis.fetch=original;}
 });
 
 test('general explanations quote an existing input and ignore model-authored factual prose',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={prediction:'You will finish your novel this year.',basis:drafts===1?'invented_fact':'context_1',assumption:'Your writing routine continues.',reason:'Invented factual prose must never appear.'};}else if(body.format.properties.valid)content={valid:true,issue:''};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown=(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});if(body.format.properties.prediction){drafts++;content={prediction:'You will finish your novel this year.',basis:drafts===1?'invented_fact':'context_1',assumption:'Your writing routine continues.',reason:'Invented factual prose must never appear.'};}else if(body.format.properties.valid)content={valid:true,issue:''};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('Will I finish my novel this year?',{context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);if(result.kind==='ok'){assert.match(result.value.why,/Recorded context: Write 500 words daily/);assert.doesNotMatch(result.value.why,/Invented factual prose/);}}finally{globalThis.fetch=original;}
 });
 
@@ -88,7 +88,7 @@ test('an inferred competition keeps its contenders through later answers',()=>{
 
 test('prediction never sends unrelated memories to the safety classifier',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;const sent:string[]=[];
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));sent.push(body.messages[1].content);const content=body.format.properties.prediction?{prediction:'You will finish your novel this year.',basis:'context_1',assumption:'Your writing routine continues.'}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));sent.push(body.messages[1].content);const content=body.format.properties.prediction?{prediction:'You will finish your novel this year.',basis:'context_1',assumption:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('Will I finish my novel this year?',{learning_target:'Spanish',assets:'250000',context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));
   assert.equal(result.kind,'ok');assert.ok(!sent.join('\n').includes('Spanish'));assert.ok(!sent.join('\n').includes('250000'));
  }finally{globalThis.fetch=original;}
@@ -96,7 +96,7 @@ test('prediction never sends unrelated memories to the safety classifier',async(
 
 test('unparseable Other answers are re-asked instead of counting as the negative case',async()=>{
  const {predict}=await import('../server/engine.ts');const {validateAnswer}=await import('../src/questions.ts');const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'about a year of savings'},false,provider(()=>undefined));
   assert.equal(result.kind,'error');
   if(result.kind==='error')assert.match(result.message,/savings runway in months or years/);
@@ -115,7 +115,7 @@ test('an event horizon phrased as later this year is not repeated in the headlin
 
 test('recognized units are converted instead of being read as the card unit',async()=>{
  const {predict}=await import('../server/engine.ts');const {validateAnswer}=await import('../src/questions.ts');const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:{category:'allow'};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?.length?{prediction:input.choices[0]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const learning=await predict('Will I be conversational in Spanish in six months?',{level:'New beginner',practice:'1 hour',conversation:'Weekly',deadline:'In 6 months'},false,provider(()=>undefined));
   assert.equal(learning.kind,'ok');if(learning.kind==='ok')assert.match(learning.value.headline,/^You will speak conversational Spanish/);
   const move=await predict('Will I move to Berlin?',{location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'1 year of savings'},false,provider(()=>undefined));

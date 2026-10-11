@@ -18,7 +18,7 @@ test('answer validation and forecast generation share the local year boundary',a
    try{return await call(new Request('http://localhost',{method:'POST',body:JSON.stringify(body)}));}finally{process.env.TZ=clientTZ;}
   }
   const input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will finish.',basis:'context_1',assumption:'Regular practice continues.'}):{category:'allow'};
+  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will finish.',basis:'context_1',assumption:'Regular practice continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return Response.json({message:{content:JSON.stringify(content)}});
  };
  try{

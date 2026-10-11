@@ -80,7 +80,7 @@ test('client local dates survive UTC rollover for every reading path and malform
   if(body.action)return call(new Request('http://localhost',{method:'POST',body:JSON.stringify(body)}));
   modelCalls++;
   const input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?{prediction:`${input.personName||'You'} will make progress.`,basis:'context_1',assumption:'Regular practice continues.'}:body.format.properties.cards?{cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']}]}:{category:'allow'};
+  const content=body.format.properties.prediction?{prediction:`${input.personName||'You'} will make progress.`,basis:'context_1',assumption:'Regular practice continues.'}:body.format.properties.cards?{cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']}]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return Response.json({message:{content:JSON.stringify(content)}});
  };
  try{
