@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makePlan,predict,formatForecast} from '../server/engine.ts';
+import {makePlan,planTiming,predict,formatForecast} from '../server/engine.ts';
 import {provider,validatedProvider} from '../server/provider.ts';
 import {validateFact} from '../src/questions.ts';
 import {ageGroup,birthdayProfile,sunSign} from '../src/profile.ts';
@@ -220,4 +220,42 @@ test('cards whose answers miss their question are judged, repaired once, then fa
   assert.equal(plan.kind,fixed?'ok':'error');
   if(plan.kind==='ok')assert.deepEqual(plan.value.cards[0].options,['Went well','Mixed','Rough','Other']);
  }
+});
+
+test('Person card instructions and examples use the first name, never you',async()=>{
+ for(const [question,personName,expected,absent] of [
+  ['Will Alex make the team this year?','Alex','"How often does Alex practice?"','addressing the person with you or your'],
+  ['Will I make the team this year?',undefined,'"How often do you practice?"','naming'],
+ ] as const){
+  let prompt='';
+  const model=validatedProvider(async(messages,schema)=>{
+   const required=Array.isArray(schema.required)?schema.required:[];
+   if(required.includes('fits'))return JSON.stringify({reason:'fixture',fits:true});
+   if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+   prompt=messages[0].content;
+   return JSON.stringify({cards:[{question:personName?'How often does Alex practice?':'How often do you practice?',options:['Daily','Weekly','Rarely']}]});
+  });
+  const plan=await makePlan(question,{},model,{personName});
+  assert.equal(plan.kind,'ok');
+  assert.ok(prompt.includes(expected),question);assert.ok(!prompt.includes(absent),question);
+ }
+});
+
+test('the answer check fits the planning time budget and never costs a usable draft',async()=>{
+ const saved={...planTiming};
+ try{
+  for(const [budgetMs,checkMs,checks] of [[60000,30,1],[0,30,0]] as const){
+   Object.assign(planTiming,{budgetMs,checkMs});
+   let judged=0;
+   const model=validatedProvider(async(_messages,schema)=>{
+    const required=Array.isArray(schema.required)?schema.required:[];
+    if(required.includes('fits')){judged++;return new Promise<string>(()=>{})}
+    if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+    return JSON.stringify({cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']}]});
+   });
+   const plan=await makePlan('Will I make the team this year?',{},model);
+   assert.equal(plan.kind,'ok');assert.equal(judged,checks);
+   if(plan.kind==='ok')assert.deepEqual(plan.value.cards[0].options,['Daily','Weekly','Rarely','Other']);
+  }
+ }finally{Object.assign(planTiming,saved)}
 });
