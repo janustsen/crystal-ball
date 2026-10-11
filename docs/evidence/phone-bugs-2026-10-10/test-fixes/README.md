@@ -1,0 +1,13 @@
+# Focused test-phase repairs
+
+The original real-Qwen judge accepted booking durations (`One day trip`, `Two-day trip`, `No plans yet`). The judge instruction now distinguishes a reservation from a duration while allowing short replies to inherit their question’s context. `npx tsx scripts/check-card-answers.mts` evaluates supplied drafts through the real local Qwen judge and the planner's existing repair boundary. This is a hybrid semantic evaluation, not end-to-end generation or predictive-accuracy evidence. Mismatched drafts must exhaust exactly one repair; valid drafts must pass with one judge call per card.
+
+The supplied external judge-check harness also expected a card with `You…` options to pass. That card fails the existing wording validator before reaching the judge; its expectation was not adopted. The first repository harness run (`initial-harness.jsonl`) similarly used a personal forecast with a count card lacking `you`/`your`, yielding zero judge calls for that card. The corrected harness uses a nonpersonal forecast so the exact requested count question reaches the judge. These were harness issues, not changes to the planner's wording rules.
+
+`PREVIEW_URL=http://localhost:8192 LAYOUT_FOLLOWUPS_ONLY=1 node scripts/check-layout.mjs` drives the actual browser UI with labeled engine fixtures at 375×667 and 440×956. The former reproduced a fourth-chip bottom of 697px; after the fix it is 653px. All four chips fit in the viewport, have equal widths and heights, and scrolling does not move the question. The custom-answer field opens. At 440×956 the question remains at y=563 and the last chip at y=805, height=46, identical to the baseline. Screenshots show the final layouts. This does not establish native-device rendering.
+
+The focused `cards whose answers miss` regression in `tests/reading-flow.test.ts` passes, including successful repair and fail-closed behavior. No full suite, static analysis, native build, push, or delivery phase was run.
+
+The first strengthened prompt falsely rejected activity replies because “Do not infer unstated facts” made the judge demand repeated context. `overstrict-judge.jsonl` captures that diagnosis; `plans-first-attempt.json` preserves all six outputs from that failed run (three errors). Replacing that instruction with explicit short-reply context inheritance fixes the false rejection. `card-answers.jsonl` records the final eight-case semantic evaluation.
+
+Final regeneration: `plans-after.json` and `heldout-after.json` each contain six real `makePlan` outputs, all `kind: ok`, using Ollama `qwen3:4b-instruct-2507-q4_K_M` at `127.0.0.1:11435`. The original before files remain unchanged. The UI check was browser-only; native verification remains outside this test repair.

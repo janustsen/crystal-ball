@@ -76,6 +76,34 @@ async function audit(page,width,name,marker,delay=1300){
 }
 await mkdir(evidence,{recursive:true});
 try{
+// Focused regression for the second follow-up: all choices fit without scrolling under the ball.
+for(const [width,height] of [[375,667],[440,956]]){
+ const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,isMobile:true,hasTouch:true,reducedMotion:'reduce'});
+ try{
+  const page=await context.newPage();
+  const cards=[plan.cards[0],{id:'context_b',question:'What kinds of activities do you enjoy most right now?',options:['Hiking in nature','Cooking with family','Reading books','Other'],remember:false}];
+  await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{...plan,cards}}}));
+  await page.goto(base,{timeout:120000});
+  await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+  await page.getByTestId('question-input').fill('Will I have a good month?');await page.getByTestId('look-into-the-future').click();
+  await page.getByTestId('option-0').click();
+  const question=page.getByText(cards[1].question,{exact:true});
+  await expect(question).toBeVisible();await page.waitForTimeout(1800);
+  const before=await question.boundingBox();
+  for(let i=0;i<4;i++)await expect(page.getByTestId(`option-${i}`)).toBeInViewport({ratio:1});
+  const boxes=await Promise.all([0,1,2,3].map(i=>page.getByTestId(`option-${i}`).boundingBox()));
+  for(const box of boxes){expect(box.width).toBe(boxes[0].width);expect(box.height).toBe(boxes[0].height)}
+  // Scroll the actual containing viewport, then ensure the question has not moved behind the ball.
+  await question.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.scrollHeight>p.clientHeight&&getComputedStyle(p).overflowY==='auto'){p.scrollTop=p.scrollHeight;break}});
+  expect((await question.boundingBox()).y).toBe(before.y);
+  await page.screenshot({path:`${evidence}/followup-${width}.png`});
+  await page.getByTestId('option-3').click();await expect(page.getByTestId('other-input')).toBeVisible();
+  checked.push(`${width}x${height}:second-followup`);
+  console.log(`Checked ${width}x${height}:second-followup`);
+ }finally{await context.close()}
+}
+if(!process.env.LAYOUT_FOLLOWUPS_ONLY)
 for(const width of [360,390,430])for(const large of [false,true]){
  const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true,reducedMotion:'no-preference'});
  try{
