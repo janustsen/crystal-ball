@@ -67,7 +67,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[ready,setReady]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);

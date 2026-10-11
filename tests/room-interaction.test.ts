@@ -155,26 +155,28 @@ test('web room keeps loading and failed glass aligned with stills across navigat
 });
 
 function nativeRoom(startNativeGlass:()=>Promise<unknown>){
- const listeners:Record<string,(e?:any)=>void>={},fades:number[]=[],played:unknown[]=[];
- const player={muted:false,audioMixingMode:'',replaceAsync:async(clip:unknown)=>{played.push(clip)},play(){},pause(){},
+ const listeners:Record<string,(e?:any)=>void>={},fades:number[]=[],played:unknown[]=[],positions:number[]=[],durations:number[]=[];
+ const player={currentTime:0,muted:false,audioMixingMode:'',replaceAsync:async(clip:unknown)=>{played.push(clip)},play(){},pause(){},
   addListener:(name:string,fn:(e?:any)=>void)=>{listeners[name]=fn;return {remove(){}}}};
  const render=component('../src/RoomScene.tsx',{
-  'react-native':{Animated:{Value:class {setValue(){}stopAnimation(){}interpolate(){return 'tracked'}},timing:(_:unknown,{toValue}:{toValue:number})=>({start(){fades.push(toValue)}}),Image:'Animated.Image',View:'Animated.View'},Easing:{linear:'linear'},Image:'Image',View:'View'},
+  'react-native':{Animated:{Value:class {setValue(value:number){positions.push(value)}stopAnimation(){}interpolate(){return 'tracked'}},timing:(_:unknown,{toValue,duration}:{toValue:number;duration:number})=>({start(){fades.push(toValue);durations.push(duration)}}),Image:'Animated.Image',View:'Animated.View'},Easing:{linear:'linear'},Image:'Image',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
   'expo-video':{useVideoPlayer:(_:unknown,setup:(p:typeof player)=>void)=>{setup(player);return player},VideoView:'VideoView'},
   './room':room,'./roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{'home-ask':'home-ask.mp4'},ballArt:{}},
-  './glassNative':{startNativeGlass},'./useDelight':{applyAudioMode:async()=>{}},
+  './glassNative':{startNativeGlass},
  },{setTimeout:()=>0,clearTimeout:()=>{}});
- return {render,listeners,fades,played,player};
+ return {render,listeners,fades,played,player,positions,durations};
 }
 
 test('native room flies the camera to the new spot and lands on its still',async()=>{
- const {render,listeners,fades,played,player}=nativeRoom(()=>new Promise(()=>{}));
+ let aim!:()=>unknown;
+ const {render,listeners,fades,played,player,positions,durations}=nativeRoom((...args:any[])=>{aim=args[1].aim;return new Promise(()=>{})});
+ let playbackChanges=0;
  const tick=()=>new Promise(r=>setImmediate(r));
- const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false},onPlaybackChange:()=>{playbackChanges++}};
  const draw=()=>nodes(render('RoomScene',props));
  const stills=()=>draw().filter(n=>n.type==='Image').map(n=>n.props.source);
- draw();
+ draw().find(n=>n.type==='GLView').props.onContextCreate({});
  assert.equal(player.muted,true);
  props.spot='Ask';draw();await tick();
  assert.deepEqual(played,['home-ask.mp4']);
@@ -188,11 +190,17 @@ test('native room flies the camera to the new spot and lands on its still',async
  assert.deepEqual(fades,[44],'the track runs over the clip\'s 45 frames');
  assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,0,'the static orb rides the flight');
  assert.ok(tree.some(n=>n.type==='OrbVisual'));
- // A stall mid-flight returns to the start still until the clip plays again.
+ player.currentTime=.7;
  listeners.playingChange({isPlaying:false});
  assert.deepEqual(stills(),['Ask.jpg','Home.jpg']);
  listeners.playingChange({isPlaying:true});
  assert.deepEqual(fades,[44,44]);
+ assert.equal(positions.at(-1),21);
+ assert.equal(durations.at(-1),23/room.roomFps*1000);
+ assert.deepEqual(JSON.parse(JSON.stringify(aim())),room.ballOnScreen(room.clipFrames('home-ask')[21],390,844)!.dir);
+ player.currentTime=1;
+ assert.deepEqual(JSON.parse(JSON.stringify(aim())),room.ballOnScreen(room.clipFrames('home-ask')[30],390,844)!.dir);
+ assert.equal(playbackChanges,3);
  listeners.playToEnd();
  tree=draw();
  assert.deepEqual(stills(),['Ask.jpg']);
@@ -253,4 +261,29 @@ test('the room ball supplies touch feedback before reading, and a drag spins it 
  assert.equal(native.props.onPointerDown,undefined);
  native.props.onTouchStart(touch(3,170));native.props.onTouchMove(touch(3,190));native.props.onTouchEnd(touch(3,190));native.props.onTouchCancel(touch(5,0));
  assert.deepEqual(events,['grab 3 170','drag 3 190','release 3','release 5']);
+});
+
+
+test('native audio resets yield to listening across playback changes and pending timers',async()=>{
+ const timers=new Map<number,()=>void>();let nextTimer=0,resets=0;
+ const sound={play(){},pause(){},seekTo:async()=>{}};
+ const render=component('../src/useDelight.ts',{
+  'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
+  'expo-audio':{useAudioPlayer:()=>sound,setAudioModeAsync:async()=>{resets++}},
+  './native':{haptic(){}},'./motion':{motion:{}},
+  '../assets/audio/hum.wav':0,'../assets/audio/chime.wav':1,
+ },{
+  setTimeout:(fn:()=>void)=>{timers.set(++nextTimer,fn);return nextTimer},
+  clearTimeout:(id:number)=>timers.delete(id),
+ });
+ const props={enabled:true,thinking:false,listening:false};
+ const draw=()=>render('useDelight',props) as ()=>void;
+ const flush=async()=>{const pending=[...timers.values()];timers.clear();pending.forEach(fn=>fn());await new Promise(r=>setImmediate(r))};
+ let changed=draw();await flush();assert.equal(resets,1);
+ changed();changed=draw();
+ props.listening=true;changed=draw();
+ await flush();assert.equal(resets,1);
+ for(let i=0;i<2;i++){changed();changed=draw();await flush();assert.equal(resets,1)}
+ props.listening=false;changed=draw();await flush();assert.equal(resets,2);
+ changed();draw();await flush();assert.equal(resets,3);
 });

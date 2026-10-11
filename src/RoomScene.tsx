@@ -7,15 +7,13 @@ import {OrbVisual} from './OrbVisual';
 import {ballOnScreen,clipFrames,flightKey,maxBallRadius,roomCover,roomFps,stillFrame,type Spot} from './room';
 import {ballArt,roomFlights,roomStills} from './roomAssets';
 import {startNativeGlass} from './glassNative';
-import {applyAudioMode} from './useDelight';
 import type {BallStyle} from './types';
 import type {Pointer} from './glassBall';
 
 // The room ball's touch target hands its pointer to the live scene to spin it; a drag then suppresses the tap.
 export type BallSpin={grab?:(e:Pointer)=>void;drag?:(e:Pointer)=>void;release?:(e:Pointer)=>void;dragged:boolean};
 
-// start is when the clip began playing (0 until then), so the ball's view follows the same frame as the video.
-type Flight={key:string;to:Spot;start:number};
+type Flight={key:string;to:Spot;playing:boolean};
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → bundled flight → still,
 // cut pixel-exact) while the ball rides each frame's tracked position on the native driver, then the live glass ball
@@ -24,12 +22,12 @@ type Flight={key:string;to:Spot;start:number};
 // ponytail: the static orb rides the flight because the iOS Simulator drops the GL ball over a playing video; try the
 // glass in flight again once a device shows it composites.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[flying,setFlying]=useState(false);
  const [previous,setPrevious]=useState<Spot|null>(null),fade=useRef(new Animated.Value(0)).current,along=useRef(new Animated.Value(0)).current;
  const [failed,setFailed]=useState(false),[started,setStarted]=useState(0);
- const motion=useRef({reduce}).current,room=useRef({at,flight:null as Flight|null}).current,scene=useRef<Awaited<ReturnType<typeof startNativeGlass>>|null>(null);
- motion.reduce=reduce;room.at=at;
+ const motion=useRef({reduce}).current,room=useRef({at,onPlaybackChange,flight:null as Flight|null}).current,scene=useRef<Awaited<ReturnType<typeof startNativeGlass>>|null>(null);
+ motion.reduce=reduce;room.at=at;room.onPlaybackChange=onPlaybackChange;
  const player=useVideoPlayer(null,p=>{p.muted=true;p.audioMixingMode='mixWithOthers'});
  const land=(done:Flight)=>{
   if(room.flight!==done)return;
@@ -41,7 +39,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   if(spot===target)return;
   const key=flightKey(room.at,spot),clip=roomFlights[key];
   if(!room.flight&&!reduce&&clip){
-   const next:Flight={key,to:spot,start:0};
+   const next:Flight={key,to:spot,playing:false};
    room.flight=next;setFlight(next);
    player.replaceAsync(clip).then(()=>{if(room.flight===next)player.play()},()=>land(next));
    return;
@@ -54,19 +52,17 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  useEffect(()=>{
   const subs=[
    // replaceAsync resolves before the clip is ready, so a play() can start and stall at once: play again when ready.
-   player.addListener('statusChange',({status})=>{if(status==='readyToPlay'&&room.flight&&!room.flight.start)player.play()}),
+   player.addListener('statusChange',({status})=>{if(status==='readyToPlay'&&room.flight&&!room.flight.playing)player.play()}),
    player.addListener('playingChange',({isPlaying})=>{
-    // expo-video sets the shared audio session to playback (ignoring the silent switch) as it starts and stops, so the
-    // app's own sound mode is re-applied after it. ponytail: timed to land after expo-video's async session write.
-    setTimeout(()=>void applyAudioMode().catch(()=>{}),300);
+    room.onPlaybackChange?.();
     const current=room.flight;
     if(!current)return;
-    // A stall mid-flight shows the start still again and restarts the ride when playback resumes.
-    if(!isPlaying){if(current.start){current.start=0;along.stopAnimation();setFlying(false)}return}
-    if(current.start)return;
+    if(!isPlaying){current.playing=false;along.stopAnimation();setFlying(false);return}
+    if(current.playing)return;
     const frames=clipFrames(current.key).length;
-    current.start=Date.now();along.setValue(0);setFlying(true);
-    Animated.timing(along,{toValue:frames-1,duration:(frames-1)/roomFps*1000,easing:Easing.linear,useNativeDriver:true}).start();
+    const frame=Math.min(frames-1,Math.max(0,player.currentTime*roomFps));
+    current.playing=true;along.setValue(frame);setFlying(true);
+    Animated.timing(along,{toValue:frames-1,duration:(frames-1-frame)/roomFps*1000,easing:Easing.linear,useNativeDriver:true}).start();
    }),
    player.addListener('playToEnd',()=>{if(room.flight)land(room.flight)}),
   ];
@@ -80,12 +76,11 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
  },[flight]);
  // Switching to reduced motion mid-flight cuts straight to the destination rather than finishing the move.
  useEffect(()=>{if(reduce&&room.flight){player.pause();land(room.flight)}},[reduce]);
- // The frame the camera is on: the flight's tracked frame by elapsed time, else the resting still.
  const frameNow=()=>{
   const current=room.flight;
-  if(!current?.start)return stillFrame(room.at);
+  if(!current?.playing)return stillFrame(room.at);
   const frames=clipFrames(current.key);
-  return frames[Math.min(frames.length-1,Math.round((Date.now()-current.start)*roomFps/1000))];
+  return frames[Math.min(frames.length-1,Math.max(0,Math.round(player.currentTime*roomFps)))];
  };
  // A resize gets a fresh GL view (and context); the old scene stops with it.
  const generation=useRef(0),pending=useRef<AbortController|null>(null);

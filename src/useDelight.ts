@@ -4,14 +4,11 @@ import {setAudioModeAsync,useAudioPlayer} from 'expo-audio';
 import {haptic} from './native';
 import {motion} from './motion';
 
-// The app's sound respects the silent switch and mixes with other audio; other modules that take the session re-apply it.
-export const applyAudioMode=()=>setAudioModeAsync({playsInSilentMode:false,shouldPlayInBackground:false,interruptionMode:'mixWithOthers'});
-
 export function useDelight({enabled,thinking,revealId,listening=false}:{enabled:boolean;thinking:boolean;revealId?:string;listening?:boolean}){
  const hum=useAudioPlayer(require('../assets/audio/hum.wav'));
  const chime=useAudioPlayer(require('../assets/audio/chime.wav'));
  const [foreground,setForeground]=useState(AppState.currentState==='active');
- const [configured,setConfigured]=useState(false);
+ const [configured,setConfigured]=useState(false),[playbackRevision,setPlaybackRevision]=useState(0);
  const seen=useRef<string|undefined>(undefined);
  useEffect(()=>{
   const listener=AppState.addEventListener('change',state=>setForeground(state==='active'));
@@ -20,9 +17,11 @@ export function useDelight({enabled,thinking,revealId,listening=false}:{enabled:
  useEffect(()=>{
   setConfigured(false);if(listening)return;
   let mounted=true;
-  void applyAudioMode().then(()=>{if(mounted)setConfigured(true);}).catch(()=>{});
-  return()=>{mounted=false;};
- },[listening]);
+  const timer=setTimeout(()=>{
+   void setAudioModeAsync({playsInSilentMode:false,shouldPlayInBackground:false,interruptionMode:'mixWithOthers'}).then(()=>{if(mounted)setConfigured(true);}).catch(()=>{});
+  },300);
+  return()=>{mounted=false;clearTimeout(timer);};
+ },[listening,playbackRevision]);
  const audible=enabled&&configured&&foreground&&!listening;
  useEffect(()=>{
   hum.loop=true;hum.volume=.18;chime.volume=.35;
@@ -41,4 +40,5 @@ export function useDelight({enabled,thinking,revealId,listening=false}:{enabled:
   if(audible)void chime.seekTo(0).then(()=>{if(!canceled)chime.play();}).catch(()=>{});
   return()=>{canceled=true;};
  },[revealId,audible,foreground,chime]);
+ return ()=>setPlaybackRevision(n=>n+1);
 }
