@@ -11,6 +11,8 @@ import {circleReading} from '../src/reading-history';
 import {canRead} from '../src/profile';
 import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
+import * as room from '../src/room';
+import * as delight from '../src/delight';
 
 const code=ts.transpileModule(readFileSync(new URL('../app/index.tsx',import.meta.url),'utf8'),{
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
@@ -38,6 +40,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1,update:(fn:(value:typeof state)=>typeof state)=>Object.assign(state,fn(state))})},
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
+  '../src/room':room,'../src/delight':delight,'../src/RoomScene':{RoomScene:'RoomScene'},'../src/VoiceButton':{VoiceButton:'VoiceButton'},
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
   '../src/SocialScreen':{SealedCard:'SealedCard',Social:'Social',SealForecast:'SealForecast',InstallAction:'InstallAction'},'../src/RevealClip':{RevealClip:'RevealClip'},
@@ -271,4 +274,34 @@ test('Today questions opens The Ball asks without requiring AI consent',()=>{
  render().find(n=>n.props.testID==='tab-home').props.onPress();
  render().find(n=>n.type==='TodayCard').props.onStep('questions');
  assert.ok(render().some(n=>n.type==='BallAsks'));
+});
+
+
+test('prefilled Ask waits for room settlement before mounting the microphone',()=>{
+ for(const reduceMotion of [false,true]){
+  const {render}=app(true,[],undefined,{reduceMotion});
+  const draw=()=>render();
+  draw().find(n=>n.props.testID==='app-shell').props.onLayout({nativeEvent:{layout:{width:390,height:844}}});
+  draw().find(n=>n.props.testID==='tab-sky').props.onPress();
+  draw().find(n=>n.type==='Social').props.onAsk('Will I finish my course?');
+  const travel=draw().find(n=>n.type==='RoomScene').props.onTravel;
+  travel(true);
+  const pressText=(label:string)=>draw().find(n=>n.props.onPress&&n.children.some((c:any)=>c?.children?.includes(label))).props.onPress();
+  pressText('Speak instead');
+  assert.ok(!draw().some(n=>n.type==='VoiceButton'));
+  travel(false);
+  const voice=draw().find(n=>n.type==='VoiceButton');
+  assert.ok(voice);
+  assert.equal(voice.props.autoStart,true);
+  voice.props.onText('Will I graduate?');
+  pressText('Type instead');
+  assert.equal(draw().find(n=>n.props.testID==='question-input').props.value,'Will I graduate?');
+  pressText('Speak instead');
+  assert.ok(draw().some(n=>n.type==='VoiceButton'),'settled typing-to-speech remains available');
+  travel(true);
+  assert.ok(!draw().some(n=>n.type==='VoiceButton'),'new travel removes manual and automatic recording together');
+  pressText('Type instead');
+  travel(false);
+  assert.ok(!draw().some(n=>n.type==='VoiceButton'),'canceling while waiting cannot start recording later');
+ }
 });
