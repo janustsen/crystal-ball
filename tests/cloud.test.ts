@@ -161,11 +161,12 @@ for(const teen of [false,true])test(`restore reconciles ${teen?'teen':'adult'} a
 
 test('a session the server no longer knows is replaced, checked once per launch',async()=>{
  const saved=new Map<string,string>(),storage={getItem:(key:string)=>saved.get(key)??null,setItem:(key:string,value:string)=>void saved.set(key,value),removeItem:(key:string)=>void saved.delete(key)};
- let users=0,signups=0,expiresIn=3600,server:'ok'|'gone'|'offline'='ok';
+ let users=0,signups=0,expiresIn=3600,server:'ok'|'gone'|'offline'|'down'='ok';
  const launch=()=>createClient('https://reset.invalid','test-key',{auth:{storage,persistSession:true,autoRefreshToken:false},global:{fetch:async input=>{
   const url=new URL(String(input));
   if(url.pathname.endsWith('/user')){
    users++;if(server==='offline')throw new TypeError('Network request failed');
+   if(server==='down')return Response.json({msg:'Internal error'},{status:500});
    return server==='gone'?Response.json({code:'user_not_found',msg:'User from sub claim in JWT does not exist'},{status:403}):Response.json({id:`owner-${signups}`,aud:'authenticated',is_anonymous:true});
   }
   if(url.searchParams.get('grant_type')==='refresh_token')return Response.json({code:'refresh_token_not_found',msg:'Invalid Refresh Token: Refresh Token Not Found'},{status:400});
@@ -176,6 +177,7 @@ test('a session the server no longer knows is replaced, checked once per launch'
  const relaunched=launch();
  assert.equal(await anonymousOwner(relaunched),'owner-1');assert.equal(await anonymousOwner(relaunched),'owner-1');assert.equal(users,1);
  server='offline';assert.equal(await anonymousOwner(launch()),'owner-1');assert.equal(signups,1);
+ server='down';assert.equal(await anonymousOwner(launch()),'owner-1');assert.equal(signups,1);
  // The preview database was reset: the stored user is gone.
  server='gone';const reset=launch();
  assert.equal(await anonymousOwner(reset),'owner-2');assert.equal(await anonymousOwner(reset),'owner-2');assert.equal(signups,2);

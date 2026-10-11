@@ -1,4 +1,4 @@
-import {createClient,isAuthRetryableFetchError,type SupabaseClient} from '@supabase/supabase-js';
+import {createClient,isAuthRetryableFetchError,isAuthSessionMissingError,type SupabaseClient} from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {canRead} from './profile';
 import type {AccountState} from './types';
@@ -8,7 +8,7 @@ const url=process.env.EXPO_PUBLIC_SUPABASE_URL,key=process.env.EXPO_PUBLIC_SUPAB
 export const supabase=url&&key?createClient(url,key,{auth:{storage:AsyncStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null;
 const pendingOwners=new WeakMap<SupabaseClient,Promise<string>>(),checkedOwners=new WeakSet<SupabaseClient>();
 // A server database reset leaves the device holding a session for a user that no longer exists, so the stored
-// session is checked once per launch and replaced by a new anonymous one when the server rejects it. Offline keeps it.
+// session is checked once per launch and replaced by a new anonymous one when the server rejects it.
 export async function anonymousOwner(client:SupabaseClient|null=supabase){
  if(!client)return null;
  let pending=pendingOwners.get(client);
@@ -18,9 +18,10 @@ export async function anonymousOwner(client:SupabaseClient|null=supabase){
    const {data,error}=await client.auth.getSession();if(error&&isAuthRetryableFetchError(error))throw error;
    if(data.session){
     if(checkedOwners.has(client))return data.session.user.id;
-    const user=await client.auth.getUser();
-    if(!user.error)checkedOwners.add(client);
-    if(!user.error||isAuthRetryableFetchError(user.error))return data.session.user.id;
+    const {error}=await client.auth.getUser();
+    if(!error)checkedOwners.add(client);
+    // Only a server that rejects the session replaces it; an outage keeps the owner and checks again next time.
+    if(!error||!(isAuthSessionMissingError(error)||error.status===401||error.status===403))return data.session.user.id;
    }
    const result=await client.auth.signInAnonymously();
    if(result.error||!result.data.user)throw result.error||new Error('Anonymous session unavailable');
