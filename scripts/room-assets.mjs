@@ -57,6 +57,14 @@ function plus(src,track){
  }
 }
 
+// The Ask still's relief tears into blocky steps above the ring and around the stand's neck, where the live ball does
+// not cover them. Each feathered box (x0,y0,x1,y1,feather in render px) is replaced: the top one by the shelves 80 px
+// above it, the neck by a 4 px blur of itself.
+const box=([x0,y0,x1,y1,f])=>{const a=`255*clip(min(min(X-${x0},${x1}-X),min(Y-${y0},${y1}-Y))/${f},0,1)`;return `geq=r='${a}':g='${a}':b='${a}'`};
+const askRepair=`[0]format=gbrp,split=4[o][s][g][m];[s]crop=1170:2452:0:0,pad=1170:2532:0:80[shelf];[g]gblur=sigma=4[soft];`+
+ `[m]split[mt][ms];[mt]${box([595,1035,720,1108,12])}[top];[ms]${box([425,1395,745,1560,10])}[neck];`+
+ '[o][shelf][top]maskedmerge[r];[r][soft][neck]maskedmerge,format=yuvj444p';
+
 function build(src,plusSrc=process.env.PLUS_RENDER_SOURCE||plusSource){
  mkdirSync('assets/room',{recursive:true});
  mkdirSync(join(streamed,roomVersion),{recursive:true});
@@ -64,7 +72,7 @@ function build(src,plusSrc=process.env.PLUS_RENDER_SOURCE||plusSource){
  const track={version:roomVersion,width:0,height:0,stills:{},clips:{}};
  const load=name=>JSON.parse(readFileSync(join(src,'camera',`${name}.json`),'utf8'));
  for(const spot of spots){
-  ffmpeg('-i',join(src,'stills',`${spot}_1170x2532.png`),'-q:v','4',`assets/room/${spot}.jpg`);
+  ffmpeg('-i',join(src,'stills',`${spot}_1170x2532.png`),...spot==='ask'?['-filter_complex',askRepair]:[],'-q:v','4',`assets/room/${spot}.jpg`);
   const still=load(`still_${spot}`);
   [track.width,track.height]=still.res;
   track.stills[spot]=trackFrame(still.frames[0],still.ball_world,still.res[0]);

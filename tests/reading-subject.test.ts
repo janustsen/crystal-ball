@@ -40,7 +40,7 @@ test('personal cards repair invented subjects once and keep them out of saved Wh
  const corrected='What have you already done to learn Spanish?';
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?{cards:[{question:(++attempts%2===1||!repair)?wrong:corrected,options:['Completed ten lessons','Practiced with a friend','Practiced every day']}]}:body.format.properties.prediction?{prediction:'You will speak conversational Spanish.',basis:'context_1',assumption:'Your daily practice continues.'}:{category:'allow'};
+  const content=body.format.properties.cards?{cards:[{question:(++attempts%2===1||!repair)?wrong:corrected,options:['Completed ten lessons','Practiced with a friend','Practiced every day']}]}:body.format.properties.prediction?{prediction:'You will speak conversational Spanish.',basis:'context_1',assumption:'Your daily practice continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
@@ -69,7 +69,7 @@ test('valid first names reach planning and forecasting through API and engine',a
  const original=globalThis.fetch;let name='Alex';
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?{cards:[{question:`How often does ${name} practice?`,options:['Daily','Weekly','Rarely']}]}:body.format.properties.prediction?{prediction:`${name} will improve.`,basis:'context_1',assumption:`${name} keeps practicing regularly.`}:{category:'allow'};
+  const content=body.format.properties.cards?{cards:[{question:`How often does ${name} practice?`,options:['Daily','Weekly','Rarely']}]}:body.format.properties.prediction?{prediction:`${name} will improve.`,basis:'context_1',assumption:`${name} keeps practicing regularly.`}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{

@@ -35,7 +35,7 @@ test('API requires age confirmation on both actions, including friend links, bef
  const original=globalThis.fetch;let calls=0;
  globalThis.fetch=async(_url,init)=>{
   calls++;const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?{cards:[{question:'How often do you write?',options:['Daily','Weekly','Rarely']}]}:body.format.properties.prediction?{prediction:'You will finish.',basis:'context_1',assumption:'Your regular writing continues.'}:{category:'allow'};
+  const content=body.format.properties.cards?{cards:[{question:'How often do you write?',options:['Daily','Weekly','Rarely']}]}:body.format.properties.prediction?{prediction:'You will finish.',basis:'context_1',assumption:'Your regular writing continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  const call=handler(()=>undefined);

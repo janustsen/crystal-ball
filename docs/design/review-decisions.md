@@ -1,6 +1,6 @@
 
 ## Card-review experiment rejected by runtime evidence
-The additional model card reviewer requested in generation round six rejected relevant present-context cards for not proving the future. The same 20-case suite fell to 10/20 completions with either tested local model. It was removed rather than retained to satisfy a review suggestion. Structural constraints, safety checks and the prediction consistency reviewer remain; semantic relevance is an explicit open limitation. See docs/evidence/model-comparison.md for the comparison and preserved raw failures.
+The additional model card reviewer requested in generation round six rejected relevant present-context cards for not proving the future. The same 20-case suite fell to 10/20 completions with either tested local model. It was removed rather than retained to satisfy a review suggestion. See the [current adaptive question policy](../research/question-engine.md) for today's validation boundary and limitations, and the [candidate comparison](../evidence/model-comparison.md) for this experiment's preserved raw failures.
 
 ## App round six responses
 The share headline and date were enlarged, numeric time units kept together, and the headline limited to three fitted lines. Knowledge rows now pair equally sized Edit and Forget controls. Unrelated domain memories are excluded from general planning, with real before/after inference and a failing-then-passing request-boundary regression.

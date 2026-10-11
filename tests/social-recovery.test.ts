@@ -19,7 +19,7 @@ test('social refresh recovers lost publication responses and charges each Readin
  });
  const {supabase}=await import('../src/cloud');assert.ok(supabase);
  await supabase.auth.initialize();await supabase.auth.stopAutoRefresh();
- t.mock.method(supabase.auth,'getSession',async()=>({data:{session:{access_token:'test-token',user:{id:'viewer'}}},error:null}));
+ t.mock.method(supabase.auth,'getSession',async()=>({data:{session:{access_token:'test-token',user:{id:'viewer'}}},error:null})); t.mock.method(supabase.auth,'getUser',async()=>({data:{user:{id:'viewer'}},error:null}));
  const {loadSocial,syncSocialProfile,prepareSocialDraft,friendForecast,publishCircleForecast}=await import('../src/social');
  let offline=true,reads=0;
  // Keep the original ten snapshot reads covered separately from the eight new collections.

@@ -1,6 +1,6 @@
 # Launch foundation blast radius
 
-The provider contract is unchanged. `server/handler.ts`, local Node and the Supabase edge function continue to use the same `ModelProvider.json` interface. Hosted requests add an explicit consent requirement; older clients are rejected when a server is switched to hosted. This is deliberate: an old local-only disclosure cannot authorize sending private inputs to a new vendor.
+The hosted-transport addition preserved existing provider callers in `server/handler.ts`, local Node and the Supabase edge function. See the [implemented provider boundary](hosted-model.md#implemented-boundary) for the current contract. Hosted requests add an explicit consent requirement; older clients are rejected when a server is switched to hosted. This is deliberate: an old local-only disclosure cannot authorize sending private inputs to a new vendor.
 
 Safety fact: neither transport can return model JSON unless the existing validator accepts it; each gets at most one repair. `tests/provider.test.ts` calls the real provider for both output formats, verifies feedback is sent, invalid replies fail, transport errors do not fall back, and the handler rejects missing/outdated consent. This is executed transport-boundary proof with HTTP responses substituted, not hosted model quality evidence.
 

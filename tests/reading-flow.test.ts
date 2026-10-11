@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makePlan,predict,formatForecast} from '../server/engine.ts';
-import {provider} from '../server/provider.ts';
+import {makePlan,planTiming,predict,formatForecast} from '../server/engine.ts';
+import {provider,validatedProvider} from '../server/provider.ts';
 import {validateFact} from '../src/questions.ts';
 import {ageGroup,birthdayProfile,sunSign} from '../src/profile.ts';
 import {birthChart} from '../src/birth-chart.ts';
@@ -13,7 +13,7 @@ test('one and two card model plans reach a forecast; missing timeframe reserves 
  let count=1;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}].slice(0,Math.min(count,body.format.properties.cards.maxItems))}:body.format.properties.prediction?{prediction:'You will finish your novel.',basis:'context_1',assumption:'Your writing routine continues.'}:{category:'allow'};
+  const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}].slice(0,Math.min(count,body.format.properties.cards.maxItems))}:body.format.properties.prediction?{prediction:'You will finish your novel.',basis:'context_1',assumption:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   if(body.format.properties.cards)assert.equal(input.known.current_focus,'Learning & growth');
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
@@ -29,7 +29,7 @@ test('one and two card model plans reach a forecast; missing timeframe reserves 
 
 test('typed scenarios ask only missing inputs and keep their actual calculation',async()=>{
  const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);return new Response(JSON.stringify({message:{content:JSON.stringify(input.choices?{prediction:input.choices[0]}:{category:'allow'})}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);return new Response(JSON.stringify({message:{content:JSON.stringify(input.choices?{prediction:input.choices[0]}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'}))}}));};
  try{
   const question='How many users will my project have?',known={current_users:'100'};
   const plan=await makePlan(question,known,provider(()=>undefined));assert.equal(plan.kind,'ok');if(plan.kind!=='ok')return;
@@ -114,7 +114,7 @@ test('forecast outputs resolve typed and general horizons before rendering both 
  globalThis.fetch=async(url,init)=>{
   if(String(url).includes('/rss/'))return new Response('<rss/>');
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Your regular effort continues.'}):{category:'allow'};
+  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Your regular effort continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  const move={location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'6 months'};
@@ -140,7 +140,7 @@ test('Person readings isolate all owner topics and repair wrong-subject cards an
  let cards=0,forecasts=0,alwaysWrong=false;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  let content:unknown={category:'allow'};
+  let content:unknown=body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'};
   if(body.format.properties.cards){
    cards++;assert.deepEqual(input.known,{});
    content={cards:[{question:body.messages.length===2?'How often do you practice?':'How often does Alex practice?',options:['Daily','Weekly','Rarely']}]};
@@ -163,4 +163,131 @@ test('Person readings isolate all owner topics and repair wrong-subject cards an
   const rejected=await predict('Will Alex learn Spanish?',{...known,context_1:'Daily practice',horizon:'within 6 months'},false,provider(()=>undefined),{personName:'Alex'});
   assert.equal(rejected.kind,'error');assert.equal(forecasts,12);
  }finally{globalThis.fetch=original;}
+});
+
+test('answer options read as the asker’s own replies, not statements about them',async()=>{
+ const original=globalThis.fetch;
+ let drafts=0;
+ globalThis.fetch=async(_url,init)=>{
+  const body=JSON.parse(String(init?.body));
+  const content=body.format.properties.cards?(drafts++?{cards:[{factor:'free time',question:'What do you do most weekends?',options:['Hiking in nature.','Cooking with family','I’ve been reading']}]}:{cards:[{factor:'free time',question:'What do you enjoy most right now?',options:['You enjoy hiking in nature.','You like cooking with family.','You prefer reading books.']}]}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
+ };
+ try{
+  const plan=await makePlan('What will make me happiest this year?',{},provider(()=>undefined));
+  assert.equal(plan.kind,'ok');if(plan.kind!=='ok')return;
+  assert.equal(drafts,2);
+  assert.deepEqual(plan.value.cards[0].options,['Hiking in nature','Cooking with family','Been reading','Other']);
+ }finally{globalThis.fetch=original}
+});
+
+
+test('model cards reject reserved labels after normalization and repair once',async()=>{
+ for(const reserved of ['Other','Other.','other.','I am Other.'])for(const personName of [undefined,'Alex'])for(const badIndex of [0,1])for(const repair of [false,true]){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if(Array.isArray(schema.required)&&schema.required.includes('fits'))return JSON.stringify({reason:'fixture',fits:true});
+   if(!Array.isArray(schema.required)||!schema.required.includes('cards'))return JSON.stringify({category:'allow'});
+   attempts++;
+   const cards=[
+    {question:personName?'How often does Alex practice?':'How often do you practice?',options:['Daily','Weekly','Rarely']},
+    {question:personName?'Where does Alex practice?':'Where do you practice?',options:['At home','At school','At a club']},
+   ];
+   if(attempts===1||!repair)cards[badIndex].options=['Daily','Weekly',reserved];
+   return JSON.stringify({cards});
+  });
+  const plan=await makePlan(personName?'Will Alex make the team this year?':'Will I make the team this year?',{},model,{personName});
+  assert.equal(attempts,2,reserved);
+  assert.equal(plan.kind,repair?'ok':'error',reserved);
+  if(plan.kind==='ok')assert.deepEqual(plan.value.cards.map(card=>card.options),[
+   ['Daily','Weekly','Rarely','Other'],['At home','At school','At a club','Other'],
+  ]);
+ }
+});
+
+test('cards whose answers miss their question are judged, repaired once, then fail closed',async()=>{
+ for(const fixed of [true,false]){
+  let drafts=0,judged=0;
+  const model=validatedProvider(async(messages,schema)=>{
+   const required=Array.isArray(schema.required)?schema.required:[];
+   if(required.includes('fits')){judged++;return JSON.stringify({reason:'test',fits:!JSON.parse(messages[1].content).options.includes('Drove 30 miles')})}
+   if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+   drafts++;
+   return JSON.stringify({cards:[{question:'How did your last practice session go?',options:drafts===1||!fixed?['Drove 30 miles','With a mentor','Did 5 drills']:['Went well','Mixed','Rough']}]});
+  });
+  const plan=await makePlan('Will I pass my driving test next month?',{},model);
+  assert.equal(drafts,2);assert.equal(judged,2);
+  assert.equal(plan.kind,fixed?'ok':'error');
+  if(plan.kind==='ok')assert.deepEqual(plan.value.cards[0].options,['Went well','Mixed','Rough','Other']);
+ }
+});
+
+test('Person card instructions and examples use the first name, never you',async()=>{
+ for(const [question,personName,expected,absent] of [
+  ['Will Alex make the team this year?','Alex','"How often does Alex practice?"','addressing the person with you or your'],
+  ['Will I make the team this year?',undefined,'"How often do you practice?"','naming'],
+ ] as const){
+  let prompt='';
+  const model=validatedProvider(async(messages,schema)=>{
+   const required=Array.isArray(schema.required)?schema.required:[];
+   if(required.includes('fits'))return JSON.stringify({reason:'fixture',fits:true});
+   if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+   prompt=messages[0].content;
+   return JSON.stringify({cards:[{question:personName?'How often does Alex practice?':'How often do you practice?',options:['Daily','Weekly','Rarely']}]});
+  });
+  const plan=await makePlan(question,{},model,{personName});
+  assert.equal(plan.kind,'ok');
+  assert.ok(prompt.includes(expected),question);assert.ok(!prompt.includes(absent),question);
+ }
+});
+
+test('planning fails closed when generation, checking or repair exhausts the shared budget',async()=>{
+ const saved={...planTiming};
+ try{
+  for(const stalled of ['draft','check','repair','safety','output safety','second check'] as const){
+   planTiming.budgetMs=30;
+   let drafts=0,judged=0,safetyChecks=0;
+   const model=validatedProvider(async(_messages,schema)=>{
+    const required=Array.isArray(schema.required)?schema.required:[];
+    if(required.includes('fits')){
+     judged++;
+     if(stalled==='check'||stalled==='second check'&&judged===2)return new Promise<string>(()=>{});
+     return JSON.stringify({reason:'fixture',fits:stalled!=='repair'});
+    }
+    if(!required.includes('cards')){
+     safetyChecks++;
+     if(stalled==='safety'||stalled==='output safety'&&safetyChecks===2)return new Promise<string>(()=>{});
+     return JSON.stringify({category:'allow'});
+    }
+    drafts++;
+    if(stalled==='draft'||drafts===2)return new Promise<string>(()=>{});
+    return JSON.stringify({cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']},...(stalled==='second check'?[{question:'Where do you practice?',options:['At home','At school','At a club']}]:[])]});
+   });
+   const plan=await makePlan('Will I make the team this year?',{},model);
+   assert.equal(plan.kind,'error',stalled);
+   if(plan.kind==='error')assert.match(plan.message,/The mist is too thick/);
+   assert.equal(judged,stalled==='second check'?2:['check','repair','output safety'].includes(stalled)?1:0,stalled);
+   assert.equal(drafts,stalled==='repair'?2:stalled==='safety'?0:1,stalled);
+  }
+ }finally{Object.assign(planTiming,saved)}
+});
+
+test('a plan that runs out of time cancels its model calls instead of starting a repair',async()=>{
+ const saved={...planTiming};
+ try{
+  planTiming.budgetMs=30;
+  let drafts=0;const signals:(AbortSignal|undefined)[]=[];
+  const model=validatedProvider(async(_messages,schema,signal)=>{
+   const required=Array.isArray(schema.required)?schema.required:[];
+   if(required.includes('fits')){signals.push(signal);return new Promise<string>((_,reject)=>signal?.addEventListener('abort',()=>reject(signal.reason)))}
+   if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+   drafts++;
+   return JSON.stringify({cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']}]});
+  });
+  const plan=await makePlan('Will I make the team this year?',{},model);
+  assert.equal(plan.kind,'error');
+  await new Promise(resolve=>setTimeout(resolve,60));
+  assert.equal(drafts,1);
+  assert.ok(signals.length>0&&signals.every(signal=>signal?.aborted));
+ }finally{Object.assign(planTiming,saved)}
 });
