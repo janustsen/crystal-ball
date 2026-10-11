@@ -271,3 +271,23 @@ test('planning fails closed when generation, checking or repair exhausts the sha
   }
  }finally{Object.assign(planTiming,saved)}
 });
+
+test('a plan that runs out of time cancels its model calls instead of starting a repair',async()=>{
+ const saved={...planTiming};
+ try{
+  planTiming.budgetMs=30;
+  let drafts=0;const signals:(AbortSignal|undefined)[]=[];
+  const model=validatedProvider(async(_messages,schema,signal)=>{
+   const required=Array.isArray(schema.required)?schema.required:[];
+   if(required.includes('fits')){signals.push(signal);return new Promise<string>((_,reject)=>signal?.addEventListener('abort',()=>reject(signal.reason)))}
+   if(!required.includes('cards'))return JSON.stringify({category:'allow'});
+   drafts++;
+   return JSON.stringify({cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']}]});
+  });
+  const plan=await makePlan('Will I make the team this year?',{},model);
+  assert.equal(plan.kind,'error');
+  await new Promise(resolve=>setTimeout(resolve,60));
+  assert.equal(drafts,1);
+  assert.ok(signals.length>0&&signals.every(signal=>signal?.aborted));
+ }finally{Object.assign(planTiming,saved)}
+});

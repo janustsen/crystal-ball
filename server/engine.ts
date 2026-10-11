@@ -54,10 +54,12 @@ export async function makePlan(question:string,known:Facts,model:ModelProvider,c
  const issue=personQuestionIssue(question,context.personName);if(issue)return {kind:'error',message:issue};
  const deadline=Date.now()+planTiming.budgetMs,source=model;
  let timer:ReturnType<typeof setTimeout>;
- const expired=new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error('Planning timed out.')),planTiming.budgetMs)});
+ // The deadline also cancels in-flight model calls, so a timed-out plan never starts its repair request.
+ const cancel=new AbortController();
+ const expired=new Promise<never>((_,reject)=>{timer=setTimeout(()=>{cancel.abort();reject(new Error('Planning timed out.'))},planTiming.budgetMs)});
  model={async json<T>(system:string,input:unknown,schema:JsonSchema,valid:Validator){
   if(Date.now()>=deadline)throw new Error('Planning timed out.');
-  const value=await Promise.race([source.json<T>(system,input,schema,valid),expired]);
+  const value=await Promise.race([source.json<T>(system,input,schema,valid,cancel.signal),expired]);
   if(Date.now()>=deadline)throw new Error('Planning timed out.');
   return value;
  }};
