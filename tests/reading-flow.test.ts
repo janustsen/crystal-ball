@@ -241,21 +241,33 @@ test('Person card instructions and examples use the first name, never you',async
  }
 });
 
-test('the answer check fits the planning time budget and never costs a usable draft',async()=>{
+test('planning fails closed when generation, checking or repair exhausts the shared budget',async()=>{
  const saved={...planTiming};
  try{
-  for(const [budgetMs,checkMs,checks] of [[60000,30,1],[0,30,0]] as const){
-   Object.assign(planTiming,{budgetMs,checkMs});
-   let judged=0;
+  for(const stalled of ['draft','check','repair','safety','output safety','second check'] as const){
+   planTiming.budgetMs=30;
+   let drafts=0,judged=0,safetyChecks=0;
    const model=validatedProvider(async(_messages,schema)=>{
     const required=Array.isArray(schema.required)?schema.required:[];
-    if(required.includes('fits')){judged++;return new Promise<string>(()=>{})}
-    if(!required.includes('cards'))return JSON.stringify({category:'allow'});
-    return JSON.stringify({cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']}]});
+    if(required.includes('fits')){
+     judged++;
+     if(stalled==='check'||stalled==='second check'&&judged===2)return new Promise<string>(()=>{});
+     return JSON.stringify({reason:'fixture',fits:stalled!=='repair'});
+    }
+    if(!required.includes('cards')){
+     safetyChecks++;
+     if(stalled==='safety'||stalled==='output safety'&&safetyChecks===2)return new Promise<string>(()=>{});
+     return JSON.stringify({category:'allow'});
+    }
+    drafts++;
+    if(stalled==='draft'||drafts===2)return new Promise<string>(()=>{});
+    return JSON.stringify({cards:[{question:'How often do you practice?',options:['Daily','Weekly','Rarely']},...(stalled==='second check'?[{question:'Where do you practice?',options:['At home','At school','At a club']}]:[])]});
    });
    const plan=await makePlan('Will I make the team this year?',{},model);
-   assert.equal(plan.kind,'ok');assert.equal(judged,checks);
-   if(plan.kind==='ok')assert.deepEqual(plan.value.cards[0].options,['Daily','Weekly','Rarely','Other']);
+   assert.equal(plan.kind,'error',stalled);
+   if(plan.kind==='error')assert.match(plan.message,/The mist is too thick/);
+   assert.equal(judged,stalled==='second check'?2:['check','repair','output safety'].includes(stalled)?1:0,stalled);
+   assert.equal(drafts,stalled==='repair'?2:stalled==='safety'?0:1,stalled);
   }
  }finally{Object.assign(planTiming,saved)}
 });
