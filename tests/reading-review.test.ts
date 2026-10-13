@@ -100,7 +100,7 @@ test('short financial forecasts allow the supplied timeframe but reject invented
   if(good.kind==='ok')assert.equal(good.value.headline,verdict);
   for(const amount of ['$900,000','$10','ten dollars']){
    verdict=`Your net worth will reach ${amount} in 10 years.`;
-   const before=attempts;
+   const before:number=attempts;
    assert.equal((await run()).kind,'error',amount);assert.equal(attempts-before,2);
   }
  }finally{globalThis.fetch=original;}
