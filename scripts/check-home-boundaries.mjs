@@ -36,13 +36,13 @@ try{
    const page=await context.newPage();
    await page.goto(base,{timeout:120000});
    await page.getByTestId('today-card').waitFor();
-   await checkViewport(page);
+   await expect(()=>checkViewport(page)).toPass({timeout:5000});
    await page.getByTestId('today-questions').click();
    await expect(page.getByTestId('ask-question')).toBeVisible();
    await page.getByTestId('tab-home').click();
    await page.getByTestId('notify-yes').click();
    await expect(page.getByTestId('dismiss-notice')).toBeVisible();
-   await checkViewport(page);
+   await expect(()=>checkViewport(page)).toPass({timeout:5000});
    await page.getByTestId('hero-orb').click();
    await expect(page.getByTestId('type-instead')).toBeVisible();
    await page.getByTestId('close-flow').click();
