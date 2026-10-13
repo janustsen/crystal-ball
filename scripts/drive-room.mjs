@@ -1,12 +1,13 @@
 // Drives the rendered room in headless Chrome: Home rests on its loop, streamed clips prefetch, each tab flies to its
 // spot and lands on that spot's loop, the live ball tracks the render's ring stand, and reduced motion fades stills.
 // Run against a web preview built with EXPO_PUBLIC_ROOM_ASSET_BASE (the landing loops stream from it; flights are bundled):
-// PREVIEW_URL=http://localhost:8087 node scripts/drive-room.mjs
+// EXPO_PUBLIC_ROOM_ASSET_BASE=/room PREVIEW_URL=http://localhost:8087 node scripts/drive-room.mjs
 // Screenshots land in ROOM_EVIDENCE (default .local/room-evidence).
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',out=process.env.ROOM_EVIDENCE||'.local/room-evidence';
+assert.ok(process.env.EXPO_PUBLIC_ROOM_ASSET_BASE?.trim(),'Room drive requires streamed landing loops: run node scripts/room-assets.mjs sync public/room, build Expo with EXPO_PUBLIC_ROOM_ASSET_BASE=/room, and pass the same asset base to this drive. The unset-base still fallback is not this streamed-loop gate.');
 mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const results={},errors=[];
@@ -100,15 +101,17 @@ try{
    await page.screenshot({path:`${out}/${tab}.png`});
    results[tab]={ball:!!state.ball};
   }
-  // Ask: flight from Home, the ball lands in its ring under the question.
+  // Ask: the listening ball rests on its ring before typing switches to the zoomed camera.
   await page.getByTestId('tab-ask').click();
   await page.waitForTimeout(600);await page.screenshot({path:`${out}/flight-home-ask.png`});
-  await page.getByTestId('type-instead').click();
   await page.waitForTimeout(2500);
   state=await room(page);
-  near(state.ball,await centre(page.getByTestId('ask-ball')),'Ask');
+  near(state.ball,await centre(page.getByTestId('ask-ball')),'Ask listening');
   await page.screenshot({path:`${out}/ask.png`});
   results.ask={ball:state.ball};
+  await page.getByTestId('type-instead').click();
+  await page.getByTestId('question-input').waitFor();
+  await page.screenshot({path:`${out}/ask-typing.png`});
   await page.context().close()}
  // Reduced motion: no flights or loops, a tab change fades between stills.
  {const page=await open({reducedMotion:'reduce'});

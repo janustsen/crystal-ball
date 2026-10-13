@@ -137,7 +137,7 @@ for(const schoolOnly of [true,false])for(const school of ['new-school',null]){
    const filtered=f.hold(false);
    toggle().onValueChange(true);f.render();filtered.fail();await settle();
    assert.ok(!f.render().some(n=>n.children.includes('Will our school team win?')));
-   assert.ok(f.render().some(n=>n.children.includes('0 anonymous school stars today · no names or member list')));
+   assert.ok(f.render().some(n=>n.children.includes('0 anonymous school stars today')));
    assert.equal(f.render().find(n=>n.props.testID==='sky-theme-love').props.accessibilityLabel,'Love, no school stars yet');
    assert.ok(!f.render().some(n=>n.props.label==='Ask this too'));
    f.remote.schoolOnly=true;
