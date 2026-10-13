@@ -63,7 +63,7 @@ export function constellation(stars:number){
  return {name:current.name,stars:current.stars,lit:stars%7,collected:index,names:Array.from({length:index},(_,i)=>constellations[i%constellations.length].name)};
 }
 
-// The notification opt-in: offered after the first forecast, offered once more after two further distinct open days, then only the toggle in You.
+// The notification opt-in: offered after the first forecast, offered once more after two further distinct open days, then only the toggle in Settings.
 export function offerNotifications(ritual:Ritual,moment:'reveal'|'home',today=localDay()):boolean{
  const {notify}=ritual;
  if(notify.daily)return false;
@@ -93,7 +93,7 @@ const sign=(s:string|null)=>s?s[0].toUpperCase()+s.slice(1):'';
 export const morningCopy=['Your omen is waiting.','A fresh omen just arrived.','The Ball polished itself for you this morning.','Today’s omen is ready when you are.','One small sign for today. Come and see.','The mist cleared overnight. Your omen is inside.','Mercury’s being dramatic. Your omen isn’t.','A new day, a new little omen.','The stars left you a note.','Your omen is warm and ready.','The Ball has a thought about your day.','Something small and bright for today is waiting.','A tiny omen for a big day.','Today’s sky has a message for you.','The Ball woke up curious about you.','Your daily sign is in.','A quiet omen to carry with you today.','The Ball read the sky so you don’t have to.','Fresh starlight, delivered.','Your omen: brewed, glowing, ready.','A little wonder for this morning.','The Ball saved you a seat by the window.'];
 export const signCopy=(s:string)=>[`Your omen is waiting, ${s}.`,`${s}, the stars left you a note.`,`Today’s sky has a message for you, ${s}.`];
 export const eveningCopy=['The Ball kept a little light on for you.','One more star could light up tonight.','A quiet minute with the Ball before the day ends?','Your sky is still open this evening.','The Ball is around if you have a question tonight.','A small evening ritual is waiting.','Tonight’s sky is clear. The Ball is listening.','Before you rest, one small step in your sky.'];
-export const backOffCopy='The Ball will whisper weekly for now. Change this anytime in You.';
+export const backOffCopy='The Ball will whisper weekly for now. Change this anytime in Settings.';
 const dayNumber=(day:string)=>Math.floor(Date.parse(`${day}T00:00:00Z`)/86400000);
 function dayAfter(now:Date,offset:number){const date=new Date(now);date.setHours(12,0,0,0);date.setDate(date.getDate()+offset);return localDay(date)}
 

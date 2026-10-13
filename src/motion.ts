@@ -1,9 +1,10 @@
 // One motion vocabulary for web compositor animations and native-driver animations.
 // ease: smoke and glass settling. spring: brass and card arrivals that overshoot once, like a cartoon object landing.
-export const motion={ease:[.2,.75,.2,1] as const,spring:[.34,1.56,.64,1] as const,press:180,tap:420,glow:7300};
+export const motion={ease:[.2,.75,.2,1] as const,spring:[.34,1.56,.64,1] as const,press:180,tap:420,pick:360,glow:7300};
 // Each kind is a named transition in docs/design/motion-language.md; web keyframes live in motionCss.
 export const entrances={
- screen:{duration:700,y:12,scale:.985,name:'smoke-wipe'},
+ // Screens slide in from the side of the destination: `direction` -1 enters from the left, 1 from the right.
+ screen:{duration:700,x:22,y:0,scale:.985,name:'smoke-wipe'},
  approach:{duration:1000,y:0,scale:.6,name:'orb-portal'},
  listening:{duration:760,y:10,scale:.94,name:'ripple-in'},
  typing:{duration:560,y:18,scale:1,name:'ink-settle'},

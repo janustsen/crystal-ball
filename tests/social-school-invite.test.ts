@@ -33,7 +33,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false};
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{createURL:(_:string,{queryParams}:any)=>`circle=${queryParams.circle}`},
-  './Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{}},'./store':{useStore:()=>({state,backupBusy:false})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{},
+  './Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:'Segmented'},'./Enter':{Enter:'Enter'},'./store':{useStore:()=>({state,backupBusy:false})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{},
   './social-policy':{accountSocialProfile:()=>({}),skyPrompts:{}},
   './social':{
    loadSocial:async()=>++reads===1?snapshot:new Promise(()=>{}),
@@ -50,7 +50,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
  const code=ts.transpileModule(readFileSync(new URL('../src/SocialScreen.tsx',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
  }).outputText;
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],setInterval:()=>0,clearInterval:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{
   cursor=0;

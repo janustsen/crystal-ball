@@ -20,7 +20,7 @@ function fixture(){
   useEffect:(effect:()=>void,deps:any[])=>{const i=cursor++;if(!slots[i]||deps.some((v,j)=>v!==slots[i].deps[j])){const prior=slots[i];slots[i]={deps};effects.push(()=>{prior?.cleanup?.();slots[i].cleanup=effect()})}},
  };
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{}},'./social-links':{},
+  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:'Segmented'},'./Enter':{Enter:'Enter'},'./social-links':{},
   './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SkyOmen':{},
   './SocialPush':{SkyPushPrompt:'Prompt',SocialPush:'Settings'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
@@ -30,10 +30,10 @@ function fixture(){
   },
  };
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error,setInterval:(fn:()=>void)=>{tick=fn;return 0},clearInterval:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error,setInterval:(fn:()=>void)=>{tick=fn;return 0},clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;const result=nodes(module.exports.Social({reduce:true,onInviteHandled:()=>{}}));effects.splice(0).forEach(effect=>effect());return result};
- const section=(name:string)=>render().find(n=>n.props.testID===`social-section-${name}`).props.onPress();
+ const section=(name:string)=>render().find(n=>n.type==='Segmented').props.onChange(name);
  const prompt=()=>render().find(n=>n.type==='Prompt').props;
  const settings=()=>render().find(n=>n.type==='Settings').props;
  const hold=()=>{

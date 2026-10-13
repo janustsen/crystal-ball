@@ -22,7 +22,7 @@ try{
  async function callbacks(label,paused){await page.waitForTimeout(600);const before=await page.evaluate(()=>window.rafCalls);await page.waitForTimeout(600);const count=await page.evaluate(()=>window.rafCalls)-before;if(paused)expect(count,label).toBe(0);else expect(count,label).toBeGreaterThan(10);console.log(label,count,'callbacks / 600ms')}
  await callbacks('OS reduced motion',true);
  await page.emulateMedia({reducedMotion:'no-preference'});await callbacks('OS motion resumed',false);
- await page.getByTestId('tab-you').click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).click();await callbacks('App reduced motion',true);
+ await page.getByTestId('open-settings').click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).click();await callbacks('App reduced motion',true);
  await page.getByRole('switch',{name:'Reduce motion',exact:true}).click();await callbacks('App motion resumed',false);
  // Inject the visibility boundary; do not depend on window-manager focus in automation.
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Hidden page',true);

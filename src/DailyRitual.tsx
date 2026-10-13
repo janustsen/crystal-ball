@@ -57,7 +57,7 @@ export function NotifyOffer({onAnswer}:{onAnswer:(time:string|null)=>void}){
  const [time,setTime]=useState(morningTimes[0]);
  return <View testID="notify-offer" style={styles.panel}><Surface kind="card">
   <CardHeader title="Want your omen each morning?" label="Optional"/>
-  <Txt style={[styles.caption,{marginTop:6}]}>Up to two a day: your omen at the time you pick and a gentle evening nudge. Never before 8am or after 9pm. It goes quiet if you’re busy. Change it anytime in You.</Txt>
+  <Txt style={[styles.caption,{marginTop:6}]}>Up to two a day: your omen at the time you pick and a gentle evening nudge. Never before 8am or after 9pm. It goes quiet if you’re busy. Change it anytime in Settings.</Txt>
   <TimeChips value={time} onChange={setTime}/>
   <Action testID="notify-yes" label="Yes, notify me" onPress={()=>onAnswer(time)}/>
   <Action testID="notify-not-now" label="Not now" quiet onPress={()=>onAnswer(null)}/>

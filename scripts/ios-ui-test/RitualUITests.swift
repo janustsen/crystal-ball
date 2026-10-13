@@ -62,7 +62,7 @@ final class RitualUITests: XCTestCase {
   XCTAssertTrue(reach("today-card").label.contains("3 of 3")||labelled("Today’s star",in:app).waitForExistence(timeout:10))
   element("today-card").swipeUp(velocity:.slow);shot("04-home-star")
   tap("tab-you");_=reach("your-sky");shot("05-you-sky")
-  _=reach("notify-settings");shot("06-you-notifications")
+  tap("open-settings");_=reach("notify-settings");shot("06-settings-notifications")
   reach("you-footer").press(forDuration:1.2)
   _=reach("ritual-debug");shot("07-you-counts")
   tap("test-notification")
