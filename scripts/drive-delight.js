@@ -15,6 +15,7 @@ await page.wait('[aria-label="Ambient sound"]');
 console.log('sound reloaded',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
 await page.click('[aria-label="Ambient sound"]');
 if(await page.eval(()=>!!document.querySelector('[data-testid=ball-style-gold]')))throw new Error('Free user can access Plus styles');
+await page.click('[data-testid=tab-you]');
 await page.click('[data-testid=open-inner-library]');
 await page.wait('[data-testid=inner-library-locked]');
 await page.click('[data-testid=unlock-inner-library]');
