@@ -108,8 +108,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flying]);
  const placed=ballOnScreen(stillFrame(at),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
- // One canvas spans twice the ball's widest tracked diameter at twice its resolution, so it is only ever scaled down,
- // even when the Ask camera pushes in to type into the ball.
+ // Extra canvas resolution keeps the glass sharp when the Ask camera enlarges it.
  // ponytail: fixed 2× headroom (expo-gl cannot resize its buffer); the thinking plunge (~3×) upscales slightly. Remount
  // the GL view per zoom if a device shows the plunge soft or the larger canvas costs frames.
  const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4*2);
