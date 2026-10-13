@@ -25,13 +25,17 @@ try{
    for(const open of [false,true]){
     await page.evaluate(value=>window.__keyboard(value),open);await page.waitForTimeout(900);
     const bottom=height-(open?keyboard:0),box=id=>page.getByTestId(id).boundingBox();
-    const [close,chip,input,speak,ask]=await Promise.all(['close-flow','ask-about-someone','question-input','speak-instead','look-into-the-future'].map(box));
+    const [close,plans,chip,input,speak,ask]=await Promise.all(['close-flow','view-plans','ask-about-someone','question-input','speak-instead','look-into-the-future'].map(box));
+    const overlap=(a,b)=>a.x<b.x+b.width&&b.x<a.x+a.width&&a.y<b.y+b.height&&b.y<a.y+a.height;
+    const chipShown=await page.getByTestId('ask-about-someone').evaluate(e=>{for(let n=e;n;n=n.parentElement)if(getComputedStyle(n).opacity==='0')return false;return true});
     // A question longer than the ball holds scrolls inside its own field; the screen itself never scrolls.
     const scrolling=await page.evaluate(()=>[...document.querySelectorAll('[data-testid="app-shell"] *')].filter(e=>e.tagName!=='TEXTAREA'&&e.scrollHeight>e.clientHeight+1&&['auto','scroll'].includes(getComputedStyle(e).overflowY)).length);
     const bad=[
      ...[speak,ask].filter(b=>b.y+b.height>bottom+.5).map(()=>'controls under the keyboard'),
      chip.y<close.y+close.height-1?'chip under the header':'',
-     input.y<chip.y+chip.height||input.y+input.height>Math.min(speak.y,ask.y)?'question outside the ball band':'',
+     // A chip that stepped aside (no room for the resting ball) no longer bounds the ball, which may then rise between
+     // the header's buttons but never under them.
+     (chipShown&&input.y<chip.y+chip.height)||[close,plans].some(b=>overlap(b,input))||input.y+input.height>Math.min(speak.y,ask.y)?'question outside the ball band':'',
      scrolling?`${scrolling} scrolling region(s)`:'',
     ].filter(Boolean);
     const state=`${name}${open?' keyboard':''}`;

@@ -30,17 +30,19 @@ export function useKeyboardInset(){
 
 // Typing: the question is written into the Ask ball. Nothing scrolls: the chip sits under the header, the controls dock
 // above the keyboard (or the screen's bottom), and the camera pushes into the room until the ball fills the space between.
-// The note above the controls steps aside only when it would push the ball under the chip (large text over a keyboard).
+// When even the resting ball would not fit (large text over a keyboard), the note above the controls steps aside, then the
+// chip; both return when the keyboard closes.
 export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,largeText,chip,note,controls,onCamera,testID}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;refused:number;reduce:boolean;largeText:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
  const keyboard=useKeyboardInset(),[chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),input=useRef<TextInput>(null);
- const dock=keyboard?keyboard+12:bottom+12,band=height-dock-controlsHeight-16-(top+chipHeight+12);
- const noted=band-noteHeight>=2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0),ball=typingBall(width,height,top+chipHeight+12,height-dock-controlsHeight-16-(noted?noteHeight:0));
+ const dock=keyboard?keyboard+12:bottom+12,band=height-dock-controlsHeight-16-(top+12),need=2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0);
+ const noted=band-chipHeight-noteHeight>=need,chipped=noted||band-chipHeight>=need;
+ const ball=typingBall(width,height,top+(chipped?chipHeight:0)+12,height-dock-controlsHeight-16-(noted?noteHeight:0));
  useEffect(()=>onCamera(ball),[ball.x,ball.y,ball.r]);
  // The text keeps to the square inside the glass and shrinks as the question grows; the field scrolls only past that.
  const side=Math.round(ball.r*1.42),base=ball.r*.21*(largeText?1.35:1),size=Math.round(Math.max(13,Math.min(ball.r*.3,base*Math.sqrt(Math.min(1,40/Math.max(1,value.length))))));
  const font={fontFamily:fonts.italic,fontSize:size,lineHeight:Math.round(size*1.18),textAlign:'center' as const},box=Math.min(side,textHeight||side);
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,top:0,width,height}}>
-  <View onLayout={e=>setChipHeight(e.nativeEvent.layout.height)} pointerEvents="box-none" style={{position:'absolute',left:20,right:20,top,alignItems:'center'}}>{chip}</View>
+  <View onLayout={e=>setChipHeight(e.nativeEvent.layout.height)} pointerEvents={chipped?'box-none':'none'} aria-hidden={!chipped} style={{position:'absolute',left:20,right:20,top,alignItems:'center',opacity:chipped?1:0}}>{chip}</View>
   {/* The fog dims behind the words so they read on the glass; tapping anywhere on the ball writes into it. */}
   <Pressable accessible={false} onPress={()=>input.current?.focus()} style={{position:'absolute',left:ball.x-ball.r,top:ball.y-ball.r,width:ball.r*2,height:ball.r*2,borderRadius:ball.r}}>
    <Svg pointerEvents="none" width={ball.r*2} height={ball.r*2}><Defs><RadialGradient id="ask-veil" cx="50%" cy="50%" r="50%"><Stop offset="0" stopColor={colors.ink} stopOpacity={.66}/><Stop offset=".72" stopColor={colors.ink} stopOpacity={.4}/><Stop offset="1" stopColor={colors.ink} stopOpacity={0}/></RadialGradient></Defs><Circle cx={ball.r} cy={ball.r} r={ball.r} fill="url(#ask-veil)"/></Svg>
