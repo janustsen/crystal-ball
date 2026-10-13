@@ -61,6 +61,11 @@ test('the room and ball-target Shifts ease together to a new Home offset, and re
  for(const render of shifts)render('Shift',{offset:0,reduce:true});
  assert.deepEqual(moves,[]);
  assert.deepEqual(sets,[0,0]);
+ // Before layout the offset is unknown: the first measured one is placed, not eased from zero.
+ const early=component('../src/Home.tsx',imports);
+ early('Shift',{reduce:false});early('Shift',{offset:-107,reduce:false});
+ assert.deepEqual(moves,[]);
+ assert.deepEqual(sets,[0,0,-107]);
 });
 
 test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
