@@ -1,4 +1,4 @@
-// Layout regression: no screen may overflow the phone shell horizontally at 360/390/430px.
+// Layout regression: no screen may overflow the phone shell horizontally at 360/390/430/440px.
 // Engine replies are a labeled layout fixture (not a model pass) so every screen is reachable without Ollama.
 // At 390px it also holds every visible label to WCAG AA contrast against what is actually rendered behind it: 4.5:1,
 // or 3:1 for large text (24px and up, or 18.66px and up when bold).
@@ -123,7 +123,7 @@ for(const [width,height] of [[375,667],[440,956]])for(const fixture of followups
  }finally{await context.close()}
 }
 if(!process.env.LAYOUT_FOLLOWUPS_ONLY)
-for(const width of [360,390,430])for(const large of [false,true]){
+for(const width of [360,390,430,440])for(const large of [false,true]){
  const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true,reducedMotion:'no-preference'});
  try{
  const page=await context.newPage(),tag=large?'-large':'';
