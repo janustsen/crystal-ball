@@ -67,7 +67,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0,zoom=1}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;offset?:number;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',zoom=1}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[ready,setReady]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
@@ -135,7 +135,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0
  const fallback=!ready?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
  const stills=!ready?[spot]:flight?[flight.to,at]:[at];
- return <div aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A',transform:`translateY(${offset}px)`}}>
+ return <div aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A'}}>
   {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
   {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
   {flight&&ready?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}

@@ -17,8 +17,9 @@ async function checkViewport(page){
   throw new Error('Missing Home scroll viewport');
  });
  const ball=await page.getByTestId('hero-orb').boundingBox();
- assert.ok(ball&&ball.y+ball.height<=bounds.content,'resting Home content starts below the entire ball target');
- assert.ok(bounds.top<=ball.y,'Home content can scroll up beneath the header over the ball');
+ // Half a pixel absorbs the eased transform's subpixel rounding.
+ assert.ok(ball&&ball.y+ball.height<=bounds.content+.5,'resting Home content starts below the entire ball target');
+ assert.ok(bounds.top<=ball.y+.5,'Home content can scroll up beneath the header over the ball');
  assert.ok(bounds.bottom-bounds.content>=68,'Home retains room for a complete touch target');
  assert.equal(await page.evaluate(({x,y,width,height})=>Boolean(document.elementFromPoint(x+width/2,y+height/2)?.closest('[data-testid="hero-orb"]')),ball),true,'the resting ball receives taps through Home');
 }

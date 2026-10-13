@@ -9,6 +9,7 @@ export function homeMock(react:{createElement:(type:any,props:any,...children:an
   tabBarSpace:(bottom:number)=>bottom+94,
   headerBottom:(top:number)=>Math.max(52,top+6)+44,
   BallButton:({home,onPress}:any)=>h('Pressable',{testID:home?'hero-orb':'ask-ball',onPress}),
+  Shift:({offset,children}:any)=>h('Shift',{offset},children),
   HomeTabBar:({current,disabled,onTab}:any)=>h('HomeTabBar',{},...['Home','Sky','Ask','History','You'].map(t=>h('Pressable',{testID:`tab-${t.toLowerCase()}`,disabled,accessibilityState:{selected:t===current},onPress:()=>onTab(t)}))),
  };
 }

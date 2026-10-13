@@ -8,12 +8,12 @@ import * as realSky from '../src/real-sky';
 const sky={'./retention':{localDay:()=>'2026-10-14'},'./real-sky':realSky};
 import * as room from '../src/room';
 
-function component(file:string,imports:Record<string,any>,globals:Record<string,any>={},host=()=>({closest:()=>null,play:async()=>{}})){
+function component(file:string,imports:Record<string,any>,globals:Record<string,any>={}){
  const slots:any[]=[],effects:(()=>void)[]=[],cleanups:any[]=[];
  let cursor=0;
  const react={
   createElement:(type:any,props:any,...children:any[])=>{
-   if(props?.ref)props.ref.current=host();
+   if(props?.ref)props.ref.current={closest:()=>null,play:async()=>{}};
    return {type,props:props??{},children};
   },
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
@@ -175,36 +175,6 @@ function nativeRoom(startNativeGlass:()=>Promise<unknown>){
  return {render,listeners,fades,played,player,positions,durations,elapse,pending};
 }
 
-test('native room applies layout offsets immediately with either motion setting',()=>{
- const {render,fades}=nativeRoom(()=>new Promise(()=>{}));
- const props={spot:'Home',width:375,height:667,reduce:false,spin:{dragged:false},offset:0};
- for(const reduce of [false,true,false])for(const offset of [0,-107,-241,0]){
-  Object.assign(props,{reduce,offset});
-  const tree=nodes(render('RoomScene',props));
-  assert.equal(tree[0].props.style.transform[0].translateY,offset);
- }
- assert.deepEqual(fades,[]);
-});
-
-test('web room applies layout offsets immediately with either motion setting',()=>{
- const animations:unknown[]=[];
- const host=()=>({closest:()=>null,play:async()=>{},animate:(...args:unknown[])=>{
-  animations.push(args);return {cancel(){}};
- }});
- const render=component('../src/RoomScene.web.tsx',{
-  './glassWeb':{startWebGlass:()=>new Promise(()=>{})},
-  'expo-asset':{Asset:{fromModule:(m:string)=>({uri:m})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
-  './room':room,'./roomAssets':{roomStills:{Home:'home.jpg'},homeIdle:'idle.mp4'},'./motionCss':{appCss:''},
- },{setTimeout:()=>0},host);
- const props={spot:'Home',width:375,height:667,reduce:false,spin:{dragged:false},offset:0};
- for(const reduce of [false,true,false])for(const offset of [0,-107,-241,0]){
-  Object.assign(props,{reduce,offset});
-  const tree=nodes(render('RoomScene',props));
-  assert.equal(tree[0].props.style.transform,`translateY(${offset}px)`);
- }
- assert.deepEqual(animations,[]);
-});
-
 test('native room flies the camera to the new spot and lands on its still',async()=>{
  let aim!:()=>unknown;
  const {render,listeners,fades,played,player,positions,durations}=nativeRoom((...args:any[])=>{aim=args[1].aim;return new Promise(()=>{})});
@@ -223,7 +193,7 @@ test('native room flies the camera to the new spot and lands on its still',async
  listeners.playingChange({isPlaying:true});
  let tree=draw();
  assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,1);
- assert.equal(tree.find(n=>n.type==='Animated.View'&&n.props.style.transform?.[0]?.translateX!==undefined).props.style.transform[0].translateX,'tracked','the ball rides the flight track');
+ assert.equal(tree.find(n=>n.type==='Animated.View').props.style.transform[0].translateX,'tracked','the ball rides the flight track');
  assert.deepEqual(fades,[44],'the track runs over the clip\'s 45 frames');
  assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,0,'the static orb rides the flight');
  assert.ok(tree.some(n=>n.type==='OrbVisual'));
