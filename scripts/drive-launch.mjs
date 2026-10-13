@@ -1,6 +1,8 @@
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
-import {writeFile} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
+const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
+await mkdir(evidenceDir,{recursive:true});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 const results=[];
@@ -16,7 +18,7 @@ try{
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
- await page.waitForTimeout(800);await page.screenshot({path:'docs/evidence/launch-you.png'});
+ await page.waitForTimeout(800);await page.screenshot({path:`${evidenceDir}/launch-you.png`});
  await page.getByTestId('open-settings').click();
  await page.getByRole('button',{name:'Privacy and entertainment',exact:true}).click();
  await expect(page.getByText(/Forecasts are speculative entertainment/)).toBeVisible();
@@ -28,12 +30,12 @@ try{
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
- await page.screenshot({path:'docs/evidence/launch-you-large.png'});
+ await page.screenshot({path:`${evidenceDir}/launch-you-large.png`});
  await expect(page.getByRole('tab',{name:'You',exact:true})).toBeVisible();
  results.push('Unavailable backup stays absent at 375px and 200% text; navigation remains visible');
  await page.getByTestId('tab-ask').click();
  await page.getByTestId('type-instead').click();
- await expect(page.getByText('For entertainment. Questions and answers go to your prediction engine.')).toBeVisible();
+ await expect(page.getByText('For entertainment · questions and answers go to your prediction engine.')).toBeVisible();
  if(process.env.CHECK_AI_CONSENT==='1'){
   await page.getByTestId('question-input').fill('Will I learn Spanish?');
   const ask=page.getByTestId('look-into-the-future');
@@ -49,6 +51,6 @@ try{
   await expect(ask).toBeDisabled();
   results.push('Named AI consent enables typing/voice reading and revoking disables both; no model call made');
  }
- await writeFile('docs/evidence/launch-ui.json',JSON.stringify({at:new Date().toISOString(),results},null,2));
+ await writeFile(`${evidenceDir}/launch-ui.json`,JSON.stringify({at:new Date().toISOString(),results},null,2));
  console.log(results);
 }finally{await browser.close()}

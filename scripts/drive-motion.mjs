@@ -14,22 +14,22 @@ const cli=(...args)=>{try{return execFileSync('chrome-devtools-axi',args,{env,en
 const evaluate=code=>{const text=cli('eval',code),line=text.split('\n').find(l=>l.startsWith('result: '));if(!line)throw new Error(text);const value=JSON.parse(line.slice(8));return typeof value==='string'?JSON.parse(value):value};
 const sample=(name,id=null,duration=2200,until=null)=>{const r=evaluate(`async()=>await motionAudit.sample(${JSON.stringify(name)},${JSON.stringify(id)},${duration},${JSON.stringify(until)})`);console.log(name,r.fps.toFixed(1),'fps; max',r.max.toFixed(1),'ms');return r};
 const shot=name=>{const path=resolve(out,name+'.png');try{cli('screenshot',path)}catch(error){if(!existsSync(path))throw error}};
-const raw=resolve(`.local/motion-audit-${Date.now()}.json`);let tracing=false;
+const raw=resolve(out,`motion-audit-${Date.now()}.json`);let tracing=false;
 try{
  openAuthenticatedPreview(process.env.PREVIEW_URL||'http://localhost:8087',env);
  cli('open',redact(process.env.PREVIEW_URL||'http://localhost:8087'));cli('emulate','--viewport','390x844x1,mobile,touch');
  evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
  evaluate('()=>{document.querySelector("[data-testid=skip-for-now]")?.click();return true}');
  evaluate('()=>{document.querySelector("[data-testid=confirm-age]")?.click();return true}');
- shot('fog-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
+ shot('glass-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
  cli('perf-start','--no-reload','--no-auto-stop','--file',raw);tracing=true;
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');
- sample('idle-both-orbs');sample('orb-approach-listening','hero-orb');sample('listening');sample('typing','type-instead');
+ const idle=sample('idle-home-glass');if(!idle.glassVisibleThroughout||!idle.draws)throw new Error('Motion audit requires the rendered Home glass ball and measured WebGL draws');sample('orb-approach-listening','hero-orb');sample('listening');sample('typing','type-instead');
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
  sample('planning-to-question-one','look-into-the-future',2200,'option-0');const total=evaluate('()=>Number(document.body.innerText.match(/1 of (\\d)/)[1])');for(let i=0;i<total;i++)sample(i===total-1?'thinking-to-reveal':'question-two','option-0',2200,i===total-1?'share-this-glimpse':'option-0');
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');
  for(const tab of ['sky','history','you'])sample(tab+'-tab','tab-'+tab);
- sample('ask-tab','tab-ask');sample('close-flow','close-flow');sample('ambient-sky',null,45000);
+ sample('ask-tab','tab-ask');sample('close-flow','close-flow');sample('ambient-sky','tab-sky',45000);
  const samples=evaluate('()=>motionAudit.finish()');writeEvidence('samples.json',JSON.stringify({url:evaluate('()=>location.href'),viewport:{width:390,height:844},samples},null,2)+'\n');
  let traceSummary;try{traceSummary=cli('perf-stop','--file',raw)}catch(error){traceSummary=`AXI trace export returned an error; checking the completed artifact: ${String(error)}\n`;}
  writeEvidence('trace-summary.txt',traceSummary);
@@ -42,6 +42,7 @@ try{
  const excerpt={traceEvents:trace.traceEvents.filter(e=>names.has(e.name)||e.cat==='blink.user_timing').map(e=>({...e,args:e.ph==='M'?e.args:{}}))};
  writeFileSync(out+'/timing-trace.json.gz',gzipSync(redact(JSON.stringify(excerpt))));
  writeEvidence('trace-provenance.json',JSON.stringify({rawPath:raw,sha256:createHash('sha256').update(rawBytes).digest('hex'),note:'Published excerpt keeps timing events and marks, omits network and profiler payloads.'},null,2)+'\n');
- const failures=samples.filter(s=>s.fps<58||!(s.shaderFps>=58)||s.p95>20||s.max>50||s.longTasks.length);if(failures.length)throw new Error('Frame budget failed: '+failures.map(s=>s.label).join(', '));
- console.log('All animation samples passed the 60fps callback and fog draw targets and 50ms long-frame budget.');
+ // A flight can move the glass out of view; require its visible frame cadence, allowing one boundary frame.
+ const failures=samples.filter(s=>{const drawTarget=s.glassVisibleThroughout?58:Math.max(0,Math.min(58,(s.visibleFrames-1)*1000/s.ms));return s.fps<58||s.drawFps<drawTarget||(s.visibleFrames>0&&s.draws===0)||s.p95>20||s.max>50||s.longTasks.length});if(failures.length)throw new Error('Frame budget failed: '+failures.map(s=>s.label).join(', '));
+ console.log('All animation samples passed the 60fps callback and visible glass draw targets and 50ms long-frame budget.');
 }finally{if(tracing)try{cli('perf-stop','--file',raw)}catch{};cli('stop')}

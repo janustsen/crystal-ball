@@ -1,6 +1,7 @@
 import {spawn} from 'node:child_process';
 import {openAuthenticatedPreview} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
+const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],runId=Date.now().toString(36),sessions=new Set();
 async function run(name,script){
  const session=`cb-social-${runId}-${name}`,fresh=!sessions.has(session);sessions.add(session);
@@ -140,6 +141,6 @@ try{
  console.log('PASS: social browser drive; real PostgreSQL RLS and Ollama, simulated Auth/PostgREST; adult onboarding through UI');
 }catch(error){log.push({failure:String(error)});console.error(error);process.exitCode=1;}
 finally{
- await mkdir('docs/evidence',{recursive:true});await writeFile('docs/evidence/social-drive.json',JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST simulated; adult onboarding through UI, PostgreSQL RLS and Ollama real',steps:log},null,2));
+ await mkdir(evidenceDir,{recursive:true});await writeFile(`${evidenceDir}/social-drive.json`,JSON.stringify({at:new Date().toISOString(),boundary:'Auth/PostgREST simulated; adult onboarding through UI, PostgreSQL RLS and Ollama real',steps:log},null,2));
  for(const session of sessions)await new Promise(resolve=>{const child=spawn('chrome-devtools-axi',['stop'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session},stdio:'ignore'});child.on('error',resolve);child.on('close',resolve)});
 }
