@@ -36,7 +36,7 @@ function component(file:string,imports:Record<string,any>,effectsEnabled=true){
   render();effects.splice(0).forEach(effect=>{if(effectsEnabled)effect()});return render();
  };
 }
-const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
+const nodes=(node:any):any[]=>Array.isArray(node)?node.flatMap(nodes):!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
 
 test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
  const events:string[]=[];
