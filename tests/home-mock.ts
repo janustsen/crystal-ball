@@ -12,3 +12,12 @@ export function homeMock(react:{createElement:(type:any,props:any,...children:an
   HomeTabBar:({current,disabled,onTab}:any)=>h('HomeTabBar',{},...['Home','Sky','Ask','History','You'].map(t=>h('Pressable',{testID:`tab-${t.toLowerCase()}`,disabled,accessibilityState:{selected:t===current},onPress:()=>onTab(t)}))),
  };
 }
+// Stand-in for src/AskBall: the ball's question field plus the chip and controls the app passes in, under the same testIDs.
+export function askBallMock(react:{createElement:(type:any,props:any,...children:any[])=>any}){
+ const h=react.createElement;
+ return {
+  AskBall:({testID,value,onChangeText,chip,controls}:any)=>h('AskBall',{},h('TextInput',{testID,value,onChangeText}),chip,controls),
+  RoomCamera:({children}:any)=>h('RoomCamera',{},children),
+  AskMoment:()=>null,
+ };
+}

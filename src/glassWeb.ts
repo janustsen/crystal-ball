@@ -32,7 +32,8 @@ export async function startWebGlass(canvas:HTMLCanvasElement,S:number,options:Om
  }
  const visibility=()=>{if(document.hidden)glass.pause();else glass.resume()};
  document.addEventListener('visibilitychange',visibility);
- return {...glass,stop(){
+ // The Ask camera enlarges the canvas: draw more pixels to match, so the zoomed glass stays sharp.
+ return {...glass,sharpen(zoom:number){renderer.setPixelRatio(Math.min(4,Math.min(window.devicePixelRatio||1,1.75)*zoom));renderer.setSize(S,S,false);glass.resume()},stop(){
   if(grip?.grab===capture)grip.grab=grab;
   glass.stop();
   if(drag)window.removeEventListener('pointermove',drag);
