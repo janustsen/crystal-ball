@@ -69,7 +69,7 @@ export function RoomCamera({width,height,cam,reduce,moment,children}:{width:numb
   const shake=plunge?Animated.timing(quake,{toValue:1,duration:560,delay:520,easing:Easing.linear,useNativeDriver:native}):null;
   if(shake)quake.setValue(0);
   move.start();shake?.start();
-  return()=>{move.stop();shake?.stop()};
+  return()=>{move.stop();shake?.stop();quake.setValue(0)};
  },[k,tx,ty,reduce,moment]);
  const steps=[0,.12,.26,.4,.55,.7,.85,1];
  return <Animated.View pointerEvents="box-none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',left:0,top:0,width,height,transform:[{translateX:quake.interpolate({inputRange:steps,outputRange:[0,-7,6,-5,4,-2,1,0]})},{translateY:quake.interpolate({inputRange:steps,outputRange:[0,2,-2,1,-1,0,0,0]})},{rotate:quake.interpolate({inputRange:steps,outputRange:['0deg','-1.2deg','1deg','-.8deg','.5deg','-.3deg','.1deg','0deg']})}]}}>
