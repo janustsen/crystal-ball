@@ -98,7 +98,10 @@ test('short financial forecasts allow the supplied timeframe but reject invented
   const run=()=>predict('What will my net worth be in 10 years?',{context_1:'What is your current net worth? $500,000 now',horizon:'in 10 years'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
   const good=await run();assert.equal(good.kind,'ok',JSON.stringify(good));assert.equal(attempts,2);
   if(good.kind==='ok')assert.equal(good.value.headline,verdict);
-  verdict='Your net worth will reach $900,000 in 10 years.';
-  assert.equal((await run()).kind,'error');assert.equal(attempts,4);
+  for(const amount of ['$900,000','$10','ten dollars']){
+   verdict=`Your net worth will reach ${amount} in 10 years.`;
+   const before=attempts;
+   assert.equal((await run()).kind,'error',amount);assert.equal(attempts-before,2);
+  }
  }finally{globalThis.fetch=original;}
 });

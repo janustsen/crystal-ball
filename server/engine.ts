@@ -181,7 +181,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
     const amount=String.raw`(?:\d+(?:[,.]\d+)*|\b(?:${numberWord}|a|an)\b)(?:[ -]+(?:and[ -]+)?${numberWord}\b)*`;
     const currency='(?:dollars?|euros?|pounds?|bucks?|cents?|kroner|krone)';
     const numbers=(text:string)=>text.toLowerCase().replace(/\s+/g,' ').match(new RegExp(String.raw`[$€£] ?${amount}(?: ${currency}\b)?|${amount} ${currency}\b|\d+(?:[,.]\d+)*`,'g'))||[];
-    const suppliedNumbers=new Set(Object.entries(facts).filter(([key])=>key!=='horizon').flatMap(([,value])=>numbers(value)));
+    const suppliedNumbers=new Set(Object.values(facts).flatMap(numbers));
     if([x.prediction,x.insight||''].flatMap(numbers).some(number=>!suppliedNumbers.has(number)))return {valid:false,feedback:'Remove numerical claims not present in the supplied facts. Do not invent statistics or calculate new facts.'};
     return true;
    });
