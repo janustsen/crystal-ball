@@ -13,7 +13,8 @@ The ball is a small atmosphere behind glass. The [UI rules](ui-rules.md#palette-
 | Smoke wipe | Tabs, paywall, ordinary screens | 700ms. A dark smoke curtain with cream leading wisps sweeps left to right while the new screen slides in 22px with a 5° skew. |
 | Orb portal | Ball tap / Ask | 1,000ms. The listening screen opens from a circle at the orb, scaling from 60%, while a gold ring blooms outward. |
 | Ripple in | Listening | 760ms scale-in from 94% with one fine ring from the orb. |
-| Ink settle | Typing | 560ms spring rise through 18px with a 2.5° skew that straightens like wet ink. |
+| Ask push-in | Typing | 480ms ease. The room camera pushes into the Ask ball until it fits above the controls, and re-fits as the keyboard opens or closes. |
+| Ask plunge | Ask the Ball | The camera pushes further in over 900ms with one overshoot while the question sinks into the glass (760ms, to 30%). As it lands, the room shakes once (560ms, 7px and 1.2°), and a gold flash, one shockwave ring and eighteen four-point sparks leave the glass over 1.3s. Reduced motion cuts to the thinking view with no shake or effects. `src/AskBall.tsx` owns both. |
 | Card flip | Follow-up questions | 780ms spring flip through 62° around the vertical axis, alternating direction per question, through a puff of mist. |
 | Inhale | Thinking | 900ms. The screen arrives from 112% with a slight counter-turn while the mist gathers inward. |
 | Glimpse burst | Prediction | 1,000ms. Content pops from 55% with one squash, one stretch and a settle; a thick gold shockwave leaves the orb. Headline text follows 200ms later. |
