@@ -76,7 +76,7 @@ test('only valid, theme-relevant self answers join a forecast, at most six, teen
 function forecaster(shapedBy:string,seen:unknown[]):ModelProvider {
  return {async json<T>(_system:string,input:unknown,schema:{properties?:Record<string,unknown>},valid:Validator){
   const fields=schema.properties??{};
-  const value='category'in fields?{category:'allow'}:{prediction:'You will find a steadier rhythm',basis:'context_1',assumption:'Your evenings keep the calm shape you described.',...('shapedBy'in fields?{shapedBy}:{})};
+  const value='category'in fields?{category:'allow'}:{prediction:'You will find a steadier rhythm',basis:'context_1',insight:'Your evenings keep the calm shape you described.',...('shapedBy'in fields?{shapedBy}:{})};
   if('prediction'in fields)seen.push(input);
   const verdict=await valid(value);
   if(verdict!==true&&!(typeof verdict==='object'&&verdict.valid))throw new Error(`invalid ${JSON.stringify(verdict)}`);

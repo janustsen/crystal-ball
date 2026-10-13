@@ -22,11 +22,11 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
 export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent=''):Promise<OmenReply>{
  facts=withoutSelf(facts);delete facts.sun_sign;
  if(sunSign)facts.sun_sign=sunSign;
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal insight',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
- if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Omen unavailable.');
+ if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Insight unavailable.');
  const whisper=typeof result.value.whisper==='string'?result.value.whisper.trim():'';
- if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper)||secondSentence.test(whisper))throw new Error('Omen unavailable.');
+ if(whisper.length<20||whisper.length>140||!/^By tonight,/.test(whisper)||/[\r\n]/.test(whisper)||!/[.!?]$/.test(whisper)||secondSentence.test(whisper))throw new Error('Insight unavailable.');
  return {text:result.value.text,whisper};
 }
 

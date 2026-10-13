@@ -83,7 +83,7 @@ test('an extra sentence in the whisper or omen is repaired once, then fails clos
    await assert.rejects(personalOmen({},provider(()=>undefined,160)));assert.equal(calls,2,'an unrepaired extra sentence fails closed');
   }
   globalThis.fetch=async()=>Response.json({kind:'ok',value:{text:good.text,whisper:'By tonight, a small plan may change. Keep an open mind.'}});
-  await assert.rejects(requestOmen({},{sunSign:null,ageConfirmed:true}),/Omen unavailable/,'the client boundary refuses it too');
+  await assert.rejects(requestOmen({},{sunSign:null,ageConfirmed:true}),/Insight unavailable/,'the client boundary refuses it too');
   globalThis.fetch=async()=>Response.json({kind:'ok',value:good});
   assert.deepEqual(await requestOmen({},{sunSign:null,ageConfirmed:true}),good);
  }finally{globalThis.fetch=original;}

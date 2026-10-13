@@ -21,7 +21,7 @@ export const isStyle=<K extends keyof StyleOf = keyof StyleOf>(value:unknown,kin
 export function selectedStyle<K extends keyof StyleOf>(state:Pick<AccountState,'plus'|'ballStyle'|'cardStyle'>,kind:K):StyleOf[K] {
  return (state.plus&&state[kind==='ball'?'ballStyle':'cardStyle']||'classic') as StyleOf[K];
 }
-// Plus narration: the headline is always spoken with its speculative label, never alone.
-export function narration(state:Pick<AccountState,'plus'|'narrationMuted'>,prediction:Pick<Prediction,'headline'|'label'>):string|null {
- return state.plus&&!state.narrationMuted?`${prediction.headline} ${prediction.label.replaceAll(' · ',', ')}.`:null;
+// Plus narration speaks the headline.
+export function narration(state:Pick<AccountState,'plus'|'narrationMuted'>,prediction:Pick<Prediction,'headline'>):string|null {
+ return state.plus&&!state.narrationMuted?prediction.headline:null;
 }

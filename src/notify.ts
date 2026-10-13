@@ -79,7 +79,7 @@ export async function testNotification(state:PlanContext['state']){
  if(!await allowNotifications(true))return false;
  const at=new Date();at.setMinutes(at.getMinutes()+1,0,0);
  const time=`${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`;
- const plan=await scheduleRitual(state,[{id:'test',day:localDay(at),slot:'evening',priority:1000,title:'Crystal Ball',body:'Your omen is waiting.',data:{ritual:'test'},time}]);
+ const plan=await scheduleRitual(state,[{id:'test',day:localDay(at),slot:'evening',priority:1000,title:'Crystal Ball',body:'Your insight is waiting.',data:{ritual:'test'},time}]);
  return plan.some(p=>p.data.ritual==='test');
 }
 export function watchRitualTaps(open:(kind:string)=>void){

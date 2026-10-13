@@ -18,7 +18,7 @@ function boundary(t:any,left:object,{recordGolden=true}={}){
   if(body?.messages){
    modelCalls++;
    const fields=body.format.properties;
-   const content=fields.prediction?{prediction:'You will make progress.',basis:'context_1',assumption:'Practice continues.'}:fields.headline?{headline:'A creative opportunity may arrive.',why:'A playful nudge from a sun sign and shared themes.'}:fields.safe?{safe:true}:{category:'allow'};
+   const content=fields.prediction?{prediction:'You will make progress.',basis:'context_1',insight:'Practice continues.'}:fields.headline?{headline:'A creative opportunity may arrive.',why:'A playful nudge from a sun sign and shared themes.'}:fields.safe?{safe:true}:{category:'allow'};
    return Response.json({message:{content:JSON.stringify(content)}});
   }
   calls.push({path:url.pathname,body});

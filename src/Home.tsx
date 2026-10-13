@@ -82,7 +82,7 @@ export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?
  return <View {...props} accessibilityState={{busy}} style={{padding:18,gap:10}}>
   <Surface kind="card">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-   <Txt style={styles.label}>Today’s omen</Txt>
+   <Txt style={styles.label}>Today’s insight</Txt>
    <Txt style={[styles.label,{color:colors.gold}]}>Free</Txt>
   </View>
   {children}

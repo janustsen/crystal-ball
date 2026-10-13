@@ -30,7 +30,7 @@ test('omen client carries profile eligibility and Sun sign through the real hand
  };
  try{
   for(const profile of [birthdayProfile(),{sunSign:null,ageConfirmed:true,birthday:'2020-01-01'}]){
-   const before=calls;await assert.rejects(()=>requestOmen({},profile),/Omen unavailable/);assert.equal(calls,before);
+   const before=calls;await assert.rejects(()=>requestOmen({},profile),/Insight unavailable/);assert.equal(calls,before);
   }
   for(const profile of [birthdayProfile(undefined,true),birthdayProfile('1995-06-15')]){
    const before=calls,{text}=await requestOmen({},profile);assert.ok(text.length>0);assert.equal(calls,before+1);assert.equal(text.includes('Gemini'),profile.sunSign==='gemini');

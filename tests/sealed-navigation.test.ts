@@ -154,7 +154,7 @@ test('a reveal leads with Seal it for a friend; Share and Ask again stay seconda
  const {render}=app(true,[reading],'');
  render().find(n=>n.props.testID==='tab-home').props.onPress();
  const reveal=openReading(render);
- const seal=reveal.findIndex(n=>n.type==='SealForecast'),share=reveal.findIndex(n=>n.props.label==='Share this glimpse');
+ const seal=reveal.findIndex(n=>n.type==='SealForecast'),share=reveal.findIndex(n=>n.props.label==='Share this prediction');
  assert.ok(seal>=0&&share>seal,'seal comes before share');
  assert.equal(reveal[share].props.quiet,true);
  assert.ok(reveal.some(n=>n.type==='RevealClip'&&n.props.prediction.id==='reading'));

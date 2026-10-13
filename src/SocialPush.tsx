@@ -25,7 +25,7 @@ export function SkyPushPrompt({answered,onAnswered}:{answered:boolean;onAnswered
   finally{setBusy(false);}
  }
  if(answered)return notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Surface></View>:null;
- return <View testID="sky-push-prompt" style={styles.panel}><Surface kind="card"><CardHeader title="Know when the Sky opens?"/><Txt style={[styles.caption,{marginTop:6}]}>Fridays at 8pm, when your school or Circle shares an omen.</Txt><Action testID="sky-push-accept" label="Notify me on Fridays" disabled={busy} onPress={()=>void answer(true)}/><Action testID="sky-push-dismiss" label="Not now" quiet disabled={busy} onPress={()=>void answer(false)}/>{notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Surface></View>:null}</Surface></View>;
+ return <View testID="sky-push-prompt" style={styles.panel}><Surface kind="card"><CardHeader title="Know when the Sky opens?"/><Txt style={[styles.caption,{marginTop:6}]}>Fridays at 8pm, when your school or Circle shares an insight.</Txt><Action testID="sky-push-accept" label="Notify me on Fridays" disabled={busy} onPress={()=>void answer(true)}/><Action testID="sky-push-dismiss" label="Not now" quiet disabled={busy} onPress={()=>void answer(false)}/>{notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Surface></View>:null}</Surface></View>;
 }
 export function SocialPush({skyPush,onSkyPush}:{skyPush:boolean;onSkyPush:(enabled:boolean,token?:string)=>Promise<void>}){
  const [notice,setNotice]=useState(''),[busy,setBusy]=useState(false);

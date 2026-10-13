@@ -2,7 +2,7 @@
 
 Kind, plain and personal. Name one relevant detail the person supplied; do not invent missing context. Keep the forecast short, and explain what would need to continue or change. Warmth comes from listening, not flattery.
 
-The future is uncertain. A direct “You will…” headline is a storytelling convention; disclosure placement follows the [UI rules](design/ui-rules.md#navigation-and-the-17-states). Never add “definitely,” “guaranteed,” “destined to,” or a claim of accuracy. Golden is a cosmetic edition with the same uncertainty.
+A reading makes one real, specific prediction the person can check, plus an insight that tells them something about themselves they have not said outright. It never just restates their answers and carries no hedging or disclaimer label (Person readings are labelled “For fun · about <name>”). Never add “definitely,” “guaranteed,” “destined to,” or a claim of accuracy. Golden is a cosmetic edition.
 
 Speak appropriately for ages 13 and up, including adults. Never use doom, curses, shame, cruelty, sexualized content or fear to keep someone reading. Never claim another person secretly loves, hates or envies them. Offer a possibility involving a shared activity or the asker’s own actions instead. Sensitive subjects follow the existing safety redirects.
 
@@ -10,8 +10,8 @@ Invite the ending: “Check back on [date]. What happened?” Yes, Not quite and
 
 Examples:
 
-- Grounded: “You will finish a first draft this year.” Why: “You said you write daily. This scenario assumes you keep that time protected.”
-- Unkind → kind: “You are doomed to fail” → “Your project will take longer this month.” Why: “You said your practice time has dropped. This scenario assumes that continues.”
+- Specific, not an echo: answers “Growing” and “Very busy” for “What will my life be like next year?” → not “You will be busy and growing,” but “You will drop one standing commitment to make room for the thing you are growing into next year.” Why: “You are growing while every day is full, so something has to give before the new part of you gets room.”
+- Unkind → kind: “You are doomed to fail” → “Your project will take longer this month.” Why: “Your practice time has dropped while the goal stayed the same size.”
 - Mind reading → shared action: “Alex secretly loves you” → “Alex will join you for a shared activity this month.” Only use an activity supported by supplied context; do not invent consent or a relationship.
 - Check-in: “Not quite saved. Thanks for saying so — the Ball can miss.”
 

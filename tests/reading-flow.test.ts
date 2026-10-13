@@ -13,7 +13,7 @@ test('one and two card model plans reach a forecast; missing timeframe reserves 
  let count=1;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}].slice(0,Math.min(count,body.format.properties.cards.maxItems))}:body.format.properties.prediction?{prediction:'You will finish your novel.',basis:'context_1',assumption:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.cards?{cards:[{question:'How much have you written?',options:['No draft','Half a draft','Full draft']},{question:'How often do you write?',options:['Daily','Weekly','Rarely']}].slice(0,Math.min(count,body.format.properties.cards.maxItems))}:body.format.properties.prediction?{prediction:'You will finish your novel.',basis:'context_1',insight:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   if(body.format.properties.cards)assert.equal(input.known.current_focus,'Learning & growth');
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
@@ -87,7 +87,7 @@ test('all ages screen private-feelings output and allow kind activities',async()
  let prediction='Alex will paint with you.';
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));const generatedOutput=body.messages[0].content.startsWith('Classify this generated forecast');
-  const content=body.format.properties.prediction?{prediction,basis:'context_1',assumption:'You continue spending time together.'}:{category:generatedOutput&&prediction.includes('love')?'person':'allow'};
+  const content=body.format.properties.prediction?{prediction,basis:'context_1',insight:'You continue spending time together.'}:{category:generatedOutput&&prediction.includes('love')?'person':'allow'};
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
@@ -114,7 +114,7 @@ test('forecast outputs resolve typed and general horizons before rendering both 
  globalThis.fetch=async(url,init)=>{
   if(String(url).includes('/rss/'))return new Response('<rss/>');
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Your regular effort continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',insight:'Your regular effort continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  const move={location:'Boston',destination:'Berlin',work:'Remote',lease:'Within 3 months',runway:'6 months'};
@@ -146,7 +146,7 @@ test('Person readings isolate all owner topics and repair wrong-subject cards an
    content={cards:[{question:body.messages.length===2?'How often do you practice?':'How often does Alex practice?',options:['Daily','Weekly','Rarely']}]};
   }else if(body.format.properties.prediction){
    forecasts++;assert.deepEqual(Object.keys(input.facts).sort(),['context_1','horizon']);assert.deepEqual(input.choices,[]);
-   content={prediction:alwaysWrong||body.messages.length===2?'You will make progress.':'Alex will make progress.',basis:'context_1',assumption:'Alex keeps practicing regularly.'};
+   content={prediction:alwaysWrong||body.messages.length===2?'You will make progress.':'Alex will make progress.',basis:'context_1',insight:'Alex keeps practicing regularly.'};
   }
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
