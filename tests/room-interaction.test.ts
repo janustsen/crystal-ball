@@ -252,7 +252,7 @@ test('native room lands a flight that never plays, and a finished trip\'s fallba
  assert.deepEqual(stills(),['Ask.jpg','Home.jpg'],'the next trip is still on its way');
 });
 
-test('native room keeps the static orb on the stand until the live glass has started',async()=>{
+test('native room keeps the static orb on the stand beneath the live glass',async()=>{
  let resolve!:(glass:unknown)=>void;
  const {render}=nativeRoom(()=>new Promise(r=>{resolve=r}));
  const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
@@ -265,7 +265,8 @@ test('native room keeps the static orb on the stand until the live glass has sta
  gl.props.onContextCreate({});
  resolve({stop(){},style(){},resume(){}});await new Promise(r=>setImmediate(r));
  tree=nodes(render('RoomScene',props));
- assert.ok(!tree.some(n=>n.type==='OrbVisual'),'the live glass replaces the static orb');
+ // An iPhone's GL view drew nothing while reporting started, so the orb stays under the glass that covers it.
+ assert.ok(tree.findIndex(n=>n.type==='OrbVisual')>=0&&tree.findIndex(n=>n.type==='OrbVisual')<tree.findIndex(n=>n.type==='GLView'),'the static orb stays beneath the live glass');
  assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,1);
 });
 

@@ -4,8 +4,8 @@ import {GLView} from 'expo-gl';
 import {askOrbAim,askOrbDecor} from './askOrbScene';
 import {startNativeGlass} from './glassNative';
 
-// The tab bar's live glass Ask orb (src/askOrbScene.ts) at size points; its aura spills past the slot. The fallback stands
-// in until the glass draws, and for good if GL fails.
+// The tab bar's live glass Ask orb (src/askOrbScene.ts) at size points; its aura spills past the slot. The fallback stays
+// beneath the glass, which covers it exactly, so the orb still shows wherever GL draws nothing.
 export function AskOrb({size,reduce,fallback}:{size:number;reduce:boolean;fallback:React.ReactNode}){
  const motion=useRef({reduce}).current,[live,setLive]=useState(false);
  const scene=useRef<Awaited<ReturnType<typeof startNativeGlass>>|null>(null),mounted=useRef(true),pending=useRef<AbortController|null>(null);
@@ -13,7 +13,7 @@ export function AskOrb({size,reduce,fallback}:{size:number;reduce:boolean;fallba
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;pending.current?.abort();scene.current?.stop();scene.current=null}},[]);
  useEffect(()=>{scene.current?.resume()},[reduce]);
  return <View pointerEvents="none" style={{width:size,height:size}}>
-  {live?null:fallback}
+  {fallback}
   <GLView onContextCreate={gl=>{
    pending.current?.abort();
    const controller=new AbortController();pending.current=controller;
