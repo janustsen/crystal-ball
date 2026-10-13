@@ -37,7 +37,7 @@ try{
   await page.wait('[data-testid="option-0"]',65000);
   for(let card=0;card<2;card++){const last=(await page.eval(()=>document.body.innerText)).includes((card+1)+' of '+(card+1));${click('option-0')}if(last)break;await page.wait('[data-testid="option-0"]');}
   await page.wait('[data-testid="share-this-glimpse"]',65000);
-  ${click('close-flow')}${click('tab-sky')}${click('add-my-star')}
+  ${click('close-flow')}${click('tab-sky')}await page.wait('[data-testid="add-my-star"]');${click('add-my-star')}
   await page.wait('[data-testid="publish-anonymous-star"]',120000);
   ${assertText('Approve your anonymous wording')}${click('publish-anonymous-star')}
   await page.wait('[data-testid="remove-my-star"]');

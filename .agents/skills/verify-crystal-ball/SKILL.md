@@ -44,6 +44,8 @@ Inspect the room: the live glass ball must stay on its tracked ring through flig
 ## Evidence and boundaries
 Keep screenshots/transcripts under docs/evidence/design-2026-09-30/. Preserve prior failures before rerunning a failing driver. Inspect the actual PNG, including 1080×1920 dimensions and absence of private question, facts and Why. Real Ollama is mandatory; do not substitute fixture predictions. These checks prove behavior and structure, not predictive accuracy.
 
+Set `MOTION_EVIDENCE` to a fresh owned directory for each motion run. The driver now saves its raw `motion-audit-<timestamp>.json` there alongside the summaries and redacted timing excerpt; the raw trace may contain network/auth data and must remain private, outside committed or published evidence. Publish only the timing excerpt and reviewed summaries.
+
 Voice on remote HTTP falls back to typing; actual browser speech needs localhost or HTTPS and microphone permission. See [sharing verification](features/sharing.md) for still and web video export. Supabase mirroring, configured Apple sign-in and real purchases are unavailable locally. Billing stays explicitly simulated. Friend share-sheet and speech-constructor mocks are boundary tests, not hardware verification.
 
 ## Evidence
