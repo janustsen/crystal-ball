@@ -18,7 +18,7 @@ test('answer validation and forecast generation share the local year boundary',a
    try{return await call(new Request('http://localhost',{method:'POST',body:JSON.stringify(body)}));}finally{process.env.TZ=clientTZ;}
   }
   const input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will finish.',basis:'context_1',assumption:'Regular practice continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.prediction?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will finish.',basis:'context_1',insight:'Regular practice continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return Response.json({message:{content:JSON.stringify(content)}});
  };
  try{
@@ -53,7 +53,7 @@ test('learning calendar years survive planning and typed or general forecasts',a
  const known={learning_target:'Spanish',level:'Intermediate',practice:'20 minutes',conversation:'Weekly'};
  const model=validatedProvider(async(messages)=>{
   const input=JSON.parse(messages[1].content);
-  return JSON.stringify(input.choices?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',assumption:'Regular practice continues.'}):{category:'allow'});
+  return JSON.stringify(input.choices?(input.choices.length?{prediction:input.choices[0]}:{prediction:'You will make progress.',basis:'context_1',insight:'Regular practice continues.'}):{category:'allow'});
  });
  for(const [phrase,deadline,expected] of [
   ['this year','this year','2026-12-31'],

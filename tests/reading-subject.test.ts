@@ -40,7 +40,7 @@ test('personal cards repair invented subjects once and keep them out of saved Wh
  const corrected='What have you already done to learn Spanish?';
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?{cards:[{question:(++attempts%2===1||!repair)?wrong:corrected,options:['Completed ten lessons','Practiced with a friend','Practiced every day']}]}:body.format.properties.prediction?{prediction:'You will speak conversational Spanish.',basis:'context_1',assumption:'Your daily practice continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.cards?{cards:[{question:(++attempts%2===1||!repair)?wrong:corrected,options:['Completed ten lessons','Practiced with a friend','Practiced every day']}]}:body.format.properties.prediction?{prediction:'You will speak conversational Spanish.',basis:'context_1',insight:'Your daily practice continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
@@ -54,7 +54,7 @@ test('personal cards repair invented subjects once and keep them out of saved Wh
    const forecast=await predict(question,facts,false,provider(()=>undefined));assert.equal(forecast.kind,'ok');
    if(forecast.kind==='ok'){
     const saved=JSON.parse(JSON.stringify(forecast.value));
-    for(const text of [saved.facts.context_1,saved.why,saved.deeperWhy]){assert.ok(text.includes(corrected));assert.ok(!text.includes(wrong));}
+    assert.ok(saved.facts.context_1.includes(corrected));for(const text of [saved.facts.context_1,saved.why,saved.deeperWhy])assert.ok(!text.includes(wrong));
    }
    attempts=0;repair=false;
    assert.equal((await makePlan(question,{},provider(()=>undefined))).kind,'error');assert.equal(attempts,2);
@@ -69,7 +69,7 @@ test('valid first names reach planning and forecasting through API and engine',a
  const original=globalThis.fetch;let name='Alex';
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?{cards:[{question:`How often does ${name} practice?`,options:['Daily','Weekly','Rarely']}]}:body.format.properties.prediction?{prediction:`${name} will improve.`,basis:'context_1',assumption:`${name} keeps practicing regularly.`}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.cards?{cards:[{question:`How often does ${name} practice?`,options:['Daily','Weekly','Rarely']}]}:body.format.properties.prediction?{prediction:`${name} will improve.`,basis:'context_1',insight:`${name} keeps practicing regularly.`}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{

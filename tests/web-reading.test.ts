@@ -20,7 +20,7 @@ function boundary(t:any,supabase?:(path:string,body:any)=>unknown){
   if(body?.messages){
    if(state.fail&&body.format.properties.prediction)return new Response('down',{status:500});
    state.models++;
-   return Response.json({message:{content:JSON.stringify(body.format.properties.prediction?{prediction:'You will make progress.',basis:'context_1',assumption:'Practice continues.'}:{category:'allow'})}});
+   return Response.json({message:{content:JSON.stringify(body.format.properties.prediction?{prediction:'You will make progress.',basis:'context_1',insight:'Practice continues.'}:{category:'allow'})}});
   }
   calls.push({path:url.pathname,body});
   if(supabase)return Response.json(supabase(url.pathname,body));

@@ -16,7 +16,7 @@ function boundary(t:any,{plus=false,failSave=false,weather=['Gemini Sun, Pisces 
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
   if(body?.messages){
    const fields=body.format.properties,input=JSON.parse(body.messages[1].content);prompts.push(input);
-   const content=fields.prediction?{prediction:input.choices?.[0]||(input.personName?`${input.personName} will finish the course.`:'You will finish your course.'),basis:'context_1',assumption:'Daily practice continues.'}:fields.headline?{headline:'A creative opportunity may arrive.',why:'Only a sun sign and broad activity themes are known.'}:fields.text?{text:weather[Math.min(weatherCalls++,weather.length-1)]}:fields.safe?{safe:true}:{category:'allow'};
+   const content=fields.prediction?{prediction:input.choices?.[0]||(input.personName?`${input.personName} will finish the course.`:'You will finish your course.'),basis:'context_1',insight:'Daily practice continues.'}:fields.headline?{headline:'A creative opportunity may arrive.',why:'Only a sun sign and broad activity themes are known.'}:fields.text?{text:weather[Math.min(weatherCalls++,weather.length-1)]}:fields.safe?{safe:true}:{category:'allow'};
    return Response.json({message:{content:JSON.stringify(content)}});
   }
   if(url.hostname==='news.google.com')return new Response('<rss/>');
@@ -43,9 +43,9 @@ function boundary(t:any,{plus=false,failSave=false,weather=['Gemini Sun, Pisces 
 const ask=(serve:(r:Request)=>Promise<Response>,body:object)=>serve(new Request('http://localhost/',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month',birthday},viewerBirthday:birthday,localDate:'2026-10-06',requestId:'11111111-1111-4111-8111-111111111111',...body})}));
 
 test('Moon and rising join the Why astrology line',()=>{
- assert.equal(astrologyLine(birthday,chart),'Under your Gemini Sun, Pisces Moon and Virgo rising, consider this a playful invitation to your next chapter.');
- assert.equal(astrologyLine(birthday),'Under your Gemini Sun, consider this a playful invitation to your next chapter.');
- assert.equal(astrologyLine(),'The stars offer a playful lens on your next chapter.');
+ assert.equal(astrologyLine(birthday,chart),'Under your Gemini Sun, Pisces Moon and Virgo rising.');
+ assert.equal(astrologyLine(birthday),'Under your Gemini Sun.');
+ assert.equal(astrologyLine(),'');
 });
 
 test('only a Plus viewer’s chart shapes the Why when billing is on',async t=>{
@@ -175,9 +175,9 @@ test('chart weather follows the birth chart it came from',()=>{
  assert.equal(updateBirthday(state,'1996-01-01').chartWeather,undefined);
 });
 
-test('the Ball narrates only for unmuted Plus, always with its speculative label',()=>{
- const reading={headline:'You will finish your course next month.',label:'Speculative forecast · not a guarantee'};
- assert.equal(narration({plus:true},reading),'You will finish your course next month. Speculative forecast, not a guarantee.');
+test('the Ball narrates the headline only for unmuted Plus',()=>{
+ const reading={headline:'You will finish your course next month.'};
+ assert.equal(narration({plus:true},reading),'You will finish your course next month.');
  assert.equal(narration({plus:true,narrationMuted:true},reading),null);
  assert.equal(narration({plus:false},reading),null);
 });

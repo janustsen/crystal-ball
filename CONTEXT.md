@@ -1,6 +1,6 @@
 # Crystal Ball
 
-A mystical, astrology-flavoured oracle: you ask the ball a question and it reveals one speculative forecast.
+A mystical, astrology-flavoured oracle: you ask the ball a question and it reveals one prediction.
 
 This glossary includes planned product concepts; see [accepted reading-flow scope](docs/evidence/review-decisions.md#reading-flow-acceptance-and-pr-handoff--2026-10-01) for the original reading-flow scope and the [social boundary](docs/social/model.md) for current social behavior.
 
@@ -12,7 +12,7 @@ _Avoid_: prediction, session
 
 **Forecast**:
 The revealed answer of a Reading, carrying a headline, a Why and a Due date.
-_Avoid_: prediction, result
+_Avoid_: result
 
 **Due date**:
 The date the ball itself sets for a Forecast, shown on the reveal, when the Check-in fires.
@@ -56,11 +56,11 @@ A Plus Reading about a Circle member, allowed only if that member turned on "fri
 **Golden forecast**:
 A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 in 10 with Plus. Cosmetic; never implies it is more likely to come true.
 
-**Daily omen**:
-A short, fully personal omen shown on Home once a day, separate from the daily free Reading.
+**Daily insight**:
+A short, fully personal insight shown on Home once a day, separate from the daily free Reading.
 
 **Whisper**:
-A one-day forecast (“By tonight, …”) delivered with the Daily omen and checked the next morning with Yes, Not quite or Not yet. Never scored.
+A one-day forecast (“By tonight, …”) delivered with the Daily insight and checked the next morning with Yes, Not quite or Not yet. Never scored.
 
 **Weekly recap**:
 “Your week in the Ball”: free counts of the last seven days, never an accuracy score; the weekly sibling of the Plus Year in review.
@@ -79,7 +79,7 @@ The optional school a user chooses; see the [school boundary](docs/social/school
 Any user can report a Star or block a person; repeated reports hide content automatically. Every published line also passes an AI safety filter.
 
 **Friday Sky**:
-The weekly shared omen for a School or Circle; see the [Friday Sky contract](docs/social/model.md#friday-sky) for timing, visibility and explicit notification consent.
+The weekly shared insight for a School or Circle; see the [Friday Sky contract](docs/social/model.md#friday-sky) for timing, visibility and explicit notification consent.
 
 **School Sky**:
 A "My school" filter on Tonight's Sky showing only Stars from the user's School.
@@ -95,4 +95,4 @@ A "My school" filter on Tonight's Sky showing only Stars from the user's School.
 ## Flagged ambiguities
 
 - "Explore" is retired: the tab becomes **Tonight's Sky** plus **Circles**.
-- "Prediction" in code means **Forecast** in the product language.
+- **Prediction** and **Forecast** name the same revealed answer; new reading copy uses Prediction.

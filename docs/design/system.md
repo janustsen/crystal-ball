@@ -21,7 +21,7 @@ No sign-up gate. See [UI rules](ui-rules.md#navigation-and-the-17-states) for Sk
 Paywall offers, allowances, selection default and billing disclosures follow [prototype pricing](../research/pricing.md#paywall-rules-and-test). Purchase and restore behavior follows the [billing contract](../launch/billing.md).
 
 ## States and verification
-Reading generation has loading, timeout, retry and cancel; facts load before Ask becomes available. Daily omen availability follows the [daily generation policy](../../SETUP.md#daily-omen-widget-and-check-ins). Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items; see [recorded verification coverage](../../README.md). Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
+Reading generation has loading, timeout, retry and cancel; facts load before Ask becomes available. Daily insight availability follows the [daily generation policy](../../SETUP.md#daily-omen-widget-and-check-ins). Empty/offline screens remain usable. 375×667 and 390×844, browser zoom 200%, keyboard open, and reduced motion are required checks. Native Dynamic Type, VoiceOver, Apple auth, notifications and purchases remain device validation items; see [recorded verification coverage](../../README.md). Verify each tab, a complete flow, a blocked flow, returning known facts, share export and mock paywall with the project verification skill.
 
 ## Rendered review and component states
 
@@ -37,10 +37,10 @@ See [UI verification](ui-rules.md#verification) for current appearance evidence,
 
 ## Voice and copy
 
-Oracle headlines are direct: “Your project will reach 108 users in 4 weeks.” Explanations separate supplied facts from assumptions. Interface copy is plain: “Your question”, “Review answers”. Recovery keeps the metaphor short: “The Ball took too long.” Charging notices follow the [interruption and retry guidance](../../README.md). Avoid repeated diminutives, mock urgency and claims of supernatural accuracy. The brand wordmark stays a compact graphic at large text; navigation accessible names and all task content remain available.
+Oracle headlines are direct: “Your project will reach 108 users in 4 weeks.” Explanation wording follows the [voice guide](../voice.md). Interface copy is plain: “Your question”, “Review answers”. Recovery keeps the metaphor short: “The Ball took too long.” Charging notices follow the [interruption and retry guidance](../../README.md). Avoid repeated diminutives, mock urgency and claims of supernatural accuracy. The brand wordmark stays a compact graphic at large text; navigation accessible names and all task content remain available.
 
 ## Semantic visual roles
 
 Task headings remain scalable; see [UI rules](ui-rules.md#palette-and-composition) for graphic-size exceptions. History outcomes must remain explicit text, never color alone.
 
-Headline patterns: yes/no → “You will finish your draft this year”; number → “Your net worth will be $106,413 in 10 years”; named outcome → “Argentina will win the 2030 Men’s World Cup”; skill → “You will speak basic Danish in 6 months.” Avoid “Maybe things will improve,” invented odds, and a because-clause in the headline. Why owns assumptions and reasoning. Negative verdicts remain direct and kind.
+Headline patterns: yes/no → “You will finish your draft this year”; number → “Your net worth will be $106,413 in 10 years”; named outcome → “Argentina will win the 2030 Men’s World Cup”; skill → “You will speak basic Danish in 6 months.” Avoid “Maybe things will improve,” invented odds, and a because-clause in the headline. Why follows the [voice guide](../voice.md). Negative verdicts remain direct and kind.

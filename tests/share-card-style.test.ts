@@ -32,7 +32,7 @@ test('native preview and capture preserve every card style and golden override',
    'expo-sharing':{shareAsync:async()=>{shared=true}},
   };
   const {ShareCard}=load('../src/ShareCard.tsx',imports,react);
-  const card={kind,golden,headlines:['A glimpse'],labels:['Speculative forecast'],footer:'Check back',file:'card.png'};
+  const card={kind,golden,headlines:['A glimpse'],labels:kind==='forecast'?[]:['Learning'],footer:'Check back',file:'card.png'};
   const render=()=>{cursor=0;return nodes(ShareCard({card,onNotice:()=>{},onClose:()=>{}}))};
   const expected=golden?['#1A120B',ui.colors.gold,2]:cardStyle==='gold'?[ui.colors.ink,ui.colors.gold,1]:cardStyle==='obsidian'?['#0E0D11','rgba(176,180,198,.55)',1]:[ui.colors.ink,'rgba(227,199,143,.22)',2/3];
   const check=(tree:any[])=>{

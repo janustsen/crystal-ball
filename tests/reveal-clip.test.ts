@@ -92,13 +92,13 @@ test('reveal clips paint the ground, the ball\'s light and the glass card, with 
   assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name];
  }});
  const orb={} as HTMLImageElement,glass={} as HTMLImageElement;
- for(const ballStyle of ['aurora','classic'] as const)for(const open of [1,.5]){
+ for(const ballStyle of ['aurora','classic'] as const)for(const open of [1,.5])for(const golden of [false,true]){
   const calls:unknown[][]=[];
   const ctx={
    globalAlpha:1,
    globalCompositeOperation:'source-over',
    createRadialGradient(){calls.push(['gradient']);return {addColorStop:()=>{}}},
-   fillRect(...args:number[]){calls.push(['fillRect',...args])},fill(){calls.push(['fill'])},stroke(){calls.push(['stroke'])},moveTo(){},lineTo(){},arcTo(){},closePath(){},fillText(){},
+   fillRect(...args:number[]){calls.push(['fillRect',...args])},fill(){calls.push(['fill'])},stroke(){calls.push(['stroke'])},moveTo(){},lineTo(){},arcTo(){},closePath(){},fillText(text:string){calls.push(['text',text])},
    measureText:()=>({width:100}),
    save(){calls.push(['save'])},restore(){calls.push(['restore'])},
    beginPath(){calls.push(['beginPath'])},arc(...args:number[]){calls.push(['arc',...args])},
@@ -106,8 +106,13 @@ test('reveal clips paint the ground, the ball\'s light and the glass card, with 
    drawImage(image:HTMLImageElement,...args:number[]){calls.push(['drawImage',image,...args,this.globalAlpha])},
   };
   module.exports.paintStory(ctx as unknown as CanvasRenderingContext2D,
-   {headline:'You will finish your course.'} as Parameters<typeof module.exports.paintStory>[1],
+   {headline:'You will finish your course.',golden} as Parameters<typeof module.exports.paintStory>[1],
    {cardStyle:'classic',golden:false,ballStyle,orb,glass},{orb:open});
+  const text=calls.filter(call=>call[0]==='text').map(call=>call[1]).join(' ');
+  assert.doesNotMatch(text,/speculative forecast|not a guarantee/i);
+  assert.match(text,/You will finish your course\./);
+  assert.match(text,/Check back December 1/);
+  assert.equal(text.includes('Golden edition'),golden);
   // No artwork behind the ball: the ground fills the frame, then the light and the card, before any image.
   assert.deepEqual(calls[0],['fillRect',0,0,1080,1920]);
   const firstImage=calls.findIndex(call=>call[0]==='drawImage');

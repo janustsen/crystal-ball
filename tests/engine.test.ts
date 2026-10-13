@@ -39,7 +39,6 @@ test('multilingual lifespan, self-harm and residency forms retain their safety c
 test('asynchronous semantic rejection gets one repair and never leaks a failed result',async()=>{const original=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify({message:{content:'{"prediction":"An unsupported claim"}'}}))};try{await assert.rejects(provider(()=>undefined).json('test',{}, {type:'object'},async()=>({valid:false,feedback:'Contradicts the supplied facts'})));assert.equal(calls,2);}finally{globalThis.fetch=original;}});
 test('server-owned horizon formats the model verdict without inventing an outcome',async()=>{const {formatForecast}=await import('../server/engine.ts');assert.equal(formatForecast('Your trip will be memorable.','Within 3 months'),'Your trip will be memorable within 3 months.');assert.equal(formatForecast('You will finish this year.','this year'),'You will finish this year.');assert.equal(formatForecast('Yes, your trip will be memorable.','3 months'),'Your trip will be memorable within 3 months.');assert.equal(formatForecast('No, you will not win.','within a year'),'You will not win within a year.');assert.equal(formatForecast('Your trip will be memorable.','3 months'),'Your trip will be memorable within 3 months.');assert.equal(formatForecast('You will not win.','within a year'),'You will not win within a year.');});
 test('equivalent written horizons are not repeated in the headline',async()=>{const {formatForecast}=await import('../server/engine.ts');assert.equal(formatForecast('Your holiday will be memorable in three months.','Within 3 months'),'Your holiday will be memorable in three months.');});
-test('Why labels assumptions and does not print the same sentence twice',async()=>{const {explainScenario}=await import('../server/engine.ts');assert.equal(explainScenario('Daily practice continues.','Daily practice continues.'),'Scenario assumption: Daily practice continues.');assert.equal(explainScenario('You practice daily.','Practice continues.'),'You practice daily.\n\nScenario assumption: Practice continues.');});
 
 test('Danish remaining-lifespan wording is death, not self-harm',()=>assert.equal(phraseSafety('Hvor mange år har min mor tilbage at leve i?'),'death'));
 test('ordinary word senses do not trigger sensitive-topic phrase rules',()=>{for(const q of ['Will my arresting performance win an award?','Will I keep custody of the ball in the match?','Will our green card game night be fun?','Will the chart show two lines next month?'])assert.equal(phraseSafety(q),undefined);});
@@ -64,14 +63,44 @@ test('learning explanation preserves the chosen baseline and conversational targ
 
 test('bounded forecasts never replace the server explanation with extra model fields',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0],reason:42,assumption:{untrusted:true}}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content),content=input.choices?{prediction:input.choices[0],reason:42,insight:{untrusted:true}}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('How many users will my project have in four weeks?',{current_users:'100',weekly_growth:'2',growth_weeks:'4'},false,provider(()=>undefined));assert.equal(result.kind,'ok');if(result.kind==='ok')assert.match(result.value.why,/100.*2.*4.*108/);}finally{globalThis.fetch=original;}
 });
 
-test('general explanations quote an existing input and ignore model-authored factual prose',async()=>{
+test('general explanations show the validated insight, never invented numbers or extra model prose',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown=(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});if(body.format.properties.prediction){drafts++;content={prediction:'You will finish your novel this year.',basis:drafts===1?'invented_fact':'context_1',assumption:'Your writing routine continues.',reason:'Invented factual prose must never appear.'};}else if(body.format.properties.valid)content={valid:true,issue:''};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
- try{const result=await predict('Will I finish my novel this year?',{context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);if(result.kind==='ok'){assert.match(result.value.why,/Recorded context: Write 500 words daily/);assert.doesNotMatch(result.value.why,/Invented factual prose/);}}finally{globalThis.fetch=original;}
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown=(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});if(body.format.properties.prediction){drafts++;content={prediction:'You will finish your novel this year.',basis:'context_1',insight:drafts===1?'You write 900 words on 4 mornings a week.':'Your daily words and finished chapters add up to a finished book.',reason:'Invented factual prose must never appear.'};}else if(body.format.properties.valid)content={valid:true,issue:''};return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('Will I finish my novel this year?',{context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);if(result.kind==='ok'){assert.equal(result.value.why,'Your daily words and finished chapters add up to a finished book.');assert.doesNotMatch(result.value.deeperWhy||'',/Invented factual prose|900/);}}finally{globalThis.fetch=original;}
+});
+
+test('a filler prediction that restates the answers is repaired once into a specific one, then fails closed',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0,echoOnly=false;
+ const echo='You will be busy and growing, building on your current pace and focus.';
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={insight:'You are growing while every day is already full, so something has to give.',basis:'context_2',prediction:echoOnly||drafts===1?echo:'You will drop one standing commitment to make room for a new skill.'};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{
+  const facts={context_1:'Growing',context_2:'Very busy',horizon:'next year'};
+  const result=await predict('What will my life be like next year?',facts,false,provider(()=>undefined));
+  assert.equal(result.kind,'ok',JSON.stringify(result));assert.equal(drafts,2);
+  if(result.kind==='ok'){assert.match(result.value.headline,/^You will drop one standing commitment/);assert.equal(result.value.label,'Your prediction');assert.doesNotMatch(`${result.value.why} ${result.value.deeperWhy} ${result.value.assumptions.join(' ')}`,/speculative|guarantee/i);}
+  echoOnly=true;drafts=0;assert.equal((await predict('What will my life be like next year?',facts,false,provider(()=>undefined))).kind,'error');assert.equal(drafts,2);
+ }finally{globalThis.fetch=original;}
+});
+
+test('a specific prediction that shares words with an answer is accepted first time',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={insight:'Your long runs already fit around a full week, so race day is the next step.',basis:'context_1',prediction:'You will finish your first half marathon.'};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('What will my year look like?',{context_1:'What are you training for? Training for a half marathon',horizon:'next year'},false,provider(()=>undefined));assert.equal(result.kind,'ok',JSON.stringify(result));assert.equal(drafts,1);}finally{globalThis.fetch=original;}
+});
+
+test('the month May is not read as hedging, while modal may still is',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0,modal=false;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={insight:modal?'Your painting may finally get a deadline beyond paid work.':'Your May exhibition gives your painting a deadline beyond paid work.',basis:'context_1',prediction:'You will hang three new canvases at your May exhibition.'};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{
+  const facts={context_1:'What is coming up for your art? An exhibition in May',horizon:'next year'};
+  const result=await predict('What will my year look like?',{...facts},false,provider(()=>undefined));
+  assert.equal(result.kind,'ok',JSON.stringify(result));assert.equal(drafts,1);
+  modal=true;drafts=0;assert.equal((await predict('What will my year look like?',{...facts},false,provider(()=>undefined))).kind,'error');assert.equal(drafts,2);
+ }finally{globalThis.fetch=original;}
 });
 
 test('personal forecast voice normalizes model first-person phrasing',async()=>{
@@ -88,7 +117,7 @@ test('an inferred competition keeps its contenders through later answers',()=>{
 
 test('prediction never sends unrelated memories to the safety classifier',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;const sent:string[]=[];
- globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));sent.push(body.messages[1].content);const content=body.format.properties.prediction?{prediction:'You will finish your novel this year.',basis:'context_1',assumption:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));sent.push(body.messages[1].content);const content=body.format.properties.prediction?{prediction:'You will finish your novel this year.',basis:'context_1',insight:'Your writing routine continues.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
  try{const result=await predict('Will I finish my novel this year?',{learning_target:'Spanish',assets:'250000',context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));
   assert.equal(result.kind,'ok');assert.ok(!sent.join('\n').includes('Spanish'));assert.ok(!sent.join('\n').includes('250000'));
  }finally{globalThis.fetch=original;}

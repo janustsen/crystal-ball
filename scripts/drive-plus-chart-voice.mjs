@@ -36,7 +36,7 @@ try{
  await read('Will I run a half marathon next spring?');
  const plusAsk=log.findLast(entry=>entry.request.action==='predict');expect(plusAsk.request.viewerChart).toEqual({moonSign:'capricorn',risingSign:'virgo'});
  await expect(page.getByText(/^Under your Gemini Sun, Capricorn Moon and Virgo rising/)).toBeVisible();
- const headline=plusAsk.response.value.headline;await expect.poll(spoken).toEqual([`${headline} Speculative forecast, not a guarantee.`]);
+ const headline=plusAsk.response.value.headline;await expect.poll(spoken).toEqual([headline]);
  const narrated=await spoken();await expect(page.getByTestId('narration-toggle')).toHaveText('Mute the Ball');await shot('plus-reveal');
  const cancelCount=()=>page.evaluate(()=>window.__speech.filter(entry=>entry.cancel).length);
  // Recording a replay silences the Ball; returning to the reveal narrates it again.

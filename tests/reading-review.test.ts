@@ -15,7 +15,7 @@ test('timeframe inputs resolve completely or fail before outcome generation',asy
  const original=globalThis.fetch;let outcomes=0;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body)),input=JSON.parse(body.messages[1].content);
-  const content=body.format.properties.prediction?(outcomes++,input.choices.length?{prediction:input.choices[0]}:{prediction:'You will finish the draft.',basis:'context_1',assumption:'Your regular writing continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.prediction?(outcomes++,input.choices.length?{prediction:input.choices[0]}:{prediction:'You will finish the draft.',basis:'context_1',insight:'Your regular writing continues.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
@@ -42,7 +42,7 @@ test('Person names survive planning and forecasts without disabling keyword rest
  const original=globalThis.fetch;let name='Will',badCard=false,badForecast=false,missingVerb=false;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.cards?{cards:[{question:badCard?`What will ${name} achieve?`:`How often does ${name} practice?`,options:[`${name} practices daily`,`${name} practices weekly`,'No regular practice']}]}:body.format.properties.prediction?{prediction:missingVerb?`${name} practices daily.`:badForecast?`${name} will likely improve.`:`${name} will improve.`,basis:'context_1',assumption:`${name} continues regular practice.`}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.cards?{cards:[{question:badCard?`What will ${name} achieve?`:`How often does ${name} practice?`,options:[`${name} practices daily`,`${name} practices weekly`,'No regular practice']}]}:body.format.properties.prediction?{prediction:missingVerb?`${name} practices daily.`:badForecast?`${name} will likely improve.`:`${name} will improve.`,basis:'context_1',insight:`${name} continues regular practice.`}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
@@ -91,14 +91,36 @@ test('short financial forecasts allow the supplied timeframe but reject invented
  const original=globalThis.fetch;let attempts=0,verdict='Your net worth will grow significantly in 10 years.';
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  const content=body.format.properties.prediction?{prediction:++attempts%2?'You will have a net worth of $1.5 million in 10 years.':verdict,basis:'context_1',assumption:'You maintain your current spending and investment habits.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  const content=body.format.properties.prediction?{prediction:++attempts%2?'You will have a net worth of $1.5 million in 10 years.':verdict,basis:'context_1',insight:'You maintain your current spending and investment habits.'}:(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
   return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
  };
  try{
   const run=()=>predict('What will my net worth be in 10 years?',{context_1:'What is your current net worth? $500,000 now',horizon:'in 10 years'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
   const good=await run();assert.equal(good.kind,'ok',JSON.stringify(good));assert.equal(attempts,2);
   if(good.kind==='ok')assert.equal(good.value.headline,verdict);
-  verdict='Your net worth will reach $900,000 in 10 years.';
-  assert.equal((await run()).kind,'error');assert.equal(attempts,4);
+  for(const amount of ['$900,000','$10','ten dollars']){
+   verdict=`Your net worth will reach ${amount} in 10 years.`;
+   const before:number=attempts;
+   assert.equal((await run()).kind,'error',amount);assert.equal(attempts-before,2);
+  }
+ }finally{globalThis.fetch=original;}
+});
+
+test('numbers from the question count as supplied, while currency codes never borrow a timeframe digit',async()=>{
+ const original=globalThis.fetch;let prediction='',attempts=0;
+ globalThis.fetch=async(_url,init)=>{
+  const body=JSON.parse(String(init?.body));
+  const content=body.format.properties.prediction?(attempts++,{prediction,basis:'context_1',insight:'You keep showing up for the work you already chose.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
+ };
+ try{
+  prediction='You will finish your 100-page novel.';
+  const novel=await predict('Will I finish my 100-page novel next year?',{context_1:'How often do you write? Every morning',horizon:'next year'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
+  assert.equal(novel.kind,'ok',JSON.stringify(novel));assert.equal(attempts,1);
+  for(const invented of ['You will save 3 USD daily.','You will save USD 3 daily.']){
+   prediction=invented;attempts=0;
+   const saving=await predict('Will I save money?',{context_1:'Do you save? A little each month',horizon:'within 3 months'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
+   assert.equal(saving.kind,'error',invented);assert.equal(attempts,2);
+  }
  }finally{globalThis.fetch=original;}
 });

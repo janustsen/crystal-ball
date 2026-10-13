@@ -11,7 +11,7 @@ function ledger(t:any,packs:number){
  const balance=()=>({owner:viewer,asOf:'2026-10-04T00:00:00.000001Z',plus:false,plusUntil:null,packs:Math.max(0,packs-charges+1),used:Math.min(charges,1),day:'2026-10-04'});
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=new URL(String(input)),body=init?.body?JSON.parse(String(init.body)):null;
-  if(body?.messages){models++;return Response.json({message:{content:JSON.stringify(body.format.properties.prediction?{prediction:'You will make progress.',basis:'context_1',assumption:'Practice continues.'}:{category:'allow'})}})}
+  if(body?.messages){models++;return Response.json({message:{content:JSON.stringify(body.format.properties.prediction?{prediction:'You will make progress.',basis:'context_1',insight:'Practice continues.'}:{category:'allow'})}})}
   if(url.pathname==='/auth/v1/user')return Response.json({id:viewer});
   if(url.pathname==='/rest/v1/reading_charges'){const id=url.searchParams.get('reading_id')!.slice(3);return Response.json(uses.has(id)?[{reading_id:id,uses:uses.get(id)}]:[])}
   if(url.pathname==='/rest/v1/rpc/reading_balance')return Response.json(balance());

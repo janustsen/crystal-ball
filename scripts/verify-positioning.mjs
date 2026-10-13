@@ -75,7 +75,7 @@ try{
    expect(await page.locator('body').innerText()).not.toContain(sample.answer);
    await expect(page.getByTestId('why-disclosure')).toHaveCount(0);
    await expect(page.getByTestId('view-plans')).toHaveCount(0);
-   if(sample.golden)await expect(page.getByText('Golden edition · same uncertainty')).toBeVisible();
+   if(sample.golden)await expect(page.getByText('Golden edition',{exact:true})).toBeVisible();
    const box=await page.getByTestId('capture-reveal').boundingBox();expect(Math.abs(box.width/box.height-9/16)).toBeLessThan(.001);
    expect(await page.locator('.orb .gb').evaluate(el=>getComputedStyle(el).position)).not.toBe('static');
    await page.waitForTimeout(2000);await page.getByTestId('replay-capture').click();await page.waitForTimeout(11000);

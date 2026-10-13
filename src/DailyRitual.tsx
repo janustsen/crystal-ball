@@ -56,8 +56,8 @@ export function YourSky({ritual}:{ritual:Ritual}){
 export function NotifyOffer({onAnswer}:{onAnswer:(time:string|null)=>void}){
  const [time,setTime]=useState(morningTimes[0]);
  return <View testID="notify-offer" style={styles.panel}><Surface kind="card">
-  <CardHeader title="Want your omen each morning?" label="Optional"/>
-  <Txt style={[styles.caption,{marginTop:6}]}>Your omen at the time you pick, and a gentle evening nudge.</Txt>
+  <CardHeader title="Want your insight each morning?" label="Optional"/>
+  <Txt style={[styles.caption,{marginTop:6}]}>Your insight at the time you pick, and a gentle evening nudge.</Txt>
   <TimeChips value={time} onChange={setTime}/>
   <Action testID="notify-yes" label="Yes, notify me" onPress={()=>onAnswer(time)}/>
   <Action testID="notify-not-now" label="Not now" quiet onPress={()=>onAnswer(null)}/>
@@ -66,7 +66,7 @@ export function NotifyOffer({onAnswer}:{onAnswer:(time:string|null)=>void}){
 
 export function NotifySettings({prefs,onChange}:{prefs:NotifyPrefs;onChange:(prefs:NotifyPrefs)=>void}){
  return <View testID="notify-settings" style={styles.panel}><Surface kind="card">
-  <View style={styles.row}><Txt style={{flexShrink:1}}>Morning omen and evening nudge</Txt><Toggle testID="notify-toggle" accessibilityLabel="Morning omen and evening nudge notifications" value={prefs.daily} onValueChange={daily=>onChange({...prefs,daily})}/></View>
+  <View style={styles.row}><Txt style={{flexShrink:1}}>Morning insight and evening nudge</Txt><Toggle testID="notify-toggle" accessibilityLabel="Morning insight and evening nudge notifications" value={prefs.daily} onValueChange={daily=>onChange({...prefs,daily})}/></View>
   {Platform.OS==='web'?<Txt style={styles.caption}>Notifications need the iOS app.</Txt>:null}
   {prefs.daily?<TimeChips value={prefs.time} onChange={time=>onChange({...prefs,time})}/>:null}
  </Surface></View>;

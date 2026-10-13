@@ -114,9 +114,10 @@ try{
   await page.open(${JSON.stringify(seal.url)});await page.wait('[data-testid="open-sealed-forecast"]');
   ${assertText('Tap the ball to open')}${click('open-sealed-forecast')}
  `);
- await waitFor('friend','[data-testid="open-sealed-forecast"][aria-disabled="true"]','Opened headline',30000,'Speculative forecast');
+ await waitFor('friend','[data-testid="open-sealed-forecast"][aria-disabled="true"]','Opened headline',30000,'A glimpse for you.');
  await run('friend',`
-  ${assertText('Speculative forecast')}
+  ${assertText('A glimpse for you.')}
+  if(/speculative forecast|not a guarantee/i.test(await page.eval(()=>document.body.innerText)))throw Error('Sealed card disclaimer');
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}
   ${click('social-section-circles')}
   await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}

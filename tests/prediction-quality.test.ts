@@ -1,0 +1,223 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {makePlan,predict} from '../server/engine.ts';
+import {validatedProvider} from '../server/provider.ts';
+
+test('planning repair receives the judge reason and can rewrite a list question',async()=>{
+ const reason='The question asks for top three goals, but each option supplies only one goal.';
+ const drafts=[
+  {cards:[{factor:'current goals',question:'What are your top three goals this year?',options:['study for exams','work part time','travel abroad']}]},
+  {cards:[{factor:'current commitments',question:'What takes up most of your week?',options:['School','Paid work','Caregiving']}]},
+ ];
+ let attempts=0,judgeCalls=0,repair='';
+ const model=validatedProvider(async(messages,schema)=>{
+  const fields=schema.properties as Record<string,unknown>;
+  if(fields.cards){
+   if(attempts===1)repair=messages.at(-1)!.content;
+   return JSON.stringify(drafts[attempts++]);
+  }
+  if(fields.fits)return JSON.stringify({reason:judgeCalls++===0?reason:'All options name a current commitment.',fits:judgeCalls>1});
+  return JSON.stringify({category:'allow'});
+ });
+ const result=await makePlan('what will my life be like next year?',{},model);
+ assert.equal(result.kind,'ok',JSON.stringify(result));
+ assert.equal(attempts,2);
+ assert.ok(repair.includes(reason),repair);
+ assert.match(repair,/rewrite.*question/i);
+ if(result.kind==='ok')assert.deepEqual(result.value.cards[0].options,['School','Paid work','Caregiving','Other']);
+});
+
+test('prediction emits instructions for an unstated inference and a named event',async()=>{
+ let prompt='';
+ const model=validatedProvider(async(messages,schema)=>{
+  if((schema.properties as Record<string,unknown>).prediction){
+   prompt=messages[0].content;
+   return JSON.stringify({insight:'You treat creative time as something to earn after helping others, so protecting it starts with a boundary.',basis:'context_1',prediction:'You will turn down an extra shift to finish a canvas.'});
+  }
+  return JSON.stringify({category:'allow'});
+ });
+ const result=await predict('what will my life be like next year?',{context_1:'I want more time for painting but keep accepting extra work',horizon:'next year'},false,model);
+ assert.equal(result.kind,'ok',JSON.stringify(result));
+ // This is the emitted model instruction contract, not proof of model interpretation.
+ assert.match(prompt,/Never restate a fact or tension the person stated outright/);
+ assert.match(prompt,/add one inference beyond their words/);
+ assert.match(prompt,/Name the actual activity, decision or milestone/);
+ assert.match(prompt,/[Aa] new project/);
+ assert.match(prompt,/Name the deliverable itself/);
+});
+
+
+test('unrepairable planning mismatches still fail closed after two drafts',async()=>{
+ let drafts=0;
+ const model=validatedProvider(async(_messages,schema)=>{
+  const fields=schema.properties as Record<string,unknown>;
+  if(fields.cards){
+   drafts++;
+   return JSON.stringify({cards:[{question:'What are your top three goals this year?',options:['Study for exams','Work part time','Travel abroad']}]});
+  }
+  if(fields.fits)return JSON.stringify({reason:'Each option gives one goal instead of three.',fits:false});
+  return JSON.stringify({category:'allow'});
+ });
+ const result=await makePlan('what will my life be like next year?',{},model);
+ assert.equal(result.kind,'error');
+ assert.equal(drafts,2);
+});
+
+test('a decoder-truncated prediction is repaired once or fails closed',async()=>{
+ const truncated="You will start a weekly cooking challenge with your sister using recipes from your mom's 1";
+ const complete='You will cook a family recipe with your sister.';
+ const facts={context_1:'I keep stopping evening classes after the first week',context_2:'I work early mornings and spend weekends with my sister',horizon:'next year'};
+ for(const repair of [complete,truncated]){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if((schema.properties as Record<string,unknown>).prediction){
+    return JSON.stringify({basis:'context_1',insight:'Shared activities give you a commitment that fits around early mornings.',prediction:attempts++===0?truncated:repair});
+   }
+   return JSON.stringify({category:'allow'});
+  });
+  const result=await predict('what will my life be like next year?',facts,false,model);
+  assert.equal(result.kind,repair===complete?'ok':'error',JSON.stringify(result));
+  assert.equal(attempts,2);
+  if(result.kind==='ok')assert.equal(result.value.headline,'You will cook a family recipe with your sister next year.');
+ }
+});
+
+test('prediction length bounds still apply after unconstrained decoding',async()=>{
+ const prediction='You will write your family recipes into a cookbook with your sister for her next birthday.';
+ assert.equal(prediction.length,90);
+ for(const [draft,horizon,kind] of [
+  [prediction,'within seven months','ok'],
+  [prediction.replace('write','compile'),'within seven months','error'],
+  [prediction,'within 100000 months','error'],
+ ] as const){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if((schema.properties as Record<string,unknown>).prediction){
+    attempts++;
+    return JSON.stringify({basis:'context_1',insight:'A shared activity gives your family time a lasting result.',prediction:draft});
+   }
+   return JSON.stringify({category:'allow'});
+  });
+  const result=await predict('What will my life be like?',{context_1:'I spend weekends cooking with my sister',horizon},false,model);
+  assert.equal(result.kind,kind,JSON.stringify(result));
+  assert.equal(attempts,kind==='ok'?1:2);
+  if(result.kind==='ok')assert.equal(result.value.headline.length,110);
+ }
+});
+
+test('unsupported prediction amounts are repaired once or fail closed regardless of topic',async()=>{
+ for(const invented of [
+  'You will save $5 each day from your allowance or part-time job next year.',
+  'You will save ten dollars a day written in words: ten dollars next year.',
+ ]){
+ const corrected='You will set up an automatic transfer into a savings account.';
+ for(const question of ['Will I save enough money next year?','What will my net worth be next year?']){
+  for(const repair of [corrected,invented]){
+   let attempts=0;
+   const model=validatedProvider(async(_messages,schema)=>{
+    if((schema.properties as Record<string,unknown>).prediction){
+     return JSON.stringify({basis:'context_1',insight:'You rely on spare money rather than giving saving a protected place in your routine.',prediction:attempts++===0?invented:repair});
+    }
+    return JSON.stringify({category:'allow'});
+   });
+   const result=await predict(question,{context_1:'I save a little each month but have no budget',horizon:'next year'},false,model);
+   assert.equal(result.kind,repair===corrected?'ok':'error',JSON.stringify(result));
+   assert.equal(attempts,2);
+   if(result.kind==='ok')assert.equal(result.value.headline,'You will set up an automatic transfer into a savings account next year.');
+  }
+ }
+ }
+});
+
+test('supplied prediction amounts pass and the appended numeric horizon needs no evidence',async()=>{
+ let attempts=0;
+ const model=validatedProvider(async(_messages,schema)=>{
+  if((schema.properties as Record<string,unknown>).prediction){
+   attempts++;
+   return JSON.stringify({basis:'context_1',insight:'You give saving a protected place by choosing a regular transfer.',prediction:'You will set up a $5 daily transfer to savings.'});
+  }
+  return JSON.stringify({category:'allow'});
+ });
+ const result=await predict('Will I save enough money?',{context_1:'I can afford to save $5 each day',horizon:'within 3 months'},false,model);
+ assert.equal(result.kind,'ok',JSON.stringify(result));
+ assert.equal(attempts,1);
+ if(result.kind==='ok')assert.equal(result.value.headline,'You will set up a $5 daily transfer to savings within 3 months.');
+});
+
+
+test('written currency amounts in predictions and insights require supplied facts',async()=>{
+ for(const amount of ['one dollar','twenty euros','forty pounds','a buck','hundred cents','thousand kroner','million krone','an euro']){
+  for(const field of ['prediction','insight']){
+   for(const supplied of [false,true]){
+    let attempts=0;
+    const model=validatedProvider(async(messages,schema)=>{
+     if((schema.properties as Record<string,unknown>).prediction){
+      if(attempts++)assert.match(messages.at(-1)!.content,/Remove numerical claims not present in the supplied facts/);
+      return JSON.stringify({basis:'context_1',prediction:'You will open a savings account.',insight:'You give saving a protected place in your routine.',[field]:field==='prediction'?`You will save ${amount} daily.`:`You keep ${amount} aside for saving.`});
+     }
+     return JSON.stringify({category:'allow'});
+    });
+    const result=await predict('Will I save enough money?',{context_1:supplied?`I save ${amount.toUpperCase().replace(' ','  ')} daily`:'I save a little each month but have no budget',horizon:'within 3 months'},false,model);
+    assert.equal(result.kind,supplied?'ok':'error',`${field}: ${amount}: ${JSON.stringify(result)}`);
+    assert.equal(attempts,supplied?1:2);
+   }
+  }
+ }
+});
+
+
+test('complete amounts require matching factual evidence in both generated fields',async()=>{
+ const cases=[
+  ['I save a little each month but have no budget','$3'],
+  ...['$ 3','€ 3','£ 3','3 $','3 €','3 £','3$','3€','3£'].map(amount=>['I save a little each month',amount] as const),
+  ['I work 3 days each week','$3'],
+  ['I save €3 daily','$3'],
+  ['I save 3 dollars daily','3 euros'],
+  ['I save twenty dollars daily','one hundred twenty dollars'],
+  ['I save twenty dollars daily','one hundred and twenty dollars'],
+  ['I save one dollar daily','twenty-one dollars'],
+  ['I save $3 daily','$3 million'],
+  ['I save $1,000 daily','$1,000,000'],
+ ] as const;
+ for(const [fact,amount] of cases){
+  for(const field of ['prediction','insight']){
+   for(const personName of [undefined,'Alex']){
+    for(const repaired of [false,true]){
+     let attempts=0;
+     const subject=personName||'You';
+     const valid={basis:'context_1',prediction:`${subject} will open a savings account.`,insight:'Saving needs a protected place in the daily routine.'};
+     const model=validatedProvider(async(messages,schema)=>{
+      if((schema.properties as Record<string,unknown>).prediction){
+       if(attempts++)assert.match(messages.at(-1)!.content,/Remove numerical claims not present in the supplied facts/);
+       return JSON.stringify(repaired&&attempts===2?valid:{...valid,[field]:field==='prediction'?`${subject} will save ${amount} daily.`:`The daily saving target is ${amount}.`});
+      }
+      return JSON.stringify({category:'allow'});
+     });
+     const result=await predict(personName?`What will ${personName}'s net worth be?`:'What will my net worth be?',{context_1:fact,horizon:'within 3 months'},false,model,{personName});
+     assert.equal(result.kind,repaired?'ok':'error',`${fact} / ${amount} / ${field} / ${personName}: ${JSON.stringify(result)}`);
+     assert.equal(attempts,2);
+    }
+   }
+  }
+ }
+});
+
+test('complete supplied amounts and ordinary counts remain usable',async()=>{
+ for(const amount of ['$3','€3','£3','$ 3','€ 3','£ 3','3 $','3 €','3 £','3$','3€','3£','3 dollars','one hundred twenty dollars','one hundred and twenty dollars','twenty-one dollars','$3 million','$1,000']){
+  for(const source of ['question','context_1','context_2']){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if((schema.properties as Record<string,unknown>).prediction){
+    attempts++;
+    return JSON.stringify({basis:'context_1',prediction:`You will transfer ${amount} to savings.`,insight:`Your 2 accounts give the ${amount} a separate home.`});
+   }
+   return JSON.stringify({category:'allow'});
+  });
+  const supplied=`I can spare ${amount} daily and have 2 accounts`;
+  const result=await predict(source==='question'?`Will I save enough money? ${supplied}`:'Will I save enough money?',{context_1:'I save a little each month',horizon:'within 3 months',...(source==='question'?{}:{[source]:supplied})},false,model);
+  assert.equal(result.kind,'ok',`${amount}: ${JSON.stringify(result)}`);
+  assert.equal(attempts,1);
+  if(result.kind==='ok')assert.match(result.value.headline,/within 3 months\.$/);
+  }
+ }
+});

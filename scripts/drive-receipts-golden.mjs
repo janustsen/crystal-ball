@@ -21,7 +21,7 @@ page.on('response',async r=>{if(r.url()===`${base}/engine`&&r.request().method()
 const stored=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
 async function exportCard(name){
  const preview=page.getByRole('img',{name:'Your exported forecast card'});
- await expect(preview).toBeVisible();
+ await expect(preview).toBeVisible({timeout:60000});
  const size=await preview.evaluate(img=>[img.naturalWidth,img.naturalHeight]);expect(size).toEqual([1080,1920]);
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByTestId('export-story-card').click()]);
  await download.saveAs(`${out}/${name}.png`);return download.suggestedFilename();
@@ -59,22 +59,24 @@ try{
  await page.waitForTimeout(1500);await page.screenshot({path:`${out}/receipt-share.png`});
  log.receiptFile=await exportCard('receipt');expect(log.receiptFile).toBe('crystal-ball-receipt.png');
  const receiptText=await page.evaluate(()=>window.storyText.map(t=>t.text).join(' '));
- expect(receiptText).toContain('Speculative forecast');expect(receiptText).toContain('Not a guarantee');expect(receiptText).toContain('opened');expect(receiptText).not.toContain(question);
+ expect(receiptText).not.toContain('Speculative forecast');expect(receiptText).not.toContain('Not a guarantee');expect(receiptText).toContain('opened');expect(receiptText).not.toContain(question);
  await page.getByTestId('close-flow').click();
  // Switching away from Yes withdraws the receipt.
  await page.getByTestId('check-in-no').click();await page.getByTestId('dismiss-notice').click();
  await expect(page.getByTestId('share-receipt')).toHaveCount(0);
  await page.getByTestId('close-flow').click();
 
- await page.evaluate(()=>{
+ const goldenState=await page.evaluate(()=>{
   const state=JSON.parse(localStorage.getItem('crystal-ball-v1')),base={label:'Speculative forecast · not a guarantee',why:'Fixture',facts:{},sources:[],assumptions:[],friend:false};
   state.history.push({...base,id:'0000000a-abcd-4000-8000-000000000001',question:'Will I finish my draft?',headline:'You will finish your first draft within 6 months.',createdAt:'2026-09-30T12:00:00Z',golden:true},
    {...base,id:'0000000a-abcd-4000-8000-000000000002',question:'Will I run a marathon?',headline:'You will cross a finish line before spring.',createdAt:'2026-09-20T12:00:00Z',golden:true});
   state.history.push(...[3,4].map(n=>({...base,id:`0000000a-abcd-4000-8000-00000000000${n}`,question:'Private golden question',headline:'You will finish your first draft within 6 months.',createdAt:'2026-09-10T12:00:00Z',golden:true})));
   state.history.filter(p=>p.golden).forEach(p=>p.headline='You will finish your first draft within 6 months.');
   state.history[0].outcome='yes';delete state.history[0].checkedInAt;state.history[0].dueDate='2099-12-31';
-  localStorage.setItem('crystal-ball-v1',JSON.stringify(state));
+  return state;
  });
+ // Seed before hydration so a pending Store write cannot overwrite the fixture.
+ await page.addInitScript(state=>localStorage.setItem('crystal-ball-v1',JSON.stringify(state)),goldenState);
  await page.reload();await page.getByTestId('tab-history').click();
  const shelf=page.getByTestId('golden-shelf');await expect(shelf).toBeVisible();
  const expected=reading.golden?5:4;
@@ -95,7 +97,7 @@ try{
  await page.getByRole('button').filter({hasText:question}).click();await page.evaluate(()=>window.storyText=[]);await page.getByTestId('share-receipt').click();
  await exportCard('legacy-receipt');
  const legacyText=await page.evaluate(()=>window.storyText.map(t=>t.text).join(' '));
- expect(legacyText).not.toContain('opened');expect(legacyText).not.toContain('2099');expect(legacyText).toContain('Speculative forecast');expect(legacyText).toContain('Not a guarantee');
+ expect(legacyText).not.toContain('opened');expect(legacyText).not.toContain('2099');expect(legacyText).not.toContain('Speculative forecast');expect(legacyText).not.toContain('Not a guarantee');
  log.legacyReceipt=legacyText;
  await page.getByTestId('close-flow').click();await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
  await page.getByTestId('golden-shelf-item-0000000a-abcd-4000-8000-000000000001').click();

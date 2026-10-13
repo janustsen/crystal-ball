@@ -53,15 +53,15 @@ export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,lo
  paintBackdrop(ctx,look,glow*.6);paintBall(ctx,look,open);
  if(aiLabel)paintLabel(ctx,'AI-generated · for entertainment',140,colors.muted,28);
  ctx.globalAlpha=text;
- if(golden)paintLabel(ctx,'Golden edition · same uncertainty',1510,colors.gold,30);
+ if(golden)paintLabel(ctx,'Golden edition',1510,colors.gold,30);
  if(category)paintLabel(ctx,category.toUpperCase(),question?955:975,colors.gold);
  if(question){ctx.font=`38px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;let line=`“${question}”`;while(ctx.measureText(line).width>900&&line.length>4)line=line.slice(0,-3)+'…”';ctx.fillText(line,540,1000);}
  ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;
  const headline=prediction.headline.replace(/(\d+)\s+(months?|years?|weeks?|days?)/gi,'$1 $2');
  const wrap=(text:string)=>{const lines:string[]=[];let line='';for(const word of text.split(' ')){if(ctx.measureText((line+' '+word).trim()).width<=820){line=(line+' '+word).trim();continue;}if(line){lines.push(line);line='';}for(const letter of word){if(ctx.measureText(line+letter).width>820){lines.push(line);line='';}line+=letter;}}if(line)lines.push(line);return lines;};
  let font=82,lines=wrap(headline);while(lines.length>3&&font>36){font-=2;ctx.font=`${font}px ${fonts.display}, Georgia`;lines=wrap(headline);}
- let y=1080;for(const line of lines){ctx.fillText(line,540,y);y+=font*1.25;}y-=font*1.25;
- const labelY=Math.min(y+100,1380);paintLabel(ctx,'Speculative forecast · not a guarantee',labelY,colors.gold,30);ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;ctx.fillText('Crystal Ball',540,1600);
+ let y=1080;for(const line of lines){ctx.fillText(line,540,y);y+=font*1.25;}
+ ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;ctx.fillText('Crystal Ball',540,1600);
  paintLabel(ctx,`Check back ${suggestedCheckIn(prediction)}`,1665,colors.label,28);
  ctx.globalAlpha=1;
 }
