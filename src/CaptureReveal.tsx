@@ -20,7 +20,7 @@ export function CaptureReveal({headline,golden,dueDate,reduce,onClose}:{headline
     <Enter kind="reveal" delay={200} reduce={reduce}><Txt allowFontScaling={false} display style={{fontSize:size*.075,lineHeight:size*.09,textAlign:'center',marginTop:12}}>{headline}</Txt></Enter>
    </View>
    <Txt allowFontScaling={false} style={{fontSize:size*.032,lineHeight:size*.047,color:colors.gold,textAlign:'center',marginTop:20}}>Speculative forecast · not a guarantee</Txt>
-   {golden?<Txt allowFontScaling={false} style={{fontSize:size*.032,color:colors.gold,textAlign:'center'}}>Golden edition · same uncertainty</Txt>:null}
+   {golden?<Txt allowFontScaling={false} style={{fontSize:size*.032,color:colors.gold,textAlign:'center'}}>Golden edition</Txt>:null}
    <Txt allowFontScaling={false} style={{fontSize:size*.036,color:colors.muted,textAlign:'center',marginTop:16}}>Check back {dueDate}</Txt>
   </View></View>
   <View style={{flexDirection:'row',gap:16}}><Action testID="replay-capture" label="Replay" quiet onPress={()=>setReplay(n=>n+1)}/><Action testID="close-capture" label="Done" quiet onPress={onClose}/></View>

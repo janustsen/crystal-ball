@@ -53,7 +53,7 @@ export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,lo
  paintBackdrop(ctx,look,glow*.6);paintBall(ctx,look,open);
  if(aiLabel)paintLabel(ctx,'AI-generated · for entertainment',140,colors.muted,28);
  ctx.globalAlpha=text;
- if(golden)paintLabel(ctx,'Golden edition · same uncertainty',1510,colors.gold,30);
+ if(golden)paintLabel(ctx,'Golden edition',1510,colors.gold,30);
  if(category)paintLabel(ctx,category.toUpperCase(),question?955:975,colors.gold);
  if(question){ctx.font=`38px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;let line=`“${question}”`;while(ctx.measureText(line).width>900&&line.length>4)line=line.slice(0,-3)+'…”';ctx.fillText(line,540,1000);}
  ctx.fillStyle=colors.ivory;ctx.font=`82px ${fonts.display}, Georgia`;

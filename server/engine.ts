@@ -33,9 +33,9 @@ function planningContext(question:string,known:Facts,teen=true):Facts {
  return {...context,...personalContext(question,known,teen)};
 }
 const hedge=/\b(may|might|could|likely|perhaps|possibly|speculative|guarantee[ds]?)\b/i;
-const filler=/\b(journey|new chapter|building on|current (?:pace|path|focus)|momentum|opportunities|something new|one part of|an area|concrete change)\b/i;
-// Roughly stemmed content words, so a prediction that only paraphrases the person's answers can be caught.
-const stems=(text:string)=>(text.toLowerCase().match(/[a-z]{4,}/g)||[]).filter(word=>!['will','your','with','this','that','next','year','have','from','more','than','into','they'].includes(word)).map(word=>word.replace(/(?:ing|ed|es|s)$/,''));
+// ponytail: a tripwire for the stock filler seen in echo readings ("building on your current pace"); the prompt carries specificity,
+// since word overlap cannot tell a restated answer from a new outcome that shares its words. A semantic judge call is the upgrade.
+const filler=/\b(building on your|(?:your|the same) current (?:pace|path|focus|rhythm))\b/i;
 const withoutPersonName=(text:string,name?:string)=>name?text.replaceAll(name,'person'):text;
 const optionLabel=(text:string)=>text.replace(/^I(?: have| am|['’]ve|['’]m)? /,'').replace(/\.$/,'').replace(/^./,c=>c.toUpperCase());
 export const planTiming={budgetMs:110000};
@@ -157,8 +157,6 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
   if(/^\d/.test(horizon))horizon=`within ${horizon}`;
   const dueDate=checkInDueDate(horizon,context.localDate);
   facts.horizon=horizon;
-  // Only the chosen answers: the app prefixes each context answer with its card question, and self answers gain theirs below.
-  const answerStems=new Set(stems(Object.entries(facts).filter(([key])=>key.startsWith('context_')||isSelfKey(key)).map(([,value])=>value.slice(value.lastIndexOf('?')+1)).join(' ')));
   facts=withSelfText(facts);
   const basisKeys=Object.keys(facts).filter(key=>!['horizon','birthday','current_focus'].includes(key));
   // A qualitative forecast names the self answer (if any) that shaped it, which the reveal shows as "Shaped by".
@@ -176,7 +174,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
     if(choices.length)return true;
     if((subject==='money'||subject==='growth')&&/[0-9$€£]/.test(x.prediction.toLowerCase().replace(horizon.toLowerCase(),'')))return {valid:false,feedback:'Required calculation inputs are missing. Give a qualitative direction only, without a numeric amount or count. The server appends the timeframe.'};
     const headline=formatForecast(x.prediction,horizon,context.personName);
-    if(stems(x.prediction).filter(stem=>answerStems.has(stem)).length>=2||filler.test(x.prediction))return {valid:false,feedback:'The prediction repeats their answers or uses filler. Use the insight to predict one concrete thing that will happen, change or be decided, which their answers do not already say.'};
+    if(filler.test(x.prediction))return {valid:false,feedback:'The prediction uses filler. Use the insight to predict one concrete thing that will happen, change or be decided, which their answers do not already say.'};
     if(headline.length>110)return {valid:false,feedback:'Shorten the verdict to fit 110 characters including the supplied horizon.'};
     const suppliedNumbers=new Set(Object.values(facts).join(' ').match(/\d+(?:\.\d+)?/g)||[]);
     if((x.insight!.match(/\d+(?:\.\d+)?/g)||[]).some(number=>!suppliedNumbers.has(number)))return {valid:false,feedback:'Remove numerical claims not present in the supplied facts. Do not invent statistics or calculate new facts.'};

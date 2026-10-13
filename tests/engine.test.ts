@@ -73,7 +73,7 @@ test('general explanations show the validated insight, never invented numbers or
  try{const result=await predict('Will I finish my novel this year?',{context_1:'Write 500 words daily',context_2:'3 chapters completed',context_3:'Weekly progress updates'},false,provider(()=>undefined));assert.equal(result.kind,'ok');assert.equal(drafts,2);if(result.kind==='ok'){assert.equal(result.value.why,'Your daily words and finished chapters add up to a finished book.');assert.doesNotMatch(result.value.deeperWhy||'',/Invented factual prose|900/);}}finally{globalThis.fetch=original;}
 });
 
-test('a prediction that only restates the answers is repaired once into a specific one, then fails closed',async()=>{
+test('a filler prediction that restates the answers is repaired once into a specific one, then fails closed',async()=>{
  const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0,echoOnly=false;
  const echo='You will be busy and growing, building on your current pace and focus.';
  globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={insight:'You are growing while every day is already full, so something has to give.',basis:'context_2',prediction:echoOnly||drafts===1?echo:'You will drop one standing commitment to make room for a new skill.'};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
@@ -84,6 +84,12 @@ test('a prediction that only restates the answers is repaired once into a specif
   if(result.kind==='ok'){assert.match(result.value.headline,/^You will drop one standing commitment/);assert.equal(result.value.label,'Your prediction');assert.doesNotMatch(`${result.value.why} ${result.value.deeperWhy} ${result.value.assumptions.join(' ')}`,/speculative|guarantee/i);}
   echoOnly=true;drafts=0;assert.equal((await predict('What will my life be like next year?',facts,false,provider(()=>undefined))).kind,'error');assert.equal(drafts,2);
  }finally{globalThis.fetch=original;}
+});
+
+test('a specific prediction that shares words with an answer is accepted first time',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={insight:'Your long runs already fit around a full week, so race day is the next step.',basis:'context_1',prediction:'You will finish your first half marathon.'};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{const result=await predict('What will my year look like?',{context_1:'What are you training for? Training for a half marathon',horizon:'next year'},false,provider(()=>undefined));assert.equal(result.kind,'ok',JSON.stringify(result));assert.equal(drafts,1);}finally{globalThis.fetch=original;}
 });
 
 test('personal forecast voice normalizes model first-person phrasing',async()=>{
