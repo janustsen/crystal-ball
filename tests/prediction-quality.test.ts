@@ -104,3 +104,38 @@ test('prediction length bounds still apply after unconstrained decoding',async()
   if(result.kind==='ok')assert.equal(result.value.headline.length,110);
  }
 });
+
+test('unsupported prediction amounts are repaired once or fail closed regardless of topic',async()=>{
+ const invented='You will save $5 each day from your allowance or part-time job next year.';
+ const corrected='You will set up an automatic transfer into a savings account.';
+ for(const question of ['Will I save enough money next year?','What will my net worth be next year?']){
+  for(const repair of [corrected,invented]){
+   let attempts=0;
+   const model=validatedProvider(async(_messages,schema)=>{
+    if((schema.properties as Record<string,unknown>).prediction){
+     return JSON.stringify({basis:'context_1',insight:'You rely on spare money rather than giving saving a protected place in your routine.',prediction:attempts++===0?invented:repair});
+    }
+    return JSON.stringify({category:'allow'});
+   });
+   const result=await predict(question,{context_1:'I save a little each month but have no budget',horizon:'next year'},false,model);
+   assert.equal(result.kind,repair===corrected?'ok':'error',JSON.stringify(result));
+   assert.equal(attempts,2);
+   if(result.kind==='ok')assert.equal(result.value.headline,'You will set up an automatic transfer into a savings account next year.');
+  }
+ }
+});
+
+test('supplied prediction amounts pass and the appended numeric horizon needs no evidence',async()=>{
+ let attempts=0;
+ const model=validatedProvider(async(_messages,schema)=>{
+  if((schema.properties as Record<string,unknown>).prediction){
+   attempts++;
+   return JSON.stringify({basis:'context_1',insight:'You give saving a protected place by choosing a regular transfer.',prediction:'You will set up a $5 daily transfer to savings.'});
+  }
+  return JSON.stringify({category:'allow'});
+ });
+ const result=await predict('Will I save enough money?',{context_1:'I can afford to save $5 each day',horizon:'within 3 months'},false,model);
+ assert.equal(result.kind,'ok',JSON.stringify(result));
+ assert.equal(attempts,1);
+ if(result.kind==='ok')assert.equal(result.value.headline,'You will set up a $5 daily transfer to savings within 3 months.');
+});
