@@ -67,7 +67,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',zoom=1}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[ready,setReady]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
@@ -125,6 +125,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic'}:{spot:S
   return()=>{live=false;controller.abort();scene.current?.stop();scene.current=null};
  },[width,height]);
  useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,ready]);
+ useEffect(()=>{scene.current?.sharpen(zoom)},[zoom,ready]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flight]);
  const idleUrl=!reduce&&ready&&!flight?clips.get(idleKey(at)):undefined;

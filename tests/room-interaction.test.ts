@@ -139,7 +139,7 @@ test('web room keeps loading and failed glass aligned with stills across navigat
   Object.assign(props,{spot,reduce});aligned();
  }
  props.reduce=false;
- pending[0].resolve({stop(){},style(){},resume(){}});await tick();
+ pending[0].resolve({stop(){},style(){},sharpen(){},resume(){}});await tick();
  let tree=draw();
  assert.ok(!tree.some(n=>n.type==='OrbVisual'));
  assert.ok(tree.some(n=>n.type==='video'&&n.props.loop),'ready glass enables the idle clip');
@@ -149,7 +149,7 @@ test('web room keeps loading and failed glass aligned with stills across navigat
  assert.equal(pending[0].signal.aborted,true);
  props.height=667;aligned();
  let stopped=false;
- pending[1].resolve({stop(){stopped=true},style(){},resume(){}});await tick();aligned();
+ pending[1].resolve({stop(){stopped=true},style(){},sharpen(){},resume(){}});await tick();aligned();
  assert.equal(stopped,true,'obsolete startup cannot remove the current fallback');
  pending[2].reject(new Error('unavailable'));await tick();aligned();
 });
@@ -355,4 +355,73 @@ test('native audio resets yield to listening across playback changes and pending
  for(let i=0;i<2;i++){changed();changed=draw();await flush();assert.equal(resets,1)}
  props.listening=false;changed=draw();await flush();assert.equal(resets,2);
  changed();draw();await flush();assert.equal(resets,3);
+});
+
+test('the Ask camera lands the ball on its target and keeps the room covering the screen',()=>{
+ for(const [w,h,kb] of [[375,667,260],[390,844,336],[440,956,346]]){
+  const rest=room.ballOnScreen(room.stillFrame('Ask'),w,h)!;
+  // Keyboard up: the band between the chip under the header and the controls above the keyboard.
+  for(const cam of [room.typingBall(w,h,120,h-kb-90),room.thinkingBall(w,h,96)]){
+   const {k,tx,ty}=room.cameraTransform(w,h,cam);
+   assert.ok(k>=1);
+   assert.ok(Math.abs(w/2+k*(rest.x-w/2)+tx-cam.x)<1e-6&&Math.abs(h/2+k*(rest.y-h/2)+ty-cam.y)<1e-6,`${w}x${h} ball lands on target`);
+   assert.ok(Math.abs(rest.r*k-cam.r)<1e-6,`${w}x${h} ball radius`);
+  }
+  const fit=room.typingBall(w,h,120,h-kb-90);
+  assert.ok(fit.y+fit.r<=h-kb-90+1e-6&&fit.y-fit.r>=120-1e-6,`${w}x${h} typing ball stays inside its band`);
+ }
+ // No camera, and a band too short for the resting ball, never shrink the room below the screen.
+ assert.deepEqual(room.cameraTransform(390,844,null),{k:1,tx:0,ty:0});
+ const tight=room.typingBall(390,844,300,340);
+ assert.equal(room.cameraTransform(390,844,tight).k,1);
+ assert.ok(tight.y+tight.r<=340+1e-6);
+});
+
+
+test('submission enlarges the ball from typing or the resting room, and the status still fits below it',()=>{
+ for(const [width,height] of [[375,667],[390,844],[440,956]]){
+  const target=room.thinkingBall(width,height,96);
+  for(const bottom of [height-140,height-400]){
+   const from=room.typingBall(width,height,152,bottom,target.r/room.pushIn);
+   assert.ok(target.r>from.r,`${width}x${height} band to ${bottom}: ${from.r} → ${target.r}`);
+   assert.ok(room.cameraTransform(width,height,target).k>room.cameraTransform(width,height,from).k);
+  }
+  assert.ok(target.r>room.ballOnScreen(room.stillFrame('Ask'),width,height)!.r);
+  assert.ok(target.y+target.r+360<=height,`${width}x${height} thinking status fits under the ball`);
+ }
+});
+
+
+test('cramped Ask content keeps controls reachable and tracks the ball while scrolling',()=>{
+ const cameras:room.Camera[]=[];
+ const render=component('../src/AskBall.tsx',{
+  'react-native':{Platform:{OS:'android'},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
+  './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
+ });
+ const props={width:375,height:407,top:96,bottom:12,value:'Will things improve?',onChangeText(){},refused:0,reduce:false,largeText:true,chip:'person controls',note:'disclosure',controls:'submit',onCamera:(cam:room.Camera)=>cameras.push(cam)};
+ let tree=render('AskBall',props);
+ for(const node of nodes(tree)){
+  if(node.children.includes('person controls'))node.props.onLayout({nativeEvent:{layout:{height:70}}});
+  if(node.children.includes('disclosure'))node.props.onLayout({nativeEvent:{layout:{height:70}}});
+  if(node.children.includes('submit'))node.props.onLayout({nativeEvent:{layout:{height:140}}});
+ }
+ tree=render('AskBall',props);
+ assert.equal(tree.props.scrollEnabled,true);
+ const viewport=tree.props.style.height,content=tree.props.contentContainerStyle.height;
+ assert.ok(content>viewport);
+ for(const label of ['person controls','disclosure','submit']){
+  const node=nodes(tree).find(n=>n.children.includes(label));
+  assert.ok(node);
+  assert.notEqual(node.props['aria-hidden'],true);
+  assert.notEqual(node.props.pointerEvents,'none');
+  assert.notEqual(node.props.style.opacity,0);
+ }
+ const initial=cameras.at(-1)!;
+ tree.props.onScroll({nativeEvent:{contentOffset:{y:content-viewport}}});
+ render('AskBall',props);
+ assert.equal(cameras.at(-1)!.y,initial.y-(content-viewport));
+ props.height=956;tree=render('AskBall',props);
+ assert.equal(tree.props.scrollEnabled,false);
+ assert.equal(tree.props.contentContainerStyle.height,tree.props.style.height);
 });

@@ -4,7 +4,7 @@ import * as ballAsks from '../src/ball-asks';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
-import {homeMock} from './home-mock';
+import {askBallMock,homeMock} from './home-mock';
 import * as retention from '../src/retention';
 import * as ritual from '../src/ritual';
 import {circleReading} from '../src/reading-history';
@@ -39,7 +39,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1,update:(fn:(value:typeof state)=>typeof state)=>Object.assign(state,fn(state))})},
-  '../src/ui':{Screen:'Screen',colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
+  '../src/ui':{Screen:'Screen',colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),'../src/AskBall':askBallMock(react),
   '../src/room':room,'../src/delight':delight,'../src/RoomScene':{RoomScene:'RoomScene'},'../src/VoiceButton':{VoiceButton:'VoiceButton'},
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
@@ -132,7 +132,7 @@ const openReading=(render:()=>any[])=>{
 
 test('expanded Ask scrolling is limited to the revealed reading',()=>{
  const {render}=app(true,[reading],'');
- const ballMode=()=>render().find(n=>n.type==='Screen').props.ball;
+ const ballMode=()=>render().find(n=>n.type==='Screen')?.props.ball??false;
  openReading(render);
  assert.equal(ballMode(),true);
  render().find(n=>n.props.label==='Share this glimpse').props.onPress();
@@ -306,7 +306,7 @@ test('prefilled Ask waits for room settlement before mounting the microphone',()
   draw().find(n=>n.type==='Social').props.onAsk('Will I finish my course?');
   const travel=draw().find(n=>n.type==='RoomScene').props.onTravel;
   travel(true);
-  const pressText=(label:string)=>draw().find(n=>n.props.onPress&&n.children.some((c:any)=>c?.children?.includes(label))).props.onPress();
+  const pressText=(label:string)=>draw().find(n=>n.props.onPress&&(n.props.accessibilityLabel===label||n.children.some((c:any)=>c?.children?.includes(label)))).props.onPress();
   pressText('Speak instead');
   assert.ok(!draw().some(n=>n.type==='VoiceButton'));
   travel(false);

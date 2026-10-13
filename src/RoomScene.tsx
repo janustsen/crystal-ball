@@ -22,7 +22,7 @@ type Flight={key:string;to:Spot;playing:boolean};
 // ponytail: the static orb rides the flight because the iOS Simulator drops the GL ball over a playing video; try the
 // glass in flight again once a device shows it composites.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange,onTravel}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange,onTravel}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[flying,setFlying]=useState(false);
  const [previous,setPrevious]=useState<Spot|null>(null),fade=useRef(new Animated.Value(0)).current,along=useRef(new Animated.Value(0)).current;
  const [failed,setFailed]=useState(false),[started,setStarted]=useState(0);
@@ -108,8 +108,10 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flying]);
  const placed=ballOnScreen(stillFrame(at),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
- // One canvas spans twice the ball's widest tracked diameter, so it is only ever scaled down.
- const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4);
+ // Extra canvas resolution keeps the glass sharp when the Ask camera enlarges it.
+ // ponytail: fixed 2× headroom (expo-gl cannot resize its buffer); the thinking plunge (~3×) upscales slightly. Remount
+ // the GL view per zoom if a device shows the plunge soft or the larger canvas costs frames.
+ const S=Math.ceil(maxBallRadius*roomCover(width,height).scale*4*2);
  const pose=(b:ReturnType<typeof ballOnScreen>)=>b?[b.x-S/2,b.y-S/2,b.r/(S/4),1]:[0,0,0,0];
  const poses=flight&&flying?clipFrames(flight.key).map(f=>pose(ballOnScreen(f,width,height))):null;
  const track=(k:number)=>poses?along.interpolate({inputRange:poses.map((_,i)=>i),outputRange:poses.map(p=>p[k])}):pose(placed)[k];

@@ -39,3 +39,27 @@ export function contentTop(spot:Spot,width:number,height:number){
  const ball=spot==='Home'||spot==='Ask'?ballOnScreen(stillFrame(spot),width,height):null;
  return ball?Math.round(ball.y+ball.r+16):Math.round(height*contentShare[spot]);
 }
+
+// The Ask camera pushes into the room so the Ask ball lands at (x,y) with radius r. The room scales about the screen's
+// centre (as a transform does) by k, never below 1 so the render keeps covering the screen.
+export type Camera={x:number;y:number;r:number};
+export function cameraTransform(width:number,height:number,cam:Camera|null){
+ const rest=ballOnScreen(stillFrame('Ask'),width,height);
+ if(!cam||!rest)return {k:1,tx:0,ty:0};
+ const k=Math.max(1,cam.r/rest.r);
+ return {k,tx:cam.x-width/2-k*(rest.x-width/2),ty:cam.y-height/2-k*(rest.y-height/2)};
+}
+// Typing: the largest ball that fits the band between top and bottom (the question is written inside it), and no larger
+// than `max`, so Ask the Ball can still push in. A band too short for the resting ball keeps the resting size and sits
+// on the band's bottom, so it never covers the controls.
+export function typingBall(width:number,height:number,top:number,bottom:number,max=Infinity):Camera{
+ const rest=ballOnScreen(stillFrame('Ask'),width,height),r=Math.max(rest?.r??0,Math.min(width*.42,(bottom-top)/2,max));
+ return {x:width/2,y:Math.min((top+bottom)/2,bottom-r),r};
+}
+// Thinking: the camera has pushed into the ball, which fills the upper screen while the status (about 360 points with its padding at
+// normal text size) reads below it. It is always at least `pushIn` times the resting ball; typing stays that step below it.
+export const pushIn=1.15;
+export function thinkingBall(width:number,height:number,top:number):Camera{
+ const r=Math.max((ballOnScreen(stillFrame('Ask'),width,height)?.r??0)*pushIn,Math.min(width*.44,(height-top-360)/2-6));
+ return {x:width/2,y:top+12+r,r};
+}
