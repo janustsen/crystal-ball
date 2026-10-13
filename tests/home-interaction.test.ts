@@ -90,7 +90,7 @@ test('Today omen step targets the actual card after recap and yesterday’s whis
      './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},
     },false);
     const render=component('../src/Home.tsx',imports);
-    const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap,omen:(cardRef:any)=>daily('DailyOmen',{cardRef}),top:24,bottom:0,reduce:true};
+    const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap,omen:(cardRef:any)=>daily('DailyOmen',{cardRef}),top:400,under:96,bottom:0,reduce:true};
     const tree=nodes(render('Home',{...props,omenFocus:0}));
     assert.equal(tree.some(n=>typeof n.type==='function'),!!last);
     const card=tree.find(n=>n.type==='OmenCard');
@@ -100,11 +100,11 @@ test('Today omen step targets the actual card after recap and yesterday’s whis
     view.props.ref.current={measureLayout:(ancestor:any,done:(x:number,y:number)=>void)=>{assert.equal(ancestor,content.props.ref.current);done(0,y)}};
     tree.find(n=>n.type==='ScrollView').props.ref.current={scrollTo:(position:{y:number;animated:boolean})=>scrolls.push({...position})};
     render('Home',{...props,omenFocus:1});
-    assert.deepEqual(scrolls,[{y:y+12,animated:false}]);
+    assert.deepEqual(scrolls,[{y:y+256,animated:false}]);
     // Answering the whisper moves the card without a new onLayout event on web.
     y-=52;
     render('Home',{...props,omenFocus:2,reduce:false});
-    assert.deepEqual(scrolls[1],{y:y+12,animated:true});
+    assert.deepEqual(scrolls[1],{y:y+256,animated:true});
    }
   }
  }
