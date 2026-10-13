@@ -9,7 +9,7 @@ const code=ts.transpileModule(readFileSync(new URL('../src/SocialScreen.tsx',imp
 }).outputText;
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 function fixture(initiallyPending=false){
- const remote={owner:'A',profile:{handle:'a',sky_push:false,sky_push_answered:false,school_id:null as string|null},stars:[],schoolOnly:false,circles:[],members:[],
+ const remote={owner:'A',profile:{handle:'a',sky_push:false,sky_push_answered:false,school_id:null as string|null},stars:[] as {id:string;theme:string;wording:string;resonances:number}[],schoolOnly:false,circles:[],members:[],
   schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,tick=()=>{},pending:Promise<any>|undefined;
@@ -111,5 +111,40 @@ for(const section of ['sky','circles']){
   retry.finish();await settle();
   assert.ok(f.render().some(n=>n.type==='SchoolPicker'));
   assert.ok(f.render().some(n=>n.type==='Enter'));
+ });
+}
+
+for(const schoolOnly of [true,false])for(const school of ['new-school',null]){
+ test(`school save to ${school} invalidates only school-filtered Stars (${schoolOnly})`,async()=>{
+  const f=fixture();
+  f.remote.profile.school_id='old-school';
+  f.remote.stars=[{id:'old-star',theme:'love',wording:'Will our school team win?',resonances:0}];
+  f.render();await settle();
+  const toggle=()=>f.render().find(n=>n.props.accessibilityLabel==='My school').props;
+  if(schoolOnly){
+   f.remote.schoolOnly=true;toggle().onValueChange(true);f.render();await settle();
+  }
+  assert.ok(f.render().some(n=>n.children.includes('Will our school team win?')));
+  const refresh=f.hold(false);
+  f.remote.profile.school_id=school;
+  f.render().find(n=>n.type==='SchoolPicker').props.onSaved(school);
+  f.render();refresh.fail();await settle();
+  assert.equal(f.render().find(n=>n.type==='SchoolPicker').props.selected,school);
+  assert.ok(f.render().some(n=>n.type==='Prompt'),'retain the rest of the snapshot');
+  assert.equal(toggle().disabled,school===null);
+  assert.equal(f.render().some(n=>n.children.includes('Will our school team win?')),!schoolOnly);
+  if(school){
+   const filtered=f.hold(false);
+   toggle().onValueChange(true);f.render();filtered.fail();await settle();
+   assert.ok(!f.render().some(n=>n.children.includes('Will our school team win?')));
+   assert.ok(f.render().some(n=>n.children.includes('0 anonymous school stars today · no names or member list')));
+   assert.equal(f.render().find(n=>n.props.testID==='sky-theme-love').props.accessibilityLabel,'Love, no school stars yet');
+   assert.ok(!f.render().some(n=>n.props.label==='Ask this too'));
+   f.remote.schoolOnly=true;
+   f.remote.stars=[{id:'new-star',theme:'love',wording:'Will the new school play succeed?',resonances:0}];
+   f.refresh();await settle();
+   assert.ok(f.render().some(n=>n.children.includes('Will the new school play succeed?')));
+   assert.equal(typeof f.render().find(n=>n.props.label==='Ask this too')?.props.onPress,'function');
+  }
  });
 }
