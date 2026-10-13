@@ -1,4 +1,4 @@
-// First run and the small motions around it: the intro line and birthday sheet, the tour, Sky's explanations, the
+// First run and the small motions around it: the intro line and birthday sheet, the tour, the
 // fade into Home between tabs and chip selection fades. Isolated Playwright; no engine calls.
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
