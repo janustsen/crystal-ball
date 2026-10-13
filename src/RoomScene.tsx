@@ -108,15 +108,6 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0
  useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,started]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flying]);
- // Home's short-screen offset (app/index.tsx) eases over the room's own 450 ms transition rather than snapping.
- const shift=useRef(new Animated.Value(offset)).current,shifted=useRef(offset);
- useEffect(()=>{
-  if(reduce){shift.stopAnimation();shift.setValue(offset);shifted.current=offset;return}
-  if(shifted.current===offset)return;
-  shifted.current=offset;
-  Animated.timing(shift,{toValue:offset,duration:450,easing:Easing.inOut(Easing.ease),useNativeDriver:true}).start();
-  return()=>shift.stopAnimation();
- },[offset,reduce]);
  const placed=ballOnScreen(stillFrame(at),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
  // Extra canvas resolution keeps the glass sharp when the Ask camera enlarges it.
  // ponytail: fixed 2× headroom (expo-gl cannot resize its buffer); the thinking plunge (~3×) upscales slightly. Remount
@@ -126,7 +117,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0
  const poses=flight&&flying?clipFrames(flight.key).map(f=>pose(ballOnScreen(f,width,height))):null;
  const track=(k:number)=>poses?along.interpolate({inputRange:poses.map((_,i)=>i),outputRange:poses.map(p=>p[k])}):pose(placed)[k];
  const carry={opacity:track(3),transform:[{translateX:track(0)},{translateY:track(1)},{scale:track(2)}]};
- return <Animated.View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#140E0A',transform:[{translateY:shift}]}}>
+ return <Animated.View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#140E0A',transform:[{translateY:offset}]}}>
   {/* During a flight the destination still waits decoded beneath the start still, so landing never flashes. */}
   <Image source={roomStills[flight?.to??at]} resizeMode="cover" style={fill}/>
   {flight&&!flying?<Image source={roomStills[at]} resizeMode="cover" style={fill}/>:null}

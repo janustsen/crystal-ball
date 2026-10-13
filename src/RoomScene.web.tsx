@@ -132,19 +132,10 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0
  useEffect(()=>watchFrames(idle.current),[idleUrl]);
  // The room replaces the fog Atmosphere, so it publishes the same shell reduced-motion flag.
  useEffect(()=>{const shell=ref.current?.closest('[data-testid="app-shell"]');shell?.setAttribute('data-reduced',String(reduce));return()=>shell?.removeAttribute('data-reduced')},[reduce]);
- // Home's short-screen offset (app/index.tsx) eases over the room's own 450 ms transition rather than snapping, on the Web
- // Animations API like the fade.
- const root=useRef<HTMLDivElement>(null),shifted=useRef(offset);
- useEffect(()=>{
-  const from=shifted.current;shifted.current=offset;
-  if(reduce||from===offset)return;
-  const animation=root.current?.animate([{transform:`translateY(${from}px)`},{transform:`translateY(${offset}px)`}],{duration:450,easing:'ease-in-out'});
-  return()=>animation?.cancel();
- },[offset,reduce]);
  const fallback=!ready?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
  const stills=!ready?[spot]:flight?[flight.to,at]:[at];
- return <div ref={root} aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A',transform:`translateY(${offset}px)`}}>
+ return <div aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A',transform:`translateY(${offset}px)`}}>
   {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
   {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
   {flight&&ready?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}

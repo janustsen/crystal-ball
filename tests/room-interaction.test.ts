@@ -163,7 +163,7 @@ function nativeRoom(startNativeGlass:()=>Promise<unknown>){
  const player={currentTime:0,muted:false,audioMixingMode:'',replaceAsync:async(clip:unknown)=>{played.push(clip)},play(){},pause(){},
   addListener:(name:string,fn:(e?:any)=>void)=>{listeners[name]=fn;return {remove(){}}}};
  const render=component('../src/RoomScene.tsx',{
-  'react-native':{Animated:{Value:class {active=false;constructor(public value:number){}setValue(value:number){this.value=value;positions.push(value)}stopAnimation(){this.active=false}interpolate(){return 'tracked'}},timing:(value:{active:boolean},{toValue,duration}:{toValue:number;duration:number})=>({start(){value.active=true;fades.push(toValue);durations.push(duration)}}),Image:'Animated.Image',View:'Animated.View'},Easing:{linear:'linear',ease:'ease',inOut:(easing:unknown)=>easing},Image:'Image',View:'View'},
+  'react-native':{Animated:{Value:class {setValue(value:number){positions.push(value)}stopAnimation(){}interpolate(){return 'tracked'}},timing:(_:unknown,{toValue,duration}:{toValue:number;duration:number})=>({start(){fades.push(toValue);durations.push(duration)}}),Image:'Animated.Image',View:'Animated.View'},Easing:{linear:'linear'},Image:'Image',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'expo-gl':{GLView:'GLView'},'./OrbVisual':{OrbVisual:'OrbVisual'},
   'expo-video':{useVideoPlayer:(_:unknown,setup:(p:typeof player)=>void)=>{setup(player);return player},VideoView:'VideoView'},
   './room':room,'./roomAssets':{roomStills:Object.fromEntries(['Home','Sky','Ask','History','You','Library'].map(s=>[s,`${s}.jpg`])),roomFlights:{'home-ask':'home-ask.mp4','ask-home':'ask-home.mp4'},ballArt:{}},
@@ -175,56 +175,34 @@ function nativeRoom(startNativeGlass:()=>Promise<unknown>){
  return {render,listeners,fades,played,player,positions,durations,elapse,pending};
 }
 
-test('native room eases a changed Home offset over the room transition instead of snapping',async()=>{
- const {render,fades,durations}=nativeRoom(()=>new Promise(()=>{}));
- const props={spot:'Home',width:375,height:667,reduce:false,spin:{dragged:false},offset:0};
- render('RoomScene',props);
- props.offset=-107;render('RoomScene',props);await new Promise(r=>setImmediate(r));
- assert.deepEqual(fades,[-107]);
- assert.deepEqual(durations,[450]);
-});
-
-test('native room applies reduced-motion offsets immediately and cancels active translation',()=>{
+test('native room applies layout offsets immediately with either motion setting',()=>{
  const {render,fades}=nativeRoom(()=>new Promise(()=>{}));
- const props={spot:'Home',width:375,height:667,reduce:true,spin:{dragged:false},offset:0};
- const draw=()=>nodes(render('RoomScene',props))[0].props.style.transform[0].translateY;
- for(const offset of [-107,0,-80]){
-  props.offset=offset;const shift=draw();
-  assert.equal(shift.value,offset);assert.equal(shift.active,false);
+ const props={spot:'Home',width:375,height:667,reduce:false,spin:{dragged:false},offset:0};
+ for(const reduce of [false,true,false])for(const offset of [0,-107,-241,0]){
+  Object.assign(props,{reduce,offset});
+  const tree=nodes(render('RoomScene',props));
+  assert.equal(tree[0].props.style.transform[0].translateY,offset);
  }
  assert.deepEqual(fades,[]);
- props.reduce=false;draw();
- assert.deepEqual(fades,[]);
- props.offset=0;assert.equal(draw().active,true);
- props.reduce=true;const shift=draw();
- assert.equal(shift.active,false);assert.equal(shift.value,0);
- assert.deepEqual(fades,[0]);
 });
 
-test('web room skips reduced-motion translations and cancels a move when reduced motion is enabled',()=>{
- const animations:{active:boolean;from:string;to:string;duration:number}[]=[];
- const host=()=>({closest:()=>null,play:async()=>{},animate:(frames:any[],options:any)=>{
-  const animation={active:true,from:frames[0].transform,to:frames[1].transform,duration:options.duration};
-  animations.push(animation);return {cancel(){animation.active=false}};
+test('web room applies layout offsets immediately with either motion setting',()=>{
+ const animations:unknown[]=[];
+ const host=()=>({closest:()=>null,play:async()=>{},animate:(...args:unknown[])=>{
+  animations.push(args);return {cancel(){}};
  }});
  const render=component('../src/RoomScene.web.tsx',{
   './glassWeb':{startWebGlass:()=>new Promise(()=>{})},
   'expo-asset':{Asset:{fromModule:(m:string)=>({uri:m})}},'./OrbVisual':{OrbVisual:'OrbVisual'},
   './room':room,'./roomAssets':{roomStills:{Home:'home.jpg'},homeIdle:'idle.mp4'},'./motionCss':{appCss:''},
  },{setTimeout:()=>0},host);
- const props={spot:'Home',width:375,height:667,reduce:true,spin:{dragged:false},offset:0};
- const draw=()=>nodes(render('RoomScene',props))[0];
- draw();
- for(const offset of [-107,0,-80]){
-  props.offset=offset;assert.equal(draw().props.style.transform,`translateY(${offset}px)`);
+ const props={spot:'Home',width:375,height:667,reduce:false,spin:{dragged:false},offset:0};
+ for(const reduce of [false,true,false])for(const offset of [0,-107,-241,0]){
+  Object.assign(props,{reduce,offset});
+  const tree=nodes(render('RoomScene',props));
+  assert.equal(tree[0].props.style.transform,`translateY(${offset}px)`);
  }
- assert.equal(animations.length,0);
- props.reduce=false;draw();assert.equal(animations.length,0);
- props.offset=0;draw();
- assert.deepEqual(animations,[{active:true,from:'translateY(-80px)',to:'translateY(0px)',duration:450}]);
- props.reduce=true;assert.equal(draw().props.style.transform,'translateY(0px)');
- assert.equal(animations[0].active,false);assert.equal(animations.length,1);
- props.offset=-107;draw();assert.equal(animations.length,1);
+ assert.deepEqual(animations,[]);
 });
 
 test('native room flies the camera to the new spot and lands on its still',async()=>{
