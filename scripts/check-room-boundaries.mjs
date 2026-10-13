@@ -50,7 +50,7 @@ try{
    await scrollAndTap(page,page.getByTestId('room-inner-library'));
    await expect(page.getByTestId('hero-orb')).toHaveCount(0);
    await page.getByTestId('tab-home').click();
-   await page.getByTestId(page.viewportSize().height>=800?'hero-orb':'tab-ask').click();await page.getByTestId('type-instead').click();
+   await page.getByTestId(page.viewportSize().height>=667?'hero-orb':'tab-ask').click();await page.getByTestId('type-instead').click();
    const input=page.getByTestId('question-input');
    await input.fill('Will I finish my draft?');
    await scrollAndTap(page,input);
