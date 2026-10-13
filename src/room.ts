@@ -57,7 +57,7 @@ export function typingBall(width:number,height:number,top:number,bottom:number):
 }
 // Thinking: the camera has pushed into the ball, which fills the upper screen while the status (about 360 points with its padding at
 // normal text size) reads below it.
-export function thinkingBall(width:number,height:number,top:number):Camera{
- const r=Math.min(width*.44,(height-top-360)/2-6);
+export function thinkingBall(width:number,height:number,top:number,from:Camera|null):Camera{
+ const r=Math.max((from?.r??ballOnScreen(stillFrame('Ask'),width,height)?.r??0)*1.15,Math.min(width*.44,(height-top-360)/2-6));
  return {x:width/2,y:top+12+r,r};
 }

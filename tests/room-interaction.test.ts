@@ -361,7 +361,7 @@ test('the Ask camera lands the ball on its target and keeps the room covering th
  for(const [w,h,kb] of [[375,667,260],[390,844,336],[440,956,346]]){
   const rest=room.ballOnScreen(room.stillFrame('Ask'),w,h)!;
   // Keyboard up: the band between the chip under the header and the controls above the keyboard.
-  for(const cam of [room.typingBall(w,h,120,h-kb-90),room.thinkingBall(w,h,96)]){
+  for(const cam of [room.typingBall(w,h,120,h-kb-90),room.thinkingBall(w,h,96,null)]){
    const {k,tx,ty}=room.cameraTransform(w,h,cam);
    assert.ok(k>=1);
    assert.ok(Math.abs(w/2+k*(rest.x-w/2)+tx-cam.x)<1e-6&&Math.abs(h/2+k*(rest.y-h/2)+ty-cam.y)<1e-6,`${w}x${h} ball lands on target`);
@@ -375,4 +375,53 @@ test('the Ask camera lands the ball on its target and keeps the room covering th
  const tight=room.typingBall(390,844,300,340);
  assert.equal(room.cameraTransform(390,844,tight).k,1);
  assert.ok(tight.y+tight.r<=340+1e-6);
+});
+
+
+test('submission enlarges the ball from typing or the resting room',()=>{
+ for(const [width,height] of [[375,667],[390,844],[440,956]]){
+  for(const bottom of [height-140,height-400]){
+   const from=room.typingBall(width,height,152,bottom);
+   const target=room.thinkingBall(width,height,96,from);
+   assert.ok(target.r>from.r);
+   assert.ok(room.cameraTransform(width,height,target).k>room.cameraTransform(width,height,from).k);
+  }
+  const target=room.thinkingBall(width,height,96,null);
+  assert.ok(target.r>room.ballOnScreen(room.stillFrame('Ask'),width,height)!.r);
+ }
+});
+
+
+test('cramped Ask content keeps controls reachable and tracks the ball while scrolling',()=>{
+ const cameras:room.Camera[]=[];
+ const render=component('../src/AskBall.tsx',{
+  'react-native':{Platform:{OS:'android'},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
+  './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
+ });
+ const props={width:375,height:407,top:96,bottom:12,value:'Will things improve?',onChangeText(){},refused:0,reduce:false,largeText:true,chip:'person controls',note:'disclosure',controls:'submit',onCamera:(cam:room.Camera)=>cameras.push(cam)};
+ let tree=render('AskBall',props);
+ for(const node of nodes(tree)){
+  if(node.children.includes('person controls'))node.props.onLayout({nativeEvent:{layout:{height:70}}});
+  if(node.children.includes('disclosure'))node.props.onLayout({nativeEvent:{layout:{height:70}}});
+  if(node.children.includes('submit'))node.props.onLayout({nativeEvent:{layout:{height:140}}});
+ }
+ tree=render('AskBall',props);
+ assert.equal(tree.props.scrollEnabled,true);
+ const viewport=tree.props.style.height,content=tree.props.contentContainerStyle.height;
+ assert.ok(content>viewport);
+ for(const label of ['person controls','disclosure','submit']){
+  const node=nodes(tree).find(n=>n.children.includes(label));
+  assert.ok(node);
+  assert.notEqual(node.props['aria-hidden'],true);
+  assert.notEqual(node.props.pointerEvents,'none');
+  assert.notEqual(node.props.style.opacity,0);
+ }
+ const initial=cameras.at(-1)!;
+ tree.props.onScroll({nativeEvent:{contentOffset:{y:content-viewport}}});
+ render('AskBall',props);
+ assert.equal(cameras.at(-1)!.y,initial.y-(content-viewport));
+ props.height=956;tree=render('AskBall',props);
+ assert.equal(tree.props.scrollEnabled,false);
+ assert.equal(tree.props.contentContainerStyle.height,tree.props.style.height);
 });

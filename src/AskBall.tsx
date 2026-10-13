@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState,type ReactNode} from 'react';
-import {Animated,Dimensions,Easing,Keyboard,Platform,Pressable,Text,TextInput,View} from 'react-native';
+import {Animated,Dimensions,Easing,Keyboard,Platform,Pressable,ScrollView,Text,TextInput,View} from 'react-native';
 import Svg,{Circle,Defs,RadialGradient,Stop,SvgXml} from 'react-native-svg';
 import {Shake} from './Enter';
 import {motion} from './motion';
@@ -28,21 +28,17 @@ export function useKeyboardInset(){
  return inset;
 }
 
-// Typing: the question is written into the Ask ball. Nothing scrolls: the chip sits under the header, the controls dock
-// above the keyboard (or the screen's bottom), and the camera pushes into the room until the ball fills the space between.
-// When even the resting ball would not fit (large text over a keyboard), the note above the controls steps aside, then the
-// chip; both return when the keyboard closes.
 export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,largeText,chip,note,controls,onCamera,testID}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;refused:number;reduce:boolean;largeText:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
- const keyboard=useKeyboardInset(),[chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),input=useRef<TextInput>(null);
- const dock=keyboard?keyboard+12:bottom+12,band=height-dock-controlsHeight-16-(top+12),need=2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0);
- const noted=band-chipHeight-noteHeight>=need,chipped=noted||band-chipHeight>=need;
- const ball=typingBall(width,height,top+(chipped?chipHeight:0)+12,height-dock-controlsHeight-16-(noted?noteHeight:0));
- useEffect(()=>onCamera(ball),[ball.x,ball.y,ball.r]);
+ const keyboard=useKeyboardInset(),[chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),[scroll,setScroll]=useState(0),input=useRef<TextInput>(null);
+ const dock=keyboard?keyboard+12:bottom+12,viewport=Math.max(1,height-top-dock);
+ const contentHeight=Math.max(viewport,chipHeight+12+2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0)+16+noteHeight+controlsHeight);
+ const ball=typingBall(width,height,chipHeight+12,contentHeight-controlsHeight-noteHeight-16),offset=Math.min(scroll,contentHeight-viewport);
+ useEffect(()=>onCamera({...ball,y:top+ball.y-offset}),[ball.x,ball.y,ball.r,top,offset]);
  // The text keeps to the square inside the glass and shrinks as the question grows; the field scrolls only past that.
  const side=Math.round(ball.r*1.42),base=ball.r*.21*(largeText?1.35:1),size=Math.round(Math.max(13,Math.min(ball.r*.3,base*Math.sqrt(Math.min(1,40/Math.max(1,value.length))))));
  const font={fontFamily:fonts.italic,fontSize:size,lineHeight:Math.round(size*1.18),textAlign:'center' as const},box=Math.min(side,textHeight||side);
- return <View pointerEvents="box-none" style={{position:'absolute',left:0,top:0,width,height}}>
-  <View onLayout={e=>setChipHeight(e.nativeEvent.layout.height)} pointerEvents={chipped?'box-none':'none'} aria-hidden={!chipped} style={{position:'absolute',left:20,right:20,top,alignItems:'center',opacity:chipped?1:0}}>{chip}</View>
+ return <ScrollView testID="ask-content" keyboardShouldPersistTaps="handled" scrollEnabled={contentHeight>viewport} onScroll={e=>setScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16} style={{position:'absolute',left:0,top,width,height:viewport}} contentContainerStyle={{height:contentHeight}}>
+  <View onLayout={e=>setChipHeight(e.nativeEvent.layout.height)} pointerEvents="box-none" style={{position:'absolute',left:20,right:20,top:0,alignItems:'center'}}>{chip}</View>
   {/* The fog dims behind the words so they read on the glass; tapping anywhere on the ball writes into it. */}
   <Pressable accessible={false} onPress={()=>input.current?.focus()} style={{position:'absolute',left:ball.x-ball.r,top:ball.y-ball.r,width:ball.r*2,height:ball.r*2,borderRadius:ball.r}}>
    <Svg pointerEvents="none" width={ball.r*2} height={ball.r*2}><Defs><RadialGradient id="ask-veil" cx="50%" cy="50%" r="50%"><Stop offset="0" stopColor={colors.ink} stopOpacity={.66}/><Stop offset=".72" stopColor={colors.ink} stopOpacity={.4}/><Stop offset="1" stopColor={colors.ink} stopOpacity={0}/></RadialGradient></Defs><Circle cx={ball.r} cy={ball.r} r={ball.r} fill="url(#ask-veil)"/></Svg>
@@ -51,26 +47,26 @@ export function AskBall({width,height,top,bottom,value,onChangeText,refused,redu
   <View pointerEvents="box-none" style={{position:'absolute',left:ball.x-side/2,top:ball.y-box/2,width:side}}>
    <Shake trigger={refused} reduce={reduce}><TextInput ref={input} testID={testID} accessibilityLabel="Your question" autoFocus multiline value={value} onChangeText={onChangeText} maxLength={500} placeholder="Type your question" placeholderTextColor="rgba(244,235,221,.72)" selectionColor={colors.gold} style={[font,{height:box,padding:0,color:colors.ivory,textShadowColor:'rgba(227,199,143,.65)',textShadowRadius:12,textShadowOffset:{width:0,height:0}}]}/></Shake>
   </View>
-  <View onLayout={e=>setNoteHeight(e.nativeEvent.layout.height)} pointerEvents={noted?'auto':'none'} aria-hidden={!noted} style={{position:'absolute',left:24,right:24,bottom:dock+controlsHeight,opacity:noted?1:0}}>{note}</View>
-  <View onLayout={e=>setControlsHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:dock}}>{controls}</View>
- </View>;
+  <View testID="ask-disclosure" onLayout={e=>setNoteHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:controlsHeight}}>{note}</View>
+  <View onLayout={e=>setControlsHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:0}}>{controls}</View>
+ </ScrollView>;
 }
 
 // The room behind Ask, filmed by a camera that eases between the resting view, the typing push-in and the thinking
 // plunge. Each Ask the Ball (`moment`) plunges with an overshoot, then the room shakes once as it lands.
-export function RoomCamera({width,height,cam,reduce,moment,children}:{width:number;height:number;cam:Camera|null;reduce:boolean;moment:number;children:ReactNode}){
+export function RoomCamera({width,height,cam,reduce,moment,track=false,children}:{width:number;height:number;cam:Camera|null;reduce:boolean;moment:number;track?:boolean;children:ReactNode}){
  const {k,tx,ty}=cameraTransform(width,height,cam);
  const pose=useRef({k:new Animated.Value(k),tx:new Animated.Value(tx),ty:new Animated.Value(ty)}).current,quake=useRef(new Animated.Value(0)).current,plunged=useRef(moment);
  useEffect(()=>{
   const plunge=moment!==plunged.current;plunged.current=moment;
-  if(reduce){pose.k.setValue(k);pose.tx.setValue(tx);pose.ty.setValue(ty);quake.setValue(0);return}
+  if(reduce||track){pose.k.setValue(k);pose.tx.setValue(tx);pose.ty.setValue(ty);quake.setValue(0);return}
   const curve=Easing.bezier(...(plunge?[.34,1.3,.64,1]:motion.ease) as [number,number,number,number]);
   const move=Animated.parallel(([[pose.k,k],[pose.tx,tx],[pose.ty,ty]] as const).map(([value,to])=>Animated.timing(value,{toValue:to,duration:plunge?900:480,easing:curve,useNativeDriver:native})));
   const shake=plunge?Animated.timing(quake,{toValue:1,duration:560,delay:520,easing:Easing.linear,useNativeDriver:native}):null;
   if(shake)quake.setValue(0);
   move.start();shake?.start();
   return()=>{move.stop();shake?.stop();quake.setValue(0)};
- },[k,tx,ty,reduce,moment]);
+ },[k,tx,ty,reduce,moment,track]);
  const steps=[0,.12,.26,.4,.55,.7,.85,1];
  return <Animated.View pointerEvents="box-none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',left:0,top:0,width,height,transform:[{translateX:quake.interpolate({inputRange:steps,outputRange:[0,-7,6,-5,4,-2,1,0]})},{translateY:quake.interpolate({inputRange:steps,outputRange:[0,2,-2,1,-1,0,0,0]})},{rotate:quake.interpolate({inputRange:steps,outputRange:['0deg','-1.2deg','1deg','-.8deg','.5deg','-.3deg','.1deg','0deg']})}]}}>
   <Animated.View pointerEvents="box-none" style={{position:'absolute',left:0,top:0,width,height,transform:[{translateX:pose.tx},{translateY:pose.ty},{scale:pose.k}]}}>{children}</Animated.View>
