@@ -4,7 +4,7 @@ Safety is screened before research or spending a credit. Deterministic phrase ch
 
 These global safeguards apply at every age, including adult Person readings; adult freedom concerns tone, not exemptions. Generated output at every age also rejects cruel, humiliating or sexualized forecasts about another person and claims to know their real feelings, desires, attraction or private thoughts. Kind speculation about shared activities is allowed. The output classifier checks the headline and reasoning together; see `server/safety.ts` and `tests/reading-flow.test.ts`.
 
-Safe sports, entertainment, learning, relocation and career forecasts are allowed. A lack of outcome evidence is not a safety reason: the UI labels the output “Speculative forecast” and Why says no verified current evidence supports the pick. The allowed-topic synthesis prompt contains no generic refusal instruction and produces only the forecast headline; sources/facts and uncertainty are rendered by the server. This separates refusing harm from admitting uncertainty.
+Safe sports, entertainment, learning, relocation and career forecasts are allowed. A lack of outcome evidence is not a safety reason: Why says no verified current evidence supports the pick; label placement follows the [UI rules](../design/ui-rules.md#navigation-and-the-17-states). The allowed-topic synthesis prompt contains no generic refusal instruction and produces only the forecast headline; sources/facts and uncertainty are rendered by the server. This separates refusing harm from admitting uncertainty.
 
 ## Current safety evidence and release gate
 

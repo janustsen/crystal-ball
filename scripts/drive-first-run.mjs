@@ -1,4 +1,4 @@
-// First run and the small motions around it: the intro line and birthday sheet, the tour, Sky's explanations, the
+// First run and the small motions around it: the intro line and birthday sheet, the tour, the
 // fade into Home between tabs and chip selection fades. Isolated Playwright; no engine calls.
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
@@ -21,7 +21,7 @@ try{
  for(let i=1;i<=4;i++){await expect(page.getByTestId('tour')).toContainText(`${i} of 4`);await page.screenshot({path:`${evidence}/tour-${i}.png`});await page.getByTestId('tour-next').click();}
  await expect(page.getByTestId('tour')).toHaveCount(0);await page.reload();await page.getByTestId('tab-ask').waitFor();await expect(page.getByTestId('tour')).toHaveCount(0);
  await page.getByTestId('open-settings').click();await page.getByRole('button',{name:'Take the tour'}).click();await expect(page.getByTestId('tour')).toContainText('1 of 4');
- await page.getByTestId('tab-sky').click();await expect(page.getByTestId('tour')).toHaveCount(0);await expect(page.getByTestId('sky-intro')).toBeVisible();await expect(page.getByText('Only stars from your school.')).toBeVisible();
+ await page.getByTestId('tab-sky').click();await expect(page.getByTestId('tour')).toHaveCount(0);await expect(page.getByTestId('sky-intro')).toBeVisible();await expect(page.getByText('My school',{exact:true})).toBeVisible();
  // A chosen chip fades its gold fill in rather than snapping: sample the fill each frame after an in-page tap.
  const frames=await page.evaluate(()=>new Promise(done=>{const fill=()=>+getComputedStyle(document.querySelector('[data-testid="sky-theme-work"] [data-testid="surface-chip"] > div')).opacity,out=[],t0=performance.now();
   document.querySelector('[data-testid="sky-theme-work"]').click();const tick=()=>{out.push(fill());if(performance.now()-t0<500)requestAnimationFrame(tick);else done(out)};requestAnimationFrame(tick)}));
@@ -33,5 +33,5 @@ try{
  const still=await browser.newPage({httpCredentials,viewport:{width:390,height:844},reducedMotion:'reduce'});
  await still.goto(base,{timeout:120000});await expect(still.getByTestId('birthday-month')).toBeInViewport();await still.getByTestId('birthday-month').fill('1');await still.getByTestId('birthday-day').fill('1');await still.getByTestId('birthday-year').fill('2020');await still.getByTestId('continue').click();
  await expect(still.getByText('Crystal Ball is for ages 13 and up.')).toHaveCount(1);await expect(still.getByTestId('skip-for-now')).toBeDisabled();await still.screenshot({path:`${evidence}/blocked.png`});
- console.log(`PASS: intro and birthday sheet, field advance, tour, Sky captions, chip fade (${mid} partial frames), Home fade (${early.toFixed(2)} at 40ms), reduced motion and under-13 block.`);
+ console.log(`PASS: intro and birthday sheet, field advance, tour, Sky, chip fade (${mid} partial frames), Home fade (${early.toFixed(2)} at 40ms), reduced motion and under-13 block.`);
 }finally{await browser.close()}

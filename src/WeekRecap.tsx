@@ -19,8 +19,7 @@ export function WeekRecap({onAsk}:{onAsk:(question:string)=>void}){
   <CardHeader title="Your week in the Ball" label="Last 7 days"/>
   {counts.length?<View style={{marginTop:10}}>{counts.map(line=><Txt key={line}>{line}</Txt>)}{recap.theme?<Txt style={styles.caption}>Most on your mind: {skyPrompts[recap.theme].label}</Txt>:null}</View>:<Txt style={[styles.muted,{marginTop:10}]}>A quiet week. The Ball keeps a whisper for you each day.</Txt>}
   <Txt style={[styles.label,{marginTop:16}]}>For next week</Txt>
-  <Txt display style={{fontSize:22,lineHeight:27,marginTop:6}}>{recap.suggestion}</Txt>
+  <Txt style={[styles.strong,{marginTop:6}]}>{recap.suggestion}</Txt>
   <Action testID="week-recap-ask" label="Ask this" quiet onPress={()=>onAsk(recap.suggestion)}/>
-  <Txt style={styles.caption}>Counts only · no accuracy score.</Txt>
  </Surface></View>;
 }

@@ -1,13 +1,13 @@
 # App Store readiness — 2026-09-30
 
-**Not submission-ready.** This pass adds explicit entertainment copy at Home/Ask, accurate [data-flow disclosure](../../README.md), optional Apple backup/restore, and opt-in disclosure before hosted AI processing. It does not establish predictive accuracy or guarantee approval.
+**Not submission-ready.** Entertainment disclosure follows the [UI rules](../design/ui-rules.md#palette-and-composition); data-flow disclosure in Settings, optional Apple backup/restore, and opt-in disclosure before hosted AI processing remain implemented. It does not establish predictive accuracy or guarantee approval.
 
 ## Review checklist
 
 | Area | Current evidence / remaining action |
 |---|---|
 | Fortune-telling saturation (4.3) | High review risk. Explain the distinctive interactive context cards, explicit assumptions/Why and revisitable history. A polished orb alone does not establish differentiation. |
-| Truthful claims (1.1.6) | Keep speculative labels on reveal/share; never advertise certainty or measured predictive accuracy. An entertainment disclaimer does not cure misleading functionality. |
+| Truthful claims (1.1.6) | Follow the [UI disclosure rules](../design/ui-rules.md#navigation-and-the-17-states); never advertise certainty or measured predictive accuracy. An entertainment disclaimer does not cure misleading functionality. |
 | Harmful advice (1.4) | Existing death, self-harm, illness, pregnancy and legal redirects must pass both plan and predict checks. No credit/history side effects. Run held-out cases on the selected hosted model; broaden harmful-content review before public access. |
 | AI data sharing (5.1.2) | Named-provider opt-in implemented; server rejects missing/mismatched consent. Publish actual provider/retention before enabling. |
 | Login (5.1.1) | No first-launch sign-in. Apple backup is reached from You only. Native linking/restore requires configuration and a device drive. |

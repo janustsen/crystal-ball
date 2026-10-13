@@ -17,8 +17,9 @@ const failures=[],checked=[],contrast=[];
 // Every visible label against the pixels behind it: its glyphs are hidden for one screenshot (their shadow halo stays,
 // as it is drawn behind them), the box of its lines is sampled on a grid, and the worst tenth of those samples sets the ratio.
 // Labels scrolled out of view or under another layer (the tab bar) are skipped; disabled controls are exempt, as in WCAG.
-async function measureContrast(page,name){
- const labels=await page.evaluate(()=>{
+// `fadeTop` skips scrolled content still inside the tab's fade beneath the header; the header itself stays measured.
+async function measureContrast(page,name,fadeTop=0){
+ const labels=await page.evaluate(fadeTop=>{
   const shell=document.querySelector('[data-testid="app-shell"]'),out=[];
   for(const el of shell.querySelectorAll('*')){
    if(![...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))continue;
@@ -27,7 +28,7 @@ async function measureContrast(page,name){
    // The glyphs' own line boxes, not the element's: a centred caption's full-width block is mostly empty room.
    let r=boxes.reduce((u,b)=>u?new DOMRect(Math.min(u.left,b.left),Math.min(u.top,b.top),Math.max(u.right,b.right)-Math.min(u.left,b.left),Math.max(u.bottom,b.bottom)-Math.min(u.top,b.top)):b,null);if(!r)continue;const full=r.width*r.height;
    for(let e=el.parentElement;e&&r;e=e.parentElement)if(getComputedStyle(e).overflow!=='visible'){const c=e.getBoundingClientRect(),left=Math.max(r.left,c.left),top=Math.max(r.top,c.top),right=Math.min(r.right,c.right),bottom=Math.min(r.bottom,c.bottom);r=right>left&&bottom>top?new DOMRect(left,top,right-left,bottom-top):null}
-   if(!r||r.width<2||r.height<2||r.width*r.height<.6*full||r.bottom<0||r.top>innerHeight||s.visibility==='hidden')continue;
+   if(!r||r.top<0||r.top<fadeTop&&window.layoutScroller?.contains(el)||r.width<2||r.height<2||r.width*r.height<.6*full||r.bottom<0||r.top>innerHeight||s.visibility==='hidden')continue;
    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
    if(!hit||!(el.contains(hit)||hit.contains(el)))continue;
    let opacity=1;for(let e=el;e;e=e.parentElement)opacity*=Number(getComputedStyle(e).opacity);
@@ -38,7 +39,7 @@ async function measureContrast(page,name){
   }
   const style=document.createElement('style');style.id='contrast-hide';style.textContent='[data-contrast]{color:transparent!important;-webkit-text-fill-color:transparent!important}';document.head.append(style);
   return out;
- });
+ },fadeTop);
  await page.waitForTimeout(50);
  const shot=await page.screenshot();
  await page.evaluate(()=>{document.getElementById('contrast-hide')?.remove();document.querySelectorAll('[data-contrast]').forEach(e=>e.removeAttribute('data-contrast'))});
@@ -73,6 +74,12 @@ async function audit(page,width,name,marker,delay=1300){
  console.log(`Checked ${width}:${name}`);
  if(bad.length){failures.push({width,name,bad});await page.screenshot({path:`${evidence}/fail-${width}-${name}.png`})}
  if(width===390){await page.screenshot({path:`${evidence}/${name}.png`});await measureContrast(page,name)}
+}
+// Tab content scrolls over the room: every label must read wherever it is scrolled, not only at rest.
+async function scrolledContrast(page,name){
+ const fade=await page.getByTestId('view-plans').evaluate(pill=>pill.getBoundingClientRect().bottom+44),steps=await page.evaluate(()=>{const s=[...document.querySelectorAll('[data-testid="app-shell"] *')].filter(e=>e.scrollHeight>e.clientHeight+20&&getComputedStyle(e).overflowY==='auto').sort((a,b)=>b.clientHeight-a.clientHeight)[0];window.layoutScroller=s;return s?Math.ceil((s.scrollHeight-s.clientHeight)/300):0});
+ for(let i=1;i<=steps;i++){await page.evaluate(y=>{window.layoutScroller.scrollTop=y},i*300);await page.waitForTimeout(200);await measureContrast(page,`${name}-scrolled-${i*300}`,fade)}
+ if(steps)await page.evaluate(()=>{window.layoutScroller.scrollTop=0});
 }
 await mkdir(evidence,{recursive:true});
 try{
@@ -143,9 +150,10 @@ for(const width of [360,390,430])for(const large of [false,true]){
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
  await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
- await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
- await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
- await tap('tab-you');await check('you',text('What the Ball remembers'));await tap('open-settings');await check('settings',text('Ambient sound'));
+ await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));if(width===390)await scrolledContrast(page,'sky'+tag);
+ await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));if(width===390)await scrolledContrast(page,'history'+tag);
+ await tap('tab-you');await check('you',text('What the Ball remembers'));if(width===390)await scrolledContrast(page,'you'+tag);
+ await tap('open-settings');await check('settings',text('Ambient sound'));if(width===390)await scrolledContrast(page,'settings'+tag);
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');

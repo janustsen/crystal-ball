@@ -47,7 +47,7 @@ export function YourSky({ritual}:{ritual:Ritual}){
  return <View testID="your-sky" style={styles.panel}><Surface kind="card">
   <CardHeader title="Your sky" label={`${ritual.stars.length} star${ritual.stars.length===1?'':'s'}`}/>
   <View style={{alignItems:'center'}}><Constellation stars={sky.stars} lit={sky.lit} width={240}/></View>
-  <Txt style={styles.caption}>{`${sky.name}: ${sky.lit} of 7. Each finished day adds a star; a missed day just leaves a gap.`}</Txt>
+  <Txt style={[styles.caption,{textAlign:'center'}]}>{`${sky.name} · ${sky.lit} of 7`}</Txt>
   {sky.names.length?<Txt style={[styles.caption,{marginTop:8,color:colors.gold}]}>{`Collected: ${sky.names.join(', ')}`}</Txt>:null}
  </Surface></View>;
 }
@@ -57,7 +57,7 @@ export function NotifyOffer({onAnswer}:{onAnswer:(time:string|null)=>void}){
  const [time,setTime]=useState(morningTimes[0]);
  return <View testID="notify-offer" style={styles.panel}><Surface kind="card">
   <CardHeader title="Want your omen each morning?" label="Optional"/>
-  <Txt style={[styles.caption,{marginTop:6}]}>Up to two a day: your omen at the time you pick and a gentle evening nudge. Never before 8am or after 9pm. It goes quiet if you’re busy. Change it anytime in Settings.</Txt>
+  <Txt style={[styles.caption,{marginTop:6}]}>Your omen at the time you pick, and a gentle evening nudge.</Txt>
   <TimeChips value={time} onChange={setTime}/>
   <Action testID="notify-yes" label="Yes, notify me" onPress={()=>onAnswer(time)}/>
   <Action testID="notify-not-now" label="Not now" quiet onPress={()=>onAnswer(null)}/>
@@ -66,7 +66,8 @@ export function NotifyOffer({onAnswer}:{onAnswer:(time:string|null)=>void}){
 
 export function NotifySettings({prefs,onChange}:{prefs:NotifyPrefs;onChange:(prefs:NotifyPrefs)=>void}){
  return <View testID="notify-settings" style={styles.panel}><Surface kind="card">
-  <View style={styles.row}><View style={{flexShrink:1}}><Txt>Morning omen and evening nudge</Txt><Txt style={styles.caption}>Up to two a day, only between 8am and 9pm.{Platform.OS==='web'?' Notifications need the iOS app.':''}</Txt></View><Toggle testID="notify-toggle" accessibilityLabel="Morning omen and evening nudge notifications" value={prefs.daily} onValueChange={daily=>onChange({...prefs,daily})}/></View>
+  <View style={styles.row}><Txt style={{flexShrink:1}}>Morning omen and evening nudge</Txt><Toggle testID="notify-toggle" accessibilityLabel="Morning omen and evening nudge notifications" value={prefs.daily} onValueChange={daily=>onChange({...prefs,daily})}/></View>
+  {Platform.OS==='web'?<Txt style={styles.caption}>Notifications need the iOS app.</Txt>:null}
   {prefs.daily?<TimeChips value={prefs.time} onChange={time=>onChange({...prefs,time})}/>:null}
  </Surface></View>;
 }

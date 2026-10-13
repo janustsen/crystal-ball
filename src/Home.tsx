@@ -26,7 +26,7 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,om
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,top:edge,right:0,bottom}}><EdgeFade soft={36} bottom={24} style={styles.through}>
   <ScrollView ref={scroll} style={styles.through} showsVerticalScrollIndicator={false} contentContainerStyle={[{paddingTop:pad},styles.through]}><Enter reduce={reduce} direction={direction}><View ref={content} collapsable={false} style={{gap:14,paddingHorizontal:20,paddingBottom:24}}>
    <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
-    <Txt display style={{fontSize:30,lineHeight:34}}>What lies ahead?</Txt>
+    <Txt display style={styles.hero}>What lies ahead?</Txt>
     <Txt style={styles.label}>Touch the ball to ask</Txt>
    </View>
    {checkIns}
@@ -34,7 +34,6 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,om
    {recap}
    {omen(omenRef)}
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
-   <Txt style={[styles.caption,{textAlign:'center',color:colors.inactive}]}>For entertainment. Never a guarantee.</Txt>
   </View></Enter></ScrollView>
  </EdgeFade></View>;
 }
@@ -89,7 +88,7 @@ export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?
   {children}
  </Surface></View>;
 }
-export const omenTextStyle={fontFamily:fonts.display,fontSize:21,lineHeight:27,color:colors.ivory};
+export const omenTextStyle={fontFamily:fonts.display,...styles.heading,color:colors.ivory};
 
 // The reference artboards' line icons.
 const icon=(d:string)=>`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;

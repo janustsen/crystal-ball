@@ -6,12 +6,11 @@ const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844
 const results=[];
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
- await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();
+ await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();
  await expect(page.locator('[ariahidden]')).toHaveCount(0);
  await expect(page.locator('[role=tab] > svg[aria-hidden="true"]')).toHaveCount(4);
- await expect(page.getByText(/For entertainment\. Never a guarantee/)).toBeVisible();
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
- results.push('Home has entertainment disclosure and no sign-in prompt');
+ results.push('Home has no sign-in prompt');
  await page.getByTestId('tab-you').click();
  await expect(page.getByText('What the Ball remembers',{exact:true})).toBeVisible();
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);

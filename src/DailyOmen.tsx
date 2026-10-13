@@ -5,7 +5,7 @@ import {loadDailyOmen,omenTries,type Omen} from './daily-omen';
 import {currentOmen,localDay} from './retention';
 import {requestOmen} from './api';
 import {useStore} from './store';
-import {CardHeader,Txt,colors,fonts,styles} from './ui';
+import {CardHeader,Txt,colors,styles} from './ui';
 import {Surface} from './Surface';
 import {OmenCard,omenTextStyle} from './Home';
 import {answerWhisper,keepWhisper,lastWhisper} from './whisper';
@@ -19,7 +19,7 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
  const {state,update}=useStore();
  return <View testID="whisper-check" style={{padding:18}}><Surface kind="card">
   <CardHeader title="Did yesterday’s whisper land?" label="Whisper"/>
-  <Txt style={[omenTextStyle,{fontSize:19,lineHeight:25,marginTop:10}]}>{whisper.text}</Txt>
+  <Txt style={[styles.strong,{marginTop:10}]}>{whisper.text}</Txt>
   {whisper.outcome?<Txt testID="whisper-check-saved" accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{thanks[whisper.outcome]}</Txt>:<View style={[styles.row,state.largeText?{flexDirection:'column',alignItems:'stretch'}:{}]}>{(Object.keys(outcomes) as (keyof typeof outcomes)[]).map(outcome=><Pressable testID={`whisper-check-${outcome}`} key={outcome} accessibilityRole="button" onPress={()=>{haptic('success');update(s=>({...s,whispers:answerWhisper(s.whispers,whisper.day,outcome)}))}} style={{paddingVertical:10,paddingHorizontal:12,minHeight:44,marginTop:12,alignItems:'center'}}><Surface kind="chip"><Txt style={styles.chip}>{outcomes[outcome]}</Txt></Surface></Pressable>)}</View>}
  </Surface></View>;
 }
@@ -51,8 +51,7 @@ export function DailyOmen({aiConsent='',onRead,cardRef}:{aiConsent?:string;onRea
    <Txt accessibilityLiveRegion="polite" style={omenTextStyle}>{current?(current.text??(retrying?'The stars are gathering. The Ball will look again shortly.':'The stars are quiet today. Come back tomorrow.')):'A little starlight is finding you…'}</Txt>
    {whisper?<View testID="omen-whisper" style={{borderTopWidth:1,borderTopColor:colors.line,paddingTop:12,marginTop:4,gap:6}}>
     <Txt style={styles.label}>Tonight’s whisper</Txt>
-    <Txt style={{fontFamily:fonts.italic,fontSize:19,lineHeight:25,color:colors.ivory}}>{whisper}</Txt>
-    <Txt style={styles.caption}>Tomorrow morning, tell the Ball if it landed.</Txt>
+    <Txt style={styles.strong}>{whisper}</Txt>
    </View>:null}
   </OmenCard>
  </>;
