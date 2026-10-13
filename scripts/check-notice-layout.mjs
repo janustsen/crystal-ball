@@ -4,7 +4,7 @@ const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const browser=await chromium.launch({channel:'chrome',headless:true}),results=[];
 const viewportOf=control=>control.evaluate(el=>{
  for(let parent=el.parentElement;parent;parent=parent.parentElement){
-  if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
+  if(parent.dataset.testid==='ask-content'||['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
    const {top,bottom,height}=parent.getBoundingClientRect();return {top,bottom,height};
   }
  }
