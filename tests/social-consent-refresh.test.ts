@@ -92,12 +92,17 @@ for(const section of ['sky','circles']){
   pending.fail();await settle();
   assert.ok(f.render().some(n=>n.type==='SchoolPicker'));
  });
- test(`${section} does not reveal partial content on initial failure or retry`,async()=>{
+ test(`${section} preserves offline content on initial failure and retry`,async()=>{
   const f=fixture(true);f.render();f.section(section);f.failInitial();await settle();
-  assert.ok(!f.render().some(n=>n.type==='Enter'));
+  assert.ok(f.render().some(n=>n.type==='Enter'));
+  assert.ok(!f.render().some(n=>n.type==='SchoolPicker'));
   assert.ok(f.render().some(n=>n.children.includes('Social is offline.')));
+  f.section('sky');
+  assert.ok(f.render().some(n=>n.children.includes('What lies ahead?')));
+  assert.equal(typeof f.render().find(n=>n.props.label==='Ask this too')?.props.onPress,'function');
   const retry=f.hold();f.elapse();
-  assert.ok(!f.render().some(n=>n.type==='Enter'));
+  assert.ok(f.render().some(n=>n.children.includes('What lies ahead?')));
+  assert.equal(typeof f.render().find(n=>n.props.label==='Ask this too')?.props.onPress,'function');
   retry.finish();await settle();
   assert.ok(f.render().some(n=>n.type==='SchoolPicker'));
   assert.ok(f.render().some(n=>n.type==='Enter'));

@@ -68,8 +68,8 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
   <View style={{marginBottom:20}}><Segmented options={[{value:'sky',label:'Tonight’s Sky',testID:'social-section-sky'},{value:'circles',label:'Circles',testID:'social-section-circles'}]} value={section} reduce={reduce} onChange={part=>{setSection(part);setNotice('')}}/></View>
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {!data&&!offline?<Txt accessibilityLiveRegion="polite">Loading your sky…</Txt>:null}
-  {data?<Enter key={section} reduce={reduce} direction={section==='sky'?-1:1}>
-  <SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setSchoolOnly(false);setVersion(v=>v+1)}}/>
+  {data||offline?<Enter key={`${section}-${data?'loaded':'offline'}`} reduce={reduce} direction={section==='sky'?-1:1}>
+  {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
   {section==='sky'?<>
    <Txt display style={{fontSize:34,lineHeight:40,marginTop:8}}>A sky full of what-ifs.</Txt>
    <Txt testID="sky-intro" style={[styles.caption,{marginTop:6}]}>Tonight’s questions from everyone, shared anonymously. Tap a theme to read one.</Txt>
