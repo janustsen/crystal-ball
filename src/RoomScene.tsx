@@ -110,7 +110,13 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0
  useEffect(()=>{scene.current?.resume()},[reduce,at,flying]);
  // Home's short-screen offset (app/index.tsx) eases over the room's own 450 ms transition rather than snapping.
  const shift=useRef(new Animated.Value(offset)).current,shifted=useRef(offset);
- useEffect(()=>{if(shifted.current===offset)return;shifted.current=offset;Animated.timing(shift,{toValue:offset,duration:450,easing:Easing.inOut(Easing.ease),useNativeDriver:true}).start()},[offset]);
+ useEffect(()=>{
+  if(reduce){shift.stopAnimation();shift.setValue(offset);shifted.current=offset;return}
+  if(shifted.current===offset)return;
+  shifted.current=offset;
+  Animated.timing(shift,{toValue:offset,duration:450,easing:Easing.inOut(Easing.ease),useNativeDriver:true}).start();
+  return()=>shift.stopAnimation();
+ },[offset,reduce]);
  const placed=ballOnScreen(stillFrame(at),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
  // Extra canvas resolution keeps the glass sharp when the Ask camera enlarges it.
  // ponytail: fixed 2× headroom (expo-gl cannot resize its buffer); the thinking plunge (~3×) upscales slightly. Remount

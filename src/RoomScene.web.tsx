@@ -135,7 +135,12 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0
  // Home's short-screen offset (app/index.tsx) eases over the room's own 450 ms transition rather than snapping, on the Web
  // Animations API like the fade.
  const root=useRef<HTMLDivElement>(null),shifted=useRef(offset);
- useEffect(()=>{if(shifted.current===offset)return;root.current?.animate([{transform:`translateY(${shifted.current}px)`},{transform:`translateY(${offset}px)`}],{duration:450,easing:'ease-in-out'});shifted.current=offset},[offset]);
+ useEffect(()=>{
+  const from=shifted.current;shifted.current=offset;
+  if(reduce||from===offset)return;
+  const animation=root.current?.animate([{transform:`translateY(${from}px)`},{transform:`translateY(${offset}px)`}],{duration:450,easing:'ease-in-out'});
+  return()=>animation?.cancel();
+ },[offset,reduce]);
  const fallback=!ready?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
  const stills=!ready?[spot]:flight?[flight.to,at]:[at];
