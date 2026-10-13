@@ -7,7 +7,7 @@
 | Area | Current evidence / remaining action |
 |---|---|
 | Fortune-telling saturation (4.3) | High review risk. Explain the distinctive interactive context cards, explicit assumptions/Why and revisitable history. A polished orb alone does not establish differentiation. |
-| Truthful claims (1.1.6) | Follow the [UI disclosure rules](../design/ui-rules.md#navigation-and-the-17-states); never advertise certainty or measured predictive accuracy. An entertainment disclaimer does not cure misleading functionality. |
+| Truthful claims (1.1.6) | Follow the [voice guide](../voice.md) for reveal/share wording; never advertise certainty or measured predictive accuracy. An entertainment disclaimer does not cure misleading functionality. |
 | Harmful advice (1.4) | Existing death, self-harm, illness, pregnancy and legal redirects must pass both plan and predict checks. No credit/history side effects. Run held-out cases on the selected hosted model; broaden harmful-content review before public access. |
 | AI data sharing (5.1.2) | Named-provider opt-in implemented; server rejects missing/mismatched consent. Publish actual provider/retention before enabling. |
 | Login (5.1.1) | No first-launch sign-in. Apple backup is reached from You only. Native linking/restore requires configuration and a device drive. |

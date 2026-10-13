@@ -12,7 +12,7 @@ This is the authoritative decision table. Earlier experiments remain historical 
 | Redirects | Third-party-aware self-harm support; neutral kind copy for other categories avoids wrong-category advice. | `server/safety.ts`; `server/engine.ts` | Category classification is not assumed reliable merely because block/allow passes. |
 | Pricing | See [prototype pricing](pricing.md) for current offers, allowances and paywall rules. | `evidence/store-prices.json` retains competitor research. | Production cost and contribution gates are owned by the pricing document. |
 | Hosted candidate | See the [hosted inference decision](../launch/hosted-model.md) for the current shortlist, cost ceiling and parked evaluation. | `model-bakeoff.md`; `evidence/source-excerpts.md` retain historical research. | Provider configuration, consent and launch gates are owned by the linked decision. |
-| Sharing | 1080×1920 still PNG, the same orb identity, no private question/answers/Why, visible speculative label. | `../evidence/exported-card.png` | Destination overlays and native sharing remain separate checks. |
+| Sharing | See [sharing usage](../../README.md) for current exports and privacy boundaries. | `../evidence/exported-card.png` | Destination overlays and native sharing remain separate checks. |
 
 Consistency is intentional: the Ball should not randomly change a number merely to feel surprising. Bounded answers trade novelty for auditable inputs; the unexpected part may be the scenario, not random rotation. The zero-variance fixture results support reproducibility but do not prove delight. A real target-user test must validate whether this is compelling.
 

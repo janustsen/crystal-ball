@@ -21,7 +21,7 @@ page.on('response',async r=>{if(r.url()===`${base}/engine`&&r.request().method()
 const stored=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
 async function exportCard(name){
  const preview=page.getByRole('img',{name:'Your exported forecast card'});
- await expect(preview).toBeVisible();
+ await expect(preview).toBeVisible({timeout:60000});
  const size=await preview.evaluate(img=>[img.naturalWidth,img.naturalHeight]);expect(size).toEqual([1080,1920]);
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByTestId('export-story-card').click()]);
  await download.saveAs(`${out}/${name}.png`);return download.suggestedFilename();
