@@ -11,7 +11,7 @@ for(const row of cases)for(const hosted of [false,true]){
   const env:Record<string,string>=hosted?{MODEL_PROVIDER:'hosted',HOSTED_MODEL_URL:'https://example.invalid/v1',HOSTED_MODEL_NAME:'replay',HOSTED_MODEL_KEY:'test-only'}:{};
   for(const repaired of [false,true]){
    let attempts=0,feedback='';
-   t.mock.method(globalThis,'fetch',async(_url,init)=>{
+   t.mock.method(globalThis,'fetch',async(_url:unknown,init?:RequestInit)=>{
     const body=JSON.parse(String(init?.body)),schema=hosted?body.response_format.json_schema.schema:body.format;
     let content:unknown={category:'allow'};
     if(schema.properties.prediction){
@@ -25,6 +25,7 @@ for(const row of cases)for(const hosted of [false,true]){
    assert.equal(result.kind,repaired?'ok':'error',JSON.stringify(result));
    assert.equal(attempts,2,'Only the original request and one repair are allowed.');
    for(const expected of row.feedbackIncludes)assert.ok(feedback.includes(expected),`${expected}: ${feedback}`);
+   assert.match(feedback,/ending with a period or exclamation mark/,'Removing a rejected date must not leave an unfinished sentence.');
    if(result.kind==='ok')assert.equal(result.value.why,row.fixedRepair.insight);
    t.mock.restoreAll();
   }
