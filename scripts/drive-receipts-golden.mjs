@@ -59,7 +59,7 @@ try{
  await page.waitForTimeout(1500);await page.screenshot({path:`${out}/receipt-share.png`});
  log.receiptFile=await exportCard('receipt');expect(log.receiptFile).toBe('crystal-ball-receipt.png');
  const receiptText=await page.evaluate(()=>window.storyText.map(t=>t.text).join(' '));
- expect(receiptText).toContain('Speculative forecast');expect(receiptText).toContain('Not a guarantee');expect(receiptText).toContain('opened');expect(receiptText).not.toContain(question);
+ expect(receiptText).not.toContain('Speculative forecast');expect(receiptText).not.toContain('Not a guarantee');expect(receiptText).toContain('opened');expect(receiptText).not.toContain(question);
  await page.getByTestId('close-flow').click();
  // Switching away from Yes withdraws the receipt.
  await page.getByTestId('check-in-no').click();await page.getByTestId('dismiss-notice').click();
@@ -95,7 +95,7 @@ try{
  await page.getByRole('button').filter({hasText:question}).click();await page.evaluate(()=>window.storyText=[]);await page.getByTestId('share-receipt').click();
  await exportCard('legacy-receipt');
  const legacyText=await page.evaluate(()=>window.storyText.map(t=>t.text).join(' '));
- expect(legacyText).not.toContain('opened');expect(legacyText).not.toContain('2099');expect(legacyText).toContain('Speculative forecast');expect(legacyText).toContain('Not a guarantee');
+ expect(legacyText).not.toContain('opened');expect(legacyText).not.toContain('2099');expect(legacyText).not.toContain('Speculative forecast');expect(legacyText).not.toContain('Not a guarantee');
  log.legacyReceipt=legacyText;
  await page.getByTestId('close-flow').click();await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
  await page.getByTestId('golden-shelf-item-0000000a-abcd-4000-8000-000000000001').click();

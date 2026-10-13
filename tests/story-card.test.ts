@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {goldenSetCard,goldenShelf,receiptCard} from '../src/story-card.ts';
+import {forecastCard,goldenSetCard,goldenShelf,receiptCard} from '../src/story-card.ts';
 import type {Prediction} from '../src/types.ts';
 const reading=(over:Partial<Prediction>={}):Prediction=>({id:'0000000a-abcd-4000-8000-000000000000',question:'Will I learn to paint this year?',headline:'You will finish your course within 2 months.',createdAt:'2026-09-01T12:00:00Z',dueDate:'2026-10-20',label:'Speculative forecast',why:'Private reasoning',facts:{study:'Private answer'},sources:[],assumptions:[],friend:false,...over});
 
@@ -10,7 +10,7 @@ test('a receipt exists only for a personal Yes check-in',()=>{
  assert.equal(receiptCard(undefined),null);
  const card=receiptCard(reading({outcome:'yes',checkedInAt:'2026-10-21'}))!;
  assert.equal(card.kind,'receipt');assert.deepEqual(card.headlines,['You will finish your course within 2 months.']);
- assert.equal(card.labels[0],'Learning · Speculative forecast · Not a guarantee');assert.match(card.labels[1],/^Sealed .*2026 · opened .*2026 · Yes$/);
+ assert.equal(card.labels[0],'Learning');assert.match(card.labels[1],/^Sealed .*2026 · opened .*2026 · Yes$/);
 });
 
 test('a receipt shows dates and category, never the question, private answers or an accuracy score',()=>{
@@ -28,12 +28,12 @@ test('the opened date is the check-in day and is omitted for older answers',()=>
  }
 });
 
-test('every receipt retains the speculative disclaimer alongside category and dates',()=>{
+test('every receipt retains category and dates without a disclaimer',()=>{
  for(const golden of [false,true])for(const checkedInAt of [undefined,'2026-10-21']){
   const card=receiptCard(reading({outcome:'yes',golden,checkedInAt}))!;
   assert.equal(card.kind,'receipt');assert.equal(card.golden,golden);
   assert.equal(card.labels.length,2);
-  assert.equal(card.labels[0],'Learning · Speculative forecast · Not a guarantee');
+  assert.equal(card.labels[0],'Learning');
   assert.match(card.labels[1],/^Sealed .* · Yes$/);
   assert.equal(card.labels[1].includes('opened'),checkedInAt!==undefined);
  }
@@ -58,3 +58,13 @@ test('the golden shelf and set include only golden forecasts',()=>{
  assert.deepEqual(set.headlines,['Golden 1 will arrive.','Golden 2 will arrive.','Golden 3 will arrive.']);assert.equal(set.footer,'+2 more on the golden shelf');
  assert.equal(goldenSetCard([golden[0]])!.labels[0],'1 golden forecast');
 });
+
+ test('story cards omit disclaimers for ordinary and golden readings, including legacy labels',()=>{
+  for(const golden of [false,true]){
+   const card=forecastCard(reading({golden}));
+   assert.deepEqual(card.labels,[]);
+   assert.deepEqual(card.headlines,[reading().headline]);
+   assert.equal(card.golden,golden);
+   assert.match(card.footer,/^Check back /);
+  }
+ });

@@ -19,7 +19,6 @@ export function CaptureReveal({headline,golden,dueDate,reduce,onClose}:{headline
     <Orb size={size*.5} phase="reveal" reduce={reduce}/>
     <Enter kind="reveal" delay={200} reduce={reduce}><Txt allowFontScaling={false} display style={{fontSize:size*.075,lineHeight:size*.09,textAlign:'center',marginTop:12}}>{headline}</Txt></Enter>
    </View>
-   <Txt allowFontScaling={false} style={{fontSize:size*.032,lineHeight:size*.047,color:colors.gold,textAlign:'center',marginTop:20}}>Speculative forecast · not a guarantee</Txt>
    {golden?<Txt allowFontScaling={false} style={{fontSize:size*.032,color:colors.gold,textAlign:'center'}}>Golden edition</Txt>:null}
    <Txt allowFontScaling={false} style={{fontSize:size*.036,color:colors.muted,textAlign:'center',marginTop:16}}>Check back {dueDate}</Txt>
   </View></View>
