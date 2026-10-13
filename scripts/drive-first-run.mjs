@@ -33,5 +33,5 @@ try{
  const still=await browser.newPage({httpCredentials,viewport:{width:390,height:844},reducedMotion:'reduce'});
  await still.goto(base,{timeout:120000});await expect(still.getByTestId('birthday-month')).toBeInViewport();await still.getByTestId('birthday-month').fill('1');await still.getByTestId('birthday-day').fill('1');await still.getByTestId('birthday-year').fill('2020');await still.getByTestId('continue').click();
  await expect(still.getByText('Crystal Ball is for ages 13 and up.')).toHaveCount(1);await expect(still.getByTestId('skip-for-now')).toBeDisabled();await still.screenshot({path:`${evidence}/blocked.png`});
- console.log(`PASS: intro and birthday sheet, field advance, tour, Sky captions, chip fade (${mid} partial frames), Home fade (${early.toFixed(2)} at 40ms), reduced motion and under-13 block.`);
+ console.log(`PASS: intro and birthday sheet, field advance, tour, Sky, chip fade (${mid} partial frames), Home fade (${early.toFixed(2)} at 40ms), reduced motion and under-13 block.`);
 }finally{await browser.close()}
