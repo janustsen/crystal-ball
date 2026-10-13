@@ -16,6 +16,7 @@ export function homeMock(react:{createElement:(type:any,props:any,...children:an
 export function askBallMock(react:{createElement:(type:any,props:any,...children:any[])=>any}){
  const h=react.createElement;
  return {
+  useKeyboardInset:()=>0,
   AskBall:({testID,value,onChangeText,chip,note,controls}:any)=>h('AskBall',{},h('TextInput',{testID,value,onChangeText}),chip,note,controls),
   RoomCamera:({children}:any)=>h('RoomCamera',{},children),
   AskMoment:()=>null,

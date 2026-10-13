@@ -29,8 +29,8 @@ export function useKeyboardInset(){
 }
 
 export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,largeText,chip,note,controls,onCamera,testID}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;refused:number;reduce:boolean;largeText:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
- const keyboard=useKeyboardInset(),[chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),[scroll,setScroll]=useState(0),input=useRef<TextInput>(null);
- const dock=keyboard?keyboard+12:bottom+12,viewport=Math.max(1,height-top-dock);
+ const [chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),[scroll,setScroll]=useState(0),input=useRef<TextInput>(null);
+ const viewport=Math.max(1,height-top-bottom-12);
  const contentHeight=Math.max(viewport,chipHeight+12+2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0)+16+noteHeight+controlsHeight);
  const ball=typingBall(width,height,chipHeight+12,contentHeight-controlsHeight-noteHeight-16,thinkingBall(width,height,top).r/pushIn),offset=Math.min(scroll,contentHeight-viewport);
  useEffect(()=>{onCamera({...ball,y:top+ball.y-offset})},[ball.x,ball.y,ball.r,top,offset]);

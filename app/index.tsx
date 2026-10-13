@@ -15,7 +15,7 @@ import {LinearGradient} from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import {RoomScene,type BallSpin} from '../src/RoomScene';
 import {ballOnScreen,cameraTransform,contentTop,stillFrame,thinkingBall,type Camera,type Spot} from '../src/room';
-import {AskBall,AskMoment,RoomCamera} from '../src/AskBall';
+import {AskBall,AskMoment,RoomCamera,useKeyboardInset} from '../src/AskBall';
 import {Enter,Shake} from '../src/Enter';
 import {BackupPanel} from '../src/BackupPanel';
 import {VoiceButton} from '../src/VoiceButton';
@@ -227,7 +227,8 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  // The Ball asks docks higher than You, its spot, so a whole question card fits above the tab bar.
  // The locked Inner Library keeps its door upsell over the You spot; Plus enters the chamber itself.
  const spot:Spot=onboarding?'Home':paywall?'You':tab==='Library'?state.plus?'Library':'You':tab==='Asks'||tab==='Settings'?'You':tab,askFlow=tab==='Ask'&&!immersiveOverlay;
- const bottomPadding=immersive?Math.max(insets.bottom,12):tabBarSpace(insets.bottom);
+ const typing=askFlow&&ready&&flow.stage==='ask'&&!(params.seal&&Platform.OS==='web'),keyboard=useKeyboardInset();
+ const bottomPadding=immersive?Math.max(insets.bottom,12,typing?keyboard:0):tabBarSpace(insets.bottom);
  const dockTop=!shell.height?14:onboarding?Math.max(insets.top+24,56):!immersive?(tab==='Asks'?Math.round(shell.height*.3):contentTop(spot,shell.width,shell.height)):askFlow?Math.max(14,contentTop('Ask',shell.width,shell.height)-headerHeight):14;
  const availableHeight=Math.max(0,shell.height-bottomPadding-(immersive&&!onboarding?headerHeight:0));
  const noticeHeight=notice?Math.min(260,availableHeight/2):0,noticeSpace=notice?noticeHeight+8:0;
@@ -242,7 +243,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  // Text over the room reads on the ground: the room fades out above the screen's content (below the ball at Ask).
  // The tabs' ground scrolls with their content (see Screen); the reading and overlays dim the room further.
  // Typing writes into the ball (the camera pushed in to fit it above the keyboard); thinking plunges further in.
- const typing=askFlow&&ready&&flow.stage==='ask'&&!(params.seal&&Platform.OS==='web'),thinking=askFlow&&(flow.stage==='planning'||flow.stage==='research');
+ const thinking=askFlow&&(flow.stage==='planning'||flow.stage==='research');
  const cam=!shell.height?null:typing?typedBall:thinking?thinkingBall(shell.width,shell.height,headerHeight):null;
  const scrimAlpha=immersive?.88:.8;
  const scrim=!shell.height||home||!immersive?null:cam?Math.round(cam.y+cam.r*.55):askFlow?Math.min(contentTop('Ask',shell.width,shell.height),headerHeight+cardTop)-56:headerHeight-40;
