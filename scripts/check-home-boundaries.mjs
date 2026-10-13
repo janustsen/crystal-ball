@@ -4,24 +4,23 @@ import assert from 'node:assert/strict';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const results=[];
+// Home content rests below the ball, leaving it the tap target, and scrolls up beneath the header over it (docs/design/ui-rules.md).
 async function checkViewport(page){
- const library=page.getByTestId('room-inner-library');
- for(const fraction of [0,.5,1]){
-  const bounds=await library.evaluate((el,fraction)=>{
-   for(let parent=el.parentElement;parent;parent=parent.parentElement){
-    if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
-     parent.scrollTop=(parent.scrollHeight-parent.clientHeight)*fraction;
-     const {top,bottom}=parent.getBoundingClientRect();
-     return {top,bottom};
-    }
+ const bounds=await page.getByTestId('room-inner-library').evaluate(el=>{
+  for(let parent=el.parentElement;parent;parent=parent.parentElement){
+   if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
+    parent.scrollTop=0;
+    const {top,bottom}=parent.getBoundingClientRect(),content=parent.firstElementChild;
+    return {top,bottom,content:content.getBoundingClientRect().top+parseFloat(getComputedStyle(content).paddingTop)};
    }
-   throw new Error('Missing Home scroll viewport');
-  },fraction);
-  const ball=await page.getByTestId('hero-orb').boundingBox();
-  assert.ok(ball&&ball.y+ball.height<=bounds.top,'Home viewport stays below the entire ball target');
-  assert.ok(bounds.bottom-bounds.top>=68,'Home retains room for a complete touch target');
-  assert.equal(await page.evaluate(({x,y,width,height})=>Boolean(document.elementFromPoint(x+width/2,y+height/2)?.closest('[data-testid="hero-orb"]')),ball),true,'the visible ball receives taps after scrolling');
- }
+  }
+  throw new Error('Missing Home scroll viewport');
+ });
+ const ball=await page.getByTestId('hero-orb').boundingBox();
+ assert.ok(ball&&ball.y+ball.height<=bounds.content,'resting Home content starts below the entire ball target');
+ assert.ok(bounds.top<=ball.y,'Home content can scroll up beneath the header over the ball');
+ assert.ok(bounds.bottom-bounds.content>=68,'Home retains room for a complete touch target');
+ assert.equal(await page.evaluate(({x,y,width,height})=>Boolean(document.elementFromPoint(x+width/2,y+height/2)?.closest('[data-testid="hero-orb"]')),ball),true,'the resting ball receives taps through Home');
 }
 try{
  for(const viewport of [{width:375,height:667},{width:440,height:956}])for(const largeText of [false,true]){
