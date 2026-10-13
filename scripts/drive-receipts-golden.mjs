@@ -66,15 +66,17 @@ try{
  await expect(page.getByTestId('share-receipt')).toHaveCount(0);
  await page.getByTestId('close-flow').click();
 
- await page.evaluate(()=>{
+ const goldenState=await page.evaluate(()=>{
   const state=JSON.parse(localStorage.getItem('crystal-ball-v1')),base={label:'Speculative forecast · not a guarantee',why:'Fixture',facts:{},sources:[],assumptions:[],friend:false};
   state.history.push({...base,id:'0000000a-abcd-4000-8000-000000000001',question:'Will I finish my draft?',headline:'You will finish your first draft within 6 months.',createdAt:'2026-09-30T12:00:00Z',golden:true},
    {...base,id:'0000000a-abcd-4000-8000-000000000002',question:'Will I run a marathon?',headline:'You will cross a finish line before spring.',createdAt:'2026-09-20T12:00:00Z',golden:true});
   state.history.push(...[3,4].map(n=>({...base,id:`0000000a-abcd-4000-8000-00000000000${n}`,question:'Private golden question',headline:'You will finish your first draft within 6 months.',createdAt:'2026-09-10T12:00:00Z',golden:true})));
   state.history.filter(p=>p.golden).forEach(p=>p.headline='You will finish your first draft within 6 months.');
   state.history[0].outcome='yes';delete state.history[0].checkedInAt;state.history[0].dueDate='2099-12-31';
-  localStorage.setItem('crystal-ball-v1',JSON.stringify(state));
+  return state;
  });
+ // Seed before hydration so a pending Store write cannot overwrite the fixture.
+ await page.addInitScript(state=>localStorage.setItem('crystal-ball-v1',JSON.stringify(state)),goldenState);
  await page.reload();await page.getByTestId('tab-history').click();
  const shelf=page.getByTestId('golden-shelf');await expect(shelf).toBeVisible();
  const expected=reading.golden?5:4;
