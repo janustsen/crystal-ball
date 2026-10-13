@@ -35,7 +35,8 @@ export function AskBall({width,height,top,bottom,value,onChangeText,refused,redu
  const ball=typingBall(width,height,chipHeight+12,contentHeight-controlsHeight-noteHeight-16,thinkingBall(width,height,top).r/pushIn),offset=Math.min(scroll,contentHeight-viewport);
  useEffect(()=>{onCamera({...ball,y:top+ball.y-offset})},[ball.x,ball.y,ball.r,top,offset]);
  // The text keeps to the square inside the glass and shrinks as the question grows; the field scrolls only past that.
- const side=Math.round(ball.r*1.42),base=ball.r*.21*(largeText?1.35:1),size=Math.round(Math.max(13,Math.min(ball.r*.3,base*Math.sqrt(Math.min(1,40/Math.max(1,value.length))))));
+ // Large text never shrinks below its own base size: a long question scrolls inside the glass instead.
+ const side=Math.round(ball.r*1.42),base=ball.r*.21*(largeText?1.35:1),size=Math.round(Math.max(largeText?base:13,Math.min(ball.r*.3,base*Math.sqrt(Math.min(1,40/Math.max(1,value.length))))));
  const font={fontFamily:fonts.italic,fontSize:size,lineHeight:Math.round(size*1.18),textAlign:'center' as const},box=Math.min(side,textHeight||side);
  return <ScrollView testID="ask-content" keyboardShouldPersistTaps="handled" scrollEnabled={contentHeight>viewport} onScroll={e=>setScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16} style={{position:'absolute',left:0,top,width,height:viewport}} contentContainerStyle={{height:contentHeight}}>
   <View onLayout={e=>setChipHeight(e.nativeEvent.layout.height)} pointerEvents="box-none" style={{position:'absolute',left:20,right:20,top:0,alignItems:'center'}}>{chip}</View>

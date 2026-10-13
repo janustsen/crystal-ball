@@ -26,8 +26,10 @@ try{
      const bottom=height-(open?keyboard:0),bad=[];
      const header=await page.getByTestId('close-flow').boundingBox(),viewport=await page.getByTestId('ask-content').boundingBox();
      const ids=[...(person?['person-name','ask-about-myself']:['ask-about-someone']),'question-input','ask-disclosure','speak-instead','look-into-the-future'];
-     for(const id of ids){
-      const control=page.getByTestId(id);
+     // A build with an AI provider (EXPO_PUBLIC_AI_PROVIDER_NAME) adds its permission switch and What's shared link.
+     const controls=ids.map(id=>[id,page.getByTestId(id)]);
+     if(await page.getByTestId('ai-details').count())controls.push(['ai-details',page.getByTestId('ai-details')],['ai-permission',page.getByRole('switch',{name:'Allow AI processing'})]);
+     for(const [id,control] of controls){
       await control.scrollIntoViewIfNeeded();
       const bounds=await control.boundingBox();
       const visible=await control.evaluate(e=>{
