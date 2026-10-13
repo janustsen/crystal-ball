@@ -11,7 +11,9 @@ try{
    :request(callback);
  });
  await page.goto(process.env.PREVIEW_URL||'http://localhost:8087',{timeout:120000});
- await page.getByTestId('tab-you').click();
+ await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ if(await page.getByTestId('tour-skip').count())await page.getByTestId('tour-skip').click();
+ await page.getByTestId('open-settings').click();
  const shell=page.getByTestId('app-shell');
  const toggle=page.getByRole('switch',{name:'Reduce motion',exact:true});
  const position=()=>page.locator('.atmosphere').evaluate(root=>({

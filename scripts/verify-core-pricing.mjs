@@ -36,7 +36,7 @@ try{
  await check(()=>document.body.innerText.includes('Your check-in is saved.'),'Not yet suppresses new reminders');
  await page.open(${JSON.stringify(base)});await click('tab-history');
  await check(()=>document.body.innerText.includes('Not yet'),'answer persists after reload');
- await click('tab-you');await page.eval(()=>document.querySelector('[role=switch][aria-label="Large text"]').click());
+ await click('open-settings');await page.eval(()=>document.querySelector('[role=switch][aria-label="Large text"]').click());
  await click('view-plans');
  console.log('PASS large-text paywall opened');
  `);

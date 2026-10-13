@@ -32,14 +32,14 @@ try{
  await top('today-card');await shot('home-today-star');
  await page.getByTestId('tab-history').click();await page.getByRole('button').filter({hasText:'Will I finish writing my novel this year?'}).click();await expect(page.getByTestId('notify-offer')).toHaveCount(0);
  while(await page.getByTestId('close-flow').count())await page.getByTestId('close-flow').click();
- await page.getByTestId('tab-you').click();await expect(page.getByTestId('your-sky')).toContainText('1 star');await expect(page.getByTestId('notify-toggle')).toHaveAttribute('aria-checked','true');
- await top('your-sky');await shot('you-sky-notifications');
+ await page.getByTestId('tab-you').click();await expect(page.getByTestId('your-sky')).toContainText('1 star');await top('your-sky');await shot('you-sky');
+ await page.getByTestId('open-settings').click();await expect(page.getByTestId('notify-toggle')).toHaveAttribute('aria-checked','true');await top('notify-settings');await shot('settings-notifications');
  await page.getByTestId('you-footer').scrollIntoViewIfNeeded();const footer=await page.getByTestId('you-footer').boundingBox();await page.mouse.move(footer.x+footer.width/2,footer.y+footer.height/2);await page.mouse.down();await page.waitForTimeout(1200);await page.mouse.up();await expect(page.getByTestId('ritual-debug')).toBeVisible();await expect(page.getByTestId('ritual-debug')).toContainText('Next notification plan');
  await top('ritual-debug');await shot('you-debug-counts');
  const debugText=await page.getByTestId('ritual-debug').innerText();log.push({debugText});
  await page.reload();const persisted=await saved();
  expect(persisted.notify).toMatchObject({daily:true,time:'12:30'});expect(persisted.stars.length).toBe(1);expect(persisted.counts.optInYes).toBe(1);
- await page.getByTestId('tab-you').click();await page.getByTestId('notify-toggle').click();await expect(page.getByTestId('notify-toggle')).toHaveAttribute('aria-checked','false');
+ await page.getByTestId('open-settings').click();await page.getByTestId('notify-toggle').click();await expect(page.getByTestId('notify-toggle')).toHaveAttribute('aria-checked','false');
  log.push({persisted,pageErrors:errors});expect(errors).toEqual([]);
  console.log('PASS: Today strip, omen and ask steps, star in Ursa Major, opt-in after first forecast, You sky, notification settings, private counts, persistence.');
 }catch(error){log.push({failure:String(error),pageErrors:errors});await shot('failure');throw error}finally{await writeFile(`${out}/drive-ritual.json`,JSON.stringify(log,null,2));await context.close()}

@@ -18,11 +18,13 @@ try{
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
  await page.waitForTimeout(800);await page.screenshot({path:'docs/evidence/launch-you.png'});
+ await page.getByTestId('open-settings').click();
  await page.getByRole('button',{name:'Privacy and entertainment',exact:true}).click();
  await expect(page.getByText(/Forecasts are speculative entertainment/)).toBeVisible();
  results.push('You hides unavailable Apple backup and shows readable privacy details');
  await page.getByRole('switch',{name:'Large text',exact:true}).click();
  await page.setViewportSize({width:375,height:667});
+ await page.getByTestId('tab-you').click();
  await page.getByText('What the Ball remembers',{exact:true}).scrollIntoViewIfNeeded();
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
  await expect(page.getByText(/Apple backup/)).toHaveCount(0);

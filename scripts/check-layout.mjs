@@ -145,7 +145,7 @@ for(const width of [360,390,430])for(const large of [false,true]){
  await check('home',page.getByTestId('hero-orb'));
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));
- await tap('tab-you');await check('you',text('What the Ball remembers'));
+ await tap('tab-you');await check('you',text('What the Ball remembers'));await tap('open-settings');await check('settings',text('Ambient sound'));
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');

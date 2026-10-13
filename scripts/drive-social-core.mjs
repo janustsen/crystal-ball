@@ -46,7 +46,7 @@ try{
  evidence.push({knowledgeEditedForgottenRestored:true,mockPack:true});
  await run(`${click('close-flow')}${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}await page.fill('[data-testid="question-input"]','When will I die?');${click('look-into-the-future')}await page.wait(1000);${expect('This one isn’t for the Ball.')}if(!(await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent)).includes('5 readings'))throw Error('Sensitive question spent credit');`);
  evidence.push({sensitiveRedirect:true,noCreditSpent:true});
- await run(`${click('close-flow')}${click('tab-you')}await page.click('[aria-label="Large text"]');await page.click('[aria-label="Reduce motion"]');${click('tab-sky')}`);
+ await run(`${click('close-flow')}${click('open-settings')}await page.click('[aria-label="Large text"]');await page.click('[aria-label="Reduce motion"]');${click('tab-sky')}`);
  await exec('chrome-devtools-axi',['emulate','--viewport','375x667x1,mobile,touch'],{env});await shot('sky-large');
  await run(`const tabs=await page.eval(()=>Array.from(document.querySelectorAll('[role="tab"]')).map(e=>{const r=e.getBoundingClientRect();return {label:e.textContent,visible:r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth}}));if(tabs.length!==5||tabs.some(t=>!t.visible))throw Error('Tab clipping '+JSON.stringify(tabs));${click('social-section-circles')}`);await shot('circles-large');
  evidence.push({phone375x667:true,text200Percent:true,reducedMotion:true,fiveTabsVisible:true});

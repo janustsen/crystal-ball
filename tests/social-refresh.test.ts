@@ -10,7 +10,7 @@ test('social refresh preserves circles and repeated navigation exposes visible S
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,reads=0;
  const react={
-  createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
+  createElement:(type:any,props:any,...children:any[])=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
   useState:(initial:any)=>{
    const index=cursor++;
    if(!(index in slots))slots[index]=initial;
@@ -23,7 +23,7 @@ test('social refresh preserves circles and repeated navigation exposes visible S
   },
  };
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{}},'./social-links':{},
+  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:({options,value,onChange}:any)=>options.map((o:any)=>({type:'Pressable',props:{testID:o.testID,accessibilityState:{selected:value===o.value},onPress:()=>onChange(o.value)},children:[]}))},'./Enter':{Enter:'Enter'},'./social-links':{},
   './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{SkyOmen:'SkyOmen'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
   './social':{
@@ -35,7 +35,7 @@ test('social refresh preserves circles and repeated navigation exposes visible S
  const code=ts.transpileModule(readFileSync(new URL('../src/SocialScreen.tsx',import.meta.url),'utf8'),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
  }).outputText;
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error,setInterval:()=>0,clearInterval:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  let requestedSection:'sky'|'circles'='circles',requestId='first',invite:string|undefined;
  const render=()=>{

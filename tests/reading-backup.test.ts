@@ -13,6 +13,7 @@ import * as ritual from '../src/ritual';
 import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
 import * as webReading from '../src/web-reading';
+import {motion} from '../src/motion';
 const {plans,packs}=billing;
 
 const stamp=(n:number)=>`2026-10-04T00:00:00.${String(n).padStart(6,'0')}Z`;
@@ -649,4 +650,54 @@ test('a reading saved while a balance update holds the archive still completes T
  assert.equal(f.render().backupBusy,false);
  const saved=ritual.ritualOf(f.state());
  assert.equal(saved.counts.readings,1);assert.equal(saved.days[retention.localDay()]?.ask,1);
+});
+
+test('a tapped answer holds its highlight, ignores repeat taps and drops when Back or Close comes first',async t=>{
+ const h=hooks();t.after(()=>h.unmount());
+ const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',tourSeen:true,sunSign:null,facts:{},history:[],plus:true,credits:9,reduceMotion:false};let predicts=0;
+ const timers=new Map<number,()=>void>();let ids=0;
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:()=>({remove(){}})}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
+  'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:9,update:()=>{},applyBalance:async()=>{}}),learnedFacts:()=>({})},
+  '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
+  '../src/SocialScreen':{Social:'Social'},'../src/social':{syncSocialProfile:async()=>{}},'../src/native':{haptic:()=>{},watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
+  '../src/purchases':{purchaseMode:'mock'},'../src/motion':{motion},
+  '../src/api':{webReadingVisitor:()=>false,request:async(action:string)=>{
+   if(action==='plan')return {kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false},{id:'pace',question:'Your pace?',options:['Slow','Fast'],remember:false}]}};
+   predicts++;return new Promise(()=>{});
+  }},
+ },[],{Error,setTimeout:(fn:()=>void,ms:number)=>{if(ms!==motion.pick)return 0;timers.set(++ids,fn);return ids},clearTimeout:(id:number)=>timers.delete(id)});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ const shows=(text:string)=>render().some(n=>n.children.includes(text));
+ const press=async(testID:string)=>{render().find(n=>n.props.testID===testID).props.onPress();await tick();render()};
+ const elapse=async()=>{const due=[...timers.values()];timers.clear();due.forEach(fn=>fn());await tick();render()};
+ render();render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.type==='Social').props.onAsk('Will I learn?');
+ await press('look-into-the-future');
+ assert.ok(shows('Your goal?'));
+ await press('option-0');await press('option-1');
+ assert.equal(timers.size,1,'a second tap while the first answer holds is ignored');
+ assert.equal(render().find(n=>n.props.testID==='option-0').props.accessibilityState.checked,true,'the first tapped answer keeps its highlight');
+ assert.ok(shows('Your goal?'),'the tapped answer holds before the next question');
+ await elapse();
+ assert.ok(shows('Your pace?'));
+ await press('option-0');
+ await press('close-flow');
+ assert.equal(timers.size,0,'Back clears the pending advance');
+ assert.ok(shows('Your goal?'));await elapse();
+ assert.ok(shows('Your goal?'));assert.equal(predicts,0);
+ await press('option-1');await press('close-flow');
+ assert.equal(timers.size,0,'Close clears the pending advance');
+ await elapse();assert.ok(!shows('Your goal?'));assert.equal(predicts,0);
+ render().find(n=>n.type==='Social')?.props.onAsk('Will I learn?');
+ await press('look-into-the-future');
+ await press('option-0');await elapse();await press('option-1');await elapse();
+ assert.equal(predicts,1,'the last held answer reveals once its beat ends');
 });

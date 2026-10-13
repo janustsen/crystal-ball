@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {Platform,Pressable,Share,View} from 'react-native';
 import * as Linking from 'expo-linking';
-import {Action,CardHeader,colors,Orb,styles,Txt,Field,Toggle} from './ui';
+import {Action,CardHeader,colors,Orb,styles,Txt,Field,Toggle,Segmented} from './ui';
 import {sealedLink} from './social-links';
 import {useStore} from './store';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
@@ -12,6 +12,9 @@ import type {Prediction,FriendTarget} from './types';
 import {accountSocialProfile,sampleStars,skyPrompts,socialUnavailable,validFirstName,type SkyPrompt} from './social-policy';
 import {setSkyPush,manageCircle,sendSeal,blockMember,blockStarAuthor,createCircle,createSchoolCircleInvite,dismissFriendNotices,inviteToCircle,joinCircle,leaveCircle,loadSocial,openForecast,prepareSocialDraft,publishStar,reactInCircle,removeStar,reportStar,resonate,revokeSeal,sealForecast,setFriendConsent,type SocialDraft,type SocialSnapshot} from './social';
 import {Surface} from './Surface';
+import {Enter} from './Enter';
+
+const skyStallMs=8000;
 
 function LinkCard({url,onClose}:{url:string;onClose:()=>void}){
  const [notice,setNotice]=useState('');
@@ -48,10 +51,12 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
  useEffect(()=>{if(requestedSection)setSection(requestedSection)},[requestedSection,requestId]);
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{
-  let active=true;
-  async function refresh(){const revision=consentRevision.current;try{const snapshot=await loadSocial(profile,schoolOnly);if(active&&revision===consentRevision.current){setData(snapshot);setOffline(false)}}catch{if(active&&revision===consentRevision.current)setOffline(true)}}
+  let active=true,loaded=false;
+  async function refresh(){const revision=consentRevision.current;try{const snapshot=await loadSocial(profile,schoolOnly);if(active&&revision===consentRevision.current){loaded=true;setData(snapshot);setOffline(false)}}catch{if(active&&revision===consentRevision.current)setOffline(true)}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
-  return()=>{active=false;clearInterval(timer)};
+  // A read that stalls falls back to the offline view (samples and retry); a late answer still replaces it.
+  const stalled=setTimeout(()=>{if(active&&!loaded)setOffline(true)},skyStallMs);
+  return()=>{active=false;clearInterval(timer);clearTimeout(stalled)};
  },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
  function skyPushSaved(enabled:boolean){
   consentRevision.current++;
@@ -64,10 +69,11 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
  const stars=data?.schoolOnly===schoolOnly?data.stars:[],themeStars=stars.filter(star=>star.theme===selected),ownStar=data?.ownStar;
  const templates=Object.entries(skyPrompts) as [SkyPrompt,(typeof skyPrompts)[SkyPrompt]][];
  return <>
-  {/* A segmented pill: the active section fills gold. */}
-  <View style={{alignSelf:'center',maxWidth:'100%',flexDirection:'row',flexWrap:'wrap',justifyContent:'center',padding:4,gap:2,marginBottom:20}}><Surface kind="pill"/>{(['sky','circles'] as const).map(part=><Pressable key={part} testID={`social-section-${part}`} accessibilityRole="button" accessibilityState={{selected:section===part}} aria-pressed={section===part} onPress={()=>{setSection(part);setNotice('')}} style={{minHeight:44,paddingHorizontal:22,justifyContent:'center'}}>{section===part?<Surface kind="primary"/>:null}<Txt style={[styles.segment,{color:section===part?colors.onGold:'#E9DCC6'}]}>{part==='sky'?'Tonight’s Sky':'Circles'}</Txt></Pressable>)}</View>
-  {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
+  <View style={{marginBottom:20}}><Segmented options={[{value:'sky',label:'Tonight’s Sky',testID:'social-section-sky'},{value:'circles',label:'Circles',testID:'social-section-circles'}]} value={section} reduce={reduce} onChange={part=>{setSection(part);setNotice('')}}/></View>
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
+  {!data&&!offline?<Txt accessibilityLiveRegion="polite">Loading your sky…</Txt>:null}
+  {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={id=>{setData(current=>current?.profile?{...current,profile:{...current.profile,school_id:id},stars:current.schoolOnly?[]:current.stars,schoolSuggestions:[]}:current);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
+  {data||offline?<Enter key={`${section}-${data?'loaded':'offline'}`} reduce={reduce} direction={section==='sky'?-1:1}>
   {section==='sky'?<>
    <Txt display style={{fontSize:34,lineHeight:40,marginTop:8}}>A sky full of what-ifs.</Txt>
    <Txt testID="sky-intro" style={[styles.caption,{marginTop:6}]}>Tonight’s questions from everyone, shared anonymously. Tap a theme to read one.</Txt>
@@ -116,6 +122,7 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
    {data?.receivedSeals.map(card=><SealedCard key={card.token} token={card.token} reduce={reduce}/>)}
    {data?.seals.map(card=><View key={card.id} style={styles.panel}><Surface kind="card"><Txt>{card.opened_at?'Opened':'Sealed'} · {card.headline}</Txt><Action label="Show sealed link" quiet onPress={()=>{try{setLink(sealedLink(card.token))}catch(error){setNotice(error instanceof Error?error.message:'The card could not be shared.')}}}/><Action label="Revoke this card" quiet disabled={busy} onPress={()=>void act(()=>revokeSeal(card.id),'Card revoked.')}/></Surface></View>)}
   </>}
+  </Enter>:null}
   {link?<LinkCard url={link} onClose={()=>setLink('')}/>:null}
   {notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite">{notice}</Txt><Action label="Dismiss social notice" quiet onPress={()=>setNotice('')}/></Surface></View>:null}
   {offline?<View style={styles.panel}><Surface kind="error"><Txt style={styles.caption}>{socialUnavailable}</Txt><Action label="Try connecting again" quiet disabled={busy} onPress={()=>setVersion(v=>v+1)}/></Surface></View>:null}

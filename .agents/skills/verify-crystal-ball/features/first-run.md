@@ -1,7 +1,7 @@
 # First run
 
 ## Sub-features
-The intro line (“I know your future.” with glinting sparkles), the birthday sheet (month, day and year fields that advance as each completes), Skip for now → age confirmation, the under-13 block, the four-step tour (Ask, Sky, History, You; shown once, Take the tour in You re-opens it), Sky's in-place explanations, Home's fade-in between tabs and chip selection fades.
+The intro line (“I know your future.” with glinting sparkles), the birthday sheet (month, day and year fields that advance as each completes), Skip for now → age confirmation, the under-13 block, the four-step tour (Ask, Sky, History, You; shown once, Take the tour in Settings re-opens it), Sky's in-place explanations, and tab transitions and chip feedback following the [motion language](../../../../docs/design/motion-language.md).
 
 ## How to get to it (user POV)
 A fresh profile opens on the intro; the sheet rises about 2.6 s later (at once under reduced motion). The tour starts on Home after the birthday or age confirmation.

@@ -36,7 +36,7 @@ function component(file:string,imports:Record<string,any>,effectsEnabled=true){
   render();effects.splice(0).forEach(effect=>{if(effectsEnabled)effect()});return render();
  };
 }
-const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
+const nodes=(node:any):any[]=>Array.isArray(node)?node.flatMap(nodes):!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
 
 test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
  const events:string[]=[];
@@ -107,5 +107,49 @@ test('Today omen step targets the actual card after recap and yesterday’s whis
     assert.deepEqual(scrolls[1],{y:y+256,animated:true});
    }
   }
+ }
+});
+
+test('every room header exposes Settings beside Plans and Home omits its title',()=>{
+ const events:string[]=[];
+ const render=component('../src/Home.tsx',{
+  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},
+  './ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./native':{haptic:()=>{}},
+ });
+ for(const title of ['', 'Sky','Ask','History','You','Inner Library','The Ball asks','Settings']){
+  for(const ready of [false,true]){
+   const tree=render('RoomHeader',{title,count:'1 reading left',ready,settings:title==='Settings',top:59,onPlans:()=>events.push('plans'),onSettings:()=>events.push('settings')});
+   const all=nodes(tree),settings=all.find(n=>n.props.testID==='open-settings');
+   assert.equal(settings.props.disabled,!ready);
+   assert.equal(settings.props.accessibilityState.selected,title==='Settings');
+   assert.equal(all.some(n=>n.props.accessibilityRole==='header'),!!title);
+   const row=all.find(n=>n.children.includes(settings));
+   const plans=row.children.find((n:any)=>typeof n.type==='function');
+   assert.ok(plans,'Plans shares the Settings row');
+   assert.equal(plans.props.ready,ready);
+   if(ready){plans.props.onPress();settings.props.onPress();assert.deepEqual(events.splice(0),['plans','settings'])}
+  }
+ }
+ const bar=nodes(render('HomeTabBar',{current:'History',disabled:false,reduce:true,bottom:34,onTab:(tab:string)=>events.push(tab)}));
+ const tabs=bar.filter(n=>n.props.accessibilityRole==='tab');
+ assert.equal(tabs.length,5);
+ for(const tab of tabs)tab.props.onPress();
+ assert.deepEqual(events,['Home','Sky','Ask','History','You']);
+ assert.equal(tabs.find(n=>n.props.accessibilityState.selected).props.testID,'tab-history');
+});
+
+test('shared Screen renders content and forwards directional motion',()=>{
+ const render=component('../src/ui.tsx',{
+  'react-native':{Platform:{OS:'web'},StyleSheet:{create:(styles:any)=>styles},View:'View',Animated:{Value:class {},ScrollView:'ScrollView'}},
+  './OrbVisual':{},'./Enter':{Enter:'Enter'},'./motion':{},'./delight':{},'./native':{},'./store':{},
+  'react-native-svg':{},'@react-native-masked-view/masked-view':{},'expo-linear-gradient':{},'./Surface':{onGold:'#140E0A'},
+ });
+ for(const direction of [-1,1]){
+  const tree=nodes(render('Screen',{children:'Settings content',reduce:true,direction,top:120,under:96}));
+  const enter=tree.find(n=>n.type==='Enter');
+  assert.equal(enter.props.direction,direction);
+  assert.equal(enter.props.reduce,true);
+  assert.ok(tree.some(n=>n.children.includes('Settings content')));
  }
 });

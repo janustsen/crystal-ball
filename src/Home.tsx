@@ -17,14 +17,14 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 const noScroll={touchAction:'none'} as object;
 
 // Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean}){
+export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce,direction}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
  // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
  const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge;
  useEffect(()=>{if(omenFocus&&content.current)omenRef.current?.measureLayout(content.current,(_x,y)=>scroll.current?.scrollTo({y:Math.max(0,y+pad-48),animated:!reduce}))},[omenFocus]);
  // Content starts below the ball but scrolls all the way up, fading out beneath the header (under); touches above the
  // content pass through (box-none) so the ball stays the tap and spin target.
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,top:edge,right:0,bottom}}><EdgeFade soft={36} bottom={24} style={styles.through}>
-  <ScrollView ref={scroll} style={styles.through} showsVerticalScrollIndicator={false} contentContainerStyle={[{paddingTop:pad},styles.through]}><Enter reduce={reduce}><View ref={content} collapsable={false} style={{gap:14,paddingHorizontal:20,paddingBottom:24}}>
+  <ScrollView ref={scroll} style={styles.through} showsVerticalScrollIndicator={false} contentContainerStyle={[{paddingTop:pad},styles.through]}><Enter reduce={reduce} direction={direction}><View ref={content} collapsable={false} style={{gap:14,paddingHorizontal:20,paddingBottom:24}}>
    <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
     <Txt display style={{fontSize:30,lineHeight:34}}>What lies ahead?</Txt>
     <Txt style={styles.label}>Touch the ball to ask</Txt>
@@ -54,13 +54,19 @@ export function PlansPill({count,ready,reduce=false,onPress}:{count:string;ready
   </View>
  </Pressable>;
 }
-// The header every tab shares: the italic title and the readings-left pill.
+// The header every tab shares: the italic title (none at Home), the readings-left pill and the Settings button.
 // Where the shared tab header ends, below the safe area.
 export const headerBottom=(top:number)=>Math.max(52,top+6)+44;
-export function RoomHeader({title,count,ready,reduce,onPlans,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;top:number}){
- return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:headerBottom(top)-44,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}}>
-  <Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{flexShrink:1,fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt>
-  <PlansPill count={count} ready={ready} reduce={reduce} onPress={onPlans}/>
+const gear='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+export function RoomHeader({title,count,ready,reduce,onPlans,onSettings,settings,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;onSettings:()=>void;settings:boolean;top:number}){
+ return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:headerBottom(top)-44,flexDirection:'row',alignItems:'center',gap:12}}>
+  {title?<View style={{flexShrink:1}}><Enter key={title} kind="status" reduce={reduce}><Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt></Enter></View>:null}
+  <View style={{marginLeft:'auto',flexDirection:'row',alignItems:'center',gap:6}}>
+   <PlansPill count={count} ready={ready} reduce={reduce} onPress={onPlans}/>
+   <Pressable testID="open-settings" accessibilityRole="button" accessibilityLabel="Settings" accessibilityState={{selected:settings}} disabled={!ready} onPress={onSettings} style={{width:44,height:44,alignItems:'center',justifyContent:'center'}}>
+    <View style={{width:32,height:32,alignItems:'center',justifyContent:'center'}}><Surface kind="pill" state={ready?undefined:'disabled'}/><View><SvgXml aria-hidden xml={gear.replace('currentColor',settings?colors.gold:colors.ivory)} width={18} height={18}/></View></View>
+   </Pressable>
+  </View>
  </View>;
 }
 

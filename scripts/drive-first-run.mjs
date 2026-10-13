@@ -20,7 +20,7 @@ try{
  // The tour: four steps, shown once, re-opened from You, ended by any tab press.
  for(let i=1;i<=4;i++){await expect(page.getByTestId('tour')).toContainText(`${i} of 4`);await page.screenshot({path:`${evidence}/tour-${i}.png`});await page.getByTestId('tour-next').click();}
  await expect(page.getByTestId('tour')).toHaveCount(0);await page.reload();await page.getByTestId('tab-ask').waitFor();await expect(page.getByTestId('tour')).toHaveCount(0);
- await page.getByTestId('tab-you').click();await page.getByRole('button',{name:'Take the tour'}).click();await expect(page.getByTestId('tour')).toContainText('1 of 4');
+ await page.getByTestId('open-settings').click();await page.getByRole('button',{name:'Take the tour'}).click();await expect(page.getByTestId('tour')).toContainText('1 of 4');
  await page.getByTestId('tab-sky').click();await expect(page.getByTestId('tour')).toHaveCount(0);await expect(page.getByTestId('sky-intro')).toBeVisible();await expect(page.getByText('Only stars from your school.')).toBeVisible();
  // A chosen chip fades its gold fill in rather than snapping: sample the fill each frame after an in-page tap.
  const frames=await page.evaluate(()=>new Promise(done=>{const fill=()=>+getComputedStyle(document.querySelector('[data-testid="sky-theme-work"] [data-testid="surface-chip"] > div')).opacity,out=[],t0=performance.now();

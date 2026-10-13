@@ -1,6 +1,6 @@
 # App Store readiness — 2026-09-30
 
-**Not submission-ready.** This pass adds explicit entertainment copy at Home/Ask, accurate data-flow disclosure in You, optional Apple backup/restore, and opt-in disclosure before hosted AI processing. It does not establish predictive accuracy or guarantee approval.
+**Not submission-ready.** This pass adds explicit entertainment copy at Home/Ask, accurate [data-flow disclosure](../../README.md), optional Apple backup/restore, and opt-in disclosure before hosted AI processing. It does not establish predictive accuracy or guarantee approval.
 
 ## Review checklist
 

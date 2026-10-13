@@ -1,20 +1,21 @@
 // Run with CHROME_DEVTOOLS_AXI_SESSION=cb-delight chrome-devtools-axi run < scripts/drive-delight.js
 // Isolated profile only. Explicit persisted-reading fixture tests presentation, not prediction quality.
 await page.open('http://localhost:8093');
-await page.wait('[data-testid=tab-you]');
-await page.click('[data-testid=tab-you]');
+await page.wait('[data-testid=open-settings]');
+await page.click('[data-testid=open-settings]');
 await page.wait('[aria-label="Ambient sound"]');
 console.log('sound default',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
 await page.click('[aria-label="Ambient sound"]');
 await page.wait(300);
 console.log('sound saved',await page.eval(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).ambientSound));
 await page.open('http://localhost:8093');
-await page.wait('[data-testid=tab-you]');
-await page.click('[data-testid=tab-you]');
+await page.wait('[data-testid=open-settings]');
+await page.click('[data-testid=open-settings]');
 await page.wait('[aria-label="Ambient sound"]');
 console.log('sound reloaded',await page.eval(()=>document.querySelector('[aria-label="Ambient sound"]').checked));
 await page.click('[aria-label="Ambient sound"]');
 if(await page.eval(()=>!!document.querySelector('[data-testid=ball-style-gold]')))throw new Error('Free user can access Plus styles');
+await page.click('[data-testid=tab-you]');
 await page.click('[data-testid=open-inner-library]');
 await page.wait('[data-testid=inner-library-locked]');
 await page.click('[data-testid=unlock-inner-library]');
@@ -27,7 +28,7 @@ await page.wait(300);
 const styles=await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {ball:s.ballStyle,card:s.cardStyle,plus:s.plus};});
 if(styles.ball!=='gold'||styles.card!=='obsidian'||!styles.plus)throw new Error('Plus styles did not persist');
 console.log('Plus styles',JSON.stringify(styles));
-await page.click('[data-testid=tab-you]');
+await page.click('[data-testid=open-settings]');
 await page.wait('[aria-label="Reduce motion"]');
 if(!await page.eval(()=>document.querySelector('[aria-label="Reduce motion"]').checked))await page.click('[aria-label="Reduce motion"]');
 await page.wait(300);
