@@ -67,7 +67,7 @@ const fill={position:'absolute',left:0,top:0,width:'100%',height:'100%',objectFi
 
 // The rendered room behind every tab: a tab change flies the camera to its spot (still → flight → loop cut
 // pixel-exact), the live glass ball rides on top at each frame's tracked position, and reduced motion fades stills.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic',zoom=1}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0,zoom=1}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;offset?:number;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[fading,setFading]=useState<Spot|null>(null);
  const [,setLoaded]=useState(0),[ready,setReady]=useState(false);
  const ref=useRef<HTMLCanvasElement>(null),idle=useRef<HTMLVideoElement>(null),fly=useRef<HTMLVideoElement>(null);
@@ -132,10 +132,14 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',zoom=1}:
  useEffect(()=>watchFrames(idle.current),[idleUrl]);
  // The room replaces the fog Atmosphere, so it publishes the same shell reduced-motion flag.
  useEffect(()=>{const shell=ref.current?.closest('[data-testid="app-shell"]');shell?.setAttribute('data-reduced',String(reduce));return()=>shell?.removeAttribute('data-reduced')},[reduce]);
+ // Home's short-screen offset (app/index.tsx) eases over the room's own 450 ms transition rather than snapping, on the Web
+ // Animations API like the fade.
+ const root=useRef<HTMLDivElement>(null),shifted=useRef(offset);
+ useEffect(()=>{if(shifted.current===offset)return;root.current?.animate([{transform:`translateY(${shifted.current}px)`},{transform:`translateY(${offset}px)`}],{duration:450,easing:'ease-in-out'});shifted.current=offset},[offset]);
  const fallback=!ready?ballOnScreen(stillFrame(spot),width,height):null;
  // During a flight the destination still waits decoded behind the start still, so landing never flashes.
  const stills=!ready?[spot]:flight?[flight.to,at]:[at];
- return <div aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A'}}>
+ return <div ref={root} aria-hidden="true" className="room" style={{position:'absolute',left:0,top:0,width,height,overflow:'hidden',pointerEvents:'none',background:'#140E0A',transform:`translateY(${offset}px)`}}>
   {stills.map(s=><img key={s} alt="" src={Asset.fromModule(roomStills[s]).uri} style={fill}/>)}
   {idleUrl?<video key={idleUrl} ref={idle} src={idleUrl} muted playsInline autoPlay loop style={fill}/>:null}
   {flight&&ready?<video key={flight.url} ref={fly} src={flight.url} muted playsInline autoPlay onEnded={()=>land(flight)} onError={()=>land(flight)} style={fill}/>:null}

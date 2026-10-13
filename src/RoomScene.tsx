@@ -23,7 +23,7 @@ type Flight={key:string;to:Spot;playing:boolean};
 // ponytail: the static orb rides the flight because the iOS Simulator drops the GL ball over a playing video; try the
 // glass in flight again once a device shows it composites.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
-export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange,onTravel}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
+export function RoomScene({spot,width,height,reduce,spin,ball='classic',offset=0,onPlaybackChange,onTravel}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;offset?:number;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[flying,setFlying]=useState(false);
  const [previous,setPrevious]=useState<Spot|null>(null),fade=useRef(new Animated.Value(0)).current,along=useRef(new Animated.Value(0)).current;
  const [failed,setFailed]=useState(false),[started,setStarted]=useState(0);
@@ -108,6 +108,9 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
  useEffect(()=>{scene.current?.style(ball==='classic'?null:ballArt[ball])},[ball,started]);
  // Reduced motion runs no loop, so each new resting spot or flight still gets one frame.
  useEffect(()=>{scene.current?.resume()},[reduce,at,flying]);
+ // Home's short-screen offset (app/index.tsx) eases over the room's own 450 ms transition rather than snapping.
+ const shift=useRef(new Animated.Value(offset)).current,shifted=useRef(offset);
+ useEffect(()=>{if(shifted.current===offset)return;shifted.current=offset;Animated.timing(shift,{toValue:offset,duration:450,easing:Easing.inOut(Easing.ease),useNativeDriver:true}).start()},[offset]);
  const placed=ballOnScreen(stillFrame(at),width,height),fill={position:'absolute' as const,left:0,top:0,width,height};
  // Extra canvas resolution keeps the glass sharp when the Ask camera enlarges it.
  // ponytail: fixed 2× headroom (expo-gl cannot resize its buffer); the thinking plunge (~3×) upscales slightly. Remount
@@ -117,7 +120,7 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
  const poses=flight&&flying?clipFrames(flight.key).map(f=>pose(ballOnScreen(f,width,height))):null;
  const track=(k:number)=>poses?along.interpolate({inputRange:poses.map((_,i)=>i),outputRange:poses.map(p=>p[k])}):pose(placed)[k];
  const carry={opacity:track(3),transform:[{translateX:track(0)},{translateY:track(1)},{scale:track(2)}]};
- return <View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#140E0A'}}>
+ return <Animated.View pointerEvents="none" style={{...fill,overflow:'hidden',backgroundColor:'#140E0A',transform:[{translateY:shift}]}}>
   {/* During a flight the destination still waits decoded beneath the start still, so landing never flashes. */}
   <Image source={roomStills[flight?.to??at]} resizeMode="cover" style={fill}/>
   {flight&&!flying?<Image source={roomStills[at]} resizeMode="cover" style={fill}/>:null}
@@ -130,5 +133,5 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
   </Animated.View>
   <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>
   <LinearGradient colors={['rgba(20,14,10,0)','rgba(20,14,10,.6)','rgba(20,14,10,.94)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:320}}/>
- </View>;
+ </Animated.View>;
 }
