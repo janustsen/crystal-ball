@@ -14,6 +14,8 @@ import {setSkyPush,manageCircle,sendSeal,blockMember,blockStarAuthor,createCircl
 import {Surface} from './Surface';
 import {Enter} from './Enter';
 
+const skyStallMs=8000;
+
 function LinkCard({url,onClose}:{url:string;onClose:()=>void}){
  const [notice,setNotice]=useState('');
  return <View style={styles.panel}><Surface kind="card"><Txt>For someone you trust</Txt><Txt style={styles.caption}>{url.includes('circle=')?'One person · invitation expires in 7 days':'One recipient · available until revoked'}</Txt><Txt selectable testID="social-link" style={[styles.caption,{marginTop:12,color:colors.ice}]}>{url}</Txt><Action label="Share private link" onPress={()=>void Share.share({message:url,url}).catch(()=>setNotice('Sharing was canceled. You can copy the link above.'))}/>{notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite">{notice}</Txt></Surface></View>:null}<Action label="Close link" quiet onPress={onClose}/></Surface></View>;
@@ -49,10 +51,12 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
  useEffect(()=>{if(requestedSection)setSection(requestedSection)},[requestedSection,requestId]);
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{
-  let active=true;
-  async function refresh(){const revision=consentRevision.current;try{const snapshot=await loadSocial(profile,schoolOnly);if(active&&revision===consentRevision.current){setData(snapshot);setOffline(false)}}catch{if(active&&revision===consentRevision.current)setOffline(true)}}
+  let active=true,loaded=false;
+  async function refresh(){const revision=consentRevision.current;try{const snapshot=await loadSocial(profile,schoolOnly);if(active&&revision===consentRevision.current){loaded=true;setData(snapshot);setOffline(false)}}catch{if(active&&revision===consentRevision.current)setOffline(true)}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
-  return()=>{active=false;clearInterval(timer)};
+  // A read that stalls falls back to the offline view (samples and retry); a late answer still replaces it.
+  const stalled=setTimeout(()=>{if(active&&!loaded)setOffline(true)},skyStallMs);
+  return()=>{active=false;clearInterval(timer);clearTimeout(stalled)};
  },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
  function skyPushSaved(enabled:boolean){
   consentRevision.current++;
@@ -68,8 +72,8 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
   <View style={{marginBottom:20}}><Segmented options={[{value:'sky',label:'Tonight’s Sky',testID:'social-section-sky'},{value:'circles',label:'Circles',testID:'social-section-circles'}]} value={section} reduce={reduce} onChange={part=>{setSection(part);setNotice('')}}/></View>
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
   {!data&&!offline?<Txt accessibilityLiveRegion="polite">Loading your sky…</Txt>:null}
-  {data||offline?<Enter key={`${section}-${data?'loaded':'offline'}`} reduce={reduce} direction={section==='sky'?-1:1}>
   {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
+  {data||offline?<Enter key={`${section}-${data?'loaded':'offline'}`} reduce={reduce} direction={section==='sky'?-1:1}>
   {section==='sky'?<>
    <Txt display style={{fontSize:34,lineHeight:40,marginTop:8}}>A sky full of what-ifs.</Txt>
    <Txt testID="sky-intro" style={[styles.caption,{marginTop:6}]}>Tonight’s questions from everyone, shared anonymously. Tap a theme to read one.</Txt>

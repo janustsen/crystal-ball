@@ -79,16 +79,21 @@ test('settings changes in either direction also invalidate earlier snapshots',as
 
 for(const section of ['sky','circles']){
  test(`${section} waits for a complete snapshot and retains it during school refresh`,async()=>{
-  const f=fixture(true);f.render();f.section(section);f.elapse();
-  assert.ok(!f.render().some(n=>n.type==='Enter'),'elapsed time cannot reveal partial content');
+  const f=fixture(true);f.render();f.section(section);
+  assert.ok(!f.render().some(n=>n.type==='Enter'),'a pending first load reveals no partial content');
   assert.ok(f.render().some(n=>n.children.includes('Loading your sky…')));
+  f.elapse();
+  assert.ok(!f.render().some(n=>n.type==='SchoolPicker'||n.type==='Prompt'),'a stalled first load shows only offline content');
+  assert.ok(f.render().some(n=>n.children.includes('Social is offline.')));
+  if(section==='sky')assert.equal(typeof f.render().find(n=>n.props.label==='Ask this too')?.props.onPress,'function');
   f.finishInitial();await settle();
+  assert.ok(!f.render().some(n=>n.children.includes('Social is offline.')),'a late snapshot replaces the offline content');
   const before=f.render().find(n=>n.type==='Enter');
   assert.ok(before);
   const pending=f.hold(false);
   f.render().find(n=>n.type==='SchoolPicker').props.onSaved();
   assert.deepEqual(f.render().filter(n=>n.type==='Enter'||n.type==='SchoolPicker'||n.type==='Prompt'||n.type==='Settings').map(n=>n.type),
-   [before.type,'SchoolPicker',section==='sky'?'Prompt':'Settings'],'school save retains the rendered snapshot');
+   ['SchoolPicker',before.type,section==='sky'?'Prompt':'Settings'],'school save retains the rendered snapshot; the picker sits outside the section transition');
   pending.fail();await settle();
   assert.ok(f.render().some(n=>n.type==='SchoolPicker'));
  });
