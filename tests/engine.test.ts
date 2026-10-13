@@ -92,6 +92,17 @@ test('a specific prediction that shares words with an answer is accepted first t
  try{const result=await predict('What will my year look like?',{context_1:'What are you training for? Training for a half marathon',horizon:'next year'},false,provider(()=>undefined));assert.equal(result.kind,'ok',JSON.stringify(result));assert.equal(drafts,1);}finally{globalThis.fetch=original;}
 });
 
+test('the month May is not read as hedging, while modal may still is',async()=>{
+ const {predict}=await import('../server/engine.ts');const original=globalThis.fetch;let drafts=0,modal=false;
+ globalThis.fetch=async(_url,init)=>{const body=JSON.parse(String(init?.body));let content:unknown={category:'allow'};if(body.format.properties.prediction){drafts++;content={insight:modal?'Your painting may finally get a deadline beyond paid work.':'Your May exhibition gives your painting a deadline beyond paid work.',basis:'context_1',prediction:'You will hang three new canvases at your May exhibition.'};}return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));};
+ try{
+  const facts={context_1:'What is coming up for your art? An exhibition in May',horizon:'next year'};
+  const result=await predict('What will my year look like?',{...facts},false,provider(()=>undefined));
+  assert.equal(result.kind,'ok',JSON.stringify(result));assert.equal(drafts,1);
+  modal=true;drafts=0;assert.equal((await predict('What will my year look like?',{...facts},false,provider(()=>undefined))).kind,'error');assert.equal(drafts,2);
+ }finally{globalThis.fetch=original;}
+});
+
 test('personal forecast voice normalizes model first-person phrasing',async()=>{
  const {formatForecast}=await import('../server/engine.ts');assert.equal(formatForecast('Yes, my next holiday will be memorable','Within 3 months'),'Your next holiday will be memorable within 3 months.');assert.equal(formatForecast('I will finish my novel this year.'),'You will finish your novel this year.');
 });
