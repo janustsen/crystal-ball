@@ -16,4 +16,4 @@ The canvas Library glass ball is drawn live over the video in its own transparen
 
 Gold editions add a rim/halo using the existing reveal entrance and retain the speculative label. Static Plus skins tint the existing glass; they do not change the fog renderer.
 
-Native orb touches use a soft impact; thinking pulses every half glow cycle; a newly completed reveal uses a heavy impact. Ambient hum and reveal chime are optional, default off, pause during voice capture/backgrounding, and native playback respects the silent switch. Browser autoplay rejection is handled and a later deliberate tap can resume the enabled hum. Native haptic feel and silent-switch behavior still require device verification.
+Native orb touches use a soft impact; submitting a question and a newly completed reveal use a heavy impact; thinking pulses every half glow cycle. Ambient hum and reveal chime are optional, default off, pause during voice capture/backgrounding, and native playback respects the silent switch. Browser autoplay rejection is handled and a later deliberate tap can resume the enabled hum. Native haptic feel and silent-switch behavior still require device verification.
