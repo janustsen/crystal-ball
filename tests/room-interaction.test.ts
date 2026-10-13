@@ -425,3 +425,20 @@ test('cramped Ask content keeps controls reachable and tracks the ball while scr
  assert.equal(tree.props.scrollEnabled,false);
  assert.equal(tree.props.contentContainerStyle.height,tree.props.style.height);
 });
+
+
+test('Ask reserves the supplied keyboard and notice space through resize and dismissal',()=>{
+ const listeners:Record<string,(event:any)=>void>={};
+ const render=component('../src/AskBall.tsx',{
+  'react-native':{Platform:{OS:'ios'},Dimensions:{get:()=>({height:844})},Keyboard:{addListener:(event:string,callback:(event:any)=>void)=>{listeners[event]=callback;return {remove(){}}}},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
+  './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
+ });
+ for(const height of [667,844,956])for(const keyboard of [0,300])for(const notice of [0,120,200]){
+  const bottom=Math.max(12,keyboard)+notice;
+  listeners.keyboardWillChangeFrame?.({endCoordinates:{screenY:844-keyboard}});
+  const tree=render('AskBall',{width:390,height,top:96,bottom,value:'Will Alex learn?',onChangeText(){},refused:0,reduce:true,largeText:false,chip:null,note:null,controls:null,onCamera(){}});
+  assert.equal(tree.props.style.top+tree.props.style.height,height-bottom-12);
+  assert.ok(tree.props.contentContainerStyle.height>=tree.props.style.height);
+ }
+});

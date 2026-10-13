@@ -663,7 +663,7 @@ test('a tapped answer holds its highlight, ignores repeat taps and drops when Ba
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:9,update:()=>{},applyBalance:async()=>{}}),learnedFacts:()=>({})},
   '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
   '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
-  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/AskBall':askBallMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},
   '../src/SocialScreen':{Social:'Social'},'../src/social':{syncSocialProfile:async()=>{}},'../src/native':{haptic:()=>{},watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
