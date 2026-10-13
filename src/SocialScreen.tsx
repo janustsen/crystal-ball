@@ -46,8 +46,6 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
  const [friendEntry,setFriendEntry]=useState<Omit<FriendTarget,'firstName'>|null>(null),[firstName,setFirstName]=useState('');
  const [section,setSection]=useState<'sky'|'circles'>(invite?'circles':requestedSection??'sky'),[selected,setSelected]=useState<SkyPrompt>('love');
  const [data,setData]=useState<SocialSnapshot|null>(null),[offline,setOffline]=useState(false),[version,setVersion]=useState(0),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[link,setLink]=useState(''),[draft,setDraft]=useState<SocialDraft|null>(null),[joining,setJoining]=useState(!!invite),[confirmLeave,setConfirmLeave]=useState('');
- const [waited,setWaited]=useState(false);
- useEffect(()=>{const timer=setTimeout(()=>setWaited(true),800);return()=>clearTimeout(timer)},[]);
  useEffect(()=>{if(requestedSection)setSection(requestedSection)},[requestedSection,requestId]);
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{
@@ -69,10 +67,9 @@ export function Social({onAsk,onPlus,invite,onInviteHandled,seal,reduce,requeste
  return <>
   <View style={{marginBottom:20}}><Segmented options={[{value:'sky',label:'Tonight’s Sky',testID:'social-section-sky'},{value:'circles',label:'Circles',testID:'social-section-circles'}]} value={section} reduce={reduce} onChange={part=>{setSection(part);setNotice('')}}/></View>
   {seal?<SealedCard token={seal} reduce={reduce}/>:null}
-  {/* The first snapshot adds the school picker and prompts above and between the sections, so they wait for it (at most a moment)
-   instead of jumping in; a section switch slides its content in from the chosen side. */}
-  {data||offline||waited?<Enter key={section} reduce={reduce} direction={section==='sky'?-1:1}>
-  {data?<SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setData(null);setSchoolOnly(false);setVersion(v=>v+1)}}/>:null}
+  {!data&&!offline?<Txt accessibilityLiveRegion="polite">Loading your sky…</Txt>:null}
+  {data?<Enter key={section} reduce={reduce} direction={section==='sky'?-1:1}>
+  <SchoolPicker schools={data.schools} selected={data.profile?.school_id??null} onSaved={()=>{setSchoolOnly(false);setVersion(v=>v+1)}}/>
   {section==='sky'?<>
    <Txt display style={{fontSize:34,lineHeight:40,marginTop:8}}>A sky full of what-ifs.</Txt>
    <Txt testID="sky-intro" style={[styles.caption,{marginTop:6}]}>Tonight’s questions from everyone, shared anonymously. Tap a theme to read one.</Txt>
