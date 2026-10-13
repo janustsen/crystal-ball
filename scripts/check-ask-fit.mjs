@@ -24,7 +24,7 @@ try{
     for(const open of [false,true]){
      await page.evaluate(value=>window.__keyboard(value),open);await page.waitForTimeout(900);
      const bottom=height-(open?keyboard:0),bad=[];
-     const header=await page.getByTestId('close-flow').boundingBox();
+     const header=await page.getByTestId('close-flow').boundingBox(),viewport=await page.getByTestId('ask-content').boundingBox();
      const ids=[...(person?['person-name','ask-about-myself']:['ask-about-someone']),'question-input','ask-disclosure','speak-instead','look-into-the-future'];
      for(const id of ids){
       const control=page.getByTestId(id);
@@ -34,9 +34,10 @@ try{
        for(let n=e;n;n=n.parentElement){const style=getComputedStyle(n);if(style.opacity==='0'||style.visibility==='hidden'||n.getAttribute('aria-hidden')==='true')return false}
        return true;
       });
-      if(!visible||!bounds||bounds.height<=0||bounds.y<header.y+header.height-1||bounds.y+bounds.height>bottom+.5)bad.push(`${id} unreachable`);
+      if(!visible||!bounds||bounds.width<=0||bounds.height<=0||bounds.x<viewport.x-.5||bounds.x+bounds.width>viewport.x+viewport.width+.5||bounds.y<header.y+header.height-1||bounds.y+bounds.height>bottom+.5)bad.push(`${id} unreachable`);
      }
-     const layout=await page.getByTestId('ask-content').evaluate(e=>({height:e.clientHeight,content:e.scrollHeight,offset:e.scrollTop}));
+     const layout=await page.getByTestId('ask-content').evaluate(e=>({height:e.clientHeight,content:e.scrollHeight,offset:e.scrollTop,width:e.clientWidth,contentWidth:e.scrollWidth}));
+     if(layout.contentWidth>layout.width+1)bad.push('content overflows horizontally');
      if(layout.content<=layout.height+1&&layout.offset>1)bad.push('fitting content moved');
      const state=`${name}${person?' person':''}${open?' keyboard':''}`;
      console.log(`${bad.length?'FAIL':'PASS'} ${state}${bad.length?`: ${bad.join(', ')}`:''}`);
