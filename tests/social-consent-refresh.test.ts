@@ -17,13 +17,13 @@ function fixture(initiallyPending=false){
  let finishInitial!:(value:any)=>void,failInitial!:(error:Error)=>void;
  if(initiallyPending)pending=new Promise((resolve,reject)=>{finishInitial=resolve;failInitial=reject});
  const react={
-  createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
+  createElement:(type:any,props:any,...children:any[])=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
   useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=typeof value==='function'?value(slots[i]):value}]},
   useRef:(initial:any)=>slots[cursor++]??={current:initial},
   useEffect:(effect:()=>void,deps:any[])=>{const i=cursor++;if(!slots[i]||deps.some((v,j)=>v!==slots[i].deps[j])){const prior=slots[i];slots[i]={deps};effects.push(()=>{prior?.cleanup?.();slots[i].cleanup=effect()})}},
  };
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:'Segmented'},'./Enter':{Enter:'Enter'},'./social-links':{},
+  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:({options,value,onChange}:any)=>options.map((o:any)=>({type:'Pressable',props:{testID:o.testID,accessibilityState:{selected:value===o.value},onPress:()=>onChange(o.value)},children:[]}))},'./Enter':{Enter:'Enter'},'./social-links':{},
   './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{SchoolPicker:'SchoolPicker'},'./SocialExtras':{},'./SkyOmen':{},
   './SocialPush':{SkyPushPrompt:'Prompt',SocialPush:'Settings'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
@@ -36,7 +36,7 @@ function fixture(initiallyPending=false){
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error,setInterval:(fn:()=>void)=>{tick=fn;return 0},clearInterval:()=>{},setTimeout:(fn:()=>void)=>{timers.push(fn);return 0},clearTimeout:()=>{}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;const result=nodes(module.exports.Social({reduce:true,onInviteHandled:()=>{}}));effects.splice(0).forEach(effect=>effect());return result};
- const section=(name:string)=>render().find(n=>n.type==='Segmented').props.onChange(name);
+ const section=(name:string)=>render().find(n=>n.props.testID===`social-section-${name}`).props.onPress();
  const prompt=()=>render().find(n=>n.type==='Prompt').props;
  const settings=()=>render().find(n=>n.type==='Settings').props;
  const hold=(start=true)=>{

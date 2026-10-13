@@ -10,7 +10,7 @@ test('social refresh preserves circles and repeated navigation exposes visible S
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,reads=0;
  const react={
-  createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),
+  createElement:(type:any,props:any,...children:any[])=>typeof type==='function'?type({...props,children}):({type,props:props??{},children}),
   useState:(initial:any)=>{
    const index=cursor++;
    if(!(index in slots))slots[index]=initial;
@@ -23,7 +23,7 @@ test('social refresh preserves circles and repeated navigation exposes visible S
   },
  };
  const imports:Record<string,any>={
-  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:'Segmented'},'./Enter':{Enter:'Enter'},'./social-links':{},
+  react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:({options,value,onChange}:any)=>options.map((o:any)=>({type:'Pressable',props:{testID:o.testID,accessibilityState:{selected:value===o.value},onPress:()=>onChange(o.value)},children:[]}))},'./Enter':{Enter:'Enter'},'./social-links':{},
   './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{SkyOmen:'SkyOmen'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
   './social':{
@@ -54,20 +54,20 @@ test('social refresh preserves circles and repeated navigation exposes visible S
  assert.ok(render().some(node=>node.props.label==='Invite a friend'));
  assert.ok(texts().includes('Network request failed'));
  assert.ok(texts().includes('Social is offline.'));
- const selected=()=>render().find(node=>node.type==='Segmented').props.value===requestedSection;
+ const selected=()=>render().find(node=>node.props.testID===`social-section-${requestedSection}`).props.accessibilityState.selected;
  requestedSection='sky';requestId='sky-one';render();assert.equal(selected(),true);
  assert.deepEqual(render().filter(node=>node.type==='SkyOmen').map(node=>node.props.omen.omen),['A shared Circle omen.']);
- render().find(node=>node.type==='Segmented').props.onChange('circles');
+ render().find(node=>node.props.testID==='social-section-circles').props.onPress();
  assert.equal(selected(),false);
  requestId='sky-two';render();assert.equal(selected(),true);
  requestedSection='circles';requestId='circles-one';render();assert.equal(selected(),true);
- render().find(node=>node.type==='Segmented').props.onChange('sky');
+ render().find(node=>node.props.testID==='social-section-sky').props.onPress();
  assert.equal(selected(),false);
  requestId='circles-two';render();assert.equal(selected(),true);
  snapshot.profile.school_id='school';requestedSection='sky';requestId='sky-three';render();
  assert.deepEqual(render().filter(node=>node.type==='SkyOmen').map(node=>node.props.omen.omen),['A shared school omen.','A shared Circle omen.']);
  invite='circle-invitation';requestId='sky-four';render();
- assert.equal(render().find(node=>node.type==='Segmented').props.value,'circles');
+ assert.equal(render().find(node=>node.props.testID==='social-section-circles').props.accessibilityState.selected,true);
  assert.ok(render().some(node=>node.props.label==='Join this circle'));
  requestId='sky-five';render();assert.equal(selected(),true);
 });
