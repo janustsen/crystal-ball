@@ -105,3 +105,22 @@ test('short financial forecasts allow the supplied timeframe but reject invented
   }
  }finally{globalThis.fetch=original;}
 });
+
+test('numbers from the question count as supplied, while currency codes never borrow a timeframe digit',async()=>{
+ const original=globalThis.fetch;let prediction='',attempts=0;
+ globalThis.fetch=async(_url,init)=>{
+  const body=JSON.parse(String(init?.body));
+  const content=body.format.properties.prediction?(attempts++,{prediction,basis:'context_1',insight:'You keep showing up for the work you already chose.'}):(body.format.properties.fits?{reason:'fixture',fits:true}:{category:'allow'});
+  return new Response(JSON.stringify({message:{content:JSON.stringify(content)}}));
+ };
+ try{
+  prediction='You will finish your 100-page novel.';
+  const novel=await predict('Will I finish my 100-page novel next year?',{context_1:'How often do you write? Every morning',horizon:'next year'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
+  assert.equal(novel.kind,'ok',JSON.stringify(novel));assert.equal(attempts,1);
+  for(const invented of ['You will save 3 USD daily.','You will save USD 3 daily.']){
+   prediction=invented;attempts=0;
+   const saving=await predict('Will I save money?',{context_1:'Do you save? A little each month',horizon:'within 3 months'},false,provider(()=>undefined),{viewerBirthday:'1995-06-15'});
+   assert.equal(saving.kind,'error',invented);assert.equal(attempts,2);
+  }
+ }finally{globalThis.fetch=original;}
+});
