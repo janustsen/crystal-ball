@@ -177,9 +177,12 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
     const headline=formatForecast(x.prediction,horizon,context.personName);
     if(filler.test(x.prediction))return {valid:false,feedback:'The prediction uses filler. Use the insight to predict one concrete thing that will happen, change or be decided, which their answers do not already say.'};
     if(headline.length>110)return {valid:false,feedback:'Shorten the verdict to fit 110 characters including the supplied horizon.'};
-    const numbers=(text:string)=>text.toLowerCase().replace(/\s+/g,' ').match(/\d+(?:\.\d+)?|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|a|an) (?:dollars?|euros?|pounds?|bucks?|cents?|kroner|krone)\b/g)||[];
-    const suppliedNumbers=new Set(numbers(Object.values(facts).join(' ')));
-    if(numbers(`${x.prediction} ${x.insight}`).some(number=>!suppliedNumbers.has(number)))return {valid:false,feedback:'Remove numerical claims not present in the supplied facts. Do not invent statistics or calculate new facts.'};
+    const numberWord='(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million)';
+    const amount=String.raw`(?:\d+(?:[,.]\d+)*|\b(?:${numberWord}|a|an)\b)(?:[ -]+(?:and[ -]+)?${numberWord}\b)*`;
+    const currency='(?:dollars?|euros?|pounds?|bucks?|cents?|kroner|krone)';
+    const numbers=(text:string)=>text.toLowerCase().replace(/\s+/g,' ').match(new RegExp(String.raw`[$€£] ?${amount}(?: ${currency}\b)?|${amount} ${currency}\b|\d+(?:[,.]\d+)*`,'g'))||[];
+    const suppliedNumbers=new Set(Object.entries(facts).filter(([key])=>key!=='horizon').flatMap(([,value])=>numbers(value)));
+    if([x.prediction,x.insight||''].flatMap(numbers).some(number=>!suppliedNumbers.has(number)))return {valid:false,feedback:'Remove numerical claims not present in the supplied facts. Do not invent statistics or calculate new facts.'};
     return true;
    });
   const headline=formatForecast(result.prediction,horizon,context.personName);

@@ -164,3 +164,56 @@ test('written currency amounts in predictions and insights require supplied fact
   }
  }
 });
+
+
+test('complete amounts require matching factual evidence in both generated fields',async()=>{
+ const cases=[
+  ['I save a little each month but have no budget','$3'],
+  ['I work 3 days each week','$3'],
+  ['I save €3 daily','$3'],
+  ['I save 3 dollars daily','3 euros'],
+  ['I save twenty dollars daily','one hundred twenty dollars'],
+  ['I save twenty dollars daily','one hundred and twenty dollars'],
+  ['I save one dollar daily','twenty-one dollars'],
+  ['I save $3 daily','$3 million'],
+  ['I save $1,000 daily','$1,000,000'],
+ ] as const;
+ for(const [fact,amount] of cases){
+  for(const field of ['prediction','insight']){
+   for(const personName of [undefined,'Alex']){
+    for(const repaired of [false,true]){
+     let attempts=0;
+     const subject=personName||'You';
+     const valid={basis:'context_1',prediction:`${subject} will open a savings account.`,insight:'Saving needs a protected place in the daily routine.'};
+     const model=validatedProvider(async(messages,schema)=>{
+      if((schema.properties as Record<string,unknown>).prediction){
+       if(attempts++)assert.match(messages.at(-1)!.content,/Remove numerical claims not present in the supplied facts/);
+       return JSON.stringify(repaired&&attempts===2?valid:{...valid,[field]:field==='prediction'?`${subject} will save ${amount} daily.`:`The daily saving target is ${amount}.`});
+      }
+      return JSON.stringify({category:'allow'});
+     });
+     const result=await predict(personName?`What will ${personName}'s net worth be?`:'What will my net worth be?',{context_1:fact,horizon:'within 3 months'},false,model,{personName});
+     assert.equal(result.kind,repaired?'ok':'error',`${fact} / ${amount} / ${field} / ${personName}: ${JSON.stringify(result)}`);
+     assert.equal(attempts,2);
+    }
+   }
+  }
+ }
+});
+
+test('complete supplied amounts and ordinary counts remain usable',async()=>{
+ for(const amount of ['$3','€3','£3','3 dollars','one hundred twenty dollars','one hundred and twenty dollars','twenty-one dollars','$3 million','$1,000']){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if((schema.properties as Record<string,unknown>).prediction){
+    attempts++;
+    return JSON.stringify({basis:'context_1',prediction:`You will transfer ${amount} to savings.`,insight:`Your 2 accounts give the ${amount} a separate home.`});
+   }
+   return JSON.stringify({category:'allow'});
+  });
+  const result=await predict('Will I save enough money?',{context_1:`I can spare ${amount} daily and have 2 accounts`,horizon:'within 3 months'},false,model);
+  assert.equal(result.kind,'ok',`${amount}: ${JSON.stringify(result)}`);
+  assert.equal(attempts,1);
+  if(result.kind==='ok')assert.match(result.value.headline,/within 3 months\.$/);
+ }
+});
