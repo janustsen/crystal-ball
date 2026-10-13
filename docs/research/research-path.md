@@ -21,7 +21,7 @@ Historical proposed experiment, now dropped for this prototype: compare deep mod
 
 ## Grounding contract
 
-Returned sources are server-owned, never URLs invented by the LLM. Why separates supplied personal facts, source-derived claims, and assumptions. A source must be topically relevant to count as grounding. Retrieval text is untrusted data and cannot issue tool instructions. No model browsing or arbitrary URL fetch tool. If evidence conflicts, the headline remains one best forecast while Why exposes the conflict. Certainty of phrasing must never become a claim of certainty about the future.
+Returned sources are server-owned, never URLs invented by the LLM. Explanation wording follows the [voice guide](../voice.md). A source must be topically relevant to count as grounding. Retrieval text is untrusted data and cannot issue tool instructions. No model browsing or arbitrary URL fetch tool. If evidence conflicts, the headline remains one best forecast while Why exposes the conflict. Certainty of phrasing must never become a claim of certainty about the future.
 
 ## Expanded retrieval audit
 
