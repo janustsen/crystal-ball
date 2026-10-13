@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {homeLayout} from '../src/home-layout.ts';
 import track from '../src/roomTrack.json' with {type:'json'};
 
-test('Home separates the room ball, scrolling controls, header and notices',()=>{
+test('Home layout allocates separate space for the ball, viewport, header and notices',()=>{
  for(const [width,height] of [[375,667],[390,844],[440,956],[390,390],[480,390]]){
   for(const [safeTop,safeBottom] of height<500?[[0,0]]:[[0,0],[59,34]])for(const notice of [false,true]){
    const scale=Math.max(width/track.width,height/track.height);
