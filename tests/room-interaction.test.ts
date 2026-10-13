@@ -361,7 +361,7 @@ test('the Ask camera lands the ball on its target and keeps the room covering th
  for(const [w,h,kb] of [[375,667,260],[390,844,336],[440,956,346]]){
   const rest=room.ballOnScreen(room.stillFrame('Ask'),w,h)!;
   // Keyboard up: the band between the chip under the header and the controls above the keyboard.
-  for(const cam of [room.typingBall(w,h,120,h-kb-90),room.thinkingBall(w,h,96,null)]){
+  for(const cam of [room.typingBall(w,h,120,h-kb-90),room.thinkingBall(w,h,96)]){
    const {k,tx,ty}=room.cameraTransform(w,h,cam);
    assert.ok(k>=1);
    assert.ok(Math.abs(w/2+k*(rest.x-w/2)+tx-cam.x)<1e-6&&Math.abs(h/2+k*(rest.y-h/2)+ty-cam.y)<1e-6,`${w}x${h} ball lands on target`);
@@ -378,16 +378,16 @@ test('the Ask camera lands the ball on its target and keeps the room covering th
 });
 
 
-test('submission enlarges the ball from typing or the resting room',()=>{
+test('submission enlarges the ball from typing or the resting room, and the status still fits below it',()=>{
  for(const [width,height] of [[375,667],[390,844],[440,956]]){
+  const target=room.thinkingBall(width,height,96);
   for(const bottom of [height-140,height-400]){
-   const from=room.typingBall(width,height,152,bottom);
-   const target=room.thinkingBall(width,height,96,from);
-   assert.ok(target.r>from.r);
+   const from=room.typingBall(width,height,152,bottom,target.r/room.pushIn);
+   assert.ok(target.r>from.r,`${width}x${height} band to ${bottom}: ${from.r} → ${target.r}`);
    assert.ok(room.cameraTransform(width,height,target).k>room.cameraTransform(width,height,from).k);
   }
-  const target=room.thinkingBall(width,height,96,null);
   assert.ok(target.r>room.ballOnScreen(room.stillFrame('Ask'),width,height)!.r);
+  assert.ok(target.y+target.r+360<=height,`${width}x${height} thinking status fits under the ball`);
  }
 });
 

@@ -3,7 +3,7 @@ import {Animated,Dimensions,Easing,Keyboard,Platform,Pressable,ScrollView,Text,T
 import Svg,{Circle,Defs,RadialGradient,Stop,SvgXml} from 'react-native-svg';
 import {Shake} from './Enter';
 import {motion} from './motion';
-import {ballOnScreen,cameraTransform,stillFrame,typingBall,type Camera} from './room';
+import {ballOnScreen,cameraTransform,pushIn,stillFrame,thinkingBall,typingBall,type Camera} from './room';
 import {colors,fonts} from './ui';
 
 const native=Platform.OS!=='web';
@@ -32,8 +32,8 @@ export function AskBall({width,height,top,bottom,value,onChangeText,refused,redu
  const keyboard=useKeyboardInset(),[chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),[scroll,setScroll]=useState(0),input=useRef<TextInput>(null);
  const dock=keyboard?keyboard+12:bottom+12,viewport=Math.max(1,height-top-dock);
  const contentHeight=Math.max(viewport,chipHeight+12+2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0)+16+noteHeight+controlsHeight);
- const ball=typingBall(width,height,chipHeight+12,contentHeight-controlsHeight-noteHeight-16),offset=Math.min(scroll,contentHeight-viewport);
- useEffect(()=>onCamera({...ball,y:top+ball.y-offset}),[ball.x,ball.y,ball.r,top,offset]);
+ const ball=typingBall(width,height,chipHeight+12,contentHeight-controlsHeight-noteHeight-16,thinkingBall(width,height,top).r/pushIn),offset=Math.min(scroll,contentHeight-viewport);
+ useEffect(()=>{onCamera({...ball,y:top+ball.y-offset})},[ball.x,ball.y,ball.r,top,offset]);
  // The text keeps to the square inside the glass and shrinks as the question grows; the field scrolls only past that.
  const side=Math.round(ball.r*1.42),base=ball.r*.21*(largeText?1.35:1),size=Math.round(Math.max(13,Math.min(ball.r*.3,base*Math.sqrt(Math.min(1,40/Math.max(1,value.length))))));
  const font={fontFamily:fonts.italic,fontSize:size,lineHeight:Math.round(size*1.18),textAlign:'center' as const},box=Math.min(side,textHeight||side);

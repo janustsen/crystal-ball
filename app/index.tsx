@@ -229,7 +229,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  // The tabs keep their room visible behind glass cards (as the reference artboards do); the reading and overlays dim it further.
  // Typing writes into the ball (the camera pushed in to fit it above the keyboard); thinking plunges further in.
  const typing=askFlow&&ready&&flow.stage==='ask'&&!(params.seal&&Platform.OS==='web'),thinking=askFlow&&(flow.stage==='planning'||flow.stage==='research');
- const cam=!shell.height?null:typing?typedBall:thinking?thinkingBall(shell.width,shell.height,headerHeight,typedBall):null;
+ const cam=!shell.height?null:typing?typedBall:thinking?thinkingBall(shell.width,shell.height,headerHeight):null;
  const scrimAlpha=immersive?.88:.62;
  const scrim=!shell.height||home?null:cam?Math.round(cam.y+cam.r*.55):askFlow?Math.min(contentTop('Ask',shell.width,shell.height),headerHeight+cardTop)-56:immersiveOverlay?headerHeight-40:screenTop-120;
  const tapBegins=flow.stage==='ask'&&!askBlocked;

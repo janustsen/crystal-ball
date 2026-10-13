@@ -49,15 +49,17 @@ export function cameraTransform(width:number,height:number,cam:Camera|null){
  const k=Math.max(1,cam.r/rest.r);
  return {k,tx:cam.x-width/2-k*(rest.x-width/2),ty:cam.y-height/2-k*(rest.y-height/2)};
 }
-// Typing: the largest ball that fits the band between top and bottom (the question is written inside it). A band too
-// short for the resting ball keeps the resting size and sits on the band's bottom, so it never covers the controls.
-export function typingBall(width:number,height:number,top:number,bottom:number):Camera{
- const rest=ballOnScreen(stillFrame('Ask'),width,height),r=Math.max(rest?.r??0,Math.min(width*.42,(bottom-top)/2));
+// Typing: the largest ball that fits the band between top and bottom (the question is written inside it), and no larger
+// than `max`, so Ask the Ball can still push in. A band too short for the resting ball keeps the resting size and sits
+// on the band's bottom, so it never covers the controls.
+export function typingBall(width:number,height:number,top:number,bottom:number,max=Infinity):Camera{
+ const rest=ballOnScreen(stillFrame('Ask'),width,height),r=Math.max(rest?.r??0,Math.min(width*.42,(bottom-top)/2,max));
  return {x:width/2,y:Math.min((top+bottom)/2,bottom-r),r};
 }
 // Thinking: the camera has pushed into the ball, which fills the upper screen while the status (about 360 points with its padding at
-// normal text size) reads below it.
-export function thinkingBall(width:number,height:number,top:number,from:Camera|null):Camera{
- const r=Math.max((from?.r??ballOnScreen(stillFrame('Ask'),width,height)?.r??0)*1.15,Math.min(width*.44,(height-top-360)/2-6));
+// normal text size) reads below it. It is always at least `pushIn` times the resting ball; typing stays that step below it.
+export const pushIn=1.15;
+export function thinkingBall(width:number,height:number,top:number):Camera{
+ const r=Math.max((ballOnScreen(stillFrame('Ask'),width,height)?.r??0)*pushIn,Math.min(width*.44,(height-top-360)/2-6));
  return {x:width/2,y:top+12+r,r};
 }
