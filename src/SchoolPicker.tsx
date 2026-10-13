@@ -8,7 +8,7 @@ import {setSchool,type School} from './social';
 import {Surface} from './Surface';
 
 const attemptedKey='crystal-ball-school-location-asked';
-export function SchoolPicker({schools,selected,onSaved}:{schools:School[];selected:string|null;onSaved:()=>void}){
+export function SchoolPicker({schools,selected,onSaved}:{schools:School[];selected:string|null;onSaved:(id:string|null)=>void}){
  const [editing,setEditing]=useState(false),[query,setQuery]=useState(''),[nearby,setNearby]=useState<School[]|null>(null),[attempted,setAttempted]=useState(true),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
  useEffect(()=>{void AsyncStorage.getItem(attemptedKey).then(value=>setAttempted(value==='yes')).catch(()=>{});},[]);
  async function locate(){
@@ -26,7 +26,7 @@ export function SchoolPicker({schools,selected,onSaved}:{schools:School[];select
  }
  async function save(id:string|null){
   setBusy(true);setNotice('');
-  try{await setSchool(id);setEditing(false);setNearby(null);setQuery('');onSaved()}catch{setNotice('Your school could not be saved. Try again.')}finally{setBusy(false)}
+  try{await setSchool(id);setEditing(false);setNearby(null);setQuery('');onSaved(id)}catch{setNotice('Your school could not be saved. Try again.')}finally{setBusy(false)}
  }
  const current=schools.find(s=>s.id===selected);
  return <View style={[styles.panel,{marginBottom:20,gap:14}]}><Surface kind="card">

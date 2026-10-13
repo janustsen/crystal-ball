@@ -9,7 +9,7 @@ const code=ts.transpileModule(readFileSync(new URL('../src/SocialScreen.tsx',imp
 }).outputText;
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 function fixture(initiallyPending=false){
- const remote={owner:'A',profile:{handle:'a',sky_push:false,sky_push_answered:false},stars:[],schoolOnly:false,circles:[],members:[],
+ const remote={owner:'A',profile:{handle:'a',sky_push:false,sky_push_answered:false,school_id:null as string|null},stars:[],schoolOnly:false,circles:[],members:[],
   schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
  let cursor=0,tick=()=>{},pending:Promise<any>|undefined;
@@ -86,16 +86,16 @@ for(const section of ['sky','circles']){
   assert.ok(!f.render().some(n=>n.type==='SchoolPicker'||n.type==='Prompt'),'a stalled first load shows only offline content');
   assert.ok(f.render().some(n=>n.children.includes('Social is offline.')));
   if(section==='sky')assert.equal(typeof f.render().find(n=>n.props.label==='Ask this too')?.props.onPress,'function');
-  f.finishInitial();await settle();
+  f.remote.profile.school_id='old-school';f.finishInitial();await settle();
   assert.ok(!f.render().some(n=>n.children.includes('Social is offline.')),'a late snapshot replaces the offline content');
   const before=f.render().find(n=>n.type==='Enter');
   assert.ok(before);
   const pending=f.hold(false);
-  f.render().find(n=>n.type==='SchoolPicker').props.onSaved();
+  f.render().find(n=>n.type==='SchoolPicker').props.onSaved('new-school');
   assert.deepEqual(f.render().filter(n=>n.type==='Enter'||n.type==='SchoolPicker'||n.type==='Prompt'||n.type==='Settings').map(n=>n.type),
    ['SchoolPicker',before.type,section==='sky'?'Prompt':'Settings'],'school save retains the rendered snapshot; the picker sits outside the section transition');
   pending.fail();await settle();
-  assert.ok(f.render().some(n=>n.type==='SchoolPicker'));
+  assert.equal(f.render().find(n=>n.type==='SchoolPicker').props.selected,'new-school','a failed refresh keeps the saved school, not the old one');
  });
  test(`${section} preserves offline content on initial failure and retry`,async()=>{
   const f=fixture(true);f.render();f.section(section);f.failInitial();await settle();
