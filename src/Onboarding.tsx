@@ -80,7 +80,7 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
   <Animated.View ref={sheetRef} pointerEvents={sheet?'auto':'none'} aria-hidden={!sheet} importantForAccessibility={sheet?'auto':'no-hide-descendants'} onLayout={e=>setSheetHeight(e.nativeEvent.layout.height)} style={{opacity:rise.interpolate({inputRange:[0,.3,1],outputRange:[0,1,1]}),transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[360,0]})}]}}>
    <View style={{padding:22,paddingBottom:12}}><Surface kind="card">
     {blocked?<Txt accessibilityRole="alert" style={{marginBottom:8}}>Crystal Ball is for ages 13 and up.</Txt>:null}
-    <Txt display style={{fontSize:32,lineHeight:36,textAlign:'center'}}>What’s your birthday?</Txt>
+    <Txt display style={[styles.hero,{textAlign:'center'}]}>What’s your birthday?</Txt>
     <View accessibilityRole="none" style={{flexDirection:'row',justifyContent:'center',gap:10,marginTop:20}}>
      {fields.map((f,i)=><View key={f.label} style={{width:f.width}}>
       <Txt style={[styles.label,{textAlign:'center',marginBottom:6}]}>{f.label}</Txt>

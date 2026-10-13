@@ -9,9 +9,10 @@ try{
  await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();
  await expect(page.locator('[ariahidden]')).toHaveCount(0);
  await expect(page.locator('[role=tab] > svg[aria-hidden="true"]')).toHaveCount(4);
- await expect(page.getByText(/For entertainment\. Never a guarantee/)).toBeVisible();
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
- results.push('Home has entertainment disclosure and no sign-in prompt');
+ await page.getByTestId('tab-you').click();await page.getByTestId('privacy-and-entertainment').click();
+ await expect(page.getByText(/Forecasts are speculative entertainment/)).toBeVisible();
+ results.push('You has the entertainment disclosure; Home has no sign-in prompt');
  await page.getByTestId('tab-you').click();
  await expect(page.getByText('What the Ball remembers',{exact:true})).toBeVisible();
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);

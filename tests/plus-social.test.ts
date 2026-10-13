@@ -89,7 +89,7 @@ test('History retains completed recaps across year rollover, with Plus gating fo
  const January2027=new Proxy(Date,{construct:(target,args)=>Reflect.construct(target,args.length?args:['2027-01-01T12:00:00Z'])});
  runInNewContext(code,{module,exports:module.exports,Date:January2027,require:(name:string)=>imports[name]});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...nodes(node.props.children)];
- const text=(node:any):string=>node==null?'':typeof node!=='object'?String(node):Array.isArray(node)?node.map(text).join(''):text(node.props.children);
+ const text=(node:any):string=>node==null?'':typeof node!=='object'?String(node):Array.isArray(node)?node.map(text).join(''):(node.props.title??'')+text(node.props.children);
  let upgrades=0;
  const render=()=>module.exports.YearRecap({onPlus:()=>upgrades++});
  let tree=render();
