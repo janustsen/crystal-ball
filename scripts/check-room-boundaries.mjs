@@ -6,7 +6,7 @@ const results=[];
 async function scrollAndTap(page,control){
  await control.evaluate(el=>{
   for(let parent=el.parentElement;parent;parent=parent.parentElement){
-   if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
+   if(parent.dataset.testid==='ask-content'||['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
     parent.scrollTop=parent.scrollHeight;
     return;
    }
@@ -15,7 +15,7 @@ async function scrollAndTap(page,control){
  });
  const bounds=await control.evaluate(el=>{
   for(let parent=el.parentElement;parent;parent=parent.parentElement){
-   if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
+   if(parent.dataset.testid==='ask-content'||['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
     const rect=parent.getBoundingClientRect();
     return {top:rect.top,height:rect.height};
    }
