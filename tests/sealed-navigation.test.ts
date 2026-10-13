@@ -135,7 +135,7 @@ test('expanded Ask scrolling is limited to the revealed reading',()=>{
  const ballMode=()=>render().find(n=>n.type==='Screen')?.props.ball??false;
  openReading(render);
  assert.equal(ballMode(),true);
- render().find(n=>n.props.label==='Share this glimpse').props.onPress();
+ render().find(n=>n.props.testID==='share-this-glimpse').props.onPress();
  assert.equal(ballMode(),false);
  render().find(n=>n.props.testID==='close-flow').props.onPress();
  assert.equal(ballMode(),true);
