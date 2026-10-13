@@ -80,7 +80,7 @@ const latest=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ba
 // Adult profile through the real onboarding, off camera; each video starts a fresh copy with today's free reading.
 async function profile(browser){
  const page=await session(browser);await page.goto(base);
- await page.getByTestId('birthday-month').fill(profileBirthday.slice(5,7));
+ await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill(profileBirthday.slice(5,7));
  await page.getByTestId('birthday-day').fill(profileBirthday.slice(8,10));
  await page.getByTestId('birthday-year').fill(profileBirthday.slice(0,4));
  // The app claims the day's omen before inference; snapshotting mid-request would cache an empty omen into every copy.
