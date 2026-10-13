@@ -39,7 +39,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(next:any)=>Object.assign(params,next)}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1,update:(fn:(value:typeof state)=>typeof state)=>Object.assign(state,fn(state))})},
-  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
+  '../src/ui':{Screen:'Screen',colors:{},fonts:{},styles:{}},'../src/Home':homeMock(react),
   '../src/room':room,'../src/delight':delight,'../src/RoomScene':{RoomScene:'RoomScene'},'../src/VoiceButton':{VoiceButton:'VoiceButton'},
   '../src/profile':{canRead},'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:()=>({friend:false})},
@@ -129,6 +129,26 @@ const openReading=(render:()=>any[])=>{
  render().find(n=>n.props.accessibilityRole==='button'&&n.props.key==='reading').props.onPress();
  return render();
 };
+
+test('expanded Ask scrolling is limited to the revealed reading',()=>{
+ const {render}=app(true,[reading],'');
+ const ballMode=()=>render().find(n=>n.type==='Screen').props.ball;
+ openReading(render);
+ assert.equal(ballMode(),true);
+ render().find(n=>n.props.label==='Share this glimpse').props.onPress();
+ assert.equal(ballMode(),false);
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ assert.equal(ballMode(),true);
+ render().find(n=>n.props.testID==='view-plans').props.onPress();
+ assert.equal(ballMode(),false);
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ assert.equal(ballMode(),true);
+ render().find(n=>n.props.onPress&&n.children.some((child:any)=>child?.children?.includes('Edit question'))).props.onPress();
+ assert.equal(ballMode(),false);
+ render().find(n=>n.props.testID==='close-flow').props.onPress();
+ render().find(n=>n.props.testID==='tab-ask').props.onPress();
+ assert.equal(ballMode(),false);
+});
 
 test('a reveal leads with Seal it for a friend; Share and Ask again stay secondary',()=>{
  const {render}=app(true,[reading],'');
