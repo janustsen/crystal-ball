@@ -11,7 +11,7 @@ type Act=(operation:()=>Promise<unknown>,message?:string)=>Promise<void>;
 export function SocialIdentity({data,act,busy}:{data:SocialSnapshot;act:Act;busy:boolean}){
  const [handle,setHandle]=useState(data.profile?.handle??''),[name,setName]=useState(data.profile?.display_name??''),[avatar,setAvatar]=useState(data.profile?.avatar??'✦'),[query,setQuery]=useState(''),[results,setResults]=useState<Identity[]>([]);
  return <>
-  <View style={styles.panel}><Surface kind="card"><CardHeader title="Your social profile"/><Txt style={[styles.caption,{marginTop:6}]}>Your handle, name and avatar appear in search.</Txt>
+  <View style={styles.panel}><Surface kind="card"><CardHeader title="Your social profile"/><Txt style={[styles.caption,{marginTop:6}]}>{data.profile?.age_band==='adult'?'Your handle, name and avatar appear in search.':data.profile?.school_id?'Only teens at your school can find you in search.':'You stay out of search until you choose a school.'}</Txt>
    <View style={{gap:12,marginTop:16}}>
     <Field accessibilityLabel="Your handle" autoCapitalize="none" value={handle} onChangeText={setHandle} maxLength={24} placeholder="your_handle" style={styles.input}/>
     <Field accessibilityLabel="Display name" value={name} onChangeText={setName} maxLength={40} placeholder="Display name" style={styles.input}/>

@@ -17,7 +17,7 @@ const failures=[],checked=[],contrast=[];
 // Every visible label against the pixels behind it: its glyphs are hidden for one screenshot (their shadow halo stays,
 // as it is drawn behind them), the box of its lines is sampled on a grid, and the worst tenth of those samples sets the ratio.
 // Labels scrolled out of view or under another layer (the tab bar) are skipped; disabled controls are exempt, as in WCAG.
-// `fadeTop` skips labels still inside a scrolled tab's fade beneath the header.
+// `fadeTop` skips scrolled content still inside the tab's fade beneath the header; the header itself stays measured.
 async function measureContrast(page,name,fadeTop=0){
  const labels=await page.evaluate(fadeTop=>{
   const shell=document.querySelector('[data-testid="app-shell"]'),out=[];
@@ -28,7 +28,7 @@ async function measureContrast(page,name,fadeTop=0){
    // The glyphs' own line boxes, not the element's: a centred caption's full-width block is mostly empty room.
    let r=boxes.reduce((u,b)=>u?new DOMRect(Math.min(u.left,b.left),Math.min(u.top,b.top),Math.max(u.right,b.right)-Math.min(u.left,b.left),Math.max(u.bottom,b.bottom)-Math.min(u.top,b.top)):b,null);if(!r)continue;const full=r.width*r.height;
    for(let e=el.parentElement;e&&r;e=e.parentElement)if(getComputedStyle(e).overflow!=='visible'){const c=e.getBoundingClientRect(),left=Math.max(r.left,c.left),top=Math.max(r.top,c.top),right=Math.min(r.right,c.right),bottom=Math.min(r.bottom,c.bottom);r=right>left&&bottom>top?new DOMRect(left,top,right-left,bottom-top):null}
-   if(!r||r.top<fadeTop||r.width<2||r.height<2||r.width*r.height<.6*full||r.bottom<0||r.top>innerHeight||s.visibility==='hidden')continue;
+   if(!r||r.top<0||r.top<fadeTop&&window.layoutScroller?.contains(el)||r.width<2||r.height<2||r.width*r.height<.6*full||r.bottom<0||r.top>innerHeight||s.visibility==='hidden')continue;
    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
    if(!hit||!(el.contains(hit)||hit.contains(el)))continue;
    let opacity=1;for(let e=el;e;e=e.parentElement)opacity*=Number(getComputedStyle(e).opacity);
