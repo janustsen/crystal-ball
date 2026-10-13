@@ -62,3 +62,45 @@ test('unrepairable planning mismatches still fail closed after two drafts',async
  assert.equal(result.kind,'error');
  assert.equal(drafts,2);
 });
+
+test('a decoder-truncated prediction is repaired once or fails closed',async()=>{
+ const truncated="You will start a weekly cooking challenge with your sister using recipes from your mom's 1";
+ const complete='You will cook a family recipe with your sister.';
+ const facts={context_1:'I keep stopping evening classes after the first week',context_2:'I work early mornings and spend weekends with my sister',horizon:'next year'};
+ for(const repair of [complete,truncated]){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if((schema.properties as Record<string,unknown>).prediction){
+    return JSON.stringify({basis:'context_1',insight:'Shared activities give you a commitment that fits around early mornings.',prediction:attempts++===0?truncated:repair});
+   }
+   return JSON.stringify({category:'allow'});
+  });
+  const result=await predict('what will my life be like next year?',facts,false,model);
+  assert.equal(result.kind,repair===complete?'ok':'error',JSON.stringify(result));
+  assert.equal(attempts,2);
+  if(result.kind==='ok')assert.equal(result.value.headline,'You will cook a family recipe with your sister next year.');
+ }
+});
+
+test('prediction length bounds still apply after unconstrained decoding',async()=>{
+ const prediction='You will write your family recipes into a cookbook with your sister for her next birthday.';
+ assert.equal(prediction.length,90);
+ for(const [draft,horizon,kind] of [
+  [prediction,'within seven months','ok'],
+  [prediction.replace('write','compile'),'within seven months','error'],
+  [prediction,'within 100000 months','error'],
+ ] as const){
+  let attempts=0;
+  const model=validatedProvider(async(_messages,schema)=>{
+   if((schema.properties as Record<string,unknown>).prediction){
+    attempts++;
+    return JSON.stringify({basis:'context_1',insight:'A shared activity gives your family time a lasting result.',prediction:draft});
+   }
+   return JSON.stringify({category:'allow'});
+  });
+  const result=await predict('What will my life be like?',{context_1:'I spend weekends cooking with my sister',horizon},false,model);
+  assert.equal(result.kind,kind,JSON.stringify(result));
+  assert.equal(attempts,kind==='ok'?1:2);
+  if(result.kind==='ok')assert.equal(result.value.headline.length,110);
+ }
+});
