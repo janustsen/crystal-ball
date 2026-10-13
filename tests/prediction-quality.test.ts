@@ -169,6 +169,7 @@ test('written currency amounts in predictions and insights require supplied fact
 test('complete amounts require matching factual evidence in both generated fields',async()=>{
  const cases=[
   ['I save a little each month but have no budget','$3'],
+  ...['$ 3','€ 3','£ 3','3 $','3 €','3 £','3$','3€','3£'].map(amount=>['I save a little each month',amount] as const),
   ['I work 3 days each week','$3'],
   ['I save €3 daily','$3'],
   ['I save 3 dollars daily','3 euros'],
@@ -202,7 +203,8 @@ test('complete amounts require matching factual evidence in both generated field
 });
 
 test('complete supplied amounts and ordinary counts remain usable',async()=>{
- for(const amount of ['$3','€3','£3','3 dollars','one hundred twenty dollars','one hundred and twenty dollars','twenty-one dollars','$3 million','$1,000']){
+ for(const amount of ['$3','€3','£3','$ 3','€ 3','£ 3','3 $','3 €','3 £','3$','3€','3£','3 dollars','one hundred twenty dollars','one hundred and twenty dollars','twenty-one dollars','$3 million','$1,000']){
+  for(const source of ['question','context_1','context_2']){
   let attempts=0;
   const model=validatedProvider(async(_messages,schema)=>{
    if((schema.properties as Record<string,unknown>).prediction){
@@ -211,9 +213,11 @@ test('complete supplied amounts and ordinary counts remain usable',async()=>{
    }
    return JSON.stringify({category:'allow'});
   });
-  const result=await predict('Will I save enough money?',{context_1:`I can spare ${amount} daily and have 2 accounts`,horizon:'within 3 months'},false,model);
+  const supplied=`I can spare ${amount} daily and have 2 accounts`;
+  const result=await predict(source==='question'?`Will I save enough money? ${supplied}`:'Will I save enough money?',{context_1:'I save a little each month',horizon:'within 3 months',...(source==='question'?{}:{[source]:supplied})},false,model);
   assert.equal(result.kind,'ok',`${amount}: ${JSON.stringify(result)}`);
   assert.equal(attempts,1);
   if(result.kind==='ok')assert.match(result.value.headline,/within 3 months\.$/);
+  }
  }
 });
