@@ -106,7 +106,10 @@ test('prediction length bounds still apply after unconstrained decoding',async()
 });
 
 test('unsupported prediction amounts are repaired once or fail closed regardless of topic',async()=>{
- const invented='You will save $5 each day from your allowance or part-time job next year.';
+ for(const invented of [
+  'You will save $5 each day from your allowance or part-time job next year.',
+  'You will save ten dollars a day written in words: ten dollars next year.',
+ ]){
  const corrected='You will set up an automatic transfer into a savings account.';
  for(const question of ['Will I save enough money next year?','What will my net worth be next year?']){
   for(const repair of [corrected,invented]){
@@ -123,6 +126,7 @@ test('unsupported prediction amounts are repaired once or fail closed regardless
    if(result.kind==='ok')assert.equal(result.value.headline,'You will set up an automatic transfer into a savings account next year.');
   }
  }
+ }
 });
 
 test('supplied prediction amounts pass and the appended numeric horizon needs no evidence',async()=>{
@@ -138,4 +142,25 @@ test('supplied prediction amounts pass and the appended numeric horizon needs no
  assert.equal(result.kind,'ok',JSON.stringify(result));
  assert.equal(attempts,1);
  if(result.kind==='ok')assert.equal(result.value.headline,'You will set up a $5 daily transfer to savings within 3 months.');
+});
+
+
+test('written currency amounts in predictions and insights require supplied facts',async()=>{
+ for(const amount of ['one dollar','twenty euros','forty pounds','a buck','hundred cents','thousand kroner','million krone','an euro']){
+  for(const field of ['prediction','insight']){
+   for(const supplied of [false,true]){
+    let attempts=0;
+    const model=validatedProvider(async(messages,schema)=>{
+     if((schema.properties as Record<string,unknown>).prediction){
+      if(attempts++)assert.match(messages.at(-1)!.content,/Remove numerical claims not present in the supplied facts/);
+      return JSON.stringify({basis:'context_1',prediction:'You will open a savings account.',insight:'You give saving a protected place in your routine.',[field]:field==='prediction'?`You will save ${amount} daily.`:`You keep ${amount} aside for saving.`});
+     }
+     return JSON.stringify({category:'allow'});
+    });
+    const result=await predict('Will I save enough money?',{context_1:supplied?`I save ${amount.toUpperCase().replace(' ','  ')} daily`:'I save a little each month but have no budget',horizon:'within 3 months'},false,model);
+    assert.equal(result.kind,supplied?'ok':'error',`${field}: ${amount}: ${JSON.stringify(result)}`);
+    assert.equal(attempts,supplied?1:2);
+   }
+  }
+ }
 });
