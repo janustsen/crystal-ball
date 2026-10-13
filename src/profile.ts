@@ -16,8 +16,8 @@ export type BirthChart={moonSign:string;risingSign:string};
 const titled=(sign:string)=>sign[0].toUpperCase()+sign.slice(1);
 export function astrologyLine(birthday?:string,chart?:BirthChart):string {
  const sign=sunSign(birthday);
- if(!sign)return 'The stars offer a playful lens on your next chapter.';
- return `Under your ${titled(sign)} Sun${chart?`, ${titled(chart.moonSign)} Moon and ${titled(chart.risingSign)} rising`:''}, consider this a playful invitation to your next chapter.`;
+ if(!sign)return '';
+ return `Under your ${titled(sign)} Sun${chart?`, ${titled(chart.moonSign)} Moon and ${titled(chart.risingSign)} rising`:''}.`;
 }
 
 export function birthdayProfile(birthday?:string,ageConfirmed=false){

@@ -43,9 +43,9 @@ function boundary(t:any,{plus=false,failSave=false,weather=['Gemini Sun, Pisces 
 const ask=(serve:(r:Request)=>Promise<Response>,body:object)=>serve(new Request('http://localhost/',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({question:'Will I finish my course?',facts:{context_1:'Daily practice',horizon:'next month',birthday},viewerBirthday:birthday,localDate:'2026-10-06',requestId:'11111111-1111-4111-8111-111111111111',...body})}));
 
 test('Moon and rising join the Why astrology line',()=>{
- assert.equal(astrologyLine(birthday,chart),'Under your Gemini Sun, Pisces Moon and Virgo rising, consider this a playful invitation to your next chapter.');
- assert.equal(astrologyLine(birthday),'Under your Gemini Sun, consider this a playful invitation to your next chapter.');
- assert.equal(astrologyLine(),'The stars offer a playful lens on your next chapter.');
+ assert.equal(astrologyLine(birthday,chart),'Under your Gemini Sun, Pisces Moon and Virgo rising.');
+ assert.equal(astrologyLine(birthday),'Under your Gemini Sun.');
+ assert.equal(astrologyLine(),'');
 });
 
 test('only a Plus viewer’s chart shapes the Why when billing is on',async t=>{
