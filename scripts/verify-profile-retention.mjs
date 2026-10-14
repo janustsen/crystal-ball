@@ -31,7 +31,7 @@ try{
  await page.getByTestId('tab-home').click();expect(requests.filter(r=>r.action==='omen')).toHaveLength(1);
  await page.clock.setFixedTime(new Date('2026-10-02T00:30:00Z'));await page.reload();
  await expect.poll(()=>requests.filter(r=>r.action==='omen').length).toBe(2);expect(requests.filter(r=>r.action==='omen')[1].facts.sun_sign).toBeUndefined();
- await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await page.getByLabel('Birthday YYYY-MM-DD',{exact:true}).fill('1996-07-15');await page.getByTestId('save-birthday').click();await expect(page.getByText('cancer Sun',{exact:true})).toBeVisible();
+ await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await page.getByLabel('Birthday YYYY-MM-DD',{exact:true}).fill('1996-07-15');await page.getByTestId('save-birthday').click();await expect(page.getByTestId('light-sun')).toContainText('Sun · Cancer');
  await page.getByTestId('edit-birthday').click();await page.getByLabel('Birthday YYYY-MM-DD',{exact:true}).fill('');await page.getByTestId('save-birthday').click();await expect(page.getByTestId('light-sun')).toContainText('Add your birthday to light your Sun.');expect((await stored()).ageConfirmed).toBe(true);
  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I finish my draft tomorrow?');
  await page.route('**/engine',route=>{const body=route.request().postDataJSON();requests.push(body);return route.fulfill({json:{kind:'error',message:'Local date transport probe'}})});
