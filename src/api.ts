@@ -46,6 +46,16 @@ export async function requestChartWeather({birthday,ageConfirmed,moonSign,rising
  return result.value.text;
 }
 
+// Year ahead: the twelve months from the local month, written together so the app can seal them.
+export async function requestYearAhead(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent='',localDate=localDay()):Promise<{month:string;headline:string}[]>{
+ facts=withoutSelf(facts);delete facts.sun_sign;
+ if(sunSign)facts.sun_sign=sunSign;
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'year',question:'Your year ahead',facts:Object.fromEntries(Object.entries(facts).slice(-30)),viewerBirthday:birthday,ageConfirmed,localDate,aiConsent}),signal:AbortSignal.timeout(100000)});
+ const result=await response.json().catch(()=>null),months=result?.value?.months;
+ if(!response.ok||result?.kind!=='ok'||!Array.isArray(months)||months.length!==12||!months.every((m:unknown)=>!!m&&typeof m==='object'&&typeof (m as {month?:unknown}).month==='string'&&typeof (m as {headline?:unknown}).headline==='string'))throw new Error(result?.message||'The Ball could not seal your year. Please try again.');
+ return months;
+}
+
 // With Supabase the server owns the reading balance; the loopback preview without it counts readings on-device.
 export const serverMetered=!!process.env.EXPO_PUBLIC_SUPABASE_URL&&!!process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 // Loaded on demand so importing the engine client never constructs the Supabase client.

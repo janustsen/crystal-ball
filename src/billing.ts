@@ -10,6 +10,8 @@ export const packs=[
  {kind:'five',product:'cb_pack_5',readings:5,price:'$1.99'},
  {kind:'twenty',product:'cb_pack_20',readings:20,price:'$5.99'},
 ] as const;
+// Year ahead: a one-off purchase that the yearly plan includes. Mock-only until the store product is wired.
+export const yearAheadProduct={product:'cb_year_ahead',price:'$9.99'} as const;
 export type PlanKind=typeof plans[number]['kind'];
 export type PackKind=typeof packs[number]['kind'];
 export const trialProduct='cb_plus_weekly',plusEntitlement='plus';

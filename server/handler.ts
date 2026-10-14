@@ -1,8 +1,9 @@
 import {checkInDate} from '../src/retention.ts';
 import {readingAge,sunSign,validPersonName} from '../src/profile.ts';
 import {viewerChart} from './viewer-chart.ts';
-import {chartWeather,personalOmen,selfInsight} from './omen.ts';
+import {chartWeather,personalOmen,selfInsight,yearAhead} from './omen.ts';
 import {skyOn} from '../src/real-sky.ts';
+import {monthName,monthsFrom} from '../src/year-ahead.ts';
 import {insightKinds,selfAnswers} from '../src/ball-asks.ts';
 import { makePlan, predict } from './engine.ts';
 import {bondReading} from './bond.ts';
@@ -14,7 +15,7 @@ import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
 import {webReadings} from './web-reading.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
- const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240);
+ const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240),yearModel=injectedModel??provider(env,900);
  const meter=billing(env),web=webReadings(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;
@@ -26,7 +27,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
   try {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
    const body:unknown=JSON.parse(text);
-   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','bond','omen','chart','insight'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
+   if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','bond','omen','chart','insight','year'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
    requireAiConsent(env,'aiConsent' in body?body.aiConsent:undefined);
    const raw='facts'in body?body.facts:{};
    if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).length>30||Object.entries(raw).some(([k,v])=>k.length>50||typeof v!=='string'||v.length>300))throw new Error('Please shorten the answers and try again.');
@@ -73,6 +74,14 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     // With billing, the database enforces Plus and keeps the month's single reading; the loopback preview generates directly.
     const text=meter?await meter.chartWeather(await meter.user(request),month,signs,generate):await generate();
     return new Response(JSON.stringify({kind:'ok',value:{text}}),{headers});
+   }
+   if(body.action==='year'){
+    // ponytail: mock-billed only; a metered server refuses until the Year ahead store product and its ledger claim exist.
+    if(meter||request.headers.get('authorization'))throw new BillingError('Year ahead is not available yet.',503);
+    if(typeof localDate!=='string')throw new Error('Please provide a valid local calendar date.');
+    const months=monthsFrom(localDate),sun=viewerBirthday?sunSign(viewerBirthday)??null:null;
+    const forecasts=await yearAhead({sunSign:sun,facts,months:months.map(m=>`${monthName(m)} ${m.slice(0,4)}`)},teen,yearModel);
+    return new Response(JSON.stringify({kind:'ok',value:{months:months.map((month,i)=>({month,headline:forecasts[i]}))}}),{headers});
    }
    if(body.action==='insight'){
     const kind='insightKind'in body?body.insightKind:undefined;
