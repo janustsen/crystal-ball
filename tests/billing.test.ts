@@ -115,11 +115,11 @@ test('a published Circle forecast is saved once and the server balance replaces 
 
 test('the StoreKit test configuration matches the store catalog and trial',async()=>{
  const {readFileSync}=await import('node:fs');
- const {plans,packs,trialProduct}=await import('../src/billing.ts');
+ const {plans,packs}=await import('../src/billing.ts');
  const kit=JSON.parse(readFileSync(new URL('../store/CrystalBall.storekit',import.meta.url),'utf8'));
  const subscriptions=kit.subscriptionGroups[0].subscriptions,products=[...subscriptions,...kit.products];
  for(const item of [...plans,...packs])assert.equal(`$${products.find((p:any)=>p.productID===item.product)?.displayPrice}`,item.price,item.product);
- assert.deepEqual(subscriptions.filter((s:any)=>s.introductoryOffer).map((s:any)=>[s.productID,s.introductoryOffer.paymentMode,s.introductoryOffer.subscriptionPeriod]),[[trialProduct,'free','P3D']]);
+ assert.deepEqual(subscriptions.filter((s:any)=>s.introductoryOffer).map((s:any)=>[s.productID,s.introductoryOffer.paymentMode,s.introductoryOffer.subscriptionPeriod]),plans.filter(p=>p.trialDays).map(p=>[p.product,'free',p.trialDays%7?`P${p.trialDays}D`:`P${p.trialDays/7}W`]));
  assert.ok(kit.products.every((p:any)=>p.type==='Consumable'));
 });
 

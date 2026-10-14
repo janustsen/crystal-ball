@@ -1,11 +1,15 @@
 import type {BallStyle,CardStyle} from './types.ts';
 import {goldenOdds,isStyle} from './delight.ts';
 // Store product ids must match App Store Connect and the RevenueCat offering; prices are the decided US list prices.
+// trialDays: the free introductory offer for new subscribers.
 export const plans=[
- {kind:'weekly',product:'cb_plus_weekly',name:'Weekly',price:'$1.99',period:'week'},
- {kind:'monthly',product:'cb_plus_monthly',name:'Monthly',price:'$5.99',period:'month'},
- {kind:'annual',product:'cb_plus_yearly',name:'Yearly',price:'$39.99',period:'year'},
+ {kind:'weekly',product:'cb_plus_weekly',name:'Weekly',price:'$4.99',period:'week',trialDays:3},
+ {kind:'monthly',product:'cb_plus_monthly',name:'Monthly',price:'$9.99',period:'month',trialDays:0},
+ {kind:'annual',product:'cb_plus_yearly',name:'Yearly',price:'$39.99',period:'year',trialDays:7},
 ] as const;
+// Yearly stays off sale until measured all-in cost per reading clears its $0.007 gate (docs/research/pricing.md).
+export const annualOffered=false;
+export const offeredPlans=plans.filter(p=>p.kind!=='annual'||annualOffered);
 export const packs=[
  {kind:'five',product:'cb_pack_5',readings:5,price:'$1.99'},
  {kind:'twenty',product:'cb_pack_20',readings:20,price:'$5.99'},
@@ -14,7 +18,7 @@ export const packs=[
 export const yearAheadProduct={product:'cb_year_ahead',price:'$9.99'} as const;
 export type PlanKind=typeof plans[number]['kind'];
 export type PackKind=typeof packs[number]['kind'];
-export const trialProduct='cb_plus_weekly',plusEntitlement='plus';
+export const trialProducts:string[]=plans.filter(p=>p.trialDays).map(p=>p.product),plusEntitlement='plus';
 export const manageSubscriptionsUrl='https://apps.apple.com/account/subscriptions';
 export const packReadings=(product:string)=>packs.find(p=>p.product===product)?.readings;
 // Server-owned reading balance. The client only displays it.

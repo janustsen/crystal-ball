@@ -1,5 +1,7 @@
 # Pricing recommendation (USD, prototype hypothesis)
 
+**Launch prices (captain decision, 2026-10-14):** Plus at $4.99/week with a 3-day trial or $9.99/month; $39.99/year with a 7-day trial only once the annual gate below passes; packs unchanged. `src/billing.ts` is the catalog. The arithmetic below was worked at the earlier prices and is kept as the record; the higher weekly and monthly prices only widen the monthly margin.
+
 Use 1 free prediction/day, Plus at $1.99/week, $5.99/month or $39.99/year (10 predictions/day), and non-expiring 5-credit / $1.99 and 20-credit / $5.99 consumable packs. One credit buys one successful prediction, not one question card. Charging and interruption behavior follow the [billing contract](../launch/billing.md) and [user retry guidance](../../README.md). Daily allowance is used before purchased credits; Plus allowance replaces the free allowance. Purchased credits survive subscription changes. Do not advertise unlimited usage.
 
 [Co–Star's store listing](https://apps.apple.com/us/app/co-star-personalized-astrology/id1264782561) anchors paid questions at $0.28–$0.60 each and subscriptions at $8.99/month. [The Pattern](https://apps.apple.com/us/app/the-pattern/id1071085727) lists $14.99/month and $83.99/year. Our lower initial price reflects narrower scope and an unproven product, not established willingness to pay. Packs at $0.30–$0.40 each sit inside that question range. Annual saves 44% versus twelve $5.99 months; display the actual $39.99 annual charge prominently.
