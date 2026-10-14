@@ -12,6 +12,7 @@ import {billing} from '../server/billing.ts';
 import {deliverSocialPushes,serviceRpc} from '../server/social-push.ts';
 import {openSky} from '../server/sky.ts';
 import {webReadings} from '../server/web-reading.ts';
+import {heardFrom} from '../server/heard-from.ts';
 import {solveProof} from '../src/web-reading.ts';
 import type {ModelProvider,JsonSchema} from '../server/provider.ts';
 import {once} from 'node:events';
@@ -161,6 +162,11 @@ process.exit(result.status??1);`,env);
  const retry=await web.claim(request,proof);
  await web.complete(retry);
  await assert.rejects(web.claim(request,proof),/free web reading is used/);
+
+ const heard=heardFrom(settings);
+ await heard.count('TikTok');await heard.count('TikTok');await heard.count('A friend');
+ assert.equal(await sql("select string_agg(source||'='||answers,',' order by source) from public.heard_from"),'A friend=1,TikTok=2');
+ assert.equal(await sql("select string_agg(column_name,',' order by column_name) from information_schema.columns where table_name='heard_from'"),'answers,day,source');
 
  const sent:Record<string,unknown>[]=[];
  const transport:typeof fetch=async(input,init)=>{

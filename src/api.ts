@@ -5,6 +5,7 @@ import type {Balance} from './billing';
 import {secondSentence,type OmenReply} from './daily-omen';
 import {validBalance} from './billing';
 import {solveProof,type WebReading} from './web-reading';
+import type {HeardFrom} from './heard-from';
 export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
 export const engineUrl=process.env.EXPO_PUBLIC_ENGINE_URL||(typeof window!=='undefined'&&window.location?.protocol.startsWith('http')?`${window.location.origin}/engine`:'http://127.0.0.1:8787');
 export const previewHeaders:Record<string,string>=process.env.EXPO_PUBLIC_PREVIEW_SECRET?{'x-preview-token':process.env.EXPO_PUBLIC_PREVIEW_SECRET,...(typeof document==='undefined'?{Origin:new URL(engineUrl).origin}:{})}:{};
@@ -55,6 +56,12 @@ export async function requestYearAhead(facts:Facts,{sunSign,birthday,ageConfirme
  const result=await response.json().catch(()=>null),months=result?.value?.months;
  if(!response.ok||result?.kind!=='ok'||!Array.isArray(months)||months.length!==12||!months.every((m:unknown)=>!!m&&typeof m==='object'&&typeof (m as {month?:unknown}).month==='string'&&typeof (m as {headline?:unknown}).headline==='string'))throw new Error(result?.message||'The Ball could not seal your year. Please try again.');
  return months;
+}
+
+// Sent without the account session: the engine counts the answer and nothing else.
+export async function reportHeardFrom(source:HeardFrom){
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'heard',source}),signal:AbortSignal.timeout(10000)});
+ if(!response.ok)throw new Error('Not counted.');
 }
 
 // With Supabase the server owns the reading balance; the loopback preview without it counts readings on-device.

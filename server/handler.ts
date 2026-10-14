@@ -14,9 +14,10 @@ import {socialHandler} from './social.ts';
 import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
 import {webReadings} from './web-reading.ts';
+import {heardFrom} from './heard-from.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
  const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240),yearModel=injectedModel??provider(env,900,90000);
- const meter=billing(env),web=webReadings(env),social=socialHandler(env,model,meter),store=billingHandler(env);
+ const meter=billing(env),web=webReadings(env),heard=heardFrom(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;
   if(path.endsWith('/social'))return social(request);
@@ -27,6 +28,8 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
   try {
    const text=await request.text();if(text.length>20000)throw new Error('Request too large.');
    const body:unknown=JSON.parse(text);
+   // Anonymous by design: no session header is read and nothing about the sender is kept.
+   if(body&&typeof body==='object'&&'action'in body&&body.action==='heard'){await heard.count('source'in body?body.source:undefined);return new Response(JSON.stringify({kind:'ok'}),{headers});}
    if(!body||typeof body!=='object'||!('question'in body)||typeof body.question!=='string'||body.question.trim().length<4||body.question.length>500||!('action'in body)||!['plan','predict','bond','omen','chart','insight','year'].includes(String(body.action)))throw new Error('Please ask a question between 4 and 500 characters.');
    requireAiConsent(env,'aiConsent' in body?body.aiConsent:undefined);
    const raw='facts'in body?body.facts:{};

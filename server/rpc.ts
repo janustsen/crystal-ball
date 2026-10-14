@@ -18,5 +18,6 @@ export const serverRpcs={
  save_sky_omen:'rpc/save_sky_omen',
  sync_social_profile:'rpc/sync_social_profile',
  authorize_friend_reading:'rpc/authorize_friend_reading',
+ count_heard_from:'rpc/count_heard_from',
 } as const;
 export type ServerRpc=keyof typeof serverRpcs;
