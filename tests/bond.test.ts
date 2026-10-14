@@ -153,6 +153,7 @@ test('Cancer trait wording leaves clinical illness blocks and semantic moderatio
   'Cancer’s nurturing helps you recover from cancer.',
   'Cancer’s nurturing will make chemotherapy succeed.',
   'Cancer’s nurturing will heal your tumour.',
+  'Will my cancer’s sensitivity improve?',
  ])assert.equal(phraseSafety(text),'illness',text);
  let moderated=false;
  const json:Json=async(_system,input)=>{
@@ -162,4 +163,21 @@ test('Cancer trait wording leaves clinical illness blocks and semantic moderatio
  };
  assert.equal(await safety('Cancer’s nurturing will restore your health.',{json:json as import('../server/provider.ts').ModelProvider['json']},true),'illness');
  assert.equal(moderated,true);
+});
+
+test('a Circle bond for a name that contains a filtered word still passes moderation',async t=>{
+ const {socialHandler}=await import('../server/social.ts');
+ const env=(key:string)=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only'} as Record<string,string>)[key];
+ t.mock.method(globalThis,'fetch',async(input:unknown)=>{
+  const path=new URL(String(input)).pathname;
+  if(path==='/auth/v1/user')return Response.json({id:'0f0e0d0c-0b0a-4908-8706-050403020100'});
+  if(path==='/rest/v1/social_profiles')return Response.json([{age_band:'adult'}]);
+  if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'aries',themes:[]});
+  throw new Error(`Unexpected ${path}`);
+ });
+ const model=scripted([{why:'The two images find a steady rhythm in small shared plans.',moment:'You and Shital will plant a window herb garden.',horizon:'within 1 month'}]);
+ const response=await socialHandler(env,model)(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('Shital'),firstName:'Shital',circle:'circle',member:'member'})}));
+ const reading=await response.json();
+ assert.equal(response.status,200,JSON.stringify(reading));
+ assert.equal(reading.headline,'You and Shital will plant a window herb garden within 1 month.');
 });

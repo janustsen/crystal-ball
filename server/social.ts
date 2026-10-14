@@ -102,8 +102,10 @@ export function socialHandler(env:(key:string)=>string|undefined,model:ModelProv
       if(!('why'in value)||typeof value.why!=='string'||!value.why.length||value.why.length>160||!/[.!?]$/.test(value.why.trim()))return {valid:false,feedback:'why must be one complete sentence ending in punctuation, at most 160 characters. Aim for 80 characters, explaining that only sign and broad themes are known.'};
       return true;
      });
-    await moderateSocialLine(result.headline,'seal',teen,model);
-    await moderateSocialLine(result.why,'seal',teen,model);
+    // A Bond's text must name the friend, so their validated first name is not run through the word filter (Shital is not profanity).
+    const withoutName=(text:string)=>bond?text.split(body.firstName).join('Friend'):text;
+    await moderateSocialLine(withoutName(result.headline),'seal',teen,model);
+    await moderateSocialLine(withoutName(result.why),'seal',teen,model);
     const prediction:Prediction={...(bond?{bond:bond.value.bond,dueDate:bond.value.dueDate,label:bond.value.label}:{label:'For fun · speculative forecast, not a guarantee'}),id:crypto.randomUUID(),question:body.question,headline:result.headline,why:result.why,astrology:astrologyLine(birthday,plusChart),createdAt:new Date().toISOString(),facts:{sun_sign:context.sun_sign||'Not shared',activity_themes:context.themes.join(', ')||'No shared activity'},sources:[],assumptions:['Only a sun sign and broad Circle activity themes were available.'],friend:true,friendTarget:{circle:body.circle,member:body.member,firstName:body.firstName}};
     if(!meter)return reply(assignEdition(prediction,true));
     const balance=await meter.charge(user.id,charge!);
