@@ -72,6 +72,10 @@ A user aged 13 to 17, known from the onboarding birthday, which is also the age 
 A Reading about another person named by first name only (for example a crush). The named person is never notified and the ball knows nothing about them, unless they are an opted-in Circle member, in which case it is a Friend reading.
 _Avoid_: crush reading, target
 
+**Bond reading**:
+A Reading about the asker and one person by first name: a named bond, a compatibility percentage about the shared bond (never the other person's feelings) and a shared Forecast with a Due date. With an opted-in Circle member it is deeper, using their sun sign and shared themes.
+_Avoid_: compatibility test, synastry
+
 **School**:
 The optional school a user chooses; see the [school boundary](docs/social/school.md).
 
