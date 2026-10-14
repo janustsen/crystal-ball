@@ -17,6 +17,7 @@ export async function personalOmen(facts:Facts,model:ModelProvider,sky:Sky):Prom
    if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string'||!('whisper'in value)||typeof value.whisper!=='string')return false;
    const text=value.text.trim();
    if(text.length<10||text.length>140||/[\r\n]/.test(text)||!/[.!?]$/.test(text)||secondSentence.test(text))return {valid:false,feedback:'Rewrite much shorter: one sentence of 8 to 14 words, ending with punctuation. Do not truncate a word.'};
+   if(sky.event&&!new RegExp(`\\b${skyEvents[sky.event].replace(/ /g,'\\s+')}\\b`,'i').test(text))return {valid:false,feedback:`Name ${skyEvents[sky.event]} in the omen text; this is that event’s special reading.`};
    const words=text.toLowerCase().replace(new RegExp(`\\bmoon in ${sky.moonSign}\\b`,'g'),'').split(/\W+/);
    const named=signs.filter(sign=>words.includes(sign));
    if(named.some(sign=>sign!==sunSign)||(sunSign&&!named.includes(sunSign)))return {valid:false,feedback:(sunSign?`Address ${sunSign} by name, without naming other Sun signs.`:'No Sun sign was supplied. Do not assign or address the viewer by any sign.')+` The sky’s sign is allowed only in the explicit position phrase "Moon in ${sky.moonSign}", separately from any personal Sun sign.`};

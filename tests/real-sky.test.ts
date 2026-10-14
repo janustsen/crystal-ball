@@ -93,8 +93,8 @@ test('omen requests validate time context and deliver the same local sky to the 
  const {handler}=await import('../server/handler.ts');
  const inputs:{sky:string;skyEvent:string|null}[]=[];
  const model=validatedProvider(async messages=>{
-  inputs.push(JSON.parse(messages[1].content));
-  return JSON.stringify({text:'A gentle light invites you to begin again today.',whisper:'By tonight, a small plan may change for the better.'});
+  const input=JSON.parse(messages[1].content);inputs.push(input);
+  return JSON.stringify({text:input.skyEvent?`${input.skyEvent} invites you to pause and begin again gently.`:'A gentle light invites you to begin again today.',whisper:'By tonight, a small plan may change for the better.'});
  });
  const serve=handler(()=>undefined,model);
  const send=(context:Record<string,unknown>)=>serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{},...context})}));
@@ -120,4 +120,36 @@ test('omen requests validate time context and deliver the same local sky to the 
   await requestOmen({},{sunSign:null,ageConfirmed:true});
   assert.equal(inputs.at(-1)!.sky,skyLine(skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone)));
  }finally{globalThis.fetch=original}
+});
+
+
+test('each event requires its own reference in the omen, with one repair then failure',async()=>{
+ const ordinary='A gentle light invites you to begin again today.';
+ const whisper='By tonight, a small plan may change for the better.';
+ for(const [day,zone,event] of [
+  ['2026-10-25','America/Los_Angeles','Full Moon'],
+  ['2026-10-10','UTC','New Moon'],
+  ['2026-10-24','UTC','Mercury retrograde'],
+ ]){
+  const sky=skyOn(day,zone),text=`${event.toUpperCase().replace(' ','  ')} invites you to pause and begin again gently.`;
+  for(const wrong of [ordinary,`${event==='Full Moon'?'New Moon':'Full Moon'} invites you to begin again gently.`,`${event}light invites you to pause and begin again gently.`]){
+   let calls=0;
+   const model=validatedProvider(async()=>{calls++;return JSON.stringify({text:wrong,whisper});});
+   await assert.rejects(personalOmen({},model,sky),/mist is too thick/);
+   assert.equal(calls,2);
+  }
+  let calls=0;
+  const model=validatedProvider(async messages=>{
+   calls++;
+   if(calls===1)return JSON.stringify({text:ordinary,whisper});
+   assert.ok(messages.at(-1)!.content.includes(`Name ${event} in the omen text`));
+   return JSON.stringify({text,whisper});
+  });
+  assert.deepEqual(await personalOmen({},model,sky),{text,whisper});
+  assert.equal(calls,2);
+  const whisperOnly=validatedProvider(async()=>JSON.stringify({text:ordinary,whisper:`By tonight, ${event} may invite a small change.`}));
+  await assert.rejects(personalOmen({},whisperOnly,sky),/mist is too thick/);
+ }
+ const model=validatedProvider(async()=>JSON.stringify({text:ordinary,whisper}));
+ assert.deepEqual(await personalOmen({},model,skyOn('2026-10-14')),{text:ordinary,whisper});
 });
