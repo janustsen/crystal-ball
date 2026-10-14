@@ -80,7 +80,7 @@ A Reading about the asker and one person by first name: a named bond, a compatib
 _Avoid_: compatibility test, synastry
 
 **Love timing**:
-A named Reading, “When will it happen?”, about the asker’s own love life, offered to adults. The ball picks the Due date itself, from two weeks to a year; the Check-in fires on that date. Each one sits as a gold-sealed card on the Love timing shelf in History.
+A named Reading about the asker’s own love life, answered by the Ball’s Due date. See [usage and reminder behavior](README.md) and the allowed horizons in `server/engine.ts` (`loveHorizons`).
 
 **School**:
 The optional school a user chooses; see the [school boundary](docs/social/school.md).
