@@ -20,6 +20,7 @@ export async function bondReading(partner:BondPartner,model:ModelProvider,contex
  try {
   if(ageGroup(context.viewerBirthday)==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
   const bond=bondOf(context.viewerBirthday,name,partner.sign),lead=`You and ${name} will `;
+  const namedPerson=new RegExp(`(?<![\\p{L}\\p{M}])${name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\p{L}\\p{M}])`,'giu');
   const valid=(x:unknown)=>{
    if(!x||typeof x!=='object'||!('moment'in x)||!('why'in x)||!('horizon'in x)||typeof x.moment!=='string'||typeof x.why!=='string'||!horizons.includes(String(x.horizon)))return {valid:false,feedback:'Return moment, why and one allowed horizon.'};
    const moment=x.moment.trim(),why=x.why.trim(),issues:string[]=[];
@@ -27,7 +28,7 @@ export async function bondReading(partner:BondPartner,model:ModelProvider,contex
    if(moment.length>80||!/[.!]$/.test(moment)||/[?,;]/.test(moment))issues.push('moment is one short clause under 80 characters ending with a period, with no comma and no second action.');
    if(why.length<20||why.length>240||!/[.!]$/.test(why))issues.push('why is one or two complete sentences under 240 characters.');
    if(hedge.test(moment.slice(lead.length))||hedge.test(why))issues.push('Remove hedges such as may, might, could or likely.');
-   if(innerLife.test(`${moment} ${why}`))issues.push(`Describe only what the two of you will do together, never anyone's feelings, wishes, thoughts or romance.`);
+   if(innerLife.test(`${moment} ${why}`.replace(namedPerson,'the person')))issues.push(`Describe only what the two of you will do together, never anyone's feelings, wishes, thoughts or romance.`);
    if(/\b(within|by|in \d|next|this) (?:a |\d+ )?(?:days?|weeks?|months?|year|spring|summer|autumn|fall|winter)\b/i.test(moment))issues.push('Omit time wording from moment; the server adds the horizon.');
    return issues.length?{valid:false,feedback:issues.join(' ')}:true;
   };

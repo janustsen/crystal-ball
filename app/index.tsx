@@ -160,7 +160,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  useEffect(()=>{const listener=BackHandler.addEventListener('hardwareBackPress',()=>{if(backupBusy)return true;if(capture){setCapture(false);return true}if(share){setShare(false);return true}if(paywall){setPaywall(false);return true}if(tab==='Ask'&&flow.stage!=='ask'){cancel();return true}if(tab!=='Home'){setTab('Home');return true}return false});return()=>listener.remove()},[tab,flow.stage,share,capture,paywall,backupBusy]);
  // A Bond reading (bond) skips the voice approach: the first name is written into the ball.
  function openAsk(value='',forFriend=false,target?:FriendTarget,subject='',bond=false){endTour();setReadingIdentity(readingIdentity({friend:forFriend,friendTarget:target}));lastReading.current=null;cancel();approachAt.current=Date.now();setFlow({stage:value||bond?'ask':'approach'});setQuestion(bond?bondQuestion(subject):value);setTab('Ask');setWhy(false);setShare(false);setCapture(false);setPersonMode(Boolean(subject)&&!bond);setPersonName(subject);setBondMode(bond)}
- const bondName=(name:string)=>{setPersonName(name);setQuestion(bondQuestion(name.trim()))};
+ const bondName=(name:string)=>{setPersonName(name);setQuestion(bondQuestion(name.trim()));setReadingIdentity(current=>current.friendTarget?{...current,friendTarget:{...current.friendTarget,firstName:name.trim()}}:current)};
  async function begin(){
   const issue=personQuestionIssue(question,personMode?personName.trim():undefined);if(issue){setNotice(issue);return;}
   if(!question.trim()||!ready||backupBusy||aiProvider&&!aiAllowed||!canRead(state))return;

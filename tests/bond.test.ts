@@ -58,6 +58,35 @@ test('a bond reading never reads the other person’s feelings: such a draft is 
  assert.match(feedback[0],/never anyone's feelings/);
 });
 
+test('names are exempt from the feelings tripwire in both moment and why',async()=>{
+ const {bondReading}=await import('../server/bond.ts');
+ for(const name of ['Desiree','Love','Lovisa','Désirée','Love-Anne']){
+  const result=await bondReading({name},scripted([{why:`You and ${name} build a steady rhythm through shared projects.`,moment:`You and ${name} will cook together.`,horizon:'within 1 month'}]));
+  assert.equal(result.kind,'ok',name);
+ }
+});
+
+test('name exemptions retain feelings checks outside names and full semantic moderation',async()=>{
+ const {bondReading}=await import('../server/bond.ts');
+ for(const draft of [
+  {why:'You and Love build a steady rhythm through shared projects.',moment:'You and Love will fall for each other.'},
+  {why:'Love secretly wishes for your company.',moment:'You and Love will cook together.'},
+  {why:'Love loves spending every moment with you.',moment:'You and Love will cook together.'},
+ ]){
+  const feedback:string[]=[];
+  const result=await bondReading({name:'Love'},scripted([{...draft,horizon:'within 1 month'},{...draft,horizon:'within 1 month'}],feedback));
+  assert.equal(result.kind,'error');assert.match(feedback[0],/never anyone's feelings/);
+ }
+ const draft={why:'Love carries a torch for you.',moment:'You and Love will cook together.',horizon:'within 1 month'};
+ let moderated=false;
+ const json:Json=async(_system,input,schema,valid)=>{
+  if('category'in schema.properties){moderated=true;assert.equal((input as {question:string}).question,`${draft.moment.slice(0,-1)} ${draft.horizon}. ${draft.why}`);return {category:'person'}}
+  assert.equal(await valid(draft),true);return draft;
+ };
+ const result=await bondReading({name:'Love'},{json:json as import('../server/provider.ts').ModelProvider['json']});
+ assert.equal(moderated,true);assert.equal(result.kind,'blocked');
+});
+
 test('the engine serves a bond only for a first name',async()=>{
  const {handler}=await import('../server/handler.ts');
  const serve=handler(()=>undefined,scripted([{why:'The Lantern and the Tide find their rhythm in small plans.',moment:'You and Maya will finish a shared playlist.',horizon:'within 1 month'}]));
