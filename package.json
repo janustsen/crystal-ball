@@ -8,7 +8,8 @@
     "web": "node scripts/start-preview.mjs",
     "server": "tsx server/local.ts",
     "check": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test tests/*.test.ts && npm run test:love-notifications",
+    "test:love-notifications": "node --experimental-vm-modules --test tests/love-notifications.test.mjs",
     "test:reveal-recording": "node scripts/verify-reveal-recording.mjs"
   },
   "dependencies": {
