@@ -24,10 +24,12 @@ export function safeContext(question:string){
  text=text.replace(/\b(?:legal|immigration|medical|visa|court|paralegal)\s+(?:receptionist|assistant|caseworker|clerk|section|certification|exam|career|job)\b/gi,'professional work');
  text=text.replace(/\b(?:public defender|hospice chaplain|criminal lawyer|immigration lawyer|oncologist|psychiatrist)\b/gi,'professional');
  // A sign’s traits are astrology; leave illness mentions elsewhere intact.
- if(!clinical)text=text.replace(/\bcancer(['’]s) (nurturing|intuition|intuitive|sensitivity|protective|caring)\b/gi,'the sign$1 $2');
+ if(!clinical)text=text.replace(/\bcancer(['’]s) (nurturing|intuition|intuitive|sensitivity|protective|caring|patience|resourcefulness|warmth|creativity|loyalty|empathy|imagination|tenacity|compassion)\b/gi,'the sign$1 $2');
  text=text.replace(/\bdeath metal\b/gi,'music');
- const cancerIllness=/\b(?:diagnos\w*|treat\w*|symptom\w*|biops\w*|tumou?r\w*|chemo\w*|metasta\w*|remission|recurr\w*|prognosis|malignan\w*|oncolog\w*|recover\w*|cur(?:e|ed|ing)|progression|spread\w*|stage|surviv\w*)\b|\b(?:have|has|had|get|gets|got|with|from|of|her|his|their|your|our) cancer\b/i.test(text);
- if(!clinical&&!cancerIllness&&/\b(zodiac|horoscope|star sign|sun sign|aries|taurus|gemini|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
+ if(!clinical){
+  text=text.replace(/\b((?:zodiac|star|sun) sign(?: of)?[ :]+)cancer\b/gi,'$1the Crab').replace(/\bcancer(?= (?:zodiac|horoscope|sun sign|star sign)\b)/gi,'the Crab');
+  text=text.replace(/\b(aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces) (?:and|pairs with) (aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/gi,pair=>pair.replace(/\bcancer\b/gi,'the Crab'));
+ }
  return text;
 }
 export function phraseSafety(question: string): SafetyCategory | undefined {
