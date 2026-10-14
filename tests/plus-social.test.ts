@@ -94,7 +94,6 @@ test('History retains completed recaps across year rollover, with Plus gating fo
  const render=()=>module.exports.YearRecap({onPlus:()=>upgrades++,onShare:()=>{}});
  let tree=render();
  assert.equal(nodes(tree).filter(n=>n.props.testID==='year-recap-share').length,0,'sharing the year waits for December');
- 
  assert.deepEqual(nodes(tree).filter(n=>/^year-recap-\d+$/.test(n.props.testID)).map(n=>n.props.testID),['year-recap-2027','year-recap-2026','year-recap-2025']);
  assert.match(text(tree),/Your 2027 in forecasts0 readings/);
  assert.match(text(tree),/Your 2026 in forecastsThe Hopeful Romantic1 reading · 1 golden find · 1 Yes check-in/);
