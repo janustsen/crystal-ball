@@ -6,6 +6,7 @@ import {skyOn} from '../src/real-sky.ts';
 import {insightKinds,selfAnswers} from '../src/ball-asks.ts';
 import { makePlan, predict } from './engine.ts';
 import {bondReading} from './bond.ts';
+import {validFirstName} from '../src/social-policy.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
 import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
@@ -34,7 +35,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    const ageConfirmed='ageConfirmed'in body?body.ageConfirmed:undefined;
    if(ageConfirmed!==undefined&&typeof ageConfirmed!=='boolean')throw new Error('Please confirm your age.');
    const teen=readingAge(viewerBirthday,ageConfirmed)!=='adult';
-   if(personName!==undefined&&(typeof personName!=='string'||!validPersonName(personName)))throw new Error('Use a first name only.');
+   if(personName!==undefined&&(typeof personName!=='string'||!(body.action==='bond'?validFirstName(personName):validPersonName(personName))))throw new Error('Use a first name only.');
    const localDate='localDate'in body?body.localDate:undefined;
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
    // Moon and rising are a Plus depth: with billing, only a current Plus viewer's chart reaches the reading.

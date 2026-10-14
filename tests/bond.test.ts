@@ -97,6 +97,19 @@ test('the engine serves a bond only for a first name',async()=>{
  assert.equal(reading.kind,'ok');assert.equal(reading.value.headline,'You and Maya will finish a shared playlist within 1 month.');assert.equal(typeof reading.value.bond.percent,'number');
 });
 
+test('the bond endpoint accepts Circle names with combining marks',async()=>{
+ const {handler}=await import('../server/handler.ts');
+ for(const name of ['आशा','Jose\u0301']){
+  const serve=handler(()=>undefined,scripted([{why:'The two images bring a steady rhythm to shared projects.',moment:`You and ${name} will cook together.`,horizon:'within 1 month'}]));
+  const response=await serve(new Request('http://localhost/',{method:'POST',body:JSON.stringify({action:'bond',question:bondQuestion(name),personName:name,ageConfirmed:true})}));
+  const result=await response.json();
+  assert.equal(result.kind,'ok',JSON.stringify(result));
+  assert.equal(result.value.personName,name);
+  assert.equal(result.value.question,bondQuestion(name));
+  assert.equal(result.value.headline,`You and ${name} will cook together within 1 month.`);
+ }
+});
+
 test('a bond with an opted-in Circle friend goes deeper with their sun sign and shared themes',async t=>{
  const {socialHandler}=await import('../server/social.ts');
  const env=(key:string)=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only'} as Record<string,string>)[key];
