@@ -13,7 +13,7 @@ export function sunSign(birthday?:string):string|undefined {
  return (signs.filter(([start])=>birthday.slice(5)>=start).at(-1)?.[1]||'Capricorn').toLowerCase();
 }
 export type BirthChart={moonSign:string;risingSign:string};
-const titled=(sign:string)=>sign[0].toUpperCase()+sign.slice(1);
+export const titled=(sign:string)=>sign[0].toUpperCase()+sign.slice(1);
 export function astrologyLine(birthday?:string,chart?:BirthChart):string {
  const sign=sunSign(birthday);
  if(!sign)return '';
