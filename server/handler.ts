@@ -44,7 +44,9 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
    if(localDate!==undefined&&(typeof localDate!=='string'||!checkInDate(localDate)))throw new Error('Please provide a valid local calendar date.');
    // Moon and rising are a Plus depth: with billing, only a current Plus viewer's chart reaches the reading.
    const plusChart=async(viewer:string|null)=>chart&&(!meter||(await meter.balance(viewer??await meter.user(request))).plus)?chart:undefined;
-   const context={viewerBirthday,ageConfirmed,personName,localDate};
+   const timing='timing'in body&&body.timing==='love'?'love' as const:undefined;
+   if('timing'in body&&body.timing!==undefined&&!timing)throw new Error('Please choose a reading.');
+   const context={viewerBirthday,ageConfirmed,personName,localDate,timing};
    const facts=raw as Facts,question=body.question.trim();
    if(body.action==='predict'&&'webReading'in body){
     // A sealed-link browser visitor's one free reading: limited by browser, network and a daily cap, never by an account.

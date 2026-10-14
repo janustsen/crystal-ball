@@ -11,14 +11,16 @@ export type CardStyle = 'classic' | 'gold' | 'obsidian';
 export type StyleOf = { ball: BallStyle; card: CardStyle };
 // A Bond reading's named bond and its compatibility percentage, about the shared bond, never the other person's feelings.
 export type Bond = { name: string; percent: number };
-export type Prediction = { bond?: Bond; circleId?: string; dueDate?: string; astrology?: string; deeperWhy?: string; personName?: string; id: string; question: string; headline: string; createdAt: string; label: string; why: string; facts: Facts; sources: Source[]; assumptions: string[]; friend: boolean; golden?: boolean; friendTarget?: FriendTarget; outcome?: 'yes' | 'no' | 'pending'; checkedInAt?: string; shapedBy?: {question: string; answer: string} };
+// A Love timing reading asks when it will happen; the Ball answers with its own due date.
+export type Timing = 'love';
+export type Prediction = { timing?: Timing; bond?: Bond; circleId?: string; dueDate?: string; astrology?: string; deeperWhy?: string; personName?: string; id: string; question: string; headline: string; createdAt: string; label: string; why: string; facts: Facts; sources: Source[]; assumptions: string[]; friend: boolean; golden?: boolean; friendTarget?: FriendTarget; outcome?: 'yes' | 'no' | 'pending'; checkedInAt?: string; shapedBy?: {question: string; answer: string} };
 // A whisper is a one-day forecast that arrives with the omen and is checked the next morning.
 export type Whisper = { day: string; text: string; outcome?: 'yes' | 'no' | 'pending'; checkedInAt?: string };
 export type SafetyCategory = 'death' | 'self_harm' | 'illness' | 'pregnancy' | 'legal' | 'person';
 export type Result<T> = { kind: 'ok'; value: T } | { kind: 'blocked'; category: SafetyCategory; message: string } | { kind: 'error'; message: string };
 export type Flow = { stage: 'approach' } | { stage: 'listening' } | { stage: 'ask' } | { stage: 'planning'; question: string } | { stage: 'cards'; question: string; plan: Plan; answers: Facts; index: number } | { stage: 'research'; question: string; plan: Plan; answers: Facts } | { stage: 'reveal'; prediction: Prediction } | { stage: 'blocked'; message: string; category: SafetyCategory } | { stage: 'error'; message: string; question: string; retry?: {plan: Plan; answers: Facts} };
 // plus only sets golden odds in the unmetered loopback preview; a metered server uses its own plan.
-export type ReadingContext = { localDate?: string; viewerBirthday?: string; ageConfirmed?: boolean; personName?: string; plus?: boolean; viewerChart?: {moonSign:string;risingSign:string} };
+export type ReadingContext = { timing?: Timing; localDate?: string; viewerBirthday?: string; ageConfirmed?: boolean; personName?: string; plus?: boolean; viewerChart?: {moonSign:string;risingSign:string} };
 export type InsightKind = 'portrait' | 'enjoy' | 'try' | 'shift';
 export type Insight = {kind: InsightKind; title: string; text: string; at: string};
 // The Ball asks progress: question ids ever answered (cleared by Forget everything), skipped ids, insights received and bonus readings granted.
