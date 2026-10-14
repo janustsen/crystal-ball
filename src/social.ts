@@ -1,3 +1,4 @@
+import {localDay} from './retention';
 import {allRows} from './social-pagination';
 import {anonymousOwner,supabase} from './cloud';
 import {aiProvider,engineUrl,previewHeaders} from './api';
@@ -45,7 +46,7 @@ async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal)
 }
 export const syncSocialProfile=(profile:SocialProfile)=>socialRequest({action:'profile',...profile});
 export const prepareSocialDraft=(kind:'star'|'seal',text:string,aiConsent='')=>socialRequest<SocialDraft>({action:'draft',kind,text,aiConsent});
-export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal,aiConsent='',requestId?:string,context:Pick<ReadingContext,'viewerBirthday'|'viewerChart'>&{bond?:boolean}={})=>socialRequest<Prediction&{balance?:Balance}>({action:'friend',question,...target,aiConsent,requestId,...context},signal);
+export const friendForecast=(question:string,target:FriendTarget,signal:AbortSignal,aiConsent='',requestId?:string,context:Pick<ReadingContext,'viewerBirthday'|'viewerChart'>&{bond?:boolean}={})=>socialRequest<Prediction&{balance?:Balance}>({action:'friend',question,...target,aiConsent,requestId,...context,localDate:localDay()},signal);
 export async function loadSocial(account:SocialProfile,schoolOnly=false):Promise<SocialSnapshot>{
  await syncSocialProfile(account);
  const {db,owner}=await client(),day=new Date().toISOString().slice(0,10);

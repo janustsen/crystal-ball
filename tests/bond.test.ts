@@ -120,12 +120,24 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
   if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'cancer',themes:['growth']});
   throw new Error(`Unexpected ${path}`);
  });
- const inputs:unknown[]=[],model=scripted([{why:'The Lantern and the Tide share a steady, growing rhythm.',moment:'You and Alex will plant a window herb garden.',horizon:'within 1 month'}],[],inputs);
- const response=await socialHandler(env,model)(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('Alex'),firstName:'Alex',circle:'circle',member:'member',viewerBirthday:'2001-08-01'})}));
+ const inputs:unknown[]=[],feedback:string[]=[],why='The Lantern and the Tide share a steady, growing rhythm.';
+ const draft={why,moment:'You and Alex will plant a window herb garden.',horizon:'within 1 month'};
+ const model=scripted([{...draft,why:`${why} ${why} ${why}`},draft],feedback,inputs);
+ const serve=socialHandler(env,model);
+ const ask=(localDate:unknown)=>serve(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('Alex'),firstName:'Alex',circle:'circle',member:'member',viewerBirthday:'2001-08-01',localDate})}));
+ for(const invalid of ['2026-02-30','not-a-date',123,null]){
+  const response=await ask(invalid);
+  assert.equal(response.status,400);
+  assert.equal((await response.json()).message,'Please provide a valid local calendar date.');
+ }
+ assert.equal(inputs.length,0);
+ const response=await ask('2026-10-14');
  const reading=await response.json();
  assert.equal(response.status,200,JSON.stringify(reading));
  assert.deepEqual(reading.bond,bondOf('2001-08-01','Alex','cancer'));assert.equal(reading.bond.name,'The Lantern and the Tide');
  assert.equal(reading.headline,'You and Alex will plant a window herb garden within 1 month.');assert.equal(reading.label,'Your bond with Alex');
- assert.equal(reading.friend,true);assert.deepEqual(reading.friendTarget,{circle:'circle',member:'member',firstName:'Alex'});assert.match(reading.dueDate,/^\d{4}-\d{2}-\d{2}$/);
+ assert.equal(reading.friend,true);assert.deepEqual(reading.friendTarget,{circle:'circle',member:'member',firstName:'Alex'});assert.equal(reading.dueDate,'2026-11-14');
+ assert.equal(reading.why,why);assert.equal(feedback.length,1);assert.match(feedback[0],/160 characters/);
+ assert.equal((inputs[0] as {today:string}).today,'2026-10-14');
  assert.deepEqual((inputs[0] as {theirSunSign:string;sharedThemes:string[]}).theirSunSign,'cancer');assert.deepEqual((inputs[0] as {sharedThemes:string[]}).sharedThemes,['growth']);
 });
