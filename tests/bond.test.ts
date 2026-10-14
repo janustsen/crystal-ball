@@ -142,6 +142,25 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
  assert.deepEqual((inputs[0] as {theirSunSign:string;sharedThemes:string[]}).theirSunSign,'cancer');assert.deepEqual((inputs[0] as {sharedThemes:string[]}).sharedThemes,['growth']);
 });
 
+test('a person named Leo is allowed in both paired-person forms without exempting sign references',async()=>{
+ const {bondReading}=await import('../server/bond.ts');
+ for(const pair of ['You and Leo','Leo and you']){
+  const draft={why:`${pair} build a steady rhythm through shared projects.`,moment:'You and Leo will cook together.',horizon:'within 1 month'};
+  const result=await bondReading({name:'Leo'},scripted([draft]));
+  assert.equal(result.kind,'ok',JSON.stringify(result));
+  if(result.kind==='ok')assert.equal(result.value.headline,'You and Leo will cook together within 1 month.');
+  for(const field of ['moment','why'])for(const sign of ['Leo','Cancer']){
+   const feedback:string[]=[];
+   const bad={...draft,[field]:field==='moment'?`You and Leo will paint ${sign}.`:`${pair} follow ${sign} through shared projects.`};
+   const repaired=await bondReading({name:'Leo'},scripted([bad,draft],feedback));
+   assert.equal(repaired.kind,'ok',JSON.stringify(repaired));
+   assert.deepEqual(feedback,["Refer to the bond's images, not zodiac sign names."]);
+   const rejected=await bondReading({name:'Leo'},scripted([bad,bad]));
+   assert.equal(rejected.kind,'error');
+  }
+ }
+});
+
 test('all zodiac names in either draft field get one repair then fail closed',async()=>{
  const {bondReading}=await import('../server/bond.ts');
  const {validatedProvider}=await import('../server/provider.ts');
