@@ -7,9 +7,11 @@ import {birthChart,findBirthPlaces,type BirthPlace} from './birth-chart';
 import {requestChartWeather} from './api';
 import {localDay} from './retention';
 import {Surface} from './Surface';
+import {SvgXml} from 'react-native-svg';
+import {lightBall,threeLights} from './three-lights';
 
 // aiConsent is null while AI processing still needs the user's permission in Ask.
-export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgrade:()=>void}){
+export function BirthProfile({aiConsent,onUpgrade,onShare}:{aiConsent:string|null;onUpgrade:()=>void;onShare:()=>void}){
  const {state,update}=useStore(),[editing,setEditing]=useState(false),[chartOpen,setChartOpen]=useState(false),[birthday,setBirthday]=useState(state.birthday||''),[time,setTime]=useState(state.birthTime||''),[place,setPlace]=useState(''),[places,setPlaces]=useState<BirthPlace[]>([]),[selected,setSelected]=useState<BirthPlace>(),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[weatherBusy,setWeatherBusy]=useState(false);
  const request=useRef<AbortController|null>(null);
  useEffect(()=>()=>request.current?.abort(),[]);
@@ -17,7 +19,7 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
   request.current?.abort();const abort=new AbortController();request.current=abort;setBusy(true);setNotice('');setSelected(undefined);setPlaces([]);
   try{const matches=await findBirthPlaces(place.trim(),abort.signal);if(!abort.signal.aborted){setPlaces(matches);if(!matches.length)setNotice('No matching city. Try a nearby town.');}}catch{if(!abort.signal.aborted)setNotice('City search is unavailable. Try again later.');}finally{if(!abort.signal.aborted)setBusy(false);}
  }
- const month=localDay().slice(0,7),weather=state.chartWeather?.month===month?state.chartWeather.text:null;
+ const lights=threeLights(state),month=localDay().slice(0,7),weather=state.chartWeather?.month===month?state.chartWeather.text:null;
  // The server keeps one chart weather per account and month; this copy only avoids asking again.
  async function readWeather(){
   if(aiConsent===null||weatherBusy)return;setWeatherBusy(true);setNotice('');
@@ -28,13 +30,13 @@ export function BirthProfile({aiConsent,onUpgrade}:{aiConsent:string|null;onUpgr
   try{const next=updateBirthday(state,birthday.trim()||undefined);update(()=>next);setEditing(false);setNotice('');}catch(e){setNotice(e instanceof Error?e.message:'Check your birthday.');}
  }
  return <View style={styles.panel}><Surface kind="card">
-  <CardHeader title="Your signs"/>
-  <Txt>{state.sunSign?`${state.sunSign} Sun`:'Your Sun sign is a mystery'}</Txt>
+  <CardHeader title="Your three lights"/>
+  {lights.map(light=><View testID={`light-${light.key}`} key={light.key} style={{flexDirection:'row',alignItems:'center',gap:14,marginTop:12}}><SvgXml aria-hidden xml={lightBall(light.line?light.color:undefined)} width={52} height={52}/><View style={{flex:1}}><Txt style={[styles.label,light.line?{color:`rgb(${light.color})`}:{}]}>{light.sign?`${light.name} · ${light.sign}`:light.name}</Txt><Txt style={light.line?undefined:styles.caption}>{light.line??(light.key==='sun'?'Add your birthday to light your Sun.':'Add your birth time and place to light this.')}</Txt></View></View>)}
+  {lights.every(light=>light.line)?<Action testID="share-three-lights" label="Share your three lights" onPress={onShare}/>:null}
   <Txt style={styles.caption}>{!state.birthday?'Age not shared · teen-safe defaults':state.ageBand==='teen'?'Teen · ages 13–17':state.ageBand==='adult'?'18 and up':'Age not shared · teen-safe defaults'}</Txt>
   {state.birthday?<Txt style={styles.caption}>Birthday · {state.birthday}</Txt>:null}
   <Action label={editing?'Close birthday':'Edit birthday'} quiet onPress={()=>{setBirthday(state.birthday||'');setEditing(!editing)}}/>
   {editing?<><Field accessibilityLabel="Birthday YYYY-MM-DD" placeholder="YYYY-MM-DD" placeholderTextColor={colors.muted} value={birthday} onChangeText={setBirthday} style={styles.input} maxLength={10}/><Action label="Save birthday" onPress={saveBirthday}/>{state.birthday?<Action label="Forget birthday" quiet onPress={()=>{update(s=>updateBirthday(s));setEditing(false)}}/>:null}</>:null}
-  {state.moonSign?<Txt>{state.moonSign} Moon · {state.risingSign} rising</Txt>:null}
   {state.moonSign?<Txt style={styles.caption}>{state.plus?'Your Moon and rising shape every Why.':'With Plus, your Moon and rising shape every Why.'}</Txt>:null}
   {state.moonSign&&state.plus?(weather?<View testID="chart-weather" style={{marginTop:12}}><Txt style={[styles.meta,{color:colors.gold}]}>Chart weather · {new Date(`${month}-15T12:00:00`).toLocaleDateString(undefined,{month:'long'})}</Txt><Txt accessibilityLiveRegion="polite">{weather}</Txt></View>:aiConsent===null?<Txt style={styles.caption}>Allow AI processing in Ask to read your monthly chart weather.</Txt>:<Action testID="chart-weather-read" label={weatherBusy?'Reading your chart weather…':'Read this month’s chart weather'} quiet disabled={weatherBusy} onPress={()=>void readWeather()}/>):null}
   {state.moonSign&&!state.plus?<Action testID="chart-weather-plus" label="Monthly chart weather · Plus" quiet onPress={onUpgrade}/>:null}

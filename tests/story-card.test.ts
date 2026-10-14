@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {forecastCard,goldenSetCard,goldenShelf,receiptCard} from '../src/story-card.ts';
+import {forecastCard,goldenSetCard,goldenShelf,receiptCard,threeLightsCard} from '../src/story-card.ts';
+import {sunSigns} from '../src/social-policy.ts';
 import type {Prediction} from '../src/types.ts';
 const reading=(over:Partial<Prediction>={}):Prediction=>({id:'0000000a-abcd-4000-8000-000000000000',question:'Will I learn to paint this year?',headline:'You will finish your course within 2 months.',createdAt:'2026-09-01T12:00:00Z',dueDate:'2026-10-20',label:'Speculative forecast',why:'Private reasoning',facts:{study:'Private answer'},sources:[],assumptions:[],friend:false,...over});
 
@@ -68,3 +69,17 @@ test('the golden shelf and set include only golden forecasts',()=>{
    assert.match(card.footer,/^Check back /);
   }
  });
+
+test('three lights share only once Sun, Moon and rising are all lit, and only signs and lines',()=>{
+ assert.equal(threeLightsCard({sunSign:'leo'}),null);
+ assert.equal(threeLightsCard({sunSign:null,moonSign:'pisces',risingSign:'aries'}),null);
+ for(const sun of sunSigns)for(const moon of sunSigns){
+  const card=threeLightsCard({sunSign:sun,moonSign:moon,risingSign:sun})!;
+  assert.equal(card.kind,'three-lights');
+  assert.deepEqual(card.lights!.map(l=>l.name),['Sun','Moon','Rising']);
+  assert.ok(card.lights!.every(l=>l.line&&l.line.length<=44&&l.sign),`${sun} ${moon}`);
+  assert.notEqual(card.lights![0].line,card.lights![2].line);
+ }
+ const text=JSON.stringify(threeLightsCard({sunSign:'leo',moonSign:'pisces',risingSign:'aries'}));
+ for(const hidden of ['1998','14:30','Lisbon','birthday','birthTime','birthPlace'])assert.ok(!text.includes(hidden),hidden);
+});
