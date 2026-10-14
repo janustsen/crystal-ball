@@ -73,7 +73,7 @@ export function offerNotifications(ritual:Ritual,moment:'reveal'|'home',today=lo
 }
 
 // ---- Scheduling ----
-export type Slot='morning'|'evening';
+export type Slot='morning'|'evening'|'dated';
 export type Candidate={id:string;day:string;slot:Slot;priority:number;title:string;body:string;data:Record<string,string>;time?:string;
  // Weekly beats (such as a Sunday recap) still send once daily notifications have backed off to weekly.
  weekly?:boolean};
@@ -116,7 +116,7 @@ export const quiet=(time:string)=>minutes(time)<minutes(quietHours.until)||minut
 // Back-off when the app goes unopened. Each open re-plans from that day, so opening the app re-arms daily notifications.
 // ponytail: unopened days are inferred from the plan's offset, not from delivery receipts; a tap without opening still counts as unopened.
 export function backedOff(offset:number,slot:Slot,weekly=false){
- if(weekly||offset<=3)return false;
+ if(slot==='dated'||weekly||offset<=3)return false;
  if(offset<=7)return slot==='evening'||offset%2===0;
  return slot==='evening'||offset%7!==0;
 }
@@ -129,7 +129,7 @@ export function checkInCandidates({state}:PlanContext):Candidate[]{
   if(!date)continue;
   const due=localDay(date);days.set(due,days.get(due)||reading.timing==='love');date.setDate(date.getDate()+3);days.set(localDay(date),days.get(localDay(date))??false);
  }
- return [...days].map(([day,love])=>({id:'check-ins',day,slot:'evening',priority:100,...love?{title:'The day the Ball named',body:'Your Love timing is due. Did it happen?'}:{title:'Did it come true?',body:'Your forecasts are waiting in History.'},data:{checkIns:'1'},time:eveningTime}));
+ return [...days].map(([day,love])=>({id:love?'love-check-ins':'check-ins',day,slot:love?'dated':'evening',priority:100,...love?{title:'The day the Ball named',body:'Your Love timing is due. Did it happen?'}:{title:'Did it come true?',body:'Your forecasts are waiting in History.'},data:{checkIns:'1'},time:eveningTime}));
 }
 export type Delivered=Record<string,string[]>;
 export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28,delivered:Delivered={},additional:Candidate[]=[]):Planned[]{
@@ -138,7 +138,7 @@ export function planNotifications(state:PlanContext['state'],now=new Date(),hori
  for(const candidate of [...notificationSources.flatMap(source=>source(context)),...additional]){
   const offset=dayNumber(candidate.day)-dayNumber(today),time=candidate.time??(candidate.slot==='morning'?ritual.notify.time:eveningTime);
   const id=`ritual-${candidate.day}-${candidate.id}`,at=new Date(`${candidate.day}T${time}:00`);
-  if(offset<0||offset>horizon||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly)||!(at.getTime()>now.getTime())||delivered[candidate.day]?.includes(id))continue;
+  if(offset<0||(offset>horizon&&candidate.slot!=='dated')||quiet(time)||backedOff(offset,candidate.slot,candidate.weekly)||!(at.getTime()>now.getTime())||delivered[candidate.day]?.includes(id))continue;
   const current=candidates.get(id);
   if(!current||candidate.priority>current.priority)candidates.set(id,{...candidate,time});
  }
