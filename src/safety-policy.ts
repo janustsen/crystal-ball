@@ -23,6 +23,8 @@ export function safeContext(question:string){
  if(creative&&!clinical)text=text.replace(/\b(cancer|pregnancy|death|terminal illness|stroke|murder|suicide|homicide)\b/gi,'subject');
  text=text.replace(/\b(?:legal|immigration|medical|visa|court|paralegal)\s+(?:receptionist|assistant|caseworker|clerk|section|certification|exam|career|job)\b/gi,'professional work');
  text=text.replace(/\b(?:public defender|hospice chaplain|criminal lawyer|immigration lawyer|oncologist|psychiatrist)\b/gi,'professional');
+ // A sign’s traits are astrology; leave illness mentions elsewhere intact.
+ text=text.replace(/\bcancer(['’]s) (nurturing|intuition|intuitive|sensitivity|protective|caring)\b/gi,'the sign$1 $2');
  text=text.replace(/\bdeath metal\b/gi,'music');
  if(!clinical&&/\b(zodiac|horoscope|star sign|sun sign)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
  return text;

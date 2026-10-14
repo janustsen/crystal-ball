@@ -120,7 +120,7 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
   if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'cancer',themes:['growth']});
   throw new Error(`Unexpected ${path}`);
  });
- const inputs:unknown[]=[],feedback:string[]=[],why='The Lantern and the Tide share a steady, growing rhythm.';
+ const inputs:unknown[]=[],feedback:string[]=[],why='Leo’s warmth and Cancer’s nurturing bring a steady rhythm to your shared garden.';
  const draft={why,moment:'You and Alex will plant a window herb garden.',horizon:'within 1 month'};
  const model=scripted([{...draft,why:`${why} ${why} ${why}`},draft],feedback,inputs);
  const serve=socialHandler(env,model);
@@ -140,4 +140,26 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
  assert.equal(reading.why,why);assert.equal(feedback.length,1);assert.match(feedback[0],/160 characters/);
  assert.equal((inputs[0] as {today:string}).today,'2026-10-14');
  assert.deepEqual((inputs[0] as {theirSunSign:string;sharedThemes:string[]}).theirSunSign,'cancer');assert.deepEqual((inputs[0] as {sharedThemes:string[]}).sharedThemes,['growth']);
+});
+
+test('Cancer trait wording leaves clinical illness blocks and semantic moderation intact',async()=>{
+ const {phraseSafety,safety}=await import('../server/safety.ts');
+ for(const text of ["Cancer's nurturing brings rhythm to shared projects.",'Cancer’s intuition brings rhythm to shared projects.']){
+  assert.equal(phraseSafety(text),undefined);
+ }
+ for(const text of [
+  'You and Alex will recover from cancer.',
+  'Cancer’s progression will slow down.',
+  'Cancer’s nurturing helps you recover from cancer.',
+  'Cancer’s nurturing will make chemotherapy succeed.',
+  'Cancer’s nurturing will heal your tumour.',
+ ])assert.equal(phraseSafety(text),'illness',text);
+ let moderated=false;
+ const json:Json=async(_system,input)=>{
+  moderated=true;
+  assert.match((input as {question:string}).question,/nurturing/);
+  return {category:'illness'};
+ };
+ assert.equal(await safety('Cancer’s nurturing will restore your health.',{json:json as import('../server/provider.ts').ModelProvider['json']},true),'illness');
+ assert.equal(moderated,true);
 });
