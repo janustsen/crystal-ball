@@ -63,7 +63,7 @@ A short, fully personal insight shown on Home once a day, separate from the dail
 A one-day forecast (“By tonight, …”) delivered with the Daily insight and checked the next morning with Yes, Not quite or Not yet. Never scored.
 
 **Weekly recap**:
-“Your week in the Ball”: free counts of the last seven days, never an accuracy score; the weekly sibling of the Plus Year in review. Both carry an **Identity label**, a playful name for the most-asked theme, and can be shared as a story card (the year card from December).
+“Your week in the Ball”: free counts of the last seven days, never an accuracy score; the weekly sibling of the Plus Year in review. Both carry an **Identity label**, a playful name for the most-asked theme, with sharing availability described in [user guidance](README.md).
 
 **Teen**:
 A user aged 13 to 17, known from the onboarding birthday, which is also the age gate (under 13 is blocked). Forecast output follows the [all-age safety policy](docs/research/safety-policy.md).
