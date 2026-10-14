@@ -80,6 +80,7 @@ test('three lights share only once Sun, Moon and rising are all lit, and only si
   assert.ok(card.lights!.every(l=>l.line&&l.line.length<=44&&l.sign),`${sun} ${moon}`);
   assert.notEqual(card.lights![0].line,card.lights![2].line);
  }
- const text=JSON.stringify(threeLightsCard({sunSign:'leo',moonSign:'pisces',risingSign:'aries'}));
+ const profile={sunSign:'leo',moonSign:'pisces',risingSign:'aries',birthday:'1998-08-01',birthTime:'14:30',birthPlace:'Lisbon, Portugal'};
+ const text=JSON.stringify(threeLightsCard(profile));
  for(const hidden of ['1998','14:30','Lisbon','birthday','birthTime','birthPlace'])assert.ok(!text.includes(hidden),hidden);
 });
