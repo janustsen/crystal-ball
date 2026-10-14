@@ -53,11 +53,11 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord,onRemind}:{
    ctx.font=`112px ${fonts.display}, Georgia`;ctx.fillStyle=colors.gold;ctx.fillText(`${card.pair.percent}%`,540,600);paintLabel(ctx,'COMPATIBLE',660,colors.gold,28,240)}else paintBall(ctx,look);
   if(golden)paintLabel(ctx,'Golden edition',1510,colors.gold,30);
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;
-  const y=drawStoryHeadlines(ctx,card.headlines,fonts.display,card.body?140:0);
+  const y=drawStoryHeadlines(ctx,card.headlines,fonts.display,card.body?80:0);
   const end=card.body?drawStoryBody(ctx,card.body,y+90,fonts.body):y;
   const labelY=Math.min(end+100,1380);card.labels.forEach((label,i)=>paintLabel(ctx,label,labelY+i*56,colors.gold,32,760));}ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;ctx.fillText('Crystal Ball',540,1600);
   paintLabel(ctx,card.footer,1665,colors.label,28);
-  if(site)paintLabel(ctx,site,1740,colors.gold,30);
+  if(site)paintLabel(ctx,site,1800,colors.gold,30);
   // Encode asynchronously so opening Share does not block the animation frame.
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>{
    if(!blob){reject(new Error('Could not encode story'));return;}

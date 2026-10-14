@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {drawStoryHeadlines} from '../src/story-layout.ts';
+import {drawStoryBody,drawStoryHeadlines} from '../src/story-layout.ts';
 
 function draw(headlines:string[],width=.5){
  const lines:{text:string;y:number;font:number}[]=[];
@@ -33,4 +33,16 @@ test('one to three headlines fit with different measured widths and word lengths
 
 test('a short forecast retains its original size and position',()=>{
  assert.deepEqual(draw(['A new door opens.']),{lines:[{text:'A new door opens.',y:1080,font:82}],bottom:1080});
+});
+
+test('a portrait body keeps every word and ends above the wordmark, even under a long title',()=>{
+ for(const title of ['The Group Spark','The Quiet Cartographer Of Every Crowded Room'])for(const width of [.45,.6]){
+  const lines:{text:string;y:number}[]=[];
+  const ctx={font:'',measureText(text:string){return {width:text.length*parseFloat(this.font)*width} as TextMetrics},fillText(text:string,_x:number,y:number){lines.push({text,y})}};
+  const body='You are the vibrant spark who thrives in crowds, energized by shared moments, quick to start, bright in spirit, and always ready to leap into new places with friends and strangers alike.';
+  const end=drawStoryBody(ctx,body,drawStoryHeadlines(ctx,[title],'Georgia',80)+90,'Georgia');
+  assert.ok(end<=1500,`${title} ${width}: ${end}`);
+  assert.ok(lines[0].y>=960,'the title clears the panel edge');
+  assert.ok(lines.map(l=>l.text).join(' ').replace(/\s/g,'').includes(body.replace(/\s/g,'')));
+ }
 });

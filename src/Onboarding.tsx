@@ -105,7 +105,7 @@ export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}
      </View>
      <Txt style={[styles.caption,{textAlign:'center',marginTop:12}]}>Sets your Sun sign. 13 and up.</Txt>
     {blocked?null:<View accessibilityRole="radiogroup" accessibilityLabel="Where did you hear about us? Optional" style={{marginTop:14}}>
-     <Txt style={[styles.label,{textAlign:'center'}]}>Where did you hear about us? · Optional</Txt>
+     <Txt style={[styles.caption,{textAlign:'center'}]}>Where did you hear about us? Optional.</Txt>
      <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{heardFromSources.map(source=><Pressable key={source} testID={`heard-${source.toLowerCase().replace(/\W+/g,'-')}`} accessibilityRole="radio" aria-checked={heard===source} accessibilityState={{checked:heard===source}} onPress={()=>setHeard(heard===source?null:source)} style={{minHeight:44,paddingVertical:10,paddingHorizontal:12,justifyContent:'center'}}><Surface kind="chip" state={heard===source?'selected':undefined}><Txt style={styles.chip}>{source}</Txt></Surface></Pressable>)}</View>
     </View>}
      {error?<Txt accessibilityRole="alert" style={[styles.caption,{color:colors.gold,textAlign:'center',marginTop:8}]}>{error}</Txt>:null}
