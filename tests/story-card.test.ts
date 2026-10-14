@@ -101,7 +101,7 @@ test('week and year recaps share a playful label and counts, never questions, he
 
 test('a bond card shows two balls, the bond and its percentage, never the reasoning',()=>{
  const card=forecastCard(reading({question:'What lies ahead for me and Maya?',personName:'Maya',headline:'You and Maya will cook a new recipe together within 3 months.',bond:{name:'The Lantern and the Tide',percent:82}}));
- assert.equal(card.pair,'Maya');assert.deepEqual(card.labels,['The Lantern and the Tide','82% compatible']);assert.equal(card.file,'crystal-ball-bond.png');
+ assert.deepEqual(card.pair,{name:'Maya',percent:82});assert.deepEqual(card.labels,['The Lantern and the Tide']);assert.equal(card.file,'crystal-ball-bond.png');
  for(const hidden of ['Private reasoning','Private answer'])assert.ok(!JSON.stringify(card).includes(hidden),hidden);
  assert.equal(forecastCard(reading()).pair,undefined);
 });

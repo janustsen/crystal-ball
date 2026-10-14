@@ -27,9 +27,11 @@ test('the bond question names the person',()=>assert.equal(bondQuestion('Maya'),
 
 type Json=(system:string,input:unknown,schema:{properties:Record<string,unknown>},valid:import('../server/provider.ts').Validator)=>Promise<unknown>;
 // A scripted model: safety calls allow; bond drafts come from the queue and must pass the validator, like the provider.
-function scripted(drafts:unknown[],feedback:string[]=[]):import('../server/provider.ts').ModelProvider{
+function scripted(drafts:unknown[],feedback:string[]=[],inputs:unknown[]=[]):import('../server/provider.ts').ModelProvider{
  const json:Json=async(_system,_input,schema,valid)=>{
   if('category'in schema.properties)return {category:'allow'};
+  if('safe'in schema.properties)return {safe:true};
+  inputs.push(_input);
   for(const draft of drafts.splice(0,2)){const verdict=await valid(draft);if(verdict===true)return draft;if(typeof verdict==='object')feedback.push(verdict.feedback)}
   throw new Error('The mist is too thick. Please ask again.');
  };
@@ -64,4 +66,24 @@ test('the engine serves a bond only for a first name',async()=>{
  assert.equal((await ask({personName:'Maya Lee'})).message,'Use a first name only.');
  const reading=await ask({personName:'Maya'});
  assert.equal(reading.kind,'ok');assert.equal(reading.value.headline,'You and Maya will finish a shared playlist within 1 month.');assert.equal(typeof reading.value.bond.percent,'number');
+});
+
+test('a bond with an opted-in Circle friend goes deeper with their sun sign and shared themes',async t=>{
+ const {socialHandler}=await import('../server/social.ts');
+ const env=(key:string)=>({SUPABASE_URL:'http://127.0.0.1:55321',SUPABASE_SERVICE_ROLE_KEY:'test-only'} as Record<string,string>)[key];
+ t.mock.method(globalThis,'fetch',async(input:unknown)=>{
+  const path=new URL(String(input)).pathname;
+  if(path==='/auth/v1/user')return Response.json({id:'0f0e0d0c-0b0a-4908-8706-050403020100'});
+  if(path==='/rest/v1/social_profiles')return Response.json([{age_band:'adult'}]);
+  if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'cancer',themes:['growth']});
+  throw new Error(`Unexpected ${path}`);
+ });
+ const inputs:unknown[]=[],model=scripted([{why:'The Lantern and the Tide share a steady, growing rhythm.',moment:'You and Alex will plant a window herb garden.',horizon:'within 1 month'}],[],inputs);
+ const response=await socialHandler(env,model)(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('Alex'),firstName:'Alex',circle:'circle',member:'member',viewerBirthday:'2001-08-01'})}));
+ const reading=await response.json();
+ assert.equal(response.status,200,JSON.stringify(reading));
+ assert.deepEqual(reading.bond,bondOf('2001-08-01','Alex','cancer'));assert.equal(reading.bond.name,'The Lantern and the Tide');
+ assert.equal(reading.headline,'You and Alex will plant a window herb garden within 1 month.');assert.equal(reading.label,'Your bond with Alex');
+ assert.equal(reading.friend,true);assert.deepEqual(reading.friendTarget,{circle:'circle',member:'member',firstName:'Alex'});assert.match(reading.dueDate,/^\d{4}-\d{2}-\d{2}$/);
+ assert.deepEqual((inputs[0] as {theirSunSign:string;sharedThemes:string[]}).theirSunSign,'cancer');assert.deepEqual((inputs[0] as {sharedThemes:string[]}).sharedThemes,['growth']);
 });
