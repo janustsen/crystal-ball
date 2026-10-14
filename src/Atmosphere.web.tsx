@@ -1,6 +1,8 @@
 import {useEffect,useRef} from 'react';
 import {fogShader} from './fogShader';
 import {appCss} from './motionCss';
+import {localDay} from './retention';
+import {moonSvg,skyOn} from './real-sky';
 export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
  const sky=useRef([43+Math.random()*19,79+Math.random()*29,61+Math.random()*23]);
  const ref=useRef<HTMLCanvasElement>(null),settings=useRef({reduce,mood});
@@ -72,7 +74,7 @@ export function Atmosphere({reduce,mood}:{reduce:boolean;mood:string}){
  },[]);
  return <div aria-hidden="true" className={reduce?'atmosphere reduced':'atmosphere'} style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden'}}>
   <style>{appCss}</style>
-  <div className="room"/><div className="sky"><div className="stars"/><i className="shooting-star" style={{animationDuration:`${sky.current[0]}s`}}/><i className="wandering-moon" style={{animationDuration:`${sky.current[1]}s`}}>☾</i><div className="hidden-constellation" style={{animationDuration:`${sky.current[2]}s`}}>✧ · ˚ · ✦</div></div>
+  <div className="room"/><div className="sky"><div className="stars"/><i className="shooting-star" style={{animationDuration:`${sky.current[0]}s`}}/><i className="wandering-moon" style={{animationDuration:`${sky.current[1]}s`}} dangerouslySetInnerHTML={{__html:moonSvg(skyOn(localDay()).angle,'#ddb580')}}/><div className="hidden-constellation" style={{animationDuration:`${sky.current[2]}s`}}>✧ · ˚ · ✦</div></div>
   <div className="candle"/><canvas ref={ref} className="mist"/>
   <div className="embers" style={{'--h':'900px'} as React.CSSProperties}>{Array.from({length:10},(_,i)=><i key={i} style={{'--x':`${8+i*9}%`,'--z':`${i%3+1}px`,'--t':`${14+i}s`,'--d':`${-i*3}s`,'--dx':`${i%2?20:-20}px`} as React.CSSProperties}/>)}</div>
   <div className="tap-layer"/>

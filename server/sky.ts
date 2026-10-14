@@ -2,6 +2,7 @@ import {ballVoice} from './voice.ts';
 import type {ModelProvider} from './provider.ts';
 import {moderateSocialLine} from './social.ts';
 import {serviceRpc} from './social-push.ts';
+import {skyLine,skyOn} from '../src/real-sky.ts';
 
 // The Friday whose omens must exist now. It stays current through Saturday UTC, until the last zone's Friday night has begun.
 export function skyWeek(now:Date){
@@ -9,9 +10,6 @@ export function skyWeek(now:Date){
  day.setUTCDate(day.getUTCDate()+(12-day.getUTCDay())%7);
  return day.toISOString().slice(0,10);
 }
-
-// A random motif keeps each group's omen its own without sending any member data to the model.
-const motifs=['a new moon','a passing comet','a meteor shower','the northern lights','twin stars','a lantern-lit sky','a rising tide moon','a shy constellation','a silver eclipse','a planet at its brightest','a falling star','dawn after a long night'];
 
 // Before Friday (UTC), last Friday's week is still open everywhere, so its missing omens are retried first.
 export function skyWeeks(now:Date){
@@ -22,8 +20,8 @@ export function skyWeeks(now:Date){
 }
 
 // Run hourly in a trusted scheduler. Each School and Circle gets one moderated omen per week; failed groups retry next run.
-// The model sees only the group kind and a motif, never member data, so no per-user AI consent is involved.
-export async function openSky(env:(key:string)=>string|undefined,model:ModelProvider,now=new Date(),transport:typeof fetch=fetch,pick=(count:number)=>Math.floor(Math.random()*count)){
+// The model sees only the group kind and that Friday's real sky, never member data, so no per-user AI consent is involved.
+export async function openSky(env:(key:string)=>string|undefined,model:ModelProvider,now=new Date(),transport:typeof fetch=fetch){
  const rpc=serviceRpc(env,transport),weeks=skyWeeks(now);
  const targets:{week:string;school_id:string|null;circle_id:string|null}[]=[];
  for(const week of weeks)for(const target of await rpc('sky_omen_targets',{target_week:week}))targets.push({...target,week});
@@ -32,8 +30,8 @@ export async function openSky(env:(key:string)=>string|undefined,model:ModelProv
  for(const target of targets){
   try{
    const {text}=await model.json<{text:string}>(
-    ballVoice+' Write one shared, astrology-flavored omen that a whole group opens together on a Friday night, for reflection and entertainment. The group is a school community or a small Circle of friends; speak to them as "you" together. Hopeful, inclusive and generic: no names, places, schools, dates, private facts, romance or feelings claims, guarantees, or advice. Build it around the supplied motif. Use 8 to 16 words in one complete sentence ending with punctuation. Return text only in the JSON field.',
-    {group:target.school_id?'school':'circle',motif:motifs[pick(motifs.length)]},
+    ballVoice+' Write one shared, astrology-flavored omen that a whole group opens together on a Friday night, for reflection and entertainment. The group is a school community or a small Circle of friends; speak to them as "you" together. Hopeful, inclusive and generic: no names, places, schools, dates, private facts, romance or feelings claims, guarantees, or advice. Build it around the supplied sky, that Friday night’s real Moon; mention no other planet or sky event. Use 8 to 16 words in one complete sentence ending with punctuation. Return text only in the JSON field.',
+    {group:target.school_id?'school':'circle',sky:skyLine(skyOn(target.week))},
     {type:'object',properties:{text:{type:'string',minLength:10,maxLength:160}},required:['text'],additionalProperties:false},
     value=>{
      if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string')return false;

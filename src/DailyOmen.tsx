@@ -11,6 +11,7 @@ import {OmenCard,omenTextStyle} from './Home';
 import {answerWhisper,keepWhisper,lastWhisper} from './whisper';
 import {haptic} from './native';
 import type {Whisper} from './types';
+import {skyEvents,skyOn} from './real-sky';
 
 const outcomes={yes:'Yes',no:'Not quite',pending:'Not yet'} as const;
 const thanks={yes:'Yes saved. Today’s whisper waits below.',no:'Not quite saved. The Ball can miss.',pending:'Not yet saved. Some whispers take their time.'} as const;
@@ -44,10 +45,10 @@ export function DailyOmen({aiConsent='',onRead,cardRef}:{aiConsent?:string;onRea
   if(!backupBusy&&unsaved.length)update(s=>({...s,whispers:unsaved.reduce((list,w)=>keepWhisper(list,w.day,w.whisper),s.whispers)}));
  },[current?.day,whisper,previous?.day,previous?.whisper,state.whispers,backupBusy]);
  useEffect(()=>{if(!backupBusy&&current?.text!=null)onRead?.()},[current?.day,current?.text,backupBusy]);
- const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries;
+ const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries,event=current?.text?skyOn(current.day).event:null;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
-  <OmenCard ref={cardRef} testID="daily-omen" busy={!current||!!retrying}>
+  <OmenCard ref={cardRef} testID="daily-omen" busy={!current||!!retrying} label={event?`${skyEvents[event]} insight`:undefined}>
    <Txt accessibilityLiveRegion="polite" style={omenTextStyle}>{current?(current.text??(retrying?'The stars are gathering. The Ball will look again shortly.':'The stars are quiet today. Come back tomorrow.')):'A little starlight is finding you…'}</Txt>
    {whisper?<View testID="omen-whisper" style={{borderTopWidth:1,borderTopColor:colors.line,paddingTop:12,marginTop:4,gap:6}}>
     <Txt style={styles.label}>Tonight’s whisper</Txt>

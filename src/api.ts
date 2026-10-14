@@ -22,7 +22,7 @@ export async function request<T extends Plan|Prediction>(action:'plan'|'predict'
 export async function requestOmen(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent=''):Promise<OmenReply>{
  facts=withoutSelf(facts);delete facts.sun_sign;
  if(sunSign)facts.sun_sign=sunSign;
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal insight',facts,viewerBirthday:birthday,ageConfirmed,aiConsent}),signal:AbortSignal.timeout(60000)});
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'omen',question:'Today’s personal insight',facts,viewerBirthday:birthday,ageConfirmed,aiConsent,localDate:localDay()}),signal:AbortSignal.timeout(60000)});
  const result=await response.json();
  if(!response.ok||result?.kind!=='ok'||typeof result.value?.text!=='string')throw new Error('Insight unavailable.');
  const whisper=typeof result.value.whisper==='string'?result.value.whisper.trim():'';

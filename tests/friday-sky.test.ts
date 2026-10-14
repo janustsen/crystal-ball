@@ -13,7 +13,7 @@ test('the generated week is the Friday whose night is under way somewhere, else 
  assert.equal(skyWeek(new Date('2026-10-11T00:00Z')),'2026-10-16');
 });
 
-test('each School and Circle gets one teen-moderated omen; unsafe output stays closed for the next run',async()=>{
+test('each School and Circle gets one teen-moderated omen of that Friday’s real sky; unsafe output stays closed for the next run',async()=>{
  const saved:Record<string,unknown>[]=[],inputs:unknown[]=[],moderated:{text:string;teen:boolean;star:boolean}[]=[];
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input),body=JSON.parse(String(init?.body));
@@ -29,9 +29,9 @@ test('each School and Circle gets one teen-moderated omen; unsafe output stays c
   inputs.push(input);
   return {text:++call===3?'Your crush is thinking of you tonight.':' A bright shared spark gathers over all of you tonight. '} as T;
  }};
- let motif=0;
- assert.deepEqual(await openSky(env,model,new Date('2026-10-08T12:00Z'),transport,()=>motif++),{week:'2026-10-09',targets:3,opened:2});
- assert.deepEqual(inputs,[{group:'school',motif:'a new moon'},{group:'circle',motif:'a passing comet'},{group:'circle',motif:'a meteor shower'}]);
+ assert.deepEqual(await openSky(env,model,new Date('2026-10-08T12:00Z'),transport),{week:'2026-10-09',targets:3,opened:2});
+ const sky='waning Moon in Libra';
+ assert.deepEqual(inputs,[{group:'school',sky},{group:'circle',sky},{group:'circle',sky}]);
  assert.ok(moderated.every(line=>line.teen&&line.star));
  assert.deepEqual(saved,[
   {target_week:'2026-10-09',school:'sfusd-lowell',circle:null,text_value:'A bright shared spark gathers over all of you tonight.'},

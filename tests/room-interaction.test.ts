@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as realSky from '../src/real-sky';
+// Home shows tonight's sky for a fixed day.
+const sky={'./retention':{localDay:()=>'2026-10-14'},'./real-sky':realSky};
 import * as room from '../src/room';
 
 function component(file:string,imports:Record<string,any>,globals:Record<string,any>={}){
@@ -301,7 +304,7 @@ test('native fallback stays on the visible stand while travel waits or stalls',a
 test('the room ball supplies touch feedback before reading, and a drag spins it instead',()=>{
  const events:string[]=[],Platform={OS:'web'};
  const render=component('../src/Home.tsx',{
-  'react-native':{Platform,Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  ...sky,'react-native':{Platform,Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
   './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./AskOrb':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
@@ -395,7 +398,7 @@ test('submission enlarges the ball from typing or the resting room, and the stat
 test('cramped Ask content keeps controls reachable and tracks the ball while scrolling',()=>{
  const cameras:room.Camera[]=[];
  const render=component('../src/AskBall.tsx',{
-  'react-native':{Platform:{OS:'android'},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  ...sky,'react-native':{Platform:{OS:'android'},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
   'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
   './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
  });
@@ -430,7 +433,7 @@ test('cramped Ask content keeps controls reachable and tracks the ball while scr
 test('Ask reserves the supplied keyboard and notice space through resize and dismissal',()=>{
  const listeners:Record<string,(event:any)=>void>={};
  const render=component('../src/AskBall.tsx',{
-  'react-native':{Platform:{OS:'ios'},Dimensions:{get:()=>({height:844})},Keyboard:{addListener:(event:string,callback:(event:any)=>void)=>{listeners[event]=callback;return {remove(){}}}},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  ...sky,'react-native':{Platform:{OS:'ios'},Dimensions:{get:()=>({height:844})},Keyboard:{addListener:(event:string,callback:(event:any)=>void)=>{listeners[event]=callback;return {remove(){}}}},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
   'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
   './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
  });
