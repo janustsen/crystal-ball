@@ -16,16 +16,18 @@ try{
    },keyboard);
    const page=await context.newPage(),name=`${width}x${height}${large?'-large':''}`;
    await page.goto(base,{timeout:120000});
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+   // An adult profile shows the widest chip row: Ask about someone plus Love timing's When will it happen?
+   await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill('1992');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
    await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
    await page.getByTestId('question-input').fill('What will my life be like next year? '.repeat(4).trim());
-   for(const person of [false,true]){
-    if(person){await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex')}
+   for(const mode of ['','person','love']){
+    if(mode==='person'){await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex')}
+    if(mode==='love'){await page.getByTestId('ask-about-myself').click();await page.getByTestId('love-timing').click()}
     for(const open of [false,true]){
      await page.evaluate(value=>window.__keyboard(value),open);await page.waitForTimeout(900);
      const bottom=height-(open?keyboard:0),bad=[];
      const header=await page.getByTestId('close-flow').boundingBox(),viewport=await page.getByTestId('ask-content').boundingBox();
-     const ids=[...(person?['person-name','ask-about-myself']:['ask-about-someone']),'question-input','ask-disclosure','speak-instead','look-into-the-future'];
+     const ids=[...(mode==='person'?['person-name','ask-about-myself']:mode==='love'?['love-timing-label','leave-love-timing']:['ask-about-someone','love-timing']),'question-input','ask-disclosure','speak-instead','look-into-the-future'];
      // A build with an AI provider (EXPO_PUBLIC_AI_PROVIDER_NAME) adds its permission switch and What's shared link.
      const controls=ids.map(id=>[id,page.getByTestId(id)]);
      if(await page.getByTestId('ai-details').count())controls.push(['ai-details',page.getByTestId('ai-details')],['ai-permission',page.getByRole('switch',{name:'Allow AI processing'})]);
@@ -41,10 +43,10 @@ try{
      const layout=await page.getByTestId('ask-content').evaluate(e=>({height:e.clientHeight,content:e.scrollHeight,offset:e.scrollTop,width:e.clientWidth,contentWidth:e.scrollWidth}));
      if(layout.contentWidth>layout.width+1)bad.push('content overflows horizontally');
      if(layout.content<=layout.height+1&&layout.offset>1)bad.push('fitting content moved');
-     const state=`${name}${person?' person':''}${open?' keyboard':''}`;
+     const state=`${name}${mode?` ${mode}`:''}${open?' keyboard':''}`;
      console.log(`${bad.length?'FAIL':'PASS'} ${state}${bad.length?`: ${bad.join(', ')}`:''}`);
      if(bad.length)failures.push({state,bad});
-     await page.screenshot({path:`${evidence}/${name}${person?'-person':''}${open?'-keyboard':''}.png`});
+     await page.screenshot({path:`${evidence}/${name}${mode?`-${mode}`:''}${open?'-keyboard':''}.png`});
     }
    }
   }finally{await context.close()}
