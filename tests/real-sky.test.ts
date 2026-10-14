@@ -72,6 +72,27 @@ test('Moon positions do not authorize personal signs, including repeated mention
  }
 });
 
+test('natural Moon-position phrasing preserves personal-sign and repair boundaries',async()=>{
+ const sky=skyOn('2026-10-14','America/Los_Angeles');
+ const whisper='By tonight, a small plan may change for the better.';
+ for(const [text,valid] of [
+  ['The Moon in Sagittarius invites you to begin again.',true],
+  ['As the Moon grows in Sagittarius, welcome a small surprise.',true],
+  ['The Moon drifts through Sagittarius, inviting you to begin again.',true],
+  ['The Sagittarius Moon invites you to welcome a small surprise.',true],
+  ['Sagittarius, a gentle light invites you to begin again.',false],
+  ['Sagittarius, the Moon grows in Sagittarius, inviting a gentle pause.',false],
+  ['The Moon grows in Gemini, inviting you to begin again.',false],
+  ['The Moon gently grows today in Sagittarius, inviting a pause.',false],
+ ] as const){
+  let calls=0;
+  const model=validatedProvider(async()=>{calls++;return JSON.stringify({text,whisper});});
+  if(valid)assert.deepEqual(await personalOmen({},model,sky),{text,whisper});
+  else await assert.rejects(personalOmen({},model,sky),/mist is too thick/);
+  assert.equal(calls,valid?1:2,text);
+ }
+});
+
 test('events follow local calendar days and the sky cache includes the zone',()=>{
  assert.equal(skyOn('2026-10-25','America/Los_Angeles').event,'full-moon');
  assert.notEqual(skyOn('2026-10-26','America/Los_Angeles').event,'full-moon');
