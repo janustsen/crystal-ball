@@ -153,3 +153,22 @@ test('each event requires its own reference in the omen, with one repair then fa
  const model=validatedProvider(async()=>JSON.stringify({text:ordinary,whisper}));
  assert.deepEqual(await personalOmen({},model,skyOn('2026-10-14')),{text:ordinary,whisper});
 });
+
+test('the single omen repair reports all violations together',async()=>{
+ const sky=skyOn('2026-10-24','America/Los_Angeles');
+ let calls=0;
+ const repaired={text:'Mercury retrograde invites you to slow down and welcome small surprises.',whisper:'By tonight, a small plan may change for the better.'};
+ const model=validatedProvider(async messages=>{
+  calls++;
+  if(calls===1)return JSON.stringify({text:'Aries, a gentle light invites you to begin again. Another sentence.',whisper:'Aries will definitely win'});
+  const feedback=messages.at(-1)!.content;
+  assert.match(feedback,/one sentence of 8 to 14 words/);
+  assert.match(feedback,/Name Mercury retrograde in the omen text/);
+  assert.match(feedback,/Do not assign or address the viewer by any sign/);
+  assert.match(feedback,/begin "By tonight,"/);
+  assert.match(feedback,/naming no Sun sign/);
+  return JSON.stringify(repaired);
+ });
+ assert.deepEqual(await personalOmen({},model,sky),repaired);
+ assert.equal(calls,2);
+});
