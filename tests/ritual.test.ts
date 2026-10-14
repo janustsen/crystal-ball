@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {type Candidate,constellation,dailyCandidates,signCopy,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
+import {type Candidate,checkInCandidates,constellation,dailyCandidates,signCopy,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
 import {localDay} from '../src/retention';
 import type {Prediction} from '../src/types';
 
@@ -134,4 +134,12 @@ test('unopened check-ins and their follow-ups obey central back-off and quiet ho
 test('signed morning reminders rotate through every signed message',()=>{
  const mornings=dailyCandidates({state:state(enabled()),now,horizon:27}).filter(c=>c.id==='morning').map(c=>c.body);
  assert.deepEqual(new Set(mornings.filter(body=>signCopy('Leo').includes(body))),new Set(signCopy('Leo')));
+});
+
+test('a Love timing check-in names its own day, keeps the question private and falls back to plain copy three days later',()=>{
+ const reading:Prediction={id:'love',timing:'love',question:'When will I meet someone special?',headline:'You will share a first coffee with someone new in 2 weeks.',createdAt:'2026-10-01T10:00:00',label:'Love timing',why:'',facts:{},sources:[],assumptions:[],friend:false,dueDate:'2026-10-09'};
+ const candidates=checkInCandidates({state:state(enabled(),[reading]),now,horizon:14});
+ assert.deepEqual(candidates.map(c=>[c.day,c.title]),[['2026-10-09','The day the Ball named'],['2026-10-12','Did it come true?']]);
+ assert.ok(candidates.every(c=>!/someone special|coffee/i.test(`${c.title} ${c.body}`)));
+ assert.ok(planNotifications(state({...enabled(),days:{}},[reading]),now,14).some(p=>at(p)==='2026-10-09'&&p.title==='The day the Ball named'));
 });

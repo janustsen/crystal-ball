@@ -121,14 +121,15 @@ export function backedOff(offset:number,slot:Slot,weekly=false){
  return slot==='evening'||offset%7!==0;
 }
 export function checkInCandidates({state}:PlanContext):Candidate[]{
- const days=new Set<string>();
+ // Each day maps to whether a Love timing reading named that very day (not its follow-up three days later).
+ const days=new Map<string,boolean>();
  for(const reading of state.history){
   if(reading.circleId||reading.outcome)continue;
   const date=checkInDate(suggestedCheckIn(reading));
   if(!date)continue;
-  days.add(localDay(date));date.setDate(date.getDate()+3);days.add(localDay(date));
+  const due=localDay(date);days.set(due,days.get(due)||reading.timing==='love');date.setDate(date.getDate()+3);days.set(localDay(date),days.get(localDay(date))??false);
  }
- return [...days].map(day=>({id:'check-ins',day,slot:'evening',priority:100,title:'Did it come true?',body:'Your forecasts are waiting in History.',data:{checkIns:'1'},time:eveningTime}));
+ return [...days].map(([day,love])=>({id:'check-ins',day,slot:'evening',priority:100,...love?{title:'The day the Ball named',body:'Your Love timing is due. Did it happen?'}:{title:'Did it come true?',body:'Your forecasts are waiting in History.'},data:{checkIns:'1'},time:eveningTime}));
 }
 export type Delivered=Record<string,string[]>;
 export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28,delivered:Delivered={},additional:Candidate[]=[]):Planned[]{
