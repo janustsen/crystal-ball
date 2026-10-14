@@ -10,7 +10,7 @@ try{
   const context=await browser.newContext(),page=await context.newPage();
   try{
    await page.goto(process.env.VERIFY_URL||'http://localhost:8092');
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
    await page.getByTestId('tab-you').click();
    const result=await page.evaluate(async order=>{
     // Exercise the actual Store operations; hold only the external authentication boundary.

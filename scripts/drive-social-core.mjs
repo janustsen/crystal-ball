@@ -25,7 +25,7 @@ async function shot(name){
 }
 try{
  openAuthenticatedPreview(base,env);
- await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','06');await page.fill('[data-testid="birthday-day"]','15');await page.fill('[data-testid="birthday-year"]','1995');${click('continue')}await page.wait('[data-testid="tab-ask"]');`);
+ await run(`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','06');await page.fill('[data-testid="birthday-day"]','15');await page.fill('[data-testid="birthday-year"]','1995');${click('continue')}${click('about-done')}await page.wait('[data-testid="tab-ask"]');`);
  await exec('chrome-devtools-axi',['emulate','--viewport','390x844x1,mobile,touch'],{env});
  await run(`${click('tab-sky')}if(!(await page.eval(()=>document.querySelector('[data-testid=tonights-sky]')?.innerText.split('\\n').includes('Samples'))))throw Error('Missing Samples badge');if(!(await page.eval(()=>document.querySelector('[data-testid=sky-theme-money]')?.getAttribute('aria-label')?.endsWith(', sample star'))))throw Error('Missing sample star accessible label');${click('sky-theme-money')}${click('ask-this-too')}if(!(await page.eval(()=>document.querySelector('[data-testid="question-input"]').value)).includes('savings'))throw Error('Sample prompt not copied');`);
  await run(`await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}await page.wait('[data-testid="option-0"]',65000);`);

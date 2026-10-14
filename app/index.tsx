@@ -10,7 +10,7 @@ import {installMessages,webReadingUsed} from '../src/web-reading';
 import {buy,manageSubscriptions,purchaseMode,restore,storeAvailable,storeOffers,type Offer} from '../src/purchases';
 import {noReadings,packs,plans,plusUnlocks,type PackKind,type PlanKind} from '../src/billing';
 import {adaptPlan,factLabels,validateAnswer,validateFact} from '../src/questions';
-import type {Facts,Flow,Plan,Prediction,FriendTarget} from '../src/types';
+import type {AccountState,Facts,Flow,Plan,Prediction,FriendTarget} from '../src/types';
 import {LinearGradient} from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import {RoomScene,type BallSpin} from '../src/RoomScene';
@@ -50,7 +50,7 @@ import {allowNotifications,requestCheckIn,scheduleRitual,watchRitualTaps} from '
 import {NotifyOffer,NotifySettings,RitualDebug,TodayCard,YourSky} from '../src/DailyRitual';
 import {SvgXml} from 'react-native-svg';
 import {BallAsks} from '../src/BallAsks';
-import {asksOf,isSelfKey,selfContext,teenSafe,withoutSelf} from '../src/ball-asks';
+import {answerAsk,asksOf,isSelfKey,selfContext,teenSafe,withoutSelf} from '../src/ball-asks';
 const closeIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',backIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 const personIcon='<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',micIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 const doneCheck='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
@@ -265,7 +265,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  function content(){
  if(!ready)return hydrationError?<View style={[styles.panel,{paddingHorizontal:30}]}><Surface kind="error"><Txt accessibilityLiveRegion="polite">{hydrationError}</Txt><Action testID="retry-hydration" label="Try opening again" onPress={retryHydration}/></Surface></View>:<Txt>Opening your sky…</Txt>;
  if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} webTrial={webTrial} onAsk={webTrial&&webReadingSpent()?undefined:()=>openAsk()}/>;
- if(onboarding)return <Onboarding reduce={reduce} blocked={state.onboardingBlocked} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed)=>update(s=>({...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,tourSeen:false,facts:{...s.facts,...facts}}))}/>;
+ if(onboarding)return <Onboarding reduce={reduce} blocked={state.onboardingBlocked} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed,answers)=>update(s=>Object.entries(answers).reduce<AccountState>((next,[id,answer])=>answerAsk(next,id,answer),{...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,tourSeen:false,facts:{...s.facts,...facts}}))}/>;
  if(paywall){
   const cost=(kind:PlanKind|PackKind)=>offers?.find(o=>o.kind===kind)?.price??[...plans,...packs].find(p=>p.kind===kind)!.price;
   // The yearly saving is computed from the prices actually shown; it is hidden when they are unavailable.

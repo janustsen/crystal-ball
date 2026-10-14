@@ -28,7 +28,7 @@ try{
    const page=await context.newPage();
    await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'practice',question:'How much do you practice?',options:['15 minutes','Other'],remember:false}]}}}));
    await page.goto(base,{timeout:120000});
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
    await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
    await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex');
    const input=page.getByTestId('question-input');await input.fill('Will I finish my draft?');

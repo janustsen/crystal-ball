@@ -21,6 +21,7 @@ try{
  evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
  evaluate('()=>{document.querySelector("[data-testid=skip-for-now]")?.click();return true}');
  evaluate('()=>{document.querySelector("[data-testid=confirm-age]")?.click();return true}');
+ evaluate('()=>{document.querySelector("[data-testid=about-done]")?.click();return true}');
  shot('glass-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
  cli('perf-start','--no-reload','--no-auto-stop','--file',raw);tracing=true;
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');

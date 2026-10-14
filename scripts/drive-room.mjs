@@ -22,7 +22,7 @@ async function open(options){
  const context=await browser.newContext({viewport:{width:390,height:844},...options});
  const page=await context.newPage();
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  await page.getByTestId('hero-orb').waitFor();
  return page;
 }

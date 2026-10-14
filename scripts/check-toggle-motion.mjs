@@ -6,7 +6,7 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
  await page.goto(process.env.PREVIEW_URL||'http://localhost:8273');
  await page.getByTestId('skip-for-now').click();
- await page.getByTestId('confirm-age').click();
+ await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  await page.getByTestId('open-settings').click();
  const ambient=page.getByTestId('ambient-sound');
  await ambient.scrollIntoViewIfNeeded();

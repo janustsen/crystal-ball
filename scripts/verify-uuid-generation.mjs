@@ -21,7 +21,7 @@ try{
    result.crypto=await page.evaluate(()=>({secure:isSecureContext,randomUUID:typeof crypto.randomUUID,getRandomValues:typeof crypto.getRandomValues,oldCall:(()=>{try{return crypto.randomUUID()}catch(e){return String(e)}})()}));
    assert.equal(result.crypto.secure,scenario.secure);
    assert.equal(result.crypto.randomUUID,scenario.secure?'function':'undefined');
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
    const question='Will I finish writing my novel this year?';
    if(scenario.friend)await page.goto(`${url}/?friend=1&question=${encodeURIComponent(question)}`);
    else {await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(question);}

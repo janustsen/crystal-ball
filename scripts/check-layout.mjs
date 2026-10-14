@@ -96,7 +96,7 @@ for(const [width,height] of [[375,667],[440,956]])for(const fixture of followups
   const cards=[plan.cards[0],{id:'context_b',...fixture,remember:false}];
   await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{...plan,cards}}}));
   await page.goto(base,{timeout:120000});
-  await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+  await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
   await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
   await page.getByTestId('question-input').fill('Will I have a good month?');await page.getByTestId('look-into-the-future').click();
   await page.getByTestId('option-0').click();
@@ -148,7 +148,7 @@ for(const width of [360,390,430])for(const large of [false,true]){
  // The engine's own short error fits the desk card at normal text; the long fixture above keeps its lit panel.
  const shortError={kind:'error',message:'The mist is too thick. Please try again.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
- await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-ask').waitFor();
+ await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await page.getByTestId('tab-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
  await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));if(width===390)await scrolledContrast(page,'sky'+tag);
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));if(width===390)await scrolledContrast(page,'history'+tag);

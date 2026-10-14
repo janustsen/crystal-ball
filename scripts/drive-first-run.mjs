@@ -16,7 +16,7 @@ try{
  await page.keyboard.type('15');await expect(page.getByTestId('birthday-year')).toBeFocused();await page.keyboard.press('Backspace');await expect(page.getByTestId('birthday-day')).toBeFocused();
  await page.keyboard.press('Backspace');await page.keyboard.press('Backspace');await page.keyboard.type('31');await page.keyboard.type('2001');
  await page.getByTestId('birthday-month').fill('2');await page.getByTestId('birthday-day').fill('30');await page.getByTestId('continue').click();await expect(page.getByText('Check the month, day and year.')).toBeVisible();
- await page.getByTestId('birthday-month').fill('6');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();
+ await page.getByTestId('birthday-month').fill('6');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
  // The tour: four steps, shown once, re-opened from You, ended by any tab press.
  for(let i=1;i<=4;i++){await expect(page.getByTestId('tour')).toContainText(`${i} of 4`);await page.screenshot({path:`${evidence}/tour-${i}.png`});await page.getByTestId('tour-next').click();}
  await expect(page.getByTestId('tour')).toHaveCount(0);await page.reload();await page.getByTestId('tab-ask').waitFor();await expect(page.getByTestId('tour')).toHaveCount(0);

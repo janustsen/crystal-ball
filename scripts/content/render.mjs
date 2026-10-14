@@ -85,7 +85,7 @@ async function profile(browser){
  await page.getByTestId('birthday-year').fill(profileBirthday.slice(0,4));
  // The app claims the day's omen before inference; snapshotting mid-request would cache an empty omen into every copy.
  const omen=page.waitForResponse(r=>{try{return r.request().postDataJSON()?.action==='omen'}catch{return false}},{timeout:90000});
- await page.getByTestId('continue').click();
+ await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
  await omen;await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}').text,null,{timeout:10000}); // omenKey in src/daily-omen.ts
  await assertHomeSafe(page);
  const state=await page.context().storageState();await page.context().close();return state;
