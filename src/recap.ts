@@ -3,6 +3,10 @@ import type {Prediction,Whisper} from './types';
 import {localDay} from './retention';
 import {addDays} from './whisper';
 
+// A playful name for what was most on someone's mind. It describes the asking, never whether forecasts came true.
+const identities:Record<SkyPrompt,string>={love:'The Hopeful Romantic',work:'The Rising Star',moving:'The Wanderer',learning:'The Eternal Student',growth:'The Quiet Bloomer',money:'The Fortune Seeker'};
+export const identity=(theme:SkyPrompt|null)=>theme?identities[theme]:'The Whisper Keeper';
+
 // Counts only: the recap never scores whether forecasts came true.
 export type YearRecap={year:number;readings:number;themes:{theme:SkyPrompt;count:number}[];golden:number;yes:number};
 export function yearRecap(history:Prediction[],year:number):YearRecap{

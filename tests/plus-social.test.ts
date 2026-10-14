@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
-import {yearRecap} from '../src/recap';
+import {identity,yearRecap} from '../src/recap';
 import {skyPrompts} from '../src/social-policy';
 import type {Prediction} from '../src/types';
 
@@ -82,8 +82,8 @@ test('History retains completed recaps across year rollover, with Plus gating fo
  const state={plus:true,history:[reading('a','2026-03-01T12:00:00Z','Will I find love?',{golden:true,outcome:'yes'}),reading('b','2025-06-01T12:00:00Z','Will I get the job?')]};
  const element=(type:any,props:any)=>({type,props:props??{}});
  const imports:Record<string,any>={
-  'react/jsx-runtime':{jsx:element,jsxs:element},'react-native':{},'./Surface':{Surface:'Surface'},'./ui':{styles:{}},
-  './store':{useStore:()=>({state})},'./social-policy':{skyPrompts},'./recap':{yearRecap},
+  'react/jsx-runtime':{jsx:element,jsxs:element},'react-native':{},'./Surface':{Surface:'Surface'},'./ui':{styles:{},colors:{}},
+  './store':{useStore:()=>({state})},'./social-policy':{skyPrompts},'./recap':{yearRecap,identity},
  };
  const code=ts.transpileModule(readFileSync(new URL('../src/YearRecap.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  const January2027=new Proxy(Date,{construct:(target,args)=>Reflect.construct(target,args.length?args:['2027-01-01T12:00:00Z'])});
@@ -91,15 +91,17 @@ test('History retains completed recaps across year rollover, with Plus gating fo
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...nodes(node.props.children)];
  const text=(node:any):string=>node==null?'':typeof node!=='object'?String(node):Array.isArray(node)?node.map(text).join(''):(node.props.title??'')+text(node.props.children);
  let upgrades=0;
- const render=()=>module.exports.YearRecap({onPlus:()=>upgrades++});
+ const render=()=>module.exports.YearRecap({onPlus:()=>upgrades++,onShare:()=>{}});
  let tree=render();
+ assert.equal(nodes(tree).filter(n=>n.props.testID==='year-recap-share').length,0,'sharing the year waits for December');
+ 
  assert.deepEqual(nodes(tree).filter(n=>/^year-recap-\d+$/.test(n.props.testID)).map(n=>n.props.testID),['year-recap-2027','year-recap-2026','year-recap-2025']);
  assert.match(text(tree),/Your 2027 in forecasts0 readings/);
- assert.match(text(tree),/Your 2026 in forecasts1 reading · 1 golden find · 1 Yes check-in/);
+ assert.match(text(tree),/Your 2026 in forecastsThe Hopeful Romantic1 reading · 1 golden find · 1 Yes check-in/);
  state.history.push(reading('c','2027-01-01T12:00:00Z','Will I learn a skill?'));
  tree=render();
- assert.match(text(tree),/Your 2027 in forecasts1 reading/);
- assert.match(text(tree),/Your 2026 in forecasts1 reading · 1 golden find · 1 Yes check-in/);
+ assert.match(text(tree),/Your 2027 in forecastsThe Eternal Student1 reading/);
+ assert.match(text(tree),/Your 2026 in forecastsThe Hopeful Romantic1 reading · 1 golden find · 1 Yes check-in/);
  state.plus=false;
  tree=render();
  assert.doesNotMatch(text(tree),/1 reading|1 golden find|1 Yes check-in|Most asked:/);
@@ -107,4 +109,21 @@ test('History retains completed recaps across year rollover, with Plus gating fo
  assert.equal(gates.length,3);
  gates.forEach(n=>n.props.onPress());
  assert.equal(upgrades,3);
+});
+
+test('In December, Plus can share the current year in the Ball',()=>{
+ const module={exports:{} as any};
+ const state={plus:true,history:[reading('a','2026-03-01T12:00:00Z','Will I get the job?'),reading('b','2025-06-01T12:00:00Z','Will I find love?')]};
+ const element=(type:any,props:any)=>({type,props:props??{}});
+ const imports:Record<string,any>={'react/jsx-runtime':{jsx:element,jsxs:element},'react-native':{},'./Surface':{Surface:'Surface'},'./ui':{styles:{},colors:{}},'./store':{useStore:()=>({state})},'./social-policy':{skyPrompts},'./recap':{yearRecap,identity}};
+ const code=ts.transpileModule(readFileSync(new URL('../src/YearRecap.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const December2026=new Proxy(Date,{construct:(target,args)=>Reflect.construct(target,args.length?args:['2026-12-10T12:00:00Z'])});
+ runInNewContext(code,{module,exports:module.exports,Date:December2026,require:(name:string)=>imports[name]});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...nodes(node.props.children)];
+ let shared=0;
+ const render=()=>nodes(module.exports.YearRecap({onPlus:()=>{},onShare:()=>shared++})).filter(n=>n.props.testID==='year-recap-share');
+ const buttons=render();
+ assert.equal(buttons.length,1,'only the current year is shared');
+ buttons[0].props.onPress();assert.equal(shared,1);
+ state.plus=false;assert.equal(render().length,0,'the year card carries Plus counts');
 });

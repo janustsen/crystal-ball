@@ -19,6 +19,8 @@ const copy={
  receipt:{title:'Share your receipt',note:'Only the headline, its category and your check-in dates are shared. Never your question, answers or reasoning.',back:'Back to forecast'},
  'golden-set':{title:'Share your golden set',note:'Only your golden headlines and how many you hold are shared. Never your questions, answers or reasoning.',back:'Back to History'},
  'three-lights':{title:'Share your three lights',note:'Only your Sun, Moon and rising signs and their lines are shared. Never your birthday, birth time or place.',back:'Back to You'},
+ week:{title:'Share my week',note:'Only your label and this week’s counts are shared. Never your questions, headlines, answers or reasoning.',back:'Back to your week'},
+ year:{title:'Share my year',note:'Only your label and this year’s counts are shared. Never your questions, headlines, answers or reasoning.',back:'Back to your year'},
 };
 async function svgImage(xml:string){const image=new Image();image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);await image.decode();return image}
 // The three balls in a row over the room light, then one label and one line per light on the glass card.
