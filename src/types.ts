@@ -8,7 +8,9 @@ export type FriendTarget = {circle:string;member:string;firstName:string};
 export type BallStyle = 'classic' | 'smoke' | 'aurora' | 'obsidian' | 'gold';
 export type CardStyle = 'classic' | 'gold' | 'obsidian';
 export type StyleOf = { ball: BallStyle; card: CardStyle };
-export type Prediction = { circleId?: string; dueDate?: string; astrology?: string; deeperWhy?: string; personName?: string; id: string; question: string; headline: string; createdAt: string; label: string; why: string; facts: Facts; sources: Source[]; assumptions: string[]; friend: boolean; golden?: boolean; friendTarget?: FriendTarget; outcome?: 'yes' | 'no' | 'pending'; checkedInAt?: string; shapedBy?: {question: string; answer: string} };
+// A Bond reading's named bond and its compatibility percentage, about the shared bond, never the other person's feelings.
+export type Bond = { name: string; percent: number };
+export type Prediction = { bond?: Bond; circleId?: string; dueDate?: string; astrology?: string; deeperWhy?: string; personName?: string; id: string; question: string; headline: string; createdAt: string; label: string; why: string; facts: Facts; sources: Source[]; assumptions: string[]; friend: boolean; golden?: boolean; friendTarget?: FriendTarget; outcome?: 'yes' | 'no' | 'pending'; checkedInAt?: string; shapedBy?: {question: string; answer: string} };
 // A whisper is a one-day forecast that arrives with the omen and is checked the next morning.
 export type Whisper = { day: string; text: string; outcome?: 'yes' | 'no' | 'pending'; checkedInAt?: string };
 export type SafetyCategory = 'death' | 'self_harm' | 'illness' | 'pregnancy' | 'legal' | 'person';

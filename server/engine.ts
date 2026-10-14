@@ -33,7 +33,7 @@ function planningContext(question:string,known:Facts,teen=true):Facts {
  return {...context,...personalContext(question,known,teen)};
 }
 // Only lowercase may is the modal verb; capitalized May is usually the month.
-const hedge=/\b(may|[Mm]ight|[Cc]ould|[Ll]ikely|[Pp]erhaps|[Pp]ossibly|[Ss]peculative|[Gg]uarantee[ds]?)\b/;
+export const hedge=/\b(may|[Mm]ight|[Cc]ould|[Ll]ikely|[Pp]erhaps|[Pp]ossibly|[Ss]peculative|[Gg]uarantee[ds]?)\b/;
 // ponytail: a tripwire for the stock filler seen in echo readings ("building on your current pace"); the prompt carries specificity,
 // since word overlap cannot tell a restated answer from a new outcome that shares its words. A semantic judge call is the upgrade.
 const filler=/\b(building on your|(?:your|the same) current (?:pace|path|focus|rhythm))\b/i;
