@@ -23,7 +23,7 @@ On a web reveal, tap Make clip to record a 1080×1920 (9:16) video of the ball o
 
 Web forecast story images and reveal clips use the app’s own design: the ball in its warm light on the dark ground, with the forecast on a glass card. Native story images place the balls and text directly on the dark ground inside an outline. Gold adds a gold outline, Obsidian a cool ground with a pewter outline, and golden editions a heavier gold outline. The clip’s end card sits on the ground.
 
-History also shows Your year in forecasts for the current year and each past year with saved readings. Plus reveals counts of readings, themes, golden finds and Yes check-ins, with no accuracy score; Free shows a Plus invitation for each year. Recaps use the readings saved on this device.
+History also shows Your year in forecasts for the current year and each past year with saved readings. Plus reveals counts of readings, themes, golden finds and Yes check-ins, with no accuracy score; Free shows a Plus invitation for each year. Recaps use the readings saved on this device. Each recap names you by what was most on your mind (The Hopeful Romantic for love, for example). Share my week exports that label and the week’s counts as a story image; in December, Plus can Share my year the same way. Neither shares a question, headline or accuracy score.
 
 You shows Your three lights: your Sun, Moon and rising as three small glass balls lit gold, silver and amber, each with one fixed line. The Sun lights from your birthday; Moon and rising light once you add birth time and place. When all three are lit, Share your three lights exports a 1080×1920 story image with only the signs and their lines, never your birthday, birth time or place.
 
