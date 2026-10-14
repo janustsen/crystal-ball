@@ -16,7 +16,7 @@ export function LoveShelf({history,onOpen}:{history:Prediction[];onOpen:(p:Predi
  const today=localDay();
  return <View testID="love-shelf" style={styles.panel}><Surface kind="card"><CardHeader title="Love timing" label="Sealed"/>
   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingVertical:12}}>
-   {shelf.map(p=>{const day=suggestedCheckIn(p),status=p.outcome?checkInLabel(p,today):day<=today?'Opens today · did it happen?':'Sealed until then';
+   {shelf.map(p=>{const day=suggestedCheckIn(p),status=p.outcome?checkInLabel(p,today):day===today?'Opens today · did it happen?':day<today?'Ready to check in · did it happen?':'Sealed until then';
     return <Pressable testID={`love-shelf-item-${p.id}`} key={p.id} accessibilityRole="button" accessibilityLabel={`Love timing for ${date(day)}: ${p.headline} ${status}`} onPress={()=>onOpen(p)} style={{width:212,minHeight:44,padding:16}}>
      <Surface kind="card" state="selected"/>
      <View style={{flexDirection:'row',alignItems:'center',gap:10}}><SvgXml aria-hidden xml={loveSeal} width={32} height={32}/><View style={{flexShrink:1}}><Txt style={styles.caption}>When it happens</Txt><Txt display style={{fontSize:22,lineHeight:26,color:colors.gold}}>{date(day)}</Txt></View></View>

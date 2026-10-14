@@ -50,7 +50,10 @@ try{
  if(predict.response.kind!=='ok')throw new Error(`The forecast failed: ${JSON.stringify(predict.response)}`);
  const reading=predict.response.value,shift=horizons[reading.facts.horizon];
  if(!shift||reading.timing!=='love'||reading.label!=='Love timing')throw new Error(`Unexpected love timing reading: ${JSON.stringify(reading)}`);
- const due=new Date(`${predict.request.localDate}T00:00:00Z`);due.setUTCMonth(due.getUTCMonth()+shift[0]);due.setUTCDate(due.getUTCDate()+shift[1]);
+ const due=new Date(`${predict.request.localDate}T00:00:00Z`),day=due.getUTCDate();
+ due.setUTCDate(1);due.setUTCMonth(due.getUTCMonth()+shift[0]);
+ const lastDay=new Date(Date.UTC(due.getUTCFullYear(),due.getUTCMonth()+1,0)).getUTCDate();
+ due.setUTCDate(Math.min(day,lastDay)+shift[1]);
  if(reading.dueDate!==due.toISOString().slice(0,10))throw new Error(`Due date ${reading.dueDate} does not follow ${reading.facts.horizon} from ${predict.request.localDate}.`);
  const shown=new Date(`${reading.dueDate}T12:00:00`).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
  await expect(page.getByTestId('forecast-due-date')).toContainText(shown);
