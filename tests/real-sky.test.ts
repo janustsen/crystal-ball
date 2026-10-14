@@ -97,7 +97,7 @@ test('omen requests validate time context and deliver the same local sky to the 
   return JSON.stringify({text:input.skyEvent?`${input.skyEvent} invites you to pause and begin again gently.`:'A gentle light invites you to begin again today.',whisper:'By tonight, a small plan may change for the better.'});
  });
  const serve=handler(()=>undefined,model);
- const send=(context:Record<string,unknown>)=>serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{},...context})}));
+ const send=(context:Record<string,unknown>)=>serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{},ageConfirmed:true,...context})}));
  for(const timeZone of ['America/Los_Angeles','UTC','Asia/Tokyo']){
   assert.equal((await send({localDate:'2026-10-25',timeZone})).status,200);
   const sky=skyOn('2026-10-25',timeZone);

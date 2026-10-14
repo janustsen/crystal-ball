@@ -24,7 +24,7 @@ test('omen client carries profile eligibility and Sun sign through the real hand
  const original=globalThis.fetch,serve=handler(()=>undefined);let calls=0;
  globalThis.fetch=async(_url,init)=>{
   const body=JSON.parse(String(init?.body));
-  if(body.action)return serve(new Request('http://localhost',{method:'POST',body:JSON.stringify(body)}));
+  if(body.action)return serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({...body,localDate:'2026-10-14',timeZone:'UTC'})}));
   calls++;const {sunSign}=JSON.parse(body.messages[1].content);
   return Response.json({message:{content:JSON.stringify({text:sunSign?'Gemini, a little starlight invites a fresh beginning today.':'A little starlight invites a fresh beginning in your day.',whisper:'By tonight, a small plan may change for the better.'})}});
  };
