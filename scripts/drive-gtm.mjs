@@ -56,7 +56,7 @@ try{
  await page.getByTestId('heard-tiktok').click();
  await expect(page.getByTestId('heard-tiktok')).toHaveAttribute('aria-checked','true');
  await owner.shot('onboarding-heard-from');
- await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  await expect.poll(()=>owner.engine.filter(r=>r.body.action==='heard').length).toBe(1);
  const heard=owner.engine.find(r=>r.body.action==='heard');
  expect(heard).toEqual({body:{action:'heard',source:'TikTok'},authorization:null});
@@ -130,7 +130,7 @@ try{
  // A new browser that follows the friend link gets one free web reading, then the install prompt.
  const visitor=await open('visitor');
  await visitor.page.goto(friend.href,{timeout:300000});
- await visitor.page.getByTestId('skip-for-now').click();await visitor.page.getByTestId('confirm-age').click();
+ await visitor.page.getByTestId('skip-for-now').click();await visitor.page.getByTestId('confirm-age').click();await visitor.page.getByTestId('about-done').click();
  expect(await visitor.page.evaluate(()=>localStorage.getItem('cb.web-visitor'))).toBe('1');
  await expect(visitor.page.getByTestId('question-input')).toHaveValue(friend.searchParams.get('question'));
  await visitor.page.getByTestId('look-into-the-future').click();
@@ -150,7 +150,7 @@ try{
  // A Circle invite marks a new browser the same way.
  const invited=await open('circle');
  await invited.page.goto(`${base}/?circle=00000000-0000-4000-8000-000000000009`,{timeout:300000});
- await invited.page.getByTestId('skip-for-now').click();await invited.page.getByTestId('confirm-age').click();
+ await invited.page.getByTestId('skip-for-now').click();await invited.page.getByTestId('confirm-age').click();await invited.page.getByTestId('about-done').click();
  await expect.poll(()=>invited.page.evaluate(()=>localStorage.getItem('cb.web-visitor'))).toBe('1');
  await invited.context.close();
 

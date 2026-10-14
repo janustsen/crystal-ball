@@ -32,7 +32,7 @@ Draft for a hosted engine + Supabase backup release; reconcile with final SDK ma
 | Email/name | No name/email scopes requested by the app; audit identity-provider claims retained by Supabase before deciding whether to declare | Potentially yes | No |
 | Audio data | App does not retain audio; verify OS speech processing and any retained third-party audio | Pending native audit | No intended tracking |
 | Other usage data (optional onboarding answer: where the user heard about Crystal Ball) | Analytics: a daily count per answer (`supabase/migrations/202610140010_heard_from.sql`) | No | No |
-| Diagnostics / device identifiers | No analytics added here; review Expo, RevenueCat and production server logs | Pending release audit | No intended tracking |
+| Diagnostics / device identifiers | Review Expo, RevenueCat and production server logs | Pending release audit | No intended tracking |
 
 Free text may contain additional sensitive data. Discourage it and audit actual collection; do not claim “Data Not Collected.” See [forgetting information](../../README.md) for local removal and saved-reading exceptions, and [profile mirroring](../../SETUP.md#reading-profile-and-birth-chart) for backup propagation and its verification limits. Reset is not account deletion. Specify retention, deletion, operator/contact, subprocessors and international transfers in a public policy; the in-app prototype explanation is not a complete legal policy.
 

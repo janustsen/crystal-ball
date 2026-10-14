@@ -1,7 +1,7 @@
 # Plans
 
 ## Sub-features
-Free daily allowance; one-time soft Plus offer after a reveal (`plus-offer`, `plus-offer-open`, `plus-offer-dismiss`; never for Plus or web visitors); Plus/pack purchase (labeled mock in the preview, real App Store purchases in EAS `store` builds); Restore; Manage or cancel subscription link; optional Apple backup/restore availability; entertainment/privacy disclosure; named hosted-AI opt-in.
+Free daily allowance; one-time soft Plus offer after a reveal (`plus-offer`, `plus-offer-open`, `plus-offer-dismiss`; never for Plus or free web-reading trial visitors); Plus/pack purchase (labeled mock in the preview, real App Store purchases in EAS `store` builds); Restore; Manage or cancel subscription link; optional Apple backup/restore availability; entertainment/privacy disclosure; named hosted-AI opt-in.
 
 ## How to get to it (user POV)
 View plans in the header or You's plan card.
