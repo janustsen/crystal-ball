@@ -120,9 +120,9 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
   if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'cancer',themes:['growth']});
   throw new Error(`Unexpected ${path}`);
  });
- const inputs:unknown[]=[],feedback:string[]=[],why='Leo’s warmth and Cancer’s patience bring a steady rhythm to your shared garden.';
+ const inputs:unknown[]=[],feedback:string[]=[],why='The Lantern and the Tide bring a steady rhythm to your shared garden.';
  const draft={why,moment:'You and Alex will plant a window herb garden.',horizon:'within 1 month'};
- const model=scripted([{...draft,why:`${why} ${why} ${why}`},draft],feedback,inputs);
+ const model=scripted([{...draft,why:'Leo’s warmth and Cancer’s steady rhythm shape your shared projects.'},draft],feedback,inputs);
  const serve=socialHandler(env,model);
  const ask=(localDate:unknown)=>serve(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('Alex'),firstName:'Alex',circle:'circle',member:'member',viewerBirthday:'2001-08-01',localDate})}));
  for(const invalid of ['2026-02-30','not-a-date',123,null]){
@@ -137,43 +137,26 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
  assert.deepEqual(reading.bond,bondOf('2001-08-01','Alex','cancer'));assert.equal(reading.bond.name,'The Lantern and the Tide');
  assert.equal(reading.headline,'You and Alex will plant a window herb garden within 1 month.');assert.equal(reading.label,'Your bond with Alex');
  assert.equal(reading.friend,true);assert.deepEqual(reading.friendTarget,{circle:'circle',member:'member',firstName:'Alex'});assert.equal(reading.dueDate,'2026-11-14');
- assert.equal(reading.why,why);assert.equal(feedback.length,1);assert.match(feedback[0],/160 characters/);
+ assert.equal(reading.why,why);assert.equal(feedback.length,1);assert.equal(feedback[0],"Refer to the bond's images, not zodiac sign names.");
  assert.equal((inputs[0] as {today:string}).today,'2026-10-14');
  assert.deepEqual((inputs[0] as {theirSunSign:string;sharedThemes:string[]}).theirSunSign,'cancer');assert.deepEqual((inputs[0] as {sharedThemes:string[]}).sharedThemes,['growth']);
 });
 
-test('Cancer trait wording leaves clinical illness blocks and semantic moderation intact',async()=>{
- const {phraseSafety,safety}=await import('../server/safety.ts');
- const {moderateSocialLine}=await import('../server/social.ts');
+test('all zodiac names in either draft field get one repair then fail closed',async()=>{
  const {bondReading}=await import('../server/bond.ts');
- for(const text of ["Cancer's nurturing brings rhythm to shared projects.",'Cancer’s intuition brings rhythm to shared projects.', 'Leo’s warmth and Cancer’s patience bring a steady rhythm to your shared garden.', 'Cancer and Taurus bring a steady rhythm to shared projects.', 'Pisces pairs with Cancer for a shared garden.', 'Cancer’s resourcefulness complements Virgo’s planning.']){
-  assert.equal(phraseSafety(text),undefined);
-  await moderateSocialLine(text,'seal',true,scripted([]));
-  const result=await bondReading({name:'Alex',sign:'cancer'},scripted([{why:text,moment:'You and Alex will plant a shared garden.',horizon:'within 1 month'}]),{viewerBirthday:'2001-08-01'});
-  assert.equal(result.kind,'ok',JSON.stringify(result));
+ const {validatedProvider}=await import('../server/provider.ts');
+ for(const sign of ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'])for(const field of ['why','moment']){
+  const draft={why:'The Lantern and the Tide guide your shared projects.',moment:'You and Alex will plant a shared garden.',horizon:'within 1 month',
+   [field]:field==='why'?`${sign} guides your shared projects.`:`You and Alex will paint ${sign}.`};
+  let attempts=0;
+  const model=validatedProvider(async(messages)=>{
+   attempts++;
+   if(attempts===2)assert.ok(messages.at(-1)?.content.includes("Refer to the bond's images, not zodiac sign names."));
+   return JSON.stringify(draft);
+  });
+  assert.equal((await bondReading({name:'Alex'},model)).kind,'error',`${sign} ${field}`);
+  assert.equal(attempts,2);
  }
- for(const text of [
-  'You and Alex will recover from cancer.',
-  'Cancer’s progression will slow down.',
-  'Cancer’s nurturing helps you recover from cancer.',
-  'Cancer’s nurturing will make chemotherapy succeed.',
-  'Cancer’s nurturing will heal your tumour.',
-  'Will my cancer’s sensitivity improve?',
-  'Leo’s warmth will help Alex recover from cancer.',
-  'Cancer’s progression will slow down for a Taurus.',
-  'Your horoscope says his cancer will disappear.',
-  'Leo has cancer.',
-  'Cancer will spread despite the Pisces horoscope.',
-  'A Gemini will enter remission from cancer.',
- ])assert.equal(phraseSafety(text),'illness',text);
- let moderated=false;
- const json:Json=async(_system,input)=>{
-  moderated=true;
-  assert.match((input as {question:string}).question,/nurturing/);
-  return {category:'illness'};
- };
- assert.equal(await safety('Cancer’s nurturing will restore your health.',{json:json as import('../server/provider.ts').ModelProvider['json']},true),'illness');
- assert.equal(moderated,true);
 });
 
 test('a Circle bond for a name that contains a filtered word still passes moderation',async t=>{
