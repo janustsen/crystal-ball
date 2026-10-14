@@ -47,10 +47,10 @@ test('the engine writes twelve validated forecasts keyed by month', async () => 
 });
 
 test('a month name, hedge or duplicate gets one repair, then fails closed', async () => {
- const bad=[...good];bad[3]='You might visit a lake in March.';bad[5]=bad[4];
+ const bad=[...good];bad[3]='You might visit a lake in March.';bad[7]='You will plant seeds in spring.';bad[5]=bad[4];
  const repaired=serve([{forecasts:bad},{forecasts:good}]);
  assert.equal((await (await repaired.ask()).json()).kind,'ok');
- assert.match(repaired.seen[1],/Forecast 4 must .*drop hedges.*name no number, month or date.*Make every forecast different/);
+ assert.match(repaired.seen[1],/Forecast 4 must .*drop hedges.*name no number, month, season or date.*Forecast 8 must name no number.*Make every forecast different/);
  const failed=serve([{forecasts:bad},{forecasts:bad}]);
  assert.equal((await (await failed.ask()).json()).kind,'error');
 });
