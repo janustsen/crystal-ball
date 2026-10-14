@@ -4,10 +4,12 @@
 Private 9:16 export; Friend-reading entry from Circles. Private Person readings enter through Ask; see [usage](../../../../README.md).
 
 ## How to get to it (user POV)
-Sky → Circles → Ask about an opted-in friend → first name, or Share this prediction on a reveal.
+Sky → Circles → Ask about an opted-in friend → first name, Share this glimpse on a reveal, or You → Share your three lights (see [usage](../../../../README.md) for availability).
 
 ## Driving it with chrome-devtools-axi
 Choose an opted-in friend in Circles and enter their first name, or create a friend link from Share; inspect friend mode. Export story card and inspect downloaded file dimensions and contents. Open the full story preview. The still export is generated locally; verify its error boundary with an injected canvas encoding failure.
+
+`scripts/drive-reading-flow.mjs` also drives the three-lights profile, share screen, PNG export dimensions and return to You. Inspect the exported image against the [three-lights usage](../../../../README.md) for its signs, lines and privacy boundary.
 
 ## Gotchas
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.
