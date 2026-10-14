@@ -21,7 +21,7 @@ const noScroll={touchAction:'none'} as object;
 // Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
 export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce,direction}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
  // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
- const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge,sky=skyOn(localDay());
+ const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge,sky=skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone);
  useEffect(()=>{if(omenFocus&&content.current)omenRef.current?.measureLayout(content.current,(_x,y)=>scroll.current?.scrollTo({y:Math.max(0,y+pad-48),animated:!reduce}))},[omenFocus]);
  // Content starts below the ball but scrolls all the way up, fading out beneath the header (under); touches above the
  // content pass through (box-none) so the ball stays the tap and spin target.

@@ -45,7 +45,7 @@ export function DailyOmen({aiConsent='',onRead,cardRef}:{aiConsent?:string;onRea
   if(!backupBusy&&unsaved.length)update(s=>({...s,whispers:unsaved.reduce((list,w)=>keepWhisper(list,w.day,w.whisper),s.whispers)}));
  },[current?.day,whisper,previous?.day,previous?.whisper,state.whispers,backupBusy]);
  useEffect(()=>{if(!backupBusy&&current?.text!=null)onRead?.()},[current?.day,current?.text,backupBusy]);
- const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries,event=current?.text?skyOn(current.day).event:null;
+ const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries,event=current?.text?skyOn(current.day,Intl.DateTimeFormat().resolvedOptions().timeZone).event:null;
  return <>
   {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
   <OmenCard ref={cardRef} testID="daily-omen" busy={!current||!!retrying} label={event?`${skyEvents[event]} insight`:undefined}>

@@ -71,3 +71,53 @@ test('Moon positions do not authorize personal signs, including repeated mention
   await assert.rejects(personalOmen(sunSign?{sun_sign:sunSign}:{},model,sky),/mist is too thick/);
  }
 });
+
+test('events follow local calendar days and the sky cache includes the zone',()=>{
+ assert.equal(skyOn('2026-10-25','America/Los_Angeles').event,'full-moon');
+ assert.notEqual(skyOn('2026-10-26','America/Los_Angeles').event,'full-moon');
+ assert.equal(skyOn('2026-10-26','UTC').event,'full-moon');
+ assert.equal(skyOn('2026-10-25','UTC').event,null);
+ assert.equal(skyOn('2026-10-25','America/Los_Angeles').event,'full-moon');
+ for(const [day,zone,fixed] of [
+  ['2026-10-25','America/Los_Angeles','Etc/GMT+7'],
+  ['2026-11-01','America/Los_Angeles','Etc/GMT+8'],
+  ['2026-03-08','America/Los_Angeles','Etc/GMT+7'],
+  ['2026-10-25','Asia/Tokyo','Etc/GMT-9'],
+ ])assert.equal(skyOn(day,zone).angle,skyOn(day,fixed).angle,`${day} evening offset`);
+ assert.notEqual(skyOn('2026-10-25','America/Los_Angeles').angle,skyOn('2026-10-25','UTC').angle);
+ assert.throws(()=>skyOn('2026-02-30','UTC'));
+ assert.throws(()=>skyOn('2026-10-25','Not/AZone'));
+});
+
+test('omen requests validate time context and deliver the same local sky to the model',async()=>{
+ const {handler}=await import('../server/handler.ts');
+ const inputs:{sky:string;skyEvent:string|null}[]=[];
+ const model=validatedProvider(async messages=>{
+  inputs.push(JSON.parse(messages[1].content));
+  return JSON.stringify({text:'A gentle light invites you to begin again today.',whisper:'By tonight, a small plan may change for the better.'});
+ });
+ const serve=handler(()=>undefined,model);
+ const send=(context:Record<string,unknown>)=>serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{},...context})}));
+ for(const timeZone of ['America/Los_Angeles','UTC','Asia/Tokyo']){
+  assert.equal((await send({localDate:'2026-10-25',timeZone})).status,200);
+  const sky=skyOn('2026-10-25',timeZone);
+  assert.equal(inputs.at(-1)!.sky,skyLine(sky));
+  assert.equal(inputs.at(-1)!.skyEvent,sky.event==='full-moon'?'Full Moon':null);
+ }
+ const count=inputs.length;
+ for(const context of [{},{localDate:'2026-10-25'},{timeZone:'UTC'},{localDate:'2026-02-30',timeZone:'UTC'},{localDate:'2026-10-25',timeZone:4},{localDate:'2026-10-25',timeZone:''},{localDate:'2026-10-25',timeZone:'Not/AZone'}])assert.equal((await send(context)).status,400);
+ assert.equal(inputs.length,count);
+ const {requestOmen}=await import('../src/api.ts');
+ const {localDay}=await import('../src/retention.ts');
+ const original=globalThis.fetch;
+ try{
+  globalThis.fetch=async(_url,init)=>{
+   const body=JSON.parse(String(init?.body));
+   assert.equal(body.localDate,localDay());
+   assert.equal(body.timeZone,Intl.DateTimeFormat().resolvedOptions().timeZone);
+   return serve(new Request('http://localhost',init));
+  };
+  await requestOmen({},{sunSign:null,ageConfirmed:true});
+  assert.equal(inputs.at(-1)!.sky,skyLine(skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone)));
+ }finally{globalThis.fetch=original}
+});

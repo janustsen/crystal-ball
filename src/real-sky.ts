@@ -13,15 +13,27 @@ function bodies(ms:number){
  return {angle:(moon.ChartPosition.Ecliptic.DecimalDegrees-sun.ChartPosition.Ecliptic.DecimalDegrees+360)%360,moonSign:String(moon.Sign.label).toLowerCase(),retrograde:Boolean(mercury.isRetrograde)};
 }
 
-let last:Sky|undefined;
-// One sky per calendar day, read as a UTC day: the Moon and Mercury at noon; an event is a crossing during the day.
-// ponytail: the UTC day can sit up to half a day off the viewer's own night; take a time zone if that ever matters.
-export function skyOn(day:string):Sky{
- if(last?.day===day)return last;
- const start=Date.parse(`${day}T00:00:00Z`),dawn=bodies(start),noon=bodies(start+432e5),dusk=bodies(start+864e5);
- // The Moon always gains on the Sun, so the angle only falls when it wraps past 360 at the new moon.
+let last:{key:string;sky:Sky}|undefined;
+export function skyOn(day:string,timeZone='UTC'):Sky{
+ const key=`${day}/${timeZone}`;
+ if(last?.key===key)return last.sky;
+ const calendar=Date.parse(`${day}T00:00:00Z`);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(calendar)||new Date(calendar).toISOString().slice(0,10)!==day)throw new Error('Please provide a valid local calendar date.');
+ const format=new Intl.DateTimeFormat('en-US',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+ const localInstant=(wall:number)=>{
+  let instant=wall;
+  for(let i=0;i<3;i++){
+   const parts=Object.fromEntries(format.formatToParts(instant).map(p=>[p.type,p.value]));
+   const shown=Date.UTC(+parts.year,+parts.month-1,+parts.day,+parts.hour,+parts.minute,+parts.second);
+   instant+=wall-shown;
+  }
+  return instant;
+ };
+ const dawn=bodies(localInstant(calendar)),night=bodies(localInstant(calendar+720e5)),dusk=bodies(localInstant(calendar+864e5));
  const event=dawn.angle<180&&dusk.angle>=180?'full-moon':dawn.angle>dusk.angle?'new-moon':!dawn.retrograde&&dusk.retrograde?'mercury-retrograde':null;
- return last={day,angle:noon.angle,moonSign:noon.moonSign,mercuryRetrograde:noon.retrograde,event};
+ const sky:Sky={day,angle:night.angle,moonSign:night.moonSign,mercuryRetrograde:night.retrograde,event};
+ last={key,sky};
+ return sky;
 }
 
 // "waxing Moon in Sagittarius", with Mercury when it is retrograde.

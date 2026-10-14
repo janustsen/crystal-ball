@@ -31,7 +31,7 @@ export async function openSky(env:(key:string)=>string|undefined,model:ModelProv
   try{
    const {text}=await model.json<{text:string}>(
     ballVoice+' Write one shared, astrology-flavored omen that a whole group opens together on a Friday night, for reflection and entertainment. The group is a school community or a small Circle of friends; speak to them as "you" together. Hopeful, inclusive and generic: no names, places, schools, dates, private facts, romance or feelings claims, guarantees, or advice. Build it around the supplied sky, that Friday night’s real Moon; mention no other planet or sky event. Use 8 to 16 words in one complete sentence ending with punctuation. Return text only in the JSON field.',
-    {group:target.school_id?'school':'circle',sky:skyLine(skyOn(target.week))},
+    {group:target.school_id?'school':'circle',sky:skyLine(skyOn(target.week,'UTC'))},
     {type:'object',properties:{text:{type:'string',minLength:10,maxLength:160}},required:['text'],additionalProperties:false},
     value=>{
      if(!value||typeof value!=='object'||!('text'in value)||typeof value.text!=='string')return false;

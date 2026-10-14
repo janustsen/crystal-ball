@@ -10,6 +10,6 @@ function Visitor({index,reduce}:{index:number;reduce:boolean}){
  if(reduce)return null;
  const Visit=index?Animated.View:Animated.Text;
  // The second visitor is tonight's real moon.
- return <Visit style={{position:'absolute',top:index?'18%':'8%',left:0,color:'#E0A458',fontSize:index?22:16,opacity:value.interpolate({inputRange:[0,.72,.78,.88,.94,1],outputRange:[0,0,.18,.18,0,0]}),transform:[{translateX:value.interpolate({inputRange:[0,.72,.94,1],outputRange:[-40,-40,390,390]})},{translateY:value.interpolate({inputRange:[0,1],outputRange:[0,index?-30:90]})}]}}>{index?<SvgXml xml={moonSvg(skyOn(localDay()).angle,'#E0A458')} width={20} height={20}/>:'✧'}</Visit>;
+ return <Visit style={{position:'absolute',top:index?'18%':'8%',left:0,color:'#E0A458',fontSize:index?22:16,opacity:value.interpolate({inputRange:[0,.72,.78,.88,.94,1],outputRange:[0,0,.18,.18,0,0]}),transform:[{translateX:value.interpolate({inputRange:[0,.72,.94,1],outputRange:[-40,-40,390,390]})},{translateY:value.interpolate({inputRange:[0,1],outputRange:[0,index?-30:90]})}]}}>{index?<SvgXml xml={moonSvg(skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone).angle,'#E0A458')} width={20} height={20}/>:'✧'}</Visit>;
 }
 export function Atmosphere({reduce}:{reduce:boolean;mood:string}){return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',inset:0,overflow:'hidden'}}><Visitor index={0} reduce={reduce}/><Visitor index={1} reduce={reduce}/></View>}
