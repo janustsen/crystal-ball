@@ -8,7 +8,7 @@ try{
  execFileSync('chrome-devtools-axi',['open',base],{env,stdio:'pipe'});
  const output=execFileSync('chrome-devtools-axi',['run'],{env,encoding:'utf8',timeout:90000,input:`
  const click=async id=>page.click('[data-testid="'+id+'"]');
- await click('skip-for-now');await click('confirm-age');
+ await click('skip-for-now');await click('confirm-age');await click('about-done');
  await page.eval(()=>{
   function store(){const node=document.querySelector('[data-testid=app-shell]');let fiber=node[Object.keys(node).find(k=>k.startsWith('__reactFiber$'))];while(fiber){if(fiber.memoizedProps?.value?.forgetAll)return fiber.memoizedProps.value;fiber=fiber.return}throw Error('Store unavailable')}
   window.reminderTestStore=store;

@@ -150,6 +150,8 @@ const bank:Ask[]=[
 const byArea=Object.keys(areaLabels).map(area=>bank.filter(ask=>ask.area===area));
 export const asks:Ask[]=Array.from({length:Math.max(...byArea.map(list=>list.length))},(_,i)=>byArea.flatMap(list=>list[i]?[list[i]]:[])).flat();
 const byId=new Map(asks.map(ask=>[ask.id,ask]));
+// Onboarding's optional "about you" step: three questions from the deck, safe for every age, spanning the forecast themes.
+export const aboutYou=['friday_plan','right_now','leap_look'].map(id=>byId.get(id)!);
 
 export const selfPrefix='self_';
 export const selfKey=(id:string)=>`${selfPrefix}${id}`;

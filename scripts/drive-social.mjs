@@ -23,7 +23,7 @@ async function waitFor(name,selector,label,ms=95000,expectedText=''){
  }while(Date.now()<deadline);
  throw new Error(`${label} did not appear: ${last?.text}`);
 }
-const onboard=`await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','06');await page.fill('[data-testid="birthday-day"]','15');await page.fill('[data-testid="birthday-year"]','1995');await page.click('[data-testid="continue"]');`;
+const onboard=`await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','06');await page.fill('[data-testid="birthday-day"]','15');await page.fill('[data-testid="birthday-year"]','1995');await page.click('[data-testid="continue"]');await page.click('[data-testid="about-done"]');`;
 const click=id=>`await page.click('[data-testid="${id}"]');`;
 const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
 const setHandle=person=>`await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+runId)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`;

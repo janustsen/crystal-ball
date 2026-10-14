@@ -27,7 +27,7 @@ async function exportCard(name){
  await download.saveAs(`${out}/${name}.png`);return download.suggestedFilename();
 }
 try{
- await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  const question='Will I finish my painting project this month?';
  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
  await page.getByTestId('question-input').fill(question);await page.getByTestId('look-into-the-future').click();

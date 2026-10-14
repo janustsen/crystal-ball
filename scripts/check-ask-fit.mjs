@@ -16,7 +16,7 @@ try{
    },keyboard);
    const page=await context.newPage(),name=`${width}x${height}${large?'-large':''}`;
    await page.goto(base,{timeout:120000});
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
    await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
    await page.getByTestId('question-input').fill('What will my life be like next year? '.repeat(4).trim());
    for(const person of [false,true]){

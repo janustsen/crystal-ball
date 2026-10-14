@@ -11,7 +11,7 @@ async function home(options){
  const context=await browser.newContext({viewport:{width:390,height:844},...options});
  const page=await context.newPage();
  await page.addInitScript(()=>{window.drawCount=0;for(const c of [WebGLRenderingContext,WebGL2RenderingContext])for(const d of ['drawArrays','drawElements']){const o=c.prototype[d];c.prototype[d]=function(...a){window.drawCount++;return o.apply(this,a)}}});
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  const ball=page.getByTestId('hero-orb');await ball.waitFor();await page.waitForTimeout(1500);
  const box=await ball.boundingBox();
  return {page,ball,box,cx:box.x+box.width/2,cy:box.y+box.height/2,cdp:await context.newCDPSession(page),draws:()=>page.evaluate(()=>window.drawCount),reading:()=>page.getByTestId('type-instead').isVisible()};

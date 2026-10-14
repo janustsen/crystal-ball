@@ -23,7 +23,7 @@ async function visitor(name){
  await page.goto(`${base}/?seal=00000000-0000-4000-8000-000000000001`,{timeout:180000});
  await page.getByTestId('open-sealed-forecast').click();
  await page.getByTestId('web-reading-start').click();
- await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  await page.getByTestId('type-instead').click();
  return {context,page,requests,errors,name};
 }

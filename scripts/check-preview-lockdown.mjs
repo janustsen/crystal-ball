@@ -18,7 +18,7 @@ const browser=await chromium.launch({executablePath:'/Applications/Google Chrome
 try{
  const page=await browser.newPage({reducedMotion:'reduce',viewport:{width:390,height:844}});page.setDefaultTimeout(15000);
  await page.addInitScript(()=>{window.rafCalls=0;const raf=window.requestAnimationFrame;window.requestAnimationFrame=cb=>raf.call(window,t=>{window.rafCalls++;cb(t)})});
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('tab-you').waitFor();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await page.getByTestId('tab-you').waitFor();
  async function callbacks(label,paused){await page.waitForTimeout(600);const before=await page.evaluate(()=>window.rafCalls);await page.waitForTimeout(600);const count=await page.evaluate(()=>window.rafCalls)-before;if(paused)expect(count,label).toBe(0);else expect(count,label).toBeGreaterThan(10);console.log(label,count,'callbacks / 600ms')}
  await callbacks('OS reduced motion',true);
  await page.emulateMedia({reducedMotion:'no-preference'});await callbacks('OS motion resumed',false);

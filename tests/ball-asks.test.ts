@@ -1,7 +1,7 @@
 import {dayProgress,emptyRitual,markStep} from '../src/ritual.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {answerAsk,asks,asksOf,bonusDue,deckFor,insightDue,maxAskBonuses,nextAsk,selfContext,selfKey,skipAsk,teenSafe,validSelf} from '../src/ball-asks.ts';
+import {aboutYou,answerAsk,asks,asksOf,bonusDue,deckFor,insightDue,maxAskBonuses,nextAsk,selfContext,selfKey,skipAsk,teenSafe,validSelf} from '../src/ball-asks.ts';
 import {phraseSafety} from '../src/safety-policy.ts';
 import {predict} from '../server/engine.ts';
 import {handler} from '../server/handler.ts';
@@ -181,4 +181,12 @@ test('saved answers complete Today after three local-day answers and keep existi
  assert.equal(dayProgress(state.ritual!).steps.find(s=>s.id==='questions')!.count,1);
  assert.equal(dayProgress(state.ritual!).done,false);
  assert.deepEqual(state.ritual!.stars,['2026-10-10']);
+});
+
+test('onboarding asks three deck questions every age can answer, and its answers count like any other',()=>{
+ assert.equal(new Set(aboutYou.map(ask=>ask?.id)).size,3);
+ for(const teen of [true,false])assert.ok(aboutYou.every(ask=>deckFor(teen).includes(ask)));
+ const answered=aboutYou.reduce((state,ask)=>answerAsk(state,ask.id,ask.options[0]),account());
+ assert.deepEqual(asksOf(answered).seen,aboutYou.map(ask=>ask.id));
+ assert.ok(aboutYou.every(ask=>validSelf(selfKey(ask.id),answered.facts[selfKey(ask.id)],true)));
 });

@@ -9,7 +9,7 @@ async function ball(arg){
  try{
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-  await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+  await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
   await page.getByTestId('hero-orb').waitFor();
   await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.plus=true;s.ballStyle='aurora';localStorage.setItem('crystal-ball-v1',JSON.stringify(s))});
   await page.reload();await page.getByTestId('hero-orb').waitFor();await page.waitForTimeout(3000);

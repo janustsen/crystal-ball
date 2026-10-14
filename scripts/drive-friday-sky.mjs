@@ -16,7 +16,7 @@ async function person(name,school){
  const context=await browser.newContext({httpCredentials,reducedMotion:'reduce',viewport:{width:390,height:844},timezoneId:'UTC'});
  const page=pages[name]=await context.newPage();
  await page.goto(base,{timeout:180000});
- await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  await page.getByTestId('tab-sky').click();await page.getByTestId('choose-my-school').click();
  await page.getByLabel('Search school name').fill(school);
  await page.getByRole('button',{name:`Choose ${school}`,exact:true}).click();

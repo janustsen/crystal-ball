@@ -43,7 +43,7 @@ try{
     {id:'context_b',question:'What can help?',options:['Time','Practice','Other'],remember:false},
    ]}}}));
    await page.goto(base,{timeout:120000});
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
    await page.getByTestId('hero-orb').waitFor();
    await page.waitForTimeout(2500);
    await expect.poll(()=>page.locator('video').count()).toBe(failed?0:1);

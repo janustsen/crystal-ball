@@ -30,7 +30,7 @@ final class RitualUITests: XCTestCase {
   // The birthday sheet's month, day and year fields, then the first-run tour.
   _=wait(element("birthday-month"),30,"birthday sheet")
   for (id,value) in [("birthday-month","6"),("birthday-day","15"),("birthday-year","1995")]{let field=element(id);field.tap();field.typeText(value)}
-  tap("continue");tap("tour-skip",20)
+  tap("continue");tap("about-done");tap("tour-skip",20)
   _=reach("today-card",30)
   // Today's omen comes from the local model; the omen step finishes once it settles.
   XCTAssertTrue(wait(element("today-omen"),10,"omen step").waitForLabel("done",timeout:120),"omen step never finished")

@@ -16,7 +16,7 @@ try{
     if(body.action==='plan')return route.fulfill({json:{kind:'ok',value:{topic:cardId==='growth_weeks'?'growth':cardId==='deadline'?'learning':'general',provided:{},cards:[{id:cardId,question:'How far ahead should the Ball look?',options:['Other'],remember:false}]}}});
     submitted.push(body);return route.fulfill({json:{kind:'error',message:'Calendar submission probe; no reading charged.'}});
    });
-   await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+   await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
    for(const id of ['horizon','deadline','growth_weeks']){
     cardId=id;
     await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I finish my project?');await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').click();
