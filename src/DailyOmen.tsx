@@ -12,6 +12,7 @@ import {answerWhisper,keepWhisper,lastWhisper} from './whisper';
 import {haptic} from './native';
 import type {Whisper} from './types';
 import {skyEvents,skyOn} from './real-sky';
+import {omenCard,type StoryCard} from './story-card';
 
 const outcomes={yes:'Yes',no:'Not quite',pending:'Not yet'} as const;
 const thanks={yes:'Yes saved. Today’s whisper waits below.',no:'Not quite saved. The Ball can miss.',pending:'Not yet saved. Some whispers take their time.'} as const;
@@ -25,7 +26,7 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
  </Surface></View>;
 }
 
-export function DailyOmen({aiConsent='',onRead,cardRef}:{aiConsent?:string;onRead?:()=>void;cardRef?:React.Ref<View>}){
+export function DailyOmen({aiConsent='',onRead,onShare,cardRef}:{aiConsent?:string;onRead?:()=>void;onShare?:(card:StoryCard)=>void;cardRef?:React.Ref<View>}){
  const {state,update,backupBusy}=useStore(),[omen,setOmen]=useState<Omen|null>(null),today=localDay(),last=lastWhisper(state.whispers,today);
  useEffect(()=>{
   let mounted=true;
@@ -54,6 +55,7 @@ export function DailyOmen({aiConsent='',onRead,cardRef}:{aiConsent?:string;onRea
     <Txt style={styles.label}>Tonight’s whisper</Txt>
     <Txt style={styles.strong}>{whisper}</Txt>
    </View>:null}
+   {onShare&&current?.text?<Pressable testID="share-omen" accessibilityRole="button" onPress={()=>onShare(omenCard({day:current.day,text:current.text!}))} style={{minHeight:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>Share today’s omen ↗</Txt></Pressable>:null}
   </OmenCard>
  </>;
 }

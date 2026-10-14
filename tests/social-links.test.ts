@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {sealedLink} from '../src/social-links';
+import {sealedLink,webAddress,webLink} from '../src/social-links';
 
 test('sealed links use HTTPS on native and web and round-trip their token',()=>{
  const token='a token & another?';
@@ -19,4 +19,12 @@ test('development defaults to the current preview origin',t=>{
  assert.equal(sealedLink('receipt','',true),'http://localhost:8095/?seal=receipt');
  assert.equal(sealedLink('receipt','http://localhost:8096',true),'http://localhost:8096/?seal=receipt');
  assert.throws(()=>sealedLink('receipt','',false),/Configure/);
+});
+
+test('invite and friend links open the same web origin, and cards print its address',()=>{
+ assert.equal(webLink({circle:'invite'},'https://crystal.example',false),'https://crystal.example/?circle=invite');
+ assert.deepEqual([...new URL(webLink({friend:'1',question:'Will I?'},'https://crystal.example',false)).searchParams],[['friend','1'],['question','Will I?']]);
+ assert.equal(webAddress('https://crystal.example/ignored',false),'crystal.example');
+ assert.equal(webAddress('',false),'');
+ assert.equal(webAddress('crystalball://',false),'');
 });

@@ -7,6 +7,7 @@ import {selectedStyle} from './delight';
 import {ballArt} from './roomAssets';
 import {activityTheme,skyPrompts} from './social-policy';
 import {useStore} from './store';
+import {webAddress} from './social-links';
 import type {Prediction,BallStyle,CardStyle} from './types';
 
 type Look={cardStyle:CardStyle;ballStyle:BallStyle;golden:boolean;orb:HTMLImageElement;glass?:HTMLImageElement};
@@ -75,6 +76,7 @@ function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,
   ctx.globalAlpha=end;ctx.fillStyle=colors.ink;ctx.fillRect(0,0,1080,1920);ctx.drawImage(look.orb,360,520,360,405);
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`76px ${fonts.display}, Georgia`;ctx.fillText('search Crystal Ball',540,1120);
   ctx.fillStyle=colors.gold;ctx.font=`44px ${fonts.body}, sans-serif`;ctx.fillText('Ask the Ball your own question',540,1200);
+  const site=webAddress();if(site)paintLabel(ctx,site,1290,colors.label,32);
   paintLabel(ctx,'AI-generated · for entertainment',140,colors.muted,28);
  }
  ctx.globalAlpha=.55;ctx.textAlign='right';ctx.fillStyle=colors.ivory;ctx.font=`30px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',990,1810);ctx.globalAlpha=1;ctx.textAlign='center';

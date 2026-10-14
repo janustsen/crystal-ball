@@ -25,7 +25,7 @@ test('native preview and capture preserve every card style and golden override',
   };
   const ui={Txt:'Txt',Orb:'Orb',Action:'Action',colors:{ink:'#17100C',gold:'#D7AD64'},fonts:{},styles:{}};
   const reveal=load('../src/RevealClip.tsx',{'./ui':ui},react);
-  const imports={react,'react-native':{View:'View',Pressable:'Pressable',Platform:{OS:os}},'./ui':ui,'./RevealClip':reveal,
+  const imports={react,'react-native':{View:'View',Pressable:'Pressable',Platform:{OS:os}},'./ui':ui,'./RevealClip':reveal,'./social-links':{webAddress:()=>'crystal.example'},
    './delight':{selectedStyle},'./store':{useStore:()=>({state:{plus:true,cardStyle}})},'./Surface':{Surface:'Surface'},
    'react-native-view-shot':{captureRef:async(ref:any)=>{captured=ref.current;return 'capture.png'}},
    'expo-file-system':{Paths:{cache:'cache'},File:class{uri='export.png';async base64(){return 'image'}write(){}}},
