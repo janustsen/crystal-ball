@@ -35,6 +35,7 @@ Nothing below can be done without the accounts; everything else is in the reposi
 2. **App Store Connect**: create the app with bundle id `com.janustsen.crystalball`, then:
    - Subscription group “Crystal Ball Plus” with `cb_plus_weekly` ($1.99/week, introductory offer: 3-day free trial, new subscribers), `cb_plus_monthly` ($5.99/month), `cb_plus_yearly` ($39.99/year).
    - Consumables `cb_pack_5` ($1.99) and `cb_pack_20` ($5.99).
+   - Not yet: the `cb_year_ahead` one-off ($9.99) for Year ahead. It stays mock-only, and a metered engine refuses it, until it has a server entitlement.
    - An In-App Purchase key (Users and Access › Integrations) for RevenueCat, and a Sandbox tester account.
 3. **RevenueCat**: create the project and iOS app (bundle id above), upload the In-App Purchase key, import the five products, create entitlement `plus` attached to the three subscriptions, and a current offering containing all five products. Add a webhook pointing at `https://<project-ref>.supabase.co/functions/v1/revenuecat` with an Authorization header value you choose.
 4. **Supabase (hosted)**: apply `supabase/migrations`, enable anonymous sign-ins, then set function secrets `REVENUECAT_SECRET_KEY` and `REVENUECAT_WEBHOOK_AUTH` (`supabase secrets set ...`) and deploy `supabase functions deploy revenuecat`. Supabase injects `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` into functions.

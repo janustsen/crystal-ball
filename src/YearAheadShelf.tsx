@@ -45,7 +45,7 @@ export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
   <View aria-hidden={!sealed} accessibilityElementsHidden={!sealed} importantForAccessibility={sealed?'auto':'no-hide-descendants'} style={{flexDirection:'row',flexWrap:'wrap',marginTop:12}}>{balls.map(ball=>
    <Pressable key={ball.month} testID={`year-ahead-${ball.month}`} disabled={!sealed||backupBusy} accessibilityRole="button" accessibilityLabel={`${monthName(ball.month)}, ${ball.state==='sealed'?`sealed until ${monthName(ball.month)} 1`:ball.state==='ready'?'ready to open':'opened'}`} onPress={()=>open(ball)} style={{width:'25%',alignItems:'center',paddingVertical:6,minHeight:44}}>
     <View style={{padding:3,borderRadius:999,borderWidth:1.5,borderColor:sealed&&ball.state==='ready'?colors.gold:'transparent',opacity:ball.state==='sealed'?.38:1}}><OrbVisual size={36} reduce/></View>
-    <Txt style={[styles.caption,{textAlign:'center',color:sealed&&ball.state==='ready'?colors.gold:undefined}]}>{monthName(ball.month,'short')}</Txt>
+    <Txt style={[styles.caption,{textAlign:'center'},sealed&&ball.state==='ready'?{color:colors.gold}:null]}>{monthName(ball.month,'short')}</Txt>
    </Pressable>)}</View>
   {sealed?<Txt style={[styles.caption,{marginTop:8}]}>Each ball opens on the 1st of its month. Check in on it when the next one opens.</Txt>
   :year?<View style={{marginTop:8}}>

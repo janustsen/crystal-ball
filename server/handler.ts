@@ -15,7 +15,7 @@ import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
 import {webReadings} from './web-reading.ts';
 export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
- const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240),yearModel=injectedModel??provider(env,900);
+ const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240),yearModel=injectedModel??provider(env,900,90000);
  const meter=billing(env),web=webReadings(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;
