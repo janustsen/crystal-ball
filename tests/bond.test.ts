@@ -120,7 +120,7 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
   if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'cancer',themes:['growth']});
   throw new Error(`Unexpected ${path}`);
  });
- const inputs:unknown[]=[],feedback:string[]=[],why='Leo’s warmth and Cancer’s nurturing bring a steady rhythm to your shared garden.';
+ const inputs:unknown[]=[],feedback:string[]=[],why='Leo’s warmth and Cancer’s patience bring a steady rhythm to your shared garden.';
  const draft={why,moment:'You and Alex will plant a window herb garden.',horizon:'within 1 month'};
  const model=scripted([{...draft,why:`${why} ${why} ${why}`},draft],feedback,inputs);
  const serve=socialHandler(env,model);
@@ -144,8 +144,13 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
 
 test('Cancer trait wording leaves clinical illness blocks and semantic moderation intact',async()=>{
  const {phraseSafety,safety}=await import('../server/safety.ts');
- for(const text of ["Cancer's nurturing brings rhythm to shared projects.",'Cancer’s intuition brings rhythm to shared projects.']){
+ const {moderateSocialLine}=await import('../server/social.ts');
+ const {bondReading}=await import('../server/bond.ts');
+ for(const text of ["Cancer's nurturing brings rhythm to shared projects.",'Cancer’s intuition brings rhythm to shared projects.', 'Leo’s warmth and Cancer’s patience bring a steady rhythm to your shared garden.', 'Cancer and Taurus bring a steady rhythm to shared projects.', 'Pisces pairs with Cancer for a shared garden.', 'Cancer’s resourcefulness complements Virgo’s planning.']){
   assert.equal(phraseSafety(text),undefined);
+  await moderateSocialLine(text,'seal',true,scripted([]));
+  const result=await bondReading({name:'Alex',sign:'cancer'},scripted([{why:text,moment:'You and Alex will plant a shared garden.',horizon:'within 1 month'}]),{viewerBirthday:'2001-08-01'});
+  assert.equal(result.kind,'ok',JSON.stringify(result));
  }
  for(const text of [
   'You and Alex will recover from cancer.',
@@ -154,6 +159,12 @@ test('Cancer trait wording leaves clinical illness blocks and semantic moderatio
   'Cancer’s nurturing will make chemotherapy succeed.',
   'Cancer’s nurturing will heal your tumour.',
   'Will my cancer’s sensitivity improve?',
+  'Leo’s warmth will help Alex recover from cancer.',
+  'Cancer’s progression will slow down for a Taurus.',
+  'Your horoscope says his cancer will disappear.',
+  'Leo has cancer.',
+  'Cancer will spread despite the Pisces horoscope.',
+  'A Gemini will enter remission from cancer.',
  ])assert.equal(phraseSafety(text),'illness',text);
  let moderated=false;
  const json:Json=async(_system,input)=>{

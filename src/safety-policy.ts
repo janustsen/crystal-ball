@@ -26,7 +26,8 @@ export function safeContext(question:string){
  // A sign’s traits are astrology; leave illness mentions elsewhere intact.
  if(!clinical)text=text.replace(/\bcancer(['’]s) (nurturing|intuition|intuitive|sensitivity|protective|caring)\b/gi,'the sign$1 $2');
  text=text.replace(/\bdeath metal\b/gi,'music');
- if(!clinical&&/\b(zodiac|horoscope|star sign|sun sign)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
+ const cancerIllness=/\b(?:diagnos\w*|treat\w*|symptom\w*|biops\w*|tumou?r\w*|chemo\w*|metasta\w*|remission|recurr\w*|prognosis|malignan\w*|oncolog\w*|recover\w*|cur(?:e|ed|ing)|progression|spread\w*|stage|surviv\w*)\b|\b(?:have|has|had|get|gets|got|with|from|of|her|his|their|your|our) cancer\b/i.test(text);
+ if(!clinical&&!cancerIllness&&/\b(zodiac|horoscope|star sign|sun sign|aries|taurus|gemini|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
  return text;
 }
 export function phraseSafety(question: string): SafetyCategory | undefined {
