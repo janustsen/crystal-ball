@@ -7,7 +7,7 @@ import {File,Paths} from 'expo-file-system';
 import {Txt,Orb,Action,colors,fonts,styles} from './ui';
 import type {StoryCard} from './story-card';
 import {friendLink} from './native';
-import {webAddress} from './social-links';
+import {missingWebOrigin,webAddress} from './social-links';
 import {selectedStyle} from './delight';
 import {looks,loadLook,paintBackdrop,paintBall,paintLabel} from './RevealClip';
 import {useStore} from './store';
@@ -41,8 +41,9 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord,onRemind}:{
  const {state}=useStore(),site=webAddress(),golden=card.golden,cardStyle=selectedStyle(state,'card'),ballStyle=selectedStyle(state,'ball');
  const look=looks[golden?'golden':cardStyle];
  const ref=useRef<View>(null),[preview,setPreview]=useState<string>(),[fullStory,setFullStory]=useState(false),[previewWidth,setPreviewWidth]=useState(212),setNotice=onNotice;
- useEffect(()=>{if(Platform.OS==='web')void stillImage().then(setPreview).catch(()=>setNotice('Preview could not load. Please reopen this card.'))},[JSON.stringify(card),cardStyle,ballStyle]);
+ useEffect(()=>{if(Platform.OS==='web')void stillImage().then(setPreview).catch(error=>setNotice(error instanceof Error&&error.message===missingWebOrigin?missingWebOrigin:'Preview could not load. Please reopen this card.'))},[JSON.stringify(card),cardStyle,ballStyle]);
  async function stillImage():Promise<string>{
+  if(!site)throw new Error(missingWebOrigin);
   if(Platform.OS!=='web'){const uri=await captureRef(ref,{format:'png',quality:1,width:1080,height:1920});return 'data:image/png;base64,'+await new File(uri).base64();}
   // Keep export pixels on the CPU to avoid a synchronous GPU readback.
   const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error();
@@ -57,14 +58,14 @@ export function ShareCard({card,prediction,onClose,onNotice,onRecord,onRemind}:{
   const end=card.body?drawStoryBody(ctx,card.body,y+90,fonts.body):y;
   const labelY=Math.min(end+100,1380);card.labels.forEach((label,i)=>paintLabel(ctx,label,labelY+i*56,colors.gold,32,760));}ctx.font=`64px ${fonts.italic}, Georgia`;ctx.fillStyle=colors.ivory;ctx.fillText('Crystal Ball',540,1600);
   paintLabel(ctx,card.footer,1665,colors.label,28);
-  if(site)paintLabel(ctx,site,1800,colors.gold,30);
+  paintLabel(ctx,site,1800,colors.gold,30);
   // Encode asynchronously so opening Share does not block the animation frame.
   return new Promise((resolve,reject)=>canvas.toBlob(blob=>{
    if(!blob){reject(new Error('Could not encode story'));return;}
    const reader=new FileReader();reader.onload=()=>resolve(reader.result as string);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob);
   },'image/png'));
  }
- async function share(){try{const image=await stillImage();if(Platform.OS==='web'){const a=document.createElement('a');a.download=card.file;a.href=image;a.click();setNotice('1080 × 1920 card downloaded. Private answers are excluded.',true)}else{const file=new File(Paths.cache,card.file);file.write(image.split(',')[1],{encoding:'base64'});await Sharing.shareAsync(file.uri,{mimeType:'image/png'})}}catch{setNotice('The card could not be exported. Please try again.')}}
+ async function share(){try{const image=await stillImage();if(Platform.OS==='web'){const a=document.createElement('a');a.download=card.file;a.href=image;a.click();setNotice('1080 × 1920 card downloaded. Private answers are excluded.',true)}else{const file=new File(Paths.cache,card.file);file.write(image.split(',')[1],{encoding:'base64'});await Sharing.shareAsync(file.uri,{mimeType:'image/png'})}}catch(error){setNotice(error instanceof Error&&error.message===missingWebOrigin?missingWebOrigin:'The card could not be exported. Please try again.')}}
  const composition=<View ref={ref} collapsable={false} style={{width:Platform.OS==='web'?'100%':360,aspectRatio:9/16,overflow:'hidden'}}>{Platform.OS==='web'&&preview?<PreviewImage accessibilityLabel="Your exported forecast card" source={{uri:preview}} style={{width:'100%',height:'100%'}}/>:<View style={{flex:1,alignItems:'center',justifyContent:'center',padding:30,backgroundColor:look.ground}}><View pointerEvents="none" style={{position:'absolute',top:12,right:12,bottom:12,left:12,borderRadius:16,borderColor:look.line,borderWidth:look.width/3}}/>{card.lights?<><Txt allowFontScaling={false} style={[styles.label,{color:colors.gold}]}>{card.labels[0]}</Txt><View style={{flexDirection:'row',marginVertical:12}}>{card.lights.map(light=><SvgXml key={light.key} xml={lightBall(light.color)} width={100} height={100}/>)}</View>{card.lights.map(light=><View key={light.key} style={{width:'100%',alignItems:'center',marginTop:14}}><Txt allowFontScaling={false} style={[styles.label,{color:`rgb(${light.color})`}]}>{light.name} · {light.sign}</Txt><Txt display allowFontScaling={false} adjustsFontSizeToFit numberOfLines={1} style={{fontSize:18,lineHeight:24,textAlign:'center'}}>{light.line}</Txt></View>)}</>:<>{card.pair?<View style={{flexDirection:'row',alignItems:'center',gap:12}}><Orb size={104} reduce/><Txt display allowFontScaling={false} style={{fontSize:30,color:colors.gold}}>{card.pair.percent}%</Txt><Orb size={104} reduce/></View>:<Orb size={180} reduce/>}{golden?<Txt allowFontScaling={false} style={{color:colors.gold,textAlign:'center'}}>Golden edition</Txt>:null}{card.labels.length?<Txt allowFontScaling={false} style={[styles.caption,{textAlign:'center',color:colors.gold,marginVertical:16}]}>{card.labels.join(' · ')}</Txt>:null}<View style={{width:'100%',flexShrink:1,minHeight:0}}>{card.headlines.map(headline=><Txt key={headline} display allowFontScaling={false} adjustsFontSizeToFit numberOfLines={5} style={{flexShrink:1,minHeight:0,fontSize:card.headlines.length>1?20:28,lineHeight:card.headlines.length>1?24:32,textAlign:'center',marginBottom:8}}>{headline}</Txt>)}{card.body?<Txt allowFontScaling={false} adjustsFontSizeToFit numberOfLines={8} style={{fontSize:15,lineHeight:21,textAlign:'center'}}>{card.body}</Txt>:null}</View></>}<Txt display allowFontScaling={false} style={{fontFamily:fonts.italic,marginTop:24,fontSize:24}}>Crystal Ball</Txt><Txt allowFontScaling={false} style={styles.caption}>{card.footer}</Txt>{site?<Txt allowFontScaling={false} style={[styles.caption,{color:colors.gold}]}>{site}</Txt>:null}</View>}</View>;
  const frame=<View onLayout={event=>setPreviewWidth(event.nativeEvent.layout.width)} style={{width:fullStory?'100%':'62%',alignSelf:'center',aspectRatio:9/16}}>{Platform.OS==='web'?composition:<View collapsable={false} style={{width:360,height:640,transformOrigin:'top left',transform:[{scale:previewWidth/360}]}}>{composition}</View>}</View>;
  if(fullStory)return <>{frame}<Action label="Export story card" onPress={share}/><Action label="Back to sharing" quiet onPress={()=>setFullStory(false)}/></>;

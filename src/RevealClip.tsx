@@ -7,7 +7,7 @@ import {selectedStyle} from './delight';
 import {ballArt} from './roomAssets';
 import {activityTheme,skyPrompts} from './social-policy';
 import {useStore} from './store';
-import {webAddress} from './social-links';
+import {missingWebOrigin,webAddress} from './social-links';
 import type {Prediction,BallStyle,CardStyle} from './types';
 
 type Look={cardStyle:CardStyle;ballStyle:BallStyle;golden:boolean;orb:HTMLImageElement;glass?:HTMLImageElement};
@@ -69,14 +69,14 @@ export function paintStory(ctx:CanvasRenderingContext2D,prediction:Prediction,lo
 
 const ease=(t:number)=>{const x=Math.min(1,Math.max(0,t));return x*x*(3-2*x)};
 // Timeline: the ball opens, the forecast card fades in and holds, then the end card.
-function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,frame:Frame,ms:number){
+function paintClip(ctx:CanvasRenderingContext2D,prediction:Prediction,look:Look,frame:Frame,ms:number,site:string){
  paintStory(ctx,prediction,look,{...frame,aiLabel:true,orb:ease(ms/1800),glow:Math.sin(Math.PI*Math.min(1,ms/2400))*.9,text:ease((ms-1600)/1000)});
  const end=ease((ms-6200)/600);
  if(end>0){
   ctx.globalAlpha=end;ctx.fillStyle=colors.ink;ctx.fillRect(0,0,1080,1920);ctx.drawImage(look.orb,360,520,360,405);
   ctx.textAlign='center';ctx.fillStyle=colors.ivory;ctx.font=`76px ${fonts.display}, Georgia`;ctx.fillText('search Crystal Ball',540,1120);
   ctx.fillStyle=colors.gold;ctx.font=`44px ${fonts.body}, sans-serif`;ctx.fillText('Ask the Ball your own question',540,1200);
-  const site=webAddress();if(site)paintLabel(ctx,site,1290,colors.label,32);
+  paintLabel(ctx,site,1290,colors.label,32);
   paintLabel(ctx,'AI-generated · for entertainment',140,colors.muted,28);
  }
  ctx.globalAlpha=.55;ctx.textAlign='right';ctx.fillStyle=colors.ivory;ctx.font=`30px ${fonts.italic}, Georgia`;ctx.fillText('Crystal Ball',990,1810);ctx.globalAlpha=1;ctx.textAlign='center';
@@ -93,13 +93,14 @@ async function soundtrack(audio:AudioContext){
 }
 
 export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Promise<globalThis.File>{
+ const site=webAddress();if(!site)throw new Error(missingWebOrigin);
  const audio=new AudioContext(); // created inside the tap so the browser lets it play
  try{
   const type=['video/mp4;codecs=avc1,mp4a','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
   if(!type)throw new Error('unsupported');
   // Software backing avoids GPU readback stalls that truncate capture while the room animates.
   const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error('unsupported');
-  paintClip(ctx,prediction,look,frame,0);
+  paintClip(ctx,prediction,look,frame,0,site);
   await audio.resume();
   const tracks=await soundtrack(audio),stream=canvas.captureStream(30);
   const video=stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack;
@@ -112,7 +113,7 @@ export async function recordClip(prediction:Prediction,look:Look,frame:Frame):Pr
   // Display callbacks can pause. Capture on a timer and hold the fully painted end card
   // before stopping; stopping in the last paint's task can discard that frame.
   for(;;){
-   const now=performance.now(),ms=now-start;paintClip(ctx,prediction,look,frame,ms);video.requestFrame?.();
+   const now=performance.now(),ms=now-start;paintClip(ctx,prediction,look,frame,ms,site);video.requestFrame?.();
    if(ms>=6800)endCardSince??=now;
    if(endCardSince!==undefined&&now-endCardSince>=1200)break;
    await new Promise(resolve=>setTimeout(resolve,1000/30));
@@ -129,11 +130,12 @@ export function RevealClip({prediction,onNotice}:{prediction:Prediction;onNotice
  const {state}=useStore(),[question,setQuestion]=useState(false),[busy,setBusy]=useState(false);
  if(Platform.OS!=='web')return null;
  async function make(){
+  if(!webAddress()){onNotice(missingWebOrigin);return}
   setBusy(true);onNotice('');
   try{
    const look=await loadLook(selectedStyle(state,'card'),selectedStyle(state,'ball'),prediction.golden);
    await save(await recordClip(prediction,look,{category:skyPrompts[activityTheme(prediction.question)].label,question:question?prediction.question:undefined}));
-  }catch(error){onNotice(error instanceof Error&&error.message==='unsupported'?'This browser cannot record video. Use Story image or Replay for recording instead.':'The clip could not be recorded. Please try again.')}
+  }catch(error){onNotice(error instanceof Error&&error.message===missingWebOrigin?missingWebOrigin:error instanceof Error&&error.message==='unsupported'?'This browser cannot record video. Use Story image or Replay for recording instead.':'The clip could not be recorded. Please try again.')}
   finally{setBusy(false)}
  }
  async function save(clip:globalThis.File){
