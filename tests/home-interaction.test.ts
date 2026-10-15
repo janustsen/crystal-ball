@@ -45,6 +45,7 @@ test('the room and ball-target Shifts ease together to a new Home offset, and re
  const moves:any[]=[],sets:number[]=[];
  class Value{constructor(public value:number){}setValue(value:number){this.value=value;sets.push(value)}stopAnimation(){}}
  const imports={
+  ...sky,
   'react-native':{Platform:{OS:'ios'},Animated:{Value,View:'Animated.View',timing:(value:Value,config:any)=>({start(){moves.push({value,...config})},stop(){}})},
    Easing:{ease:'ease',inOut:(easing:string)=>`inOut(${easing})`},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
