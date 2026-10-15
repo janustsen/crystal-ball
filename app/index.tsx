@@ -135,7 +135,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  const currentRitualUpdate=useRef(ritualUpdate);
  useEffect(()=>{currentRitualUpdate.current=ritualUpdate},[update,ready,backupBusy]);
  // Runs after an awaited save, so it writes through the current lock state rather than this render's.
- function readingDone(){currentRitualUpdate.current(r=>countEvent(markStep(r,'ask'),'readings'));if(!currentAccount.current.plus&&!currentAccount.current.plusOffered&&!webTrial)setPlusOffer(true);if(offerNotifications(ritual,'reveal',today)){setOffering('reveal');currentRitualUpdate.current(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,offered:today}}))}}
+ function readingDone(){currentRitualUpdate.current(r=>countEvent(markStep(r,'ask'),'readings'));if(!currentAccount.current.plus&&!currentAccount.current.plusOffered&&!plusSeen.current&&!webTrial)setPlusOffer(true);if(offerNotifications(ritual,'reveal',today)){setOffering('reveal');currentRitualUpdate.current(r=>({...countEvent(r,'optInShown'),notify:{...r.notify,offered:today}}))}}
  useEffect(()=>{if(!ready)return;const open=()=>{const day=localDay();currentRitualUpdate.current(r=>countEvent(markOpened(r,day),'appOpens'))};open();const listener=AppState.addEventListener('change',next=>{if(next==='active')open()});return()=>listener.remove()},[ready]);
  const plannedFor=JSON.stringify([ritual.notify,today,dayProgress(ritual,today).done,state.sunSign,state.yearAhead,state.history.map(p=>[p.id,p.dueDate,p.createdAt,p.outcome,p.circleId,p.timing])]);
  useEffect(()=>{if(ready&&!backupBusy)void scheduleRitual(state).catch(()=>Alert.alert('Notification update failed','Your changes are saved, but reminders could not be updated. Reopen the app to try again.'))},[ready,backupBusy,plannedFor,ritual.counts.appOpens]);
@@ -156,7 +156,9 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  useEffect(()=>{if(offering==='reveal'&&(tab!=='Ask'||flow.stage!=='reveal'||reviewing||share||paywall||capture))setOffering(null)},[offering,tab,flow.stage,reviewing,share,paywall,capture]);
  const showPlusOffer=plusOffer&&tab==='Ask'&&flow.stage==='reveal'&&!reviewing&&!share&&!paywall&&!capture&&offering!=='reveal';
  useEffect(()=>{if(plusOffer&&(tab!=='Ask'||flow.stage!=='reveal'||reviewing||share||paywall||capture))setPlusOffer(false)},[plusOffer,tab,flow.stage,reviewing,share,paywall,capture]);
- useEffect(()=>{if(showPlusOffer)update(s=>s.plusOffered?s:{...s,plusOffered:true})},[showPlusOffer]);
+ // Once shown, plusOffered is saved even if the archive lock delays the write past dismissal.
+ const plusSeen=useRef(false);
+ useEffect(()=>{if(showPlusOffer)plusSeen.current=true;if(state.plusOffered)plusSeen.current=false;else if(plusSeen.current&&!backupBusy)update(s=>s.plusOffered?s:{...s,plusOffered:true})},[showPlusOffer,backupBusy,state.plusOffered]);
  const priceOf=(kind:PlanKind|PackKind)=>offers?.find(o=>o.kind===kind)?.price??[...plans,...packs].find(p=>p.kind===kind)!.price;
  const askBlocked=(bondMode?!validFirstName(personName.trim()):question.trim().length<4||(personMode&&!validPersonName(personName.trim())))||!!aiProvider&&!aiAllowed;
  const [shell,setShell]=useState({width:0,height:0,x:0,y:0}),shellRef=useRef<View>(null),[headerHeight,setHeaderHeight]=useState(96),spin=useRef<BallSpin>({dragged:false}).current;

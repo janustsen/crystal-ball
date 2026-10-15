@@ -33,7 +33,7 @@ try{
  await click('close-flow');await click('tab-history');
  await page.eval(()=>[...document.querySelectorAll('[role=button]')].find(x=>x.textContent.includes('Will I finish writing a novel in 10 years?')).click());
  await click('check-in-pending');await click('share-this-glimpse');await click('share-reminder');
- await check(()=>document.body.innerText.includes('Your check-in is saved.')||document.body.innerText.includes('Native reminder preview'),'Not yet suppresses new reminders (web answers with the native-only preview)');
+ await check(()=>document.body.innerText.includes('Native reminder preview'),'web answers with the native-only reminder preview (iOS and Android suppression is tested in tests/love-notifications.test.mjs)');
  await page.open(${JSON.stringify(base)});await click('tab-history');
  await check(()=>document.body.innerText.includes('Not yet'),'answer persists after reload');
  await click('open-settings');await page.eval(()=>document.querySelector('[role=switch][aria-label="Large text"]').click());
