@@ -122,6 +122,20 @@ final class RitualUITests: XCTestCase {
    for _ in 0..<8 where !planned.isHittable{app.swipeUp(velocity:.slow)}
   }
   shot("sky-02-planned-friday")
+  tap("tab-sky",60);tap("social-section-circles",60)
+  tap("sky-push-toggle",60)
+  XCTAssertEqual(element("sky-push-toggle").value as? String,"0")
+  app.terminate();app.launch()
+  let skyTab=wait(element("tab-sky"),240,"Sky tab after relaunch")
+  let ready=XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:skyTab)
+  XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:240),.completed)
+  tap("tab-sky",60);tap("social-section-circles",60)
+  XCTAssertEqual(element("sky-push-toggle").value as? String,"0","disabled consent must survive relaunch")
+  shot("sky-03-disabled-after-relaunch")
+  tap("tab-you",60);tap("open-settings",60);reach("you-footer",60).press(forDuration:1.2)
+  _=reach("ritual-debug",60)
+  XCTAssertFalse(labelled("The Sky is open",in:app).exists,"disabled fallback must leave the plan")
+  shot("sky-04-disabled-plan")
  }
 }
 extension XCUIElement{
