@@ -94,6 +94,8 @@ final class RitualUITests: XCTestCase {
  func testFridaySkyFallback() throws {
   continueAfterFailure=false
   if let metro=ProcessInfo.processInfo.environment["RITUAL_METRO"],!metro.isEmpty{app.launchArguments=["-RCT_jsLocation",metro,"-RCT_enableDev","NO","-RCT_enableMinification","YES"]}
+  // The plan assertion reads "Fri" and "8:00", so pin an English 12-hour clock whatever the Simulator's settings.
+  app.launchArguments+=["-AppleLanguages","(en)","-AppleLocale","en_US","-AppleICUForce24HourTime","NO"]
   app.launch()
   _=wait(element("birthday-month"),240,"birthday sheet")
   // Each complete birthday field hands focus to the next, so type straight through.

@@ -159,3 +159,12 @@ test('remote consent saves and refreshes leave the phone fallback choice intact'
   assert.equal(f.account().ritual.notify.sky,true);
  }
 });
+
+test('an existing Friday subscriber gets the phone fallback without overriding a local choice',async()=>{
+ for(const [local,remote,expected] of [[undefined,true,true],[false,true,false],[undefined,false,undefined]] as const){
+  const f=fixture();f.remote.profile.sky_push=remote;f.remote.profile.sky_push_answered=remote;
+  if(local!==undefined)f.account().ritual={notify:{sky:local}};
+  f.render();await settle();
+  assert.equal(f.account().ritual?.notify.sky,expected,`local ${local}, remote ${remote}`);
+ }
+});

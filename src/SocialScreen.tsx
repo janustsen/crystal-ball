@@ -4,6 +4,7 @@ import * as Linking from 'expo-linking';
 import {Action,CardHeader,colors,Orb,styles,Txt,Field,Toggle,Segmented} from './ui';
 import {sealedLink,webLink} from './social-links';
 import {useStore} from './store';
+import {ritualOf} from './ritual';
 import {SocialIdentity,CircleForecasts} from './SocialExtras';
 import {SocialPush,SkyPushPrompt} from './SocialPush';
 import {SkyOmen} from './SkyOmen';
@@ -41,7 +42,7 @@ export function SealedCard({token,reduce,onAsk,webTrial=false}:{token:string;red
 }
 
 export function Social({onAsk,onBond,onPlus,invite,onInviteHandled,seal,reduce,requestedSection,requestId,aiConsent=''}:{requestedSection?:'sky'|'circles';requestId?:string;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onBond:(target:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
- const {state}=useStore();
+ const {state,update}=useStore();
  const profile=accountSocialProfile(state);
  const [schoolOnly,setSchoolOnly]=useState(false);
  const schoolInvites=useRef(new Map<string,string>()),consentRevision=useRef(0);
@@ -52,12 +53,14 @@ export function Social({onAsk,onBond,onPlus,invite,onInviteHandled,seal,reduce,r
  useEffect(()=>{if(invite){setSection('circles');setJoining(true)}},[invite]);
  useEffect(()=>{
   let active=true,loaded=false;
-  async function refresh(){const revision=consentRevision.current;try{const snapshot=await loadSocial(profile,schoolOnly);if(active&&revision===consentRevision.current){loaded=true;setData(snapshot);setOffline(false)}}catch{if(active&&revision===consentRevision.current)setOffline(true)}}
+  async function refresh(){const revision=consentRevision.current;try{const snapshot=await loadSocial(profile,schoolOnly);if(active&&revision===consentRevision.current){loaded=true;setData(snapshot);setOffline(false);if(snapshot.profile?.sky_push)seedLocalSky()}}catch{if(active&&revision===consentRevision.current)setOffline(true)}}
   void refresh();const timer=setInterval(()=>void refresh(),30000);
   // A read that stalls falls back to the offline view (samples and retry); a late answer still replaces it.
   const stalled=setTimeout(()=>{if(active&&!loaded)setOffline(true)},skyStallMs);
   return()=>{active=false;clearInterval(timer);clearTimeout(stalled)};
  },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
+ // Friday subscribers from before the phone fallback get it too; an explicit local choice always wins.
+ function seedLocalSky(){update(s=>{const r=ritualOf(s);return r.notify.sky===undefined?{...s,ritual:{...r,notify:{...r.notify,sky:true}}}:s})}
  function skyPushSaved(enabled:boolean){
   consentRevision.current++;
   setData(current=>current?.profile?{...current,profile:{...current.profile,sky_push:enabled,sky_push_answered:true}}:current);
