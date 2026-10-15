@@ -689,6 +689,29 @@ test('a reading saved while a balance update holds the archive still completes T
  assert.equal(saved.counts.readings,1);assert.equal(saved.days[retention.localDay()]?.ask,1);
 });
 
+test('a Plus offer dismissed while a balance update holds the archive stays dismissed',async t=>{
+ const f=await fixture(),h=hooks();t.after(()=>h.unmount());const day=new Date().toISOString().slice(0,10);
+ const reading={...readings.circleReading(f.card),circleId:undefined,friend:true};
+ const balance={owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:5,used:1,day};
+ let render!:()=>any[];
+ const store=()=>{const s=f.render();return {...s,savePrediction:async(...args:any[])=>{const saving=s.savePrediction(...(args as [any]));void s.applyBalance(balance);render();await saving}}};
+ const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ render=()=>nodes(h.render(app.default));
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});await render().find(n=>n.props.testID==='look-into-the-future').props.onPress()};
+ await ask();
+ assert.equal(f.render().backupBusy,true);
+ render().find(n=>n.type==='NotifyOffer').props.onAnswer(null);render();
+ assert.equal(f.render().backupBusy,true);
+ render().find(n=>n.props.testID==='plus-offer-dismiss').props.onPress();
+ for(let i=0;i<4;i++){await tick();render()}
+ assert.equal(f.render().backupBusy,false);
+ assert.equal(f.state().plusOffered,true);
+ await ask();for(let i=0;i<4;i++){await tick();render()}
+ assert.ok(render().some(n=>n.props.testID==='forecast-due-date'));
+ assert.ok(!render().some(n=>n.props.testID==='plus-offer'));
+});
+
 test('a tapped answer holds its highlight, ignores repeat taps and drops when Back or Close comes first',async t=>{
  const h=hooks();t.after(()=>h.unmount());
  const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',tourSeen:true,sunSign:null,facts:{},history:[],plus:true,credits:9,reduceMotion:false};let predicts=0;

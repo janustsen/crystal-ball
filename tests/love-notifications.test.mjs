@@ -28,11 +28,11 @@ test('Love timing is planned today for every horizon without another open',()=>{
  }
 });
 
-async function fixture(){
+async function fixture(os='ios'){
  class Clock extends Date{constructor(...args){super(...(args.length?args:[now.getTime()]))}static now(){return now.getTime()}}
  const pending=new Map(),disk=new Map();
  const notifications={setNotificationHandler(){},SchedulableTriggerInputTypes:{DATE:'date'},getPermissionsAsync:async()=>({status:'granted'}),requestPermissionsAsync:async()=>({status:'granted'}),getAllScheduledNotificationsAsync:async()=>[...pending.values()],cancelScheduledNotificationAsync:async id=>{pending.delete(id)},scheduleNotificationAsync:async value=>{pending.set(value.identifier,value)},dismissAllNotificationsAsync:async()=>{},clearLastNotificationResponseAsync:async()=>{}};
- const imports={'react-native':{Platform:{OS:'ios'}},'expo-notifications':notifications,'@react-native-async-storage/async-storage':{default:{getItem:async key=>disk.get(key)??null,setItem:async(key,value)=>{disk.set(key,value)}}},'./ritual':ritual,'./retention':retention};
+ const imports={'react-native':{Platform:{OS:os}},'expo-notifications':notifications,'@react-native-async-storage/async-storage':{default:{getItem:async key=>disk.get(key)??null,setItem:async(key,value)=>{disk.set(key,value)}}},'./ritual':ritual,'./retention':retention};
  const context=createContext({Date:Clock});
  const module=new SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('../src/notify.ts',import.meta.url),'utf8')),{context});
  await module.link(name=>new SyntheticModule(Object.keys(imports[name]),function(){for(const [key,value]of Object.entries(imports[name]))this.setExport(key,value)},{context}));
@@ -62,4 +62,17 @@ test('native scheduling, manual requests, previews and cleanup include distant L
  await f.api.scheduleRitual(state);
  await f.api.forgetNotifications();
  assert.equal(f.pending.size,0);
+});
+
+for(const os of ['ios','android'])test(`${os} reminder requests skip answered readings, including Not yet`,async()=>{
+ const f=await fixture(os),open={...reading,id:'open'},state=account([open]);
+ assert.match(await f.api.requestCheckIn(()=>state,'open'),/reminder set/);
+ assert.ok([...f.pending.values()].some(p=>p.content.data.checkIns));
+ for(const outcome of ['yes','no','pending']){
+  const answered={...state,history:[{...open,outcome}]};
+  assert.match(await f.api.requestCheckIn(()=>answered,'open'),/check-in is saved/);
+  assert.ok(!(await f.api.scheduleRitual(answered)).some(p=>p.data.checkIns));
+  assert.ok(![...f.pending.values()].some(p=>p.content.data.checkIns));
+  await f.api.scheduleRitual(state);
+ }
 });
