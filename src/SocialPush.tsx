@@ -28,7 +28,7 @@ export function SkyPushPrompt({answered,onAnswered}:{answered:boolean;onAnswered
  async function answer(enabled:boolean){
   if(busy)return;setBusy(true);setNotice('');
   try{
-   await setSkyPush(false);onAnswered(false);
+   setLocalSky(false);await setSkyPush(false);onAnswered(false);
    if(enabled){
     await notificationsAllowed();setLocalSky(true);
     // A build without server push (or a failed registration) keeps the on-phone Friday notification.
@@ -55,7 +55,7 @@ export function SocialPush({skyPush,onSkyPush}:{skyPush:boolean;onSkyPush:(enabl
    if(!enabled){setLocalSky(false);await onSkyPush(false);return}
    await notificationsAllowed();setLocalSky(true);
    const token=await devicePushToken().catch(()=>undefined);
-   if(token)await onSkyPush(true,token);else setNotice('Friday Sky notifications will come from this phone.');
+   if(token)await onSkyPush(true,token);else{await onSkyPush(false);setNotice('Friday Sky notifications will come from this phone.');}
   }
   catch(error){setNotice(error instanceof Error?error.message:'Notifications could not be enabled.');}finally{setBusy(false);}
  }

@@ -7,9 +7,9 @@ import ts from 'typescript';
 const code=ts.transpileModule(readFileSync(new URL('../src/SocialPush.tsx',import.meta.url),'utf8'),{
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
 }).outputText;
-function fixture(platform='ios'){
+function fixture(platform='ios',initialLocalSky=false){
  const account={answered:false,enabled:false,token:null as string|null,circle:false};
- let local:any={};
+ let local:any={ritual:{notify:{sky:initialLocalSky}}};
  const calls:string[]=[];
  let slots:any[]=[],cursor=0,permission='granted',tokenFails=false,saveFails=false;
  const react={
@@ -52,7 +52,7 @@ test('Sky prompt is native-only and acceptance registers before opting in',async
 });
 
 test('dismissal survives remount without requesting permissions or registering',async()=>{
- const f=fixture();control(f,'sky-push-dismiss').props.onPress();await settle();
+ const f=fixture('ios',true);control(f,'sky-push-dismiss').props.onPress();await settle();
  assert.deepEqual(f.calls,['sky:false','answered:false']);assert.equal(f.account.enabled,false);assert.equal(f.localSky(),false);
  f.remount();assert.equal(control(f,'sky-push-prompt'),undefined);
 });
@@ -101,6 +101,9 @@ test('the Sky toggle falls back to the phone when this build cannot register a p
  toggle().props.onValueChange(true);await settle();
  assert.ok(!f.calls.some(c=>c.startsWith('sky:true')));assert.equal(f.localSky(),true);assert.equal(toggle().props.value,true);
  assert.ok(f.render(true).some(n=>n.children.some((text:any)=>text==='Friday Sky notifications will come from this phone.')));
+ assert.equal(f.account.answered,true);
+ f.remount();assert.equal(control(f,'sky-push-prompt'),undefined);
+ f.remount();
  toggle().props.onValueChange(false);await settle();
  assert.equal(f.localSky(),false);assert.equal(toggle().props.value,false);
 });

@@ -64,6 +64,7 @@ export function Social({onAsk,onBond,onPlus,invite,onInviteHandled,seal,reduce,r
  useEffect(()=>{if(remoteSky!==undefined)update(s=>{const r=ritualOf(s);return !!r.notify.skyRemote===remoteSky?s:{...s,ritual:{...r,notify:{...r.notify,skyRemote:remoteSky}}}})},[remoteSky]);
  function skyPushSaved(enabled:boolean){
   consentRevision.current++;
+  update(s=>{const r=ritualOf(s);return {...s,ritual:{...r,notify:{...r.notify,skyRemote:enabled}}}});
   setData(current=>current?.profile?{...current,profile:{...current.profile,sky_push:enabled,sky_push_answered:true}}:current);
  }
  async function act(operation:()=>Promise<unknown>,message=''){
