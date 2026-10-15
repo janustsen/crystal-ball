@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {planNotifications,type Planned,type PlanContext,type Candidate,type Delivered} from './ritual';
 import {personalCheckInDue,localDay,suggestedCheckIn} from './retention';
 
-// Foreground notifications are shown (social, check-ins), except the ritual's own: the app is already open.
-if(Platform.OS!=='web')Notifications.setNotificationHandler({handleNotification:async notification=>{const ritual=!!notification.request.content.data?.ritual;return {shouldShowBanner:!ritual,shouldShowList:!ritual,shouldPlaySound:false,shouldSetBadge:false}}});
+// Hide ritual notifications while the app is open; deduplicate foreground Sky pushes against the local delivery budget.
+if(Platform.OS!=='web')Notifications.setNotificationHandler({handleNotification:async notification=>{const data=notification.request.content.data;const show=!data?.ritual&&(data?.social===true&&data?.sky===true?await receiveSky():true);return {shouldShowBanner:show,shouldShowList:show,shouldPlaySound:false,shouldSetBadge:false}}});
 
 export async function allowNotifications(request:boolean){
  if(Platform.OS==='web')return false;
@@ -27,6 +27,19 @@ function consumeDue(budget:Budget){
  }
 }
 const saveBudget=(budget:Budget)=>AsyncStorage.setItem(budgetKey,JSON.stringify(budget));
+function receiveSky():Promise<boolean>{
+ const day=localDay(new Date()),id=`ritual-${day}-friday-sky`;
+ const next=work.catch(()=>{}).then(async()=>{
+  const budget=await readBudget();consumeDue(budget);
+  const duplicate=budget.delivered[day]?.includes(id)??false;
+  await Notifications.cancelScheduledNotificationAsync(id);
+  delete budget.scheduled[id];
+  budget.delivered[day]=[...new Set([...(budget.delivered[day]??[]),id])];
+  await saveBudget(budget);
+  return !duplicate;
+ });
+ work=next;return next;
+}
 async function cancelPending(budget:Budget,all=false){
  for(const pending of await Notifications.getAllScheduledNotificationsAsync())if(all||pending.identifier.startsWith('ritual-')||pending.identifier.startsWith('check-in-')){
   await Notifications.cancelScheduledNotificationAsync(pending.identifier);

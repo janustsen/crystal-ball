@@ -88,6 +88,60 @@ final class RitualUITests: XCTestCase {
   XCTAssertTrue(sky.isSelected,"server push did not open Sky")
   shot("11-after-push-tap")
  }
+
+ // The Friday Sky fallback: a build without server push keeps Friday's 8pm notification on the phone.
+ // Run alone with -only-testing:RitualUITests/RitualUITests/testFridaySkyFallback; it needs no model or social backend.
+ func testFridaySkyFallback() throws {
+  continueAfterFailure=false
+  if let metro=ProcessInfo.processInfo.environment["RITUAL_METRO"],!metro.isEmpty{app.launchArguments=["-RCT_jsLocation",metro,"-RCT_enableDev","NO","-RCT_enableMinification","YES"]}
+  // The plan assertion reads "Fri" and "8:00", so pin an English 12-hour clock whatever the Simulator's settings.
+  app.launchArguments+=["-AppleLanguages","(en)","-AppleLocale","en_US","-AppleICUForce24HourTime","NO"]
+  app.launch()
+  _=wait(element("birthday-month"),240,"birthday sheet")
+  // Each complete birthday field hands focus to the next, so type straight through.
+  element("birthday-month").tap()
+  for part in ["06","15","1995"]{app.typeText(part);Thread.sleep(forTimeInterval:1.5)}
+  let done=app.buttons["Done"];if done.exists{done.tap()}
+  let next=app.buttons["Continue"].firstMatch;if next.waitForExistence(timeout:3)&&next.isHittable{next.tap()}
+  tap("about-done",60);tap("tour-skip",60)
+  tap("tab-sky",60);tap("social-section-circles",60)
+  tap("sky-push-toggle",60)
+  // iOS asks once per install; a Simulator that already granted it skips the prompt.
+  let allow=springboard.alerts.buttons["Allow"];if allow.waitForExistence(timeout:30){allow.tap()}
+  let notice=labelled("Friday Sky notifications will come from this phone",in:app)
+  XCTAssertTrue(notice.waitForExistence(timeout:60),"no on-phone fallback notice")
+  XCTAssertEqual(element("sky-push-toggle").value as? String,"1","the Sky toggle should stay on")
+  for _ in 0..<6 where !notice.isHittable{app.swipeUp(velocity:.slow)}
+  Thread.sleep(forTimeInterval:1);shot("sky-01-circles-fallback")
+  tap("tab-you",60);tap("open-settings",60);reach("you-footer",60).press(forDuration:1.2)
+  _=reach("ritual-debug",60)
+  let planned=labelled("The Sky is open",in:app)
+  let weekday=Calendar(identifier:.gregorian).component(.weekday,from:Date())
+  let expectsFriday=weekday != 2 && weekday != 7
+  XCTAssertEqual(planned.waitForExistence(timeout:60),expectsFriday,"Friday fallback must follow back-off for weekday \(weekday)")
+  if expectsFriday{
+   XCTAssertTrue(planned.label.contains("Fri")&&planned.label.contains("8:00"),"fallback not planned for Friday 8pm: \(planned.label)")
+   for _ in 0..<8 where !planned.isHittable{app.swipeUp(velocity:.slow)}
+  }
+  shot("sky-02-planned-friday")
+  tap("tab-sky",60);tap("social-section-circles",60)
+  tap("sky-push-toggle",60)
+  XCTAssertEqual(element("sky-push-toggle").value as? String,"0")
+  // Let queued archive writes finish before terminating the process.
+  Thread.sleep(forTimeInterval:5)
+  app.terminate();app.launch()
+  let skyTab=wait(element("tab-sky"),240,"Sky tab after relaunch")
+  let ready=XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:skyTab)
+  XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:240),.completed)
+  if element("tour-skip").waitForExistence(timeout:5){tap("tour-skip",60)}
+  tap("tab-sky",60);tap("social-section-circles",60)
+  XCTAssertEqual(element("sky-push-toggle").value as? String,"0","disabled consent must survive relaunch")
+  shot("sky-03-disabled-after-relaunch")
+  tap("tab-you",60);tap("open-settings",60);reach("you-footer",60).press(forDuration:1.2)
+  _=reach("ritual-debug",60)
+  XCTAssertFalse(labelled("The Sky is open",in:app).exists,"disabled fallback must leave the plan")
+  shot("sky-04-disabled-plan")
+ }
 }
 extension XCUIElement{
  func waitForLabel(_ text:String,timeout:Double)->Bool{let end=Date().addingTimeInterval(timeout);while Date()<end{if label.contains(text){return true};Thread.sleep(forTimeInterval:2)};return false}

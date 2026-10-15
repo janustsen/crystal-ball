@@ -4,7 +4,8 @@ import {yearAheadCandidates} from './year-ahead.ts';
 
 // The daily ritual: a few small steps a day; finishing them lights a star, and seven stars draw a constellation.
 // Nothing resets or counts down: a missed day only leaves a gap in the sky.
-export type NotifyPrefs={daily:boolean;time:string;offered?:string;reoffered?:boolean};
+export type NotifyPrefs={daily:boolean;time:string;offered?:string;reoffered?:boolean;
+ sky?:boolean};
 export type Ritual={
  // Per local day, how far each step got (step id -> count). Kept for the last 60 days.
  days:Record<string,Record<string,number>>;
@@ -80,7 +81,7 @@ export type Candidate={id:string;day:string;slot:Slot;priority:number;title:stri
 export type Planned={id:string;at:Date;title:string;body:string;data:Record<string,string>};
 export type PlanContext={state:Pick<AccountState,'ritual'|'sunSign'|'history'|'yearAhead'>;now:Date;horizon:number};
 export type NotificationSource=(context:PlanContext)=>Candidate[];
-const notificationSources:NotificationSource[]=[dailyCandidates,checkInCandidates,yearAheadCandidates];
+const notificationSources:NotificationSource[]=[dailyCandidates,checkInCandidates,yearAheadCandidates,skyCandidates];
 // Other features (a whisper, a weekly recap) register a source of candidates. The planner applies the two-a-day cap,
 // quiet hours, check-in days and back-off to every source alike, so a source only proposes. Returns an unregister.
 export function registerNotifications(source:NotificationSource){
@@ -108,6 +109,16 @@ export function dailyCandidates({state,now,horizon}:PlanContext):Candidate[]{
   const morning=signed?signCopy(sign(state.sunSign))[Math.floor(n/3)%3]:morningCopy[n%morningCopy.length];
   out.push({id:'morning',day,slot:'morning',priority:0,title,body:offset===7?backOffCopy:morning,data:{ritual:'morning'}});
   if(!(offset===0&&done))out.push({id:'evening',day,slot:'evening',priority:0,title,body:eveningCopy[n%eveningCopy.length],data:{ritual:'evening'},time:eveningTime});
+ }
+ return out;
+}
+export const skyTime='20:00';
+export function skyCandidates({state,now,horizon}:PlanContext):Candidate[]{
+ const {notify}=ritualOf(state),out:Candidate[]=[];
+ if(!notify.sky)return out;
+ for(let offset=0;offset<=horizon;offset++){
+  const day=dayAfter(now,offset);
+  if(new Date(`${day}T12:00:00`).getDay()===5)out.push({id:'friday-sky',day,slot:'morning',priority:50,title,body:'The Sky is open.',data:{ritual:'sky'},time:skyTime});
  }
  return out;
 }

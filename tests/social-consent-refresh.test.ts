@@ -12,6 +12,7 @@ function fixture(initiallyPending=false){
  const remote={owner:'A',profile:{handle:'a',sky_push:false,sky_push_answered:false,school_id:null as string|null},stars:[] as {id:string;theme:string;wording:string;resonances:number}[],schoolOnly:false,circles:[],members:[],
   schoolSuggestions:[],schools:[],reactions:[],seals:[],glows:[],moments:[],receivedSeals:[],forecasts:[],omens:[]};
  const slots:any[]=[],effects:(()=>void)[]=[];
+ let account:any={plus:false,history:[]};
  let cursor=0,tick=()=>{},pending:Promise<any>|undefined;
  const timers:(()=>void)[]=[];
  let finishInitial!:(value:any)=>void,failInitial!:(error:Error)=>void;
@@ -24,7 +25,7 @@ function fixture(initiallyPending=false){
  };
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{},'./Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:({options,value,onChange}:any)=>options.map((o:any)=>({type:'Pressable',props:{testID:o.testID,accessibilityState:{selected:value===o.value},onPress:()=>onChange(o.value)},children:[]}))},'./Enter':{Enter:'Enter'},'./social-links':{},
-  './store':{useStore:()=>({state:{plus:false,history:[]}})},'./SchoolPicker':{SchoolPicker:'SchoolPicker'},'./SocialExtras':{},'./SkyOmen':{},
+  './store':{useStore:()=>({state:account,update:(fn:(s:any)=>any)=>{account=fn(account)}})},'./ritual':{ritualOf:(s:any)=>({notify:{},...s.ritual})},'./SchoolPicker':{SchoolPicker:'SchoolPicker'},'./SocialExtras':{},'./SkyOmen':{},
   './SocialPush':{SkyPushPrompt:'Prompt',SocialPush:'Settings'},
   './social-policy':{accountSocialProfile:()=>({}),sampleStars:[],skyPrompts:{love:{label:'Love',question:'What lies ahead?',x:50,y:50}},socialUnavailable:'Social is offline.'},
   './social':{
@@ -45,7 +46,7 @@ function fixture(initiallyPending=false){
   pending=new Promise((yes,no)=>{resolve=yes;reject=no});if(start)tick();
   return {finish:()=>resolve(snapshot),fail:()=>reject(new Error('Old request failed'))};
  };
- return {render,section,prompt,settings,hold,refresh:()=>tick(),remote,elapse:()=>timers.splice(0).forEach(fn=>fn()),finishInitial:()=>finishInitial(structuredClone(remote)),failInitial:()=>failInitial(new Error('Offline'))};
+ return {render,section,prompt,settings,hold,account:()=>account,refresh:()=>tick(),remote,elapse:()=>timers.splice(0).forEach(fn=>fn()),finishInitial:()=>finishInitial(structuredClone(remote)),failInitial:()=>failInitial(new Error('Offline'))};
 }
 
 test('late snapshots cannot restore the prompt or undo either acceptance step',async()=>{
@@ -148,3 +149,22 @@ for(const schoolOnly of [true,false])for(const school of ['new-school',null]){
   }
  });
 }
+
+test('remote consent saves and refreshes leave the phone fallback choice intact',async()=>{
+ const f=fixture();f.account().ritual={notify:{sky:true}};f.render();await settle();
+ for(const enabled of [true,false]){
+  f.prompt().onAnswered(enabled);f.render();
+  assert.equal(f.account().ritual.notify.sky,true);
+  f.remote.profile.sky_push=enabled;f.refresh();await settle();f.render();
+  assert.equal(f.account().ritual.notify.sky,true);
+ }
+});
+
+test('an existing Friday subscriber gets the phone fallback without overriding a local choice',async()=>{
+ for(const [local,remote,expected] of [[undefined,true,true],[false,true,false],[undefined,false,undefined]] as const){
+  const f=fixture();f.remote.profile.sky_push=remote;f.remote.profile.sky_push_answered=remote;
+  if(local!==undefined)f.account().ritual={notify:{sky:local}};
+  f.render();await settle();
+  assert.equal(f.account().ritual?.notify.sky,expected,`local ${local}, remote ${remote}`);
+ }
+});
