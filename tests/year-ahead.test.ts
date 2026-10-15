@@ -5,6 +5,7 @@ import {planNotifications} from '../src/ritual.ts';
 import {handler} from '../server/handler.ts';
 import {validatedProvider} from '../server/provider.ts';
 import type {Prediction} from '../src/types.ts';
+import {receiptCard} from '../src/story-card.ts';
 
 const months=monthsFrom('2026-10-14');
 const year:Extract<YearAhead,{kind:'sealed'}>={kind:'sealed',source:'purchase',sealedAt:'2026-10-14T09:00:00.000Z',months:months.map((month,i)=>({month,id:`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`,headline:`You will try a new thing number ${i}.`}))};
@@ -18,6 +19,17 @@ test('Year ahead seals twelve months from the local month and opens each on its 
  assert.deepEqual(states([],'2026-10-31').slice(0,2),['ready','sealed']);
  assert.deepEqual(states([opened],'2026-11-01').slice(0,3),['opened','ready','sealed']);
  assert.deepEqual(shelf({kind:'owned',source:'yearly'},[],'2026-10-14'),[]);
+});
+
+test('every monthly receipt preserves the original sealing date', () => {
+ const sealed=new Date(year.sealedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+ for(const month of year.months){
+  const reading=openedReading(year,month);
+  assert.equal(reading.createdAt,year.sealedAt);
+  const receipt=receiptCard({...reading,outcome:'yes',checkedInAt:reading.dueDate});
+  assert.ok(receipt);
+  assert.ok(receipt.labels[1].startsWith(`Sealed ${sealed} · opened `));
+ }
 });
 
 test('the yearly plan grants Year ahead without replacing a purchase or sealed set', () => {

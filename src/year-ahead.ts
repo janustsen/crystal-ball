@@ -24,9 +24,9 @@ export function shelf(year:YearAhead,history:Prediction[],today=localDay()):Shel
  return year.months.map(m=>({...m,state:history.some(p=>p.id===m.id)?'opened':opensOn(m.month)<=today?'ready':'sealed'}));
 }
 
-export function openedReading(year:Extract<YearAhead,{kind:'sealed'}>,m:SealedMonth,now=new Date()):Prediction{
+export function openedReading(year:Extract<YearAhead,{kind:'sealed'}>,m:SealedMonth):Prediction{
  const sealed=new Date(year.sealedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
- return {id:m.id,question:`What does ${monthName(m.month)} hold?`,headline:m.headline,dueDate:opensOn(shift(m.month,1)),createdAt:now.toISOString(),label:`Year ahead · ${monthName(m.month)}`,why:`Sealed on ${sealed} with the rest of your year ahead, and opened this month.`,facts:{},sources:[],assumptions:[],friend:false};
+ return {id:m.id,question:`What does ${monthName(m.month)} hold?`,headline:m.headline,dueDate:opensOn(shift(m.month,1)),createdAt:year.sealedAt,label:`Year ahead · ${monthName(m.month)}`,why:`Sealed on ${sealed} with the rest of your year ahead, and opened this month.`,facts:{},sources:[],assumptions:[],friend:false};
 }
 
 // A morning note on each later month's 1st. Weekly-class, so daily back-off never drops a monthly beat.
