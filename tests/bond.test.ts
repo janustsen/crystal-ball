@@ -139,7 +139,7 @@ test('a bond with an opted-in Circle friend goes deeper with their sun sign and 
  assert.equal(reading.friend,true);assert.deepEqual(reading.friendTarget,{circle:'circle',member:'member',firstName:'Alex'});assert.equal(reading.dueDate,'2026-11-14');
  assert.equal(reading.why,why);assert.equal(feedback.length,1);assert.equal(feedback[0],"Refer to the bond's images, not zodiac sign names.");
  assert.equal((inputs[0] as {today:string}).today,'2026-10-14');
- assert.deepEqual((inputs[0] as {theirSunSign:string;sharedThemes:string[]}).theirSunSign,'cancer');assert.deepEqual((inputs[0] as {sharedThemes:string[]}).sharedThemes,['growth']);
+ assert.deepEqual(inputs[0],{firstName:'Alex',bond:'The Lantern and the Tide',sharedThemes:['growth'],today:'2026-10-14'});
 });
 
 test('a person named Leo is allowed in both paired-person forms without exempting sign references',async()=>{
@@ -202,4 +202,19 @@ test('name exemption ignores case but retains name fragments inside words',async
  assert.equal(withoutName('Shital and SHITAL cook with shital.','shital','Friend'),'Friend and Friend cook with Friend.');
  assert.equal(withoutName('Shitalia Ashital Shitalé Shital\u0301','shital','Friend'),'shitalia ashital shitalé shital\u0301');
  assert.match(withoutName('Love loves a clover.','Love'),/loves a clover/i);
+});
+
+test('Bond repair quotes every offending inner-life word and still fails closed',async()=>{
+ const {bondReading}=await import('../server/bond.ts');
+ const {validatedProvider}=await import('../server/provider.ts');
+ let attempts=0;
+ const draft={moment:'You and Maya will bake a cake together.',why:'Maya learns by feeling while your heart listens.',horizon:'within 3 months'};
+ const model=validatedProvider(async messages=>{
+  attempts++;
+  if(attempts===2)assert.match(messages.at(-1)!.content,/Remove "feeling", "heart":/);
+  return JSON.stringify(draft);
+ });
+ const result=await bondReading({name:'Maya',sign:'cancer',themes:['learning']},model);
+ assert.equal(attempts,2);
+ assert.deepEqual(result,{kind:'error',message:'The mist is too thick. Please ask again.'});
 });

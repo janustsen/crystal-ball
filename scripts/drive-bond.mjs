@@ -17,7 +17,7 @@ async function home(){while(await page.getByTestId('close-flow').count())await p
 async function reveal(){await page.getByTestId('bond-pair').waitFor({timeout:90000});return {name:await page.getByTestId('bond-name').innerText(),percent:await page.getByTestId('bond-percent').innerText()};}
 
 try{
- await page.goto(url);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('08');await page.getByTestId('birthday-day').fill('01');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();
+ await page.goto(url);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('08');await page.getByTestId('birthday-day').fill('01');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
  await page.getByTestId('view-plans').click();await page.getByTestId('5-readings-1-99-simulate').click();await home();
  if(await page.getByText('Skip tour').count())await page.getByText('Skip tour').click();await page.getByTestId('dismiss-notice').click();await page.getByTestId('open-bond').scrollIntoViewIfNeeded();await expect(page.getByTestId('open-bond')).toBeVisible();await shot('home');
  await page.getByTestId('open-bond').click();await expect(page.getByText('Bond reading',{exact:true})).toBeVisible();
