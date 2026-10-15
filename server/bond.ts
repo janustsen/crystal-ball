@@ -14,7 +14,6 @@ type Draft={why:string;moment:string;horizon:string};
 // A Circle friend who opted in adds their sun sign and shared themes; anyone else is a first name only.
 export type BondPartner={name:string;sign?:string;themes?:string[]};
 
-// A Bond reading: a named bond and percentage (src/bond.ts) plus one shared forecast with a due date, in one model call.
 export async function bondReading(partner:BondPartner,model:ModelProvider,context:ReadingContext={}):Promise<Result<Prediction>> {
  const {name}=partner;
  try {
