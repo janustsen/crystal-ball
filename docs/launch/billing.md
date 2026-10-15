@@ -61,7 +61,7 @@ Nothing below can be done without the accounts; everything else is in the reposi
 
 On a development or TestFlight build signed in with an eligible Sandbox account: open Plans, buy Weekly (the App Store sheet shows the 3-day trial), confirm the balance shows Plus, use Restore purchases on a second install, buy a 5-reading pack and confirm the balance rises by five, then cancel from Manage or cancel subscription and confirm RevenueCat's expiration webhook ends Plus. Sandbox renewals are accelerated (a week renews in minutes).
 
-`store/CrystalBall.storekit` mirrors the catalog for local StoreKit testing in Xcode (after `npx expo prebuild -p ios`: Product › Scheme › Edit Scheme › Run › Options › StoreKit Configuration). RevenueCat validates those local transactions only after the StoreKit test certificate is uploaded to the RevenueCat app; the App Store sandbox needs no such step. `tests/billing.test.ts` keeps the file in sync with the catalog. StoreKit transaction verification remains outstanding.
+`store/CrystalBall.storekit` mirrors the store-ready subscriptions and reading packs in the catalog for local StoreKit testing in Xcode (after `npx expo prebuild -p ios`: Product › Scheme › Edit Scheme › Run › Options › StoreKit Configuration). RevenueCat validates those local transactions only after the StoreKit test certificate is uploaded to the RevenueCat app; the App Store sandbox needs no such step. `tests/billing.test.ts` keeps those products in sync with the catalog. StoreKit transaction verification remains outstanding.
 
 ## Follow-ups (out of scope here)
 

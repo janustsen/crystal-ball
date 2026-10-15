@@ -81,6 +81,7 @@ try{
  await page.getByTestId(`year-ahead-${month(1)}`).click();
  await page.getByText(year.months[1].headline).waitFor();
  assert.equal((await saved(page)).history.filter(p=>p.id===year.months[1].id).length,1);
+ await page.waitForTimeout(5000);
  await page.screenshot({path:`${out}/next-month-reveal.png`});
  results.nextMonth='second ball opened; previous check-in persisted after reload';
  await context.close();
