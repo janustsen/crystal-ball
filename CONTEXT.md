@@ -79,6 +79,9 @@ _Avoid_: crush reading, target
 A Reading about the asker and one person by first name: a named bond, a compatibility percentage about the shared bond (never the other person's feelings) and a shared Forecast with a Due date. With an opted-in Circle member it is deeper, using their sun sign and shared themes.
 _Avoid_: compatibility test, synastry
 
+**Love timing**:
+A named Reading about the asker’s own love life, answered by the Ball’s Due date. See [usage and reminder behavior](README.md) and the allowed horizons in `server/engine.ts` (`loveHorizons`).
+
 **School**:
 The optional school a user chooses; see the [school boundary](docs/social/school.md).
 
