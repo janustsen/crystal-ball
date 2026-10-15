@@ -16,7 +16,7 @@ async function start(context){
  page.setDefaultNavigationTimeout(180000);
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
  page.on('pageerror',error=>errors.push(error.message));
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
  await page.getByTestId('hero-orb').waitFor();
  return page;
 }
