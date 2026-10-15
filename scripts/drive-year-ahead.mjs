@@ -13,6 +13,7 @@ const saved=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-bal
 const month=(offset=0)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+offset);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`};
 async function start(context){
  const page=await context.newPage();
+ page.setDefaultNavigationTimeout(180000);
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
  page.on('pageerror',error=>errors.push(error.message));
  await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
@@ -68,6 +69,13 @@ try{
  await page.getByTestId('check-in-yes').click();
  assert.equal((await saved(page)).history.find(p=>p.id===year.months[0].id).outcome,'yes');
  results.checkIn='yes saved on the 1st of the next month';
+ await page.reload();await page.getByTestId('hero-orb').waitFor();await library(page);
+ assert.equal((await saved(page)).history.find(p=>p.id===year.months[0].id).outcome,'yes');
+ await page.getByTestId(`year-ahead-${month(1)}`).click();
+ await page.getByText(year.months[1].headline).waitFor();
+ assert.equal((await saved(page)).history.filter(p=>p.id===year.months[1].id).length,1);
+ await page.screenshot({path:`${out}/next-month-reveal.png`});
+ results.nextMonth='second ball opened; previous check-in persisted after reload';
  await context.close();
 
  // The yearly plan includes Year ahead: owned and ready to seal without a second purchase.

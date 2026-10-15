@@ -749,7 +749,7 @@ for(const mode of ['success','refused','store'] as const)test(`Year ahead shelf 
   './purchases':{purchaseMode:mode==='store'?'store':'mock'},'./billing':billing,
   './reading-history':readings,'./retention':retention,'./year-ahead':yearAhead,'./uuid':{uuid:()=>crypto.randomUUID()},
   './ui':{Action:'Action',CardHeader:'CardHeader',Txt:'Txt',colors:{},styles:{}},'./Surface':{Surface:'Surface'},'./OrbVisual':{OrbVisual:'OrbVisual'},
- },[],{React:h.react});
+ },[],{React:h.react,Error});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(()=>component.YearAheadShelf({onOpen(){}})));
  const buy=render().find(n=>n.props.testID==='year-ahead-buy');
