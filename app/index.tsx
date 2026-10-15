@@ -68,9 +68,9 @@ type Tab=Spot|'Library'|'Asks'|'Settings';
 const tabOrder:Tab[]=['Home','Sky','Ask','History','You','Asks','Library','Settings'];
 const storeNotice='Purchases are available in the Crystal Ball iOS app.';
 const retryNotice='An interrupted forecast may use a reading. Only one retry of the same question, person and answers in this session is free; further retries use another reading.';
-// Saved readings and Circle forecasts still carry the old disclaimer labels; the reveal shows only the plain part.
 // Love timing: a named reading about the asker's own love life, answered by the date the Ball names. Adults only.
 const loveQuestion='When will I meet someone special?';
+// Saved readings and Circle forecasts still carry the old disclaimer labels; the reveal shows only the plain part.
 const plainLabel=(label:string)=>label.replace(/\s*·?\s*(?:speculative forecast|not a guarantee),?/gi,'').trim()||'Your prediction';
 export default function App(){
  const {state,ready,backupBusy,hydrationError,retryHydration,update,remaining,savePrediction,forgetAll,applyBalance}=useStore(),insets=useSafeAreaInsets();
