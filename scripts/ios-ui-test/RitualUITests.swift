@@ -114,9 +114,13 @@ final class RitualUITests: XCTestCase {
   tap("tab-you",60);tap("open-settings",60);reach("you-footer",60).press(forDuration:1.2)
   _=reach("ritual-debug",60)
   let planned=labelled("The Sky is open",in:app)
-  XCTAssertTrue(planned.waitForExistence(timeout:60),"Friday fallback missing from the notification plan")
-  XCTAssertTrue(planned.label.contains("Fri")&&planned.label.contains("8:00"),"fallback not planned for Friday 8pm: \(planned.label)")
-  for _ in 0..<8 where !planned.isHittable{app.swipeUp(velocity:.slow)}
+  let weekday=Calendar(identifier:.gregorian).component(.weekday,from:Date())
+  let expectsFriday=weekday != 2 && weekday != 7
+  XCTAssertEqual(planned.waitForExistence(timeout:60),expectsFriday,"Friday fallback must follow back-off for weekday \(weekday)")
+  if expectsFriday{
+   XCTAssertTrue(planned.label.contains("Fri")&&planned.label.contains("8:00"),"fallback not planned for Friday 8pm: \(planned.label)")
+   for _ in 0..<8 where !planned.isHittable{app.swipeUp(velocity:.slow)}
+  }
   shot("sky-02-planned-friday")
  }
 }
