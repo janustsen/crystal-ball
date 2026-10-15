@@ -131,6 +131,9 @@ export function checkInCandidates({state}:PlanContext):Candidate[]{
  }
  return [...days].map(([day,love])=>({id:love?'love-check-ins':'check-ins',day,slot:love?'dated':'evening',priority:100,...love?{title:'The day the Ball named',body:'Your Love timing is due. Did it happen?'}:{title:'Did it come true?',body:'Your forecasts are waiting in History.'},data:{checkIns:'1'},time:eveningTime}));
 }
+// iOS keeps at most 64 pending local notifications and silently drops the rest; the planner is the only scheduler,
+// so capping its plan below that keeps every scheduled reminder real. Each open re-plans, so the nearest ones win.
+export const pendingLimit=60;
 export type Delivered=Record<string,string[]>;
 export function planNotifications(state:PlanContext['state'],now=new Date(),horizon=28,delivered:Delivered={},additional:Candidate[]=[]):Planned[]{
  const context={state,now,horizon},ritual=ritualOf(state),today=localDay(now);
@@ -148,5 +151,5 @@ export function planNotifications(state:PlanContext['state'],now=new Date(),hori
   const count=counts.get(c.day)??0;if(count>=2)continue;
   plan.push({id,at:new Date(`${c.day}T${c.time}:00`),title:c.title,body:c.body,data:c.data});counts.set(c.day,count+1);
  }
- return plan.sort((a,b)=>a.at.getTime()-b.at.getTime());
+ return plan.sort((a,b)=>a.at.getTime()-b.at.getTime()).slice(0,pendingLimit);
 }

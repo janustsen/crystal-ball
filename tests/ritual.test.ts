@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {type Candidate,checkInCandidates,constellation,dailyCandidates,signCopy,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
+import {type Candidate,checkInCandidates,pendingLimit,constellation,dailyCandidates,signCopy,emptyRitual,markOpened,markStep,dayProgress,offerNotifications,registerNotifications,planNotifications,quiet,type Ritual} from '../src/ritual';
 import {localDay} from '../src/retention';
 import type {Prediction} from '../src/types';
 
@@ -142,4 +142,16 @@ test('a Love timing check-in names its own day, keeps the question private and f
  assert.deepEqual(candidates.map(c=>[c.day,c.title]),[['2026-10-09','The day the Ball named'],['2026-10-12','Did it come true?']]);
  assert.ok(candidates.every(c=>!/someone special|coffee/i.test(`${c.title} ${c.body}`)));
  assert.ok(planNotifications(state({...enabled(),days:{}},[reading]),now,14).some(p=>at(p)==='2026-10-09'&&p.title==='The day the Ball named'));
+});
+
+test('the plan never exceeds the iOS pending limit, keeping the nearest Love timing dates',()=>{
+ const start=new Date(2026,9,21,12);
+ const history:Prediction[]=Array.from({length:80},(_,i)=>{const due=new Date(start);due.setDate(due.getDate()+i);return {id:`love-${i}`,timing:'love',dueDate:localDay(due),createdAt:'2026-10-07T09:00:00',question:'Private',headline:'Private',label:'Love timing',why:'',facts:{},sources:[],assumptions:[],friend:false}});
+ const plan=planNotifications(state(enabled(),history),now);
+ assert.equal(plan.length,pendingLimit);
+ assert.ok(pendingLimit<64);
+ const loveDays=plan.filter(p=>p.data.checkIns).map(p=>at(p));
+ assert.equal(loveDays[0],'2026-10-21');
+ assert.deepEqual(loveDays,[...loveDays].sort());
+ assert.ok(plan.every((p,i)=>i===0||plan[i-1].at.getTime()<=p.at.getTime()));
 });
