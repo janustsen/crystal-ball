@@ -34,10 +34,10 @@ export function paintBackdrop(ctx:CanvasRenderingContext2D,{cardStyle,golden}:Pi
  const light=ctx.createRadialGradient(540,560,40,540,560,620);light.addColorStop(0,`rgba(${look.light},${.26+.3*glow})`);light.addColorStop(1,`rgba(${look.light},0)`);ctx.fillStyle=light;ctx.fillRect(0,0,1080,1300);
  round(ctx,64,880,952,840,48);ctx.fillStyle='rgba(22,15,11,.62)';ctx.fill();ctx.strokeStyle=look.line;ctx.lineWidth=look.width;ctx.stroke();
 }
-// The ball: open scales and fades it in.
-export function paintBall(ctx:CanvasRenderingContext2D,{ballStyle,orb,glass}:Look,open=1){
- const scale=.86+.14*open,w=540*scale,h=608*scale;ctx.globalAlpha=open;ctx.drawImage(orb,540-w/2,584-h/2,w,h);
- if(ballStyle!=='classic'&&glass){ctx.save();ctx.beginPath();ctx.arc(540,550,270*scale,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,540-270*scale,550-270*scale,540*scale,540*scale);ctx.restore();}
+// The ball: open scales and fades it in; a Bond card paints two smaller balls side by side (x, size).
+export function paintBall(ctx:CanvasRenderingContext2D,{ballStyle,orb,glass}:Look,open=1,x=540,size=1){
+ const scale=(.86+.14*open)*size,w=540*scale,h=608*scale,y=584-34*size;ctx.globalAlpha=open;ctx.drawImage(orb,x-w/2,584-h/2,w,h);
+ if(ballStyle!=='classic'&&glass){ctx.save();ctx.beginPath();ctx.arc(x,y,270*scale,0,Math.PI*2);ctx.clip();ctx.drawImage(glass,x-270*scale,y-270*scale,540*scale,540*scale);ctx.restore();}
  ctx.globalAlpha=1;
 }
 // A label in the app's label style: Jost, letter-spaced, shrunk (spacing included) until it fits the card's text band.

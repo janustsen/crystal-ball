@@ -6,12 +6,14 @@ import {threeLights,type Light} from './three-lights';
 import type {AccountState} from './types';
 
 // What a 9:16 story image says. ShareCard draws it on the current look; a designed card replaces the drawing, not this content.
-export type StoryCard={kind:'forecast'|'receipt'|'golden-set'|'three-lights'|'week'|'year';golden:boolean;headlines:string[];labels:string[];footer:string;file:string;lights?:Light[]};
+// pair is a Bond reading's other person and percentage: its card shows two balls with the percentage between them.
+export type StoryCard={kind:'forecast'|'receipt'|'golden-set'|'three-lights'|'week'|'year';golden:boolean;headlines:string[];labels:string[];footer:string;file:string;lights?:Light[];pair?:{name:string;percent:number}};
 
 const day=(value:string)=>new Date(/^\d{4}-\d{2}-\d{2}$/.test(value)?`${value}T12:00:00`:value).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
 
 export function forecastCard(p:Prediction):StoryCard{
- return {kind:'forecast',golden:!!p.golden,headlines:[p.headline],labels:[],footer:`Check back ${suggestedCheckIn(p)}`,file:'crystal-ball-forecast.png'};
+ const pair=p.bond?{name:p.personName??p.friendTarget?.firstName??'',percent:p.bond.percent}:undefined;
+ return {kind:'forecast',golden:!!p.golden,headlines:[p.headline],labels:p.bond?[p.bond.name]:[],footer:`Check back ${suggestedCheckIn(p)}`,file:p.bond?'crystal-ball-bond.png':'crystal-ball-forecast.png',...(pair?{pair}:{})};
 }
 
 // Only a personal "Yes" check-in earns a receipt; Circle, friend and Person readings never do. It records the asker's own answer, never an accuracy score.

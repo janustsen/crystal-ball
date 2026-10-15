@@ -10,10 +10,10 @@ export const engineUrl=process.env.EXPO_PUBLIC_ENGINE_URL||(typeof window!=='und
 export const previewHeaders:Record<string,string>=process.env.EXPO_PUBLIC_PREVIEW_SECRET?{'x-preview-token':process.env.EXPO_PUBLIC_PREVIEW_SECRET,...(typeof document==='undefined'?{Origin:new URL(engineUrl).origin}:{})}:{};
 // A metered forecast returns the server's balance after its charge.
 // A sealed-link browser visitor's free reading carries its bot-check proof instead of an account session.
-export async function request<T extends Plan|Prediction>(action:'plan'|'predict',question:string,facts:Facts,friend:boolean,signal:AbortSignal,context:ReadingContext={},aiConsent='',requestId?:string,webReading?:WebReading|null):Promise<Result<T>&{balance?:Balance}>{
+export async function request<T extends Plan|Prediction>(action:'plan'|'predict'|'bond',question:string,facts:Facts,friend:boolean,signal:AbortSignal,context:ReadingContext={},aiConsent='',requestId?:string,webReading?:WebReading|null):Promise<Result<T>&{balance?:Balance}>{
  // null is an account request (Plus, credits or a linked account) and never takes the visitor path.
  if(action==='predict'&&webReading===undefined&&webReadingVisitor())webReading=await webReadingProof();
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...action==='predict'&&!webReading?await sessionHeader():{}},body:JSON.stringify({action,question,facts,friend,...context,localDate:localDay(),aiConsent,requestId,webReading:webReading??undefined}),signal});
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...action!=='plan'&&!webReading?await sessionHeader():{}},body:JSON.stringify({action,question,facts,friend,...context,localDate:localDay(),aiConsent,requestId,webReading:webReading??undefined}),signal});
  const result=await response.json();
  if(!result||!['ok','blocked','error'].includes(result.kind))throw new Error('The mist is too thick. Please try again.');
  return result;

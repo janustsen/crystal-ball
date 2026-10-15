@@ -28,7 +28,7 @@ export function useKeyboardInset(){
  return inset;
 }
 
-export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,largeText,chip,note,controls,onCamera,testID}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;refused:number;reduce:boolean;largeText:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
+export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,largeText,chip,note,controls,onCamera,testID,placeholder='Type your question',label='Your question'}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;placeholder?:string;label?:string;refused:number;reduce:boolean;largeText:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
  const [chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),[scroll,setScroll]=useState(0),input=useRef<TextInput>(null);
  const viewport=Math.max(1,height-top-bottom-12);
  const contentHeight=Math.max(viewport,chipHeight+12+2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0)+16+noteHeight+controlsHeight);
@@ -44,9 +44,9 @@ export function AskBall({width,height,top,bottom,value,onChangeText,refused,redu
   <Pressable accessible={false} onPress={()=>input.current?.focus()} style={{position:'absolute',left:ball.x-ball.r,top:ball.y-ball.r,width:ball.r*2,height:ball.r*2,borderRadius:ball.r}}>
    <Svg pointerEvents="none" width={ball.r*2} height={ball.r*2}><Defs><RadialGradient id="ask-veil" cx="50%" cy="50%" r="50%"><Stop offset="0" stopColor={colors.ink} stopOpacity={.66}/><Stop offset=".72" stopColor={colors.ink} stopOpacity={.4}/><Stop offset="1" stopColor={colors.ink} stopOpacity={0}/></RadialGradient></Defs><Circle cx={ball.r} cy={ball.r} r={ball.r} fill="url(#ask-veil)"/></Svg>
   </Pressable>
-  <Text aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" onLayout={e=>setTextHeight(Math.ceil(e.nativeEvent.layout.height))} style={[font,{position:'absolute',left:-9999,width:side,opacity:0}]}>{value||'Type your question'}</Text>
+  <Text aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" onLayout={e=>setTextHeight(Math.ceil(e.nativeEvent.layout.height))} style={[font,{position:'absolute',left:-9999,width:side,opacity:0}]}>{value||placeholder}</Text>
   <View pointerEvents="box-none" style={{position:'absolute',left:ball.x-side/2,top:ball.y-box/2,width:side}}>
-   <Shake trigger={refused} reduce={reduce}><TextInput ref={input} testID={testID} accessibilityLabel="Your question" autoFocus multiline value={value} onChangeText={onChangeText} maxLength={500} placeholder="Type your question" placeholderTextColor="rgba(244,235,221,.72)" selectionColor={colors.gold} style={[font,{height:box,padding:0,color:colors.ivory,textShadowColor:'rgba(227,199,143,.65)',textShadowRadius:12,textShadowOffset:{width:0,height:0}}]}/></Shake>
+   <Shake trigger={refused} reduce={reduce}><TextInput ref={input} testID={testID} accessibilityLabel={label} autoFocus multiline value={value} onChangeText={onChangeText} maxLength={500} placeholder={placeholder} placeholderTextColor="rgba(244,235,221,.72)" selectionColor={colors.gold} style={[font,{height:box,padding:0,color:colors.ivory,textShadowColor:'rgba(227,199,143,.65)',textShadowRadius:12,textShadowOffset:{width:0,height:0}}]}/></Shake>
   </View>
   <View testID="ask-disclosure" onLayout={e=>setNoteHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:controlsHeight}}>{note}</View>
   <View onLayout={e=>setControlsHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:0}}>{controls}</View>

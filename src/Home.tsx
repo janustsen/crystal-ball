@@ -19,7 +19,7 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 const noScroll={touchAction:'none'} as object;
 
 // Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce,direction}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
+export function Home({ready,libraryLocked,onLibrary,onBond,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce,direction}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;onBond:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
  // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
  const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge,sky=skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone);
  useEffect(()=>{if(omenFocus&&content.current)omenRef.current?.measureLayout(content.current,(_x,y)=>scroll.current?.scrollTo({y:Math.max(0,y+pad-48),animated:!reduce}))},[omenFocus]);
@@ -36,6 +36,7 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,om
    {today}
    {recap}
    {omen(omenRef)}
+   <RowLink testID="open-bond" label="Bond reading" detail="You and one person" disabled={!ready} onPress={onBond}/>
    <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
   </View></Enter></ScrollView>
  </EdgeFade></View>;
