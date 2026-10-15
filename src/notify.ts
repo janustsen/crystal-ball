@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {planNotifications,type Planned,type PlanContext,type Candidate,type Delivered} from './ritual';
 import {personalCheckInDue,localDay,suggestedCheckIn} from './retention';
 
-// Foreground notifications are shown (social, check-ins), except the ritual's own: the app is already open.
+// Hide ritual notifications while the app is open; deduplicate foreground Sky pushes against the local delivery budget.
 if(Platform.OS!=='web')Notifications.setNotificationHandler({handleNotification:async notification=>{const data=notification.request.content.data;const show=!data?.ritual&&(data?.social===true&&data?.sky===true?await receiveSky():true);return {shouldShowBanner:show,shouldShowList:show,shouldPlaySound:false,shouldSetBadge:false}}});
 
 export async function allowNotifications(request:boolean){

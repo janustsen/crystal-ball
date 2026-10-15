@@ -1,5 +1,7 @@
 # Daily ritual and notifications
 
+For the Friday Sky fallback change, Simulator runs are stopped because the environment was unreliable. Use the unit and JS-level checks below; retain the native case for later use, but do not gate this change on it. Real-device proof is deferred until after merge on the captain's phone.
+
 | Feature | Source | Drive | Boundary |
 |---|---|---|---|
 | Today card steps (omen, three Ball asks answers, ask or check in), star per finished day, constellations | `src/ritual.ts`, `src/DailyRitual.tsx`, Home `today` slot | `node scripts/drive-ritual.mjs` (`VERIFY_URL`, `EVIDENCE_DIR`); `node scripts/drive-ritual-boundaries.mjs` for due-today eligibility, answer editing, the seventh star and scrolling to a pending omen, including past Sunday's weekly recap on a short phone | First driver uses the real local engine and model; boundary driver seeds saved readings, omen and prior stars. Day rollover is unit-tested in `tests/ritual.test.ts`. |
