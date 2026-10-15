@@ -8,6 +8,7 @@ import {askBallMock,homeMock} from './home-mock';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
 import * as retention from '../src/retention';
+import * as realSky from '../src/real-sky';
 import * as whisper from '../src/whisper';
 import * as ritual from '../src/ritual';
 import * as billing from '../src/billing';
@@ -480,7 +481,7 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  const response=new Promise(resolve=>{finish=resolve;});
  const omen=load('../src/DailyOmen.tsx',{
   react:omenHooks.react,'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
-  './store':{useStore:renderStore},'./retention':retention,
+  './store':{useStore:renderStore},'./retention':retention,'./real-sky':realSky,
   './daily-omen':{loadDailyOmen:()=>response,omenTries:2},
   './whisper':{keepWhisper,lastWhisper,answerWhisper},
   './ui':{colors:{},fonts:{},styles:{}},'./Home':{OmenCard:'OmenCard'},
@@ -556,7 +557,7 @@ for(const result of ['cached text',null,'error'] as const)test(`omen progress re
  const h=hooks(),state={facts:{},sunSign:null,ageConfirmed:true};let reads=0;
  const component=load('../src/DailyOmen.tsx',{
   react:h.react,'react-native':{AppState:{currentState:'active',addEventListener:()=>({remove(){}})}},
-  './store':{useStore:()=>({state})},'./retention':retention,'./daily-omen':{loadDailyOmen:async()=>{if(result==='error')throw new Error('offline');return {day:retention.localDay(),text:result}}},
+  './store':{useStore:()=>({state})},'./retention':retention,'./real-sky':realSky,'./daily-omen':{loadDailyOmen:async()=>{if(result==='error')throw new Error('offline');return {day:retention.localDay(),text:result}}},
   './whisper':whisper,'./ui':{},'./Home':{},
  },[]);
  const render=()=>h.render(()=>component.DailyOmen({onRead:()=>{reads++}}));

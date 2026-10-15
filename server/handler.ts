@@ -2,6 +2,7 @@ import {checkInDate} from '../src/retention.ts';
 import {readingAge,sunSign,validPersonName} from '../src/profile.ts';
 import {viewerChart} from './viewer-chart.ts';
 import {chartWeather,personalOmen,selfInsight} from './omen.ts';
+import {skyOn} from '../src/real-sky.ts';
 import {insightKinds,selfAnswers} from '../src/ball-asks.ts';
 import { makePlan, predict } from './engine.ts';
 import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
@@ -76,7 +77,12 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     if(answers.length<3)throw new Error('Answer a few more questions first.');
     return new Response(JSON.stringify({kind:'ok',value:await selfInsight(answers,kind as typeof insightKinds[number],teen,insightModel)}),{headers});
    }
-   const result=body.action==='omen'?{kind:'ok',value:await personalOmen(facts,omenModel)}:await makePlan(question,facts,model,context);
+   if(body.action==='omen'){
+    if(typeof localDate!=='string'||!('timeZone'in body)||typeof body.timeZone!=='string'||!body.timeZone||body.timeZone.length>100)throw new Error('Please provide your local date and time zone.');
+    const sky=skyOn(localDate,body.timeZone);
+    return new Response(JSON.stringify({kind:'ok',value:await personalOmen(facts,omenModel,sky)}),{headers});
+   }
+   const result=await makePlan(question,facts,model,context);
    return new Response(JSON.stringify(result),{headers});
   } catch(error){return new Response(JSON.stringify({kind:'error',message:error instanceof Error?error.message:'Please try again.'}),{status:error instanceof BillingError?error.status:400,headers});}
  };

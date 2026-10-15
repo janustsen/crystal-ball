@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {voiceFlags} from '../server/voice';
+import {skyOn} from '../src/real-sky.ts';
 
 test('editorial fixtures flag doom, private-feeling claims and certainty',()=>{
  const fixtures:[string,string[]][]=[
@@ -33,7 +34,7 @@ test('the actual forecast and omen prompts carry the shared voice instruction',a
  try{
   const result=await predict('Will I finish my novel this year?',{context_1:'I write for an hour daily.',horizon:'this year'},false,provider(()=>undefined),{ageConfirmed:true});
   assert.equal(result.kind,'ok',JSON.stringify(result));
-  await personalOmen({},provider(()=>undefined));
+  await personalOmen({},provider(()=>undefined),skyOn('2026-10-14'));
   assert.equal(seen.filter(s=>s.includes(ballVoice)).length,2);
  }finally{globalThis.fetch=original;}
 });

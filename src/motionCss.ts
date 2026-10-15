@@ -90,7 +90,8 @@ export const motionCss = `
 @keyframes sky-sway{from{transform:translate3d(-4px,2px,0)}to{transform:translate3d(5px,-3px,0)}}
 .shooting-star{position:absolute;left:-100px;top:10%;width:78px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#f3d29b);box-shadow:0 0 6px #e0a45888;opacity:0;animation:sky-streak 43s cubic-bezier(.3,.1,.65,1) infinite;animation-delay:-8s}
 @keyframes sky-streak{0%,88%{opacity:0;transform:translate3d(0,0,0) rotate(20deg)}89%{opacity:.55}94%{opacity:.25}96%,100%{opacity:0;transform:translate3d(560px,175px,0) rotate(20deg)}}
-.wandering-moon{position:absolute;left:18%;top:6%;font-size:27px;color:#ddb580;text-shadow:0 2px 0 #0B0604;opacity:0;animation:sky-moon 79s ease-in-out infinite;animation-delay:-23s}
+.wandering-moon{position:absolute;left:18%;top:6%;width:22px;height:22px;filter:drop-shadow(0 2px 0 #0B0604);opacity:0;animation:sky-moon 79s ease-in-out infinite;animation-delay:-23s}
+.wandering-moon svg{display:block;width:100%;height:100%}
 @keyframes sky-moon{0%,50%{opacity:0;transform:translate3d(-15px,12px,0)}62%,70%{opacity:.24}86%,100%{opacity:0;transform:translate3d(65px,-22px,0)}}
 .hidden-constellation{position:absolute;right:7%;top:21%;color:#e9cd9c;font-size:17px;letter-spacing:7px;opacity:0;animation:sky-stars 61s ease-in-out infinite;animation-delay:-20s}
 @keyframes sky-stars{0%,70%,100%{opacity:0}78%,88%{opacity:.24}}

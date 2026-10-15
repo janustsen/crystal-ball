@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as realSky from '../src/real-sky';
+// Home shows tonight's sky for a fixed day.
+const sky={'./retention':{localDay:()=>'2026-10-14'},'./real-sky':realSky};
 
 function component(file:string,imports:Record<string,any>,effectsEnabled=true){
  const slots:any[]=[],effects:(()=>void)[]=[];
@@ -41,7 +44,7 @@ const nodes=(node:any):any[]=>Array.isArray(node)?node.flatMap(nodes):!node||typ
 test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
-  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
   './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
@@ -61,7 +64,7 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
 
 test('the readings-left count pops only when a loaded balance changes',()=>{
  const render=component('../src/Home.tsx',{
-  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
   './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},'./native':{haptic:()=>{}},
@@ -75,7 +78,7 @@ test('the readings-left count pops only when a loaded balance changes',()=>{
 
 test('Today omen step targets the actual card after recap and yesterday’s whisper',()=>{
  const imports={
-  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',RowLink:'RowLink',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},
   './native':{haptic:()=>{}},
  };
@@ -85,7 +88,7 @@ test('Today omen step targets the actual card after recap and yesterday’s whis
     const scrolls:{y:number;animated:boolean}[]=[];
     const daily=component('../src/DailyOmen.tsx',{
      ...imports,'@react-native-async-storage/async-storage':{},
-     './daily-omen':{omenTries:2},'./retention':{localDay:()=>'2026-10-11',currentOmen:()=>current},
+     './daily-omen':{omenTries:2},'./retention':{localDay:()=>'2026-10-11',currentOmen:()=>current},'./real-sky':realSky,
      './api':{},'./store':{useStore:()=>({state:{whispers:last?[last]:[]}})},
      './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},
     },false);
@@ -113,7 +116,7 @@ test('Today omen step targets the actual card after recap and yesterday’s whis
 test('every room header exposes Settings beside Plans and Home omits its title',()=>{
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
-  'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},
   './ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./native':{haptic:()=>{}},
  });
@@ -141,7 +144,7 @@ test('every room header exposes Settings beside Plans and Home omits its title',
 
 test('shared Screen renders content and forwards directional motion',()=>{
  const render=component('../src/ui.tsx',{
-  'react-native':{Platform:{OS:'web'},StyleSheet:{create:(styles:any)=>styles},View:'View',Animated:{Value:class {},ScrollView:'ScrollView'}},
+  ...sky,'react-native':{Platform:{OS:'web'},StyleSheet:{create:(styles:any)=>styles},View:'View',Animated:{Value:class {},ScrollView:'ScrollView'}},
   './OrbVisual':{},'./Enter':{Enter:'Enter'},'./motion':{},'./delight':{},'./native':{},'./store':{},
   'react-native-svg':{},'@react-native-masked-view/masked-view':{},'expo-linear-gradient':{},'./Surface':{onGold:'#140E0A'},
  });

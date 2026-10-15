@@ -13,6 +13,7 @@ test('ball Due date wins; legacy forecasts keep 30 days without a migration',()=
 });
 import {loadDailyOmen,invalidateOmen,omenKey,type OmenReply} from '../src/daily-omen';
 import {handler} from '../server/handler';
+import {skyOn} from '../src/real-sky.ts';
 test('personal omen claims each local day before generation, caches failures and coalesces callers',async()=>{
  invalidateOmen();const values=new Map<string,string>();let calls=0;
  const storage={getItem:async(key:string)=>values.get(key)??null,setItem:async(key:string,value:string)=>{values.set(key,value)}};
@@ -55,9 +56,9 @@ test('omen endpoint shares input limits and forwards Sun sign and facts to the r
  globalThis.fetch=async(_url,init)=>{calls++;const body=JSON.parse(String(init?.body));assert.equal(body.options.num_predict,160);assert.deepEqual(JSON.parse(body.messages[1].content).facts,{sun_sign:'Libra',learning_target:'Spanish'});return new Response(JSON.stringify({message:{content:JSON.stringify({text:'Libra, a new Spanish word may brighten your constellation today.',whisper:'By tonight, a small plan may change for the better.'})}}));};
  try{
   const serve=handler(()=>undefined);
-  const response=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',ageConfirmed:true,question:'Today’s personal omen',facts:{sun_sign:'Libra',learning_target:'Spanish'}})}));
+  const response=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',localDate:'2026-10-14',timeZone:'UTC',ageConfirmed:true,question:'Today’s personal omen',facts:{sun_sign:'Libra',learning_target:'Spanish'}})}));
   assert.equal(response.status,200);assert.deepEqual(await response.json(),{kind:'ok',value:{text:'Libra, a new Spanish word may brighten your constellation today.',whisper:'By tonight, a small plan may change for the better.'}});assert.equal(calls,1);
-  const invalid=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',ageConfirmed:true,question:'Today’s personal omen',facts:{sun_sign:100}})}));assert.equal(invalid.status,400);assert.equal(calls,1);
+  const invalid=await serve(new Request('http://localhost',{method:'POST',body:JSON.stringify({action:'omen',localDate:'2026-10-14',timeZone:'UTC',ageConfirmed:true,question:'Today’s personal omen',facts:{sun_sign:100}})}));assert.equal(invalid.status,400);assert.equal(calls,1);
  }finally{globalThis.fetch=fetch;}
 });
 test('omen repairs invented signs and clipped sentences once, then fails closed',async()=>{
@@ -65,13 +66,13 @@ test('omen repairs invented signs and clipped sentences once, then fails closed'
  globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify({message:{content:JSON.stringify({text:calls===1?'Pisces, follow a gentle light.':'A little starlight invites a fresh beginning.',whisper:'By tonight, a kind message may find its way to you.'})}}));};
  try{
   const {personalOmen}=await import('../server/omen');const {provider}=await import('../server/provider');
-  assert.deepEqual(await personalOmen({},provider(()=>undefined,160)),{text:'A little starlight invites a fresh beginning.',whisper:'By tonight, a kind message may find its way to you.'});assert.equal(calls,2);
+  assert.deepEqual(await personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14')),{text:'A little starlight invites a fresh beginning.',whisper:'By tonight, a kind message may find its way to you.'});assert.equal(calls,2);
   calls=0;globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify({message:{content:'{"text":"A gentle light reminds you to follow your h"}'}}));};
-  await assert.rejects(personalOmen({},provider(()=>undefined,160)));assert.equal(calls,2);
+  await assert.rejects(personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14')));assert.equal(calls,2);
   const whispers=['Tonight you will definitely meet someone.','By tonight, Leo, a plan may shift.','By tonight, you are definitely going to get good news.','By tonight, a small plan may change for the better.'];
   calls=0;globalThis.fetch=async()=>{const whisper=whispers[calls++];return new Response(JSON.stringify({message:{content:JSON.stringify({text:'A little starlight invites a fresh beginning.',whisper})}}));};
-  await assert.rejects(personalOmen({},provider(()=>undefined,160)));assert.equal(calls,2,'an unrepaired whisper fails the omen closed');
-  assert.equal((await personalOmen({},provider(()=>undefined,160))).whisper,whispers[3]);assert.equal(calls,4,'certainty is repaired once');
+  await assert.rejects(personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14')));assert.equal(calls,2,'an unrepaired whisper fails the omen closed');
+  assert.equal((await personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14'))).whisper,whispers[3]);assert.equal(calls,4,'certainty is repaired once');
  }finally{globalThis.fetch=fetch;}
 });
 test('omen token cap leaves existing provider defaults unchanged',async()=>{
@@ -155,8 +156,8 @@ test('whispers outside character bounds repair once or fail closed before public
   for(const invalid of [long,'By tonight,a b c d.'])for(const repaired of [true,false]){
    let calls=0;
    globalThis.fetch=async()=>new Response(JSON.stringify({message:{content:JSON.stringify({text:'A little starlight invites a fresh beginning.',whisper:++calls===2&&repaired?valid:invalid})}}));
-   if(repaired)assert.equal((await personalOmen({},provider(()=>undefined,160))).whisper,valid);
-   else await assert.rejects(personalOmen({},provider(()=>undefined,160)));
+   if(repaired)assert.equal((await personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14'))).whisper,valid);
+   else await assert.rejects(personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14')));
    assert.equal(calls,2);
   }
  }finally{globalThis.fetch=original;}

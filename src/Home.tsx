@@ -7,6 +7,8 @@ import {haptic} from './native';
 import {Surface} from './Surface';
 import {Enter} from './Enter';
 import {AskOrb} from './AskOrb';
+import {localDay} from './retention';
+import {moonSvg,skyLine,skyOn} from './real-sky';
 
 // The floating glass tab bar: 68 pt tall, inset 14 pt from the sides and 18 pt from the bottom safe area.
 export const homeTabBarHeight=68;
@@ -19,7 +21,7 @@ const noScroll={touchAction:'none'} as object;
 // Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
 export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce,direction}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
  // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
- const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge;
+ const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge,sky=skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone);
  useEffect(()=>{if(omenFocus&&content.current)omenRef.current?.measureLayout(content.current,(_x,y)=>scroll.current?.scrollTo({y:Math.max(0,y+pad-48),animated:!reduce}))},[omenFocus]);
  // Content starts below the ball but scrolls all the way up, fading out beneath the header (under); touches above the
  // content pass through (box-none) so the ball stays the tap and spin target.
@@ -28,6 +30,7 @@ export function Home({ready,libraryLocked,onLibrary,checkIns,recap,omen,today,om
    <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
     <Txt display style={styles.hero}>What lies ahead?</Txt>
     <Txt style={styles.label}>Touch the ball to ask</Txt>
+    <View testID="tonight-sky" style={{flexDirection:'row',alignItems:'center',gap:6}}><SvgXml aria-hidden xml={moonSvg(sky.angle,colors.gold)} width={14} height={14}/><Txt style={styles.caption}>Tonight: {skyLine(sky)}</Txt></View>
    </View>
    {checkIns}
    {today}
@@ -78,11 +81,11 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
  return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} {...grip} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
 }
 
-export function OmenCard({busy,children,...props}:React.PropsWithChildren<{busy?:boolean;testID?:string;ref?:React.Ref<View>}>){
+export function OmenCard({busy,label='Today’s insight',children,...props}:React.PropsWithChildren<{busy?:boolean;label?:string;testID?:string;ref?:React.Ref<View>}>){
  return <View {...props} accessibilityState={{busy}} style={{padding:18,gap:10}}>
   <Surface kind="card">
   <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-   <Txt style={styles.label}>Today’s insight</Txt>
+   <Txt style={styles.label}>{label}</Txt>
    <Txt style={[styles.label,{color:colors.gold}]}>Free</Txt>
   </View>
   {children}

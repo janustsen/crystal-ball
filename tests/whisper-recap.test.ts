@@ -57,6 +57,7 @@ test('a whisper finished while Home was away survives the next day’s omen load
 });
 
 import {watchLocalDay} from '../src/retention';
+import {skyOn} from '../src/real-sky.ts';
 test('the recap’s local day advances at local midnight and on return to the app',t=>{
  t.mock.timers.enable({apis:['Date','setInterval'],now:new Date(2026,9,3,23,59,30)});
  const days:string[]=[];let foreground!:(state:string)=>void,removed=false;
@@ -78,9 +79,9 @@ test('an extra sentence in the whisper or omen is repaired once, then fails clos
  try{
   for(const extra of [{...good,whisper:'By tonight, a small plan may change. Keep an open mind.'},{...good,text:'A small door opens today. Walk through it.'}]){
    let calls=0;globalThis.fetch=async()=>reply(calls++===0?extra:good);
-   assert.deepEqual(await personalOmen({},provider(()=>undefined,160)),good,'the repair returns one sentence');assert.equal(calls,2);
+   assert.deepEqual(await personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14')),good,'the repair returns one sentence');assert.equal(calls,2);
    calls=0;globalThis.fetch=async()=>{calls++;return reply(extra)};
-   await assert.rejects(personalOmen({},provider(()=>undefined,160)));assert.equal(calls,2,'an unrepaired extra sentence fails closed');
+   await assert.rejects(personalOmen({},provider(()=>undefined,160),skyOn('2026-10-14')));assert.equal(calls,2,'an unrepaired extra sentence fails closed');
   }
   globalThis.fetch=async()=>Response.json({kind:'ok',value:{text:good.text,whisper:'By tonight, a small plan may change. Keep an open mind.'}});
   await assert.rejects(requestOmen({},{sunSign:null,ageConfirmed:true}),/Insight unavailable/,'the client boundary refuses it too');
