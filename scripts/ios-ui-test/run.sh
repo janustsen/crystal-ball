@@ -1,6 +1,6 @@
 #!/bin/bash
 # Native drive of the daily ritual and notifications in an iOS Simulator (no Apple account needed).
-# Usage: scripts/ios-ui-test/run.sh <simulator-udid> <CrystalBall.app> <metro-host:port> <out-dir>
+# Usage: scripts/ios-ui-test/run.sh <simulator-udid> <CrystalBall.app> <metro-host:port> <out-dir> [xcodebuild args, e.g. -only-testing:…]
 # Installs an existing simulator build fresh, points it at a Metro server for this checkout's JavaScript, builds only
 # the small UI-test bundle and runs it. Metro and the local engine (with Ollama) must already be running; start Metro
 # with EXPO_PUBLIC_ENGINE_URL set to the engine. The server push fires when the test signals it is ready.
@@ -16,4 +16,4 @@ xcrun simctl install "$udid" "$app"
 watcher=$!
 trap 'kill $watcher 2>/dev/null || true' EXIT
 cd "$root" && TEST_RUNNER_RITUAL_OUT="$out" TEST_RUNNER_RITUAL_METRO="$metro" xcodebuild test -workspace ios/CrystalBall.xcworkspace -scheme RitualUITests \
- -destination "id=$udid" -derivedDataPath .local/ui-test-build -resultBundlePath "$out/RitualUITests-$(date +%s).xcresult"
+ -destination "id=$udid" -derivedDataPath .local/ui-test-build -resultBundlePath "$out/RitualUITests-$(date +%s).xcresult" "${@:5}"

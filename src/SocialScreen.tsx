@@ -12,6 +12,7 @@ import type {Prediction,FriendTarget} from './types';
 import {accountSocialProfile,sampleStars,skyPrompts,socialUnavailable,validFirstName,type SkyPrompt} from './social-policy';
 import {setSkyPush,manageCircle,sendSeal,blockMember,blockStarAuthor,createCircle,createSchoolCircleInvite,dismissFriendNotices,inviteToCircle,joinCircle,leaveCircle,loadSocial,openForecast,prepareSocialDraft,publishStar,reactInCircle,removeStar,reportStar,resonate,revokeSeal,sealForecast,setFriendConsent,type SocialDraft,type SocialSnapshot} from './social';
 import {Surface} from './Surface';
+import {ritualOf} from './ritual';
 import {Enter} from './Enter';
 
 const skyStallMs=8000;
@@ -41,7 +42,7 @@ export function SealedCard({token,reduce,onAsk,webTrial=false}:{token:string;red
 }
 
 export function Social({onAsk,onBond,onPlus,invite,onInviteHandled,seal,reduce,requestedSection,requestId,aiConsent=''}:{requestedSection?:'sky'|'circles';requestId?:string;aiConsent?:string;onAsk:(question:string,friend?:boolean,target?:FriendTarget)=>void;onBond:(target:FriendTarget)=>void;onPlus:()=>void;invite?:string;onInviteHandled:()=>void;seal?:string;reduce:boolean}){
- const {state}=useStore();
+ const {state,update}=useStore();
  const profile=accountSocialProfile(state);
  const [schoolOnly,setSchoolOnly]=useState(false);
  const schoolInvites=useRef(new Map<string,string>()),consentRevision=useRef(0);
@@ -58,6 +59,9 @@ export function Social({onAsk,onBond,onPlus,invite,onInviteHandled,seal,reduce,r
   const stalled=setTimeout(()=>{if(active&&!loaded)setOffline(true)},skyStallMs);
   return()=>{active=false;clearInterval(timer);clearTimeout(stalled)};
  },[version,profile.plus,profile.ageBand,profile.sunSign,schoolOnly]);
+ // The phone's Friday fallback stays quiet while the server's Sky push is on, so the Sky never notifies twice.
+ const remoteSky=data?.profile?.sky_push;
+ useEffect(()=>{if(remoteSky!==undefined)update(s=>{const r=ritualOf(s);return !!r.notify.skyRemote===remoteSky?s:{...s,ritual:{...r,notify:{...r.notify,skyRemote:remoteSky}}}})},[remoteSky]);
  function skyPushSaved(enabled:boolean){
   consentRevision.current++;
   setData(current=>current?.profile?{...current,profile:{...current.profile,sky_push:enabled,sky_push_answered:true}}:current);
