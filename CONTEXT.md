@@ -53,6 +53,9 @@ A Forecast's headline sent sealed to a friend; the recipient opens it by tapping
 **Friend reading**:
 A Plus Reading about a Circle member, allowed only if that member turned on "friends can ask about me" (off by default). See the [social boundary](docs/social/model.md) for the subject and viewer context and anonymous notification contract.
 
+**Year ahead**:
+Twelve monthly Forecasts written and sealed together, kept on the Inner Library shelf. See [user flow and opening dates](README.md) and [purchase and entitlement rules](docs/launch/billing.md).
+
 **Golden forecast**:
 A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 in 10 with Plus. Cosmetic; never implies it is more likely to come true.
 

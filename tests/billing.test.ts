@@ -247,3 +247,44 @@ test('the unmetered loopback preview uses the device plan for golden odds',async
  assert.equal((await (await serve(ask({plus:true},''))).json()).value.golden,true);
  assert.equal((await (await serve(ask({},''))).json()).value.golden,false);
 });
+
+for(const kind of ['yearAhead','annual','weekly','monthly','five','twenty','off'])test(`mock ${kind} uses the server entitlement transaction`,async t=>{
+ const calls:any[]=[];
+ t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
+  const path=new URL(String(input)).pathname;
+  if(path==='/auth/v1/user')return Response.json({id:viewer});
+  if(path==='/rest/v1/rpc/reading_balance')return Response.json(balance());
+  assert.equal(path,'/rest/v1/rpc/apply_store_entitlements');
+  const body=JSON.parse(String(init?.body));calls.push(body);
+  return Response.json(balance({yearAhead:body.year_ahead_source??null}));
+ });
+ const send=(over:Record<string,string>)=>handler(env(over))(new Request('http://localhost/billing',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'simulate',kind})}));
+ assert.equal((await send({})).status,403);
+ assert.equal((await send({SOCIAL_MOCK_ENTITLEMENTS:'true',SUPABASE_URL:'https://example.supabase.co'})).status,403);
+ assert.equal(calls.length,0);
+ const response=await send({SOCIAL_MOCK_ENTITLEMENTS:'true'});
+ assert.equal(response.status,200);
+ const result=await response.json(),source=kind==='annual'?'yearly':kind==='yearAhead'?'purchase':undefined;
+ assert.equal(calls.length,1);assert.equal(calls[0].viewer,viewer);
+ assert.equal(calls[0].year_ahead_source,source);
+ assert.equal(result.yearAhead,source??null);
+ if(kind==='annual')assert.ok(Date.parse(calls[0].entitled_until)>Date.now());
+ if(kind==='yearAhead'){assert.equal(calls[0].entitled_until,null);assert.deepEqual(calls[0].purchases,[])}
+});
+
+test('Year ahead balances grant ownership, preserve same-owner months and reject local-only ownership',()=>{
+ const state:AccountState={sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-14',count:0},reduceMotion:false,largeText:false};
+ for(const source of ['purchase','yearly'] as const){
+  const b={...balance(),yearAhead:source};
+  assert.equal(validBalance(b),true);
+  const owned=withBalance(state,b);
+  assert.deepEqual(owned.yearAhead,{kind:'owned',source});
+  const sealed:AccountState={...owned,yearAhead:{kind:'sealed',source,sealedAt:'2026-10-14T09:00:00Z',months:[{id:'month',month:'2026-10',headline:'A new beginning.'}]}};
+  assert.equal(withBalance(sealed,b).yearAhead,sealed.yearAhead);
+  assert.deepEqual(withBalance(sealed,{...b,owner:'another'}).yearAhead,{kind:'owned',source});
+  assert.equal(withBalance(sealed,{...b,yearAhead:null}).yearAhead,undefined);
+  assert.equal(withBalance(sealed,balance()).yearAhead,undefined);
+ }
+ for(const yearAhead of [true,false,'annual',{},[]])assert.equal(validBalance({...balance(),yearAhead}),false);
+ assert.equal(validBalance({...balance(),yearAhead:null}),true);
+});

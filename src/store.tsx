@@ -69,7 +69,7 @@ export function Store({children}:React.PropsWithChildren){
    try{await authenticate()}finally{
     if(serverMetered){
      const owner=await anonymousOwner();
-     if(current.current.balanceSnapshot?.owner!==owner)change(s=>({...s,balanceSnapshot:undefined,plus:false,credits:0,usage:{day:new Date().toISOString().slice(0,10),count:0}}));
+     if(current.current.balanceSnapshot?.owner!==owner)change(s=>({...s,balanceSnapshot:undefined,yearAhead:undefined,plus:false,credits:0,usage:{day:new Date().toISOString().slice(0,10),count:0}}));
      const next=await balanced(current.current,await loadBalance());change(()=>next);
     }
    }
@@ -88,10 +88,12 @@ export function Store({children}:React.PropsWithChildren){
  async function forgetAll(){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
-   await writes.catch(()=>{});await uploads.catch(()=>{});await forgetOmen(AsyncStorage);
+   await writes.catch(()=>{});await uploads.catch(()=>{});
+   accountVersion.current++;
+   await forgetOmen(AsyncStorage);
    void forgetCheckIns().catch(()=>Alert.alert('Notification cleanup failed','Old check-ins may still appear. Please try Forget everything again.'));
    // The Ball asks progress restarts, but granted bonuses stay counted so re-answering never earns them twice.
-   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[],whispers:[],...(s.asks?{asks:{seen:[],skipped:[],insights:[],bonus:s.asks.bonus}}:{})}));
+   updateOmenWidget(null);change(s=>updateBirthday({...s,facts:{},history:[],whispers:[],yearAhead:s.yearAhead?{kind:'owned',source:s.yearAhead.source}:undefined,...(s.asks?{asks:{seen:[],skipped:[],insights:[],bonus:s.asks.bonus}}:{})}));
    await AsyncStorage.setItem(key,JSON.stringify(current.current));
    if(current.current.backupOwner&&canRead(current.current))await mirror(current.current);
   });

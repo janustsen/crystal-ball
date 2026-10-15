@@ -73,9 +73,9 @@ export function billing(env:Env){
  async function simulate(viewer:string,kind:unknown){
   if(env('SOCIAL_MOCK_ENTITLEMENTS')!=='true'||!['127.0.0.1','localhost','[::1]'].includes(new URL(base!).hostname))throw new BillingError('Test purchases are local-only.',403);
   const plan=plans.find(p=>p.kind===kind),pack=packs.find(p=>p.kind===kind);
-  if(!plan&&!pack&&kind!=='off')throw new BillingError('Choose a plan or pack.',400);
+  if(!plan&&!pack&&kind!=='off'&&kind!=='yearAhead')throw new BillingError('Choose a plan or pack.',400);
   const entitled_until=plan?new Date(Date.now()+periodDays[plan.period]*86400000).toISOString():kind==='off'?null:(await rpc('reading_balance',{viewer})).plusUntil;
-  return rpc('apply_store_entitlements',{viewer,entitled_until,purchases:pack?[{id:`mock:${crypto.randomUUID()}`,readings:pack.readings}]:[]});
+  return rpc('apply_store_entitlements',{viewer,entitled_until,purchases:pack?[{id:`mock:${crypto.randomUUID()}`,readings:pack.readings}]:[],...kind==='yearAhead'||kind==='annual'?{year_ahead_source:kind==='annual'?'yearly':'purchase'}:{}});
  }
  // The Ball asks: one bonus reading per 25 distinct bank questions answered. The claim sends ids rather than answers, so the
  // server checks the ids against the bank; each bonus number credits once per account, capped by the bank's size.

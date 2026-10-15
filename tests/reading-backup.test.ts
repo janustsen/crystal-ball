@@ -11,6 +11,8 @@ import * as retention from '../src/retention';
 import * as realSky from '../src/real-sky';
 import * as whisper from '../src/whisper';
 import * as ritual from '../src/ritual';
+import {monthsFrom,openedReading,shelf,type YearAhead} from '../src/year-ahead';
+import * as yearAhead from '../src/year-ahead';
 import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
 import * as webReading from '../src/web-reading';
@@ -56,6 +58,31 @@ async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals
  render();await tick();render();await tick();
  return {render,card,warnings,uploads,state:()=>JSON.parse(disk),fail:()=>{blocking=false;fail(new Error('backup offline'))}};
 }
+
+for(const source of ['purchase','yearly'] as const)for(const sealed of [false,true])test(`forget erases Year ahead and rejects late content (${source}, sealed=${sealed})`,async()=>{
+ const year:Extract<YearAhead,{kind:'sealed'}>={kind:'sealed',source,sealedAt:'2026-10-14T09:00:00Z',months:monthsFrom('2026-10-14').map((month,i)=>({month,id:`month-${i}`,headline:`Personal forecast ${i}`}))};
+ const reading=openedReading(year,year.months[0]);
+ const f=await fixture(false,{}, {},{backupOwner:undefined,yearAhead:sealed?year:{kind:'owned',source},history:sealed?[reading]:[]});
+ const earlier=f.render();
+ let finish!:()=>void;
+ const pending=new Promise<void>(resolve=>{finish=resolve}).then(()=>earlier.update((s:any)=>({...s,yearAhead:year})));
+ await earlier.forgetAll();
+ finish();await pending;
+ earlier.update((s:any)=>readings.saveReading(s,reading,undefined,false));
+ const forgotten=f.render().state;
+ assert.deepEqual(f.state().yearAhead,{kind:'owned',source});
+ assert.equal(forgotten.yearAhead.kind,'owned');
+ assert.equal(forgotten.history.length,0);
+ assert.deepEqual(shelf(forgotten.yearAhead,forgotten.history,'2026-11-01'),[]);
+ assert.deepEqual(ritual.planNotifications(forgotten,new Date('2026-10-14T10:00:00')),[]);
+ f.render().update((s:any)=>({...s,yearAhead:year}));
+ const resealed=f.render();
+ assert.equal(resealed.state.yearAhead.kind,'sealed');
+ resealed.update((s:any)=>readings.saveReading(s,reading,undefined,false));
+ f.render();await tick();
+ assert.equal(f.state().history[0].id,reading.id);
+ assert.equal(f.state().yearAhead.months.length,12);
+});
 
 for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps its ask key and survives backup failure`,async()=>{
  const f=await fixture(),h=hooks(false),params:any={};
@@ -539,6 +566,15 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  assert.equal(cleared,1);assert.equal(subscriptions,1);
  await tick();assert.ok(alerts.length>0);assert.ok(alerts.every(title=>title==='Notification update failed'));
  failScheduling=false;
+ render();
+ const beforeSeal=scheduled.length;
+ const year:Extract<YearAhead,{kind:'sealed'}>={kind:'sealed',source:'purchase',sealedAt:'2026-10-14T09:00:00Z',months:monthsFrom('2026-10-14').map((month,i)=>({month,id:`month-${i}`,headline:'A new beginning.'}))};
+ f.render().update((s:any)=>({...s,yearAhead:year}));render();
+ assert.equal(scheduled.length,beforeSeal+1);
+ assert.ok(ritual.planNotifications(scheduled.at(-1),new Date('2026-10-14T10:00:00')).some(p=>p.id==='ritual-2026-11-01-year-ahead'));
+ await f.render().forgetAll();render();
+ assert.equal(scheduled.length,beforeSeal+2);
+ assert.ok(!ritual.planNotifications(scheduled.at(-1),new Date('2026-10-14T10:00:00')).some(p=>p.data.ritual==='year-ahead'));
  const before=scheduled.length;
  onActive!('background');render();assert.equal(scheduled.length,before);
  onActive!('active');render();
@@ -701,4 +737,98 @@ test('a tapped answer holds its highlight, ignores repeat taps and drops when Ba
  await press('look-into-the-future');
  await press('option-0');await elapse();await press('option-1');await elapse();
  assert.equal(predicts,1,'the last held answer reveals once its beat ends');
+});
+
+for(const mode of ['success','refused','store'] as const)test(`Year ahead shelf metered purchase: ${mode}`,async()=>{
+ const f=await fixture(false,{}, {},{backupOwner:undefined}),h=hooks(false);
+ let purchaseCalls=0,generations=0,finish!:(balance:billing.Balance)=>void;
+ const purchase=new Promise<billing.Balance>(resolve=>{finish=resolve});
+ const component=load('../src/YearAheadShelf.tsx',{
+  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},
+  './store':{useStore:f.render},'./api':{serverMetered:true,aiProvider:'',simulatePurchase:async(kind:string)=>{assert.equal(kind,'yearAhead');purchaseCalls++;if(mode==='refused')throw new Error('Test purchases are local-only.');return purchase},requestYearAhead:async()=>{generations++;assert.equal(f.render().state.yearAhead.kind,'owned');return monthsFrom('2026-10-14').map(month=>({month,headline:'A new beginning.'}))}},
+  './purchases':{purchaseMode:mode==='store'?'store':'mock'},'./billing':billing,
+  './reading-history':readings,'./retention':retention,'./year-ahead':yearAhead,'./uuid':{uuid:()=>crypto.randomUUID()},
+  './ui':{Action:'Action',CardHeader:'CardHeader',Txt:'Txt',colors:{},styles:{}},'./Surface':{Surface:'Surface'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+ },[],{React:h.react,Error});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(()=>component.YearAheadShelf({onOpen(){}})));
+ const buy=render().find(n=>n.props.testID==='year-ahead-buy');
+ if(mode==='store'){assert.equal(buy,undefined);assert.ok(render().some(n=>n.children.includes('Coming soon to the App Store.')));return}
+ const pending=buy.props.onPress();
+ assert.equal(f.render().state.yearAhead,undefined);
+ assert.equal(generations,0);
+ finish({owner:'owner',asOf:stamp(10),plus:false,plusUntil:null,packs:2,used:1,day:'2026-10-14',yearAhead:'purchase'});
+ await pending;await tick();
+ assert.equal(purchaseCalls,1);
+ if(mode==='refused'){
+  assert.equal(generations,0);assert.equal(f.render().state.yearAhead,undefined);
+  assert.ok(render().some(n=>n.children.includes('Test purchases are local-only.')));
+ }else{
+  assert.equal(generations,1);assert.equal(f.render().state.yearAhead.kind,'sealed');
+  assert.equal(f.render().state.yearAhead.months.length,12);
+  assert.equal(f.render().state.credits,2);
+ }
+});
+
+test('Year ahead request sends the metered session to the engine',async()=>{
+ let sent:any;
+ const api=load('../src/api.ts',{
+  './retention':retention,'./ball-asks':ballAsks,'./billing':billing,'./daily-omen':{},'./web-reading':webReading,
+  './cloud':{authorization:async()=>({Authorization:'Bearer viewer-token'})},
+ },[],{AbortSignal,process:{env:{EXPO_PUBLIC_SUPABASE_URL:'http://localhost:54321',EXPO_PUBLIC_SUPABASE_ANON_KEY:'test'}},fetch:async(_url:string,init:any)=>{sent=init;return Response.json({kind:'ok',value:{months:monthsFrom('2026-10-14').map(month=>({month,headline:'A new beginning.'}))}})}});
+ assert.equal((await api.requestYearAhead({}, {sunSign:null},'', '2026-10-14')).length,12);
+ assert.equal(sent.headers.Authorization,'Bearer viewer-token');
+ assert.equal(JSON.parse(sent.body).action,'year');
+});
+
+for(const mode of ['refresh','account-change','save-failure','entitlement-loss'] as const)test(`Year ahead waits for archive persistence: ${mode}`,async t=>{
+ const storeHooks=hooks(),h=hooks(false);
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-14',count:0},yearAhead:{kind:'owned',source:'yearly'},balanceSnapshot:{owner:'owner',asOf:stamp(1)}});
+ let pause=false,release!:()=>void,entered!:()=>void;
+ const blocked=new Promise<void>(resolve=>{release=resolve}),writing=new Promise<void>(resolve=>{entered=resolve});
+ t.after(()=>release());
+ const store=load('../src/store.tsx',{
+  react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,'./api':{},
+  './cloud':{anonymousOwner:async()=>'owner',restoreBackup:async(s:any)=>s},
+  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{
+   if(pause){entered();await blocked}
+   if(mode==='save-failure'&&JSON.parse(value).yearAhead?.kind==='sealed')throw new Error('Archive write failed');
+   disk=value;
+  }},
+ },[],{Error});
+ const renderStore=()=>storeHooks.render(()=>store.Store({})).props.value;
+ renderStore();await tick();renderStore();await tick();
+ let finish!:(months:{month:string;headline:string}[])=>void;
+ const generated=new Promise<{month:string;headline:string}[]>(resolve=>{finish=resolve});
+ const component=load('../src/YearAheadShelf.tsx',{
+  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},'./store':{useStore:renderStore},
+  './api':{serverMetered:true,aiProvider:'',requestYearAhead:()=>generated},'./purchases':{purchaseMode:'mock'},'./billing':billing,
+  './reading-history':readings,'./retention':retention,'./year-ahead':yearAhead,'./uuid':{uuid:()=>crypto.randomUUID()},
+  './ui':{Action:'Action',CardHeader:'CardHeader',Txt:'Txt',colors:{},styles:{}},'./Surface':{Surface:'Surface'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+ },[],{React:h.react,Error});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(()=>component.YearAheadShelf({onOpen(){}})));
+ const notice=()=>render().find(n=>n.props.testID==='year-ahead-notice')?.children.join('')??'';
+ render().find(n=>n.props.testID==='year-ahead-seal').props.onPress();
+ pause=true;
+ const refreshing=renderStore().applyBalance({owner:'owner',asOf:stamp(2),plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-14',yearAhead:mode==='entitlement-loss'?null:'yearly'});
+ await writing;
+ const replacing=mode==='account-change'?renderStore().backup('restore',async()=>{}):Promise.resolve();
+ finish(monthsFrom('2026-10-14').map(month=>({month,headline:'A new beginning.'})));await tick();
+ assert.equal(renderStore().backupBusy,true);
+ assert.equal(JSON.parse(disk).yearAhead.kind,'owned');
+ assert.equal(notice(),'');
+ pause=false;release();await refreshing;await replacing;await tick();
+ const saved=JSON.parse(disk);
+ if(mode==='refresh'){
+  assert.equal(saved.yearAhead.kind,'sealed');assert.equal(saved.yearAhead.months.length,12);
+  assert.equal(renderStore().state.yearAhead.kind,'sealed');
+  assert.match(notice(),/Your twelve months are sealed/);
+ }else if(mode==='entitlement-loss'){
+  assert.equal(saved.yearAhead,undefined);assert.equal(renderStore().state.yearAhead,undefined);
+  assert.match(notice(),/Your year ahead changed/);
+ }else{
+  assert.equal(saved.yearAhead.kind,'owned');assert.equal(renderStore().state.yearAhead.kind,'owned');
+  assert.match(notice(),mode==='account-change'?/Your account changed/:/Archive write failed/);
+ }
 });

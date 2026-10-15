@@ -1,4 +1,5 @@
 import type {Ritual} from './ritual.ts';
+import type {YearAhead} from './year-ahead.ts';
 export type Facts = Record<string, string>;
 export type Topic = 'money' | 'learning' | 'relocation' | 'growth' | 'sports' | 'world' | 'general';
 export type Card = { id: string; question: string; options: string[]; remember: boolean };
@@ -22,4 +23,4 @@ export type InsightKind = 'portrait' | 'enjoy' | 'try' | 'shift';
 export type Insight = {kind: InsightKind; title: string; text: string; at: string};
 // The Ball asks progress: question ids ever answered (cleared by Forget everything), skipped ids, insights received and bonus readings granted.
 export type Asks = {seen: string[]; skipped: string[]; insights: Insight[]; bonus: number};
-export type AccountState = { balanceSnapshot?: {owner:string;asOf:string}; backupOwner?: string; birthday?: string; sunSign: string|null; ageBand: 'teen'|'adult'|null; birthTime?: string; birthPlace?: string; moonSign?: string; risingSign?: string; chartWeather?: {month:string;text:string}; narrationMuted?: boolean; ageConfirmed?: boolean; onboardingBlocked?: boolean; onboardingDone?: boolean; tourSeen?: boolean; facts: Facts; history: Prediction[]; whispers?: Whisper[]; credits: number; plus: boolean; usage: { day: string; count: number }; reduceMotion: boolean; ambientSound?: boolean; ballStyle?: BallStyle; cardStyle?: CardStyle; largeText: boolean; asks?: Asks; aiConsent?: string; ritual?: Ritual };
+export type AccountState = { balanceSnapshot?: {owner:string;asOf:string}; backupOwner?: string; birthday?: string; sunSign: string|null; ageBand: 'teen'|'adult'|null; birthTime?: string; birthPlace?: string; moonSign?: string; risingSign?: string; chartWeather?: {month:string;text:string}; narrationMuted?: boolean; ageConfirmed?: boolean; onboardingBlocked?: boolean; onboardingDone?: boolean; tourSeen?: boolean; facts: Facts; history: Prediction[]; whispers?: Whisper[]; credits: number; plus: boolean; usage: { day: string; count: number }; reduceMotion: boolean; ambientSound?: boolean; ballStyle?: BallStyle; cardStyle?: CardStyle; largeText: boolean; asks?: Asks; aiConsent?: string; ritual?: Ritual; yearAhead?: YearAhead };

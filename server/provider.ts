@@ -20,7 +20,7 @@ export function validatedProvider(complete:(messages:ModelMessage[],schema:JsonS
 }
 
 // The shared/deployed factory deliberately cannot launch a local CLI.
-export function provider(env:(key:string)=>string|undefined,maxTokens?:number):ModelProvider {
+export function provider(env:(key:string)=>string|undefined,maxTokens?:number,timeoutMs=45000):ModelProvider {
  const mode=env('MODEL_PROVIDER')||'ollama';
  if(!['ollama','hosted'].includes(mode))throw new Error('Unknown model provider.');
  const hosted=mode==='hosted';
@@ -37,7 +37,7 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number):M
       model, messages, temperature: 0, max_tokens: maxTokens ?? 1200, stream: false,
       response_format: {type: 'json_schema', json_schema: {name: 'result', strict: true, schema}},
     } : {model: env('OLLAMA_MODEL') || 'qwen3:4b-instruct-2507-q4_K_M', messages, stream: false, think: false, format: schema, options: {temperature: 0, num_predict: maxTokens ?? 600}};
-    const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: JSON.stringify(body), signal: signal ? AbortSignal.any([AbortSignal.timeout(45000), signal]) : AbortSignal.timeout(45000)});
+    const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: JSON.stringify(body), signal: signal ? AbortSignal.any([AbortSignal.timeout(timeoutMs), signal]) : AbortSignal.timeout(timeoutMs)});
     if (!response.ok) throw new Error(`Model unavailable (${response.status}).`);
     const raw = await response.json();
     return hosted ? raw.choices?.[0]?.message?.content : raw.message?.content;

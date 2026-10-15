@@ -1,5 +1,6 @@
 import type {AccountState} from './types.ts';
 import {checkInDate,localDay,suggestedCheckIn} from './retention.ts';
+import {yearAheadCandidates} from './year-ahead.ts';
 
 // The daily ritual: a few small steps a day; finishing them lights a star, and seven stars draw a constellation.
 // Nothing resets or counts down: a missed day only leaves a gap in the sky.
@@ -77,9 +78,9 @@ export type Candidate={id:string;day:string;slot:Slot;priority:number;title:stri
  // Weekly beats (such as a Sunday recap) still send once daily notifications have backed off to weekly.
  weekly?:boolean};
 export type Planned={id:string;at:Date;title:string;body:string;data:Record<string,string>};
-export type PlanContext={state:Pick<AccountState,'ritual'|'sunSign'|'history'>;now:Date;horizon:number};
+export type PlanContext={state:Pick<AccountState,'ritual'|'sunSign'|'history'|'yearAhead'>;now:Date;horizon:number};
 export type NotificationSource=(context:PlanContext)=>Candidate[];
-const notificationSources:NotificationSource[]=[dailyCandidates,checkInCandidates];
+const notificationSources:NotificationSource[]=[dailyCandidates,checkInCandidates,yearAheadCandidates];
 // Other features (a whisper, a weekly recap) register a source of candidates. The planner applies the two-a-day cap,
 // quiet hours, check-in days and back-off to every source alike, so a source only proposes. Returns an unregister.
 export function registerNotifications(source:NotificationSource){
