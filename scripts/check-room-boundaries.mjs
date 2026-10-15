@@ -6,7 +6,7 @@ const results=[];
 async function scrollAndTap(page,control){
  await control.evaluate(el=>{
   for(let parent=el.parentElement;parent;parent=parent.parentElement){
-   if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
+   if(parent.dataset.testid==='ask-content'||['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
     parent.scrollTop=parent.scrollHeight;
     return;
    }
@@ -15,7 +15,7 @@ async function scrollAndTap(page,control){
  });
  const bounds=await control.evaluate(el=>{
   for(let parent=el.parentElement;parent;parent=parent.parentElement){
-   if(['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
+   if(parent.dataset.testid==='ask-content'||['auto','scroll'].includes(getComputedStyle(parent).overflowY)){
     const rect=parent.getBoundingClientRect();
     return {top:rect.top,height:rect.height};
    }
@@ -44,13 +44,14 @@ try{
    ]}}}));
    await page.goto(base,{timeout:120000});
    await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+   await page.getByTestId('tour-skip').click();
    await page.getByTestId('hero-orb').waitFor();
    await page.waitForTimeout(2500);
    await expect.poll(()=>page.locator('video').count()).toBe(failed?0:1);
    await scrollAndTap(page,page.getByTestId('room-inner-library'));
    await expect(page.getByTestId('hero-orb')).toHaveCount(0);
    await page.getByTestId('tab-home').click();
-   await page.getByTestId(page.viewportSize().height>=800?'hero-orb':'tab-ask').click();await page.getByTestId('type-instead').click();
+   await page.getByTestId(page.viewportSize().height>=667?'hero-orb':'tab-ask').click();await page.getByTestId('type-instead').click();
    const input=page.getByTestId('question-input');
    await input.fill('Will I finish my draft?');
    await scrollAndTap(page,input);

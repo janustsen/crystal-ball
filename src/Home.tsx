@@ -1,5 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {Platform,Pressable,ScrollView,View,type GestureResponderEvent} from 'react-native';
+import {Animated,Easing,Platform,Pressable,ScrollView,View,type GestureResponderEvent} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {type BallSpin} from './RoomScene';
 import {Txt,RowLink,EdgeFade,colors,fonts,styles} from './ui';
@@ -71,6 +71,22 @@ export function RoomHeader({title,count,ready,reduce,onPlans,onSettings,settings
    </Pressable>
   </View>
  </View>;
+}
+
+// Home's short-screen room offset. The room, the ball's touch target and Home's content (laid out unshifted) each sit in
+// one, starting identical eases in the same render, so the drawn ball never leaves its target, content never crosses it
+// mid-move, and tab changes or notices never snap the room.
+export function Shift({offset,reduce,children}:React.PropsWithChildren<{offset?:number;reduce:boolean}>){
+ const y=useRef(new Animated.Value(offset??0)).current,placed=useRef(offset!==undefined);
+ useEffect(()=>{
+  // Before the first layout there is no offset to ease from, so the first measured one is placed directly.
+  if(offset===undefined)return;
+  if(reduce||!placed.current){placed.current=true;y.stopAnimation();y.setValue(offset);return}
+  const move=Animated.timing(y,{toValue:offset,duration:450,easing:Easing.inOut(Easing.ease),useNativeDriver:Platform.OS!=='web'});
+  move.start();
+  return()=>move.stop();
+ },[offset,reduce]);
+ return <Animated.View pointerEvents="box-none" style={{position:'absolute',left:0,top:0,right:0,bottom:0,transform:[{translateY:y}]}}>{children}</Animated.View>;
 }
 
 // The room ball's touch target: a drag spins the live ball, a tap reads (Home) or asks (Ask, once the question is ready).

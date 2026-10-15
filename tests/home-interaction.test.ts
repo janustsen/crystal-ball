@@ -41,6 +41,34 @@ function component(file:string,imports:Record<string,any>,effectsEnabled=true){
 }
 const nodes=(node:any):any[]=>Array.isArray(node)?node.flatMap(nodes):!node||typeof node!=='object'?[]:[node,...(node.children??[]).flatMap(nodes)];
 
+test('the room and ball-target Shifts ease together to a new Home offset, and reduced motion moves them at once',()=>{
+ const moves:any[]=[],sets:number[]=[];
+ class Value{constructor(public value:number){}setValue(value:number){this.value=value;sets.push(value)}stopAnimation(){}}
+ const imports={
+  ...sky,
+  'react-native':{Platform:{OS:'ios'},Animated:{Value,View:'Animated.View',timing:(value:Value,config:any)=>({start(){moves.push({value,...config})},stop(){}})},
+   Easing:{ease:'ease',inOut:(easing:string)=>`inOut(${easing})`},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
+  './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './delight':{selectedStyle:()=>'classic'},'./native':{haptic:()=>{}},
+ };
+ const shifts=[component('../src/Home.tsx',imports),component('../src/Home.tsx',imports)];
+ for(const render of shifts)render('Shift',{offset:0,reduce:false});
+ moves.length=0;
+ const trees=shifts.map(render=>render('Shift',{offset:-107,reduce:false}));
+ assert.deepEqual(moves.map(({value,...config})=>config),[0,1].map(()=>({toValue:-107,duration:450,easing:'inOut(ease)',useNativeDriver:true})));
+ trees.forEach((tree,i)=>assert.equal(tree.props.style.transform[0].translateY,moves[i].value,'each wrapper moves by its eased value'));
+ moves.length=0;
+ for(const render of shifts)render('Shift',{offset:0,reduce:true});
+ assert.deepEqual(moves,[]);
+ assert.deepEqual(sets,[0,0]);
+ // Before layout the offset is unknown: the first measured one is placed, not eased from zero.
+ const early=component('../src/Home.tsx',imports);
+ early('Shift',{reduce:false});early('Shift',{offset:-107,reduce:false});
+ assert.deepEqual(moves,[]);
+ assert.deepEqual(sets,[0,0,-107]);
+});
+
 test('Home hero supplies touch feedback before invoking Ask, and a drag spins the ball instead',()=>{
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
