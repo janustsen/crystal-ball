@@ -9,6 +9,7 @@ import {claimAskBonus,requestInsight,serverMetered} from './api';
 import {askBonuses,answersPerBonus} from './billing';
 import {answerAsk,areaLabels,askFor,asksOf,bonusDue,insightDue,insightEvery,nextAsk,nextInsightKind,reflection,selfAnswers,skipAsk,teenSafe} from './ball-asks';
 import type {Insight,InsightKind} from './types';
+import {portraitCard,type StoryCard} from './story-card';
 
 const kindLabels:Record<InsightKind,string>={portrait:'Your portrait',enjoy:'You might enjoy',try:'Something to try',shift:'One small shift'};
 
@@ -28,7 +29,7 @@ export function useBallAsks(onNotice:(text:string,done?:boolean)=>void){
 }
 
 // aiConsent is null while AI processing still needs the user's permission in Ask.
-export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;reduce:boolean;onNotice:(text:string,done?:boolean)=>void}){
+export function BallAsks({aiConsent,reduce,onNotice,onShare}:{aiConsent:string|null;reduce:boolean;onNotice:(text:string,done?:boolean)=>void;onShare?:(card:StoryCard)=>void}){
  const {state,update,saveAskProgress}=useStore(),{teen,progress,next,answer,skip,bonusPending,bonusFailed,retryBonus}=useBallAsks(onNotice);
  const [status,setStatus]=useState<'idle'|'forming'|'failed'>('idle'),[fresh,setFresh]=useState<Insight|null>(null),[deferredAt,setDeferredAt]=useState(-1),[attempt,setAttempt]=useState(0),[tapped,setTapped]=useState(false),[answersOpen,setAnswersOpen]=useState(false);
  const answered=progress.seen.length,mine=selfAnswers(state.facts,teen);
@@ -44,9 +45,10 @@ export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;redu
   }).catch(()=>{if(active)setStatus('failed')});
   return()=>{active=false;setStatus('idle')};
  },[owed,progress.insights.length,fresh,aiConsent,attempt]);
+ const share=(insight:Insight,testID?:string)=>{const card=portraitCard(insight);return card&&onShare?<Pressable testID={testID} accessibilityRole="button" onPress={()=>onShare(card)} style={{minHeight:44,justifyContent:'center',marginTop:8}}><Txt style={{color:colors.ice}}>Share your portrait ↗</Txt></Pressable>:null};
  const untilInsight=insightEvery-answered%insightEvery,untilBonus=answersPerBonus-answered%answersPerBonus;
  function moment(){
-  if(fresh)return <Enter key={fresh.at} kind="reveal" reduce={reduce}><View testID="ask-insight" style={styles.panel}><Surface kind="card" state="selected"><Txt style={[styles.label,{color:colors.gold}]}>{`${kindLabels[fresh.kind]} · free insight`}</Txt><Txt display accessibilityRole="header" style={[styles.hero,{marginTop:10}]}>{fresh.title}</Txt><Txt accessibilityLiveRegion="polite" style={{marginTop:10}}>{fresh.text}</Txt><Action testID="ask-keep-going" label="Keep going" onPress={()=>setFresh(null)}/></Surface></View></Enter>;
+  if(fresh)return <Enter key={fresh.at} kind="reveal" reduce={reduce}><View testID="ask-insight" style={styles.panel}><Surface kind="card" state="selected"><Txt style={[styles.label,{color:colors.gold}]}>{`${kindLabels[fresh.kind]} · free insight`}</Txt><Txt display accessibilityRole="header" style={[styles.hero,{marginTop:10}]}>{fresh.title}</Txt><Txt accessibilityLiveRegion="polite" style={{marginTop:10}}>{fresh.text}</Txt>{share(fresh,'ask-share-portrait')}<Action testID="ask-keep-going" label="Keep going" onPress={()=>setFresh(null)}/></Surface></View></Enter>;
   if(!owed)return null;
   const later=<Action testID="ask-insight-later" label="Keep answering" quiet onPress={()=>{setDeferredAt(answered);setStatus('idle')}}/>;
   if(aiConsent===null)return <View style={styles.panel}><Surface kind="card"><Txt>Your insight is ready to form.</Txt><Txt style={styles.caption}>Allow AI processing in Ask to receive it.</Txt>{later}</Surface></View>;
@@ -68,7 +70,7 @@ export function BallAsks({aiConsent,reduce,onNotice}:{aiConsent:string|null;redu
    <View accessibilityRole="radiogroup" style={{marginTop:14,flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:8}}>{next.options.map((option,i)=><Pressable testID={`ask-option-${i}`} key={option} accessibilityRole="radio" aria-checked={false} accessibilityState={{checked:false}} onPress={()=>{setTapped(true);answer(next.id,option)}} style={{minHeight:52,paddingHorizontal:18,paddingVertical:12}}><Surface kind="chip"><Txt style={{fontSize:17,lineHeight:24,textAlign:'center'}}>{option}</Txt></Surface></Pressable>)}</View>
    <Pressable testID="ask-skip" accessibilityRole="button" onPress={()=>skip(next.id)} style={{minHeight:44,justifyContent:'center',alignItems:'center',marginTop:6}}><Txt style={{color:colors.ice}}>Skip</Txt></Pressable>
   </View></Enter>:<View style={styles.panel}><Surface kind="card"><Txt display style={styles.heading}>You’ve answered every question the Ball has, for now.</Txt></Surface></View>)}
-  {progress.insights.length?<><Txt display style={[styles.heading,{marginBottom:8,marginTop:32}]}>Your insights</Txt>{[...progress.insights].reverse().map(item=><View key={item.at} style={styles.panel}><Surface kind="card"><CardHeader title={item.title} label={kindLabels[item.kind]}/><Txt style={{marginTop:8}}>{item.text}</Txt></Surface></View>)}</>:null}
+  {progress.insights.length?<><Txt display style={[styles.heading,{marginBottom:8,marginTop:32}]}>Your insights</Txt>{[...progress.insights].reverse().map(item=><View key={item.at} style={styles.panel}><Surface kind="card"><CardHeader title={item.title} label={kindLabels[item.kind]}/><Txt style={{marginTop:8}}>{item.text}</Txt>{share(item)}</Surface></View>)}</>:null}
   {mine.length?<><Pressable testID="ask-answers" accessibilityRole="button" aria-expanded={answersOpen} accessibilityState={{expanded:answersOpen}} onPress={()=>setAnswersOpen(!answersOpen)} style={{minHeight:48,justifyContent:'center',marginTop:24}}><Txt style={{color:colors.ice}}>{`${answersOpen?'Hide':'Change or forget'} your answers (${mine.length}) ${answersOpen?'⌃':'⌄'}`}</Txt></Pressable>
    {answersOpen?mine.map(({key,question,answer:value})=><View key={key} style={styles.panel}><Surface kind="card"><Txt style={styles.caption}>{question}</Txt><View style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:8}}>{askFor(key)!.options.map(option=><Pressable key={option} accessibilityRole="radio" aria-checked={option===value} accessibilityState={{checked:option===value}} onPress={()=>answer(askFor(key)!.id,option)} style={{minHeight:44,paddingHorizontal:14,paddingVertical:10}}><Surface kind="chip" state={option===value?'selected':undefined}><Txt style={styles.chip}>{option}</Txt></Surface></Pressable>)}</View><Pressable accessibilityRole="button" accessibilityLabel={`Forget ${question}`} onPress={()=>update(s=>{const facts={...s.facts};delete facts[key];return {...s,facts}})} style={{minHeight:44,justifyContent:'center',marginTop:4}}><Txt style={{color:colors.muted}}>Forget</Txt></Pressable></Surface></View>):null}</>:null}
  </View>;

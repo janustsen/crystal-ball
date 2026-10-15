@@ -8,6 +8,7 @@ import {motion} from './motion';
 import type {Facts} from './types';
 import {aboutYou} from './ball-asks';
 import {Surface} from './Surface';
+import {heardFromSources,type HeardFrom} from './heard-from';
 
 const native=Platform.OS!=='web';
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 0c.9 6.6 4.4 10.4 12 12-7.6 1.6-11.1 5.4-12 12-.9-6.6-4.4-10.4-12-12 7.6-1.6 11.1-5.4 12-12z"/></svg>';
@@ -28,7 +29,8 @@ function Sparkle({x,y,size,delay,reduce}:{x:number;y:number;size:number;delay:nu
 }
 
 // First launch: "I know your future." glints in, then a sheet rises asking for a birthday, then three optional one-tap questions.
-export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFinish:(facts:Facts,ageConfirmed:boolean|undefined,answers:Record<string,string>)=>void;onBlock:()=>void;blocked?:boolean;reduce?:boolean}){
+export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}:{onFinish:(facts:Facts,ageConfirmed:boolean|undefined,answers:Record<string,string>)=>void;onBlock:()=>void;onHeard?:(source:HeardFrom)=>void;blocked?:boolean;reduce?:boolean}){
+ const [heard,setHeard]=useState<HeardFrom|null>(null);
  const [sheet,setSheet]=useState(reduce||blocked),[parts,setParts]=useState<BirthdayParts>(['','','']),[error,setError]=useState(''),[confirming,setConfirming]=useState(false),[sheetHeight,setSheetHeight]=useState(0);
  const [about,setAbout]=useState<{facts:Facts;ageConfirmed?:boolean}|null>(null),[answers,setAnswers]=useState<Record<string,string>>({});
  const line=useRef(new Animated.Value(reduce?1:0)).current,rise=useRef(new Animated.Value(sheet?1:0)).current;
@@ -91,7 +93,7 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
       <Txt style={{textAlign:'center'}}>{ask.question}</Txt>
       <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{ask.options.map((option,i)=>{const on=answers[ask.id]===option;return <Pressable key={option} testID={`about-${ask.id}-${i}`} accessibilityRole="radio" aria-checked={on} accessibilityState={{checked:on}} onPress={()=>pick(ask.id,option)} style={{minHeight:44,paddingHorizontal:14,paddingVertical:10}}><Surface kind="chip" state={on?'selected':undefined}><Txt style={styles.chip}>{option}</Txt></Surface></Pressable>})}</View>
      </View>)}
-     <Action testID="about-done" label={Object.keys(answers).length?'Continue':'Skip for now'} quiet={!Object.keys(answers).length} onPress={()=>onFinish(about.facts,about.ageConfirmed,answers)}/>
+     <Action testID="about-done" label={Object.keys(answers).length?'Continue':'Skip for now'} quiet={!Object.keys(answers).length} onPress={()=>{if(heard)onHeard?.(heard);onFinish(about.facts,about.ageConfirmed,answers)}}/>
     </>:<>
      {blocked?<Txt accessibilityRole="alert" style={{marginBottom:8}}>Crystal Ball is for ages 13 and up.</Txt>:null}
      <Txt display style={[styles.hero,{textAlign:'center'}]}>What’s your birthday?</Txt>
@@ -102,6 +104,10 @@ export function Onboarding({onFinish,onBlock,blocked=false,reduce=false}:{onFini
       </View>)}
      </View>
      <Txt style={[styles.caption,{textAlign:'center',marginTop:12}]}>Sets your Sun sign. 13 and up.</Txt>
+    {blocked?null:<View accessibilityRole="radiogroup" accessibilityLabel="Where did you hear about us? Optional" style={{marginTop:14}}>
+     <Txt style={[styles.caption,{textAlign:'center'}]}>Where did you hear about us? Optional.</Txt>
+     <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{heardFromSources.map(source=><Pressable key={source} testID={`heard-${source.toLowerCase().replace(/\W+/g,'-')}`} accessibilityRole="radio" aria-checked={heard===source} accessibilityState={{checked:heard===source}} onPress={()=>setHeard(heard===source?null:source)} style={{minHeight:44,paddingVertical:10,paddingHorizontal:12,justifyContent:'center'}}><Surface kind="chip" state={heard===source?'selected':undefined}><Txt style={styles.chip}>{source}</Txt></Surface></Pressable>)}</View>
+    </View>}
      {error?<Txt accessibilityRole="alert" style={[styles.caption,{color:colors.gold,textAlign:'center',marginTop:8}]}>{error}</Txt>:null}
      <Action label="Continue" onPress={next}/>
      <Pressable testID="skip-for-now" accessibilityRole="button" aria-disabled={blocked} disabled={blocked} onPress={skip} style={{minHeight:44,justifyContent:'center',opacity:blocked?.5:1}}><Txt style={[styles.caption,{textAlign:'center'}]}>Skip for now</Txt></Pressable>

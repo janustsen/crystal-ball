@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import {missingWebOrigin,webAddress} from '../src/social-links';
 
 test('recording locks the question setting until recording completes or fails',async()=>{
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const slots:any[]=[];let cursor=0,reject!:(error:Error)=>void;
  const loading=new Promise<void>((_resolve,fail)=>{reject=fail});
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
- const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./Surface':{Surface:'Surface'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'}};
+ const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'orb'})}},'./store':{useStore:()=>({state:{}})},'./social-links':{missingWebOrigin,webAddress:()=>webAddress('https://crystal.example',false)},'./Surface':{Surface:'Surface'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'}};
  const module={exports:{} as any},notices:string[]=[];
  runInNewContext(code,{React:react,module,exports:module.exports,require:(name:string)=>imports[name]??{},Image:class {decode(){return loading}}});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
@@ -29,14 +30,14 @@ test('recording locks the question setting until recording completes or fails',a
  assert.ok(notices.some(text=>text.includes('could not be recorded')));
 });
 
-for(const mode of ['share','download','expired activation','cancel','audio fetch failure','audio decode failure'])test(`one tap clip export: ${mode}`,async()=>{
+for(const mode of ['share','download','expired activation','cancel','audio fetch failure','audio decode failure','unconfigured'])test(`one tap clip export: ${mode}`,async()=>{
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
- const slots:any[]=[],notices:string[]=[],shared:any[]=[],downloaded:string[]=[];
+ const slots:any[]=[],notices:string[]=[],shared:any[]=[],downloaded:string[]=[],painted:string[]=[];
  let cursor=0,recordings=0,closed=0,clock=0,addedAudio=0;
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children}),useState:(initial:any)=>{const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],(value:any)=>{slots[i]=value}]}};
- const ctx=new Proxy({},{get:(_target,key)=>key==='measureText'?()=>({width:10}):key==='createLinearGradient'||key==='createRadialGradient'?()=>({addColorStop:()=>{}}):()=>{},set:()=>true});
+ const ctx=new Proxy({},{get:(_target,key)=>key==='fillText'?(text:string)=>painted.push(text):key==='measureText'?()=>({width:10}):key==='createLinearGradient'||key==='createRadialGradient'?()=>({addColorStop:()=>{}}):()=>{},set:()=>true});
  const track={stop:()=>{},requestFrame:()=>{}},stream={addTrack:()=>{addedAudio++},getTracks:()=>[track],getVideoTracks:()=>[track]};
- const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'asset'})}},'./store':{useStore:()=>({state:{}})},'./Surface':{Surface:'Surface'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'},'./social-policy':{activityTheme:()=>'learning',skyPrompts:{learning:{label:'Learning'}}},'./retention':{suggestedCheckIn:()=>'2026-12-01'}};
+ const imports:Record<string,any>={react,'react-native':{Platform:{OS:'web'},Switch:'Switch',View:'View'},'expo-asset':{Asset:{fromModule:()=>({uri:'asset'})}},'./store':{useStore:()=>({state:{}})},'./social-links':{missingWebOrigin,webAddress:()=>webAddress(mode==='unconfigured'?'':'https://crystal.example',false)},'./Surface':{Surface:'Surface'},'./ui':{Action:'Action',Txt:'Txt',styles:{},colors:{},fonts:{}},'./delight':{selectedStyle:()=>'classic'},'./social-policy':{activityTheme:()=>'learning',skyPrompts:{learning:{label:'Learning'}}},'./retention':{suggestedCheckIn:()=>'2026-12-01'}};
  class Audio{
   currentTime=0;
   async resume(){}
@@ -65,6 +66,13 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
  const render=()=>{cursor=0;return nodes(module.exports.RevealClip({prediction:{question:'Private question',headline:'You will learn.'},onNotice:(text:string)=>notices.push(text)}))};
  render().find(n=>n.props.testID==='make-reveal-clip').props.onPress();
  await new Promise(resolve=>setImmediate(resolve));
+ if(mode==='unconfigured'){
+  assert.deepEqual(notices,[missingWebOrigin]);
+  await assert.rejects(module.exports.recordClip({}, {}, {}),{message:missingWebOrigin});
+  assert.equal(recordings,0);assert.equal(closed,0);assert.equal(shared.length,0);assert.equal(downloaded.length,0);
+  assert.equal(painted.length,0);
+  return;
+ }
  assert.equal(closed,1);
  assert.equal(render().find(n=>n.props.testID==='make-reveal-clip').props.disabled,false);
  if(mode.startsWith('audio')){
@@ -72,6 +80,7 @@ for(const mode of ['share','download','expired activation','cancel','audio fetch
   assert.ok(notices.some(text=>text.includes('could not be recorded')));
  }else{
   assert.equal(recordings,1);assert.equal(addedAudio,1);
+  assert.ok(painted.includes('crystal.example'));
   assert.equal(shared.length,mode==='download'?0:1);
   if(shared.length)assert.equal(shared[0].files[0].type,'video/mp4');
   assert.equal(downloaded.length,mode==='download'||mode==='expired activation'?1:0);
@@ -86,7 +95,7 @@ test('reveal clips paint the ground, the ball\'s light and the glass card, with 
  const imports:Record<string,unknown>={
   react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},
   './ui':{colors:{},fonts:{}},'./retention':{suggestedCheckIn:()=>'December 1'},
-  './delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},
+  './delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},'./social-links':{webAddress:()=>''},
  };
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>{
   assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name];
@@ -138,7 +147,7 @@ test('a look loads only the ball and its AI glass; Classic needs no glass',async
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  const module={exports:{} as typeof import('../src/RevealClip')},requested:string[]=[];
  const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{Asset:{fromModule:(uri:string)=>({uri})}},
-  './ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{ballArt:{aurora:{glass:'aurora-glass.jpg'}}},'./social-policy':{},'./store':{},
+  './ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{ballArt:{aurora:{glass:'aurora-glass.jpg'}}},'./social-policy':{},'./store':{},'./social-links':{webAddress:()=>''},
   '../assets/orb.png':'orb.png'};
  class Loaded{src='';decode(){requested.push(this.src);return Promise.resolve()}}
  runInNewContext(code,{module,exports:module.exports,Image:Loaded,Promise,require:(name:string)=>{assert.ok(name in imports,`Unexpected import: ${name}`);return imports[name]}});
@@ -155,7 +164,7 @@ test('export labels shrink until they fit their band with letter spacing include
  const card=receiptCard({id:'0000000a-abcd-4000-8000-000000000000',question:'Will I learn to paint this year?',headline:'You will finish your course within 2 months.',createdAt:'2026-10-01T12:00:00.000Z',checkedInAt:'2026-10-21',outcome:'yes',label:'',why:'',facts:{},sources:[],assumptions:[],friend:false})!;
  const code=ts.transpileModule(readFileSync(new URL('../src/RevealClip.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  const module={exports:{} as typeof import('../src/RevealClip')};
- const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},'./ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{},'./social-policy':{},'./store':{}};
+ const imports:Record<string,unknown>={react:{},'react/jsx-runtime':{},'react-native':{},'expo-asset':{},'./ui':{colors:{},fonts:{}},'./retention':{},'./delight':{},'./roomAssets':{},'./social-policy':{},'./store':{},'./social-links':{webAddress:()=>''}};
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]});
  // A canvas whose glyph widths scale with the font size and, like the browser, add the current letter spacing per character.
  const drawn:{text:string;width:number}[]=[];

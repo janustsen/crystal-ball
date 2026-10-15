@@ -44,7 +44,7 @@ async function fixture(count:number,api:Record<string,unknown>={}){
  store();await tick();store();await tick();
  const notices:string[]=[];
  const module=load('../src/BallAsks.tsx',{
-  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},'./ui':{Action:'Action',Txt:'Txt',CardHeader:'CardHeader',colors:{},fonts:{},styles:{}},'./Enter':{Enter:'Enter'},'./Surface':{Surface:'Surface'},'./native':{haptic:()=>{}},'./ball-asks':asks,'./billing':billing,'./api':{serverMetered:false,...api},'./store':{useStore:store},
+  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},'./ui':{Action:'Action',Txt:'Txt',CardHeader:'CardHeader',colors:{},fonts:{},styles:{}},'./Enter':{Enter:'Enter'},'./Surface':{Surface:'Surface'},'./native':{haptic:()=>{}},'./ball-asks':asks,'./billing':billing,'./api':{serverMetered:false,...api},'./store':{useStore:store},'./story-card':{portraitCard:()=>null},
  });
  const render=(aiConsent:string|null='')=>h.render(()=>module.BallAsks({aiConsent,reduce:true,onNotice:(text:string)=>notices.push(text)}));
  const blockWrite=()=>{

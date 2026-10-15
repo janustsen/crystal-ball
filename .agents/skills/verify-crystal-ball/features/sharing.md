@@ -1,7 +1,7 @@
 # Sharing
 
 ## Sub-features
-Private 9:16 export; Friend-reading entry from Circles. Private Person readings enter through Ask; see [usage](../../../../README.md).
+Private 9:16 export (forecast, receipt, golden set, daily omen, Ball portrait), each printing the web address; web friend links; Friend-reading entry from Circles. Private Person readings enter through Ask; see [usage](../../../../README.md).
 
 ## How to get to it (user POV)
 Sky → Circles → Ask about an opted-in friend → first name, Share this glimpse on a reveal, or You → Share your three lights (see [usage](../../../../README.md) for availability).
@@ -15,6 +15,8 @@ Choose an opted-in friend in Circles and enter their first name, or create a fri
 Seeded feed is labeled. Browser sharing may be canceled. Story-card exports exclude the question, answers and Why; the share screen’s friend link uses a generic prompt, never the private question. The automated friend test mocks only the share sheet. No automatic external posting.
 
 `VERIFY_URL=http://localhost:8146 node scripts/drive-share-recaps.mjs` drives Share my week from Sunday Home and History and December's Share my year with simulated Plus, checks both 1080×1920 PNGs carry the identity label and counts but no question, headline or score, and that the year share stays closed outside December. History is a labeled fixture and dates are a browser clock.
+
+`VERIFY_URL=<owned preview> EVIDENCE_DIR=<owned dir> node scripts/drive-gtm.mjs` drives the go-to-market loops with real Ollama: the onboarding where-did-you-hear tap (asserts the engine gets only `{action,source}` with no session), the soft Plus offer after the first reveal (once), the paywall's launch prices, the web address on forecast, omen and portrait exports, a web friend link, and the one free web reading for a new browser arriving by friend link (an already-reading browser is not downgraded). The Circle-link check only asserts that a new browser gets the web-visitor marker; it does not join a Circle or complete another reading. Only `navigator.share` is mocked. It spends one network web reading, so run it after `drive-growth-loops.mjs` or on a fresh engine.
 
 Yes receipts and the golden set use the same still export; `scripts/drive-receipts-golden.mjs` checks both 1080×1920 PNGs and that No/Not yet offer no receipt. See [recording usage](../../../../README.md) for export contents, privacy, audio, sharing fallbacks and platform limits. `VERIFY_URL=http://localhost:8131 node scripts/drive-growth-loops.mjs` (start with unused quotas; see [claim persistence](../../../../SETUP.md#social-v2-delivery)) drives a sealed-link visitor's free web reading, the seal-first reveal, five consecutive exports across both clip variants (decoded end-card checks and ffprobe size/audio checks, with audio covering the whole video and durations within 1.5 seconds; paint counts and frames saved for diagnosis) and the same-network refusal. Real-time MediaRecorder capture can drift under machine load; the accepted timing limit is 1.5 seconds, not frame-exact synchronization. `CLIP_ONLY=1` skips the later quota scenarios for focused recorder verification. It injects OS share-sheet responses and an audio-asset failure; recording and engine calls run for real. Evidence: `docs/evidence/growth-loops/`.
 

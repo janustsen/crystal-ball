@@ -1,7 +1,7 @@
 # First run
 
 ## Sub-features
-The intro line (“I know your future.” with glinting sparkles), the birthday sheet (month, day and year fields that advance as each completes), Skip for now → age confirmation, the under-13 block, the four-step tour (Ask, Sky, History, You; shown once, Take the tour in Settings re-opens it), and tab transitions and chip feedback following the [motion language](../../../../docs/design/motion-language.md).
+The intro line (“I know your future.” with glinting sparkles), the birthday sheet (month, day and year fields that advance as each completes, plus the optional where-did-you-hear chips `heard-*`, submitted on the final Continue or Skip for now in The Ball asks; `drive-gtm.mjs` covers them), Skip for now → age confirmation, the under-13 block, the four-step tour (Ask, Sky, History, You; shown once, Take the tour in Settings re-opens it), and tab transitions and chip feedback following the [motion language](../../../../docs/design/motion-language.md).
 
 ## How to get to it (user POV)
 A fresh profile opens on the intro; the sheet rises about 2.6 s later (at once under reduced motion). The tour starts on Home after completing the [onboarding flow](../../../../../README.md), including answering or skipping the optional questions.

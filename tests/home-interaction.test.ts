@@ -90,7 +90,7 @@ test('Today omen step targets the actual card after recap and yesterday’s whis
      ...imports,'@react-native-async-storage/async-storage':{},
      './daily-omen':{omenTries:2},'./retention':{localDay:()=>'2026-10-11',currentOmen:()=>current},'./real-sky':realSky,
      './api':{},'./store':{useStore:()=>({state:{whispers:last?[last]:[]}})},
-     './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},
+     './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},'./story-card':{omenCard:()=>null},
     },false);
     const render=component('../src/Home.tsx',imports);
     const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap,omen:(cardRef:any)=>daily('DailyOmen',{cardRef}),top:400,under:96,bottom:0,reduce:true};

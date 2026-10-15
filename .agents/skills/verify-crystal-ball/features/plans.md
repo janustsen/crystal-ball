@@ -1,13 +1,13 @@
 # Plans
 
 ## Sub-features
-Free daily allowance; Plus/pack purchase (labeled mock in the preview, real App Store purchases in EAS `store` builds); Restore; Manage or cancel subscription link; optional Apple backup/restore availability; entertainment/privacy disclosure; named hosted-AI opt-in.
+Free daily allowance; one-time soft Plus offer after a reveal (`plus-offer`, `plus-offer-open`, `plus-offer-dismiss`; never for Plus or free web-reading trial visitors); Plus/pack purchase (labeled mock in the preview, real App Store purchases in EAS `store` builds); Restore; Manage or cancel subscription link; optional Apple backup/restore availability; entertainment/privacy disclosure; named hosted-AI opt-in.
 
 ## How to get to it (user POV)
 View plans in the header or You's plan card.
 
 ## Driving it with chrome-devtools-axi
-Observe balance, confirm Weekly is preselected, then select Weekly/Monthly/Yearly with accessible selected state, simulate five credits, verify increase; Restore must report test mode; You → Keep your glimpses must be absent on web and unavailable or unconfigured native builds; configured iOS retains Apple save/restore. It never appears on Home. Open Privacy and entertainment using the [user guidance](../../../../README.md). `scripts/drive-launch.mjs` checks these controls at 200% text; `CHECK_AI_CONSENT=1` checks named-provider consent with a configured test build. Native Apple link/restore remains a device check.
+Observe balance, confirm Weekly is preselected, then select Weekly/Monthly with accessible selected state (Yearly stays hidden while `annualOffered` is off), simulate five credits, verify increase; Restore must report test mode; You → Keep your glimpses must be absent on web and unavailable or unconfigured native builds; configured iOS retains Apple save/restore. It never appears on Home. Open Privacy and entertainment using the [user guidance](../../../../README.md). `scripts/drive-launch.mjs` checks these controls at 200% text; `CHECK_AI_CONSENT=1` checks named-provider consent with a configured test build. Native Apple link/restore remains a device check.
 
 Run `VERIFY_URL=http://localhost:8104 node scripts/verify-core-pricing.mjs` on an isolated live Ollama preview for exact prices and cancellation copy, weekly default, permanent packs, simulated Plus, bounded check-in, persisted answers and stacked plan cards at 200% text. It uses a named chrome-devtools-axi session. Screenshots and logs live under docs/evidence/core-pricing/.
 

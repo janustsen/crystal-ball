@@ -5,6 +5,7 @@ import {Action,Orb,Txt,colors,styles} from './ui';
 import {Enter} from './Enter';
 import {Atmosphere} from './Atmosphere';
 import {GoldenGlow} from './GoldenGlow';
+import {webAddress} from './social-links';
 
 // Only public card fields cross this boundary; a replay never requests a reading.
 export function CaptureReveal({headline,golden,dueDate,reduce,onClose}:{headline:string;golden:boolean;dueDate:string;reduce:boolean;onClose:()=>void}){
@@ -21,6 +22,7 @@ export function CaptureReveal({headline,golden,dueDate,reduce,onClose}:{headline
    </View>
    {golden?<Txt allowFontScaling={false} style={{fontSize:size*.032,color:colors.gold,textAlign:'center'}}>Golden edition</Txt>:null}
    <Txt allowFontScaling={false} style={{fontSize:size*.036,color:colors.muted,textAlign:'center',marginTop:16}}>Check back {dueDate}</Txt>
+   <Txt allowFontScaling={false} style={[styles.caption,{color:colors.muted,textAlign:'center'}]}>{webAddress()}</Txt>
   </View></View>
   <View style={{flexDirection:'row',gap:16}}><Action testID="replay-capture" label="Replay" quiet onPress={()=>setReplay(n=>n+1)}/><Action testID="close-capture" label="Done" quiet onPress={onClose}/></View>
  </View>;

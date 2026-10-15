@@ -1,4 +1,4 @@
-import type {Prediction} from './types';
+import type {Insight,Prediction} from './types';
 import {suggestedCheckIn} from './retention';
 import {activityTheme,skyPrompts} from './social-policy';
 import {identity,type WeekRecap,type YearRecap} from './recap';
@@ -7,7 +7,8 @@ import type {AccountState} from './types';
 
 // What a 9:16 story image says. ShareCard draws it on the current look; a designed card replaces the drawing, not this content.
 // pair is a Bond reading's other person and percentage: its card shows two balls with the percentage between them.
-export type StoryCard={kind:'forecast'|'receipt'|'golden-set'|'three-lights'|'week'|'year';golden:boolean;headlines:string[];labels:string[];footer:string;file:string;lights?:Light[];pair?:{name:string;percent:number}};
+// body: a paragraph under the headline, used by the portrait.
+export type StoryCard={kind:'forecast'|'receipt'|'golden-set'|'omen'|'portrait'|'three-lights'|'week'|'year';golden:boolean;headlines:string[];body?:string;labels:string[];footer:string;file:string;lights?:Light[];pair?:{name:string;percent:number}};
 
 const day=(value:string)=>new Date(/^\d{4}-\d{2}-\d{2}$/.test(value)?`${value}T12:00:00`:value).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
 
@@ -51,3 +52,9 @@ export function yearCard(recap:YearRecap):StoryCard|null{
  if(!recap.readings)return null;
  return {kind:'year',golden:false,headlines:[identity(recap.themes[0].theme)],labels:[`Your ${recap.year} in the Ball`,counts(plural(recap.readings,'reading'),!!recap.golden&&plural(recap.golden,'golden find'),!!recap.yes&&plural(recap.yes,'Yes check-in')),`Most asked: ${skyPrompts[recap.themes[0].theme].label}`],footer:'Year in review',file:`crystal-ball-${recap.year}.png`};
 }
+
+// Today's omen only: never its whisper or the facts it was drawn from.
+export const omenCard=(omen:{day:string;text:string}):StoryCard=>({kind:'omen',golden:false,headlines:[omen.text],labels:[`Daily omen · ${day(omen.day)}`],footer:'A new omen every morning',file:'crystal-ball-omen.png'});
+
+// A portrait from The Ball asks: its archetype title and text, never the answers behind it.
+export const portraitCard=(insight:Insight):StoryCard|null=>insight.kind!=='portrait'?null:{kind:'portrait',golden:false,headlines:[insight.title],body:insight.text,labels:[],footer:'A portrait by the Ball',file:'crystal-ball-portrait.png'};

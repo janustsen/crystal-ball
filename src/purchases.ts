@@ -3,7 +3,7 @@ import Purchases,{INTRO_ELIGIBILITY_STATUS,PURCHASES_ERROR_CODE,type PurchasesOf
 import {purchaseOfferings} from './integration-actions';
 import {serverMetered,syncStoreBalance} from './api';
 import {anonymousOwner} from './cloud';
-import {manageSubscriptionsUrl,packs,plans,trialProduct,type Balance,type PackKind,type PlanKind} from './billing';
+import {manageSubscriptionsUrl,packs,plans,trialProducts,type Balance,type PackKind,type PlanKind} from './billing';
 
 // mock: preview simulation. store: real App Store purchases through RevenueCat (sandbox on development and TestFlight builds).
 export const purchaseMode=process.env.EXPO_PUBLIC_REVENUECAT_MODE==='store'?'store':'mock';
@@ -23,10 +23,10 @@ async function offerings(){
 }
 export async function storeOffers():Promise<Offer[]>{
  const available=(await offerings())?.current?.availablePackages??[];
- const eligibility=await Purchases.checkTrialOrIntroductoryPriceEligibility([trialProduct]);
+ const eligibility=await Purchases.checkTrialOrIntroductoryPriceEligibility(trialProducts);
  return available.flatMap(pkg=>{
   const item=[...plans,...packs].find(p=>p.product===pkg.product.identifier);
-  const trial=pkg.product.identifier===trialProduct&&pkg.product.introPrice?.price===0&&eligibility[trialProduct]?.status===INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE;
+  const id=pkg.product.identifier,trial=trialProducts.includes(id)&&pkg.product.introPrice?.price===0&&eligibility[id]?.status===INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE;
   return item?[{kind:item.kind,price:pkg.product.priceString,trial,pkg}]:[];
  });
 }

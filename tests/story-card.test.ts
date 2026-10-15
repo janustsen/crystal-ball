@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {forecastCard,goldenSetCard,goldenShelf,receiptCard,threeLightsCard,weekCard,yearCard} from '../src/story-card.ts';
+import {forecastCard,goldenSetCard,goldenShelf,omenCard,portraitCard,receiptCard,threeLightsCard,weekCard,yearCard} from '../src/story-card.ts';
 import {sunSigns} from '../src/social-policy.ts';
 import {weekRecap,yearRecap} from '../src/recap.ts';
 import type {Prediction} from '../src/types.ts';
@@ -104,4 +104,12 @@ test('a bond card shows two balls, the bond and its percentage, never the reason
  assert.deepEqual(card.pair,{name:'Maya',percent:82});assert.deepEqual(card.labels,['The Lantern and the Tide']);assert.equal(card.file,'crystal-ball-bond.png');
  for(const hidden of ['Private reasoning','Private answer'])assert.ok(!JSON.stringify(card).includes(hidden),hidden);
  assert.equal(forecastCard(reading()).pair,undefined);
+});
+
+test('the omen card carries the day and omen only; only a portrait insight becomes a portrait card',()=>{
+ const omen=omenCard({day:'2026-10-14',text:'A small kindness returns to you today.'});
+ assert.equal(omen.kind,'omen');assert.deepEqual(omen.headlines,['A small kindness returns to you today.']);assert.match(omen.labels[0],/^Daily omen · .*2026$/);
+ const insight={kind:'portrait' as const,title:'The Quiet Cartographer',text:'You map a room before you speak in it.',at:'2026-10-14T09:00:00Z'};
+ assert.deepEqual(portraitCard(insight),{kind:'portrait',golden:false,headlines:['The Quiet Cartographer'],body:'You map a room before you speak in it.',labels:[],footer:'A portrait by the Ball',file:'crystal-ball-portrait.png'});
+ for(const kind of ['enjoy','try','shift'] as const)assert.equal(portraitCard({...insight,kind}),null);
 });
