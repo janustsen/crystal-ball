@@ -69,7 +69,7 @@ export function Store({children}:React.PropsWithChildren){
    try{await authenticate()}finally{
     if(serverMetered){
      const owner=await anonymousOwner();
-     if(current.current.balanceSnapshot?.owner!==owner)change(s=>({...s,balanceSnapshot:undefined,plus:false,credits:0,usage:{day:new Date().toISOString().slice(0,10),count:0}}));
+     if(current.current.balanceSnapshot?.owner!==owner)change(s=>({...s,balanceSnapshot:undefined,yearAhead:undefined,plus:false,credits:0,usage:{day:new Date().toISOString().slice(0,10),count:0}}));
      const next=await balanced(current.current,await loadBalance());change(()=>next);
     }
    }

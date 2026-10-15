@@ -76,8 +76,8 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     return new Response(JSON.stringify({kind:'ok',value:{text}}),{headers});
    }
    if(body.action==='year'){
-    // ponytail: mock-billed only; a metered server refuses until the Year ahead store product and its ledger claim exist.
-    if(meter||request.headers.get('authorization'))throw new BillingError('Year ahead is not available yet.',503);
+    if(!meter&&request.headers.get('authorization'))throw new BillingError('Year ahead is unavailable right now.',503);
+    if(meter&&!(await meter.balance(await meter.user(request))).yearAhead)throw new BillingError('Purchase Year ahead or the Yearly plan first.',403);
     if(typeof localDate!=='string')throw new Error('Please provide a valid local calendar date.');
     const months=monthsFrom(localDate),sun=viewerBirthday?sunSign(viewerBirthday)??null:null;
     const forecasts=await yearAhead({sunSign:sun,facts,months:months.map(m=>`${monthName(m)} ${m.slice(0,4)}`)},teen,yearModel);

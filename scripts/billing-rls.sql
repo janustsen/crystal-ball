@@ -2,7 +2,7 @@
 -- Runs after social-rls.sql (proof schema, fixture users). Rolled back; leaves fixtures untouched.
 begin;
 delete from public.reading_charges;
-update public.social_profiles set plus=false,plus_until=null,packs=0;
+update public.social_profiles set plus=false,plus_until=null,packs=0,year_ahead_source=null;
 -- Clients can read only their own balance and can never grant or charge.
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
@@ -12,6 +12,8 @@ select proof.reject($q$select public.reading_balance('00000000-0000-0000-0000-00
 select proof.reject($q$select public.set_profile_styles('00000000-0000-0000-0000-000000000001','gold','gold')$q$,'42501');
 select proof.reject($q$update public.social_profiles set ball_style='gold'$q$,'42501');
 select proof.reject($q$update public.social_profiles set packs=99$q$,'42501');
+select proof.reject($q$update public.social_profiles set year_ahead_source='purchase'$q$,'42501');
+select proof.reject($q$select public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',null,'[]',now(),'purchase')$q$,'42501');
 select proof.reject($q$select * from public.reading_charges$q$,'42501');
 select proof.reject($q$select * from public.pack_purchases$q$,'42501');
 select proof.reject($q$select public.mark_circle_charged('00000000-0000-0000-0000-000000000001')$q$,'42883');
@@ -77,6 +79,19 @@ select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003
 select public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',now()+interval '7 days','[]','2026-10-04T12:00:00Z');
 select proof.assert((public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',now()-interval '1 day','[]','2026-10-04T11:59:00Z')->>'plus')::boolean,'stale expired snapshot after renewal keeps Plus');
 select proof.assert(not (public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',now()-interval '1 day','[]','2026-10-04T12:01:00Z')->>'plus')::boolean,'newer expired snapshot ends Plus');
+reset role;
+set role anon;
+select proof.reject($q$update public.social_profiles set year_ahead_source='purchase'$q$,'42501');
+select proof.reject($q$select public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',null,'[]',now(),'purchase')$q$,'42501');
+reset role;
+set role service_role;
+select proof.assert(public.reading_balance('00000000-0000-0000-0000-000000000001')->>'yearAhead' is null,'ordinary plans and packs do not grant Year ahead');
+select proof.assert(public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',null,'[]',now(),'purchase')->>'yearAhead'='purchase','one-off grants Year ahead');
+select proof.assert(public.apply_store_entitlements('00000000-0000-0000-0000-000000000001',null,'[]',now(),'purchase')->>'yearAhead'='purchase','repeated grant is idempotent');
+select proof.assert(public.apply_store_entitlements('00000000-0000-0000-0000-000000000002',now()+interval '1 year','[]',now(),'yearly')->>'yearAhead'='yearly','Yearly grants Year ahead');
+select proof.assert(public.apply_store_entitlements('00000000-0000-0000-0000-000000000002',null,'[]')->>'yearAhead'='yearly','ending Plus keeps the purchased year');
+select proof.assert(public.reading_balance('00000000-0000-0000-0000-000000000003')->>'yearAhead' is null,'ownership does not cross accounts');
+select proof.reject($q$select public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',null,'[]',now(),'invalid')$q$,'23514');
 reset role;
 rollback;
 \echo 'PASS: server-owned reading ledger, store reconciliation and Circle publication charges'

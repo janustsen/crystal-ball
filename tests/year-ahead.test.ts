@@ -55,7 +55,22 @@ test('a month name, hedge or duplicate gets one repair, then fails closed', asyn
  assert.equal((await (await failed.ask()).json()).kind,'error');
 });
 
-test('a metered or signed-in engine refuses Year ahead until its store product exists', async () => {
+test('a signed-in engine refuses Year ahead without billing configuration', async () => {
  assert.equal((await serve([{forecasts:good}]).ask({authorization:'Bearer user'})).status,503);
- assert.equal((await serve([{forecasts:good}],{SUPABASE_URL:'http://127.0.0.1:1',SUPABASE_SERVICE_ROLE_KEY:'k'}).ask()).status,503);
+});
+
+for(const entitlement of [undefined,null,'purchase','yearly'] as const)test(`metered Year ahead requires server ownership: ${entitlement}`,async t=>{
+ t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
+  const path=new URL(String(input)).pathname;
+  if(path==='/auth/v1/user')return new Headers(init?.headers).get('authorization')==='Bearer user'?Response.json({id:'owner'}):Response.json({},{status:401});
+  assert.equal(path,'/rest/v1/rpc/reading_balance');
+  assert.deepEqual(JSON.parse(String(init?.body)),{viewer:'owner'});
+  return Response.json({owner:'owner',asOf:'2026-10-14T00:00:00.000001Z',plus:false,plusUntil:null,packs:0,used:1,day:'2026-10-14',yearAhead:entitlement});
+ });
+ const engine=serve([{forecasts:good}],{SUPABASE_URL:'http://localhost:54321',SUPABASE_SERVICE_ROLE_KEY:'test'});
+ assert.equal((await engine.ask()).status,401);
+ const response=await engine.ask({authorization:'Bearer user'});
+ assert.equal(response.status,entitlement?200:403);
+ assert.equal(engine.seen.length,entitlement?1:0);
+ if(entitlement)assert.equal((await response.json()).value.months.length,12);
 });

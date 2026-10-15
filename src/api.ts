@@ -51,7 +51,7 @@ export async function requestChartWeather({birthday,ageConfirmed,moonSign,rising
 export async function requestYearAhead(facts:Facts,{sunSign,birthday,ageConfirmed}:Pick<AccountState,'sunSign'|'birthday'|'ageConfirmed'>,aiConsent='',localDate=localDay()):Promise<{month:string;headline:string}[]>{
  facts=withoutSelf(facts);delete facts.sun_sign;
  if(sunSign)facts.sun_sign=sunSign;
- const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders},body:JSON.stringify({action:'year',question:'Your year ahead',facts:Object.fromEntries(Object.entries(facts).slice(-30)),viewerBirthday:birthday,ageConfirmed,localDate,aiConsent}),signal:AbortSignal.timeout(200000)});
+ const response=await fetch(engineUrl,{method:'POST',headers:{'Content-Type':'application/json',...previewHeaders,...await sessionHeader()},body:JSON.stringify({action:'year',question:'Your year ahead',facts:Object.fromEntries(Object.entries(facts).slice(-30)),viewerBirthday:birthday,ageConfirmed,localDate,aiConsent}),signal:AbortSignal.timeout(200000)});
  const result=await response.json().catch(()=>null),months=result?.value?.months;
  if(!response.ok||result?.kind!=='ok'||!Array.isArray(months)||months.length!==12||!months.every((m:unknown)=>!!m&&typeof m==='object'&&typeof (m as {month?:unknown}).month==='string'&&typeof (m as {headline?:unknown}).headline==='string'))throw new Error(result?.message||'The Ball could not seal your year. Please try again.');
  return months;

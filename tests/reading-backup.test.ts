@@ -12,6 +12,7 @@ import * as realSky from '../src/real-sky';
 import * as whisper from '../src/whisper';
 import * as ritual from '../src/ritual';
 import {monthsFrom,openedReading,shelf,type YearAhead} from '../src/year-ahead';
+import * as yearAhead from '../src/year-ahead';
 import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
 import * as webReading from '../src/web-reading';
@@ -736,4 +737,46 @@ test('a tapped answer holds its highlight, ignores repeat taps and drops when Ba
  await press('look-into-the-future');
  await press('option-0');await elapse();await press('option-1');await elapse();
  assert.equal(predicts,1,'the last held answer reveals once its beat ends');
+});
+
+for(const mode of ['success','refused','store'] as const)test(`Year ahead shelf metered purchase: ${mode}`,async()=>{
+ const f=await fixture(false,{}, {},{backupOwner:undefined}),h=hooks(false);
+ let purchaseCalls=0,generations=0,finish!:(balance:billing.Balance)=>void;
+ const purchase=new Promise<billing.Balance>(resolve=>{finish=resolve});
+ const component=load('../src/YearAheadShelf.tsx',{
+  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},
+  './store':{useStore:f.render},'./api':{serverMetered:true,aiProvider:'',simulatePurchase:async(kind:string)=>{assert.equal(kind,'yearAhead');purchaseCalls++;if(mode==='refused')throw new Error('Test purchases are local-only.');return purchase},requestYearAhead:async()=>{generations++;assert.equal(f.render().state.yearAhead.kind,'owned');return monthsFrom('2026-10-14').map(month=>({month,headline:'A new beginning.'}))}},
+  './purchases':{purchaseMode:mode==='store'?'store':'mock'},'./billing':billing,
+  './reading-history':readings,'./retention':retention,'./year-ahead':yearAhead,'./uuid':{uuid:()=>crypto.randomUUID()},
+  './ui':{Action:'Action',CardHeader:'CardHeader',Txt:'Txt',colors:{},styles:{}},'./Surface':{Surface:'Surface'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+ },[],{React:h.react});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(()=>component.YearAheadShelf({onOpen(){}})));
+ const buy=render().find(n=>n.props.testID==='year-ahead-buy');
+ if(mode==='store'){assert.equal(buy,undefined);assert.ok(render().some(n=>n.children.includes('Coming soon to the App Store.')));return}
+ const pending=buy.props.onPress();
+ assert.equal(f.render().state.yearAhead,undefined);
+ assert.equal(generations,0);
+ finish({owner:'owner',asOf:stamp(10),plus:false,plusUntil:null,packs:2,used:1,day:'2026-10-14',yearAhead:'purchase'});
+ await pending;await tick();
+ assert.equal(purchaseCalls,1);
+ if(mode==='refused'){
+  assert.equal(generations,0);assert.equal(f.render().state.yearAhead,undefined);
+  assert.ok(render().some(n=>n.children.includes('Test purchases are local-only.')));
+ }else{
+  assert.equal(generations,1);assert.equal(f.render().state.yearAhead.kind,'sealed');
+  assert.equal(f.render().state.yearAhead.months.length,12);
+  assert.equal(f.render().state.credits,2);
+ }
+});
+
+test('Year ahead request sends the metered session to the engine',async()=>{
+ let sent:any;
+ const api=load('../src/api.ts',{
+  './retention':retention,'./ball-asks':ballAsks,'./billing':billing,'./daily-omen':{},'./web-reading':webReading,
+  './cloud':{authorization:async()=>({Authorization:'Bearer viewer-token'})},
+ },[],{AbortSignal,process:{env:{EXPO_PUBLIC_SUPABASE_URL:'http://localhost:54321',EXPO_PUBLIC_SUPABASE_ANON_KEY:'test'}},fetch:async(_url:string,init:any)=>{sent=init;return Response.json({kind:'ok',value:{months:monthsFrom('2026-10-14').map(month=>({month,headline:'A new beginning.'}))}})}});
+ assert.equal((await api.requestYearAhead({}, {sunSign:null},'', '2026-10-14')).length,12);
+ assert.equal(sent.headers.Authorization,'Bearer viewer-token');
+ assert.equal(JSON.parse(sent.body).action,'year');
 });

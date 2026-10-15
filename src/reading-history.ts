@@ -19,5 +19,6 @@ export function saveCircleReading(state:AccountState,forecast:CircleForecast):Ac
 }
 // The server balance replaces the device's cached plan, packs, daily count and saved styles.
 export function withBalance(state:AccountState,balance:Balance):AccountState{
- return {...state,balanceSnapshot:{owner:balance.owner,asOf:balance.asOf},plus:balance.plus,credits:balance.packs,usage:{day:balance.day,count:balance.used},...balance.ballStyle?{ballStyle:balance.ballStyle}:{},...balance.cardStyle?{cardStyle:balance.cardStyle}:{}};
+ const yearAhead:AccountState['yearAhead']=balance.yearAhead?(state.balanceSnapshot?.owner===balance.owner&&state.yearAhead?state.yearAhead:{kind:'owned',source:balance.yearAhead}):undefined;
+ return {...state,...(yearAhead||state.yearAhead?{yearAhead}:{}),balanceSnapshot:{owner:balance.owner,asOf:balance.asOf},plus:balance.plus,credits:balance.packs,usage:{day:balance.day,count:balance.used},...balance.ballStyle?{ballStyle:balance.ballStyle}:{},...balance.cardStyle?{cardStyle:balance.cardStyle}:{}};
 }

@@ -4,7 +4,7 @@ import {Action,CardHeader,Txt,colors,styles} from './ui';
 import {OrbVisual} from './OrbVisual';
 import {Surface} from './Surface';
 import {useStore} from './store';
-import {aiProvider,requestYearAhead,serverMetered} from './api';
+import {aiProvider,requestYearAhead,serverMetered,simulatePurchase} from './api';
 import {purchaseMode} from './purchases';
 import {yearAheadProduct} from './billing';
 import {saveReading} from './reading-history';
@@ -15,22 +15,21 @@ import type {Prediction} from './types';
 
 // Twelve small balls on the Inner Library's shelf. Sealed balls stay dim until the 1st of their month.
 export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
- const {state,update,backupBusy}=useStore(),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ const {state,update,applyBalance,backupBusy}=useStore(),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
  const year=state.yearAhead,today=localDay(),aiBlocked=!!aiProvider&&state.aiConsent!==aiProvider;
- // Mock billing only: the preview without a server ledger. Store builds wait for the App Store product.
- const onSale=purchaseMode==='mock'&&!serverMetered;
+ const onSale=purchaseMode==='mock';
  const balls:ShelfBall[]=year?.kind==='sealed'?shelf(year,state.history,today):monthsFrom(today).map(month=>({month,id:month,headline:'',state:'sealed'}));
- async function seal(){
+ async function seal(buy=false){
   setBusy(true);setNotice('');
   try{
+   if(buy){
+    if(serverMetered)await applyBalance(await simulatePurchase('yearAhead'));
+    else update(s=>s.yearAhead?s:{...s,yearAhead:{kind:'owned',source:'purchase'}});
+   }
    const months=await requestYearAhead(state.facts,state,aiBlocked?'':aiProvider);
    update(s=>s.yearAhead?.kind==='owned'?{...s,yearAhead:{kind:'sealed',source:s.yearAhead.source,sealedAt:new Date().toISOString(),months:months.map(m=>({...m,id:uuid()}))}}:s);
    setNotice(`Your twelve months are sealed. ${monthName(months[0].month)} is open now.`);
   }catch(error){setNotice(error instanceof Error?error.message:'The Ball could not seal your year. Please try again.')}finally{setBusy(false)}
- }
- function buy(){
-  update(s=>s.yearAhead?s:{...s,yearAhead:{kind:'owned',source:'purchase'}});
-  void seal();
  }
  function open(ball:ShelfBall){
   if(year?.kind!=='sealed')return;
@@ -48,13 +47,13 @@ export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
     <Txt style={[styles.caption,{textAlign:'center'},sealed&&ball.state==='ready'?{color:colors.gold}:null]}>{monthName(ball.month,'short')}</Txt>
    </Pressable>)}</View>
   {sealed?<Txt style={[styles.caption,{marginTop:8}]}>Each ball opens on the 1st of its month. Check in on it when the next one opens.</Txt>
-  :year?<View style={{marginTop:8}}>
+  :year&&onSale?<View style={{marginTop:8}}>
    <Txt>{year.source==='yearly'?'Included with your Yearly plan.':'Your year ahead is paid for.'} The Ball writes all twelve months at once, then seals them.</Txt>
    <Action testID="year-ahead-seal" label={busy?'Sealing your year…':'Seal my year'} disabled={busy||backupBusy||aiBlocked} onPress={()=>void seal()}/>
   </View>
   :<View style={{marginTop:8}}>
    <Txt>Twelve sealed forecasts, one for each month ahead. This month’s opens at once; each later ball opens on the 1st of its month.</Txt>
-   {onSale?<><Action testID="year-ahead-buy" label={`Seal my year · ${yearAheadProduct.price} · simulate`} disabled={busy||backupBusy||aiBlocked} onPress={buy}/><Txt style={[styles.caption,{marginTop:8}]}>One-time purchase, included with Yearly Plus. Test mode · no real payment.</Txt></>
+   {onSale?<><Action testID="year-ahead-buy" label={`Seal my year · ${yearAheadProduct.price} · simulate`} disabled={busy||backupBusy||aiBlocked} onPress={()=>void seal(true)}/><Txt style={[styles.caption,{marginTop:8}]}>One-time purchase, included with Yearly Plus. Test mode · no real payment.</Txt></>
    :<Txt style={[styles.caption,{marginTop:8}]}>Coming soon to the App Store.</Txt>}
   </View>}
   {aiBlocked&&!sealed?<Txt style={[styles.caption,{marginTop:8}]}>Allow AI processing in Ask first.</Txt>:null}
