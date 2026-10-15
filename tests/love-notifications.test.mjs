@@ -28,16 +28,17 @@ test('Love timing is planned today for every horizon without another open',()=>{
  }
 });
 
-async function fixture(os='ios'){
- class Clock extends Date{constructor(...args){super(...(args.length?args:[now.getTime()]))}static now(){return now.getTime()}}
+async function fixture(os='ios',clock=now){
+ let current=clock.getTime(),handler;
+ class Clock extends Date{constructor(...args){super(...(args.length?args:[current]))}static now(){return current}}
  const pending=new Map(),disk=new Map();
- const notifications={setNotificationHandler(){},SchedulableTriggerInputTypes:{DATE:'date'},getPermissionsAsync:async()=>({status:'granted'}),requestPermissionsAsync:async()=>({status:'granted'}),getAllScheduledNotificationsAsync:async()=>[...pending.values()],cancelScheduledNotificationAsync:async id=>{pending.delete(id)},scheduleNotificationAsync:async value=>{pending.set(value.identifier,value)},dismissAllNotificationsAsync:async()=>{},clearLastNotificationResponseAsync:async()=>{}};
+ const notifications={setNotificationHandler(value){handler=value},SchedulableTriggerInputTypes:{DATE:'date'},getPermissionsAsync:async()=>({status:'granted'}),requestPermissionsAsync:async()=>({status:'granted'}),getAllScheduledNotificationsAsync:async()=>[...pending.values()],cancelScheduledNotificationAsync:async id=>{pending.delete(id)},scheduleNotificationAsync:async value=>{pending.set(value.identifier,value)},dismissAllNotificationsAsync:async()=>{},clearLastNotificationResponseAsync:async()=>{}};
  const imports={'react-native':{Platform:{OS:os}},'expo-notifications':notifications,'@react-native-async-storage/async-storage':{default:{getItem:async key=>disk.get(key)??null,setItem:async(key,value)=>{disk.set(key,value)}}},'./ritual':ritual,'./retention':retention};
  const context=createContext({Date:Clock});
  const module=new SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('../src/notify.ts',import.meta.url),'utf8')),{context});
  await module.link(name=>new SyntheticModule(Object.keys(imports[name]),function(){for(const [key,value]of Object.entries(imports[name]))this.setExport(key,value)},{context}));
  await module.evaluate();
- return {api:module.namespace,pending};
+ return {api:module.namespace,pending,receive:data=>handler.handleNotification({request:{content:{data}}}),advance:date=>{current=date.getTime()}};
 }
 
 test('native scheduling, manual requests, previews and cleanup include distant Love timing reminders',async()=>{
@@ -75,4 +76,35 @@ for(const os of ['ios','android'])test(`${os} reminder requests skip answered re
   assert.ok(![...f.pending.values()].some(p=>p.content.data.checkIns));
   await f.api.scheduleRitual(state);
  }
+});
+
+for(const os of ['ios','android'])test(`${os} Friday push received in-app cancels only its local fallback and survives replanning`,async()=>{
+ const f=await fixture(os,new Date(2026,9,9,19,59));
+ const state=account([]);state.ritual.notify.sky=true;
+ const id='ritual-2026-10-09-friday-sky';
+ await f.api.scheduleRitual(state);
+ assert.ok(f.pending.has(id));
+ const before=[...f.pending.keys()].filter(key=>key!==id);
+ const first=await f.receive({social:true,sky:true});
+ assert.equal(first.shouldShowBanner,true);
+ assert.equal(first.shouldShowList,true);
+ assert.ok(!f.pending.has(id));
+ assert.deepEqual([...f.pending.keys()],before);
+ const duplicate=await f.receive({social:true,sky:true});
+ assert.equal(duplicate.shouldShowBanner,false);
+ assert.equal(duplicate.shouldShowList,false);
+ await f.api.scheduleRitual(state);
+ assert.ok(!f.pending.has(id),'replanning cannot restore the consumed fallback');
+ assert.ok([...f.pending.keys()].some(key=>key==='ritual-2026-10-16-friday-sky'),'next Friday is independent');
+ assert.equal((await f.receive({social:true,circle:'circle'})).shouldShowBanner,true);
+});
+
+test('a local Friday that is already due suppresses a later foreground remote delivery',async()=>{
+ const f=await fixture('ios',new Date(2026,9,9,19,59));
+ const state=account([]);state.ritual.notify.sky=true;
+ await f.api.scheduleRitual(state);
+ assert.ok(f.pending.has('ritual-2026-10-09-friday-sky'),'APNs failure leaves a scheduled fallback');
+ f.advance(new Date(2026,9,9,20,1));
+ assert.equal((await f.receive({social:true,sky:true})).shouldShowBanner,false);
+ assert.equal((await f.receive({ritual:'sky'})).shouldShowBanner,false);
 });

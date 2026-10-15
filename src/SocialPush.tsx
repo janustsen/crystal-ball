@@ -16,7 +16,6 @@ async function devicePushToken(){
  if((await Notifications.requestPermissionsAsync()).status!=='granted')throw new Error('Notifications are off. You can enable them in device settings.');
  return (await Notifications.getExpoPushTokenAsync({projectId})).data;
 }
-// The Friday choice is also kept on this phone, so a local Friday 8pm notification stands in while no server push is registered.
 function useLocalSky(){
  const {state,update}=useStore();
  return [!!ritualOf(state).notify.sky,(sky:boolean)=>update(s=>{const r=ritualOf(s);return {...s,ritual:{...r,notify:{...r.notify,sky}}}})] as const;
@@ -31,7 +30,6 @@ export function SkyPushPrompt({answered,onAnswered}:{answered:boolean;onAnswered
    setLocalSky(false);await setSkyPush(false);onAnswered(false);
    if(enabled){
     await notificationsAllowed();setLocalSky(true);
-    // A build without server push (or a failed registration) keeps the on-phone Friday notification.
     try{await setSkyPush(true,await devicePushToken());onAnswered(true)}catch{}
     setNotice('Friday Sky notifications enabled.');
    }

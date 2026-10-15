@@ -5,8 +5,7 @@ import {yearAheadCandidates} from './year-ahead.ts';
 // The daily ritual: a few small steps a day; finishing them lights a star, and seven stars draw a constellation.
 // Nothing resets or counts down: a missed day only leaves a gap in the sky.
 export type NotifyPrefs={daily:boolean;time:string;offered?:string;reoffered?:boolean;
- // Friday Sky: sky is the person's Friday choice on this phone; skyRemote mirrors the server's Sky push, which then sends instead.
- sky?:boolean;skyRemote?:boolean};
+ sky?:boolean};
 export type Ritual={
  // Per local day, how far each step got (step id -> count). Kept for the last 60 days.
  days:Record<string,Record<string,number>>;
@@ -113,13 +112,10 @@ export function dailyCandidates({state,now,horizon}:PlanContext):Candidate[]{
  }
  return out;
 }
-// The on-phone Friday Sky fallback at 20:00, for when the server push is not registered (or not configured in this build).
-// Only one of the two ever sends, so the Sky never notifies twice. It follows the morning back-off and counts toward the daily cap.
-// ponytail: skyRemote is the server's last-seen choice; a registered push that APNs fails to deliver has no fallback.
 export const skyTime='20:00';
 export function skyCandidates({state,now,horizon}:PlanContext):Candidate[]{
  const {notify}=ritualOf(state),out:Candidate[]=[];
- if(!notify.sky||notify.skyRemote)return out;
+ if(!notify.sky)return out;
  for(let offset=0;offset<=horizon;offset++){
   const day=dayAfter(now,offset);
   if(new Date(`${day}T12:00:00`).getDay()===5)out.push({id:'friday-sky',day,slot:'morning',priority:50,title,body:'The Sky is open.',data:{ritual:'sky'},time:skyTime});

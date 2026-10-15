@@ -158,12 +158,13 @@ for(const count of [49,80])test(`the pending cap prioritizes ${count} Love dates
  assert.ok(plan.every((p,i)=>i===0||plan[i-1].at.getTime()<=p.at.getTime()));
 });
 
-test('the Friday Sky fallback rings at 8pm on Fridays only while no server push is registered, inside the cap and back-off',()=>{
+test('the Friday Sky fallback rings at 8pm on Fridays regardless of server registration, inside the cap and back-off',()=>{
  const sky=(notify:Partial<Ritual['notify']>,ritual=enabled())=>planNotifications(state({...ritual,notify:{...ritual.notify,...notify}}),now).filter(p=>p.data.ritual==='sky');
  const fridays=sky({sky:true});
  assert.deepEqual(fridays.map(at),['2026-10-09'],'later Fridays fall in the back-off, like the morning insight');
  assert.equal(fridays[0].at.getHours(),20);assert.equal(fridays[0].body,'The Sky is open.');
- assert.deepEqual(sky({sky:true,skyRemote:true}),[],'the server push sends instead, never both');
+ const legacyPrefs={sky:true,skyRemote:true};
+ assert.deepEqual(sky(legacyPrefs),fridays,'persisted registration never removes the fallback');
  assert.deepEqual(sky({}),[]);
  assert.deepEqual(sky({sky:true},{...emptyRitual(),notify:{daily:false,time:'08:30'}}).map(at),['2026-10-09'],'Friday is its own choice');
  const friday=planNotifications(state({...enabled(),notify:{...enabled().notify,sky:true}}),now).filter(p=>at(p)==='2026-10-09');

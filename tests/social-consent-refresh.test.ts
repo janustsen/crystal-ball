@@ -150,21 +150,12 @@ for(const schoolOnly of [true,false])for(const school of ['new-school',null]){
  });
 }
 
-test('the phone mirrors the server Sky push, so its Friday fallback never doubles it',async()=>{
- const f=fixture();f.render();await settle();f.render();
- assert.equal(f.account().ritual?.notify.skyRemote,undefined,'an unchanged choice writes nothing');
- f.prompt().onAnswered(true);
- assert.equal(f.account().ritual.notify.skyRemote,true,'consent is persisted before another render');
- f.render();
- assert.equal(f.account().ritual.notify.skyRemote,true,'a registered server push silences the phone');
- f.remote.profile.sky_push=false;f.refresh();await settle();f.render();
- assert.equal(f.account().ritual.notify.skyRemote,false,'turned off on the server, the phone takes Friday back');
-});
-
-test('settings persists remote consent immediately without a social snapshot',async()=>{
- const f=fixture(true);f.render();f.failInitial();await settle();f.section('circles');
+test('remote consent saves and refreshes leave the phone fallback choice intact',async()=>{
+ const f=fixture();f.account().ritual={notify:{sky:true}};f.render();await settle();
  for(const enabled of [true,false]){
-  await f.settings().onSkyPush(enabled);
-  assert.equal(f.account().ritual.notify.skyRemote,enabled);
+  f.prompt().onAnswered(enabled);f.render();
+  assert.equal(f.account().ritual.notify.sky,true);
+  f.remote.profile.sky_push=enabled;f.refresh();await settle();f.render();
+  assert.equal(f.account().ritual.notify.sky,true);
  }
 });

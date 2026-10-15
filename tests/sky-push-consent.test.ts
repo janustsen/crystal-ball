@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import {planNotifications} from '../src/ritual.ts';
 
 const code=ts.transpileModule(readFileSync(new URL('../src/SocialPush.tsx',import.meta.url),'utf8'),{
  compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
@@ -35,7 +36,7 @@ function fixture(platform='ios',initialLocalSky=false){
  runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name],Error});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:[node,...node.children.flatMap(nodes)];
  const render=(settings=false)=>{cursor=0;return nodes(settings?module.exports.SocialPush({skyPush:account.enabled,onSkyPush:setSkyPush}):module.exports.SkyPushPrompt({answered:account.answered,onAnswered:(enabled:boolean)=>{calls.push(`answered:${enabled}`)}}))};
- return {account,calls,render,localSky:()=>!!local.ritual?.notify.sky,remount:()=>{slots=[]},deny:()=>{permission='denied'},failToken:()=>{tokenFails=true},failSave:()=>{saveFails=true}};
+ return {account,calls,render,localSky:()=>!!local.ritual?.notify.sky,local:()=>local,remount:()=>{slots=[]},deny:()=>{permission='denied'},failToken:()=>{tokenFails=true},failSave:()=>{saveFails=true}};
 }
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 const control=(f:ReturnType<typeof fixture>,id:string)=>f.render().find(n=>n.props.testID===id);
@@ -48,6 +49,7 @@ test('Sky prompt is native-only and acceptance registers before opting in',async
  assert.deepEqual(f.calls,['sky:false','answered:false','local-permission','permission','token','sky:true:test-token','answered:true']);
  assert.equal(f.localSky(),true);
  assert.deepEqual(f.account,{answered:true,enabled:true,token:'test-token',circle:false});
+ assert.ok(planNotifications({...f.local(),history:[]},new Date(2026,9,9,19)).some(p=>p.data.ritual==='sky'),'successful registration retains the local fallback');
  f.remount();assert.equal(control(f,'sky-push-prompt'),undefined);
 });
 
