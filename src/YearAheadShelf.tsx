@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {Pressable,View} from 'react-native';
 import {Action,CardHeader,Txt,colors,styles} from './ui';
 import {OrbVisual} from './OrbVisual';
@@ -13,15 +13,19 @@ import {uuid} from './uuid';
 import {monthName,monthsFrom,openedReading,shelf,type ShelfBall} from './year-ahead';
 import type {Prediction} from './types';
 
+// One sealing at a time, even when the shelf unmounts and remounts while the twelve months are being written.
+let sealing:Promise<void>|null=null;
 // Twelve small balls on the Inner Library's shelf. Sealed balls stay dim until the 1st of their month.
 export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
- const {state,update,applyBalance,saveAskProgress,backupBusy}=useStore(),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ const {state,update,applyBalance,saveAskProgress,backupBusy}=useStore(),[busy,setBusy]=useState(()=>!!sealing),[notice,setNotice]=useState('');
+ useEffect(()=>{let live=true;void sealing?.finally(()=>{if(live)setBusy(false)});return()=>{live=false}},[]);
  const year=state.yearAhead,today=localDay(),aiBlocked=!!aiProvider&&state.aiConsent!==aiProvider;
  const onSale=purchaseMode==='mock';
  const balls:ShelfBall[]=year?.kind==='sealed'?shelf(year,state.history,today):monthsFrom(today).map(month=>({month,id:month,headline:'',state:'sealed'}));
- async function seal(buy=false){
+ function seal(buy=false){
+  if(sealing)return;
   setBusy(true);setNotice('');
-  try{
+  sealing=(async()=>{try{
    if(buy){
     if(serverMetered)await applyBalance(await simulatePurchase('yearAhead'));
     else update(s=>s.yearAhead?s:{...s,yearAhead:{kind:'owned',source:'purchase'}});
@@ -32,7 +36,7 @@ export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
     return {...s,yearAhead:{kind:'sealed',source:s.yearAhead.source,sealedAt:new Date().toISOString(),months:months.map(m=>({...m,id:uuid()}))}};
    });
    setNotice(`Your twelve months are sealed. ${monthName(months[0].month)} is open now.`);
-  }catch(error){setNotice(error instanceof Error?error.message:'The Ball could not seal your year. Please try again.')}finally{setBusy(false)}
+  }catch(error){setNotice(error instanceof Error?error.message:'The Ball could not seal your year. Please try again.')}})().finally(()=>{sealing=null;setBusy(false)});
  }
  function open(ball:ShelfBall){
   if(year?.kind!=='sealed')return;
@@ -52,11 +56,11 @@ export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
   {sealed?<Txt style={[styles.caption,{marginTop:8}]}>Each ball opens on the 1st of its month. Check in on it when the next one opens.</Txt>
   :year&&onSale?<View style={{marginTop:8}}>
    <Txt>{year.source==='yearly'?'Included with your Yearly plan.':'Your year ahead is paid for.'} The Ball writes all twelve months at once, then seals them.</Txt>
-   <Action testID="year-ahead-seal" label={busy?'Sealing your year…':'Seal my year'} disabled={busy||backupBusy||aiBlocked} onPress={()=>void seal()}/>
+   <Action testID="year-ahead-seal" label={busy?'Sealing your year…':'Seal my year'} disabled={busy||backupBusy||aiBlocked} onPress={()=>seal()}/>
   </View>
   :<View style={{marginTop:8}}>
    <Txt>Twelve sealed forecasts, one for each month ahead. This month’s opens at once; each later ball opens on the 1st of its month.</Txt>
-   {onSale?<><Action testID="year-ahead-buy" label={`Seal my year · ${yearAheadProduct.price} · simulate`} disabled={busy||backupBusy||aiBlocked} onPress={()=>void seal(true)}/><Txt style={[styles.caption,{marginTop:8}]}>One-time purchase, included with Yearly Plus. Test mode · no real payment.</Txt></>
+   {onSale?<><Action testID="year-ahead-buy" label={`Seal my year · ${yearAheadProduct.price} · simulate`} disabled={busy||backupBusy||aiBlocked} onPress={()=>seal(true)}/><Txt style={[styles.caption,{marginTop:8}]}>One-time purchase, included with Yearly Plus. Test mode · no real payment.</Txt></>
    :<Txt style={[styles.caption,{marginTop:8}]}>Coming soon to the App Store.</Txt>}
   </View>}
   {aiBlocked&&!sealed?<Txt style={[styles.caption,{marginTop:8}]}>Allow AI processing in Ask first.</Txt>:null}

@@ -34,7 +34,8 @@ test('each later month notifies on its 1st, even after daily back-off', () => {
 const good=Array.from({length:12},(_,i)=>`You will finish a small ${['clay','song','garden','zine','quilt','map','poem','bake','sketch','hike','letter','puzzle'][i]} project.`);
 function serve(outputs:unknown[],env:Record<string,string>={}){
  const seen:string[]=[];
- const model=validatedProvider(async messages=>{seen.push(messages.at(-1)!.content);return JSON.stringify(outputs.shift())});
+ // The generated-output safety check is a model call too; this fake classifier flags only claims about a secret crush.
+ const model=validatedProvider(async messages=>{const last=messages.at(-1)!.content;if(messages[0].content.includes('Classify this generated forecast'))return JSON.stringify({category:/secretly/.test(last)?'person':'allow'});seen.push(last);return JSON.stringify(outputs.shift())});
  return {seen,ask:(headers:Record<string,string>={})=>handler(key=>env[key],model)(new Request('http://localhost/',{method:'POST',headers,body:JSON.stringify({action:'year',question:'Your year ahead',facts:{},localDate:'2026-10-14',viewerBirthday:'1990-03-25'})}))};
 }
 
@@ -52,6 +53,15 @@ test('a month name, hedge or duplicate gets one repair, then fails closed', asyn
  assert.equal((await (await repaired.ask()).json()).kind,'ok');
  assert.match(repaired.seen[1],/Forecast 4 must .*drop hedges.*name no number, month, season or date.*Forecast 8 must name no number.*Make every forecast different/);
  const failed=serve([{forecasts:bad},{forecasts:bad}]);
+ assert.equal((await (await failed.ask()).json()).kind,'error');
+});
+
+test('a forecast about another person\'s feelings gets one repair, then fails closed', async () => {
+ const crush=[...good];crush[2]='Your friend will secretly fall in love with you.';
+ const repaired=serve([{forecasts:crush},{forecasts:good}]);
+ assert.equal((await (await repaired.ask()).json()).kind,'ok');
+ assert.match(repaired.seen[1],/Rewrite forecast 3 about the person’s own actions/);
+ const failed=serve([{forecasts:crush},{forecasts:crush}]);
  assert.equal((await (await failed.ask()).json()).kind,'error');
 });
 

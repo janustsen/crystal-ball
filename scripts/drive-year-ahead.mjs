@@ -34,10 +34,17 @@ try{
  const caption=await page.getByTestId(`year-ahead-${month(0)}`).evaluate(e=>getComputedStyle([...e.querySelectorAll('div')].filter(d=>d.textContent&&!d.children.length).at(-1)).color);
  assert.equal(caption,'rgb(220, 207, 186)','month captions keep the muted caption ink');
 
+ let yearRequests=0;page.on('request',r=>{if(r.method()==='POST'&&r.postData()?.includes('"action":"year"'))yearRequests++});
  const started=Date.now();
  await buy.click();
- await page.getByTestId('year-ahead-notice').filter({hasText:'sealed'}).waitFor({timeout:240000});
+ // Leaving and returning mid-seal keeps the shelf busy rather than offering a second generation.
+ await library(page);
+ await page.getByText('The Ball is writing twelve months').waitFor();
+ assert.ok(await page.getByTestId('year-ahead-seal').isDisabled(),'Seal my year stays disabled while sealing');
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).yearAhead?.kind==='sealed',null,{timeout:240000,polling:1000});
+ await page.getByTestId(`year-ahead-${month(0)}`).and(page.getByRole('button',{name:/ready to open/})).waitFor();
  const year=(await saved(page)).yearAhead;
+ assert.equal(yearRequests,1,'one sealing request');
  assert.equal(year.kind,'sealed');assert.equal(year.source,'purchase');
  assert.deepEqual(year.months.map(m=>m.month),Array.from({length:12},(_,i)=>month(i)));
  results.sealed={ms:Date.now()-started,months:year.months.map(m=>`${m.month}: ${m.headline}`)};
