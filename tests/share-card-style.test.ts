@@ -16,7 +16,7 @@ function load(file:string,imports:Record<string,unknown>,react:unknown){
 const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
 
 test('native preview and capture preserve every card style and golden override',async()=>{
- for(const os of ['ios','android'])for(const kind of ['forecast','receipt','golden-set'])for(const golden of kind==='golden-set'?[true]:[false,true])for(const cardStyle of ['classic','gold','obsidian']){
+ for(const os of ['ios','android'])for(const kind of ['forecast','receipt','golden-set','week','year'])for(const golden of kind==='golden-set'?[true]:[false,true])for(const cardStyle of ['classic','gold','obsidian']){
   const slots:any[]=[];let cursor=0,captured:any,shared=false;
   const react={
    createElement:(type:any,props:any,...children:any[])=>{const node={type,props:props??{},children};if(props?.ref)props.ref.current=node;return node},

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {forecastCard,goldenSetCard,goldenShelf,receiptCard,threeLightsCard} from '../src/story-card.ts';
+import {forecastCard,goldenSetCard,goldenShelf,receiptCard,threeLightsCard,weekCard,yearCard} from '../src/story-card.ts';
 import {sunSigns} from '../src/social-policy.ts';
+import {weekRecap,yearRecap} from '../src/recap.ts';
 import type {Prediction} from '../src/types.ts';
 const reading=(over:Partial<Prediction>={}):Prediction=>({id:'0000000a-abcd-4000-8000-000000000000',question:'Will I learn to paint this year?',headline:'You will finish your course within 2 months.',createdAt:'2026-09-01T12:00:00Z',dueDate:'2026-10-20',label:'Speculative forecast',why:'Private reasoning',facts:{study:'Private answer'},sources:[],assumptions:[],friend:false,...over});
 
@@ -83,4 +84,17 @@ test('three lights share only once Sun, Moon and rising are all lit, and only si
  const profile={sunSign:'leo',moonSign:'pisces',risingSign:'aries',birthday:'1998-08-01',birthTime:'14:30',birthPlace:'Lisbon, Portugal'};
  const text=JSON.stringify(threeLightsCard(profile));
  for(const hidden of ['1998','14:30','Lisbon','birthday','birthTime','birthPlace'])assert.ok(!text.includes(hidden),hidden);
+});
+
+test('week and year recaps share a playful label and counts, never questions, headlines or a score',()=>{
+ const week=weekCard(weekRecap([reading({createdAt:'2026-10-12T12:00:00',question:'Will I find love soon?',golden:true}),reading({createdAt:'2026-10-13T12:00:00',question:'Will I meet someone kind?'})],[{day:'2026-10-12',text:'w',outcome:'yes',checkedInAt:'2026-10-13'}],'2026-10-14'))!;
+ assert.equal(week.kind,'week');assert.deepEqual(week.headlines,['The Hopeful Romantic']);
+ assert.deepEqual(week.labels,['Your week in the Ball','2 readings · 1 golden find · 1 whisper landed','Most on your mind: Love']);
+ assert.equal(weekCard(weekRecap([],[{day:'2026-10-12',text:'w',outcome:'yes',checkedInAt:'2026-10-13'}],'2026-10-14'))!.headlines[0],'The Whisper Keeper');
+ assert.equal(weekCard(weekRecap([reading({createdAt:'2026-09-01T12:00:00'})],[],'2026-10-14')),null,'a quiet week has nothing to share');
+ const year=yearCard(yearRecap([reading({createdAt:'2026-12-02T12:00:00',outcome:'yes'}),reading({createdAt:'2026-03-02T12:00:00',outcome:'no'})],2026))!;
+ assert.equal(year.kind,'year');assert.deepEqual(year.headlines,['The Eternal Student']);
+ assert.deepEqual(year.labels,['Your 2026 in the Ball','2 readings · 1 Yes check-in','Most asked: Learning']);
+ assert.equal(yearCard(yearRecap([],2026)),null);
+ for(const card of [week,year]){const text=JSON.stringify(card);for(const hidden of ['love soon','someone kind','paint','within 2 months','Private','%','accuracy','score','miss'])assert.ok(!text.includes(hidden),hidden)}
 });
