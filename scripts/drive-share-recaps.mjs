@@ -20,7 +20,9 @@ async function open(now){
   const draw=CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText=function(text,...rest){window.storyText.push(text);return draw.call(this,text,...rest)};
  });
- await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();
+ await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+ await expect(page.getByTestId('tab-history')).toBeVisible();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')||'{}').ageConfirmed===true);
  const today=new Date(now??Date.now()),day=n=>{const d=new Date(today);d.setDate(d.getDate()-n);d.setHours(12,0,0,0);return d};
  const state=await page.evaluate(([days,whisperDay,secret])=>{
   const state=JSON.parse(localStorage.getItem('crystal-ball-v1')),reading=(id,question,createdAt,extra={})=>({id:`0000000a-abcd-4000-8000-00000000000${id}`,question,headline:secret[2],createdAt,label:'Speculative forecast',why:'Fixture',facts:{},sources:[],assumptions:[],friend:false,...extra});
