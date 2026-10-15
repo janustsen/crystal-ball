@@ -144,14 +144,16 @@ test('a Love timing check-in names its own day, keeps the question private and f
  assert.ok(planNotifications(state({...enabled(),days:{}},[reading]),now,14).some(p=>at(p)==='2026-10-09'&&p.title==='The day the Ball named'));
 });
 
-test('the plan never exceeds the iOS pending limit, keeping the nearest Love timing dates',()=>{
+for(const count of [49,80])test(`the pending cap prioritizes ${count} Love dates over routine notifications`,()=>{
  const start=new Date(2026,9,21,12);
- const history:Prediction[]=Array.from({length:80},(_,i)=>{const due=new Date(start);due.setDate(due.getDate()+i);return {id:`love-${i}`,timing:'love',dueDate:localDay(due),createdAt:'2026-10-07T09:00:00',question:'Private',headline:'Private',label:'Love timing',why:'',facts:{},sources:[],assumptions:[],friend:false}});
+ const history:Prediction[]=Array.from({length:count},(_,i)=>{const due=new Date(start);due.setDate(due.getDate()+i);return {id:`love-${i}`,timing:'love',dueDate:localDay(due),createdAt:'2026-10-07T09:00:00',question:'Private',headline:'Private',label:'Love timing',why:'',facts:{},sources:[],assumptions:[],friend:false}});
  const plan=planNotifications(state(enabled(),history),now);
  assert.equal(plan.length,pendingLimit);
  assert.ok(pendingLimit<64);
+ const routine=planNotifications(state(enabled()),now);
+ assert.equal(routine.length,12);
  const loveDays=plan.filter(p=>p.data.checkIns).map(p=>at(p));
- assert.equal(loveDays[0],'2026-10-21');
- assert.deepEqual(loveDays,[...loveDays].sort());
+ assert.deepEqual(loveDays,history.slice(0,pendingLimit).map(p=>p.dueDate));
+ assert.deepEqual(plan.filter(p=>!p.data.checkIns),routine.slice(0,Math.max(0,pendingLimit-count)));
  assert.ok(plan.every((p,i)=>i===0||plan[i-1].at.getTime()<=p.at.getTime()));
 });
