@@ -1,9 +1,10 @@
 #!/bin/bash
 # Native drive of the daily ritual and notifications in an iOS Simulator (no Apple account needed).
 # Usage: scripts/ios-ui-test/run.sh <simulator-udid> <CrystalBall.app> <metro-host:port> <out-dir> [xcodebuild args, e.g. -only-testing:…]
-# Installs an existing simulator build fresh, points it at a Metro server for this checkout's JavaScript, builds only
-# the small UI-test bundle and runs it. Metro and the local engine (with Ollama) must already be running; start Metro
-# with EXPO_PUBLIC_ENGINE_URL set to the engine. The server push fires when the test signals it is ready.
+# Reinstalls an existing simulator build before each selected case and builds only the UI-test bundle.
+# For a development build, start Metro with EXPO_PUBLIC_ENGINE_URL set to the running local engine (with Ollama).
+# The Friday fallback case also accepts an empty Metro argument with a bundled Release build and needs no engine.
+# The server push fires when the daily ritual case signals it is ready.
 set -euo pipefail
 udid=$1 app=$2 metro=$3 out=$4 here=$(cd "$(dirname "$0")" && pwd) root=$(cd "$(dirname "$0")/../.." && pwd)
 mkdir -p "$out" && rm -f "$out/ready-for-push" "$out/pushed"

@@ -125,10 +125,13 @@ final class RitualUITests: XCTestCase {
   tap("tab-sky",60);tap("social-section-circles",60)
   tap("sky-push-toggle",60)
   XCTAssertEqual(element("sky-push-toggle").value as? String,"0")
+  // Let queued archive writes finish before terminating the process.
+  Thread.sleep(forTimeInterval:5)
   app.terminate();app.launch()
   let skyTab=wait(element("tab-sky"),240,"Sky tab after relaunch")
   let ready=XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:skyTab)
   XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:240),.completed)
+  if element("tour-skip").waitForExistence(timeout:5){tap("tour-skip",60)}
   tap("tab-sky",60);tap("social-section-circles",60)
   XCTAssertEqual(element("sky-push-toggle").value as? String,"0","disabled consent must survive relaunch")
   shot("sky-03-disabled-after-relaunch")
