@@ -188,9 +188,18 @@ test('a Circle bond for a name that contains a filtered word still passes modera
   if(path==='/rest/v1/rpc/authorize_friend_reading')return Response.json({sun_sign:'aries',themes:[]});
   throw new Error(`Unexpected ${path}`);
  });
- const model=scripted([{why:'The two images find a steady rhythm in small shared plans.',moment:'You and Shital will plant a window herb garden.',horizon:'within 1 month'}]);
- const response=await socialHandler(env,model)(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('Shital'),firstName:'Shital',circle:'circle',member:'member'})}));
+ const model=scripted([{why:'You and SHITAL find a steady rhythm in small shared plans.',moment:'You and Shital will plant a window herb garden.',horizon:'within 1 month'}]);
+ const response=await socialHandler(env,model)(new Request('http://localhost/social',{method:'POST',headers:{authorization:'Bearer user-token'},body:JSON.stringify({action:'friend',bond:true,question:bondQuestion('shital'),firstName:'shital',circle:'circle',member:'member'})}));
  const reading=await response.json();
  assert.equal(response.status,200,JSON.stringify(reading));
  assert.equal(reading.headline,'You and Shital will plant a window herb garden within 1 month.');
+ assert.equal(reading.why,'You and SHITAL find a steady rhythm in small shared plans.');
+ assert.equal(reading.friendTarget.firstName,'shital');
+});
+
+test('name exemption ignores case but retains name fragments inside words',async()=>{
+ const {withoutName}=await import('../server/bond.ts');
+ assert.equal(withoutName('Shital and SHITAL cook with shital.','shital','Friend'),'Friend and Friend cook with Friend.');
+ assert.equal(withoutName('Shitalia Ashital Shitalé Shital\u0301','shital','Friend'),'shitalia ashital shitalé shital\u0301');
+ assert.match(withoutName('Love loves a clover.','Love'),/loves a clover/i);
 });

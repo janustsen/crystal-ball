@@ -14,16 +14,17 @@ type Draft={why:string;moment:string;horizon:string};
 // A Circle friend who opted in adds their sun sign and shared themes; anyone else is a first name only.
 export type BondPartner={name:string;sign?:string;themes?:string[]};
 
+export const withoutName=(text:string,name:string,replacement='the person')=>text.toLowerCase().split(name.toLowerCase()).map((part,index,parts)=>{
+   if(index===0)return part;
+   const insideWord=/[\p{L}\p{M}]/u.test(parts[index-1].slice(-1))||/^[\p{L}\p{M}]/u.test(part);
+   return (insideWord?name:replacement)+part;
+  }).join('');
+
 export async function bondReading(partner:BondPartner,model:ModelProvider,context:ReadingContext={}):Promise<Result<Prediction>> {
  const {name}=partner;
  try {
   if(ageGroup(context.viewerBirthday)==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
   const bond=bondOf(context.viewerBirthday,name,partner.sign),lead=`You and ${name} will `;
-  const withoutName=(text:string)=>text.toLowerCase().split(name.toLowerCase()).map((part,index,parts)=>{
-   if(index===0)return part;
-   const insideWord=/[\p{L}\p{M}]/u.test(parts[index-1].slice(-1))||/^[\p{L}\p{M}]/u.test(part);
-   return (insideWord?name:'the person')+part;
-  }).join('');
   const valid=(x:unknown)=>{
    if(!x||typeof x!=='object'||!('moment'in x)||!('why'in x)||!('horizon'in x)||typeof x.moment!=='string'||typeof x.why!=='string'||!horizons.includes(String(x.horizon)))return {valid:false,feedback:'Return moment, why and one allowed horizon.'};
    const moment=x.moment.trim(),why=x.why.trim(),issues:string[]=[];
@@ -33,7 +34,7 @@ export async function bondReading(partner:BondPartner,model:ModelProvider,contex
    const zodiacText=`${moment} ${why}`.normalize('NFKC').replace(/(?<![\p{L}\p{M}])(?:you and ([\p{L}\p{M}'’-]+)|([\p{L}\p{M}'’-]+) and you)(?![\p{L}\p{M}])/giu,(pair,after:string|undefined,before:string|undefined)=>(after??before)?.toLowerCase()===name.normalize('NFKC').toLowerCase()?'the two of you':pair);
    if(/\b(?:aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/i.test(zodiacText))issues.push("Refer to the bond's images, not zodiac sign names.");
    if(hedge.test(moment.slice(lead.length))||hedge.test(why))issues.push('Remove hedges such as may, might, could or likely.');
-   if(innerLife.test(withoutName(`${moment} ${why}`)))issues.push(`Describe only what the two of you will do together, never anyone's feelings, wishes, thoughts or romance.`);
+   if(innerLife.test(withoutName(`${moment} ${why}`,name)))issues.push(`Describe only what the two of you will do together, never anyone's feelings, wishes, thoughts or romance.`);
    if(/\b(within|by|in \d|next|this) (?:a |\d+ )?(?:days?|weeks?|months?|year|spring|summer|autumn|fall|winter)\b/i.test(moment))issues.push('Omit time wording from moment; the server adds the horizon.');
    return issues.length?{valid:false,feedback:issues.join(' ')}:true;
   };

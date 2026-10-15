@@ -9,7 +9,7 @@ import {isSkyPrompt,safeSealedHeadline,sunSigns,validFirstName} from '../src/soc
 import {safety} from './safety.ts';
 import {BillingError,type Billing} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
-import {bondReading} from './bond.ts';
+import {bondReading,withoutName} from './bond.ts';
 
 export async function moderateSocialLine(text:string,kind:'star'|'seal',teen:boolean,model:ModelProvider){
  if(!safeSealedHeadline(text))throw new Error('This wording cannot be shared. Try a gentler question.');
@@ -103,9 +103,8 @@ export function socialHandler(env:(key:string)=>string|undefined,model:ModelProv
       return true;
      });
     // A Bond's text must name the friend, so their validated first name is not run through the word filter (Shital is not profanity).
-    const withoutName=(text:string)=>bond?text.split(body.firstName).join('Friend'):text;
-    await moderateSocialLine(withoutName(result.headline),'seal',teen,model);
-    await moderateSocialLine(withoutName(result.why),'seal',teen,model);
+    await moderateSocialLine(bond?withoutName(result.headline,body.firstName,'Friend'):result.headline,'seal',teen,model);
+    await moderateSocialLine(bond?withoutName(result.why,body.firstName,'Friend'):result.why,'seal',teen,model);
     const prediction:Prediction={...(bond?{bond:bond.value.bond,dueDate:bond.value.dueDate,label:bond.value.label}:{label:'For fun · speculative forecast, not a guarantee'}),id:crypto.randomUUID(),question:body.question,headline:result.headline,why:result.why,astrology:astrologyLine(birthday,plusChart),createdAt:new Date().toISOString(),facts:{sun_sign:context.sun_sign||'Not shared',activity_themes:context.themes.join(', ')||'No shared activity'},sources:[],assumptions:['Only a sun sign and broad Circle activity themes were available.'],friend:true,friendTarget:{circle:body.circle,member:body.member,firstName:body.firstName}};
     if(!meter)return reply(assignEdition(prediction,true));
     const balance=await meter.charge(user.id,charge!);
