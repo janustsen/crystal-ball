@@ -780,3 +780,55 @@ test('Year ahead request sends the metered session to the engine',async()=>{
  assert.equal(sent.headers.Authorization,'Bearer viewer-token');
  assert.equal(JSON.parse(sent.body).action,'year');
 });
+
+for(const mode of ['refresh','account-change','save-failure','entitlement-loss'] as const)test(`Year ahead waits for archive persistence: ${mode}`,async t=>{
+ const storeHooks=hooks(),h=hooks(false);
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-14',count:0},yearAhead:{kind:'owned',source:'yearly'},balanceSnapshot:{owner:'owner',asOf:stamp(1)}});
+ let pause=false,release!:()=>void,entered!:()=>void;
+ const blocked=new Promise<void>(resolve=>{release=resolve}),writing=new Promise<void>(resolve=>{entered=resolve});
+ t.after(()=>release());
+ const store=load('../src/store.tsx',{
+  react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,'./api':{},
+  './cloud':{anonymousOwner:async()=>'owner',restoreBackup:async(s:any)=>s},
+  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{
+   if(pause){entered();await blocked}
+   if(mode==='save-failure'&&JSON.parse(value).yearAhead?.kind==='sealed')throw new Error('Archive write failed');
+   disk=value;
+  }},
+ },[],{Error});
+ const renderStore=()=>storeHooks.render(()=>store.Store({})).props.value;
+ renderStore();await tick();renderStore();await tick();
+ let finish!:(months:{month:string;headline:string}[])=>void;
+ const generated=new Promise<{month:string;headline:string}[]>(resolve=>{finish=resolve});
+ const component=load('../src/YearAheadShelf.tsx',{
+  react:h.react,'react-native':{View:'View',Pressable:'Pressable'},'./store':{useStore:renderStore},
+  './api':{serverMetered:true,aiProvider:'',requestYearAhead:()=>generated},'./purchases':{purchaseMode:'mock'},'./billing':billing,
+  './reading-history':readings,'./retention':retention,'./year-ahead':yearAhead,'./uuid':{uuid:()=>crypto.randomUUID()},
+  './ui':{Action:'Action',CardHeader:'CardHeader',Txt:'Txt',colors:{},styles:{}},'./Surface':{Surface:'Surface'},'./OrbVisual':{OrbVisual:'OrbVisual'},
+ },[],{React:h.react,Error});
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(()=>component.YearAheadShelf({onOpen(){}})));
+ const notice=()=>render().find(n=>n.props.testID==='year-ahead-notice')?.children.join('')??'';
+ render().find(n=>n.props.testID==='year-ahead-seal').props.onPress();
+ pause=true;
+ const refreshing=renderStore().applyBalance({owner:'owner',asOf:stamp(2),plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-14',yearAhead:mode==='entitlement-loss'?null:'yearly'});
+ await writing;
+ const replacing=mode==='account-change'?renderStore().backup('restore',async()=>{}):Promise.resolve();
+ finish(monthsFrom('2026-10-14').map(month=>({month,headline:'A new beginning.'})));await tick();
+ assert.equal(renderStore().backupBusy,true);
+ assert.equal(JSON.parse(disk).yearAhead.kind,'owned');
+ assert.equal(notice(),'');
+ pause=false;release();await refreshing;await replacing;await tick();
+ const saved=JSON.parse(disk);
+ if(mode==='refresh'){
+  assert.equal(saved.yearAhead.kind,'sealed');assert.equal(saved.yearAhead.months.length,12);
+  assert.equal(renderStore().state.yearAhead.kind,'sealed');
+  assert.match(notice(),/Your twelve months are sealed/);
+ }else if(mode==='entitlement-loss'){
+  assert.equal(saved.yearAhead,undefined);assert.equal(renderStore().state.yearAhead,undefined);
+  assert.match(notice(),/Your year ahead changed/);
+ }else{
+  assert.equal(saved.yearAhead.kind,'owned');assert.equal(renderStore().state.yearAhead.kind,'owned');
+  assert.match(notice(),mode==='account-change'?/Your account changed/:/Archive write failed/);
+ }
+});

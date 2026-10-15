@@ -15,7 +15,7 @@ import type {Prediction} from './types';
 
 // Twelve small balls on the Inner Library's shelf. Sealed balls stay dim until the 1st of their month.
 export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
- const {state,update,applyBalance,backupBusy}=useStore(),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ const {state,update,applyBalance,saveAskProgress,backupBusy}=useStore(),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
  const year=state.yearAhead,today=localDay(),aiBlocked=!!aiProvider&&state.aiConsent!==aiProvider;
  const onSale=purchaseMode==='mock';
  const balls:ShelfBall[]=year?.kind==='sealed'?shelf(year,state.history,today):monthsFrom(today).map(month=>({month,id:month,headline:'',state:'sealed'}));
@@ -27,7 +27,10 @@ export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
     else update(s=>s.yearAhead?s:{...s,yearAhead:{kind:'owned',source:'purchase'}});
    }
    const months=await requestYearAhead(state.facts,state,aiBlocked?'':aiProvider);
-   update(s=>s.yearAhead?.kind==='owned'?{...s,yearAhead:{kind:'sealed',source:s.yearAhead.source,sealedAt:new Date().toISOString(),months:months.map(m=>({...m,id:uuid()}))}}:s);
+   await saveAskProgress(s=>{
+    if(s.yearAhead?.kind!=='owned')throw new Error('Your year ahead changed. Please try again.');
+    return {...s,yearAhead:{kind:'sealed',source:s.yearAhead.source,sealedAt:new Date().toISOString(),months:months.map(m=>({...m,id:uuid()}))}};
+   });
    setNotice(`Your twelve months are sealed. ${monthName(months[0].month)} is open now.`);
   }catch(error){setNotice(error instanceof Error?error.message:'The Ball could not seal your year. Please try again.')}finally{setBusy(false)}
  }
