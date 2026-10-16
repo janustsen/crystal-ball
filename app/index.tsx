@@ -184,7 +184,8 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  useEffect(()=>{AccessibilityInfo.isReduceMotionEnabled().then(setSystemReduce);const listener=AccessibilityInfo.addEventListener('reduceMotionChanged',setSystemReduce);return()=>listener.remove()},[]);
  useEffect(()=>{if(params.question)openAsk(params.question.slice(0,500),params.friend==='1')},[params.question,params.friend]);
  useEffect(()=>watchSocialPushes(section=>{setTab('Sky');router.setParams({social:section,socialRequest:uuid()})}),[]);
- useEffect(()=>{if(ready&&params.circle)selectTab('Sky')},[params.circle,ready]);
+ // A Circle invite opens Sky on the invitation whatever the question count; the ladder still gates every other way in.
+ useEffect(()=>{if(ready&&params.circle)setCurrentTab('Sky')},[params.circle,ready]);
  useEffect(()=>{if(ready&&params.seal){cancel();setShare(false);setPaywall(false);selectTab('Sky')}},[params.seal,ready]);
  useEffect(()=>()=>controller.current?.abort(),[]);
  async function forgetEverything(){try{cancel();await forgetAll();}catch{setNotice('Could not finish erasing your data. Try Forget everything again.');}}
