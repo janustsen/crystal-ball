@@ -247,7 +247,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  const close=()=>{router.setParams({seal:undefined});if(share){setShare(false);return}if(paywall){setPaywall(false);return}cancel();setTab('Home')};
  // The room spot behind the screen; content docks below the spot's focal object (the ball, at Home and Ask).
  // The Ball asks docks higher than You, its spot, so a whole question card fits above the tab bar.
- // Settings docks right under the header so every control shows at once without scrolling.
+ // Settings docks under the header to keep its controls together; text-size exceptions live in docs/design/ui-rules.md.
  // The locked Inner Library keeps its door upsell over the You spot; Plus enters the chamber itself.
  const spot:Spot=onboarding?'Home':paywall?'You':tab==='Library'?state.plus?'Library':'You':tab==='Asks'||tab==='Settings'?'You':tab,askFlow=tab==='Ask'&&!immersiveOverlay;
  const typing=askFlow&&ready&&flow.stage==='ask'&&!(params.seal&&Platform.OS==='web'),keyboard=useKeyboardInset();
