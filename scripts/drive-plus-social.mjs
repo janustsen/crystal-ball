@@ -4,6 +4,7 @@ import {spawn,execFileSync} from 'node:child_process';
 import sharp from 'sharp';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
+import {seedLadder} from './ladder-seed.mjs';
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8099',stamp=Date.now(),sessions=new Set(),evidence=[];
 const dir=process.env.EVIDENCE_DIR||'docs/evidence/plus-social';
 const suffix=stamp.toString(36);
@@ -13,17 +14,22 @@ async function run(person,script){
  const out=await new Promise((resolve,reject)=>{const p=spawn('chrome-devtools-axi',['run'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session}});let text='';p.stdout.on('data',c=>text+=c);p.stderr.on('data',c=>text+=c);p.on('error',reject);p.on('close',code=>code?reject(Error(text)):resolve(text));p.stdin.end(script)});
  return out.trim()?JSON.parse(out):null;
 }
+// Sky opens at 12 questions on the ladder; open every feature after onboarding, then reload into Home.
+const seeded=url=>`await page.wait('[data-testid="tap-to-ask"]');await page.eval(async()=>{${seedLadder}});await page.open(${JSON.stringify(url)});`;
 const click=id=>`await page.click('[data-testid="${id}"]');`;
-const text=value=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(value)}))throw Error(${JSON.stringify('Missing '+value)});`;
+// Home fades in from a side screen; let it settle before tapping its Sky line.
+const toSky=`${click('tab-home')}await page.wait(1200);${click('open-sky')}await page.wait('[data-testid="social-section-sky"]');`;
+// Waits up to 10s for the text; labels render uppercased by CSS, so the match ignores case.
+const text=value=>`for(let i=0;!(await page.eval(()=>document.body.innerText)).toLowerCase().includes(${JSON.stringify(value.toLowerCase())});i++){if(i===20)throw Error(${JSON.stringify('Missing '+value)});await page.wait(500)}`;
 const absent=value=>`if((await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(value)}))throw Error(${JSON.stringify('Unexpected '+value)});`;
 const has=id=>`if(!(await page.eval(()=>!!document.querySelector('[data-testid="${id}"]'))))throw Error('Missing ${id}');`;
 const lacks=id=>`if(await page.eval(()=>!!document.querySelector('[data-testid="${id}"]')))throw Error('Unexpected ${id}');`;
 const button=prefix=>`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith(${JSON.stringify(prefix)})).click());`;
 async function fresh(person){
- await run(person,`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','03');await page.fill('[data-testid="birthday-day"]','21');await page.fill('[data-testid="birthday-year"]','1995');${click('continue')}${click('about-done')}await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+suffix)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`);
+ await run(person,`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','03');await page.fill('[data-testid="birthday-day"]','21');await page.fill('[data-testid="birthday-year"]','1995');${click('continue')}${click('about-done')}${seeded(base)}await page.wait('[data-testid="open-sky"]');${click('open-sky')}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+suffix)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`);
  execFileSync('chrome-devtools-axi',['emulate','--viewport','390x844x1,mobile,touch'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:`cb-plus-${suffix}-${person}`},stdio:'pipe'});
 }
-async function circles(person){await run(person,`if(await page.eval(()=>!!document.querySelector('[data-testid="close-flow"]')))${click('close-flow')}${click('tab-home')}${click('tab-sky')}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[data-testid="search-people"]');await page.wait(1500);`)}
+async function circles(person){await run(person,`if(await page.eval(()=>!!document.querySelector('[data-testid="close-flow"]')))${click('close-flow')}${toSky}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[data-testid="search-people"]');await page.wait(1500);`)}
 async function history(person){await run(person,`if(await page.eval(()=>!!document.querySelector('[data-testid="close-flow"]')))${click('close-flow')}${click('tab-home')}${click('tab-history')}await page.wait(800);`)}
 try{
  await mkdir(dir,{recursive:true});

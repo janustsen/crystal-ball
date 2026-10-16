@@ -1,5 +1,6 @@
 import {spawn} from 'node:child_process';
 import {openAuthenticatedPreview} from './preview-auth.mjs';
+import {seedLadder} from './ladder-seed.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',log=[],runId=Date.now().toString(36),sessions=new Set();
@@ -24,20 +25,24 @@ async function waitFor(name,selector,label,ms=95000,expectedText=''){
  throw new Error(`${label} did not appear: ${last?.text}`);
 }
 const onboard=`await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]','06');await page.fill('[data-testid="birthday-day"]','15');await page.fill('[data-testid="birthday-year"]','1995');await page.click('[data-testid="continue"]');await page.click('[data-testid="about-done"]');`;
+// Sky, and with it a Circle invitation, opens at 12 questions; open every feature, then reopen the link.
+const seeded=url=>`await page.wait('[data-testid="tap-to-ask"]');await page.eval(async()=>{${seedLadder}});await page.open(${JSON.stringify(url)});`;
 const click=id=>`await page.click('[data-testid="${id}"]');`;
+// Home fades in from a side screen; let it settle before tapping its Sky line.
+const toSky=`${click('tab-home')}await page.wait(1200);${click('open-sky')}await page.wait('[data-testid="social-section-sky"]');`;
 const assertText=text=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(text)}))throw Error(${JSON.stringify(`Missing: ${text}`)});`;
 const setHandle=person=>`await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+runId)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`;
 const identity=`await page.eval(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)).user.id:null})`;
 
 try{
  const circle=await run('owner',`
-  await page.open(${JSON.stringify(base)});${onboard}await page.wait('[data-testid="tab-sky"]');
-  ${click('tab-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
+  await page.open(${JSON.stringify(base)});${onboard}${seeded(base)}await page.wait('[data-testid="open-sky"]');
+  ${click('tap-to-ask')}await page.wait('[data-testid="type-instead"]');${click('type-instead')}
   await page.fill('[data-testid="question-input"]','Will I be conversational in Spanish in six months?');${click('look-into-the-future')}
   await page.wait('[data-testid="option-0"]',65000);
   for(let card=0;card<2;card++){const last=(await page.eval(()=>document.body.innerText)).includes((card+1)+' of '+(card+1));${click('option-0')}if(last)break;await page.wait('[data-testid="option-0"]');}
   await page.wait('[data-testid="share-this-glimpse"]',65000);
-  ${click('close-flow')}${click('tab-sky')}await page.wait('[data-testid="add-my-star"]');${click('add-my-star')}
+  ${click('close-flow')}${click('open-sky')}await page.wait('[data-testid="add-my-star"]');${click('add-my-star')}
   await page.wait('[data-testid="publish-anonymous-star"]',120000);
   ${assertText('Approve your anonymous wording')}${click('publish-anonymous-star')}
   await page.wait('[data-testid="remove-my-star"]');
@@ -49,9 +54,9 @@ try{
  log.push({realOllamaReading:true,aiRewrittenStarApproved:true,createdPrivateCircle:true});
  console.log('PASS: real reading → AI-rewritten draft → explicit publication → circle invite');
  const friend=await run('friend',`
-  await page.open(${JSON.stringify(circle.url)});${onboard}${setHandle('friend')}await page.wait('[data-testid="join-this-circle"]');
+  await page.open(${JSON.stringify(circle.url)});${onboard}${seeded(circle.url)}${setHandle('friend')}await page.wait('[data-testid="join-this-circle"]');
   ${assertText('Joining shares')}${click('join-this-circle')} await page.wait('[data-testid="leave-this-circle"]');
-  ${click('tab-home')}${click('tab-sky')}
+  ${toSky}
   if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after joining');
   ${click('social-section-sky')}${click('sky-theme-learning')}
   await page.wait('[data-testid="-this-resonates"]');${click('-this-resonates')}
@@ -60,22 +65,22 @@ try{
  `);
  log.push({explicitJoin:friend.explicitJoin,anonymousResonance:friend.anonymousResonance});
  await run('outsider',`
-  await page.open(${JSON.stringify(circle.url)});${onboard}${setHandle('outsider')}await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
+  await page.open(${JSON.stringify(circle.url)});${onboard}${seeded(circle.url)}${setHandle('outsider')}await page.wait('[data-testid="join-this-circle"]');${click('join-this-circle')}
   await page.wait('[data-testid="dismiss-social-notice"]');${assertText('expired or was used')}
-  ${click('dismiss-social-notice')}${click('decline-invitation')}${click('tab-home')}${click('tab-sky')}
+  ${click('dismiss-social-notice')}${click('decline-invitation')}${toSky}
   if(await page.eval(()=>!!document.querySelector('[data-testid="join-this-circle"]')))throw Error('Handled invitation reappeared after declining');
   console.log(JSON.stringify({inviteReplayRejected:true,declinedInvitationConsumed:true}));
  `).then(result=>log.push(result));
  await run('friend',`
   await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-home"]');
-  ${click('tab-home')}${click('tab-sky')}${click('social-section-circles')}
+  ${toSky}${click('social-section-circles')}
   await page.wait('[role="switch"]:not([aria-disabled="true"])');
   await page.click('[role="switch"]');
   console.log(JSON.stringify({adultOptInUsed:true}));
  `).then(result=>log.push(result));
  await run('owner',`
   ${click('view-plans')}${click('continue-with-plus-simulate')}${click('close-flow')}
-  ${click('tab-sky')}${click('social-section-circles')}
+  ${toSky}${click('social-section-circles')}
   console.log(JSON.stringify({stage:'Plus selected'}));
  `);
  const ownerFacts=await run('owner',`console.log(JSON.stringify(await page.eval(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).facts)));`);
@@ -119,7 +124,7 @@ try{
  await run('friend',`
   ${assertText('A glimpse for you.')}
   if(/speculative forecast|not a guarantee/i.test(await page.eval(()=>document.body.innerText)))throw Error('Sealed card disclaimer');
-  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}
+  await page.open(${JSON.stringify(base)});await page.wait('[data-testid="open-sky"]');${click('open-sky')}
   ${click('social-section-circles')}
   await page.wait('[data-testid="send-a-star-to-friend-1"]');${click('send-a-star-to-friend-1')}
   ${assertText('Someone asked about you.')}

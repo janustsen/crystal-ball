@@ -3,6 +3,7 @@ import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {httpCredentials,previewFetch} from './preview-auth.mjs';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8112',out='docs/evidence/positioning';
 await mkdir(out,{recursive:true});await mkdir('.local/positioning-video',{recursive:true});
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
@@ -20,14 +21,14 @@ try{
   const replies=[],errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('response',async r=>{if(r.url()===`${base}/engine`&&r.request().method()==='POST')try{replies.push({action:r.request().postDataJSON().action,response:await r.json()})}catch{}});
   try{
-   await page.goto(base);await expect(page.getByText('Your forecast. Then check back.',{exact:true})).toBeVisible();
+   await page.goto(base);await expect(page.getByTestId('skip-for-now')).toBeVisible();
    if(sample===samples[0])await page.screenshot({path:`${out}/onboarding.png`});
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
-   await expect(page.getByText('What lies ahead?',{exact:true})).toBeVisible();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
+   await expect(page.getByTestId('tap-to-ask')).toBeVisible();
    if(sample===samples[0]){
     await page.screenshot({path:`${out}/home.png`});
     await page.getByTestId('view-plans').click();
-    await expect(page.getByText(/Free includes 1 reading a day/)).toBeVisible();
+    await expect(page.getByText(/Free includes 1 question a day/)).toBeVisible();
     await expect(page.getByText(/Prototype only: no charge/)).toBeAttached();
     await page.getByTestId('continue-with-plus-simulate').click();
     await page.getByTestId('turn-off-simulated-plus').click();
@@ -35,7 +36,7 @@ try{
     await page.screenshot({path:`${out}/paywall.png`});
     await page.getByTestId('dismiss-notice').click();await page.getByTestId('close-flow').click();
    }
-   await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+   await tapToAsk(page);await page.getByTestId('type-instead').click();
    await page.getByTestId('question-input').fill(sample.question);await page.getByTestId('look-into-the-future').click();
    for(let i=0;i<3;i++){
     await page.getByTestId('option-0').waitFor({timeout:65000});
@@ -45,7 +46,7 @@ try{
    }
    await page.getByTestId('record-reveal').waitFor({timeout:65000});
    await expect(page.getByTestId('forecast-due-date')).toContainText('Check back');
-   await expect(page.getByTestId('view-plans')).toHaveText('0 readings');
+   await expect(page.getByTestId('view-plans')).toHaveText('0 free today');
    await page.screenshot({path:`${out}/${sample.name}-reveal.png`});
    await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
    await page.getByRole('button').filter({hasText:sample.question}).click();

@@ -1,10 +1,11 @@
-// Drives a Bond reading end to end on the live engine: Home entry, first-name validation, the two-ball reveal with its
+// Drives a Bond reading end to end on the live engine: You entry, first-name validation, the two-ball reveal with its
 // named bond, percentage and dated shared forecast, stability on a second reading, the two-ball story PNG, History and
 // a 375 px large-text layout. Evidence (screenshots, PNG, engine log) goes to EVIDENCE (default .local/bond-evidence).
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 import sharp from 'sharp';
+import {openEverything} from './ladder-seed.mjs';
 const url=process.env.VERIFY_URL||'http://localhost:8087',out=process.env.EVIDENCE||'.local/bond-evidence';
 await mkdir('.local',{recursive:true});await mkdir(out,{recursive:true});
 const profile=await mkdtemp(`${process.cwd()}/.local/bond-browser-`);
@@ -17,9 +18,9 @@ async function home(){while(await page.getByTestId('close-flow').count())await p
 async function reveal(){await page.getByTestId('bond-pair').waitFor({timeout:90000});return {name:await page.getByTestId('bond-name').innerText(),percent:await page.getByTestId('bond-percent').innerText()};}
 
 try{
- await page.goto(url);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('08');await page.getByTestId('birthday-day').fill('01');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
- await page.getByTestId('view-plans').click();await page.getByTestId('5-readings-1-99-simulate').click();await home();
- if(await page.getByText('Skip tour').count())await page.getByText('Skip tour').click();await page.getByTestId('dismiss-notice').click();await page.getByTestId('open-bond').scrollIntoViewIfNeeded();await expect(page.getByTestId('open-bond')).toBeVisible();await shot('home');
+ await page.goto(url);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('08');await page.getByTestId('birthday-day').fill('01');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
+ await page.getByTestId('view-plans').click();await page.getByTestId('5-questions-1-99-simulate').click();await home();
+ await page.getByTestId('dismiss-notice').click();await page.getByTestId('tab-you').click();await page.getByTestId('open-bond').scrollIntoViewIfNeeded();await expect(page.getByTestId('open-bond')).toBeVisible();await shot('home');
  await page.getByTestId('open-bond').click();await expect(page.getByText('Bond reading',{exact:true})).toBeVisible();
  await expect(page.getByTestId('look-into-the-future')).toHaveText('Read our bond');await expect(page.getByTestId('look-into-the-future')).toBeDisabled();
  await page.getByTestId('question-input').fill('Maya Lee');await expect(page.getByTestId('look-into-the-future')).toBeDisabled();

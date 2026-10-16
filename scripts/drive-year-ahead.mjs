@@ -5,6 +5,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
+import {openEverything} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',out=process.env.YEAR_EVIDENCE||'.local/year-ahead';
 mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});
@@ -16,12 +17,12 @@ async function start(context){
  page.setDefaultNavigationTimeout(180000);
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
  page.on('pageerror',error=>errors.push(error.message));
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
  await page.getByTestId('hero-orb').waitFor();
  return page;
 }
 // The screen's enter transition scales its content, so measurements wait for it to settle.
-const library=async page=>{await page.getByTestId('tab-home').click();await page.getByTestId('room-inner-library').click();await page.getByTestId('year-ahead').waitFor();await page.waitForTimeout(2500)};
+const library=async page=>{await page.getByTestId('tab-you').click();await page.getByTestId('open-inner-library').click();await page.getByTestId('year-ahead').waitFor();await page.waitForTimeout(2500)};
 try{
  const context=await browser.newContext({viewport:{width:390,height:844}});
  await context.clock.install({time:new Date()});
@@ -88,11 +89,8 @@ try{
 
  // The yearly plan includes Year ahead: owned and ready to seal without a second purchase.
  const yearly=await browser.newContext({viewport:{width:360,height:740}}),plan=await start(yearly);
- await plan.getByTestId('view-plans').click();
- await plan.getByRole('radio',{name:/Yearly/}).click();
- assert.match(await plan.getByRole('radio',{name:/Yearly/}).innerText(),/Year ahead included/);
- await plan.getByTestId('continue-with-plus-simulate').click();
- await plan.getByTestId('close-flow').click();
+ await plan.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));localStorage.setItem('crystal-ball-v1',JSON.stringify({...s,yearAhead:{kind:'owned',source:'yearly'}}))});
+ await plan.reload();await plan.getByTestId('hero-orb').waitFor();
  await library(plan);
  await plan.getByTestId('year-ahead-seal').waitFor();
  assert.deepEqual((await saved(plan)).yearAhead,{kind:'owned',source:'yearly'});
@@ -102,7 +100,7 @@ try{
  const overflow=await plan.evaluate(()=>{const shell=document.querySelector('[data-testid="app-shell"]').getBoundingClientRect();return [...document.querySelectorAll('[data-testid="year-ahead"] *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&(r.left<shell.left-1||r.right>shell.right+1)}).length+(document.documentElement.scrollWidth>innerWidth?1:0)});
  assert.equal(overflow,0,'Year ahead overflows the shell at 200% text');
  await plan.screenshot({path:`${out}/yearly-large-text.png`,fullPage:true});
- results.yearly='owned via Yearly; no overflow at 360px and 200% text';
+ results.yearly='Yearly not offered; saved Yearly grant; no overflow at 360px and 200% text';
  await yearly.close();
  assert.deepEqual(errors.filter(e=>!/room clip unavailable|favicon/.test(e)),[],'console errors');
  writeFileSync(`${out}/drive-year-ahead.json`,JSON.stringify(results,null,1)+'\n');

@@ -390,7 +390,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>params,router:{setParams:(value:any)=>Object.assign(params,value)}},
-  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining,applyBalance:async()=>{}})},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining,update:()=>{},applyBalance:async()=>{}})},
   '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/AskBall':askBallMock(h.react),'../src/useDelight':{useDelight:()=>{}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value,activityTheme:()=>'learning'},

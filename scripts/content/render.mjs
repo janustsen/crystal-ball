@@ -8,6 +8,7 @@ import {parseArgs} from 'node:util';
 import {httpCredentials,previewFetch} from '../preview-auth.mjs';
 import {assertSafe,forecasts,profileBirthday,receiptExamples,signs} from './hooks.mjs';
 import {assertFollowUpSafe,assertHomeSafe} from './capture-safety.mjs';
+import {openEverything,tapToAsk} from '../ladder-seed.mjs';
 
 const {values:opt}=parseArgs({options:{day:{type:'string',default:new Date().toLocaleDateString('en-CA')},a:{type:'string',default:'2'},b:{type:'string',default:'1'},c:{type:'string',default:'2'},out:{type:'string',default:process.env.CONTENT_OUT||'.local/content'}}});
 const base=process.env.VERIFY_URL||'http://localhost:8087',out=resolve(opt.out,opt.day),label='AI-generated';
@@ -86,6 +87,8 @@ async function profile(browser){
  // The app claims the day's omen before inference; snapshotting mid-request would cache an empty omen into every copy.
  const omen=page.waitForResponse(r=>{try{return r.request().postDataJSON()?.action==='omen'}catch{return false}},{timeout:90000});
  await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
+ // Home's insight opens with the question ladder; every feature is open, as for a long-time user.
+ await openEverything(page);
  await omen;await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}').text,null,{timeout:10000}); // omenKey in src/daily-omen.ts
  await assertHomeSafe(page);
  const state=await page.context().storageState();await page.context().close();return state;
@@ -94,7 +97,7 @@ async function profile(browser){
 // The real Ask flow against the live engine. Returns event times so the cut can drop waiting.
 async function ask(page,question){
  const ev={cards:[]};
- await page.getByTestId('tab-ask').click();
+ await tapToAsk(page);
  await page.getByTestId('type-instead').click();
  await page.getByTestId('question-input').pressSequentially(question,{delay:35});
  await page.getByTestId('look-into-the-future').click();ev.asked=now();
@@ -119,7 +122,7 @@ async function forecastVideo(browser,state,item,file,dir){
  const hook=assertSafe(item.hook);assertSafe(item.question);
  const page=await session(browser,{state}),stop=await record(page,dir);
  try{
-  await page.goto(base);await page.getByTestId('tab-ask').waitFor();await assertHomeSafe(page);const start=now()+.3;await page.waitForTimeout(1500);
+  await page.goto(base);await page.getByTestId('tap-to-ask').waitFor();await assertHomeSafe(page);const start=now()+.3;await page.waitForTimeout(1500);
   const ev=await ask(page,item.question);await page.waitForTimeout(4000);const end=now();
   const reading=await latest(page),frames=await stop();assertSafe(reading.headline);
   const seconds=await encode(frames,[[start,ev.asked+1],...ev.cards,[ev.reveal-1,end]],[[await still(`<div class="hook">${esc(hook)}</div>`,join(dir,'hook.png')),start,ev.reveal-1],[await still('',join(dir,'label.png')),start,end]],file,dir);
@@ -150,7 +153,7 @@ async function receiptVideo(browser,state,item,file,dir){
 
 async function omen(sign){
  for(let attempt=1;;attempt++){
-  const result=await previewFetch(`${base}/engine`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{sun_sign:sign.sign},viewerBirthday:sign.birthday})}).then(r=>r.json());
+  const result=await previewFetch(`${base}/engine`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'omen',question:'Today’s personal omen',facts:{sun_sign:sign.sign},viewerBirthday:sign.birthday,localDate:opt.day,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone})}).then(r=>r.json());
   try{if(result?.kind!=='ok')throw new Error(result?.message||'Omen unavailable.');return assertSafe(result.value.text)}catch(error){if(attempt===3)throw new Error(`${sign.sign}: ${error.message}`)}
  }
 }
@@ -162,8 +165,8 @@ async function omenVideo(browser,state,half,file,dir){
  const page=await session(browser,{state});
  let art,app;
  try{
-  await page.goto(base);await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(1500);
-  await assertHomeSafe(page);
+  await page.goto(base);await page.getByTestId('insight-line').click();
+  await assertHomeSafe(page);await page.getByTestId('daily-omen').scrollIntoViewIfNeeded();await page.waitForTimeout(1500);
   app=(await page.screenshot()).toString('base64');
   if(!await page.locator('[data-testid="app-shell"]>.room').count())throw new Error('Format C requires the .room art layer; no background captured.');
   await page.addStyleTag({content:'[data-testid="app-shell"]>:not(.room){visibility:hidden!important}'});await page.waitForTimeout(500);

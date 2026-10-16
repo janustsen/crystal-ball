@@ -18,12 +18,12 @@ try{
     await route.fulfill({contentType:'application/json',body:JSON.stringify({kind:'ok',value})});
    });
    await page.goto(entry==='friend'?`${base}/?friend=1&question=${encodeURIComponent('Will I finish writing in six months?')}`:base);
-   await expect(page.getByTestId('birthday-month')).toBeVisible();await expect(page.getByTestId('tab-ask')).toHaveCount(0);
+   await expect(page.getByTestId('birthday-month')).toBeVisible();await expect(page.getByTestId('tap-to-ask')).toHaveCount(0);
    await page.getByTestId('skip-for-now').click();await expect(page.getByTestId('confirm-age')).toBeVisible();expect(requests).toHaveLength(0);
    await page.getByTestId(accept?'confirm-age':'decline-age').click();if(accept)await page.getByTestId('about-done').click();
    await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).onboardingBlocked)).toBe(!accept);
    await page.reload();
-   if(!accept){await expect(page.getByTestId('skip-for-now')).toBeDisabled();await expect(page.getByTestId('tab-ask')).toHaveCount(0);expect(requests).toHaveLength(0);}
+   if(!accept){await expect(page.getByTestId('skip-for-now')).toBeDisabled();await expect(page.getByTestId('tap-to-ask')).toHaveCount(0);expect(requests).toHaveLength(0);}
    else{
     const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
     expect(saved.ageConfirmed).toBe(true);expect(saved.ageBand).toBe('teen');expect(saved.sunSign).toBeNull();expect(saved.birthday).toBeUndefined();expect(saved.onboardingDone).toBe(true);
@@ -32,7 +32,7 @@ try{
      await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history.length)).toBe(1);
      expect(requests.map(r=>r.action)).toEqual(['plan','predict']);for(const r of requests){expect(r.ageConfirmed).toBe(true);expect(r.viewerBirthday).toBeUndefined();expect(r.friend).toBe(true);}
      expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).facts)).toEqual({});
-    }else await expect(page.getByTestId('tab-ask')).toBeVisible();
+    }else await expect(page.getByTestId('tap-to-ask')).toBeVisible();
    }
    results.push({entry,accept,passed:true,model:'explicit boundary fixture; not live model evidence'});
   }catch(error){await page.screenshot({path:`docs/evidence/age-confirmation-${stamp}-${entry}-${accept}-failure.png`});results.push({entry,accept,failure:String(error)});throw error;}finally{await context.close();}

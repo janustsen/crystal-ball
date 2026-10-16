@@ -1,6 +1,6 @@
 import XCTest
 
-// Drives the installed Release build in the iOS Simulator: onboarding, the Today card, a real forecast from the local
+// Drives the installed Release build in the iOS Simulator: onboarding, the ladder opened, the Today card on You, a real forecast from the local
 // engine, the notification offer and the iOS permission prompt, You's sky and counts, a local notification tap and a
 // server push delivered by scripts/simulator-push.mts. Screenshots and handshake files go to RITUAL_OUT on the host.
 final class RitualUITests: XCTestCase {
@@ -21,19 +21,28 @@ final class RitualUITests: XCTestCase {
  func tap(_ id:String,_ seconds:Double=20){reach(id,seconds).tap()}
  func allowAlert(_ button:String){let b=springboard.alerts.buttons[button];if b.waitForExistence(timeout:8){b.tap()}}
  func waitForFile(_ name:String,_ seconds:Double){let end=Date().addingTimeInterval(seconds);while Date()<end && !FileManager.default.fileExists(atPath:"\(out)/\(name)"){Thread.sleep(forTimeInterval:1)}}
+ // A new account starts on the question ladder. After onboarding, run.sh opens every feature in the app's saved
+ // state (as for an account past its 20 starter questions) while the app is closed, then the app relaunches on Home.
+ func seedLadder(){
+  _=wait(element("tap-to-ask"),60,"Home after onboarding");Thread.sleep(forTimeInterval:3)
+  app.terminate();FileManager.default.createFile(atPath:"\(out)/ready-for-ladder",contents:nil)
+  waitForFile("ladder-seeded",60);XCTAssertTrue(FileManager.default.fileExists(atPath:"\(out)/ladder-seeded"),"ladder never seeded")
+  app.launch();_=wait(element("tab-you"),240,"You tab after seeding")
+ }
 
  func testDailyRitualAndNotifications() throws {
   continueAfterFailure=false
   // A development build loads this checkout's JavaScript from Metro: the bundle location travels as user-default arguments.
   if let metro=ProcessInfo.processInfo.environment["RITUAL_METRO"]{app.launchArguments=["-RCT_jsLocation",metro,"-RCT_enableDev","NO","-RCT_enableMinification","YES"]}
   app.launch()
-  // The birthday sheet's month, day and year fields, then the first-run tour.
+  // The birthday sheet's month, day and year fields, then every ladder feature open.
   _=wait(element("birthday-month"),30,"birthday sheet")
   for (id,value) in [("birthday-month","6"),("birthday-day","15"),("birthday-year","1995")]{let field=element(id);field.tap();field.typeText(value)}
-  tap("continue");tap("about-done");tap("tour-skip",20)
-  _=reach("today-card",30)
-  // Today's omen comes from the local model; the omen step finishes once it settles.
-  XCTAssertTrue(wait(element("today-omen"),10,"omen step").waitForLabel("done",timeout:120),"omen step never finished")
+  tap("continue");tap("about-done");seedLadder()
+  // Today's omen comes from the local model on Home's insight line; the Today card on You marks it done once it settles.
+  XCTAssertTrue(wait(element("insight-line"),30,"insight line").waitForLabelWithout(["starlight is finding you","stars are gathering"],timeout:120),"omen never settled")
+  tap("tab-you");_=reach("today-card",30)
+  XCTAssertTrue(wait(element("today-omen"),10,"omen step").waitForLabel("done",timeout:20),"omen step never finished")
   element("today-card").swipeUp(velocity:.slow);shot("01-home-today")
   tap("today-ask")
   allowAlert("Don’t Allow");allowAlert("Don’t Allow")
@@ -56,12 +65,12 @@ final class RitualUITests: XCTestCase {
   shot("03-ios-permission")
   allow.tap()
   while element("close-flow").exists{element("close-flow").tap();Thread.sleep(forTimeInterval:1)}
-  tap("today-questions")
+  tap("tab-you");tap("today-questions")
   for _ in 0..<3{tap("ask-option-0");Thread.sleep(forTimeInterval:1)}
-  tap("tab-home")
+  tap("tab-you")
   XCTAssertTrue(reach("today-card").label.contains("3 of 3")||labelled("Today’s star",in:app).waitForExistence(timeout:10))
   element("today-card").swipeUp(velocity:.slow);shot("04-home-star")
-  tap("tab-you");_=reach("your-sky");shot("05-you-sky")
+  _=reach("your-sky");shot("05-you-sky")
   tap("open-settings");_=reach("notify-settings");shot("06-settings-notifications")
   reach("you-footer").press(forDuration:1.2)
   _=reach("ritual-debug");shot("07-you-counts")
@@ -83,9 +92,9 @@ final class RitualUITests: XCTestCase {
   Thread.sleep(forTimeInterval:1.5);shot("10-server-push")
   push.tap()
   XCTAssertTrue(app.wait(for:.runningForeground,timeout:10))
-  let sky=wait(element("tab-sky"),10,"Sky tab")
+  // Sky is a screen off Home now, not a tab: the push lands on it.
+  XCTAssertTrue(element("social-section-sky").waitForExistence(timeout:10),"server push did not open Sky")
   Thread.sleep(forTimeInterval:2)
-  XCTAssertTrue(sky.isSelected,"server push did not open Sky")
   shot("11-after-push-tap")
  }
 
@@ -103,8 +112,8 @@ final class RitualUITests: XCTestCase {
   for part in ["06","15","1995"]{app.typeText(part);Thread.sleep(forTimeInterval:1.5)}
   let done=app.buttons["Done"];if done.exists{done.tap()}
   let next=app.buttons["Continue"].firstMatch;if next.waitForExistence(timeout:3)&&next.isHittable{next.tap()}
-  tap("about-done",60);tap("tour-skip",60)
-  tap("tab-sky",60);tap("social-section-circles",60)
+  tap("about-done",60);seedLadder()
+  tap("open-sky",60);tap("social-section-circles",60)
   tap("sky-push-toggle",60)
   // iOS asks once per install; a Simulator that already granted it skips the prompt.
   let allow=springboard.alerts.buttons["Allow"];if allow.waitForExistence(timeout:30){allow.tap()}
@@ -124,17 +133,16 @@ final class RitualUITests: XCTestCase {
    for _ in 0..<8 where !planned.isHittable{app.swipeUp(velocity:.slow)}
   }
   shot("sky-02-planned-friday")
-  tap("tab-sky",60);tap("social-section-circles",60)
+  tap("tab-home",60);tap("open-sky",60);tap("social-section-circles",60)
   tap("sky-push-toggle",60)
   XCTAssertEqual(element("sky-push-toggle").value as? String,"0")
   // Let queued archive writes finish before terminating the process.
   Thread.sleep(forTimeInterval:5)
   app.terminate();app.launch()
-  let skyTab=wait(element("tab-sky"),240,"Sky tab after relaunch")
-  let ready=XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:skyTab)
+  let homeTab=wait(element("tab-home"),240,"Home tab after relaunch")
+  let ready=XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:homeTab)
   XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:240),.completed)
-  if element("tour-skip").waitForExistence(timeout:5){tap("tour-skip",60)}
-  tap("tab-sky",60);tap("social-section-circles",60)
+  tap("open-sky",60);tap("social-section-circles",60)
   XCTAssertEqual(element("sky-push-toggle").value as? String,"0","disabled consent must survive relaunch")
   shot("sky-03-disabled-after-relaunch")
   tap("tab-you",60);tap("open-settings",60);reach("you-footer",60).press(forDuration:1.2)
@@ -145,4 +153,5 @@ final class RitualUITests: XCTestCase {
 }
 extension XCUIElement{
  func waitForLabel(_ text:String,timeout:Double)->Bool{let end=Date().addingTimeInterval(timeout);while Date()<end{if label.contains(text){return true};Thread.sleep(forTimeInterval:2)};return false}
+ func waitForLabelWithout(_ texts:[String],timeout:Double)->Bool{let end=Date().addingTimeInterval(timeout);while Date()<end{if !label.isEmpty&&!texts.contains(where:{label.contains($0)}){return true};Thread.sleep(forTimeInterval:2)};return false}
 }

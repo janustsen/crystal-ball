@@ -1,6 +1,7 @@
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 // Love timing end to end against the real engine: an adult asks "When will it happen?", the plan never asks for a
 // horizon, the Ball names the date, the reveal and the History shelf show it, and a teen profile is never offered it.
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
@@ -16,8 +17,8 @@ async function profile(year){
  const context=await browser.newContext(options);page=await context.newPage();
  page.on('response',async r=>{if(r.url().startsWith(engine)&&r.request().method()==='POST')try{log.push({request:r.request().postDataJSON(),response:await r.json()})}catch{}});
  await page.goto(url);
- await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill(String(year));await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+ await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill(String(year));await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
+ await tapToAsk(page);await page.getByTestId('type-instead').click();
  return context;
 }
 try{

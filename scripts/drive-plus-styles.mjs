@@ -1,10 +1,11 @@
-// Drives the Plus room unlocks in headless Chrome: the locked Inner Library door, the simulated Plus unlock, Home's
-// push-in into the chamber, and every ball style on the live glass ball at Home and Ask, at rest and spun.
+// Drives the Plus room unlocks in headless Chrome: the locked Inner Library door, the simulated Plus unlock, the
+// chamber opened from You, and every ball style on the live glass ball at Home and Ask, at rest and spun.
 // Run against a web preview: PREVIEW_URL=http://localhost:8087 node scripts/drive-plus-styles.mjs
 // Screenshots land in PLUS_EVIDENCE (default .local/plus-evidence); crops of the ball sit beside them.
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
+import {openEverything,tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',out=process.env.PLUS_EVIDENCE||'.local/plus-evidence';
 mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});
@@ -24,13 +25,13 @@ try{
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
  page.on('pageerror',error=>errors.push(error.message));
  page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${new URL(r.url()).pathname}`)});
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
  await page.getByTestId('hero-orb').waitFor();
  await page.waitForTimeout(2500);
  await ballShot(page,'hero-orb',`${out}/classic-home.png`);
 
  // Locked: the door upsell over the You spot; the chamber stays closed.
- await page.getByTestId('room-inner-library').click();
+ await page.getByTestId('tab-you').click();await page.getByTestId('open-inner-library').click();
  await page.getByTestId('inner-library-locked').waitFor();
  await page.waitForTimeout(2500);
  let state=await room(page);
@@ -43,28 +44,17 @@ try{
  await page.getByTestId('close-flow').click();
  await page.getByTestId('inner-library-open').waitFor();
 
- // Home's entry pushes in through the arch to the tome and rests on the chamber's still.
- await page.getByTestId('tab-home').click();
- const pushin=()=>performance.getEntriesByType('resource').map(e=>e.name).find(n=>n.includes('flights')&&n.includes('home-library.mp4'));
- await page.waitForFunction(pushin,null,{timeout:60000});
- await page.waitForTimeout(2500);
- await page.getByTestId('room-inner-library').click();
- await page.waitForFunction(()=>{const v=document.querySelector('video:not([loop])');return v&&!v.paused&&v.currentTime>.3});
- const flight=await page.evaluate(async pushin=>{
-  const v=document.querySelector('video:not([loop])');
-  const bytes=await Promise.all([v.src,pushin].map(async u=>new Uint8Array(await (await fetch(u)).arrayBuffer())));
-  return bytes[0].length===bytes[1].length&&bytes[0].every((b,i)=>b===bytes[1][i]);
- },await page.evaluate(pushin));
- assert.ok(flight,'the Inner Library entry plays the approved push-in');
- await page.screenshot({path:`${out}/library-pushin.png`});
+ // Entering from You opens the chamber and rests on its still (the push-in from Home's arch left with the old Home).
+ await page.getByTestId('tab-home').click();await page.waitForTimeout(2500);
+ await page.getByTestId('tab-you').click();await page.getByTestId('open-inner-library').click();
  await page.waitForFunction(()=>!document.querySelector('video:not([loop])'),null,{timeout:5000});
  await page.waitForTimeout(500);
  state=await room(page);
- assert.ok(state.stills.some(s=>s.startsWith('library')),'the push-in lands on the chamber still');
+ assert.ok(state.stills.some(s=>s.startsWith('library')),'entering lands on the chamber still');
  assert.equal(state.ball,false,'the chamber holds no live ball');
  await page.getByTestId('inner-library-open').waitFor();
  await page.screenshot({path:`${out}/library-open.png`});
- results.library={pushin:'home-library.mp4',rest:state.stills};
+ results.library={rest:state.stills};
 
  for(const style of ['smoke','aurora','obsidian','gold','classic']){
   await page.getByTestId(`ball-style-${style}`).click();
@@ -72,7 +62,7 @@ try{
   // A fresh load starts the ball unturned, so the rest captures compare with the style's render.
   await page.reload();await page.getByTestId('hero-orb').waitFor();await page.waitForTimeout(2500);
   await ballShot(page,'hero-orb',`${out}/${style}-home.png`);
-  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+  await tapToAsk(page);await page.getByTestId('type-instead').waitFor();
   await page.waitForTimeout(2500);
   await ballShot(page,'ask-ball',`${out}/${style}-ask.png`);
   await page.getByTestId('close-flow').click();await page.waitForTimeout(2500);
@@ -82,11 +72,11 @@ try{
   for(let i=1;i<=12;i++){await page.mouse.move(b.x+b.width/2+i*8,b.y+b.height/2+i*2);await page.waitForTimeout(16)}
   await page.mouse.up();await page.waitForTimeout(4000);
   assert.equal(await page.getByTestId('type-instead').count(),0,'a drag does not start a reading');
-  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+  await tapToAsk(page);await page.getByTestId('type-instead').waitFor();
   await page.waitForTimeout(2500);
   await ballShot(page,'ask-ball',`${out}/${style}-spun.png`);
   await page.getByTestId('close-flow').click();
-  await page.getByTestId('room-inner-library').click();
+  await page.getByTestId('tab-you').click();await page.getByTestId('open-inner-library').click();
   await page.getByTestId('inner-library-open').waitFor();
   results.styles[style]='home, ask, spun';
  }

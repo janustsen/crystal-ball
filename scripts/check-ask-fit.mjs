@@ -1,5 +1,6 @@
 import {chromium} from '@playwright/test';
 import {mkdir} from 'node:fs/promises';
+import {tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',evidence=process.env.ASK_FIT_EVIDENCE||'.local/ask-fit';
 await mkdir(evidence,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true}),failures=[];
@@ -18,7 +19,7 @@ try{
    await page.goto(base,{timeout:120000});
    // An adult profile shows the widest chip row: Ask about someone plus Love timing's When will it happen?
    await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill('1992');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
-   await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+   await tapToAsk(page);await page.getByTestId('type-instead').click();
    await page.getByTestId('question-input').fill('What will my life be like next year? '.repeat(4).trim());
    for(const mode of ['','person','love']){
     if(mode==='person'){await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex')}

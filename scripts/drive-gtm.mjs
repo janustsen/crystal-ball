@@ -5,6 +5,7 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {httpCredentials,previewFetch} from './preview-auth.mjs';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8096',out=process.env.EVIDENCE_DIR||'docs/evidence/gtm',site=new URL(base).host;
 await mkdir(out,{recursive:true});
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
@@ -37,7 +38,7 @@ async function exportCard(page,name){
  return {file:download.suggestedFilename(),text};
 }
 async function read(page,question){
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+ await tapToAsk(page);await page.getByTestId('type-instead').click();
  await page.getByTestId('question-input').fill(question);await page.getByTestId('look-into-the-future').click();
  for(let i=0;i<3;i++){
   await page.getByTestId('option-0').or(page.getByTestId('record-reveal')).first().waitFor({timeout:120000});
@@ -56,7 +57,7 @@ try{
  await page.getByTestId('heard-tiktok').click();
  await expect(page.getByTestId('heard-tiktok')).toHaveAttribute('aria-checked','true');
  await owner.shot('onboarding-heard-from');
- await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+ await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
  await expect.poll(()=>owner.engine.filter(r=>r.body.action==='heard').length).toBe(1);
  const heard=owner.engine.find(r=>r.body.action==='heard');
  expect(heard).toEqual({body:{action:'heard',source:'TikTok'},authorization:null});
@@ -98,7 +99,8 @@ try{
  await page.getByTestId('close-flow').click();
 
  // Daily omen card.
- await page.getByTestId('tab-home').click();
+ // Home shows the omen as one insight line; opening it shows the card and its Share.
+ await page.getByTestId('tab-home').click();await page.getByTestId('insight-line').click();
  await page.getByTestId('share-omen').waitFor({timeout:180000});
  const omen=await page.getByTestId('daily-omen').innerText();
  await page.evaluate(()=>window.storyText=[]);await page.getByTestId('share-omen').click();

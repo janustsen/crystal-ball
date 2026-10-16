@@ -2,6 +2,7 @@ import {httpCredentials,previewFetch as fetch} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {writeFile} from 'node:fs/promises';
+import {openEverything,tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const endpoint=process.env.VERIFY_ENGINE_URL||`${base}/engine`;
 if((await fetch(`${endpoint}/health`).then(r=>r.json())).provider!=='ollama')throw new Error('Local Ollama required');
@@ -11,11 +12,11 @@ const file='docs/evidence/design-2026-09-30/memory-and-boundaries.json';
 context.setDefaultTimeout(30000);
 const close=()=>page.getByTestId('close-flow').click();
 const dismiss=async()=>{if(await page.getByTestId('dismiss-notice').count())await page.getByTestId('dismiss-notice').click()};
-async function ask(q){await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(q);await page.getByTestId('look-into-the-future').click()}
+async function ask(q){await tapToAsk(page);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(q);await page.getByTestId('look-into-the-future').click()}
 async function answerAll(){let cards=0;while(cards<2){await Promise.race([page.getByTestId('option-0').waitFor({timeout:65000}),page.getByTestId('share-this-glimpse').waitFor({timeout:65000})]);if(await page.getByTestId('share-this-glimpse').count())return cards;const card=await page.getByTestId('option-0').innerText();await page.getByTestId('option-0').click();cards++;await page.waitForTimeout(800);log.push({answer:card})}await page.getByTestId('share-this-glimpse').waitFor({timeout:65000});return cards}
 try{
- await page.goto(base);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await page.getByTestId('tab-history').click();await expect(page.getByText('Your first glimpse belongs here.')).toBeVisible();await page.getByTestId('tab-you').click();
- await page.getByTestId('view-plans').click();await page.getByTestId('5-readings-1-99-simulate').click();await dismiss();await close();
+ await page.goto(base);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);await page.getByTestId('tab-history').click();await expect(page.getByText('Your first glimpse belongs here.')).toBeVisible();await page.getByTestId('tab-you').click();
+ await page.getByTestId('view-plans').click();await page.getByTestId('5-questions-1-99-simulate').click();await dismiss();await close();
  await ask('Will I be conversational in Spanish in six months?');await answerAll();await close();
  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.facts.current_focus='Learning & growth';localStorage.setItem('crystal-ball-v1',JSON.stringify(s))});await page.reload();await page.getByTestId('tab-you').click();await expect(page.getByTestId('edit-current_focus')).toBeVisible();await page.getByRole('button',{name:'Forget current_focus',exact:true}).click();await dismiss();await expect(page.getByText('Learning & growth',{exact:true})).toHaveCount(0);log.push({seededFactForget:true});
  // Native share sheet is unavailable in automation. Stub only that boundary and inspect the actual generated link.
