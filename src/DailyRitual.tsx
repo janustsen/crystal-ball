@@ -64,12 +64,13 @@ export function NotifyOffer({onAnswer}:{onAnswer:(time:string|null)=>void}){
  </Surface></View>;
 }
 
+// Settings' first rows; Settings groups them in one card with its other switches.
 export function NotifySettings({prefs,onChange}:{prefs:NotifyPrefs;onChange:(prefs:NotifyPrefs)=>void}){
- return <View testID="notify-settings" style={styles.panel}><Surface kind="card">
+ return <View testID="notify-settings">
   <View style={styles.row}><Txt style={{flexShrink:1}}>Morning insight and evening nudge</Txt><Toggle testID="notify-toggle" accessibilityLabel="Morning insight and evening nudge notifications" value={prefs.daily} onValueChange={daily=>onChange({...prefs,daily})}/></View>
   {Platform.OS==='web'?<Txt style={styles.caption}>Notifications need the iOS app.</Txt>:null}
   {prefs.daily?<TimeChips value={prefs.time} onChange={time=>onChange({...prefs,time})}/>:null}
- </Surface></View>;
+ </View>;
 }
 
 // Private, on-device usage counts. Nothing here is sent anywhere.
