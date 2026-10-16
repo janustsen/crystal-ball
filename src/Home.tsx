@@ -25,8 +25,8 @@ export function Home({ready,onAsk,insight,sky,next,top,under,bottom,reduce,direc
  // content pass through (box-none) so the ball stays the tap and spin target.
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,top:edge,right:0,bottom}}><EdgeFade soft={36} bottom={24} style={styles.through}>
   <ScrollView style={styles.through} showsVerticalScrollIndicator={false} contentContainerStyle={[{paddingTop:pad},styles.through]}><Enter reduce={reduce} direction={direction}><View style={{gap:8,paddingHorizontal:20,paddingBottom:24}}>
-   <Pressable testID="tap-to-ask" accessibilityRole="button" accessibilityLabel="Tap to ask the crystal ball" disabled={!ready} onPress={onAsk} style={{alignSelf:'center',minHeight:44,paddingHorizontal:16,justifyContent:'center'}}>
-    <Txt display style={{fontFamily:fonts.italic,fontSize:30,lineHeight:36,textAlign:'center'}}>Tap to ask</Txt>
+   <Pressable testID="tap-to-ask" accessibilityRole="button" accessibilityLabel="Tap to ask the crystal ball" disabled={!ready} onPress={onAsk} style={{alignSelf:'center',minHeight:48,paddingHorizontal:24,justifyContent:'center'}}>
+    {({pressed})=><><Surface kind="pill" state={pressed?'pressed':undefined}/><Txt display style={{fontFamily:fonts.italic,fontSize:28,lineHeight:34,textAlign:'center'}}>Tap to ask</Txt></>}
    </Pressable>
    {insight}
    {sky}
@@ -47,7 +47,7 @@ export function SkyLink({dot,onPress}:{dot:boolean;onPress:()=>void}){
  </Pressable>;
 }
 
-// Home's one next step: what is new, due or coming next. With an action the whole row is the tap target, like RowLink.
+// Home's one next step on the room's glass: what is new, due or coming next. With an action the whole card is the tap target.
 export function NextCard({label,title,text,action,onAction,dot=false}:{label:string;title:string;text:string;action?:string;onAction?:()=>void;dot?:boolean}){
  const row={minHeight:52,paddingVertical:12,paddingLeft:18,paddingRight:16,flexDirection:'row',alignItems:'center',gap:10} as const;
  const body=<View style={{flex:1,gap:2}}>
@@ -56,8 +56,8 @@ export function NextCard({label,title,text,action,onAction,dot=false}:{label:str
   <Txt style={styles.caption}>{text}</Txt>
  </View>;
  return <View testID="next-step">{action&&onAction
-  ?<Pressable testID="next-step-action" accessibilityRole="button" accessibilityLabel={`${label}${dot?', new':''}: ${title}. ${text}`} accessibilityHint={action} onPress={onAction} style={row}>{({pressed})=><><Surface kind="row" state={pressed?'pressed':undefined}/>{body}<SvgXml aria-hidden xml={chevron} width={14} height={14}/></>}</Pressable>
-  :<View style={row}><Surface kind="row"/>{body}</View>}</View>;
+  ?<Pressable testID="next-step-action" accessibilityRole="button" accessibilityLabel={`${label}${dot?', new':''}: ${title}. ${text}`} accessibilityHint={action} onPress={onAction} style={row}>{({pressed})=><><Surface kind="card" state={pressed?'pressed':undefined}/>{body}<SvgXml aria-hidden xml={chevron} width={14} height={14}/></>}</Pressable>
+  :<View style={row}><Surface kind="card"/>{body}</View>}</View>;
 }
 
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 1 14.2 9.8 23 12 14.2 14.2 12 23 9.8 14.2 1 12 9.8 9.8z"/></svg>';

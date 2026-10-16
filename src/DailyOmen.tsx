@@ -51,7 +51,8 @@ export function DailyOmen({aiConsent='',onRead,onShare,open=true,onToggle,dot=fa
  // A day without an insight points back at the ball rather than ending on "come back tomorrow".
  const text=current?(current.text??(retrying?'The stars are gathering. The Ball will look again shortly.':'No insight today, but the Ball is listening. Tap it to ask.')):'A little starlight is finding you…';
  const label=event?`${skyEvents[event]} insight`:'Today’s insight',check=!!last&&(!last.outcome||last.checkedInAt===today);
- if(!open)return <Pressable testID="insight-line" accessibilityRole="button" aria-expanded={false} accessibilityState={{expanded:false,busy:!current||!!retrying}} accessibilityLabel={`${label}${dot?', new':''}. ${text}`} onPress={onToggle} style={{minHeight:44,paddingHorizontal:8,gap:4}}>
+ if(!open)return <Pressable testID="insight-line" accessibilityRole="button" aria-expanded={false} accessibilityState={{expanded:false,busy:!current||!!retrying}} accessibilityLabel={`${label}${dot?', new':''}. ${text}`} onPress={onToggle} style={{minHeight:44,paddingVertical:10,paddingHorizontal:18,gap:4}}>
+  <Surface kind="card"/>
   <View style={{flexDirection:'row',alignItems:'center',gap:8}}><Txt style={styles.label}>{label}</Txt>{dot?<NewDot/>:null}{last&&!last.outcome?<Txt style={[styles.label,{color:colors.gold}]}>· Whisper to check</Txt>:null}</View>
   <Txt numberOfLines={1} style={[styles.strong,{color:colors.ivory}]}>{text}</Txt>
  </Pressable>;
