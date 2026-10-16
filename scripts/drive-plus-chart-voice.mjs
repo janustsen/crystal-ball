@@ -1,6 +1,7 @@
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 // Plus birth chart depth and the narrated Ball against the live engine. Only the speech synthesizer is spied on.
 const url=process.env.VERIFY_URL||'http://localhost:8087',engine=process.env.VERIFY_ENGINE_URL||`${url}/engine`,out=process.env.EVIDENCE_DIR||'docs/evidence/plus-chart-voice';
 await mkdir('.local',{recursive:true});await mkdir(out,{recursive:true});
@@ -12,7 +13,7 @@ page.on('response',async response=>{if(response.request().method()==='POST'&&res
 const shot=async name=>{await page.waitForTimeout(800);await page.screenshot({path:`${out}/${name}.png`});};
 const spoken=()=>page.evaluate(()=>window.__speech.filter(entry=>entry.speak).map(entry=>entry.speak));
 async function read(question){
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(question);await page.getByTestId('look-into-the-future').click();
+ await tapToAsk(page);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(question);await page.getByTestId('look-into-the-future').click();
  const deadline=Date.now()+180000;
  while(!await page.getByTestId('share-this-glimpse').count()){
   if(await page.getByText('The mist is too thick.',{exact:true}).count()||await page.getByText('This one isn’t for the Ball.',{exact:true}).count())throw new Error(`Reading failed: ${await page.locator('body').innerText()}`);
@@ -24,12 +25,12 @@ async function read(question){
 }
 async function home(){while(await page.getByTestId('close-flow').count())await page.getByTestId('close-flow').click();}
 try{
- await page.goto(url);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
+ await page.goto(url);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
  await page.getByTestId('tab-you').click();await page.getByTestId('add-birth-time-and-place').click();await page.getByLabel('Birth time HH:MM').fill('12:30');await page.getByLabel('Birth city',{exact:true}).fill('Copenhagen');await page.getByTestId('find-birth-city').click();await page.getByRole('button').filter({hasText:/Copenhagen.*Denmark/}).first().click({timeout:20000});await page.getByTestId('reveal-moon-and-rising').click();
  await expect(page.getByTestId('light-sun')).toContainText('Sun · Gemini');await expect(page.getByTestId('light-moon')).toContainText('Moon · Capricorn');await expect(page.getByTestId('light-rising')).toContainText('Rising · Virgo');await expect(page.getByText('With Plus, your Moon and rising shape every Why.')).toBeVisible();await expect(page.getByTestId('chart-weather-plus')).toBeVisible();await expect(page.getByTestId('chart-weather-read')).toHaveCount(0);await shot('free-chart');
 
  await read('Will I finish writing my novel this year?');
- await expect(page.getByText(/^Under your Gemini Sun, consider/)).toBeVisible();await expect(page.getByTestId('narration-toggle')).toHaveCount(0);expect(await spoken()).toEqual([]);await shot('free-reveal');
+ await expect(page.getByText(/^Under your Gemini Sun\.$/)).toBeVisible();await expect(page.getByTestId('narration-toggle')).toHaveCount(0);expect(await spoken()).toEqual([]);await shot('free-reveal');
  const freeAsk=log.findLast(entry=>entry.request.action==='predict');expect(freeAsk.request.viewerChart).toBeUndefined();
 
  await home();await page.getByTestId('view-plans').click();await page.getByRole('radio',{name:/^Monthly\b/}).click();await page.getByTestId('continue-with-plus-simulate').click();await home();

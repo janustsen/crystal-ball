@@ -1,5 +1,6 @@
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
+import {openEverything} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const results=[];
@@ -44,14 +45,15 @@ try{
    ]}}}));
    await page.goto(base,{timeout:120000});
    await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
-   await page.getByTestId('tour-skip').click();
+   await openEverything(page);
    await page.getByTestId('hero-orb').waitFor();
    await page.waitForTimeout(2500);
    await expect.poll(()=>page.locator('video').count()).toBe(failed?0:1);
-   await scrollAndTap(page,page.getByTestId('room-inner-library'));
+   await page.getByTestId('tab-you').click();
+   await scrollAndTap(page,page.getByTestId('open-inner-library'));
    await expect(page.getByTestId('hero-orb')).toHaveCount(0);
    await page.getByTestId('tab-home').click();
-   await page.getByTestId(page.viewportSize().height>=667?'hero-orb':'tab-ask').click();await page.getByTestId('type-instead').click();
+   await page.getByTestId(page.viewportSize().height>=667?'hero-orb':'tap-to-ask').click();await page.getByTestId('type-instead').click();
    const input=page.getByTestId('question-input');
    await input.fill('Will I finish my draft?');
    await scrollAndTap(page,input);
@@ -66,8 +68,8 @@ try{
     await expect(page.locator('video')).toHaveCount(0);
     await page.getByTestId('close-flow').click();
     await page.getByTestId('close-flow').click();
-    for(const tab of ['sky','history','you','home','sky','home']){
-     await page.getByTestId(`tab-${tab}`).click();
+    for(const id of ['open-sky','header-back','tab-history','tab-you','tab-home','open-sky','header-back']){
+     await page.getByTestId(id).click();
      await expect(page.locator('video')).toHaveCount(0);
      await expect(page.locator('img[data-room-fade]')).toHaveCount(0);
     }

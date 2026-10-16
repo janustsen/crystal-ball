@@ -1,6 +1,7 @@
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8087';
 const evidence=`.local/profile-retention-${Date.now()}`;await mkdir(evidence,{recursive:true});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -11,10 +12,10 @@ try{
  await page.clock.setFixedTime(new Date('2026-10-01T00:30:00Z'));
  await page.route('**/engine',async route=>{
   const body=route.request().postDataJSON();requests.push(body);
-  if(body.action==='omen')return route.fulfill({json:{kind:'ok',value:{text:'Your daily reflection is ready.'}}});
+  if(body.action==='omen')return route.fulfill({json:{kind:'ok',value:{text:'Your daily reflection is ready.',whisper:'By tonight, a quiet hour will feel right.'}}});
   await route.continue();
  });
- await page.goto(base);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
+ await page.goto(base);await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
  await expect.poll(()=>requests.filter(r=>r.action==='omen').length).toBe(1);expect(requests[0].facts.sun_sign).toBe('gemini');
  await page.getByTestId('tab-you').click();
  await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('crystal-ball-v1'));Object.assign(state,{birthTime:'14:30',birthPlace:'Copenhagen',moonSign:'aries',risingSign:'leo',history:[{id:'birthday-fixture',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-01T12:00:00Z',label:'Speculative',why:'Practice continues.',facts:{birthday:'1995-06-15',level:'Beginner'},sources:[],assumptions:[],friend:false}]});localStorage.setItem('crystal-ball-v1',JSON.stringify(state));}); // test fixture, no user-controlled data; nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
@@ -26,14 +27,14 @@ try{
  for(const reload of [false,true]){
   if(reload){await page.reload();await page.getByTestId('tab-you').click();}
   const state=await stored();expect(state.ageConfirmed).toBe(true);expect(state.ageBand).toBe('adult');expect(state.history[0].facts.birthday).toBeUndefined();expect(state.history[0].facts.level).toBe('Beginner');
-  expect(state.birthTime).toBeUndefined();expect(state.sunSign).toBeNull();await expect(page.getByTestId('tab-ask')).toBeVisible();
+  expect(state.birthTime).toBeUndefined();expect(state.sunSign).toBeNull();await page.getByTestId('tab-home').click();await expect(page.getByTestId('tap-to-ask')).toBeVisible();
  }
  await page.getByTestId('tab-home').click();expect(requests.filter(r=>r.action==='omen')).toHaveLength(1);
  await page.clock.setFixedTime(new Date('2026-10-02T00:30:00Z'));await page.reload();
  await expect.poll(()=>requests.filter(r=>r.action==='omen').length).toBe(2);expect(requests.filter(r=>r.action==='omen')[1].facts.sun_sign).toBeUndefined();
  await page.getByTestId('tab-you').click();await page.getByTestId('edit-birthday').click();await page.getByLabel('Birthday YYYY-MM-DD',{exact:true}).fill('1996-07-15');await page.getByTestId('save-birthday').click();await expect(page.getByTestId('light-sun')).toContainText('Sun · Cancer');
  await page.getByTestId('edit-birthday').click();await page.getByLabel('Birthday YYYY-MM-DD',{exact:true}).fill('');await page.getByTestId('save-birthday').click();await expect(page.getByTestId('light-sun')).toContainText('Add your birthday to light your Sun.');expect((await stored()).ageConfirmed).toBe(true);
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I finish my draft tomorrow?');
+ await tapToAsk(page);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I finish my draft tomorrow?');
  await page.route('**/engine',route=>{const body=route.request().postDataJSON();requests.push(body);return route.fulfill({json:{kind:'error',message:'Local date transport probe'}})});
  await page.getByTestId('look-into-the-future').click();await expect.poll(()=>requests.some(r=>r.action==='plan')).toBe(true);expect(requests.find(r=>r.action==='plan').localDate).toBe('2026-10-01');
  await page.screenshot({path:`${evidence}/profile.png`});

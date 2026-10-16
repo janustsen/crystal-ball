@@ -5,6 +5,7 @@ import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 import {asks} from '../src/ball-asks.ts';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const url=process.env.VERIFY_URL||'http://localhost:8087',out=process.env.EVIDENCE_DIR||'docs/evidence/ball-asks';
 await mkdir('.local',{recursive:true});await mkdir(out,{recursive:true});
 const adultOnly=new Set(asks.filter(ask=>ask.only==='adult').map(ask=>ask.question)),log=[];
@@ -15,7 +16,7 @@ async function open(birthday,name){
  context.setDefaultTimeout(120000);const page=await context.newPage(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  page.on('response',async response=>{if(response.request().method()==='POST'&&response.url().includes('/engine'))try{log.push({profile:name,request:response.request().postDataJSON(),response:await response.json()})}catch{}});
- await page.goto(url,{timeout:300000});await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill(birthday.slice(5,7));await page.getByTestId('birthday-day').fill(birthday.slice(8,10));await page.getByTestId('birthday-year').fill(birthday.slice(0,4));await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
+ await page.goto(url,{timeout:300000});await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill(birthday.slice(5,7));await page.getByTestId('birthday-day').fill(birthday.slice(8,10));await page.getByTestId('birthday-year').fill(birthday.slice(0,4));await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
  await page.getByTestId('tab-you').click();await page.getByTestId('open-ball-asks').click();await page.getByTestId('ask-question').waitFor();
  return {context,page,errors,shot:async file=>{await page.waitForTimeout(1800);await page.screenshot({path:`${out}/${file}.png`})}};
 }
@@ -52,7 +53,7 @@ try{
  await insight(page);await shot('04-insight');
  await answer(page,15);
  await expect(page.getByTestId('notice')).toContainText('A bonus reading is yours',{timeout:120000});
- await expect(page.getByTestId('view-plans')).toContainText('2 readings');await shot('05-bonus-reading');
+ await expect(page.getByTestId('view-plans')).toContainText('2 questions left');await shot('05-bonus-reading');
  await page.getByTestId('dismiss-notice').click();
  await page.getByTestId('ask-answers').click();
  const first=page.getByRole('radio',{name:'3 a.m.',exact:true});
@@ -62,7 +63,7 @@ try{
  await expect(page.getByTestId('ask-answers')).not.toHaveText(before);await shot('06-change-forget');
  await page.reload();await page.getByTestId('tab-you').click();await expect(page.getByTestId('open-ball-asks')).toContainText('25 answered');await shot('07-you-entry');
  // A personal reading carries only theme-relevant self answers; the reveal shows Shaped by when the model names one.
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+ await tapToAsk(page);await page.getByTestId('type-instead').click();
  await page.getByTestId('question-input').fill('Will I keep a calmer daily routine this year?');await page.getByTestId('look-into-the-future').click();
  for(let i=0;i<3&&!(await page.getByTestId('share-this-glimpse').count());i++){await page.getByTestId('option-0').or(page.getByTestId('share-this-glimpse')).first().waitFor({timeout:120000});if(await page.getByTestId('option-0').count())await page.getByTestId('option-0').click();await page.waitForTimeout(800)}
  await page.getByTestId('share-this-glimpse').waitFor({timeout:120000});

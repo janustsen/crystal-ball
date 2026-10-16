@@ -1,5 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {mkdirSync,writeFileSync,existsSync} from 'node:fs';
+import {seedLadder} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8104';
 const env={...process.env,CHROME_DEVTOOLS_AXI_SESSION:`cb-core-pricing-${Date.now()}`};
 const evidence='docs/evidence/core-pricing';mkdirSync(evidence,{recursive:true});
@@ -10,15 +11,17 @@ try{
  const output=run(`
  const click=async id=>{await page.click('[data-testid="'+id+'"]')};
  const check=async(fn,message)=>{if(!await page.eval(fn))throw Error(message);console.log('PASS '+message)};
- await click('skip-for-now');await click('confirm-age');await click('about-done');await click('view-plans');
+ await click('skip-for-now');await click('confirm-age');await click('about-done');
+ // Every ladder feature open: the allowance is the daily free question, without the starter.
+ await page.wait('[data-testid=tap-to-ask]');await page.eval(async()=>{${seedLadder}});await page.open(${JSON.stringify(base)});await page.wait('[data-testid=tap-to-ask]');await click('view-plans');
  await check(()=>{const r=[...document.querySelectorAll('[role=radio]')];return r.length===2&&r[0].textContent.includes('Weekly')&&r[0].getAttribute('aria-checked')==='true'&&r[0].textContent.includes('$259.48/yr')&&r.every(x=>x.textContent.includes('Renews until canceled in your app store’s subscription settings.'))},'weekly default, yearly equivalent and cancellation terms on both offered plans');
- await check(()=>['$4.99 each week','$9.99 each month','Weekly starts with a 3-day free trial, then $4.99 / week.','10 readings a day','never expire','Test mode · no real payments','An interrupted forecast may use a reading.'].every(x=>document.body.innerText.includes(x))&&!document.body.innerText.includes('$39.99'),'exact prices, trial, allowance, permanent packs, test-mode disclosure and no yearly plan before its cost gate');
+ await check(()=>['$4.99 each week','$9.99 each month','Weekly starts with a 3-day free trial, then $4.99 / week.','10 questions a day','never expire','Test mode · no real payments','An interrupted forecast may use a reading.'].every(x=>document.body.innerText.includes(x))&&!document.body.innerText.includes('$39.99'),'exact prices, trial, allowance, permanent packs, test-mode disclosure and no yearly plan before its cost gate');
  for(let i=0;i<2;i++){await page.eval('document.querySelectorAll("[role=radio]")['+i+'].click()');await check(()=>document.querySelectorAll('[role=radio][aria-checked=true]').length===1,'exactly one plan selected')}
- await click('5-readings-1-99-simulate');await click('20-readings-5-99-simulate');
- await check(()=>document.querySelector('[data-testid=view-plans]').textContent==='26 readings','both packs add 25 readings at their advertised prices');
+ await click('5-questions-1-99-simulate');await click('20-questions-5-99-simulate');
+ await check(()=>document.querySelector('[data-testid=view-plans]').textContent==='26 questions left','both packs add 25 readings at their advertised prices');
  await page.eval(()=>document.querySelectorAll('[role=radio]')[0].click());await click('continue-with-plus-simulate');
  await check(()=>document.querySelector('[data-testid=view-plans]').textContent==='Plus · test','weekly simulated purchase enables Plus');
- await click('close-flow');await click('tab-ask');await page.wait('[data-testid=type-instead]');await click('type-instead');
+ await click('close-flow');await click('tap-to-ask');await page.wait('[data-testid=type-instead]');await click('type-instead');
  await page.fill('[data-testid=question-input]','Will I finish writing a novel in 10 years?');await click('look-into-the-future');
  let lastCard='';
  for(let i=0;i<100;i++){

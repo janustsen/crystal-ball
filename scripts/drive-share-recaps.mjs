@@ -4,6 +4,7 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {httpCredentials} from './preview-auth.mjs';
+import {allOpen} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8146',out=process.env.EVIDENCE_DIR||'docs/evidence/share-recaps';
 await mkdir(out,{recursive:true});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -21,7 +22,7 @@ async function open(now){
   CanvasRenderingContext2D.prototype.fillText=function(text,...rest){window.storyText.push(text);return draw.call(this,text,...rest)};
  });
  await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
- await expect(page.getByTestId('tab-history')).toBeVisible();
+ await expect(page.getByTestId('tap-to-ask')).toBeVisible();
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')||'{}').ageConfirmed===true);
  const today=new Date(now??Date.now()),day=n=>{const d=new Date(today);d.setDate(d.getDate()-n);d.setHours(12,0,0,0);return d};
  const state=await page.evaluate(([days,whisperDay,secret])=>{
@@ -30,7 +31,8 @@ async function open(now){
   state.whispers=[{day:whisperDay,text:'By tonight, a message may arrive.',outcome:'yes',checkedInAt:whisperDay}];
   return state;
  },[[day(1),day(2),day(3),day(40)].map(d=>d.toISOString()),local(day(1)),secret]);
- // Seed before hydration so a pending Store write cannot overwrite the fixture.
+ // Seed before hydration so a pending Store write cannot overwrite the fixture. Every ladder feature is open.
+ state.ladder=allOpen;
  await page.addInitScript(state=>localStorage.setItem('crystal-ball-v1',JSON.stringify(state)),state);
  await page.reload();
  return {page,context};
@@ -49,11 +51,8 @@ async function exportCard(page,name){
 }
 
 try{
- // Week: Home carries the recap on Sundays, History every day. The year share stays closed outside December.
+ // Week: History carries the recap (on a Sunday too). The year share stays closed outside December.
  const october=await open(new Date('2026-10-11T10:00:00'));let page=october.page;
- await page.getByTestId('week-recap-share').click();
- await expect(page.getByText('Share my week',{exact:true})).toBeVisible();
- await page.getByText('Back to your week',{exact:true}).click();
  await expect(page.getByTestId('hero-orb')).toBeVisible();
  await page.getByTestId('tab-history').click();
  // Scroll only after the tab's slide-in settles; scrolling mid-slide shifts an overflow-hidden ancestor sideways.

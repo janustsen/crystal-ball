@@ -1,6 +1,7 @@
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {previewFetch,previewSecret} from './preview-auth.mjs';
+import {openEverything,tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 for(const path of ['/engine','/engine/social']){
  assert.equal((await fetch(base+path,{method:'POST',body:'{}'})).status,401);
@@ -18,7 +19,7 @@ const browser=await chromium.launch({executablePath:'/Applications/Google Chrome
 try{
  const page=await browser.newPage({reducedMotion:'reduce',viewport:{width:390,height:844}});page.setDefaultTimeout(15000);
  await page.addInitScript(()=>{window.rafCalls=0;const raf=window.requestAnimationFrame;window.requestAnimationFrame=cb=>raf.call(window,t=>{window.rafCalls++;cb(t)})});
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await page.getByTestId('tab-you').waitFor();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
  async function callbacks(label,paused){await page.waitForTimeout(600);const before=await page.evaluate(()=>window.rafCalls);await page.waitForTimeout(600);const count=await page.evaluate(()=>window.rafCalls)-before;if(paused)expect(count,label).toBe(0);else expect(count,label).toBeGreaterThan(10);console.log(label,count,'callbacks / 600ms')}
  await callbacks('OS reduced motion',true);
  await page.emulateMedia({reducedMotion:'no-preference'});await callbacks('OS motion resumed',false);
@@ -28,7 +29,7 @@ try{
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Hidden page',true);
  await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'))});await callbacks('Visible page resumed',false);
  await page.emulateMedia({reducedMotion:'reduce'});
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').waitFor();await expect(page.locator('.room canvas')).toBeVisible();await expect(page.getByTestId('app-shell')).toHaveAttribute('data-reduced','true');await expect(page.locator('.room video')).toHaveCount(0);await callbacks('Reduced listening room',true);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();
+ await tapToAsk(page);await page.getByTestId('type-instead').waitFor();await expect(page.locator('.room canvas')).toBeVisible();await expect(page.getByTestId('app-shell')).toHaveAttribute('data-reduced','true');await expect(page.locator('.room video')).toHaveCount(0);await callbacks('Reduced listening room',true);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill('Will I be conversational in Spanish in six months?');await page.getByTestId('look-into-the-future').click();
  await page.getByTestId('option-0').waitFor({timeout:65000});await expect(page.locator('.room canvas')).toBeVisible();await expect(page.locator('.room img')).not.toHaveCount(0);await expect(page.locator('.room video')).toHaveCount(0);
  let predictions=0;await page.route('**/engine',async route=>{if(route.request().postDataJSON()?.action==='predict'){predictions++;await route.abort()}else await route.continue()});
  const total=Number((await page.getByText(/^1 of [12]$/).innerText()).split(' of ')[1]);

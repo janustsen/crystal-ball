@@ -6,6 +6,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
+import {openEverything,tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087',out=process.env.ROOM_EVIDENCE||'.local/room-evidence';
 assert.ok(process.env.EXPO_PUBLIC_ROOM_ASSET_BASE?.trim(),'Room drive requires streamed landing loops: run node scripts/room-assets.mjs sync public/room, build Expo with EXPO_PUBLIC_ROOM_ASSET_BASE=/room, and pass the same asset base to this drive. The unset-base still fallback is not this streamed-loop gate.');
 mkdirSync(out,{recursive:true});
@@ -22,7 +23,9 @@ async function open(options){
  const context=await browser.newContext({viewport:{width:390,height:844},...options});
  const page=await context.newPage();
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
- await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+ await page.goto(base);await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
+ // The page before the seed's reload cached the streamed loops; start cold so the prefetch below is observable.
+ await page.evaluate(async()=>{for(const key of await caches.keys())await caches.delete(key)});await page.reload();
  await page.getByTestId('hero-orb').waitFor();
  return page;
 }
@@ -90,7 +93,8 @@ try{
   await page.waitForFunction(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('flights')||e.name.includes('/room/v')).length>=25,null,{timeout:60000});
   results.prefetched=await page.evaluate(()=>performance.getEntriesByType('resource').filter(e=>e.name.includes('flights')||e.name.includes('/room/v')).length);
   for(const [tab,back] of [['sky','home'],['history','sky'],['you','history'],['home','you']]){
-   await page.getByTestId(`tab-${tab}`).click();
+   // Sky opens from its line on Home; the rest are tabs.
+   await page.getByTestId(tab==='sky'?'open-sky':`tab-${tab}`).click();
    await page.waitForTimeout(700);
    state=await room(page);
    assert.ok(state.videos.some(v=>v.src==='blob:'&&v.time>0&&v.time<1.5),`${back}→${tab} plays its flight`);
@@ -102,7 +106,7 @@ try{
    results[tab]={ball:!!state.ball};
   }
   // Ask: the listening ball rests on its ring before typing switches to the zoomed camera.
-  await page.getByTestId('tab-ask').click();
+  await tapToAsk(page);
   await page.waitForTimeout(600);await page.screenshot({path:`${out}/flight-home-ask.png`});
   await page.waitForTimeout(2500);
   state=await room(page);

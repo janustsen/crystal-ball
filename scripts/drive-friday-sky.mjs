@@ -4,6 +4,7 @@ import {chromium} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {httpCredentials} from './preview-auth.mjs';
+import {openEverything,openSky} from './ladder-seed.mjs';
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8095',dbUrl=process.env.SOCIAL_DB_URL||'http://127.0.0.1:55329';
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence/friday-sky',stamp=Date.now(),evidence=[];
 const browser=await chromium.launch({channel:'chrome',headless:true}),pages={};
@@ -16,8 +17,8 @@ async function person(name,school){
  const context=await browser.newContext({httpCredentials,reducedMotion:'reduce',viewport:{width:390,height:844},timezoneId:'UTC'});
  const page=pages[name]=await context.newPage();
  await page.goto(base,{timeout:180000});
- await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
- await page.getByTestId('tab-sky').click();await page.getByTestId('choose-my-school').click();
+ await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
+ await openSky(page);await page.getByTestId('choose-my-school').click();
  await page.getByLabel('Search school name').fill(school);
  await page.getByRole('button',{name:`Choose ${school}`,exact:true}).click();
  await page.getByTestId('change-school').waitFor();
@@ -56,7 +57,7 @@ try{
  if(again.targets>generated.targets-generated.opened)throw Error('A second run regenerated saved omens');
  evidence.push({secondRunTargets:again.targets,oneOmenPerGroupPerWeek:true});
 
- for(const page of [lowell,washington]){await page.reload();await page.getByTestId('tab-sky').click();await page.getByTestId('sky-omen-school').waitFor();}
+ for(const page of [lowell,washington]){await page.reload();await openSky(page);await page.getByTestId('sky-omen-school').waitFor();}
  const mine=await rpc(lowell,'open_sky',{zone:'UTC'}),theirs=await rpc(washington,'open_sky',{zone:'UTC'});
  const lowellSchool=mine.find(o=>o.school_id==='sfusd-lowell'),lowellCircle=mine.find(o=>o.circle_id),washingtonSchool=theirs.find(o=>o.school_id==='sfusd-washington');
  if(!lowellSchool||!lowellCircle||!washingtonSchool||theirs.some(o=>o.school_id==='sfusd-lowell'||o.circle_id)||mine.some(o=>o.school_id==='sfusd-washington'))throw Error('Omen visibility crossed a School or Circle boundary');

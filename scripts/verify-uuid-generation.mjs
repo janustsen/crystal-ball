@@ -1,6 +1,7 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const evidence=process.env.EVIDENCE_DIR;
 if(!evidence)throw new Error('Set EVIDENCE_DIR to the evidence output directory.');
 const port=process.env.VERIFY_PORT||'18198';
@@ -21,11 +22,11 @@ try{
    result.crypto=await page.evaluate(()=>({secure:isSecureContext,randomUUID:typeof crypto.randomUUID,getRandomValues:typeof crypto.getRandomValues,oldCall:(()=>{try{return crypto.randomUUID()}catch(e){return String(e)}})()}));
    assert.equal(result.crypto.secure,scenario.secure);
    assert.equal(result.crypto.randomUUID,scenario.secure?'function':'undefined');
-   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
    const question='Will I finish writing my novel this year?';
    if(scenario.friend)await page.goto(`${url}/?friend=1&question=${encodeURIComponent(question)}`);
-   else {await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(question);}
-   await expect(page.getByTestId('view-plans')).toHaveText('1 reading');
+   else {await tapToAsk(page);await page.getByTestId('type-instead').click();await page.getByTestId('question-input').fill(question);}
+   await expect(page.getByTestId('view-plans')).toHaveText('1 free today');
    let injected=false;
    if(scenario.retry)await page.route(`${url}/engine`,async route=>{
     if(route.request().postDataJSON().action==='predict'&&!injected){injected=true;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({kind:'error',message:'Verification-only temporary outage'})});}else await route.continue();
@@ -41,12 +42,12 @@ try{
    }
    if(scenario.retry){
     await page.getByTestId('try-again').waitFor({timeout:65000});
-    await expect(page.getByTestId('view-plans')).toHaveText('1 reading');
+    await expect(page.getByTestId('view-plans')).toHaveText('1 free today');
     await page.screenshot({path:`${evidence}/${scenario.name}-outage.png`});
     await page.getByTestId('try-again').click();
    }
    await page.getByTestId('share-this-glimpse').waitFor({timeout:65000});
-   await expect(page.getByTestId('view-plans')).toHaveText('0 readings');
+   await expect(page.getByTestId('view-plans')).toHaveText('0 free today');
    await page.waitForTimeout(1800);await page.screenshot({path:`${evidence}/${scenario.name}.png`});
    result.rendered=await page.locator('body').innerText();
    const relevant=requests.filter(r=>['plan','predict'].includes(r.action));
@@ -56,7 +57,7 @@ try{
    assert.equal(relevant.every(r=>r.friend===scenario.friend),true);
    await page.reload();if(scenario.friend)await page.getByTestId('close-flow').click();await page.getByTestId('tab-history').click();
    await expect(page.getByRole('button').filter({hasText:question})).toHaveCount(1);
-   await expect(page.getByTestId('view-plans')).toHaveText('0 readings');
+   await expect(page.getByTestId('view-plans')).toHaveText('0 free today');
    result.persisted=await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {history:s.history,usage:s.usage,credits:s.credits};});
    assert.equal(result.persisted.history.length,1);assert.equal(result.persisted.usage.count,1);assert.deepEqual(errors,[]);
    result.pass=true;console.log(`${scenario.name}: forecast revealed, one persisted reading, one charge, stable UUID; secure=${result.crypto.secure}`);

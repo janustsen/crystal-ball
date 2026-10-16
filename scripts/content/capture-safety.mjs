@@ -1,6 +1,11 @@
 import {assertSafe} from './hooks.mjs';
 
 export async function assertHomeSafe(page){
+ // Home shows the omen as one insight line until it is opened: check the whole of today's omen it summarizes.
+ if(await page.getByTestId('insight-line').count()){
+  const text=await (await page.waitForFunction(()=>{const omen=JSON.parse(localStorage.getItem('crystal-ball-personal-omen-v1')??'{}');return omen.day===new Date().toLocaleDateString('en-CA')&&omen.text!=null&&omen.text},null,{timeout:90000})).jsonValue();
+  assertSafe(text);return;
+ }
  const panel=page.getByTestId('daily-omen');
  await panel.locator('[aria-live="polite"]').waitFor();
  await page.waitForFunction(()=>{

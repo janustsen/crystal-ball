@@ -3,6 +3,7 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {httpCredentials,previewFetch} from './preview-auth.mjs';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8123',out=process.env.EVIDENCE_DIR||'docs/evidence/receipts-golden';
 await mkdir(out,{recursive:true});
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
@@ -27,9 +28,9 @@ async function exportCard(name){
  await download.saveAs(`${out}/${name}.png`);return download.suggestedFilename();
 }
 try{
- await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
+ await page.goto(base,{timeout:180000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);
  const question='Will I finish my painting project this month?';
- await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+ await tapToAsk(page);await page.getByTestId('type-instead').click();
  await page.getByTestId('question-input').fill(question);await page.getByTestId('look-into-the-future').click();
  for(let i=0;i<3;i++){
   await page.getByTestId('option-0').waitFor({timeout:65000});

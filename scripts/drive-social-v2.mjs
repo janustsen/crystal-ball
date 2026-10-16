@@ -2,6 +2,7 @@ import {spawn,execFileSync} from 'node:child_process';
 import sharp from 'sharp';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
+import {seedLadder} from './ladder-seed.mjs';
 const base=process.env.SOCIAL_APP_URL||'http://localhost:8099',stamp=Date.now(),sessions=new Set(),evidence=[];
 const dir=process.env.EVIDENCE_DIR||'docs/evidence/social-v2';
 const db=process.env.SOCIAL_DB_URL||'http://127.0.0.1:55339';
@@ -12,13 +13,18 @@ async function run(person,script){
  const out=await new Promise((resolve,reject)=>{const p=spawn('chrome-devtools-axi',['run'],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:session}});let text='';p.stdout.on('data',c=>text+=c);p.stderr.on('data',c=>text+=c);p.on('error',reject);p.on('close',code=>code?reject(Error(text)):resolve(text));p.stdin.end(script)});
  return out.trim()?JSON.parse(out):null;
 }
+// Sky opens at 12 questions on the ladder; open every feature after onboarding, then reload into Home.
+const seeded=url=>`await page.wait('[data-testid="tap-to-ask"]');await page.eval(async()=>{${seedLadder}});await page.open(${JSON.stringify(url)});`;
 const click=id=>`await page.click('[data-testid="${id}"]');`;
-const text=value=>`if(!(await page.eval(()=>document.body.innerText)).includes(${JSON.stringify(value)}))throw Error(${JSON.stringify('Missing '+value)});`;
+// Home fades in from a side screen; let it settle before tapping its Sky line.
+const toSky=`${click('tab-home')}await page.wait(1200);${click('open-sky')}await page.wait('[data-testid="social-section-sky"]');`;
+// Waits up to 10s for the text; labels render uppercased by CSS, so the match ignores case.
+const text=value=>`for(let i=0;!(await page.eval(()=>document.body.innerText)).toLowerCase().includes(${JSON.stringify(value.toLowerCase())});i++){if(i===20)throw Error(${JSON.stringify('Missing '+value)});await page.wait(500)}`;
 const rpc=`async(name,args={})=>{const key=Object.keys(localStorage).find(k=>/^sb-.*-auth-token$/.test(k)),session=JSON.parse(localStorage.getItem(key));const r=await fetch(${JSON.stringify(db+'/rest/v1/rpc/')}+name,{method:'POST',headers:{authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(args)});const result=await r.json();if(!r.ok)throw Error(result.message);return result}`;
 async function fresh(person,birthday='1995-03-21'){
- await run(person,`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]',${JSON.stringify(birthday.slice(5,7))});await page.fill('[data-testid="birthday-day"]',${JSON.stringify(birthday.slice(8,10))});await page.fill('[data-testid="birthday-year"]',${JSON.stringify(birthday.slice(0,4))});${click('continue')}${click('about-done')}await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+suffix)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`);
+ await run(person,`await page.open(${JSON.stringify(base)});await page.wait('[data-testid="birthday-month"]');await page.fill('[data-testid="birthday-month"]',${JSON.stringify(birthday.slice(5,7))});await page.fill('[data-testid="birthday-day"]',${JSON.stringify(birthday.slice(8,10))});await page.fill('[data-testid="birthday-year"]',${JSON.stringify(birthday.slice(0,4))});${click('continue')}${click('about-done')}${seeded(base)}await page.wait('[data-testid="open-sky"]');${click('open-sky')}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[aria-label="Your handle"]');await page.fill('[aria-label="Your handle"]',${JSON.stringify(person+'_'+suffix)});await page.fill('[aria-label="Display name"]',${JSON.stringify(person)});${click('save-social-profile')}await page.wait('[data-testid="search-people"]');`);
 }
-async function refresh(person){await run(person,`if(await page.eval(()=>!!document.querySelector('[data-testid="close-flow"]')))${click('close-flow')}${click('tab-home')}${click('tab-sky')}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[data-testid="search-people"]');`)}
+async function refresh(person){await run(person,`if(await page.eval(()=>!!document.querySelector('[data-testid="close-flow"]')))${click('close-flow')}${toSky}await page.wait('[data-testid="social-section-circles"]');${click('social-section-circles')}await page.wait('[data-testid="search-people"]');`)}
 async function search(person,handle){await run(person,`await page.fill('[aria-label="Search handles"]',${JSON.stringify(handle)});${click('search-people')}await page.wait(1200);`)}
 try{
  await mkdir(dir,{recursive:true});
@@ -29,13 +35,15 @@ try{
  await search('owner','friend_'+suffix);
  await run('owner',`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Invite @friend_')).click());await page.wait(800);${text('Invitation sent.')}`);
  await refresh('friend');
- await run('friend',`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Decline @owner_')).click());await page.wait(800);${text('A small sky of your own.')}`);
+ await run('friend',`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Decline @owner_')).click());await page.wait(800);${text('A small sky of your own')}`);
  await run('owner',`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Invite @friend_')).click());await page.wait(800);`);
  await refresh('friend');
  await run('friend',`await page.eval(()=>Array.from(document.querySelectorAll('[role="button"]')).find(e=>e.textContent.startsWith('Accept @owner_')).click());await page.wait('[data-testid="leave-this-circle"]');${text('2 of 20 stars')}`);
  evidence.push({profileUi:true,handleSearch:true,requestDeclineAndAccept:true});
  await refresh('owner');
- await run('owner',`await page.fill('[aria-label="Circle question"]','Will we learn a creative skill together?');${click('ask-for-the-circle')}await page.wait('[data-testid="share-circle-forecast-1-reading"]',120000);${text('Visible to everyone in the Circle.')}${click('share-circle-forecast-1-reading')}await page.wait(1500);${text('A forecast is open until its check-in.')}${text('0 readings')}`);
+ // The Circle forecast spends one of the owner's questions (the server starter, then the daily one).
+ const pill=`Number((await page.eval(()=>document.querySelector('[data-testid="view-plans"]').textContent)).match(/\\d+/)?.[0])`;
+ await run('owner',`const before=${pill};await page.fill('[aria-label="Circle question"]','Will we learn a creative skill together?');${click('ask-for-the-circle')}await page.wait('[data-testid="share-circle-forecast-1-reading"]',120000);${text('Visible to everyone in the Circle.')}${click('share-circle-forecast-1-reading')}await page.wait(1500);${text('A forecast is open until its check-in.')}for(let i=0;${pill}!==before-1;i++){if(i===20)throw Error('Circle forecast did not spend one question');await page.wait(500)}`);
  await refresh('friend');
  const forecast=await run('friend',`${text('Will we learn a creative skill together?')}console.log(JSON.stringify(await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));return {readings:s.history.length,usage:s.usage.count,text:document.body.innerText}})));`);
  if(forecast.readings!==0||forecast.usage!==0)throw Error('Recipient paid for Circle forecast');
@@ -67,7 +75,7 @@ try{
  await run('owner',`${click('transfer-ownership-to-friend')}await page.wait(700);${click('leave-this-circle')}${click('yes-leave-the-circle')}await page.wait(1000);${text('Circle left.')}`);
  await refresh('friend');await run('friend',`await page.wait('[data-testid="invite-a-friend"]');${text('1 of 20 stars')}`);
  evidence.push({transferAndOwnerLeaveUi:true});
- await run('friend',`await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.largeText=true;s.reduceMotion=true;localStorage.setItem('crystal-ball-v1',JSON.stringify(s))});await page.open(${JSON.stringify(base)});await page.wait('[data-testid="tab-sky"]');${click('tab-sky')}${click('social-section-circles')}await page.wait('[data-testid="search-people"]');console.log(JSON.stringify(await page.eval(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}))));`).then(size=>{if(size.scroll>size.width)throw Error('Horizontal overflow');evidence.push({largeTextNoHorizontalOverflow:true})});
+ await run('friend',`await page.eval(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));s.largeText=true;s.reduceMotion=true;localStorage.setItem('crystal-ball-v1',JSON.stringify(s))});await page.open(${JSON.stringify(base)});await page.wait('[data-testid="open-sky"]');${click('open-sky')}${click('social-section-circles')}await page.wait('[data-testid="search-people"]');console.log(JSON.stringify(await page.eval(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}))));`).then(size=>{if(size.scroll>size.width)throw Error('Horizontal overflow');evidence.push({largeTextNoHorizontalOverflow:true})});
  for(const person of ['friend','visitor']){
   const path=`${dir}/${person}.png`;
   try{execFileSync('chrome-devtools-axi',['screenshot',path],{env:{...process.env,CHROME_DEVTOOLS_AXI_SESSION:`cb-v2-${suffix}-${person}`},stdio:'pipe'})}catch{await sharp(path).metadata();evidence.push({screenshot:person,cliPathReportFailed:true,savedImageValidated:true})}

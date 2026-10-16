@@ -6,6 +6,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {assertRevealEnd} from './assert-reveal-end.mjs';
 import {httpCredentials,previewFetch} from './preview-auth.mjs';
+import {tapToAsk} from './ladder-seed.mjs';
 const base=process.env.VERIFY_URL||'http://localhost:8131',out=process.env.EVIDENCE_DIR||'docs/evidence/growth-loops';
 await mkdir(out,{recursive:true});
 const health=await previewFetch(`${base}/engine/health`).then(r=>r.json());
@@ -98,7 +99,7 @@ try{
  }
  if(!process.env.CLIP_ONLY){
  // The spent visitor is sent to install instead of a second reading.
- await a.page.getByTestId('close-flow').click();await a.page.getByTestId('tab-ask').click();await a.page.getByTestId('type-instead').click();
+ await a.page.getByTestId('close-flow').click();await tapToAsk(a.page);await a.page.getByTestId('type-instead').click();
  expect(await ask(a.page,'Will I get a new job this year?')).toBe('install');
  await a.page.screenshot({path:`${out}/03-install-after-spent.png`});
  // A fresh browser on the same network is refused by the server.

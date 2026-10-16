@@ -1,6 +1,7 @@
 import {chromium,expect} from '@playwright/test';
 import {httpCredentials} from './preview-auth.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {tapToAsk,openEverything} from './ladder-seed.mjs';
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
 await mkdir(evidenceDir,{recursive:true});
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -8,9 +9,9 @@ const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844
 const results=[];
 try{
  await page.goto(process.env.APP_URL||'http://localhost:8096');
- await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
+ await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('06');await page.getByTestId('birthday-day').fill('15');await page.getByTestId('birthday-year').fill('1995');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
  await expect(page.locator('[ariahidden]')).toHaveCount(0);
- await expect(page.locator('[role=tab] > svg[aria-hidden="true"]')).toHaveCount(4);
+ await expect(page.locator('[role=tab] svg[aria-hidden="true"]')).toHaveCount(3);
  await expect(page.getByText('Keep your glimpses')).toHaveCount(0);
  results.push('Home has no sign-in prompt');
  await page.getByTestId('tab-you').click();
@@ -33,7 +34,7 @@ try{
  await page.screenshot({path:`${evidenceDir}/launch-you-large.png`});
  await expect(page.getByRole('tab',{name:'You',exact:true})).toBeVisible();
  results.push('Unavailable backup stays absent at 375px and 200% text; navigation remains visible');
- await page.getByTestId('tab-ask').click();
+ await tapToAsk(page);
  await page.getByTestId('type-instead').click();
  await expect(page.getByText('For entertainment · questions and answers go to your prediction engine.')).toBeVisible();
  if(process.env.CHECK_AI_CONSENT==='1'){

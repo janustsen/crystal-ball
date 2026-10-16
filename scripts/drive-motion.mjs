@@ -1,4 +1,5 @@
 import {openAuthenticatedPreview,previewSecret} from './preview-auth.mjs';
+import {seedLadder} from './ladder-seed.mjs';
 // Real Chrome trace + frame/draw counters. No model fixtures; own isolated profile.
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
@@ -22,6 +23,9 @@ try{
  evaluate('()=>{document.querySelector("[data-testid=skip-for-now]")?.click();return true}');
  evaluate('()=>{document.querySelector("[data-testid=confirm-age]")?.click();return true}');
  evaluate('()=>{document.querySelector("[data-testid=about-done]")?.click();return true}');
+ // Open every ladder feature so Sky, History and You can be sampled, then reload into Home.
+ evaluate(`async()=>{${seedLadder}return true}`);cli('open',redact(process.env.PREVIEW_URL||'http://localhost:8087'));
+ evaluate('async()=>{await document.fonts.ready;await new Promise(r=>setTimeout(r,2000));return true}');
  shot('glass-home');evaluate(readFileSync('scripts/measure-motion-browser.js','utf8'));
  cli('perf-start','--no-reload','--no-auto-stop','--file',raw);tracing=true;
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');
@@ -29,8 +33,9 @@ try{
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
  sample('planning-to-question-one','look-into-the-future',2200,'option-0');const total=evaluate('()=>Number(document.body.innerText.match(/1 of (\\d)/)[1])');for(let i=0;i<total;i++)sample(i===total-1?'thinking-to-reveal':'question-two','option-0',2200,i===total-1?'share-this-glimpse':'option-0');
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');
- for(const tab of ['sky','history','you'])sample(tab+'-tab','tab-'+tab);
- sample('ask-tab','tab-ask');sample('close-flow','close-flow');sample('ambient-sky','tab-sky',45000);
+ sample('sky','open-sky');sample('sky-back','header-back');
+ for(const tab of ['history','you','home'])sample(tab+'-tab','tab-'+tab);
+ sample('tap-to-ask','tap-to-ask');sample('close-flow','close-flow');sample('ambient-sky','open-sky',45000);
  const samples=evaluate('()=>motionAudit.finish()');writeEvidence('samples.json',JSON.stringify({url:evaluate('()=>location.href'),viewport:{width:390,height:844},samples},null,2)+'\n');
  let traceSummary;try{traceSummary=cli('perf-stop','--file',raw)}catch(error){traceSummary=`AXI trace export returned an error; checking the completed artifact: ${String(error)}\n`;}
  writeEvidence('trace-summary.txt',traceSummary);

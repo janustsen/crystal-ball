@@ -1,5 +1,6 @@
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
+import {tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const browser=await chromium.launch({channel:'chrome',headless:true}),results=[];
 const viewportOf=control=>control.evaluate(el=>{
@@ -24,12 +25,12 @@ try{
  for(const height of [390,844])for(const largeText of [false,true]){
   const context=await browser.newContext({viewport:{width:390,height},reducedMotion:'reduce'});
   try{
-   await context.addInitScript(largeText=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText})),largeText);
+   await context.addInitScript(largeText=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']}})),largeText);
    const page=await context.newPage();
    await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'practice',question:'How much do you practice?',options:['15 minutes','Other'],remember:false}]}}}));
    await page.goto(base,{timeout:120000});
    await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
-   await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+   await tapToAsk(page);await page.getByTestId('type-instead').click();
    await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex');
    const input=page.getByTestId('question-input');await input.fill('Will I finish my draft?');
    await page.getByTestId('look-into-the-future').click();

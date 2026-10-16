@@ -1,15 +1,15 @@
 // A/B frame probe under identical host load: 'art' = current, 'plain' = art-pass transitions/veils/float disabled by injected CSS.
 // Run: node scripts/ab-motion.mjs (preview on localhost:8099 or AB_URL). Engine replies are a labeled fixture.
-import {chromium} from '@playwright/test';import {readFileSync} from 'node:fs';
+import {chromium} from '@playwright/test';import {readFileSync} from 'node:fs';import {allOpen} from './ladder-seed.mjs';
 const plainCss='.motion-enter{animation-name:smoke-wipe!important;animation-timing-function:cubic-bezier(.2,.75,.2,1)!important}.screen-veil::after,.screen-veil::before{display:none!important}.orb .gb{animation:none!important}.tap-burst{display:none!important}.tap-squash{animation:none!important}';
 const plan={topic:'general',provided:{},cards:[{id:'context_a',question:'How settled is your plan right now, honestly?',options:['Barely started','Halfway there','Nearly certain','Other'],remember:false}]};
 const prediction={id:'ab',question:'Will I be conversational in Spanish in six months?',headline:'By spring you will hold a twenty-minute conversation in Spanish',createdAt:new Date().toISOString(),label:'Speculative · moderate confidence',why:'Fixture.',facts:{},sources:[],assumptions:['Fixture.'],friend:false};
 const b=await chromium.launch({channel:'chrome',headless:true,args:['--enable-gpu','--ignore-gpu-blocklist']});
 const rows=[];
 for(let round=0;round<3;round++)for(const variant of ['art','plain']){
- const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();
+ const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await c.addInitScript(ladder=>localStorage.setItem('crystal-ball-v1',JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder,facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0}})),allOpen);const p=await c.newPage();
  await p.route('**/engine',async r=>{const a=r.request().postDataJSON()?.action;await r.fulfill({contentType:'application/json',body:JSON.stringify(a==='plan'?{kind:'ok',value:plan}:{kind:'ok',value:{...prediction,id:'ab'+Date.now()}})})});
- await p.goto(process.env.AB_URL||'http://localhost:8099');await p.getByTestId('tab-ask').waitFor();await p.waitForTimeout(2000);
+ await p.goto(process.env.AB_URL||'http://localhost:8099');await p.getByTestId('tap-to-ask').waitFor();await p.waitForTimeout(2000);
  if(variant==='plain')await p.addStyleTag({content:plainCss});
  await p.evaluate(readFileSync('scripts/measure-motion-browser.js','utf8').replace(/^\(\) => \{/,'(()=>{')+')()');
  const s=(n,id,until)=>p.evaluate(([n,id,until])=>motionAudit.sample(n,id,2200,until),[n,id,until]);
