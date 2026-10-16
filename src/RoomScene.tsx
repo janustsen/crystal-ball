@@ -19,9 +19,8 @@ type Flight={key:string;to:Spot;playing:boolean};
 // cut pixel-exact) while the ball rides each frame's tracked position on the native driver, then the live glass ball
 // (src/glassBall.ts) rests on the stand. Reduced motion, or a change mid-flight, cross-fades the stills instead. The
 // static orb rests beneath the glass, which covers it exactly, so the ball still shows wherever GL draws nothing (an
-// iPhone's GL view stayed transparent while the Simulator's drew). Native plays no loops: each spot rests on its still.
-// ponytail: the static orb rides the flight because the iOS Simulator drops the GL ball over a playing video; try the
-// glass in flight again once a device shows it composites.
+// iPhone's GL view stayed transparent while the Simulator's drew). The glass stays up through flights too: swapping in
+// the grey static orb for each trip read as the ball fading out and back. Native plays no loops: each spot rests on its still.
 // ponytail: no depth-of-field blur on the ball (only You's still is out of focus); add a blur pass if it reads pasted.
 export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlaybackChange,onTravel}:{spot:Spot;width:number;height:number;reduce:boolean;spin:BallSpin;ball?:BallStyle;zoom?:number;onPlaybackChange?:()=>void;onTravel?:(traveling:boolean)=>void}){
  const [at,setAt]=useState(spot),[flight,setFlight]=useState<Flight|null>(null),[flying,setFlying]=useState(false);
@@ -125,8 +124,8 @@ export function RoomScene({spot,width,height,reduce,spin,ball='classic',onPlayba
   {previous?<Animated.Image source={roomStills[previous]} resizeMode="cover" style={{...fill,opacity:fade}}/>:null}
   {placed&&!flying?<View style={{position:'absolute',left:placed.x-placed.r,top:placed.y-placed.r,width:placed.r*2,height:placed.r*2,borderRadius:placed.r,overflow:'hidden'}}><OrbVisual size={placed.r*2} reduce ball={ball}/></View>:null}
   <Animated.View style={{position:'absolute',left:0,top:0,width:S,height:S,...carry}}>
-   <GLView key={`${width}x${height}`} onContextCreate={start} style={{width:S,height:S,opacity:!failed&&started&&!flying?1:0}}/>
    {flying?<View style={{position:'absolute',left:S/4,top:S/4,width:S/2,height:S/2,borderRadius:S/4,overflow:'hidden'}}><OrbVisual size={S/2} reduce ball={ball}/></View>:null}
+   <GLView key={`${width}x${height}`} onContextCreate={start} style={{width:S,height:S,opacity:!failed&&started?1:0}}/>
   </Animated.View>
   <LinearGradient colors={['rgba(20,14,10,.6)','rgba(20,14,10,0)']} style={{position:'absolute',left:0,top:0,width,height:150}}/>
   <LinearGradient colors={['rgba(20,14,10,0)','rgba(20,14,10,.6)','rgba(20,14,10,.94)']} locations={[0,.45,1]} style={{position:'absolute',left:0,bottom:0,width,height:320}}/>
