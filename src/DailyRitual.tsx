@@ -17,9 +17,9 @@ export function Constellation({stars,lit,width=200}:{stars:[number,number][];lit
 }
 
 const time12=(time:string)=>{const h=Number(time.slice(0,2));return `${h%12||12}:${time.slice(3)} ${h<12?'am':'pm'}`};
-function TimeChips({value,onChange}:{value:string;onChange:(time:string)=>void}){
- return <View accessibilityRole="radiogroup" accessibilityLabel="Morning notification time" style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:12}}>
-  {morningTimes.map(time=><Pressable key={time} testID={`notify-time-${time}`} accessibilityRole="radio" aria-checked={value===time} accessibilityState={{checked:value===time}} onPress={()=>onChange(time)} style={{minHeight:44,paddingHorizontal:16,justifyContent:'center'}}><Surface kind="chip" state={value===time?'selected':undefined}><Txt style={styles.chip}>{time12(time)}</Txt></Surface></Pressable>)}
+function TimeChips({value,onChange,compact=false}:{value:string;onChange:(time:string)=>void;compact?:boolean}){
+ return <View accessibilityRole="radiogroup" accessibilityLabel="Morning notification time" style={{flexDirection:'row',flexWrap:'wrap',gap:compact?4:8,marginTop:compact?4:12}}>
+  {morningTimes.map(time=><Pressable key={time} testID={`notify-time-${time}`} accessibilityRole="radio" aria-checked={value===time} accessibilityState={{checked:value===time}} onPress={()=>onChange(time)} style={{minHeight:44,paddingHorizontal:compact?8:16,justifyContent:'center'}}><Surface kind="chip" state={value===time?'selected':undefined}><Txt style={styles.chip}>{time12(time)}</Txt></Surface></Pressable>)}
  </View>;
 }
 
@@ -69,7 +69,7 @@ export function NotifySettings({prefs,onChange}:{prefs:NotifyPrefs;onChange:(pre
  return <View testID="notify-settings">
   <View style={styles.row}><Txt style={{flexShrink:1}}>Morning insight and evening nudge</Txt><Toggle testID="notify-toggle" accessibilityLabel="Morning insight and evening nudge notifications" value={prefs.daily} onValueChange={daily=>onChange({...prefs,daily})}/></View>
   {Platform.OS==='web'?<Txt style={styles.caption}>Notifications need the iOS app.</Txt>:null}
-  {prefs.daily?<TimeChips value={prefs.time} onChange={time=>onChange({...prefs,time})}/>:null}
+  {prefs.daily?<TimeChips compact value={prefs.time} onChange={time=>onChange({...prefs,time})}/>:null}
  </View>;
 }
 
