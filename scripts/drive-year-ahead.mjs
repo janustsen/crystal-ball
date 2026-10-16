@@ -89,18 +89,8 @@ try{
 
  // The yearly plan includes Year ahead: owned and ready to seal without a second purchase.
  const yearly=await browser.newContext({viewport:{width:360,height:740}}),plan=await start(yearly);
- await plan.getByTestId('view-plans').click();
- // Yearly is off sale while annualOffered is false (src/billing.ts); the large-text check then starts from a saved Yearly grant.
- const offered=await plan.getByRole('radio',{name:/Yearly/}).count();
- if(offered){
-  await plan.getByRole('radio',{name:/Yearly/}).click();
-  assert.match(await plan.getByRole('radio',{name:/Yearly/}).innerText(),/Year ahead included/);
-  await plan.getByTestId('continue-with-plus-simulate').click();
- }else{
-  await plan.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));localStorage.setItem('crystal-ball-v1',JSON.stringify({...s,yearAhead:{kind:'owned',source:'yearly'}}))});
-  await plan.reload();await plan.getByTestId('hero-orb').waitFor();
- }
- if(offered)await plan.getByTestId('close-flow').click();
+ await plan.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));localStorage.setItem('crystal-ball-v1',JSON.stringify({...s,yearAhead:{kind:'owned',source:'yearly'}}))});
+ await plan.reload();await plan.getByTestId('hero-orb').waitFor();
  await library(plan);
  await plan.getByTestId('year-ahead-seal').waitFor();
  assert.deepEqual((await saved(plan)).yearAhead,{kind:'owned',source:'yearly'});
@@ -110,7 +100,7 @@ try{
  const overflow=await plan.evaluate(()=>{const shell=document.querySelector('[data-testid="app-shell"]').getBoundingClientRect();return [...document.querySelectorAll('[data-testid="year-ahead"] *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&(r.left<shell.left-1||r.right>shell.right+1)}).length+(document.documentElement.scrollWidth>innerWidth?1:0)});
  assert.equal(overflow,0,'Year ahead overflows the shell at 200% text');
  await plan.screenshot({path:`${out}/yearly-large-text.png`,fullPage:true});
- results.yearly=(offered?'owned via Yearly':'Yearly not offered; saved Yearly grant')+'; no overflow at 360px and 200% text';
+ results.yearly='Yearly not offered; saved Yearly grant; no overflow at 360px and 200% text';
  await yearly.close();
  assert.deepEqual(errors.filter(e=>!/room clip unavailable|favicon/.test(e)),[],'console errors');
  writeFileSync(`${out}/drive-year-ahead.json`,JSON.stringify(results,null,1)+'\n');

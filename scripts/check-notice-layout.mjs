@@ -1,6 +1,6 @@
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
-import {tapToAsk} from './ladder-seed.mjs';
+import {allOpen,tapToAsk} from './ladder-seed.mjs';
 const base=process.env.PREVIEW_URL||'http://localhost:8087';
 const browser=await chromium.launch({channel:'chrome',headless:true}),results=[];
 const viewportOf=control=>control.evaluate(el=>{
@@ -25,7 +25,7 @@ try{
  for(const height of [390,844])for(const largeText of [false,true]){
   const context=await browser.newContext({viewport:{width:390,height},reducedMotion:'reduce'});
   try{
-   await context.addInitScript(largeText=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']}})),largeText);
+   await context.addInitScript(({largeText,allOpen})=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText,ladder:allOpen})),{largeText,allOpen});
    const page=await context.newPage();
    await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'practice',question:'How much do you practice?',options:['15 minutes','Other'],remember:false}]}}}));
    await page.goto(base,{timeout:120000});
