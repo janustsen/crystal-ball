@@ -1,6 +1,7 @@
 import {createClient,isAuthRetryableFetchError,isAuthSessionMissingError,type SupabaseClient} from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {canRead} from './profile';
+import {questionsAsked} from './ladder';
 import type {AccountState} from './types';
 import {validFacts,validPrediction} from './backup';
 import {askFor,asksOf,selfAnswers,teenSafe} from './ball-asks';
@@ -60,7 +61,7 @@ export async function restoreBackup(state:AccountState,client:SupabaseClient|nul
  history.sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
  // The chart weather cache may be another account's; the server returns this account's month on request.
  const progress=asksOf(state),seen=[...new Set([...progress.seen,...selfAnswers(remembered,teenSafe(state)).map(({key})=>askFor(key)!.id)])];
- return {...state,facts:remembered,history,asks:{...progress,seen,skipped:progress.skipped.filter(id=>!seen.includes(id))},backupOwner:user_id,chartWeather:undefined};
+ return {...state,facts:remembered,history,ladder:{...state.ladder,asked:Math.max(questionsAsked(state),history.length)},asks:{...progress,seen,skipped:progress.skipped.filter(id=>!seen.includes(id))},backupOwner:user_id,chartWeather:undefined};
 }
 export async function mirror(state:AccountState,client:SupabaseClient|null=supabase){
  if(!client||!canRead(state))return;

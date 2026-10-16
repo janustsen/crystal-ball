@@ -287,8 +287,8 @@ for(const scenario of [
  }
 });
 
-test('Today insight step opens the daily insight on Home instead of doing nothing',()=>{
- const {render}=app();
+test('Today insight step opens and acknowledges insight before content is available',()=>{
+ const {render,state}=app(true,[],undefined,{ladder:{asked:20,opened:[]}});
  render().find(n=>n.props.testID==='tab-home').props.onPress();
  assert.equal(render().find(n=>n.type==='DailyOmen').props.open,false);
  render().find(n=>n.props.testID==='tab-you').props.onPress();
@@ -296,6 +296,8 @@ test('Today insight step opens the daily insight on Home instead of doing nothin
  const home=render();
  assert.ok(home.some(n=>n.props.testID==='tab-home'&&n.props.accessibilityState.selected));
  assert.equal(home.find(n=>n.type==='DailyOmen').props.open,true);
+ assert.equal(home.find(n=>n.type==='DailyOmen').props.dot,false);
+ assert.ok(state.ladder.opened.includes('insight'));
 });
 
 test('Today questions opens About you without requiring AI consent',()=>{

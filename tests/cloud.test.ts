@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createClient,type Session} from '@supabase/supabase-js';
 import {anonymousOwner,mirror,restoreBackup} from '../src/cloud.ts';
 import {answerAsk,asksOf,bonusDue,deckFor,insightDue,nextAsk,selfKey} from '../src/ball-asks';
+import {questionsAsked,unlocked} from '../src/ladder';
 import type {AccountState} from '../src/types.ts';
 const empty:AccountState={sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:5,plus:false,usage:{day:'2026-09-30',count:0},reduceMotion:false,largeText:false};
 const reading={id:'12345678-1234-1234-1234-123456789abc',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-30T00:00:00Z',label:'Speculative',why:'Practice',facts:{practice:'daily'},sources:[],assumptions:[],friend:false};
@@ -184,4 +185,21 @@ test('a session the server no longer knows is replaced, checked once per launch'
  // Reset long enough ago that the access token expired and its refresh token is unknown.
  expiresIn=-60;assert.equal(await anonymousOwner(launch()),'owner-3');
  const checks=users;assert.equal(await anonymousOwner(launch()),'owner-4');assert.equal(users,checks);assert.equal(signups,4);
+});
+
+test('restoring larger, smaller and empty histories preserves earned ladder progress',async()=>{
+ const {remote,client}=archive();
+ remote.history=Array.from({length:20},(_,i)=>({...reading,id:`${i.toString(16).padStart(8,'0')}-1234-1234-1234-123456789abc`}));
+ const local={...empty,ladder:{asked:3,opened:['about' as const]}};
+ const restored=await restoreBackup(local,client);
+ assert.equal(restored.ladder.asked,20);
+ assert.deepEqual(restored.ladder.opened,['about']);
+ const forgotten={...restored,history:[]};
+ assert.equal(questionsAsked(forgotten),20);
+ assert.equal(unlocked(forgotten,'library'),true);
+ for(const count of [1,0]){
+  remote.history=remote.history.slice(0,count);
+  assert.equal((await restoreBackup(forgotten,client)).ladder.asked,20);
+  assert.equal((await restoreBackup({...local,history:restored.history},client)).ladder.asked,20);
+ }
 });
