@@ -23,18 +23,29 @@ export const manageSubscriptionsUrl='https://apps.apple.com/account/subscription
 export const packReadings=(product:string)=>packs.find(p=>p.product===product)?.readings;
 // Server-owned reading balance. The client only displays it.
 // ballStyle/cardStyle are the user's saved choice; Classic renders whenever Plus is inactive.
-export type Balance={owner:string;asOf:string;plus:boolean;plusUntil:string|null;packs:number;used:number;day:string;ballStyle?:BallStyle;cardStyle?:CardStyle;yearAhead?:'purchase'|'yearly'|null};
+// starter: free starter questions left; a server from before the starter ledger omits it.
+export type Balance={owner:string;asOf:string;plus:boolean;plusUntil:string|null;packs:number;used:number;day:string;starter?:number;ballStyle?:BallStyle;cardStyle?:CardStyle;yearAhead?:'purchase'|'yearly'|null};
 export function validBalance(value:unknown):value is Balance{
  if(!value||typeof value!=='object')return false;
  const b=value as Record<string,unknown>;
- return typeof b.owner==='string'&&b.owner.length>0&&typeof b.asOf==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(b.asOf)&&Number.isFinite(Date.parse(b.asOf))&&typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day)&&(b.ballStyle===undefined||isStyle(b.ballStyle,'ball'))&&(b.cardStyle===undefined||isStyle(b.cardStyle,'card'))&&(b.yearAhead===undefined||b.yearAhead===null||b.yearAhead==='purchase'||b.yearAhead==='yearly');
+ return typeof b.owner==='string'&&b.owner.length>0&&typeof b.asOf==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(b.asOf)&&Number.isFinite(Date.parse(b.asOf))&&typeof b.plus==='boolean'&&(b.plusUntil===null||typeof b.plusUntil==='string')&&Number.isInteger(b.packs)&&Number.isInteger(b.used)&&(b.starter===undefined||Number.isInteger(b.starter)&&(b.starter as number)>=0)&&typeof b.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.day)&&(b.ballStyle===undefined||isStyle(b.ballStyle,'ball'))&&(b.cardStyle===undefined||isStyle(b.cardStyle,'card'))&&(b.yearAhead===undefined||b.yearAhead===null||b.yearAhead==='purchase'||b.yearAhead==='yearly');
 }
 // The server's 402 message; the app opens Plans when it sees it.
 export const noReadings='No readings left today. Choose Plus or a reading pack to keep going.';
 export const dailyReadings=(plus:boolean)=>plus?10:1;
+// A new account's first questions are free (counted over every reading it was ever charged); then the free allowance
+// is one a day. Plus keeps its ten a day. Packs cover what is left either way.
+export const starterReadings=20;
+export const freeLeft=({plus,starter,used}:{plus:boolean;starter:number;used:number})=>plus?Math.max(0,dailyReadings(true)-used):starter>0?starter:Math.max(0,dailyReadings(false)-used);
 // The Ball asks: one bonus reading for every 25 distinct questions answered. Bonuses are credited like a pack and never expire.
 export const answersPerBonus=25;
 export const askBonuses=(answered:number)=>Math.floor(answered/answersPerBonus);
-export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'>)=>Math.max(0,dailyReadings(b.plus)-b.used)+b.packs;
+export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'|'starter'>)=>freeLeft({...b,starter:b.starter??0})+b.packs;
 // Paywall copy: everything Plus unlocks, in order.
-export const plusUnlocks=[`${dailyReadings(true)} readings a day`,'The deeper Why: your answers, assumptions and news leads, with your Moon and rising','Monthly chart weather','A narrated Ball',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];
+export const plusUnlocks=[`${dailyReadings(true)} questions a day`,'The deeper Why: your answers, assumptions and news leads, with your Moon and rising','Monthly chart weather','A narrated Ball',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];
+// The header pill: the starter's free questions, then today's free one; with any pack it is the plain total.
+export function countLabel({plus,starter,packs,remaining}:{plus:boolean;starter:number;packs:number;remaining:number}){
+ if(plus)return 'Plus';
+ if(packs>0)return `${remaining} question${remaining===1?'':'s'} left`;
+ return starter>0?`${starter} free question${starter===1?'':'s'}`:`${remaining} free today`;
+}

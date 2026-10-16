@@ -163,14 +163,14 @@ test('a failed save gives the month back for an immediate retry',async t=>{
 
 test('forgetting birth details drops the birth-derived line from saved readings',()=>{
  const reading={id:'r1',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-06T00:00:00Z',label:'Speculative',why:'Practice',facts:{birthday},sources:[],assumptions:[],friend:false,astrology:astrologyLine(birthday,chart)};
- const state={sunSign:'gemini',ageBand:'adult',birthday,ageConfirmed:true,onboardingDone:true,...chart,birthTime:'14:30',birthPlace:'Oslo',facts:{},history:[reading],credits:0,plus:true,usage:{day:'2026-10-06',count:0},reduceMotion:false,largeText:false} as AccountState;
+ const state={sunSign:'gemini',ageBand:'adult',birthday,ageConfirmed:true,onboardingDone:true,...chart,birthTime:'14:30',birthPlace:'Oslo',ladder:{asked:0,opened:[]},facts:{},history:[reading],credits:0,plus:true,usage:{day:'2026-10-06',count:0},reduceMotion:false,largeText:false} as AccountState;
  assert.equal(updateBirthday(state).history[0].astrology,undefined);
  const forgotten=forgetBirthChart(state);
  assert.equal(forgotten.history[0].astrology,undefined);assert.equal(forgotten.moonSign,undefined);assert.equal(forgotten.birthPlace,undefined);assert.equal(forgotten.birthday,birthday);
 });
 
 test('chart weather follows the birth chart it came from',()=>{
- const state={sunSign:'gemini',ageBand:'adult',birthday,ageConfirmed:true,onboardingDone:true,...chart,birthTime:'14:30',birthPlace:'Oslo',chartWeather:{month:'2026-10',text:'Steady.'},facts:{},history:[],credits:0,plus:true,usage:{day:'2026-10-06',count:0},reduceMotion:false,largeText:false} as AccountState;
+ const state={sunSign:'gemini',ageBand:'adult',birthday,ageConfirmed:true,onboardingDone:true,...chart,birthTime:'14:30',birthPlace:'Oslo',chartWeather:{month:'2026-10',text:'Steady.'},ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:true,usage:{day:'2026-10-06',count:0},reduceMotion:false,largeText:false} as AccountState;
  assert.deepEqual(restoreProfile(state).chartWeather,{month:'2026-10',text:'Steady.'});
  assert.equal(updateBirthday(state,'1996-01-01').chartWeather,undefined);
 });

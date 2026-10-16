@@ -45,7 +45,7 @@ try{
  const [paid]=await request(route,token);assert.equal(paid.charged_at,published.charged_at);
  const again=await request('/rest/v1/rpc/publish_circle_forecast',token,{approved_draft:draft.id});assert.equal(again.charged_at,paid.charged_at);
  const balance=await request('/rest/v1/rpc/reading_balance','verification-service-only',{viewer:session.user.id});
- assert.equal(balance.used,1);assert.equal(balance.owner,session.user.id);assert.match(balance.asOf,/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/);
+ assert.equal(balance.used,1);assert.equal(balance.starter,19);assert.equal(balance.owner,session.user.id);assert.match(balance.asOf,/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/);
  const granted=await request('/rest/v1/rpc/apply_store_entitlements','verification-service-only',{viewer:session.user.id,entitled_until:null,purchases:[{id:'retry-pack',readings:5}]});
  assert.ok(validBalance(granted));assert.equal(granted.owner,session.user.id);assert.ok(granted.asOf>balance.asOf);
  const reading='ask:11111111-1111-4111-8111-111111111111';
@@ -54,11 +54,11 @@ try{
  const first=await request('/rest/v1/rpc/charge_reading','verification-service-only',{viewer:session.user.id,reading});
  const retry=await request('/rest/v1/rpc/charge_reading','verification-service-only',{viewer:session.user.id,reading});
  assert.ok(validBalance(balance));assert.ok(validBalance(first));assert.ok(validBalance(retry));assert.ok(first.asOf>granted.asOf);
- assert.equal(first.packs,4);assert.equal(first.owner,session.user.id);assert.ok(retry.asOf>first.asOf);
+ assert.equal(first.packs,5);assert.equal(first.starter,18);assert.equal(first.owner,session.user.id);assert.ok(retry.asOf>first.asOf);
  assert.deepEqual({...retry,asOf:first.asOf},first);
  assert.equal((await request(lookup,'verification-service-only')).length,1);
  assert.deepEqual(await request(lookup.replace(reading,'ask:22222222-2222-4222-8222-222222222222'),'verification-service-only'),[]);
- console.log('PASS: retrying an ask spends one pack reading and is discoverable by its key');
+ console.log('PASS: retrying an ask spends one starter question (packs untouched) and is discoverable by its key');
 
  execFileSync(`${process.env.PG_BIN}/psql`,['-X','-v','ON_ERROR_STOP=1','-c',`
  insert into public.circle_forecast_drafts(id,user_id,circle_id,question,headline,due_date)

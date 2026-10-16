@@ -4,6 +4,8 @@ import * as ballAsks from '../src/ball-asks';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as ladder from '../src/ladder';
+import * as homeLayout from '../src/home-layout';
 import {askBallMock,homeMock} from './home-mock';
 import * as retention from '../src/retention';
 import * as ritual from '../src/ritual';
@@ -33,7 +35,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   useCallback:(callback:any)=>{const i=cursor++;return slots[i]??(slots[i]=callback)},
   useEffect:()=>{},
  };
- const state={ritual:ritual.emptyRitual(),onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
+ const state={ritual:ritual.emptyRitual(),onboardingDone,ageConfirmed:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
  const imports:Record<string,any>={
   '../src/api':{webReadingVisitor:()=>false,webReadingSpent:()=>spent},'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -55,14 +57,14 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
  runInNewContext(socialCode,{module:socialModule,exports:socialModule.exports,process:{env:{}},require:(name:string)=>socialImports[name]??{}});
  imports['../src/SocialScreen'].SealedCard=(props:any)=>{sealCursor=0;return react.createElement('SealedCard',props,socialModule.exports.SealedCard(props))};
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{})});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/ladder'?ladder:name==='../src/home-layout'?homeLayout:name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{})});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>{cursor=0;return nodes(module.exports.default())};
  return {params,render,state};
 }
 
 test('sealed landing allows existing users to navigate every tab and plans',()=>{
- for(const destination of ['home','sky','ask','history','you','plans']){
+ for(const destination of ['home','history','you','plans']){
   const {params,render}=app();
   assert.ok(render().some(n=>n.type==='SealedCard'));
   const control=render().find(n=>n.props.testID===(destination==='plans'?'view-plans':`tab-${destination}`));
@@ -71,7 +73,10 @@ test('sealed landing allows existing users to navigate every tab and plans',()=>
   assert.equal(params.seal,undefined,destination);
   assert.ok(!next.some(n=>n.type==='SealedCard'),destination);
   if(destination==='plans')assert.ok(next.some(n=>n.props.label==='Continue with Plus · simulate'));
-  if(destination==='sky')assert.ok(next.some(n=>n.type==='Social'));
+  if(destination==='home'){
+   next.find(n=>n.props.testID==='open-sky').props.onPress();
+   assert.ok(render().some(n=>n.type==='Social'),'Sky opens from Home');
+  }
  }
 });
 
@@ -79,7 +84,7 @@ test('sealed links still open before onboarding and close after Ask navigation',
  assert.ok(app(false).render().some(n=>n.type==='SealedCard'));
  assert.ok(!app(false).render().some(n=>n.type==='Onboarding'));
  const {render,params}=app();
- render().find(n=>n.props.testID==='tab-ask').props.onPress();
+ render().find(n=>n.type==='SealedCard').props.onAsk();
  render().find(n=>n.props.testID==='close-flow').props.onPress();
  assert.equal(params.seal,undefined);
  assert.ok(render().some(n=>n.props.testID==='tab-home'&&n.props.accessibilityState.selected));
@@ -102,11 +107,11 @@ test('Circle archive directs check-ins to Circles without personal prompts or re
  assert.equal(retention.checkInLabel({...reading,circleId:undefined}),'Ready to check in');
 });
 
-test('the Inner Library opens from the Home room spot and You; its locked door leads to Plus and back',()=>{
+test('the Inner Library opens from You; its locked door leads to Plus and back, and Back returns to You',()=>{
  const {render}=app();
- render().find(n=>n.props.testID==='tab-home').props.onPress();
- const spot=render().find(n=>n.props.testID==='room-inner-library');
- assert.equal(spot.props.locked,true);spot.props.onPress();
+ render().find(n=>n.props.testID==='tab-you').props.onPress();
+ const entry=render().find(n=>n.props.testID==='open-inner-library');
+ assert.equal(entry.props.label,'Inner Library');assert.equal(entry.props.detail,'Plus');entry.props.onPress();
  let room=render();
  assert.ok(room.some(n=>n.children.includes('Inner Library')),'header names the room');
  room.find(n=>n.type==='InnerLibrary').props.onUpgrade();
@@ -114,13 +119,11 @@ test('the Inner Library opens from the Home room spot and You; its locked door l
  assert.ok(plans.some(n=>n.props.label==='Continue with Plus · simulate'));
  for(const unlock of billing.plusUnlocks)assert.ok(plans.some(n=>n.children.includes(`· ${unlock}`)),unlock);
  render().find(n=>n.props.testID==='close-flow').props.onPress();
- assert.ok(render().some(n=>n.type==='InnerLibrary'),'closing Plans returns to the room');
- render().find(n=>n.props.testID==='tab-you').props.onPress();
- const entry=render().find(n=>n.props.testID==='open-inner-library');
- assert.equal(entry.props.label,'Inner Library · Plus');entry.props.onPress();
  room=render();
- assert.ok(room.some(n=>n.type==='InnerLibrary'));
+ assert.ok(room.some(n=>n.type==='InnerLibrary'),'closing Plans returns to the room');
  assert.ok(!room.some(n=>n.props.testID==='tab-you'&&n.props.accessibilityState?.selected),'the room is not a tab');
+ room.find(n=>n.props.testID==='header-back').props.onPress();
+ assert.ok(render().some(n=>n.props.testID==='tab-you'&&n.props.accessibilityState.selected),'Back returns to You');
 });
 
 const reading={id:'reading',question:'Will I finish my course?',headline:'You will finish your course next month.',createdAt:'2026-10-01T00:00:00Z',label:'Speculative forecast · not a guarantee',why:'Practice adds up.',facts:{},sources:[],assumptions:[],friend:false};
@@ -146,7 +149,8 @@ test('expanded Ask scrolling is limited to the revealed reading',()=>{
  render().find(n=>n.props.onPress&&n.children.some((child:any)=>child?.children?.includes('Edit question'))).props.onPress();
  assert.equal(ballMode(),false);
  render().find(n=>n.props.testID==='close-flow').props.onPress();
- render().find(n=>n.props.testID==='tab-ask').props.onPress();
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ render().find(n=>n.props.testID==='tap-to-ask').props.onPress();
  assert.equal(ballMode(),false);
 });
 
@@ -175,7 +179,8 @@ test('a sealed-link browser visitor starts their free reading from the seal, the
 
  test('Ask navigation from a sealed landing keeps the visitor restriction',()=>{
  const {render}=app(true,[reading]);
- render().find(n=>n.props.testID==='tab-ask').props.onPress();
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ render().find(n=>n.props.testID==='tap-to-ask').props.onPress();
  render().find(n=>n.props.testID==='close-flow').props.onPress();
  const reveal=openReading(render);
  assert.ok(reveal.some(n=>n.type==='InstallAction'));
@@ -267,31 +272,37 @@ for(const scenario of [
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,10,12)});
  const {render}=app(true,[{...reading,...scenario}]);
  render().find(n=>n.props.testID==='tab-home').props.onPress();
- const home=render(),today=home.find(n=>n.type==='TodayCard');
- assert.equal(today.props.hint('ask'),scenario.ready?'A check-in is ready in History.':undefined);
- const banner=home.find(n=>n.props.label==='Your check-ins are ready');
+ const banner=render().find(n=>n.type==='NextCard'&&n.props.label==='Check-in');
  assert.equal(!!banner,scenario.banner);
+ render().find(n=>n.props.testID==='tab-you').props.onPress();
+ const today=render().find(n=>n.type==='TodayCard');
+ assert.equal(today.props.hint('ask'),scenario.ready?'A check-in is ready in History.':undefined);
  today.props.onStep('ask');
  assert.ok(render().some(n=>scenario.ready?n.props.testID==='tab-history'&&n.props.accessibilityState.selected:n.props.zoom===true));
  if(!scenario.ready)render().find(n=>n.props.testID==='close-flow').props.onPress();
  if(banner){
   render().find(n=>n.props.testID==='tab-home').props.onPress();
-  render().find(n=>n.props.label==='Your check-ins are ready').props.onPress();
+  render().find(n=>n.props.testID==='next-step-action').props.onPress();
   assert.ok(render().some(n=>n.props.testID==='tab-history'&&n.props.accessibilityState.selected));
  }
 });
 
-test('Today omen step brings the omen into view instead of doing nothing',()=>{
- const {render}=app();
+test('Today insight step opens and acknowledges insight before content is available',()=>{
+ const {render,state}=app(true,[],undefined,{ladder:{asked:20,opened:[]}});
  render().find(n=>n.props.testID==='tab-home').props.onPress();
- assert.equal(render().find(n=>n.type==='Home').props.omenFocus,0);
+ assert.equal(render().find(n=>n.type==='DailyOmen').props.open,false);
+ render().find(n=>n.props.testID==='tab-you').props.onPress();
  render().find(n=>n.type==='TodayCard').props.onStep('omen');
- assert.equal(render().find(n=>n.type==='Home').props.omenFocus,1);
+ const home=render();
+ assert.ok(home.some(n=>n.props.testID==='tab-home'&&n.props.accessibilityState.selected));
+ assert.equal(home.find(n=>n.type==='DailyOmen').props.open,true);
+ assert.equal(home.find(n=>n.type==='DailyOmen').props.dot,false);
+ assert.ok(state.ladder.opened.includes('insight'));
 });
 
-test('Today questions opens The Ball asks without requiring AI consent',()=>{
+test('Today questions opens About you without requiring AI consent',()=>{
  const {render}=app();
- render().find(n=>n.props.testID==='tab-home').props.onPress();
+ render().find(n=>n.props.testID==='tab-you').props.onPress();
  render().find(n=>n.type==='TodayCard').props.onStep('questions');
  assert.ok(render().some(n=>n.type==='BallAsks'));
 });
@@ -302,7 +313,8 @@ test('prefilled Ask waits for room settlement before mounting the microphone',()
   const {render}=app(true,[],undefined,{reduceMotion});
   const draw=()=>render();
   draw().find(n=>n.props.testID==='app-shell').props.onLayout({nativeEvent:{layout:{width:390,height:844}}});
-  draw().find(n=>n.props.testID==='tab-sky').props.onPress();
+  draw().find(n=>n.props.testID==='tab-home').props.onPress();
+  draw().find(n=>n.props.testID==='open-sky').props.onPress();
   draw().find(n=>n.type==='Social').props.onAsk('Will I finish my course?');
   const travel=draw().find(n=>n.type==='RoomScene').props.onTravel;
   travel(true);
@@ -324,4 +336,27 @@ test('prefilled Ask waits for room settlement before mounting the microphone',()
   travel(false);
   assert.ok(!draw().some(n=>n.type==='VoiceButton'),'canceling while waiting cannot start recording later');
  }
+});
+
+for(const plus of [false,true])test(`Shaped by obeys About you threshold, Plus=${plus}`,()=>{
+ const {render,state}=app(true,[{...reading,shapedBy:{question:'Your focus?',answer:'Learning'}}],'',{plus,ladder:{asked:1,opened:[]}});
+ const reveal=openReading(render);
+ reveal.find(n=>n.props.testID==='shaped-by').props.onPress();
+ assert.ok(!render().some(n=>n.type==='BallAsks'));
+ assert.ok(render().some(n=>n.props.testID==='shaped-by'));
+ state.ladder.asked=3;
+ render().find(n=>n.props.testID==='shaped-by').props.onPress();
+ assert.ok(render().some(n=>n.type==='BallAsks'));
+});
+
+test('Sky navigation checks the current threshold even for an earlier callback',()=>{
+ const {render,state}=app(true,[],'',{plus:true});
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ const sky=render().find(n=>n.props.testID==='open-sky').props.onPress;
+ state.ladder.asked=11;
+ sky();
+ assert.ok(!render().some(n=>n.type==='Social'));
+ state.ladder.asked=12;
+ sky();
+ assert.ok(render().some(n=>n.type==='Social'));
 });

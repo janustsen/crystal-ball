@@ -4,6 +4,7 @@ import * as ballAsks from '../src/ball-asks';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as ladder from '../src/ladder';
 import {askBallMock,homeMock} from './home-mock';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
@@ -36,12 +37,13 @@ function hooks(effectsEnabled=true){
 function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='./billing'||name==='../src/billing'?billing:name==='../src/ladder'?ladder:name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
 async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={},account:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
+ // Past the free starter, so the daily reading and packs are what these cases spend.
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let fail!:(error:Error)=>void,blocking=true;
  const remote=new Promise<void>((_resolve,reject)=>{fail=reject});
@@ -103,7 +105,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
- render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.props.testID==='open-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will we learn?',friend,friend?{id:'friend'}:undefined);
  void render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
  if(!friend){render().find(n=>n.props.testID==='option-0').props.onPress();await tick()}
@@ -322,14 +324,14 @@ test('database snapshot time wins over request order and ignores other owners',a
 test('Plans refreshes trial eligibility after reopen, purchase, restore and owner changes',async t=>{
  const h=hooks(),pending:((offers:any[])=>void)[]=[];
  t.after(h.unmount);
- let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,balanceSnapshot:{owner:'one'}};
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,balanceSnapshot:{owner:'one'}};
  let busy=false,finishPurchase!:()=>void,finishRestore!:()=>void;
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'ios'},AppState:{addEventListener:()=>({remove(){}})},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{},update(){}})},'../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
-  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':{plans,packs,offeredPlans:billing.offeredPlans,plusUnlocks:billing.plusUnlocks},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/AskBall':askBallMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
@@ -383,7 +385,7 @@ test('a phone clock corrected backward after a balance still refreshes at server
 
 for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncertain retries to the server and handles exhausted readings`,async()=>{
  const h=hooks(false),params:any={};let remaining=1,predicts=0,next:'lost'|'empty'='lost';
- const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
+ const state={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -405,7 +407,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  const press=async(match:(n:any)=>boolean)=>{render().find(match).props.onPress();await tick()};
  const plansOpen=()=>render().some(n=>n.children.some((c:any)=>c==='Choose your next chapter.'));
  const closePlans=()=>press(n=>n.props.testID==='close-flow');
- const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk(mode==='person'?'Will Sam learn?':'Will I learn?',mode==='friend',mode==='friend'?{circle:'circle',member:'member',firstName:'Sam'}:undefined,mode==='person'?'Sam':'');await press(n=>n.props.testID==='look-into-the-future')};
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='open-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk(mode==='person'?'Will Sam learn?':'Will I learn?',mode==='friend',mode==='friend'?{circle:'circle',member:'member',firstName:'Sam'}:undefined,mode==='person'?'Sam':'');await press(n=>n.props.testID==='look-into-the-future')};
  await ask();
  if(mode!=='friend')await press(n=>n.props.testID==='option-0');
  assert.equal(predicts,1);
@@ -466,7 +468,7 @@ test('web quota refusals including pending browser reservations preserve eligibi
  const render=()=>nodes(h.render(app.default));
  const ask=async()=>{
   render().find(n=>n.props.testID==='close-flow')?.props.onPress();
-  render().find(n=>n.props.testID==='tab-sky').props.onPress();
+  render().find(n=>n.props.testID==='open-sky').props.onPress();
   render().find(n=>n.type==='Social').props.onAsk('Will I learn?',false);
   render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
   const option=render().find(n=>n.props.testID==='option-0');
@@ -604,7 +606,7 @@ for(const result of ['cached text',null,'error'] as const)test(`omen progress re
 for(const exit of ['close','another','plans','tab'])test(`leaving the notification offer through ${exit} does not repeat it`,async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
  const h=hooks();t.after(()=>h.unmount());let jump!:(section:string)=>void;const foreground:((state:string)=>void)[]=[];
- let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
  const reading={id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-07T12:00:00',dueDate:'2026-11-07',label:'Speculative',why:'',facts:{},sources:[],assumptions:[],friend:true};
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_type:string,listener:(state:string)=>void)=>{foreground.push(listener);return {remove(){}}}}},
@@ -660,7 +662,7 @@ test('the day-3 offer still appears once sixty opened days are stored',async t=>
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
  const h=hooks();t.after(()=>h.unmount());const foreground:((state:string)=>void)[]=[];
  const opened=Array.from({length:60},(_,i)=>retention.localDay(new Date(2026,9,7-59+i,12)));
- let state:any={onboardingDone:true,ageConfirmed:true,tourSeen:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99,ritual:{...ritual.emptyRitual(),opened,notify:{daily:false,time:'08:30',offered:'2026-10-07'}}};
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,tourSeen:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99,ritual:{...ritual.emptyRitual(),opened,notify:{daily:false,time:'08:30',offered:'2026-10-07'}}};
  const app=ritualApp(h,()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)}}),foreground);
  const render=()=>h.render(app.default);
  render();render();assert.equal(state.ritual.notify.reoffered,undefined);
@@ -679,7 +681,7 @@ test('a reading saved while a balance update holds the archive still completes T
  const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  render=()=>nodes(h.render(app.default));
- render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.props.testID==='open-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});
  await render().find(n=>n.props.testID==='look-into-the-future').props.onPress();
  assert.equal(f.render().backupBusy,true);
@@ -698,7 +700,7 @@ test('a Plus offer dismissed while a balance update holds the archive stays dism
  const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  render=()=>nodes(h.render(app.default));
- const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});await render().find(n=>n.props.testID==='look-into-the-future').props.onPress()};
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='open-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});await render().find(n=>n.props.testID==='look-into-the-future').props.onPress()};
  await ask();
  assert.equal(f.render().backupBusy,true);
  render().find(n=>n.type==='NotifyOffer').props.onAnswer(null);render();
@@ -714,7 +716,7 @@ test('a Plus offer dismissed while a balance update holds the archive stays dism
 
 test('a tapped answer holds its highlight, ignores repeat taps and drops when Back or Close comes first',async t=>{
  const h=hooks();t.after(()=>h.unmount());
- const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',tourSeen:true,sunSign:null,facts:{},history:[],plus:true,credits:9,reduceMotion:false};let predicts=0;
+ const state={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,ageBand:'adult',tourSeen:true,sunSign:null,facts:{},history:[],plus:true,credits:9,reduceMotion:false};let predicts=0;
  const timers=new Map<number,()=>void>();let ids=0;
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'ios'},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:()=>({remove(){}})}},
@@ -738,7 +740,7 @@ test('a tapped answer holds its highlight, ignores repeat taps and drops when Ba
  const shows=(text:string)=>render().some(n=>n.children.includes(text));
  const press=async(testID:string)=>{render().find(n=>n.props.testID===testID).props.onPress();await tick();render()};
  const elapse=async()=>{const due=[...timers.values()];timers.clear();due.forEach(fn=>fn());await tick();render()};
- render();render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render();render().find(n=>n.props.testID==='open-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will I learn?');
  await press('look-into-the-future');
  assert.ok(shows('Your goal?'));

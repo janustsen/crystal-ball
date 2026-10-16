@@ -86,7 +86,7 @@ export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}
   <Animated.View ref={sheetRef} pointerEvents={sheet?'auto':'none'} aria-hidden={!sheet} importantForAccessibility={sheet?'auto':'no-hide-descendants'} onLayout={e=>setSheetHeight(e.nativeEvent.layout.height)} style={{opacity:rise.interpolate({inputRange:[0,.3,1],outputRange:[0,1,1]}),transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[360,0]})}]}}>
    <View style={{padding:22,paddingBottom:12}}><Surface kind="card">
     {about?<>
-     <Txt style={[styles.label,{color:colors.gold,textAlign:'center'}]}>The Ball asks · optional</Txt>
+     <Txt style={[styles.label,{color:colors.gold,textAlign:'center'}]}>About you · optional</Txt>
      <Txt display accessibilityRole="header" style={[styles.hero,{textAlign:'center',marginTop:8}]}>A little about you</Txt>
      <Txt style={[styles.caption,{textAlign:'center',marginTop:6}]}>One tap each, skip any. A few answers make forecasts more personal.</Txt>
      {aboutYou.map(ask=><View key={ask.id} accessibilityRole="radiogroup" accessibilityLabel={ask.question} style={{marginTop:16}}>

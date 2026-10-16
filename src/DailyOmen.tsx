@@ -5,7 +5,7 @@ import {loadDailyOmen,omenTries,type Omen} from './daily-omen';
 import {currentOmen,localDay} from './retention';
 import {requestOmen} from './api';
 import {useStore} from './store';
-import {CardHeader,Txt,colors,styles} from './ui';
+import {CardHeader,NewDot,Txt,colors,styles} from './ui';
 import {Surface} from './Surface';
 import {OmenCard,omenTextStyle} from './Home';
 import {answerWhisper,keepWhisper,lastWhisper} from './whisper';
@@ -26,7 +26,8 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
  </Surface></View>;
 }
 
-export function DailyOmen({aiConsent='',onRead,onShare,cardRef}:{aiConsent?:string;onRead?:()=>void;onShare?:(card:StoryCard)=>void;cardRef?:React.Ref<View>}){
+// Home shows one line of today's insight; a tap opens the whole card (with the whisper and its morning check) and closes it again.
+export function DailyOmen({aiConsent='',onRead,onShare,open=true,onToggle,dot=false}:{aiConsent?:string;onRead?:()=>void;onShare?:(card:StoryCard)=>void;open?:boolean;onToggle?:()=>void;dot?:boolean}){
  const {state,update,backupBusy}=useStore(),[omen,setOmen]=useState<Omen|null>(null),today=localDay(),last=lastWhisper(state.whispers,today);
  useEffect(()=>{
   let mounted=true;
@@ -47,15 +48,24 @@ export function DailyOmen({aiConsent='',onRead,onShare,cardRef}:{aiConsent?:stri
  },[current?.day,whisper,previous?.day,previous?.whisper,state.whispers,backupBusy]);
  useEffect(()=>{if(!backupBusy&&current?.text!=null)onRead?.()},[current?.day,current?.text,backupBusy]);
  const retrying=current&&current.text===null&&(current.tries??omenTries)<omenTries,event=current?.text?skyOn(current.day,Intl.DateTimeFormat().resolvedOptions().timeZone).event:null;
+ // A day without an insight points back at the ball rather than ending on "come back tomorrow".
+ const text=current?(current.text??(retrying?'The stars are gathering. The Ball will look again shortly.':'No insight today, but the Ball is listening. Tap it to ask.')):'A little starlight is finding you…';
+ const label=event?`${skyEvents[event]} insight`:'Today’s insight',check=!!last&&(!last.outcome||last.checkedInAt===today);
+ if(!open)return <Pressable testID="insight-line" accessibilityRole="button" aria-expanded={false} accessibilityState={{expanded:false,busy:!current||!!retrying}} accessibilityLabel={`${label}${dot?', new':''}. ${text}`} onPress={onToggle} style={{minHeight:44,paddingVertical:10,paddingHorizontal:18,gap:4}}>
+  <Surface kind="card"/>
+  <View style={{flexDirection:'row',alignItems:'center',gap:8}}><Txt style={styles.label}>{label}</Txt>{dot?<NewDot/>:null}{last&&!last.outcome?<Txt style={[styles.label,{color:colors.gold}]}>· Whisper to check</Txt>:null}</View>
+  <Txt numberOfLines={1} style={[styles.strong,{color:colors.ivory}]}>{text}</Txt>
+ </Pressable>;
  return <>
-  {last&&(!last.outcome||last.checkedInAt===today)?<WhisperCheck whisper={last}/>:null}
-  <OmenCard ref={cardRef} testID="daily-omen" busy={!current||!!retrying} label={event?`${skyEvents[event]} insight`:undefined}>
-   <Txt accessibilityLiveRegion="polite" style={omenTextStyle}>{current?(current.text??(retrying?'The stars are gathering. The Ball will look again shortly.':'The stars are quiet today. Come back tomorrow.')):'A little starlight is finding you…'}</Txt>
+  {check&&last?<WhisperCheck whisper={last}/>:null}
+  <OmenCard testID="daily-omen" busy={!current||!!retrying} label={label}>
+   <Txt accessibilityLiveRegion="polite" style={omenTextStyle}>{text}</Txt>
    {whisper?<View testID="omen-whisper" style={{borderTopWidth:1,borderTopColor:colors.line,paddingTop:12,marginTop:4,gap:6}}>
     <Txt style={styles.label}>Tonight’s whisper</Txt>
     <Txt style={styles.strong}>{whisper}</Txt>
    </View>:null}
    {onShare&&current?.text?<Pressable testID="share-omen" accessibilityRole="button" onPress={()=>onShare(omenCard({day:current.day,text:current.text!}))} style={{minHeight:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>Share today’s omen ↗</Txt></Pressable>:null}
+   {onToggle?<Pressable testID="insight-less" accessibilityRole="button" aria-expanded accessibilityState={{expanded:true}} onPress={onToggle} style={{minHeight:44,justifyContent:'center'}}><Txt style={{color:colors.ice}}>Show less ⌃</Txt></Pressable>:null}
   </OmenCard>
  </>;
 }

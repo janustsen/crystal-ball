@@ -84,7 +84,7 @@ test('social refresh recovers lost publication responses and charges each Readin
  await assert.rejects(prepareSocialDraft('star','Will I learn Spanish?'),/Allow Candidate AI/);
  assert.equal(writes.length,before);
  await assert.rejects(publishCircleForecast(forecast.id),/Publication response lost/);
- const beforeRecovery:AccountState={sunSign:'leo',ageBand:'adult',ageConfirmed:true,onboardingDone:true,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false};
+ const beforeRecovery:AccountState={sunSign:'leo',ageBand:'adult',ageConfirmed:true,onboardingDone:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false};
  const snapshot=await loadSocial(plus);
  assert.deepEqual(snapshot.forecasts.map(f=>f.id),[forecast.id]);
  const free=saveReading({...beforeRecovery,usage:{day,count:0}},circleReading(forecast));

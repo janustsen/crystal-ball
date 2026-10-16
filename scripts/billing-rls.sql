@@ -3,6 +3,8 @@
 begin;
 delete from public.reading_charges;
 update public.social_profiles set plus=false,plus_until=null,packs=0,year_ahead_source=null;
+-- Every fixture account starts past its 20 free starter questions (asked yesterday), so the daily rules below apply.
+insert into public.reading_charges(user_id,reading_id,day,source) select id,'past-'||n,current_date-1,'starter' from auth.users,generate_series(1,20) n;
 -- Clients can read only their own balance and can never grant or charge.
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
@@ -61,7 +63,7 @@ set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select proof.assert((select charged_at is not null from public.publish_circle_forecast('80000000-0000-0000-0000-000000000002')),'publication records its charge');
 select proof.assert((select charged_at is not null from public.publish_circle_forecast('80000000-0000-0000-0000-000000000002')),'republishing returns the same receipt');
 reset role;
-select proof.assert((select count(*)=1 from public.reading_charges where user_id='00000000-0000-0000-0000-000000000002'),'Circle publication charged exactly one reading');
+select proof.assert((select count(*)=1 from public.reading_charges where user_id='00000000-0000-0000-0000-000000000002' and reading_id not like 'past-%'),'Circle publication charged exactly one reading');
 delete from public.circle_forecasts where id='80000000-0000-0000-0000-000000000002';
 set role authenticated;
 select proof.reject($q$select public.publish_circle_forecast('80000000-0000-0000-0000-000000000003')$q$,'P0001');
@@ -69,7 +71,7 @@ reset role;
 select proof.assert((select count(*)=0 from public.circle_forecasts where id='80000000-0000-0000-0000-000000000003'),'no reading left means no publication');
 -- One free retry per ask: first use charged, retry free, later uses debit new readings.
 set role service_role;
-delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000000003';
+delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000000003' and reading_id not like 'past-%';
 update public.social_profiles set packs=5,plus_until=null,store_synced_at=null where user_id='00000000-0000-0000-0000-000000000003';
 select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003','ask:g1')->>'used')::int=1,'first use of an ask is charged');
 select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000003','ask:g1')->>'used')::int=1,'one retry of the same ask is free');
@@ -92,6 +94,25 @@ select proof.assert(public.apply_store_entitlements('00000000-0000-0000-0000-000
 select proof.assert(public.apply_store_entitlements('00000000-0000-0000-0000-000000000002',null,'[]')->>'yearAhead'='yearly','ending Plus keeps the purchased year');
 select proof.assert(public.reading_balance('00000000-0000-0000-0000-000000000003')->>'yearAhead' is null,'ownership does not cross accounts');
 select proof.reject($q$select public.apply_store_entitlements('00000000-0000-0000-0000-000000000003',null,'[]',now(),'invalid')$q$,'23514');
+-- Starter: a new account's first 20 questions are free, even all in one day; the next free one is tomorrow's.
+delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000000002';
+update public.social_profiles set plus_until=null,packs=0 where user_id='00000000-0000-0000-0000-000000000002';
+select proof.assert((public.reading_balance('00000000-0000-0000-0000-000000000002')->>'starter')::int=20,'a new account has 20 starter questions');
+select public.charge_reading('00000000-0000-0000-0000-000000000002','starter-'||n) from generate_series(1,19) n;
+select proof.assert((select b->>'starter'='0' and b->>'used'='20' from public.charge_reading('00000000-0000-0000-0000-000000000002','starter-20') b),'twenty starter questions in one day');
+select proof.assert((select count(*)=20 from public.reading_charges where user_id='00000000-0000-0000-0000-000000000002' and source='starter'),'starter questions are recorded as starter');
+select proof.reject($q$select public.charge_reading('00000000-0000-0000-0000-000000000002','starter-21')$q$,'P0001');
+update public.reading_charges set day=current_date-1 where user_id='00000000-0000-0000-0000-000000000002';
+select proof.assert((select b->>'used'='1' and b->>'starter'='0' from public.charge_reading('00000000-0000-0000-0000-000000000002','day-2') b),'after the starter, one free question a day');
+select proof.assert((select source='daily' from public.reading_charges where user_id='00000000-0000-0000-0000-000000000002' and reading_id='day-2'),'the day-2 question is the daily one');
+select proof.reject($q$select public.charge_reading('00000000-0000-0000-0000-000000000002','day-2b')$q$,'P0001');
+update public.social_profiles set packs=1 where user_id='00000000-0000-0000-0000-000000000002';
+select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000002','day-2b')->>'packs')::int=0,'a pack covers the question after the daily one');
+-- Plus during the starter uses its daily ten, and those questions still count toward the starter.
+delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000000003';
+update public.social_profiles set plus_until=now()+interval '7 days',packs=0 where user_id='00000000-0000-0000-0000-000000000003';
+select proof.assert((select b->>'starter'='19' and b->>'used'='1' from public.charge_reading('00000000-0000-0000-0000-000000000003','plus-starter') b),'a Plus question counts toward the starter');
+select proof.assert((select source='daily' from public.reading_charges where user_id='00000000-0000-0000-0000-000000000003' and reading_id='plus-starter'),'Plus spends its daily allowance, not the starter');
 reset role;
 rollback;
-\echo 'PASS: server-owned reading ledger, store reconciliation and Circle publication charges'
+\echo 'PASS: server-owned reading ledger, 20-question starter, store reconciliation and Circle publication charges'

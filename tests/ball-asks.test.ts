@@ -10,7 +10,7 @@ import {updateBirthday} from '../src/profile.ts';
 import type {ModelProvider,Validator} from '../server/provider.ts';
 import type {AccountState} from '../src/types.ts';
 
-const account=(facts:Record<string,string>={}):AccountState=>({sunSign:null,ageBand:'adult',facts,history:[],credits:0,plus:false,usage:{day:'2026-10-09',count:0},reduceMotion:false,largeText:false});
+const account=(facts:Record<string,string>={}):AccountState=>({sunSign:null,ageBand:'adult',ladder:{asked:0,opened:[]},facts,history:[],credits:0,plus:false,usage:{day:'2026-10-09',count:0},reduceMotion:false,largeText:false});
 
 test('the question bank is one-tap, distinct and free of sensitive topics, with separate teen and adult decks',()=>{
  assert.equal(new Set(asks.map(ask=>ask.id)).size,asks.length);

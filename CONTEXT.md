@@ -7,7 +7,7 @@ This glossary includes planned product concepts; see [accepted reading-flow scop
 ## Language
 
 **Reading**:
-One full consultation: a question, adaptive follow-up cards, and a revealed Forecast. The unit that is free once a day and that Plus and packs buy more of.
+One full consultation: a question, adaptive follow-up cards, and a revealed Forecast. The unit the Free starter, the daily free Reading, Plus and packs are counted in; app copy calls it a question.
 _Avoid_: prediction, session
 
 **Forecast**:
@@ -58,6 +58,15 @@ Twelve monthly Forecasts written and sealed together, kept on the Inner Library 
 
 **Golden forecast**:
 A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 in 10 with Plus. Cosmetic; never implies it is more likely to come true.
+
+**Free starter**:
+A new account's first 20 Readings, free whatever the day; after them the free allowance is one Reading a day. Server rule: [billing](docs/launch/billing.md).
+
+**Question ladder**:
+New accounts start with only the ball; features open as Readings are asked (History 1, About you 3, Daily insight 5, Bond reading 8, Tonight's Sky 12, Inner Library 20), each announced once and marked with a dot until first opened. Plus and Year ahead follow the same thresholds. Thresholds and one-line descriptions: `src/ladder.ts`.
+
+**About you**:
+The optional one-tap questions about yourself (formerly The Ball asks), in You.
 
 **Daily insight**:
 A short, fully personal insight shown on Home once a day, separate from the daily free Reading.
