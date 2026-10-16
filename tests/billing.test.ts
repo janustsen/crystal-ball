@@ -104,7 +104,7 @@ test('RevenueCat subscriber parsing and webhook identities',()=>{
 });
 
 test('a published Circle forecast is saved once and the server balance replaces the cache',()=>{
- const state:AccountState={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day:'2026-10-03',count:1},reduceMotion:false,largeText:false};
+ const state:AccountState={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:2,plus:false,usage:{day:'2026-10-03',count:1},reduceMotion:false,largeText:false};
  const forecast={id:'receipt',asker_id:viewer,charged_at:'2026-10-04T00:00:00Z',circle_id:'circle',question:'Will we learn together?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:'2026-10-04T00:00:00Z'};
  const saved=saveCircleReading(state,forecast);
  assert.deepEqual(saved.history,[circleReading(forecast)]);assert.equal(saved.credits,2);
@@ -204,7 +204,7 @@ test('style choices go through the server, which refuses unknown ids and non-Plu
 });
 
 test('saved styles travel with the balance; older balances without them keep the device choice',()=>{
- const state:AccountState={sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:true,usage:{day:'2026-10-04',count:0},reduceMotion:false,largeText:false,ballStyle:'gold',cardStyle:'gold'};
+ const state:AccountState={sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:true,usage:{day:'2026-10-04',count:0},reduceMotion:false,largeText:false,ballStyle:'gold',cardStyle:'gold'};
  assert.equal(validBalance(balance({ballStyle:'rainbow'})),false);
  const next=withBalance(state,balance({plus:true,ballStyle:'obsidian',cardStyle:'classic'}));
  assert.equal(next.ballStyle,'obsidian');assert.equal(next.cardStyle,'classic');
@@ -273,7 +273,7 @@ for(const kind of ['yearAhead','annual','weekly','monthly','five','twenty','off'
 });
 
 test('Year ahead balances grant ownership, preserve same-owner months and reject local-only ownership',()=>{
- const state:AccountState={sunSign:null,ageBand:null,facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-14',count:0},reduceMotion:false,largeText:false};
+ const state:AccountState={sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-14',count:0},reduceMotion:false,largeText:false};
  for(const source of ['purchase','yearly'] as const){
   const b={...balance(),yearAhead:source};
   assert.equal(validBalance(b),true);

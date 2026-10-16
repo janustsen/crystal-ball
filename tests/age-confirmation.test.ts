@@ -7,7 +7,7 @@ import {handler} from '../server/handler.ts';
 import {makePlan,predict} from '../server/engine.ts';
 import {provider} from '../server/provider.ts';
 import type {AccountState} from '../src/types.ts';
-const blank=():AccountState=>({sunSign:null,ageBand:null,facts:{},history:[],credits:3,plus:true,usage:{day:'2026-10-01',count:0},reduceMotion:true,largeText:false,ambientSound:true,ballStyle:'gold'});
+const blank=():AccountState=>({sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:3,plus:true,usage:{day:'2026-10-01',count:0},reduceMotion:true,largeText:false,ambientSound:true,ballStyle:'gold'});
 
 test('Skip needs confirmation; confirmation persists teen-safe eligibility and decline stays blocked',()=>{
  const skipped={...blank(),...birthdayProfile(),onboardingDone:true};assert.equal(canRead(skipped),false);

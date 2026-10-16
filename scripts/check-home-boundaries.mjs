@@ -30,7 +30,7 @@ try{
    await context.addInitScript(largeText=>{
     const day=offset=>{const d=new Date();d.setDate(d.getDate()+offset);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
     const today=day(0);
-    localStorage.setItem('crystal-ball-v1',JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',facts:{},history:[],credits:2,plus:false,usage:{day:today,count:0},reduceMotion:true,largeText,ritual:{days:{},stars:[],opened:[day(-2),day(-1)],notify:{daily:false,time:'08:30',offered:day(-3)},counts:{}}}));
+    localStorage.setItem('crystal-ball-v1',JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:['history','about','insight','bond','sky','library']},facts:{},history:[],credits:2,plus:false,usage:{day:today,count:0},reduceMotion:true,largeText,ritual:{days:{},stars:[],opened:[day(-2),day(-1)],notify:{daily:false,time:'08:30',offered:day(-3)},counts:{}}}));
     localStorage.setItem('crystal-ball-personal-omen-v1',JSON.stringify({day:today,text:'A small step opens a new possibility.'}));
    },largeText);
    const page=await context.newPage();

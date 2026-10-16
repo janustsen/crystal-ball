@@ -145,7 +145,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  // was: the account when the question was asked. A question that opens a feature says so once (then its dot takes
  // over); the Plus offer waits until the free starter is spent, and the morning-insight offer until the insight is open.
  function readingDone(was:AccountState){
-  const account=currentAccount.current,before=questionsAsked(was),opened=was.ladder?opensAt(before):undefined;
+  const account=currentAccount.current,before=questionsAsked(was),opened=opensAt(before);
   currentRitualUpdate.current(r=>countEvent(markStep(r,'ask'),'readings'));
   if(opened)setNotice(`New: ${opened.name}. ${opened.does}`,true);
   if(!account.plus&&!account.plusOffered&&!plusSeen.current&&!webTrial&&before+1>=starterReadings)setPlusOffer(true);

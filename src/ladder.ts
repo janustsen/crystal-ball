@@ -18,17 +18,17 @@ export type Ladder={asked:number;opened:Feature[]};
 type Account=Pick<AccountState,'ladder'|'history'|'plus'|'yearAhead'>;
 
 export const step=(feature:Feature)=>ladder.find(s=>s.feature===feature)!;
-export const questionsAsked=(s:Pick<AccountState,'ladder'|'history'>)=>Math.max(s.ladder?.asked??0,s.history.length);
-// Accounts from before the ladder (no ladder state) and paying accounts have every feature.
-export const unlocked=(s:Account,feature:Feature)=>!s.ladder||s.plus||!!s.yearAhead||questionsAsked(s)>=step(feature).at;
+export const questionsAsked=(s:Pick<AccountState,'ladder'|'history'>)=>Math.max(s.ladder.asked,s.history.length);
+// Paying accounts have every feature.
+export const unlocked=(s:Account,feature:Feature)=>s.plus||!!s.yearAhead||questionsAsked(s)>=step(feature).at;
 // The dot: a feature the ladder opened that has not been tapped yet.
-export const fresh=(s:Pick<AccountState,'ladder'|'history'>,feature:Feature)=>!!s.ladder&&questionsAsked(s)>=step(feature).at&&!s.ladder.opened.includes(feature);
-export const openFeature=<S extends Pick<AccountState,'ladder'>>(s:S,feature:Feature):S=>s.ladder&&!s.ladder.opened.includes(feature)?{...s,ladder:{...s.ladder,opened:[...s.ladder.opened,feature]}}:s;
+export const fresh=(s:Pick<AccountState,'ladder'|'history'>,feature:Feature)=>questionsAsked(s)>=step(feature).at&&!s.ladder.opened.includes(feature);
+export const openFeature=<S extends Pick<AccountState,'ladder'>>(s:S,feature:Feature):S=>!s.ladder.opened.includes(feature)?{...s,ladder:{...s.ladder,opened:[...s.ladder.opened,feature]}}:s;
 // Counts one more question; call it with the state from before the reading joins the history.
-export const countQuestion=<S extends Pick<AccountState,'ladder'|'history'>>(s:S):S=>s.ladder?{...s,ladder:{...s.ladder,asked:questionsAsked(s)+1}}:s;
+export const countQuestion=<S extends Pick<AccountState,'ladder'|'history'>>(s:S):S=>({...s,ladder:{...s.ladder,asked:questionsAsked(s)+1}});
 // The feature the next question opens, given how many were asked before it.
 export const opensAt=(asked:number)=>ladder.find(s=>s.at===asked+1);
-export const upcoming=(s:Pick<AccountState,'ladder'|'history'>)=>s.ladder?ladder.find(l=>l.at>questionsAsked(s)):undefined;
+export const upcoming=(s:Pick<AccountState,'ladder'|'history'>)=>ladder.find(l=>l.at>questionsAsked(s));
 // The newest feature still showing its dot, among those that live off Home (the insight and Sky show their own dot there).
 const newest=(s:Pick<AccountState,'ladder'|'history'>)=>[...ladder].reverse().find(l=>l.feature!=='insight'&&l.feature!=='sky'&&fresh(s,l.feature));
 

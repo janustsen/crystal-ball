@@ -125,6 +125,15 @@ try{
   await check(page);
   results.push({state:`${asked}${options.yesterday?` day 2${options.usedToday?' used':''}`:''}`,errors});await context.close();
  }
+ // An account stored without ladder state starts on the ladder too, counted from its saved readings.
+ {
+  const {page,context,errors}=await open({...account(4),ladder:undefined});
+  await page.getByTestId('tap-to-ask').waitFor({timeout:60000});
+  expect(await tabs(page)).toEqual(['Home','History, new','You, new']);
+  await expect(page.getByTestId('insight-line')).toHaveCount(0);
+  await shot(page,'no-ladder-home');
+  results.push({state:'stored without ladder',errors});await context.close();
+ }
  const failed=results.filter(r=>r.errors.length);
  if(failed.length)throw new Error(`Page errors: ${JSON.stringify(failed)}`);
  console.log(`PASS: ladder ${results.map(r=>r.state).join(', ')}; evidence in ${evidence}`);

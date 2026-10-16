@@ -43,9 +43,7 @@ export function Store({children}:React.PropsWithChildren){
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);
   void (async()=>{
    let loaded=initial();const raw=await AsyncStorage.getItem(key);
-   if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');
-    // An account that was already reading before the feature ladder keeps every feature (no ladder state).
-    loaded=restoreProfile({...initial(),...s.ladder||!(s.onboardingDone||s.history.length)?{}:{ladder:undefined},...s})}
+   if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');loaded=restoreProfile({...initial(),...s})}
    if(!active)return;
    clearTimeout(timer);
    if(serverMetered){

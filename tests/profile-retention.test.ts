@@ -7,7 +7,7 @@ import {loadDailyOmen,invalidateOmen} from '../src/daily-omen.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState} from '../src/types.ts';
 
-const account=():AccountState=>({...birthdayProfile('1995-06-15'),onboardingDone:true,birthTime:'14:30',birthPlace:'Copenhagen',moonSign:'aries',risingSign:'leo',facts:{birthday:'1995-06-15',current_focus:'Learning'},history:[{id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-01T12:00:00Z',label:'Speculative',why:'Practice continues.',facts:{birthday:'1995-06-15',level:'Beginner'},sources:[],assumptions:[],friend:false}],credits:3,plus:false,usage:{day:'2026-10-01',count:1},reduceMotion:true,largeText:false});
+const account=():AccountState=>({...birthdayProfile('1995-06-15'),onboardingDone:true,birthTime:'14:30',birthPlace:'Copenhagen',moonSign:'aries',risingSign:'leo',ladder:{asked:0,opened:[]},facts:{birthday:'1995-06-15',current_focus:'Learning'},history:[{id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-01T12:00:00Z',label:'Speculative',why:'Practice continues.',facts:{birthday:'1995-06-15',level:'Beginner'},sources:[],assumptions:[],friend:false}],credits:3,plus:false,usage:{day:'2026-10-01',count:1},reduceMotion:true,largeText:false});
 
 test('birthday saves preserve unchanged charts; removal scrubs all readings and retains eligibility on reload',()=>{
  const original=account();assert.equal(updateBirthday(original,original.birthday),original);

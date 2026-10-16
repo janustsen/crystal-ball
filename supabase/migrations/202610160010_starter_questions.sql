@@ -1,7 +1,6 @@
--- A new account's first 20 questions are free, counted over every reading it was ever charged (so existing accounts keep
--- only what is left of their first 20); after them the free allowance is 1 a day. Plus keeps 10 a day, and packs still
--- cover readings beyond the free allowance and never expire. Redefining starter_readings() to return 0 turns the
--- starter off and restores 1 free reading a day for everyone.
+-- A new account's first 20 questions are free, counted over every reading it was ever charged; after them the free
+-- allowance is 1 a day. Plus keeps 10 a day, and packs still cover readings beyond the free allowance and never expire.
+-- Redefining starter_readings() to return 0 turns the starter off and restores 1 free reading a day for everyone.
 create function public.starter_readings() returns integer language sql stable as 'select 20';
 revoke all on function public.starter_readings() from public,anon,authenticated;
 grant execute on function public.starter_readings() to service_role;

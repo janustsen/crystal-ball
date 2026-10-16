@@ -35,7 +35,7 @@ function app(onboardingDone=true,history:any[]=[],seal:string|undefined='sealed-
   useCallback:(callback:any)=>{const i=cursor++;return slots[i]??(slots[i]=callback)},
   useEffect:()=>{},
  };
- const state={ritual:ritual.emptyRitual(),onboardingDone,ageConfirmed:true,facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
+ const state={ritual:ritual.emptyRitual(),onboardingDone,ageConfirmed:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},facts:{},history,usage:{day:'2026-10-03',count:0},credits:0,plus:false,reduceMotion:true,...account};
  const imports:Record<string,any>={
   '../src/api':{webReadingVisitor:()=>false,webReadingSpent:()=>spent},'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,'../src/purchases':{purchaseMode:'mock'},react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},

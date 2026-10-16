@@ -28,11 +28,9 @@ test('a new account opens one feature at 1, 3, 5, 8, 12 and 20 questions, each w
  assert.strictEqual(openFeature(s,'history'),s,'opening twice changes nothing');
 });
 
-test('Forget everything keeps opened features; legacy and paying accounts see everything without dots',()=>{
+test('Forget everything keeps opened features; paying accounts see everything without dots',()=>{
  const asked=ask(fresh0,8),forgot={...asked,history:[]};
  assert.equal(questionsAsked(forgot),8);assert.deepEqual(open(forgot),open(asked));
- const legacy={...fresh0,ladder:undefined,history:[]};
- assert.deepEqual(open(legacy),features);assert.deepEqual(features.filter(f=>fresh(legacy,f)),[]);
  const plus={...fresh0,plus:true};
  assert.deepEqual(open(plus),features);assert.deepEqual(features.filter(f=>fresh(plus,f)),[],'Plus gets no dots for what the count has not opened');
  assert.deepEqual(open({...fresh0,yearAhead:{kind:'owned',source:'purchase'}}),features);

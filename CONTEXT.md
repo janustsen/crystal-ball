@@ -63,7 +63,7 @@ A rare Forecast with a gold reveal and card: 1 in 50 Readings for free users, 1 
 A new account's first 20 Readings, free whatever the day; after them the free allowance is one Reading a day. Server rule and off switch: [billing](docs/launch/billing.md).
 
 **Question ladder**:
-New accounts start with only the ball; features open as Readings are asked (History 1, About you 3, Daily insight 5, Bond reading 8, Tonight's Sky 12, Inner Library 20), each announced once and marked with a dot until first opened. Accounts from before the ladder, Plus and Year ahead see everything. Thresholds and one-line descriptions: `src/ladder.ts`.
+New accounts start with only the ball; features open as Readings are asked (History 1, About you 3, Daily insight 5, Bond reading 8, Tonight's Sky 12, Inner Library 20), each announced once and marked with a dot until first opened. Plus and Year ahead accounts see everything. Thresholds and one-line descriptions: `src/ladder.ts`.
 
 **About you**:
 The optional one-tap questions about yourself (formerly The Ball asks), in You.

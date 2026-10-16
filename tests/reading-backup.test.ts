@@ -324,7 +324,7 @@ test('database snapshot time wins over request order and ignores other owners',a
 test('Plans refreshes trial eligibility after reopen, purchase, restore and owner changes',async t=>{
  const h=hooks(),pending:((offers:any[])=>void)[]=[];
  t.after(h.unmount);
- let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,balanceSnapshot:{owner:'one'}};
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,balanceSnapshot:{owner:'one'}};
  let busy=false,finishPurchase!:()=>void,finishRestore!:()=>void;
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'ios'},AppState:{addEventListener:()=>({remove(){}})},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
@@ -385,7 +385,7 @@ test('a phone clock corrected backward after a balance still refreshes at server
 
 for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncertain retries to the server and handles exhausted readings`,async()=>{
  const h=hooks(false),params:any={};let remaining=1,predicts=0,next:'lost'|'empty'='lost';
- const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
+ const state={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],plus:false,reduceMotion:true};
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'web'},useWindowDimensions:()=>({height:844})},
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
@@ -606,7 +606,7 @@ for(const result of ['cached text',null,'error'] as const)test(`omen progress re
 for(const exit of ['close','another','plans','tab'])test(`leaving the notification offer through ${exit} does not repeat it`,async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
  const h=hooks();t.after(()=>h.unmount());let jump!:(section:string)=>void;const foreground:((state:string)=>void)[]=[];
- let state:any={onboardingDone:true,ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99};
  const reading={id:'reading',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-10-07T12:00:00',dueDate:'2026-11-07',label:'Speculative',why:'',facts:{},sources:[],assumptions:[],friend:true};
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'ios'},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:(_type:string,listener:(state:string)=>void)=>{foreground.push(listener);return {remove(){}}}}},
@@ -662,7 +662,7 @@ test('the day-3 offer still appears once sixty opened days are stored',async t=>
  t.mock.timers.enable({apis:['Date'],now:new Date(2026,9,7,12)});
  const h=hooks();t.after(()=>h.unmount());const foreground:((state:string)=>void)[]=[];
  const opened=Array.from({length:60},(_,i)=>retention.localDay(new Date(2026,9,7-59+i,12)));
- let state:any={onboardingDone:true,ageConfirmed:true,tourSeen:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99,ritual:{...ritual.emptyRitual(),opened,notify:{daily:false,time:'08:30',offered:'2026-10-07'}}};
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,tourSeen:true,sunSign:null,facts:{},history:[],plus:true,reduceMotion:true,usage:{day:'2026-10-07',count:0},credits:99,ritual:{...ritual.emptyRitual(),opened,notify:{daily:false,time:'08:30',offered:'2026-10-07'}}};
  const app=ritualApp(h,()=>({state,ready:true,backupBusy:false,remaining:99,update:(fn:any)=>{state=fn(state)}}),foreground);
  const render=()=>h.render(app.default);
  render();render();assert.equal(state.ritual.notify.reoffered,undefined);
@@ -716,7 +716,7 @@ test('a Plus offer dismissed while a balance update holds the archive stays dism
 
 test('a tapped answer holds its highlight, ignores repeat taps and drops when Back or Close comes first',async t=>{
  const h=hooks();t.after(()=>h.unmount());
- const state={onboardingDone:true,ageConfirmed:true,ageBand:'adult',tourSeen:true,sunSign:null,facts:{},history:[],plus:true,credits:9,reduceMotion:false};let predicts=0;
+ const state={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,ageBand:'adult',tourSeen:true,sunSign:null,facts:{},history:[],plus:true,credits:9,reduceMotion:false};let predicts=0;
  const timers=new Map<number,()=>void>();let ids=0;
  const app=load('../app/index.tsx',{
   react:h.react,'react-native':{Platform:{OS:'ios'},useWindowDimensions:()=>({height:844}),AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})},AppState:{addEventListener:()=>({remove(){}})}},
