@@ -195,7 +195,7 @@ test('native room flies the camera to the new spot and lands on its still',async
  assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,1);
  assert.equal(tree.find(n=>n.type==='Animated.View').props.style.transform[0].translateX,'tracked','the ball rides the flight track');
  assert.deepEqual(fades,[44],'the track runs over the clip\'s 45 frames');
- assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,0,'glass that has not started stays hidden while the static orb rides the flight');
+ assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,0,'the static orb rides the flight');
  assert.ok(tree.some(n=>n.type==='OrbVisual'));
  player.currentTime=.7;
  listeners.playingChange({isPlaying:false});
