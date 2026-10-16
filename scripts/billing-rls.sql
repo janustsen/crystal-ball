@@ -113,16 +113,6 @@ delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000
 update public.social_profiles set plus_until=now()+interval '7 days',packs=0 where user_id='00000000-0000-0000-0000-000000000003';
 select proof.assert((select b->>'starter'='19' and b->>'used'='1' from public.charge_reading('00000000-0000-0000-0000-000000000003','plus-starter') b),'a Plus question counts toward the starter');
 select proof.assert((select source='daily' from public.reading_charges where user_id='00000000-0000-0000-0000-000000000003' and reading_id='plus-starter'),'Plus spends its daily allowance, not the starter');
--- The off switch: no starter, one free reading a day for every account.
-reset role;
-create or replace function public.starter_readings() returns integer language sql stable as 'select 0';
-set role service_role;
-delete from public.reading_charges where user_id='00000000-0000-0000-0000-000000000004';
-update public.social_profiles set plus_until=null,packs=0 where user_id='00000000-0000-0000-0000-000000000004';
-select proof.assert((public.reading_balance('00000000-0000-0000-0000-000000000004')->>'starter')::int=0,'switched off, a new account has no starter');
-select proof.assert((public.charge_reading('00000000-0000-0000-0000-000000000004','off-1')->>'used')::int=1,'switched off, the first question is free');
-select proof.assert((select source='daily' from public.reading_charges where user_id='00000000-0000-0000-0000-000000000004' and reading_id='off-1'),'switched off, it is the daily one');
-select proof.reject($q$select public.charge_reading('00000000-0000-0000-0000-000000000004','off-2')$q$,'P0001');
 reset role;
 rollback;
-\echo 'PASS: server-owned reading ledger, 20-question starter and its off switch, store reconciliation and Circle publication charges'
+\echo 'PASS: server-owned reading ledger, 20-question starter, store reconciliation and Circle publication charges'

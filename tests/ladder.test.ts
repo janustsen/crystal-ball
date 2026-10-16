@@ -28,12 +28,12 @@ test('a new account opens one feature at 1, 3, 5, 8, 12 and 20 questions, each w
  assert.strictEqual(openFeature(s,'history'),s,'opening twice changes nothing');
 });
 
-test('Forget everything keeps opened features; paying accounts see everything without dots',()=>{
+test('Forget everything keeps opened features; purchases do not bypass question thresholds',()=>{
  const asked=ask(fresh0,8),forgot={...asked,history:[]};
  assert.equal(questionsAsked(forgot),8);assert.deepEqual(open(forgot),open(asked));
  const plus={...fresh0,plus:true};
- assert.deepEqual(open(plus),features);assert.deepEqual(features.filter(f=>fresh(plus,f)),[],'Plus gets no dots for what the count has not opened');
- assert.deepEqual(open({...fresh0,yearAhead:{kind:'owned',source:'purchase'}}),features);
+ assert.deepEqual(open(plus),[]);assert.deepEqual(features.filter(f=>fresh(plus,f)),[],'Plus gets no dots for what the count has not opened');
+ assert.deepEqual(open({...fresh0,yearAhead:{kind:'owned',source:'purchase'}}),[]);
  // A restored archive counts toward the ladder even when this device asked fewer.
  assert.equal(questionsAsked({ladder:{asked:2,opened:[]},history:Array.from({length:6},(_,i)=>reading(i))}),6);
 });
@@ -77,4 +77,16 @@ test('the header pill names the free starter, then today’s free question, and 
  assert.equal(countLabel({plus:false,starter:0,packs:0,remaining:0}),'0 free today');
  assert.equal(countLabel({plus:false,starter:3,packs:5,remaining:8}),'8 questions left');
  assert.equal(countLabel({plus:true,starter:0,packs:5,remaining:15}),'Plus');
+});
+
+for(const purchase of [{plus:true},{yearAhead:{kind:'owned' as const,source:'purchase' as const}}])test(`purchased features retain every threshold: ${JSON.stringify(purchase)}`,()=>{
+ for(const rung of ladder){
+  const before={...fresh0,...purchase,ladder:{asked:rung.at-1,opened:[]}};
+  assert.equal(unlocked(before,rung.feature),false);
+  assert.equal(fresh(before,rung.feature),false);
+  const after=ask(before,1);
+  assert.equal(unlocked(after,rung.feature),true);
+  assert.equal(fresh(after,rung.feature),true);
+ }
+ assert.equal(homeStep({...fresh0,...purchase},{remaining:10,starter:20,checkIn:false})?.kind,'next');
 });

@@ -15,12 +15,11 @@ export type Step=typeof ladder[number];
 // asked: questions counted for the ladder, kept through Forget everything so a feature never closes again.
 // opened: features tapped at least once, which clears their dot.
 export type Ladder={asked:number;opened:Feature[]};
-type Account=Pick<AccountState,'ladder'|'history'|'plus'|'yearAhead'>;
+type Account=Pick<AccountState,'ladder'|'history'|'plus'>;
 
 export const step=(feature:Feature)=>ladder.find(s=>s.feature===feature)!;
 export const questionsAsked=(s:Pick<AccountState,'ladder'|'history'>)=>Math.max(s.ladder.asked,s.history.length);
-// Paying accounts have every feature.
-export const unlocked=(s:Account,feature:Feature)=>s.plus||!!s.yearAhead||questionsAsked(s)>=step(feature).at;
+export const unlocked=(s:Account,feature:Feature)=>questionsAsked(s)>=step(feature).at;
 // The dot: a feature the ladder opened that has not been tapped yet.
 export const fresh=(s:Pick<AccountState,'ladder'|'history'>,feature:Feature)=>questionsAsked(s)>=step(feature).at&&!s.ladder.opened.includes(feature);
 export const openFeature=<S extends Pick<AccountState,'ladder'>>(s:S,feature:Feature):S=>!s.ladder.opened.includes(feature)?{...s,ladder:{...s.ladder,opened:[...s.ladder.opened,feature]}}:s;

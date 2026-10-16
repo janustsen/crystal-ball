@@ -1,9 +1,5 @@
 -- A new account's first 20 questions are free, counted over every reading it was ever charged; after them the free
 -- allowance is 1 a day. Plus keeps 10 a day, and packs still cover readings beyond the free allowance and never expire.
--- Redefining starter_readings() to return 0 turns the starter off and restores 1 free reading a day for everyone.
-create function public.starter_readings() returns integer language sql stable as 'select 20';
-revoke all on function public.starter_readings() from public,anon,authenticated;
-grant execute on function public.starter_readings() to service_role;
 
 alter table public.reading_charges drop constraint reading_charges_source_check,
  add constraint reading_charges_source_check check(source in ('daily','pack','starter'));
@@ -20,7 +16,7 @@ create or replace function public.reading_balance(viewer uuid) returns jsonb
   'plusUntil',p.plus_until,
   'packs',coalesce(p.packs,0),
   'used',(select count(*) from public.reading_charges c where c.user_id=viewer and c.day=(now() at time zone 'UTC')::date),
-  'starter',greatest(0,public.starter_readings()-(select count(*) from public.reading_charges c where c.user_id=viewer)),
+  'starter',greatest(0,20-(select count(*) from public.reading_charges c where c.user_id=viewer)),
   'day',(now() at time zone 'UTC')::date,
   'ballStyle',p.ball_style,
   'cardStyle',p.card_style,
@@ -49,7 +45,7 @@ create or replace function public.charge_reading(viewer uuid,reading text) retur
   select count(*) filter(where day=today),count(*) into used,asked from public.reading_charges where user_id=viewer;
   if coalesce(profile.plus_until>now(),false) then
    if used<10 then spent:='daily'; end if;
-  elsif asked<public.starter_readings() then spent:='starter';
+  elsif asked<20 then spent:='starter';
   elsif used<1 then spent:='daily';
   end if;
   if spent is null and profile.packs>0 then

@@ -337,3 +337,26 @@ test('prefilled Ask waits for room settlement before mounting the microphone',()
   assert.ok(!draw().some(n=>n.type==='VoiceButton'),'canceling while waiting cannot start recording later');
  }
 });
+
+for(const plus of [false,true])test(`Shaped by obeys About you threshold, Plus=${plus}`,()=>{
+ const {render,state}=app(true,[{...reading,shapedBy:{question:'Your focus?',answer:'Learning'}}],'',{plus,ladder:{asked:1,opened:[]}});
+ const reveal=openReading(render);
+ reveal.find(n=>n.props.testID==='shaped-by').props.onPress();
+ assert.ok(!render().some(n=>n.type==='BallAsks'));
+ assert.ok(render().some(n=>n.props.testID==='shaped-by'));
+ state.ladder.asked=3;
+ render().find(n=>n.props.testID==='shaped-by').props.onPress();
+ assert.ok(render().some(n=>n.type==='BallAsks'));
+});
+
+test('Sky navigation checks the current threshold even for an earlier callback',()=>{
+ const {render,state}=app(true,[],'',{plus:true});
+ render().find(n=>n.props.testID==='tab-home').props.onPress();
+ const sky=render().find(n=>n.props.testID==='open-sky').props.onPress;
+ state.ladder.asked=11;
+ sky();
+ assert.ok(!render().some(n=>n.type==='Social'));
+ state.ladder.asked=12;
+ sky();
+ assert.ok(render().some(n=>n.type==='Social'));
+});
