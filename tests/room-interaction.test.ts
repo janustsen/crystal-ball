@@ -270,6 +270,47 @@ test('native room keeps the static orb on the stand beneath the live glass',asyn
  assert.equal(tree.find(n=>n.type==='GLView').props.style.opacity,1);
 });
 
+test('native glass stays up through a flight instead of fading to the static orb',async()=>{
+ let resolve!:(glass:unknown)=>void;
+ const {render,listeners}=nativeRoom(()=>new Promise(r=>{resolve=r}));
+ const props={spot:'Home',width:390,height:844,reduce:false,spin:{dragged:false}};
+ const draw=()=>nodes(render('RoomScene',props));
+ draw().find(n=>n.type==='GLView').props.onContextCreate({});
+ resolve({stop(){},style(){},resume(){}});await new Promise(r=>setImmediate(r));
+ assert.equal(draw().find(n=>n.type==='GLView').props.style.opacity,1);
+ // Tapping the Home ball flies to Ask: the live glass rides the track, over the static orb that only backs it up.
+ props.spot='Ask';draw();await new Promise(r=>setImmediate(r));
+ listeners.playingChange({isPlaying:true});
+ const tree=draw(),gl=tree.findIndex(n=>n.type==='GLView'),orb=tree.findIndex(n=>n.type==='OrbVisual');
+ assert.equal(tree.find(n=>n.type==='VideoView').props.style.opacity,1);
+ assert.equal(tree[gl].props.style.opacity,1,'the glass stays visible in flight');
+ assert.ok(orb>=0&&orb<gl,'the static orb rides beneath the glass');
+ listeners.playToEnd();
+ assert.equal(draw().find(n=>n.type==='GLView').props.style.opacity,1);
+});
+
+test('a hidden native tab bar keeps its orb mounted but still, untouchable and out of VoiceOver',()=>{
+ const render=component('../src/Home.tsx',{
+  ...sky,'react-native':{Platform:{OS:'ios'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./AskOrb':{AskOrb:'AskOrb'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},
+  './native':{haptic:()=>{}},
+ });
+ const props={current:'Ask',disabled:false,reduce:false,bottom:0,onTab:()=>{}};
+ const shown=render('HomeTabBar',props),hidden=render('HomeTabBar',{...props,hidden:true});
+ const orb=(bar:any)=>nodes(bar).find(n=>n.type==='AskOrb');
+ assert.equal(orb(shown).props.reduce,false);
+ assert.equal(shown.props.style.opacity,1);
+ // Hidden over a reading, the same orb stays (so its GL never restarts) but holds its last frame.
+ assert.ok(orb(hidden),'the orb stays mounted');
+ assert.equal(orb(hidden).props.reduce,true);
+ assert.equal(hidden.props.style.opacity,0);
+ assert.equal(hidden.props.pointerEvents,'none');
+ assert.equal(hidden.props.accessibilityElementsHidden,true);
+ assert.equal(hidden.props.importantForAccessibility,'no-hide-descendants');
+ assert.ok(nodes(hidden).filter(n=>n.type==='Pressable').every(n=>n.props.disabled));
+});
+
 test('native fallback stays on the visible stand while travel waits or stalls',async()=>{
  for(const failed of [false,true]){
   const {render,listeners}=nativeRoom(()=>failed?Promise.reject(new Error('GL unavailable')):new Promise(()=>{}));
