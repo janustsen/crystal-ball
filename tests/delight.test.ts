@@ -22,7 +22,7 @@ test('style entitlement is checked at render time; saved premium choices cannot 
 });
 test('the paywall lists every Plus unlock with the odds and allowance the app enforces',()=>{
  assert.deepEqual([goldenOdds(false),goldenOdds(true)],[50,10]);
- assert.ok(plusUnlocks.includes(`${dailyReadings(true)} readings a day`));
+ assert.ok(plusUnlocks.includes(`${dailyReadings(true)} questions a day`));
  assert.ok(plusUnlocks.some(u=>u.includes(`1 in ${goldenOdds(true)}`)&&u.includes(`1 in ${goldenOdds(false)}`)));
  for(const unlock of [/deeper Why/,/Inner Library/,/ball and card styles/,/sealed cards/])assert.ok(plusUnlocks.some(u=>unlock.test(u)),String(unlock));
 });

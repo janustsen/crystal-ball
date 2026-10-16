@@ -97,7 +97,7 @@ for(const [width,height] of [[375,667],[440,956]])for(const fixture of followups
   await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{...plan,cards}}}));
   await page.goto(base,{timeout:120000});
   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
-  await page.getByTestId('tab-ask').click();await page.getByTestId('type-instead').click();
+  await page.getByTestId('tap-to-ask').click();await page.getByTestId('type-instead').click();
   await page.getByTestId('question-input').fill('Will I have a good month?');await page.getByTestId('look-into-the-future').click();
   await page.getByTestId('option-0').click();
   const question=page.getByText(cards[1].question,{exact:true});
@@ -148,9 +148,14 @@ for(const width of [360,390,430,440])for(const large of [false,true]){
  // The engine's own short error fits the desk card at normal text; the long fixture above keeps its lit panel.
  const shortError={kind:'error',message:'The mist is too thick. Please try again.'};
  const blocked={kind:'blocked',category:'self_harm',message:'Layout fixture: this question needs support from someone you trust, not a prediction.'};
- await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await page.getByTestId('tab-ask').waitFor();
+ await page.goto(base,{timeout:120000});await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await page.getByTestId('tap-to-ask').waitFor();
+ // A brand-new account has only the ball; the rest of the screens open with the question ladder, seeded here as all asked.
+ await check('home-new',page.getByTestId('hero-orb'));
+ await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));localStorage.setItem('crystal-ball-v1',JSON.stringify({...s,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']}}))});
+ await page.reload();await page.getByTestId('tap-to-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
- await tap('tab-sky');await check('sky',page.getByTestId('tonights-sky'));if(width===390)await scrolledContrast(page,'sky'+tag);
+ await tap('open-sky');await check('sky',page.getByTestId('tonights-sky'));if(width===390)await scrolledContrast(page,'sky'+tag);
+ await tap('header-back');
  await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));if(width===390)await scrolledContrast(page,'history'+tag);
  await tap('tab-you');await check('you',text('What the Ball remembers'));if(width===390)await scrolledContrast(page,'you'+tag);
  await tap('open-settings');await check('settings',text('Ambient sound'));if(width===390)await scrolledContrast(page,'settings'+tag);

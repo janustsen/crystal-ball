@@ -4,6 +4,7 @@ import * as ballAsks from '../src/ball-asks';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as ladder from '../src/ladder';
 import {askBallMock,homeMock} from './home-mock';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
@@ -36,12 +37,13 @@ function hooks(effectsEnabled=true){
 function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='./billing'||name==='../src/billing'?billing:name==='../src/ladder'?ladder:name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
 async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={},account:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
+ // Past the free starter, so the daily reading and packs are what these cases spend.
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let fail!:(error:Error)=>void,blocking=true;
  const remote=new Promise<void>((_resolve,reject)=>{fail=reject});
@@ -103,7 +105,7 @@ for(const friend of [false,true])test(`${friend?'friend':'personal'} retry keeps
  },f.warnings);
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  const render=()=>nodes(h.render(app.default));
- render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.props.testID==='open-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will we learn?',friend,friend?{id:'friend'}:undefined);
  void render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
  if(!friend){render().find(n=>n.props.testID==='option-0').props.onPress();await tick()}
@@ -329,7 +331,7 @@ test('Plans refreshes trial eligibility after reopen, purchase, restore and owne
   'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
   'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
   '../src/store':{useStore:()=>({state,ready:true,backupBusy:busy,remaining:1,applyBalance:async()=>{},update(){}})},'../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},
-  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':{plans,packs,offeredPlans:billing.offeredPlans,plusUnlocks:billing.plusUnlocks},
+  '../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,'../src/billing':billing,
   '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/AskBall':askBallMock(h.react),'../src/useDelight':{useDelight(){}},
   '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},
   '../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
@@ -405,7 +407,7 @@ for(const mode of ['personal','person','friend'])test(`${mode} Ask defers uncert
  const press=async(match:(n:any)=>boolean)=>{render().find(match).props.onPress();await tick()};
  const plansOpen=()=>render().some(n=>n.children.some((c:any)=>c==='Choose your next chapter.'));
  const closePlans=()=>press(n=>n.props.testID==='close-flow');
- const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk(mode==='person'?'Will Sam learn?':'Will I learn?',mode==='friend',mode==='friend'?{circle:'circle',member:'member',firstName:'Sam'}:undefined,mode==='person'?'Sam':'');await press(n=>n.props.testID==='look-into-the-future')};
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='open-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk(mode==='person'?'Will Sam learn?':'Will I learn?',mode==='friend',mode==='friend'?{circle:'circle',member:'member',firstName:'Sam'}:undefined,mode==='person'?'Sam':'');await press(n=>n.props.testID==='look-into-the-future')};
  await ask();
  if(mode!=='friend')await press(n=>n.props.testID==='option-0');
  assert.equal(predicts,1);
@@ -466,7 +468,7 @@ test('web quota refusals including pending browser reservations preserve eligibi
  const render=()=>nodes(h.render(app.default));
  const ask=async()=>{
   render().find(n=>n.props.testID==='close-flow')?.props.onPress();
-  render().find(n=>n.props.testID==='tab-sky').props.onPress();
+  render().find(n=>n.props.testID==='open-sky').props.onPress();
   render().find(n=>n.type==='Social').props.onAsk('Will I learn?',false);
   render().find(n=>n.props.testID==='look-into-the-future').props.onPress();await tick();
   const option=render().find(n=>n.props.testID==='option-0');
@@ -679,7 +681,7 @@ test('a reading saved while a balance update holds the archive still completes T
  const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  render=()=>nodes(h.render(app.default));
- render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render().find(n=>n.props.testID==='open-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});
  await render().find(n=>n.props.testID==='look-into-the-future').props.onPress();
  assert.equal(f.render().backupBusy,true);
@@ -698,7 +700,7 @@ test('a Plus offer dismissed while a balance update holds the archive stays dism
  const app=ritualApp(h,store,[],{friendForecast:async()=>reading});
  const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
  render=()=>nodes(h.render(app.default));
- const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='tab-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});await render().find(n=>n.props.testID==='look-into-the-future').props.onPress()};
+ const ask=async()=>{render().find(n=>n.props.testID==='close-flow')?.props.onPress();render().find(n=>n.props.testID==='open-sky').props.onPress();render().find(n=>n.type==='Social').props.onAsk('Will we learn?',true,{id:'friend'});await render().find(n=>n.props.testID==='look-into-the-future').props.onPress()};
  await ask();
  assert.equal(f.render().backupBusy,true);
  render().find(n=>n.type==='NotifyOffer').props.onAnswer(null);render();
@@ -738,7 +740,7 @@ test('a tapped answer holds its highlight, ignores repeat taps and drops when Ba
  const shows=(text:string)=>render().some(n=>n.children.includes(text));
  const press=async(testID:string)=>{render().find(n=>n.props.testID===testID).props.onPress();await tick();render()};
  const elapse=async()=>{const due=[...timers.values()];timers.clear();due.forEach(fn=>fn());await tick();render()};
- render();render().find(n=>n.props.testID==='tab-sky').props.onPress();
+ render();render().find(n=>n.props.testID==='open-sky').props.onPress();
  render().find(n=>n.type==='Social').props.onAsk('Will I learn?');
  await press('look-into-the-future');
  assert.ok(shows('Your goal?'));

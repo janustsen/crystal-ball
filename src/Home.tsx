@@ -2,11 +2,10 @@ import React,{useEffect,useRef,useState} from 'react';
 import {Animated,Easing,Platform,Pressable,ScrollView,View,type GestureResponderEvent} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {type BallSpin} from './RoomScene';
-import {Txt,RowLink,EdgeFade,colors,fonts,styles} from './ui';
+import {Action,Txt,EdgeFade,NewDot,colors,fonts,styles} from './ui';
 import {haptic} from './native';
 import {Surface} from './Surface';
 import {Enter} from './Enter';
-import {AskOrb} from './AskOrb';
 import {localDay} from './retention';
 import {moonSvg,skyLine,skyOn} from './real-sky';
 
@@ -18,28 +17,47 @@ export const tabBarSpace=(bottom:number)=>bottom+barInset+homeTabBarHeight+8;
 // Web lets a drag on the ball spin it instead of scrolling the page.
 const noScroll={touchAction:'none'} as object;
 
-// Home's screen content, docked below the room's ball (top): what to do, Sunday's recap, today's omen and the Inner Library.
-export function Home({ready,libraryLocked,onLibrary,onBond,checkIns,recap,omen,today,omenFocus=0,top,under,bottom,reduce,direction}:{ready:boolean;libraryLocked:boolean;onLibrary:()=>void;onBond:()=>void;checkIns:React.ReactNode;recap?:React.ReactNode;omen:(cardRef:React.RefObject<View|null>)=>React.ReactNode;today?:React.ReactNode;omenFocus?:number;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
- // Each omenFocus change (Today's omen step) brings the omen, whether waiting, failed or ready, into view.
- const scroll=useRef<ScrollView>(null),omenRef=useRef<View>(null),content=useRef<View>(null),edge=Math.min(under,Math.max(0,top-24)),pad=top-edge,sky=skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone);
- useEffect(()=>{if(omenFocus&&content.current)omenRef.current?.measureLayout(content.current,(_x,y)=>scroll.current?.scrollTo({y:Math.max(0,y+pad-48),animated:!reduce}))},[omenFocus]);
+// Home's screen content, docked below the room's ball (top): "Tap to ask", then today's insight, Tonight's Sky and one
+// next-step card once they open. Everything else is a tab or a tap away.
+export function Home({ready,onAsk,insight,sky,next,top,under,bottom,reduce,direction}:{ready:boolean;onAsk:()=>void;insight?:React.ReactNode;sky?:React.ReactNode;next?:React.ReactNode;top:number;under:number;bottom:number;reduce:boolean;direction?:number}){
+ const edge=Math.min(under,Math.max(0,top-24)),pad=top-edge;
  // Content starts below the ball but scrolls all the way up, fading out beneath the header (under); touches above the
  // content pass through (box-none) so the ball stays the tap and spin target.
  return <View pointerEvents="box-none" style={{position:'absolute',left:0,top:edge,right:0,bottom}}><EdgeFade soft={36} bottom={24} style={styles.through}>
-  <ScrollView ref={scroll} style={styles.through} showsVerticalScrollIndicator={false} contentContainerStyle={[{paddingTop:pad},styles.through]}><Enter reduce={reduce} direction={direction}><View ref={content} collapsable={false} style={{gap:14,paddingHorizontal:20,paddingBottom:24}}>
-   <View pointerEvents="none" style={{alignItems:'center',gap:6}}>
-    <Txt display style={styles.hero}>What lies ahead?</Txt>
-    <Txt style={styles.label}>Touch the ball to ask</Txt>
-    <View testID="tonight-sky" style={{flexDirection:'row',alignItems:'center',gap:6}}><SvgXml aria-hidden xml={moonSvg(sky.angle,colors.gold)} width={14} height={14}/><Txt style={styles.caption}>Tonight: {skyLine(sky)}</Txt></View>
-   </View>
-   {checkIns}
-   {today}
-   {recap}
-   {omen(omenRef)}
-   <RowLink testID="open-bond" label="Bond reading" detail="You and one person" disabled={!ready} onPress={onBond}/>
-   <RowLink testID="room-inner-library" label="Inner Library" detail={libraryLocked?'Plus':undefined} accessibilityLabel={libraryLocked?'Inner Library, locked. Plus opens it':'Inner Library'} disabled={!ready} onPress={onLibrary}/>
+  <ScrollView style={styles.through} showsVerticalScrollIndicator={false} contentContainerStyle={[{paddingTop:pad},styles.through]}><Enter reduce={reduce} direction={direction}><View style={{gap:8,paddingHorizontal:20,paddingBottom:24}}>
+   <Pressable testID="tap-to-ask" accessibilityRole="button" accessibilityLabel="Tap to ask the crystal ball" disabled={!ready} onPress={onAsk} style={{alignSelf:'center',minHeight:44,paddingHorizontal:16,justifyContent:'center'}}>
+    <Txt display style={{fontFamily:fonts.italic,fontSize:30,lineHeight:36,textAlign:'center'}}>Tap to ask</Txt>
+   </Pressable>
+   {insight}
+   {sky}
+   {next}
   </View></Enter></ScrollView>
  </EdgeFade></View>;
+}
+
+const chevron='<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+// Tonight's Sky folded into Home: tonight's real Moon, and a tap opens the shared sky.
+export function SkyLink({dot,onPress}:{dot:boolean;onPress:()=>void}){
+ const sky=skyOn(localDay(),Intl.DateTimeFormat().resolvedOptions().timeZone);
+ return <Pressable testID="open-sky" accessibilityRole="button" accessibilityLabel={`Tonight’s Sky${dot?', new':''}. ${skyLine(sky)}`} onPress={onPress} style={{alignSelf:'center',minHeight:44,paddingHorizontal:12,flexDirection:'row',alignItems:'center',gap:8}}>
+  <SvgXml testID="tonight-sky" aria-hidden xml={moonSvg(sky.angle,colors.gold)} width={14} height={14}/>
+  <Txt style={[styles.caption,{color:colors.ivory,flexShrink:1}]}>Tonight’s Sky · {skyLine(sky)}</Txt>
+  {dot?<NewDot/>:null}
+  <SvgXml aria-hidden xml={chevron} width={14} height={14}/>
+ </Pressable>;
+}
+
+// Home's one next step: what is new, due or coming next. With an action the whole row is the tap target, like RowLink.
+export function NextCard({label,title,text,action,onAction,dot=false}:{label:string;title:string;text:string;action?:string;onAction?:()=>void;dot?:boolean}){
+ const row={minHeight:52,paddingVertical:12,paddingLeft:18,paddingRight:16,flexDirection:'row',alignItems:'center',gap:10} as const;
+ const body=<View style={{flex:1,gap:2}}>
+  <View style={{flexDirection:'row',alignItems:'center',gap:8}}><Txt style={[styles.label,{color:colors.gold}]}>{label}</Txt>{dot?<NewDot/>:null}</View>
+  <Txt style={[styles.strong,{color:colors.ivory}]}>{title}</Txt>
+  <Txt style={styles.caption}>{text}</Txt>
+ </View>;
+ return <View testID="next-step">{action&&onAction
+  ?<Pressable testID="next-step-action" accessibilityRole="button" accessibilityLabel={`${label}${dot?', new':''}: ${title}. ${text}`} accessibilityHint={action} onPress={onAction} style={row}>{({pressed})=><><Surface kind="row" state={pressed?'pressed':undefined}/>{body}<SvgXml aria-hidden xml={chevron} width={14} height={14}/></>}</Pressable>
+  :<View style={row}><Surface kind="row"/>{body}</View>}</View>;
 }
 
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 1 14.2 9.8 23 12 14.2 14.2 12 23 9.8 14.2 1 12 9.8 9.8z"/></svg>';
@@ -57,12 +75,15 @@ export function PlansPill({count,ready,reduce=false,onPress}:{count:string;ready
   </View>
  </Pressable>;
 }
-// The header every tab shares: the italic title (none at Home), the readings-left pill and the Settings button.
+// The header every tab shares: a back button on screens opened from a tab, the italic title (none at Home), the
+// questions-left pill and the Settings button.
 // Where the shared tab header ends, below the safe area.
 export const headerBottom=(top:number)=>Math.max(52,top+6)+44;
 const gear='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
-export function RoomHeader({title,count,ready,reduce,onPlans,onSettings,settings,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;onSettings:()=>void;settings:boolean;top:number}){
+const backIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+export function RoomHeader({title,count,ready,reduce,onPlans,onSettings,onBack,settings,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;onSettings:()=>void;onBack?:()=>void;settings:boolean;top:number}){
  return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:headerBottom(top)-44,flexDirection:'row',alignItems:'center',gap:12}}>
+  {onBack?<Pressable testID="header-back" accessibilityRole="button" accessibilityLabel="Back" disabled={!ready} onPress={onBack} style={{width:44,height:44,marginLeft:-8,alignItems:'center',justifyContent:'center'}}><View style={{width:32,height:32,alignItems:'center',justifyContent:'center'}}><Surface kind="pill" state={ready?undefined:'disabled'}/><View><SvgXml aria-hidden xml={backIcon} width={18} height={18}/></View></View></Pressable>:null}
   {title?<View style={{flexShrink:1}}><Enter key={title} kind="status" reduce={reduce}><Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt></Enter></View>:null}
   <View style={{marginLeft:'auto',flexDirection:'row',alignItems:'center',gap:6}}>
    <PlansPill count={count} ready={ready} reduce={reduce} onPress={onPlans}/>
@@ -95,7 +116,7 @@ export function BallButton({x,y,r,home,spin,onPress}:{x:number;y:number;r:number
  // Web hands over the pointer-down (the scene follows the page's pointer); native forwards each touch.
  const touch=(to:'grab'|'drag'|'release')=>(e:GestureResponderEvent)=>e.nativeEvent.changedTouches.forEach(t=>spin[to]?.({pointerId:Number(t.identifier),clientX:t.pageX,clientY:t.pageY}));
  const grip=Platform.OS==='web'?{onPointerDown:(e:{nativeEvent:unknown})=>spin.grab?.(e.nativeEvent as PointerEvent)}:{onTouchStart:touch('grab'),onTouchMove:touch('drag'),onTouchEnd:touch('release'),onTouchCancel:touch('release')};
- return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Touch the ball to receive your reading':'Touch the ball'} {...grip} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
+ return <Pressable testID={home?'hero-orb':'ask-ball'} accessibilityRole="button" accessibilityLabel={home?'Ask the crystal ball':'Touch the ball'} {...grip} onPressIn={()=>haptic('touch')} onPress={()=>{if(spin.dragged){spin.dragged=false;return}onPress?.()}} style={{...noScroll,position:'absolute',left:x-hit,top:y-hit,width:hit*2,height:hit*2,borderRadius:hit}}/>;
 }
 
 export function OmenCard({busy,label='Today’s insight',children,...props}:React.PropsWithChildren<{busy?:boolean;label?:string;testID?:string;ref?:React.Ref<View>}>){
@@ -114,22 +135,18 @@ export const omenTextStyle={fontFamily:fonts.display,...styles.heading,color:col
 const icon=(d:string)=>`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const tabIcons:Record<string,string>={
  Home:icon('<path d="M12 2.8c1.6 1.9 1.6 3.4 0 4.5-1.6-1.1-1.6-2.6 0-4.5z"/><rect x="9.5" y="9.5" width="5" height="9.5" rx="0.8"/><path d="M6.5 21h11"/>'),
- Sky:icon('<rect x="3.5" y="5" width="9" height="13.5" rx="1.6" transform="rotate(-9 8 11.75)"/><rect x="11.5" y="5" width="9" height="13.5" rx="1.6" transform="rotate(9 16 11.75)"/>'),
  History:icon('<path d="M6.5 3h11M6.5 21h11M8 3c0 4.5 8 5 8 9s-8 4.5-8 9M16 3c0 4.5-8 5-8 9s8 4.5 8 9"/>'),
  You:icon('<circle cx="12" cy="8.5" r="5"/><path d="M12 13.5V22M8.5 18.5h7"/>')
 };
-const askBall='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54"><defs><radialGradient id="g" cx="36%" cy="30%" r="75%"><stop offset="0" stop-color="#FBE7BE"/><stop offset=".38" stop-color="#D49A4C"/><stop offset=".78" stop-color="#6B3E18"/><stop offset="1" stop-color="#2A1709"/></radialGradient></defs><circle cx="27" cy="27" r="27" fill="url(#g)"/></svg>';
-export const tabs=['Home','Sky','Ask','History','You'] as const;
+export const tabs=['Home','History','You'] as const;
 export type Tab=typeof tabs[number];
-// The floating glass tab bar shared by every tab, with the raised gold ball for Ask in the centre. Native keeps it mounted
-// but hidden (and its orb still) over a reading or overlay: remounting restarts the orb's GL, so it would flash its flat
-// fallback before the glass came back.
-export function HomeTabBar({current,disabled,reduce,hidden=false,bottom,onTab}:{current:string;disabled:boolean;reduce:boolean;hidden?:boolean;bottom:number;onTab:(tab:Tab)=>void}){
+// The floating glass tab bar: the tabs open so far, each with a dot while something new waits inside.
+export function HomeTabBar({shown,dots,current,disabled,bottom,onTab}:{shown:readonly Tab[];dots:Partial<Record<Tab,boolean>>;current:string;disabled:boolean;bottom:number;onTab:(tab:Tab)=>void}){
  const label={fontFamily:fonts.sansMedium,fontSize:11,lineHeight:14,letterSpacing:.44};
- return <View accessibilityRole="tablist" pointerEvents={hidden?'none':'auto'} accessibilityElementsHidden={hidden} importantForAccessibility={hidden?'no-hide-descendants':'auto'} style={{position:'absolute',left:14,right:14,bottom:bottom+barInset,height:homeTabBarHeight,flexDirection:'row',opacity:hidden?0:1}}>
+ return <View accessibilityRole="tablist" style={{position:'absolute',left:14,right:14,bottom:bottom+barInset,height:homeTabBarHeight,flexDirection:'row'}}>
   <View pointerEvents="none" style={{position:'absolute',left:0,top:0,right:0,bottom:0,borderRadius:26,borderWidth:1,borderColor:'rgba(227,199,143,.2)',backgroundColor:'rgba(18,12,9,.74)',boxShadow:'0 10px 30px rgba(0,0,0,.35)',...{backdropFilter:'blur(18px) saturate(1.2)'}}}/>
-  {tabs.map(t=>{const on=t===current;return <Pressable disabled={disabled||hidden} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={on} accessibilityState={{selected:on}} accessibilityLabel={t==='Ask'?'Ask the crystal ball':t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:t==='Ask'?4:5}}>
-   {t==='Ask'?<View style={{marginTop:-26,width:54,height:54,borderRadius:27,boxShadow:'0 0 0 1px rgba(227,199,143,.55), 0 0 0 5px rgba(20,14,10,.9), 0 0 28px rgba(232,170,90,.4)'}}><AskOrb size={54} reduce={reduce||hidden} fallback={<SvgXml aria-hidden xml={askBall} width={54} height={54}/>}/></View>:<SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',on?colors.gold:colors.inactive)} width={22} height={22}/>}
+  {shown.map(t=>{const on=t===current;return <Pressable disabled={disabled} testID={`tab-${t.toLowerCase()}`} key={t} accessibilityRole="tab" aria-selected={on} accessibilityState={{selected:on}} accessibilityLabel={dots[t]?`${t}, new`:t} onPress={()=>onTab(t)} style={{flex:1,minHeight:44,alignItems:'center',justifyContent:'center',gap:5}}>
+   <View><SvgXml aria-hidden xml={tabIcons[t].replaceAll('currentColor',on?colors.gold:colors.inactive)} width={22} height={22}/>{dots[t]?<View style={{position:'absolute',right:-6,top:-2}}><NewDot/></View>:null}</View>
    <Txt allowFontScaling={false} style={[label,{color:on?colors.ivory:colors.inactive}]}>{t}</Txt>
   </Pressable>})}
  </View>;

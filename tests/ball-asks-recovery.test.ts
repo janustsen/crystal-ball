@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as ladder from '../src/ladder';
 import * as asks from '../src/ball-asks';
 import * as billing from '../src/billing';
 import * as readings from '../src/reading-history';
@@ -24,7 +25,7 @@ function hooks(){
 function load(path:string,imports:Record<string,any>){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,React:imports.react,require:(name:string)=>imports[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,React:imports.react,require:(name:string)=>imports[name]??{'./billing':billing,'./ladder':ladder}[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
  return module.exports;
 }
 async function fixture(count:number,api:Record<string,unknown>={}){

@@ -49,7 +49,7 @@ test('the room and ball-target Shifts ease together to a new Home offset, and re
   'react-native':{Platform:{OS:'ios'},Animated:{Value,View:'Animated.View',timing:(value:Value,config:any)=>({start(){moves.push({value,...config})},stop(){}})},
    Easing:{ease:'ease',inOut:(easing:string)=>`inOut(${easing})`},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',Action:'Action',NewDot:'NewDot',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},'./native':{haptic:()=>{}},
  };
  const shifts=[component('../src/Home.tsx',imports),component('../src/Home.tsx',imports)];
@@ -74,7 +74,7 @@ test('Home hero supplies touch feedback before invoking Ask, and a drag spins th
  const render=component('../src/Home.tsx',{
   ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',Action:'Action',NewDot:'NewDot',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},
   './native':{haptic:(kind:string)=>events.push(kind)},
  });
@@ -94,7 +94,7 @@ test('the readings-left count pops only when a loaded balance changes',()=>{
  const render=component('../src/Home.tsx',{
   ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
   'expo-linear-gradient':{LinearGradient:'LinearGradient'},'react-native-svg':{SvgXml:'SvgXml'},
-  './Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
+  './Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',Action:'Action',NewDot:'NewDot',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},'./store':{useStore:()=>({state:{}})},
   './delight':{selectedStyle:()=>'classic'},'./native':{haptic:()=>{}},
  });
  const pop=(count:string,ready:boolean,reduce=false)=>{const enter=nodes(render('PlansPill',{count,ready,reduce,onPress:()=>{}})).find(n=>n.type==='Enter');assert.equal(enter.props.kind,'count');return !enter.props.reduce};
@@ -104,39 +104,39 @@ test('the readings-left count pops only when a loaded balance changes',()=>{
  assert.equal(pop('0 readings left',true,true),false);
 });
 
-test('Today omen step targets the actual card after recap and yesterday’s whisper',()=>{
+test('Home asks first, then shows one line of today’s insight that opens to the full card and its whisper check',()=>{
  const imports={
-  ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
-  'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',RowLink:'RowLink',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},
+  ...sky,'react-native':{Platform:{OS:'web'},AppState:{currentState:'active',addEventListener:()=>({remove(){}})},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
+  'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},'./ui':{Txt:'Txt',Action:'Action',CardHeader:'CardHeader',NewDot:'NewDot',RowLink:'RowLink',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},
   './native':{haptic:()=>{}},
  };
- for(const recap of [null,{type:'WeekRecap',props:{},children:[]}]){
-  for(const last of [undefined,{day:'2026-10-10',text:'A message may arrive.'},{day:'2026-10-10',text:'A message may arrive.',outcome:'yes',checkedInAt:'2026-10-11'}]){
-   for(const current of [null,{day:'2026-10-11',text:null,tries:2},{day:'2026-10-11',text:'A door opens.'}]){
-    const scrolls:{y:number;animated:boolean}[]=[];
-    const daily=component('../src/DailyOmen.tsx',{
-     ...imports,'@react-native-async-storage/async-storage':{},
-     './daily-omen':{omenTries:2},'./retention':{localDay:()=>'2026-10-11',currentOmen:()=>current},'./real-sky':realSky,
-     './api':{},'./store':{useStore:()=>({state:{whispers:last?[last]:[]}})},
-     './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},'./story-card':{omenCard:()=>null},
-    },false);
-    const render=component('../src/Home.tsx',imports);
-    const props={ready:true,libraryLocked:false,onLibrary:()=>{},checkIns:null,recap,omen:(cardRef:any)=>daily('DailyOmen',{cardRef}),top:400,under:96,bottom:0,reduce:true};
-    const tree=nodes(render('Home',{...props,omenFocus:0}));
-    assert.equal(tree.some(n=>typeof n.type==='function'),!!last);
-    const card=tree.find(n=>n.type==='OmenCard');
-    const view=render('OmenCard',card.props);
-    let y=100+(recap?300:0)+(last?220:0);
-    const content=tree.find(n=>n.type==='View'&&n.props.ref);
-    view.props.ref.current={measureLayout:(ancestor:any,done:(x:number,y:number)=>void)=>{assert.equal(ancestor,content.props.ref.current);done(0,y)}};
-    tree.find(n=>n.type==='ScrollView').props.ref.current={scrollTo:(position:{y:number;animated:boolean})=>scrolls.push({...position})};
-    render('Home',{...props,omenFocus:1});
-    assert.deepEqual(scrolls,[{y:y+256,animated:false}]);
-    // Answering the whisper moves the card without a new onLayout event on web.
-    y-=52;
-    render('Home',{...props,omenFocus:2,reduce:false});
-    assert.deepEqual(scrolls[1],{y:y+256,animated:true});
-   }
+ const asks:string[]=[];
+ const home=nodes(component('../src/Home.tsx',imports)('Home',{ready:true,onAsk:()=>asks.push('ask'),insight:{type:'Insight',props:{},children:[]},sky:{type:'Sky',props:{},children:[]},next:{type:'Next',props:{},children:[]},top:400,under:96,bottom:0,reduce:true}));
+ const order=home.map(n=>n.props.testID==='tap-to-ask'?'ask':n.type).filter((t:string)=>['ask','Insight','Sky','Next'].includes(t));
+ assert.deepEqual(order,['ask','Insight','Sky','Next'],'the ball’s Tap to ask leads, then insight, Sky and the next step');
+ home.find(n=>n.props.testID==='tap-to-ask').props.onPress();assert.deepEqual(asks,['ask']);
+ for(const last of [undefined,{day:'2026-10-10',text:'A message may arrive.'},{day:'2026-10-10',text:'A message may arrive.',outcome:'yes',checkedInAt:'2026-10-11'}]){
+  for(const current of [{day:'2026-10-11',text:null,tries:2},{day:'2026-10-11',text:'A door opens.'}]){
+   const daily=component('../src/DailyOmen.tsx',{
+    ...imports,'@react-native-async-storage/async-storage':{},
+    './daily-omen':{omenTries:2,loadDailyOmen:()=>new Promise(()=>{})},'./retention':{localDay:()=>'2026-10-11',currentOmen:()=>current},'./real-sky':realSky,
+    './api':{},'./store':{useStore:()=>({state:{whispers:last?[last]:[]}})},
+    './Home':{OmenCard:'OmenCard'},'./whisper':{lastWhisper:()=>last},'./story-card':{omenCard:()=>null},
+   },false);
+   let toggles=0;const onToggle=()=>toggles++;
+   const unchecked=!!last&&!last.outcome;
+   const line=nodes(daily('DailyOmen',{open:false,dot:true,onToggle}));
+   const row=line.find(n=>n.props.testID==='insight-line');
+   assert.ok(row.props.accessibilityLabel.includes(current.text??'No insight today, but the Ball is listening. Tap it to ask.'));
+   assert.ok(row.props.accessibilityLabel.includes(', new'),'the dot is announced');
+   assert.equal(line.some(n=>n.children.includes('· Whisper to check')),unchecked,'only an unanswered whisper asks for a check');
+   assert.ok(!line.some(n=>n.type==='OmenCard'),'closed shows one line, not the card');
+   row.props.onPress();
+   const card=nodes(daily('DailyOmen',{open:true,onToggle}));
+   assert.ok(card.some(n=>n.type==='OmenCard'));
+   assert.equal(card.some(n=>typeof n.type==='function'),!!last,'the whisper check joins the open card');
+   card.find(n=>n.props.testID==='insight-less').props.onPress();
+   assert.equal(toggles,2);
   }
  }
 });
@@ -145,8 +145,8 @@ test('every room header exposes Settings beside Plans and Home omits its title',
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
   ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
-  'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./AskOrb':{AskOrb:'AskOrb'},'./Enter':{Enter:'Enter'},
-  './ui':{Txt:'Txt',fonts:{},colors:{},styles:{}},'./native':{haptic:()=>{}},
+  'react-native-svg':{SvgXml:'SvgXml'},'./Surface':{Surface:'Surface'},'./Enter':{Enter:'Enter'},
+  './ui':{Txt:'Txt',Action:'Action',NewDot:'NewDot',EdgeFade:'EdgeFade',fonts:{},colors:{},styles:{}},'./native':{haptic:()=>{}},
  });
  for(const title of ['', 'Sky','Ask','History','You','Inner Library','The Ball asks','Settings']){
   for(const ready of [false,true]){
@@ -162,12 +162,15 @@ test('every room header exposes Settings beside Plans and Home omits its title',
    if(ready){plans.props.onPress();settings.props.onPress();assert.deepEqual(events.splice(0),['plans','settings'])}
   }
  }
- const bar=nodes(render('HomeTabBar',{current:'History',disabled:false,reduce:true,bottom:34,onTab:(tab:string)=>events.push(tab)}));
+ const bar=nodes(render('HomeTabBar',{shown:['Home','History','You'],dots:{You:true},current:'History',disabled:false,bottom:34,onTab:(tab:string)=>events.push(tab)}));
  const tabs=bar.filter(n=>n.props.accessibilityRole==='tab');
- assert.equal(tabs.length,5);
+ assert.equal(tabs.length,3);
  for(const tab of tabs)tab.props.onPress();
- assert.deepEqual(events,['Home','Sky','Ask','History','You']);
+ assert.deepEqual(events,['Home','History','You']);
  assert.equal(tabs.find(n=>n.props.accessibilityState.selected).props.testID,'tab-history');
+ assert.deepEqual(tabs.map(n=>n.props.accessibilityLabel),['Home','History','You, new'],'a tab with something new says so');
+ const early=nodes(render('HomeTabBar',{shown:['Home','History'],dots:{},current:'Home',disabled:false,bottom:34,onTab:()=>{}})).filter(n=>n.props.accessibilityRole==='tab');
+ assert.deepEqual(early.map(n=>n.props.testID),['tab-home','tab-history'],'only opened tabs show');
 });
 
 test('shared Screen renders content and forwards directional motion',()=>{

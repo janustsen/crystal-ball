@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
+import * as billing from '../src/billing';
+import * as ladder from '../src/ladder';
 import * as delight from '../src/delight';
 import * as readings from '../src/reading-history';
 import * as profile from '../src/profile';
@@ -25,7 +27,7 @@ function load(path:string,imports:Record<string,any>){
   compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true},
  }).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,React:imports.react,Error,require:(name:string)=>imports[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
+ runInNewContext(code,{module,exports:module.exports,React:imports.react,Error,require:(name:string)=>imports[name]??{'./billing':billing,'./ladder':ladder}[name],performance,console,setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{}});
  return module.exports;
 }
 async function library(serverMetered=true){
