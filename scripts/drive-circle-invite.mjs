@@ -16,6 +16,7 @@ async function fresh(person,url=base){
 async function skyStillLocked(page){
  await page.getByTestId('header-back').click();await page.getByTestId('tap-to-ask').waitFor({timeout:30000});
  if(await page.getByTestId('open-sky').count())throw Error('The invite unlocked Sky on the ladder');
+ await page.screenshot({path:`${evidenceDir}/home-locked-${[...pages].find(([,value])=>value===page)[0]}.png`});
 }
 async function setHandle(page,person){
  await page.getByLabel('Your handle').fill(`${person}_${stamp}`);await page.getByLabel('Display name').fill(person);await page.getByTestId('save-social-profile').click();
@@ -29,6 +30,7 @@ try{
  // Decline first: it touches nothing, so the same one-person invitation is still open for the joiner.
  const decliner=await fresh('decliner',invite);
  await decliner.getByTestId('join-this-circle').waitFor({timeout:60000});
+ await decliner.getByTestId('join-this-circle').scrollIntoViewIfNeeded();
  await decliner.screenshot({path:`${evidenceDir}/sky-invite.png`});
  await decliner.getByTestId('decline-invitation').click();await decliner.getByTestId('join-this-circle').waitFor({state:'detached'});
  if(new URL(decliner.url()).searchParams.has('circle'))throw Error('Declined invite stayed in the URL');
