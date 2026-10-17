@@ -1,7 +1,7 @@
 # Question ladder
 
 ## Sub-features
-New accounts start with the ball alone; features open by questions asked (`src/ladder.ts`): History 1, About you 3, Daily insight 5, Bond reading 8, Tonight’s Sky 12, Inner Library 20. Each opening shows a one-time “New: … it does X” notice on the reveal, then a dot (on its tab, row, insight line or Sky line) until first opened. Home’s next-step card picks one of: newly opened (off Home), check-in due, next free question tomorrow, last starter questions, or what the next questions open. The pill reads “N free questions” during the starter, “N free today” after, “N questions left” with packs, and Plus. Plus and Year ahead follow the same thresholds and dots; `ladder.asked` survives Forget everything.
+For ordinary entry (see [Circle invite entry](../../../../README.md) for the exception), new accounts start with the ball alone; features open by questions asked (`src/ladder.ts`): History 1, About you 3, Daily insight 5, Bond reading 8, Tonight’s Sky 12, Inner Library 20. Each opening shows a one-time “New: … it does X” notice on the reveal, then a dot (on its tab, row, insight line or Sky line) until first opened. Home’s next-step card picks one of: newly opened (off Home), check-in due, next free question tomorrow, last starter questions, or what the next questions open. The pill reads “N free questions” during the starter, “N free today” after, “N questions left” with packs, and Plus. Plus and Year ahead follow the same thresholds and dots; `ladder.asked` survives Forget everything.
 
 The server side is the free starter (`supabase/migrations/202610160010_starter_questions.sql`): the first 20 charged readings ever are free, then 1 a day; see [billing](../../../../docs/launch/billing.md) for the allowance rules.
 
