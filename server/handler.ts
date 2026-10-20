@@ -8,15 +8,15 @@ import {insightKinds,selfAnswers} from '../src/ball-asks.ts';
 import { makePlan, predict } from './engine.ts';
 import {bondReading} from './bond.ts';
 import {validFirstName} from '../src/social-policy.ts';
-import { requireAiConsent, provider, type ModelProvider } from './provider.ts';
+import { requireAiConsent, provider, type ModelProvider, type HostedAccounting } from './provider.ts';
 import type { Facts } from '../src/types.ts';
 import {socialHandler} from './social.ts';
 import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
 import {webReadings} from './web-reading.ts';
 import {heardFrom} from './heard-from.ts';
-export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider) {
- const model=injectedModel??provider(env),omenModel=injectedModel??provider(env,160),insightModel=injectedModel??provider(env,240),yearModel=injectedModel??provider(env,900,90000);
+export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider,accounting?:HostedAccounting) {
+ const model=injectedModel??provider(env,undefined,45000,accounting),omenModel=injectedModel??provider(env,160,45000,accounting),insightModel=injectedModel??provider(env,240,45000,accounting),yearModel=injectedModel??provider(env,900,90000,accounting);
  const meter=billing(env),web=webReadings(env),heard=heardFrom(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;

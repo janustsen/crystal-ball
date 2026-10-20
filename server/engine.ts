@@ -1,3 +1,4 @@
+import {BillingError} from './billing.ts';
 import {ballVoice} from './voice.ts';
 import {ageGroup,astrologyLine,personQuestionIssue} from '../src/profile.ts';
 import {checkInDueDate} from '../src/due-date.ts';
@@ -94,7 +95,7 @@ export async function makePlan(question:string,known:Facts,model:ModelProvider,c
   });
   const draftedCategory=await safety(JSON.stringify(draft),model);if(draftedCategory)return {kind:'blocked',category:draftedCategory,message:draftedCategory==='self_harm'?redirects.self_harm:'Let’s explore a gentler personal goal instead.'};
   return {kind:'ok',value:{topic:'general',provided,cards:[...draft.cards.map((c,i)=>({id:`context_${i+1}`,question:cardQuestion(c.question),options:[...c.options.map(optionLabel),'Other'],remember:false})),...(!provided.horizon&&!love?[{id:'horizon',question:/\b(match|election|trip|holiday|vacation|race)\b/i.test(question)?'When is the event happening?':'How far ahead should the Ball look?',options:/\b(match|election|trip|holiday|vacation|race)\b/i.test(question)?['This week','Next month','Later this year','Other']:['Within 3 months','Within 6 months','Within a year','Other'],remember:false}]:[])]}};
- } catch {return {kind:'error',message:'The mist is too thick. The question or follow-up cards could not be validated. Please try again.'};}
+ } catch(error) {if(error instanceof BillingError)throw error;return {kind:'error',message:'The mist is too thick. The question or follow-up cards could not be validated. Please try again.'};}
  finally{clearTimeout(timer!)}
 }
 export async function predict(question:string,facts:Facts,friend:boolean,model:ModelProvider,context:ReadingContext={}):Promise<Result<Prediction>> {
