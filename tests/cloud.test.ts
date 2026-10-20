@@ -8,7 +8,7 @@ import type {AccountState} from '../src/types.ts';
 const empty:AccountState={sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:5,plus:false,usage:{day:'2026-09-30',count:0},reduceMotion:false,largeText:false};
 const reading={id:'12345678-1234-1234-1234-123456789abc',question:'Will I learn?',headline:'You will learn.',createdAt:'2026-09-30T00:00:00Z',label:'Speculative',why:'Practice',facts:{practice:'daily'},sources:[],assumptions:[],friend:false};
 function archive(){
- const remote={facts:{practice:'daily'} as Record<string,string>,history:[reading],writes:0,failRead:false,hasArchive:true,owner:'apple-owner'};
+ const remote={bodies:[] as unknown[],facts:{practice:'daily'} as Record<string,string>,history:[reading],writes:0,failRead:false,hasArchive:true,owner:'apple-owner'};
  const client=createClient('https://backup.invalid','test-key',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async(input,init)=>{
   const url=new URL(String(input)),method=init?.method??'GET';
   if(method==='GET'){
@@ -21,7 +21,7 @@ function archive(){
    const keep=url.searchParams.get('id')?.slice(8,-1).split(',')??[];
    remote.history=remote.history.filter(p=>keep.includes(p.id));
   }else{
-   const body=JSON.parse(String(init?.body));
+   const body=JSON.parse(String(init?.body));remote.bodies.push(body);
    if(url.pathname.endsWith('knowledge'))remote.facts=body.facts;
    else remote.history=[...new Map([...remote.history,...body.map((row:any)=>row.payload)].map(p=>[p.id,p])).values()];
   }
@@ -202,4 +202,13 @@ test('restoring larger, smaller and empty histories preserves earned ladder prog
   assert.equal((await restoreBackup(forgotten,client)).ladder.asked,20);
   assert.equal((await restoreBackup({...local,history:restored.history},client)).ladder.asked,20);
  }
+});
+
+
+test('the optional acquisition answer stays on-device when the real archive mirror runs',async()=>{
+ const {remote,client}=archive();
+ await mirror({...empty,backupOwner:remote.owner,heardFrom:'TikTok'},client);
+ assert.ok(remote.bodies.length>0);
+ assert.ok(!JSON.stringify(remote.bodies).includes('TikTok'));
+ assert.equal((await restoreBackup(empty,client)).heardFrom,undefined);
 });
