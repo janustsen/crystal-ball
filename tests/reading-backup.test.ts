@@ -883,3 +883,13 @@ for(const outcome of ['purchased','cancelled','pending','failed','sync-failed'])
  assert.equal(render().find(n=>n.props.label==='Continue with Plus').props.disabled,false,'every result releases the purchase UI');
  if(outcome==='pending')assert.ok(render().some(n=>n.children.includes('Your purchase is waiting for App Store approval. Your balance will update after approval; you can also tap Restore purchases.')));
 });
+
+test('the install action preserves Apple campaign provider and per-account tokens',async()=>{
+ const h=hooks(false),url='https://apps.apple.com/app/id123456789?pt=98765&ct=tiktok_janus&mt=8',opened:string[]=[];
+ const screen=load('../src/SocialScreen.tsx',{
+  react:h.react,'react-native':{},'expo-linking':{openURL:async(value:string)=>{opened.push(value)}},'./ui':{Action:'Action'},
+ },[],{process:{env:{EXPO_PUBLIC_INSTALL_URL:url}}});
+ const action=screen.InstallAction({onNotice:()=>assert.fail('the campaign link should open')});
+ assert.equal(action.props.label,'Install Crystal Ball');action.props.onPress();await tick();
+ assert.deepEqual(opened,[url]);
+});

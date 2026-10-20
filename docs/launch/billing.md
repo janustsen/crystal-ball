@@ -20,7 +20,9 @@ Real purchases go through RevenueCat (`react-native-purchases`) on iOS. The serv
 Modes (`EXPO_PUBLIC_REVENUECAT_MODE`):
 
 - `store`: real App Store purchases. Sandbox on development and TestFlight builds, production in the App Store. Every EAS profile sets this.
-- `mock` (default for the preview): labeled test purchases. With local Supabase and `SOCIAL_MOCK_ENTITLEMENTS=true` they still go through the real ledger (`/billing` `simulate`, refused for non-loopback Supabase). Without Supabase the preview counts on-device only.
+- `mock` (default for web previews; explicit development-build opt-in): labeled test purchases. With local Supabase and `SOCIAL_MOCK_ENTITLEMENTS=true` they still go through the real ledger (`/billing` `simulate`, refused for non-loopback Supabase). Without Supabase the preview counts on-device only.
+
+Release iOS builds always use `store`, including when the mode variable is absent or mistakenly set to `mock`; missing store/server configuration disables purchasing. Development native builds can explicitly opt into `mock`. Pending App Store approvals never grant Plus or packs; cancellation leaves the balance alone. Only reconciliation supplies entitlements.
 
 Web in `store` mode shows the plans with “Purchases are available in the Crystal Ball iOS app.” and disabled purchase buttons.
 

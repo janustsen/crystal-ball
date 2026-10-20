@@ -1,8 +1,51 @@
-# App Store readiness — 2026-09-30
+# App Store readiness — 2026-10-20
 
 **Not submission-ready.** Entertainment disclosure follows the [UI rules](../design/ui-rules.md#palette-and-composition); data-flow disclosure in Settings, optional Apple backup/restore, and opt-in disclosure before hosted AI processing remain implemented. It does not establish predictive accuracy or guarantee approval.
 
-The 2026-10-20 launch plan is about one week of TestFlight with friends and Stanford testers, then App Store submission after the release checks pass. The account holder will enroll personally as an **Individual**; the Apple Developer account is not active yet.
+## First TestFlight upload: Individual membership, then one tester week
+
+The account holder enrolls personally in the **Individual** Apple Developer Program. Do not create Apple, Expo or App Store Connect accounts from this checklist. There is no App Store Connect access until Apple approves membership. Friends and Stanford testers are external testers; plan roughly one week of TestFlight feedback before submitting to the public App Store.
+
+Prepared in this repository: bundle ID `com.janustsen.crystalball`, marketing version `0.1.0`, initial iOS build number `1`, and EAS `production` with `distribution: store`, real purchases and automatic remote build-number increments. Remote EAS numbering is authoritative once linked; record the actual build number on upload. `preview` is ad hoc distribution, not TestFlight. There is no EAS project ID yet. On 2026-10-20, `npx eas-cli whoami` returned **Not logged in**. No archive or upload has been attempted.
+
+### Before the Apple account is approved
+
+- [ ] Expo account holder runs `npx eas-cli login` using an existing account. If no account exists, the holder creates it personally.
+- [ ] Run `npx eas-cli whoami`, then `npx eas-cli init`; select the intended owner and link/create the EAS **project** (not an account). Commit the resulting `extra.eas.projectId`. Never invent an ID.
+- [ ] Configure the production EAS environment with the public RevenueCat iOS SDK key, Supabase URL/anon key, hosted HTTPS engine endpoint, named AI provider, shared web origin and install URL listed in [billing](billing.md) and the setup guide. Server keys stay server-only. Hosted readings, quotas and spend caps belong to the hosted-readings task; confirm that deployment is ready before building.
+- [ ] Run `npm ci`, `npm run check`, `npm test` and the project verification drives. Recheck native icon/splash, room asset delivery, permissions, privacy/terms/support URLs and the release checklist below; these remain required for a usable tester build.
+
+### After Apple approves the Individual membership
+
+1. In App Store Connect, accept Paid Apps terms and finish tax/banking. Register the bundle ID above and create the Crystal Ball app record (iOS, version `0.1.0`); record its numeric Apple app ID. Configure the capabilities used by the app and EAS signing for the approved Individual team.
+2. Create the following US-price products. All three subscriptions belong to the same **Crystal Ball Plus** group. Add descriptions, review information and required localizations. Introductory trials apply only to eligible new subscribers.
+
+   | Product ID | Type | US price / introductory offer | Current offering |
+   |---|---|---|---|
+   | `cb_plus_weekly` | Auto-renewable, 1 week | $4.99; 3-day free trial | Yes |
+   | `cb_plus_monthly` | Auto-renewable, 1 month | $9.99; no trial | Yes |
+   | `cb_plus_yearly` | Auto-renewable, 1 year | $39.99; 7-day free trial | **No: annual cost gate remains closed** |
+   | `cb_pack_5` | Consumable | $1.99; 5 non-expiring questions | Yes |
+   | `cb_pack_20` | Consumable | $5.99; 20 non-expiring questions | Yes |
+
+   Leave `cb_year_ahead` out of this launch; it is a separate mock-only feature.
+3. Configure RevenueCat's iOS app, App Store credentials, entitlement `plus` and current offering per [billing](billing.md). Confirm the engine and webhook can reconcile purchases to the same Supabase user ID. Plus is 10 questions/day, never unlimited; Free is 20 starter questions, then 1/day.
+4. Verify `npx eas-cli whoami`, `npx eas-cli project:info` and `npx expo config --type public`. Confirm the linked project, bundle ID, production endpoints and store billing mode; keep `EXPO_PUBLIC_APPLE_LINK_ENABLED=false` until its separate native release gate is complete.
+5. Run `npx eas-cli build --platform ios --profile production`. Follow the account holder's Apple signing prompts. Record the **build ID** printed by this command and its version/build number.
+6. Run `npx eas-cli submit --platform ios --profile production --id <BUILD_ID>`. Select the existing App Store Connect record. Set `submit.production.ios.ascAppId` to that record's numeric ID for repeatable future submissions. Uploading sends the build to TestFlight, not to public sale.
+7. In TestFlight, complete export-compliance questions, beta description, contact and review access, then create an external friends/Stanford group. Submit the group's first build for Beta App Review; invite testers after approval. Do not grant friends App Store Connect roles just to bypass external review.
+8. Across roughly one tester week, verify launch/onboarding/skip, the first-reveal Plus offer, real readings, cancellation/pending purchases, eligible trial, renewal/expiration, both packs, reconciliation failure/retry and Restore on a second installation. TestFlight IAP uses Apple's sandbox; it does not collect real payments. Consumables restore from this app's server ledger under the same account, not Apple's consumable history; account restore must be verified before promising cross-install pack recovery.
+9. Fix tester blockers and rebuild/re-upload with a new build number. Then finish the public listing, screenshots, App Privacy, age rating, purchase review information and release checks below; choose the tested build and submit for App Review. TestFlight approval is not App Store approval.
+
+[Expo TestFlight distribution](https://docs.expo.dev/submit/testflight/), [upload commands](https://docs.expo.dev/submit/ios/), [remote build numbering](https://docs.expo.dev/build-reference/app-versions/).
+
+## Campaign source handling
+
+Apple campaign attribution lives in **App Store Connect Analytics**, separate from the optional onboarding answer. The app cannot recover a per-install `ct` source from an App Store campaign link. Do not pretend a deep link is deferred attribution or match the anonymous tally to an account.
+
+When Apple exposes Campaigns for this app, generate the first link there to obtain the real provider token. Keep `pt` unchanged; use one `ct` per publishing account (for example `tiktok_janus`, `instagram_janus`, `instagram_stanford_club`). Maintain a launch sheet of account, token, full generated URL and publish date. Link form: `https://apps.apple.com/app/id<APPLE_APP_ID>?pt=<PROVIDER_TOKEN>&ct=<ACCOUNT_TOKEN>&mt=8`. Use the actual app record/token, never the bundle ID or a guessed token. A web install button may use a complete generated campaign URL via `EXPO_PUBLIC_INSTALL_URL`; preserve its query parameters.
+
+Read results in Analytics → Metrics → Campaign. Apple credits eligible first downloads within 24 hours of a click, using the latest campaign link; reporting is delayed and small cohorts may be withheld. Campaign creation itself may wait for initial app analytics. TestFlight invitations are separate. The four onboarding choices (TikTok, Instagram, A friend, Other) are optional, saved only on-device, and reported to the existing anonymous daily tally after the age gate. The legacy tally value `Somewhere else` displays as Other; no schema migration is needed. Skip sends no answer. [Apple campaign-link behavior and reporting](https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links).
 
 ## Review checklist
 
@@ -33,7 +76,7 @@ Draft for a hosted engine + Supabase backup release; reconcile with final SDK ma
 | Purchase history | App functionality (RevenueCat and the Supabase reading ledger) | Yes | No intended tracking |
 | Email/name | No name/email scopes requested by the app; audit identity-provider claims retained by Supabase before deciding whether to declare | Potentially yes | No |
 | Audio data | App does not retain audio; verify OS speech processing and any retained third-party audio | Pending native audit | No intended tracking |
-| Other usage data (optional onboarding answer: where the user heard about Crystal Ball) | Analytics: a daily count per answer (`supabase/migrations/202610140010_heard_from.sql`) | No | No |
+| Other usage data (optional onboarding answer: where the user heard about Crystal Ball) | Optional answer stays on-device; analytics stores only a daily count per answer (`supabase/migrations/202610140010_heard_from.sql`) | No | No |
 | Diagnostics / device identifiers | Review Expo, RevenueCat and production server logs | Pending release audit | No intended tracking |
 
 Free text may contain additional sensitive data. Discourage it and audit actual collection; do not claim “Data Not Collected.” See [forgetting information](../../README.md) for local removal and saved-reading exceptions, and [profile mirroring](../../SETUP.md#reading-profile-and-birth-chart) for backup propagation and its verification limits. Reset is not account deletion. Specify retention, deletion, operator/contact, subprocessors and international transfers in a public policy; the in-app prototype explanation is not a complete legal policy.
