@@ -67,6 +67,10 @@ with tempfile.TemporaryDirectory(prefix='hosted-limits-', dir=os.environ.get('TM
         admit('plan', False)
         # Changing the client date or creating a fresh server cannot reset UTC quotas.
         admit('omen'); admit('omen'); admit('omen', False)
+        for action, limit in [('insight', 3), ('chart', 2), ('year', 2)]:
+            for _ in range(limit):
+                admit(action)
+            admit(action, False)
         sql('truncate public.ai_daily_requests;')
         sql(f"update public.social_profiles set plus_until=now()+interval '1 day' where user_id='{user}';")
         for _ in range(20):

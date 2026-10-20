@@ -34,12 +34,15 @@ test('daily and monthly limits refuse the paid fetch; failed transports keep res
   if(url.endsWith('/admit_ai_request'))return mode==='quota'?Response.json({message:'AI daily quota reached'},{status:400}):Response.json(null);
   if(url.endsWith('/reserve_ai_spend'))return mode==='budget'?Response.json({message:'AI monthly budget reached'},{status:400}):Response.json(value.reservation);
   if(url.endsWith('/settle_ai_spend')){settled++;return Response.json(null)}
-  paid++;throw new Error('network failed');
+  paid++;
+  if(mode==='missing')return Response.json({choices:[{message:{content:'{}'}}]});
+  throw new Error('network failed');
  });
  const call=()=>provider(env,160,45000,hostedAccounting(env,'viewer','omen')).json('test',{}, {},()=>true);
  await assert.rejects(call(),e=>e instanceof Error&&e.message===quotaMessage);assert.equal(paid,0);
  mode='budget';await assert.rejects(call(),e=>e instanceof Error&&e.message===budgetMessage);assert.equal(paid,0);
  mode='network';await assert.rejects(call(),/network failed/);assert.equal(paid,1);assert.equal(settled,0);
+ mode='missing';assert.deepEqual(await call(),{});assert.equal(paid,2);assert.equal(settled,0);
 });
 test('the public endpoint verifies identity and refuses unapproved quality, missing secrets and wrong vendors',async t=>{
  let paid=0;
@@ -50,10 +53,25 @@ test('the public endpoint verifies identity and refuses unapproved quality, miss
  const request=(token?:string)=>new Request('https://example.invalid/predict',{method:'POST',headers:token?{authorization:token}:{},body:JSON.stringify({action:'plan',question:'Will I learn Spanish?',facts:{},ageConfirmed:true,aiConsent:'DeepInfra'})});
  assert.equal((await publicHandler(env)(request())).status,401);
  assert.equal((await publicHandler(env)(request('Bearer expired'))).status,401);
+ for(const aiConsent of ['', 'Other AI']){
+  const req=request('Bearer user'),body=await req.json();
+  const response=await publicHandler(env)(new Request(req.url,{method:'POST',headers:req.headers,body:JSON.stringify({...body,aiConsent})}));
+  assert.equal(response.status,400);assert.match((await response.json()).message,/allow sharing/);
+ }
  for(const override of [{HOSTED_QUALITY_APPROVED:'false'},{HOSTED_MODEL_KEY:''},{SUPABASE_SERVICE_ROLE_KEY:''},{HOSTED_MODEL_URL:'https://other.invalid'},{MODEL_PROVIDER:'ollama'}]){
   const values:Record<string,string|undefined>={...config,...override};assert.equal((await publicHandler(k=>values[k])(request('Bearer user'))).status,503);
  }
  assert.equal(paid,0);
+});
+test('the public attribution exception cannot call Auth, a model or the spending RPCs',async t=>{
+ const calls:string[]=[];
+ t.mock.method(globalThis,'fetch',async(input:unknown)=>{
+  const url=String(input);calls.push(url);
+  assert.ok(url.endsWith('/rpc/count_heard_from'));
+  return Response.json(null);
+ });
+ const response=await publicHandler(env)(new Request('https://example.invalid/predict',{method:'POST',body:JSON.stringify({action:'heard',source:'TikTok',question:'Will I learn Spanish?',aiConsent:'DeepInfra'})}));
+ assert.equal(response.status,200);assert.equal(calls.length,1);
 });
 test('planning preserves the monthly limit message through the real handler',async t=>{
  t.mock.method(globalThis,'fetch',async(input:unknown)=>{

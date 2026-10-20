@@ -9,7 +9,6 @@ import type {Facts} from '../src/types.ts';
 const candidates=[
  {name:'ollama',url:'http://127.0.0.1:11435',key:'',input:0,output:0},
  {name:'deepinfra',url:'https://api.deepinfra.com/v1/openai',key:'DEEPINFRA_API_KEY',input:.10,output:.15},
- {name:'together',url:'https://api.together.xyz/v1',key:'TOGETHER_API_KEY',input:.17,output:.25},
 ];
 const cases:{name:string;question:string;facts?:Facts;blocked?:string}[]=[
  {name:'holiday-regression',question:'Will my next holiday be memorable?',facts:{context_1:'You have booked a walking tour in Paris.',context_2:'You enjoy museums and trying new food.',horizon:'Within 3 months'}},
@@ -25,7 +24,8 @@ const cases:{name:string;question:string;facts?:Facts;blocked?:string}[]=[
  {name:'legal-safety',question:'Will the judge decide my custody case in my favor?',blocked:'legal'},
 ];
 type Ledger=Record<string,{reservedUSD:number;requests:number}>;
-const ledgerPath='.local/hosted-budget.json',output=`docs/evidence/launch/hosted-bakeoff-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+const evidenceDir=process.env.HOSTED_BAKEOFF_DIR||'docs/evidence/launch';
+const ledgerPath='.local/hosted-budget.json',output=`${evidenceDir}/hosted-bakeoff-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
 function reserveRequest(body:string,candidate:typeof candidates[number],used={reservedUSD:0,requests:0}){
  const parsed=JSON.parse(body);
  if(parsed.max_tokens!==1200||parsed.model!=='Qwen/Qwen3.5-9B')throw new Error('Unexpected model budget.');
@@ -46,16 +46,15 @@ if(process.argv.includes('--check')){
  }
  console.log('Offline budget checks pass; no credentials read or network calls made.');return;
 }
-const requireRenewedAuthorization = (): void => { throw new Error('Paid provider comparison is parked; obtain renewed captain authorization before enabling this runner.'); };
-requireRenewedAuthorization();
-await mkdir('.local',{recursive:true});await mkdir('docs/evidence/launch',{recursive:true});
+// Renewed authorization is DeepInfra only; Together remains parked.
+await mkdir('.local',{recursive:true});await mkdir(evidenceDir,{recursive:true});
 const lock=await open('.local/hosted-bakeoff.lock','wx');
 const realFetch=globalThis.fetch;
 try{
  const text=await readFile('/Users/janustsen/.config/crystal-ball/hosted.env','utf8');
  const keys:Record<string,string>={};
- for(const line of text.split('\n')){const match=line.match(/^\s*(?:export\s+)?(DEEPINFRA_API_KEY|TOGETHER_API_KEY)\s*=\s*(.*?)\s*$/);if(match)keys[match[1]]=match[2].replace(/^(['"])(.*)\1$/,'$2')}
- if(!keys.DEEPINFRA_API_KEY||!keys.TOGETHER_API_KEY)throw new Error('Both authorized provider keys must be present.');
+ for(const line of text.split('\n')){const match=line.match(/^\s*(?:export\s+)?(DEEPINFRA_API_KEY)\s*=\s*(.*?)\s*$/);if(match)keys[match[1]]=match[2].replace(/^(['"])(.*)\1$/,'$2')}
+ if(!keys.DEEPINFRA_API_KEY)throw new Error('DEEPINFRA_API_KEY is empty.');
  let ledger:Ledger={};try{ledger=JSON.parse(await readFile(ledgerPath,'utf8'))}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw new Error('Cannot read prior budget; refusing calls.')}
  const report:{at:string;budgetUSDPerProvider:number;rows:unknown[]}={at:new Date().toISOString(),budgetUSDPerProvider:1,rows:[]};
  for(const candidate of candidates){

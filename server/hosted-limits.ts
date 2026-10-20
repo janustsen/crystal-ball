@@ -4,7 +4,7 @@ import type {HostedAccounting} from './provider.ts';
 
 export const deepinfra={url:'https://api.deepinfra.com/v1/openai',model:'Qwen/Qwen3.5-9B',disclosure:'DeepInfra',contextTokens:262144} as const;
 // Nanodollars, using the more expensive priority tier as the accounting ceiling (2026-10-20).
-export const inputNano=150,outputNano=225,monthlyNano=25_000_000_000;
+const inputNano=150,outputNano=225;
 export const budgetMessage='The Ball has reached its monthly reading budget. Please come back next month.';
 export const quotaMessage='You’ve reached today’s reading request limit. Please try again tomorrow.';
 type Env=(key:string)=>string|undefined;
