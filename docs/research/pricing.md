@@ -51,3 +51,9 @@ These are estimates from the historical 3/6/10-card token counts, one full-budge
 | Groq Qwen3.8 27B | $0.011746 | $0.014371 | $0.018816 | Both fail |
 
 This rules out a paid search on every annual-tier reading at these conservative allocations. It does not justify silently removing research; pricing/supply needs another decision before paid launch.
+
+## 2026-10-20 DeepInfra launch cost check
+
+**Result: annual stays off sale.** At the supplied DeepInfra sizing assumption of **about $0.001 per successful reading**, model-only economics pass: $39.99 × 70% = $27.993 net/year; 10/day × 365 × $0.001 = $3.65/year at maximum daily use, leaving $24.343 before free users, repairs, retrieval, hosting, taxes and other costs. Including the annual trial's seven extra days adds $0.07 at that inference assumption. This is arithmetic from the launch brief, not a measured DeepInfra invoice or a new provider selection.
+
+The existing activation gate requires **measured all-in cost ≤ $0.007/reading AND positive cohort contribution including free users**. Neither measurement is available here. Adding the historical $0.005 paid search and $0.002 hosting allocation to $0.001 inference already gives $0.008/reading before repairs, exceeding that ceiling. Cheap inference alone cannot open the gate. Leave `annualOffered=false`, exclude Yearly from the RevenueCat current offering, and revisit only after the hosted-readings task supplies an actual call budget and free-user cohort assumptions. Weekly/monthly and packs keep the approved launch prices; their production all-in cost gate still applies.

@@ -1,8 +1,84 @@
-# App Store readiness — 2026-09-30
+# App Store readiness — 2026-10-20
 
 **Not submission-ready.** Entertainment disclosure follows the [UI rules](../design/ui-rules.md#palette-and-composition); data-flow disclosure in Settings, optional Apple backup/restore, and opt-in disclosure before hosted AI processing remain implemented. It does not establish predictive accuracy or guarantee approval.
 
-The 2026-10-20 launch plan is about one week of TestFlight with friends and Stanford testers, then App Store submission after the release checks pass. The account holder will enroll personally as an **Individual**; the Apple Developer account is not active yet.
+## First TestFlight upload: Individual membership, then one tester week
+
+The account holder enrolls personally in the **Individual** Apple Developer Program. Do not create Apple, Expo or App Store Connect accounts from this checklist. There is no App Store Connect access until Apple approves membership. Friends and Stanford testers are external testers; plan roughly one week of TestFlight feedback before submitting to the public App Store.
+
+Prepared in this repository: bundle ID `com.janustsen.crystalball`, marketing version `0.1.0`, initial iOS build number `1`, and the native `CrystalBall` scheme. **The launch route is local prebuild → Xcode Release archive → Organizer or Transporter upload.** It uses the same local native toolchain as the iPhone reinstall, with paid-team distribution signing instead of a Personal Team sideload. No Expo account or EAS project ID is required. There is no Expo account; do not create one. No signed archive or upload has been attempted.
+
+### Before the Apple account is approved
+
+- [ ] Install/use the existing Xcode and CocoaPods toolchain. Run `npm ci`, `npm run check`, `npm test` and the project verification drives. Recheck native icon/splash, room asset delivery, permissions, privacy/terms/support URLs and the release checklist below.
+- [ ] Prepare the ignored local release environment (`.env.local`, loaded by Expo's native bundling step): `EXPO_PUBLIC_REVENUECAT_MODE=store`, `EXPO_PUBLIC_REVENUECAT_IOS_KEY`, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_ENGINE_URL` (hosted HTTPS endpoint including its engine route), `EXPO_PUBLIC_AI_PROVIDER_NAME`, `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_INSTALL_URL`. See [billing](billing.md) and [Social v2 delivery](../../SETUP.md#social-v2-delivery). Keep `EXPO_PUBLIC_APPLE_LINK_ENABLED=false` until its separate native release gate is complete. Remove preview-token/tailnet overrides from the release environment; server service-role/provider/RevenueCat secret keys never enter the app. Hosted readings, quotas and spend caps belong to the hosted-readings task; confirm that deployment is ready before archiving.
+- [ ] Confirm `version: "0.1.0"` and `ios.buildNumber: "1"` in `app.json`. For each later upload, increment `ios.buildNumber` and rerun prebuild; local Xcode uploads do not use EAS remote auto-increment.
+- [ ] From the project root, generate/update the local native project and installed pods, then open the workspace:
+
+  ```sh
+  npx expo prebuild --platform ios
+  open ios/CrystalBall.xcworkspace
+  ```
+
+  Use the workspace, not the project alone, so CocoaPods/RevenueCat are linked. Preserve the existing iPhone build tooling; do not use `--clean` or a personal-sideload installer that rewrites the production bundle ID or strips capabilities. Review `ios/.xcode.env.local` for stale development overrides. Verify the generated app **and widget extension** Info plists show version `0.1.0` / build `1`. Expo can write these as literal plist values, so Xcode build-setting overrides alone are not a substitute for updating `app.json` and regenerating. In Product → Scheme → Edit Scheme, confirm **Archive** uses **Release**; keep the normal Release JavaScript bundle step enabled. A Debug/Metro install is not the archive for TestFlight.
+
+### Verified locally before signing
+
+On 2026-10-20, `xcodebuild -list -workspace ios/CrystalBall.xcworkspace -json` found scheme `CrystalBall`. The same workspace's Release build settings resolve `CrystalBall.app`, bundle ID `com.janustsen.crystalball`, version `0.1.0`, build `1` and the installed iPhoneOS SDK. The generated app and widget plists also contain `0.1.0` / `1`. These are configuration checks, not a successful archive, signing, upload or native-purchase test. Paid-team signing remains blocked on Apple approval.
+
+### After Apple approves the Individual membership
+
+1. In App Store Connect, accept Paid Apps terms and finish tax/banking. Register the bundle ID above and create the Crystal Ball app record (iOS, version `0.1.0`); record its numeric Apple app ID. Configure the capabilities used by the app for the approved Individual team.
+2. Create the following US-price products. All three subscriptions belong to the same **Crystal Ball Plus** group. Add descriptions, review information and required localizations. Introductory trials apply only to eligible new subscribers.
+
+   | Product ID | Type | US price / introductory offer | Current offering |
+   |---|---|---|---|
+   | `cb_plus_weekly` | Auto-renewable, 1 week | $4.99; 3-day free trial | Yes |
+   | `cb_plus_monthly` | Auto-renewable, 1 month | $9.99; no trial | Yes |
+   | `cb_plus_yearly` | Auto-renewable, 1 year | $39.99; 7-day free trial | **No: annual cost gate remains closed** |
+   | `cb_pack_5` | Consumable | $1.99; 5 non-expiring questions | Yes |
+   | `cb_pack_20` | Consumable | $5.99; 20 non-expiring questions | Yes |
+
+   Leave `cb_year_ahead` out of this launch; it is a separate mock-only feature.
+3. Configure RevenueCat's iOS app, App Store credentials, entitlement `plus` and current offering per [billing](billing.md). Confirm the engine and webhook can reconcile purchases to the same Supabase user ID. Plus is 10 questions/day, never unlimited; Free is 20 starter questions, then 1/day.
+4. In Xcode → Settings → Accounts, sign in with the approved Individual account. In the workspace, choose scheme **CrystalBall**, then **Any iOS Device (arm64)** / the generic iOS device destination. In Signing & Capabilities, select the paid Developer team and automatic signing for the app and widget extension, retaining their app-group and other configured capabilities. Confirm the app's bundle ID matches the App Store Connect record; a free Personal Team sideload ID/profile cannot be uploaded. Select the `CrystalBall` archive scheme, not `RitualUITests`.
+5. Create the Release archive with Product → Archive. To use the same local toolchain from Terminal instead, replace `PAID_TEAM_ID` with the approved team's ID and run from the project root:
+
+   ```sh
+   mkdir -p /tmp/fm-cb-store-ready/archives
+   xcodebuild \
+     -workspace ios/CrystalBall.xcworkspace \
+     -scheme CrystalBall \
+     -configuration Release \
+     -sdk iphoneos \
+     -destination 'generic/platform=iOS' \
+     -derivedDataPath /tmp/fm-cb-store-ready/xcode-derived-data \
+     -archivePath /tmp/fm-cb-store-ready/archives/CrystalBall-0.1.0-1.xcarchive \
+     DEVELOPMENT_TEAM=PAID_TEAM_ID CODE_SIGN_STYLE=Automatic \
+     MARKETING_VERSION=0.1.0 CURRENT_PROJECT_VERSION=1 \
+     -allowProvisioningUpdates archive
+   open /tmp/fm-cb-store-ready/archives/CrystalBall-0.1.0-1.xcarchive
+   ```
+
+   Do not disable signing for the distributable archive. In Window → Organizer → Archives, confirm `Crystal Ball` version `0.1.0` / build `1` and inspect the archived app and embedded extension's version/bundle IDs. The `/tmp/fm-cb-store-ready/` archive/DerivedData are disposable task output; recreate them if cleanup has removed them.
+6. In Organizer, select that archive → **Distribute App** → **TestFlight & App Store**, then validate/upload with the approved team. On Xcode versions with the older flow, choose **App Store Connect → Upload**. Check the signing/provisioning summary and finish Upload. Do not choose **TestFlight Internal Only**, since this build must reach external testers and later App Store review. For a **Transporter** upload instead, use Organizer's custom **App Store Connect → Export** distribution flow to export a distribution-signed `.ipa` into `/tmp/fm-cb-store-ready/exports/`; sign in to Apple's Transporter app with the approved account, add that `.ipa`, validate and Deliver. Do not hand Transporter the raw `.xcarchive` or a Personal Team/ad hoc `.ipa`. Record the uploaded version/build and delivery result; Apple must finish processing before the build appears in TestFlight. Uploading does not put it on public sale.
+7. In TestFlight, complete export-compliance questions, beta description, contact and review access, then create an external friends/Stanford group. Submit the group's first build for Beta App Review; invite testers after approval. Do not grant friends App Store Connect roles just to bypass external review.
+8. Across roughly one tester week, verify launch/onboarding/skip, the first-reveal Plus offer, real readings, cancellation/pending purchases, eligible trial, renewal/expiration, both packs, reconciliation failure/retry and Restore on a second installation. TestFlight IAP uses Apple's sandbox; it does not collect real payments. Consumables restore from this app's server ledger under the same account, not Apple's consumable history; account restore must be verified before promising cross-install pack recovery.
+9. Fix tester blockers, increment `ios.buildNumber` in `app.json`, rerun prebuild and archive/upload again. Then finish the public listing, screenshots, App Privacy, age rating, purchase review information and release checks below; choose the tested build and submit for App Review. TestFlight approval is not App Store approval.
+
+[Expo local release builds](https://docs.expo.dev/guides/local-app-production/), [Apple archive distribution](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases), [Organizer upload](https://help.apple.com/xcode/mac/current/en.lproj/dev442d7f2ca.html), [Apple upload tools including Transporter](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds).
+
+### Optional later path: EAS
+
+The existing `eas.json` production profile remains available if an Expo account is authorized later. It is not a launch prerequisite. Do not create an Expo account or run EAS initialization for this launch. A future switch would need an account/project link, public build environment, distribution signing and its own build-number coordination; EAS remote auto-increment does not govern the local Xcode route above. Expo push-service registration also has a separate EAS project-ID requirement; the local archive route does not supply that ID or prove remote push delivery. Local notifications remain independent.
+
+## Campaign source handling
+
+Apple campaign attribution lives in **App Store Connect Analytics**, separate from the optional onboarding answer. The app cannot recover a per-install `ct` source from an App Store campaign link. Do not pretend a deep link is deferred attribution or match the anonymous tally to an account.
+
+When Apple exposes Campaigns for this app, generate the first link there to obtain the real provider token. Keep `pt` unchanged; use one `ct` per publishing account (for example `tiktok_janus`, `instagram_janus`, `instagram_stanford_club`). Maintain a launch sheet of account, token, full generated URL and publish date. Link form: `https://apps.apple.com/app/id<APPLE_APP_ID>?pt=<PROVIDER_TOKEN>&ct=<ACCOUNT_TOKEN>&mt=8`. Use the actual app record/token, never the bundle ID or a guessed token. A web install button may use a complete generated campaign URL via `EXPO_PUBLIC_INSTALL_URL`; preserve its query parameters.
+
+Read results in Analytics → Metrics → Campaign. Apple credits eligible first downloads within 24 hours of a click, using the latest campaign link; reporting is delayed and small cohorts may be withheld. Campaign creation itself may wait for initial app analytics. TestFlight invitations are separate. The four onboarding choices (TikTok, Instagram, A friend, Other) are optional, saved only on-device, and reported to the existing anonymous daily tally after the age gate. The legacy tally value `Somewhere else` displays as Other; no schema migration is needed. See [onboarding usage](../../README.md) for how to leave the question unanswered. [Apple campaign-link behavior and reporting](https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links).
 
 ## Review checklist
 
@@ -33,7 +109,7 @@ Draft for a hosted engine + Supabase backup release; reconcile with final SDK ma
 | Purchase history | App functionality (RevenueCat and the Supabase reading ledger) | Yes | No intended tracking |
 | Email/name | No name/email scopes requested by the app; audit identity-provider claims retained by Supabase before deciding whether to declare | Potentially yes | No |
 | Audio data | App does not retain audio; verify OS speech processing and any retained third-party audio | Pending native audit | No intended tracking |
-| Other usage data (optional onboarding answer: where the user heard about Crystal Ball) | Analytics: a daily count per answer (`supabase/migrations/202610140010_heard_from.sql`) | No | No |
+| Other usage data (optional onboarding answer: where the user heard about Crystal Ball) | Optional answer stays on-device; analytics stores only a daily count per answer (`supabase/migrations/202610140010_heard_from.sql`) | No | No |
 | Diagnostics / device identifiers | Review Expo, RevenueCat and production server logs | Pending release audit | No intended tracking |
 
 Free text may contain additional sensitive data. Discourage it and audit actual collection; do not claim “Data Not Collected.” See [forgetting information](../../README.md) for local removal and saved-reading exceptions, and [profile mirroring](../../SETUP.md#reading-profile-and-birth-chart) for backup propagation and its verification limits. Reset is not account deletion. Specify retention, deletion, operator/contact, subprocessors and international transfers in a public policy; the in-app prototype explanation is not a complete legal policy.

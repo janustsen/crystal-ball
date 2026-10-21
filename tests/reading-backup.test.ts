@@ -857,3 +857,39 @@ for(const mode of ['refresh','account-change','save-failure','entitlement-loss']
   assert.match(notice(),mode==='account-change'?/Your account changed/:/Archive write failed/);
  }
 });
+
+for(const outcome of ['purchased','cancelled','pending','failed','sync-failed'])test(`Plans ${outcome} changes the balance only after server confirmation`,async t=>{
+ const h=hooks();t.after(h.unmount);
+ let state:any={onboardingDone:true,ladder:{asked:20,opened:ladder.ladder.map(l=>l.feature)},ageConfirmed:true,sunSign:null,facts:{},history:[],plus:false,reduceMotion:true,credits:0,usage:{day:'2026-10-20',count:0}};
+ let syncs=0,applied=0,finishPurchase!:(value:string)=>void;
+ const app=load('../app/index.tsx',{
+  react:h.react,'react-native':{Platform:{OS:'ios'},AppState:{addEventListener:()=>({remove(){}})},AccessibilityInfo:{isReduceMotionEnabled:async()=>false,addEventListener:()=>({remove(){}})},BackHandler:{addEventListener:()=>({remove(){}})}},
+  'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},'expo-router':{useLocalSearchParams:()=>({}),router:{setParams(){}}},
+  '../src/store':{useStore:()=>({state,ready:true,backupBusy:false,remaining:1,applyBalance:async(balance:any)=>{applied++;state={...state,plus:balance.plus,credits:balance.packs}},update(){}})},
+  '../src/notify':{scheduleRitual:async()=>{},watchRitualTaps:()=>()=>{}},'../src/profile':profile,'../src/retention':retention,'../src/ritual':ritual,
+  '../src/ui':{colors:{},fonts:{},styles:{}},'../src/Home':homeMock(h.react),'../src/AskBall':askBallMock(h.react),'../src/useDelight':{useDelight(){}},
+  '../src/social-policy':{accountSocialProfile:()=>({}),readingIdentity:(value:any)=>value},'../src/social':{syncSocialProfile:async()=>{}},'../src/native':{watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
+  '../src/purchases':{purchaseMode:'store',storeAvailable:true,storeOffers:async()=>[{kind:'weekly',price:'$4.99',trial:true,pkg:{product:{price:4.99}}}],buy:async()=>{if(outcome==='failed')throw new Error('store offline');return new Promise(resolve=>{finishPurchase=resolve})}},
+  '../src/api':{webReadingVisitor:()=>false,syncStoreBalance:async()=>{syncs++;if(outcome==='sync-failed')throw new Error('server offline');return {plus:true,packs:5}}},
+ },[]);
+ const nodes=(node:any):any[]=>!node||typeof node!=='object'?[]:Array.isArray(node)?node.flatMap(nodes):[node,...node.children.flatMap(nodes)];
+ const render=()=>nodes(h.render(app.default));
+ render().find(n=>n.props.testID==='view-plans').props.onPress();render();await tick();render();
+ render().find(n=>n.props.label==='Continue with Plus').props.onPress();await tick();
+ assert.equal(state.plus,false);assert.equal(applied,0);
+ if(outcome!=='failed'){assert.equal(render().find(n=>n.props.label==='Continue with Plus').props.disabled,true);finishPurchase(outcome==='sync-failed'?'purchased':outcome);await tick()}
+ assert.equal(syncs,['purchased','sync-failed'].includes(outcome)?1:0);
+ assert.equal(applied,outcome==='purchased'?1:0);assert.equal(state.plus,outcome==='purchased');
+ assert.equal(render().find(n=>n.props.label==='Continue with Plus').props.disabled,false,'every result releases the purchase UI');
+ if(outcome==='pending')assert.ok(render().some(n=>n.children.includes('Your purchase is waiting for App Store approval. Your balance will update after approval; you can also tap Restore purchases.')));
+});
+
+test('the install action preserves Apple campaign provider and per-account tokens',async()=>{
+ const h=hooks(false),url='https://apps.apple.com/app/id123456789?pt=98765&ct=tiktok_janus&mt=8',opened:string[]=[];
+ const screen=load('../src/SocialScreen.tsx',{
+  react:h.react,'react-native':{},'expo-linking':{openURL:async(value:string)=>{opened.push(value)}},'./ui':{Action:'Action'},
+ },[],{process:{env:{EXPO_PUBLIC_INSTALL_URL:url}}});
+ const action=screen.InstallAction({onNotice:()=>assert.fail('the campaign link should open')});
+ assert.equal(action.props.label,'Install Crystal Ball');action.props.onPress();await tick();
+ assert.deepEqual(opened,[url]);
+});

@@ -43,7 +43,7 @@ At build time, `app.config.js` adds an iOS ATS insecure-HTTP exception for exact
 
 - **Supabase:** create a project using the YC Startup School promo. Enable anonymous sign-ins, apply supabase/migrations, configure Apple provider and manual identity linking. Put project URL and anon key in EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY. Service-role secrets never enter Expo. Follow the authentication, limits, quality gate and deployment handoff in [hosted inference](docs/launch/hosted-model.md) before activating the predict Edge Function; the local Node adapter is deliberately loopback-only.
 - **Apple:** follow [Apple backup setup and release blockers](docs/launch/app-store.md#apple-backup-setup-and-release-blockers) before enabling the native backup control.
-- **RevenueCat and App Store:** follow [billing and App Store build](docs/launch/billing.md) for products, entitlement, webhook, EAS profiles and the exact credential list. Purchases are real in `store` mode; Supabase holds the only entitlements.
+- **RevenueCat and App Store:** follow [billing and App Store build](docs/launch/billing.md) for products, entitlement, webhook, the local Xcode archive route and the exact credential list. EAS is optional later. Purchases are real in `store` mode; Supabase holds the only entitlements.
 - **Hosted model:** follow the [provider decision and configuration](docs/launch/hosted-model.md). Provider secrets stay server-only.
 - **Research:** Google News RSS is prototype-only, not a licensed commercial research service. Replace it with an authorized provider before production. Retrieved headlines are only leads; Why says so.
 
@@ -53,7 +53,7 @@ Remote HTTP origins cannot access browser speech recognition. The Ask flow offer
 
 Forecasts are speculative, never proven future knowledge. Sensitive requests soft-block; classification fail-closed errors consume no reading. English plus a few Spanish/Danish phrase patterns is not multilingual safety coverage. Social privacy and sample-star behavior are defined in the [social boundary](docs/social/model.md). The Apple backup panel is hidden on web and unavailable or unconfigured native builds. It appears only when iOS Apple authentication is available, Supabase is configured, and EXPO_PUBLIC_APPLE_LINK_ENABLED=true; notification platform limits follow [user guidance](README.md). Friend links carry only the question and friend flag, not private answers. Approved anonymous Stars are visible to other app users through Tonight’s Sky. No App Store submission or automatic external posting is included; purchase modes and outstanding account setup follow the [billing guide](docs/launch/billing.md).
 
-The preview's paywall is in labeled `mock` mode; EAS builds use real App Store purchases. See [billing](docs/launch/billing.md).
+The preview's paywall is in labeled `mock` mode; local Xcode Release builds use real App Store purchases (as do the optional EAS store profiles). See [billing](docs/launch/billing.md).
 
 ### Daily omen widget and check-ins
 

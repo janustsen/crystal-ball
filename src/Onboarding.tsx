@@ -8,7 +8,7 @@ import {motion} from './motion';
 import type {Facts} from './types';
 import {aboutYou} from './ball-asks';
 import {Surface} from './Surface';
-import {heardFromSources,type HeardFrom} from './heard-from';
+import {heardFromChoices,heardFromLabel,type HeardFrom} from './heard-from';
 
 const native=Platform.OS!=='web';
 const sparkle='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#E3C78F" d="M12 0c.9 6.6 4.4 10.4 12 12-7.6 1.6-11.1 5.4-12 12-.9-6.6-4.4-10.4-12-12 7.6-1.6 11.1-5.4 12-12z"/></svg>';
@@ -104,9 +104,9 @@ export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}
       </View>)}
      </View>
      <Txt style={[styles.caption,{textAlign:'center',marginTop:12}]}>Sets your Sun sign. 13 and up.</Txt>
-    {blocked?null:<View accessibilityRole="radiogroup" accessibilityLabel="Where did you hear about us? Optional" style={{marginTop:14}}>
-     <Txt style={[styles.caption,{textAlign:'center'}]}>Where did you hear about us? Optional.</Txt>
-     <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{heardFromSources.map(source=><Pressable key={source} testID={`heard-${source.toLowerCase().replace(/\W+/g,'-')}`} accessibilityRole="radio" aria-checked={heard===source} accessibilityState={{checked:heard===source}} onPress={()=>setHeard(heard===source?null:source)} style={{minHeight:44,paddingVertical:10,paddingHorizontal:12,justifyContent:'center'}}><Surface kind="chip" state={heard===source?'selected':undefined}><Txt style={styles.chip}>{source}</Txt></Surface></Pressable>)}</View>
+    {blocked?null:<View accessibilityRole="radiogroup" accessibilityLabel="Where did you hear about Crystal Ball? Optional" style={{marginTop:14}}>
+     <Txt style={[styles.caption,{textAlign:'center'}]}>Where did you hear about Crystal Ball? Optional.</Txt>
+     <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{heardFromChoices.map(source=><Pressable key={source} testID={`heard-${source.toLowerCase().replace(/\W+/g,'-')}`} accessibilityRole="radio" aria-checked={heard===source} accessibilityState={{checked:heard===source}} onPress={()=>setHeard(heard===source?null:source)} style={{minHeight:44,paddingVertical:10,paddingHorizontal:12,justifyContent:'center'}}><Surface kind="chip" state={heard===source?'selected':undefined}><Txt style={styles.chip}>{heardFromLabel(source)}</Txt></Surface></Pressable>)}</View>
     </View>}
      {error?<Txt accessibilityRole="alert" style={[styles.caption,{color:colors.gold,textAlign:'center',marginTop:8}]}>{error}</Txt>:null}
      <Action label="Continue" onPress={next}/>
