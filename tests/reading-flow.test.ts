@@ -179,6 +179,20 @@ test('a wrong-subject forecast for a longer first name gets actionable repair fe
  if(result.kind==='ok')assert.match(result.value.headline,/^therese will/);
 });
 
+test('one repair reports both the wrong person subject and an invented date from the live Ask',async()=>{
+ const feedback:string[]=[];
+ const model=validatedProvider(async(messages,schema)=>{
+  if(!(schema.properties as Record<string,unknown>).prediction)return JSON.stringify({category:'allow'});
+  const repair=messages.length>2?messages.at(-1)!.content:'';
+  if(repair)feedback.push(repair);
+  const fixed=repair.includes('personName')&&repair.includes('2026');
+  return JSON.stringify({basis:'context_1',insight:'You both discussed marriage, showing mutual interest, but no concrete plans or timeline have been set.',prediction:fixed?'Therese will schedule a wedding planning date.':repair?'Therese will schedule a date to finalize the wedding plans by November -2026.':'You will schedule a date to finalize the wedding plans by November 2026.'});
+ });
+ const result=await predict('will therese and I get married?',{context_1:'Has therese and I discussed marriage? Yes, we talked',horizon:'Within 3 months'},false,model,{personName:'therese',viewerBirthday:'1995-06-15',localDate:'2026-10-20'});
+ assert.equal(result.kind,'ok',JSON.stringify({result,feedback}));
+ assert.equal(feedback.length,1);assert.match(feedback[0],/personName/);assert.match(feedback[0],/unsupplied numbers.*2026/);
+});
+
 test('answer options read as the asker’s own replies, not statements about them',async()=>{
  const original=globalThis.fetch;
  let drafts=0;
