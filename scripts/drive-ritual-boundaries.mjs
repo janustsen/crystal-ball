@@ -6,7 +6,7 @@ const browser=await chromium.launchPersistentContext(profile,{executablePath:'/A
 const page=await browser.newPage();page.setDefaultNavigationTimeout(180000);page.setDefaultTimeout(60000);
 const day=(offset=0)=>{const d=new Date();d.setDate(d.getDate()+offset);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const today=day(),results=[];
-const base=()=>({onboardingDone:true,ladder:allOpen,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day:today,count:0},reduceMotion:true,largeText:false,ritual:{days:{},stars:[],opened:[today],notify:{daily:false,time:'08:30',offered:day(-5),reoffered:true},counts:{}}});
+const base=()=>({onboardingDone:true,ladder:allOpen,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day:today,count:0},reduceMotion:true,ritual:{days:{},stars:[],opened:[today],notify:{daily:false,time:'08:30',offered:day(-5),reoffered:true},counts:{}}});
 const seed=async state=>{await page.evaluate(({state,today})=>{localStorage.clear();localStorage.setItem('crystal-ball-v1',JSON.stringify(state));localStorage.setItem('crystal-ball-personal-omen-v1',JSON.stringify({day:today,text:'A small step opens a new possibility.'}))},{state,today});await page.reload();await page.getByTestId('tap-to-ask').waitFor()};
 const you=async()=>{await page.getByTestId('tab-you').click();await page.getByTestId('today-card').waitFor()};
 const saved=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));

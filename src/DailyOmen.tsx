@@ -22,7 +22,7 @@ function WhisperCheck({whisper}:{whisper:Whisper}){
  return <View testID="whisper-check" style={{padding:18}}><Surface kind="card">
   <CardHeader title="Did yesterday’s whisper land?" label="Whisper"/>
   <Txt style={[styles.strong,{marginTop:10}]}>{whisper.text}</Txt>
-  {whisper.outcome?<Txt testID="whisper-check-saved" accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{thanks[whisper.outcome]}</Txt>:<View style={[styles.row,state.largeText?{flexDirection:'column',alignItems:'stretch'}:{}]}>{(Object.keys(outcomes) as (keyof typeof outcomes)[]).map(outcome=><Pressable testID={`whisper-check-${outcome}`} key={outcome} accessibilityRole="button" onPress={()=>{haptic('success');update(s=>({...s,whispers:answerWhisper(s.whispers,whisper.day,outcome)}))}} style={{paddingVertical:10,paddingHorizontal:12,minHeight:44,marginTop:12,alignItems:'center'}}><Surface kind="chip"><Txt style={styles.chip}>{outcomes[outcome]}</Txt></Surface></Pressable>)}</View>}
+  {whisper.outcome?<Txt testID="whisper-check-saved" accessibilityLiveRegion="polite" style={[styles.caption,{marginTop:12}]}>{thanks[whisper.outcome]}</Txt>:<View style={styles.row}>{(Object.keys(outcomes) as (keyof typeof outcomes)[]).map(outcome=><Pressable testID={`whisper-check-${outcome}`} key={outcome} accessibilityRole="button" onPress={()=>{haptic('success');update(s=>({...s,whispers:answerWhisper(s.whispers,whisper.day,outcome)}))}} style={{paddingVertical:10,paddingHorizontal:12,minHeight:44,marginTop:12,alignItems:'center'}}><Surface kind="chip"><Txt style={styles.chip}>{outcomes[outcome]}</Txt></Surface></Pressable>)}</View>}
  </Surface></View>;
 }
 

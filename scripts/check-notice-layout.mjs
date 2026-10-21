@@ -37,10 +37,10 @@ async function toast(page,field,ask,press){
  await press();await action.waitFor();await expect(action).toHaveCount(0,{timeout:8000});
 }
 try{
- for(const height of [390,844])for(const largeText of [false,true]){
+ for(const height of [390,844]){
   const context=await browser.newContext({viewport:{width:390,height},reducedMotion:'reduce'});
   try{
-   await context.addInitScript(({largeText,allOpen})=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText,ladder:allOpen})),{largeText,allOpen});
+   await context.addInitScript(({allOpen})=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,ladder:allOpen})),{allOpen});
    const page=await context.newPage();
    await page.route(`${base}/engine`,route=>route.fulfill({json:{kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'practice',question:'How much do you practice?',options:['15 minutes','Other'],remember:false}]}}}));
    await page.goto(base,{timeout:120000});
@@ -60,7 +60,7 @@ try{
    const undo=page.getByTestId('undo-forget');await undo.scrollIntoViewIfNeeded();await expect(undo).toBeInViewport({ratio:1});await undo.click();
    await dismiss(page,page.getByTestId('edit-current_focus'));
    await expect(page.getByText('Writing my draft',{exact:true})).toHaveCount(1);
-   results.push({height,largeText,status:'passed'});
+   results.push({height,status:'passed'});
   }finally{await context.close()}
  }
  console.log(JSON.stringify(results));

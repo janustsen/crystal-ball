@@ -123,11 +123,10 @@ for(const [width,height] of [[375,667],[440,956]])for(const fixture of followups
  }finally{await context.close()}
 }
 if(!process.env.LAYOUT_FOLLOWUPS_ONLY)
-for(const width of [360,390,430,440])for(const large of [false,true]){
+for(const width of [360,390,430,440]){
  const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true,reducedMotion:'no-preference'});
  try{
- const page=await context.newPage(),tag=large?'-large':'';
- if(large)await context.addInitScript(()=>{if(!localStorage.getItem('crystal-ball-v1'))localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:true}))});
+ const page=await context.newPage();
  const held={};
  await page.route(`${base}/engine`,async route=>{
   const action=route.request().postDataJSON()?.action;
@@ -141,7 +140,7 @@ for(const width of [360,390,430,440])for(const large of [false,true]){
  };
  const tap=id=>page.getByTestId(id).click();
  const text=value=>page.getByText(value,{exact:true});
- const check=(name,marker,delay)=>audit(page,width,name+tag,marker,delay);
+ const check=(name,marker,delay)=>audit(page,width,name,marker,delay);
  const planning=text('Checking the question and finding what matters.');
  const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
@@ -154,17 +153,17 @@ for(const width of [360,390,430,440])for(const large of [false,true]){
  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));localStorage.setItem('crystal-ball-v1',JSON.stringify({...s,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']}}))});
  await page.reload();await page.getByTestId('tap-to-ask').waitFor();
  await check('home',page.getByTestId('hero-orb'));
- await tap('open-sky');await check('sky',page.getByTestId('tonights-sky'));if(width===390)await scrolledContrast(page,'sky'+tag);
+ await tap('open-sky');await check('sky',page.getByTestId('tonights-sky'));if(width===390)await scrolledContrast(page,'sky');
  await tap('header-back');
- await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));if(width===390)await scrolledContrast(page,'history'+tag);
- await tap('tab-you');await check('you',text('What the Ball remembers'));if(width===390)await scrolledContrast(page,'you'+tag);
- await tap('open-settings');await check('settings',text('Ambient sound'));if(width===390)await scrolledContrast(page,'settings'+tag);
+ await tap('tab-history');await check('history',text('Your first glimpse belongs here.'));if(width===390)await scrolledContrast(page,'history');
+ await tap('tab-you');await check('you',text('What the Ball remembers'));if(width===390)await scrolledContrast(page,'you');
+ await tap('open-settings');await check('settings',text('Ambient sound'));if(width===390)await scrolledContrast(page,'settings');
  await tap('view-plans');await check('paywall',text('Crystal Ball Plus'));
  if(width===390){
   const cards=page.getByRole('radio');
   await cards.first().evaluate(element=>element.scrollIntoView({block:'start'}));
   await expect(cards.nth(0)).toBeInViewport({ratio:1});await expect(cards.nth(1)).toBeInViewport({ratio:1});
-  await page.screenshot({path:`${evidence}/paywall${tag}.png`});
+  await page.screenshot({path:`${evidence}/paywall.png`});
  }
  await tap('continue-with-plus-simulate');await tap('dismiss-notice');await tap('close-flow');await tap('tab-home');
  await tap('hero-orb');await check('approach',text('Come closer…'),0);

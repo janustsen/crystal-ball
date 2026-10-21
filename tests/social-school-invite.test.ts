@@ -30,7 +30,7 @@ test('school invitations never reuse filtered circles or another suggestion’s 
    if(!slots[index]||deps.some((value,i)=>value!==slots[index][i])){slots[index]=deps;effects.push(effect)}
   },
  };
- let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false};
+ let state:AccountState={sunSign:null,ageBand:'teen',onboardingDone:true,ageConfirmed:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false};
  const imports:Record<string,any>={
   react,'react-native':{},'expo-linking':{},'./social-links':{webLink:({circle}:any)=>`circle=${circle}`},
   './Surface':{Surface:'Surface'},'./ui':{colors:{},styles:{},Segmented:'Segmented'},'./Enter':{Enter:'Enter'},'./store':{useStore:()=>({state,backupBusy:false})},'./SchoolPicker':{},'./SocialExtras':{},'./SocialPush':{},'./SkyOmen':{},

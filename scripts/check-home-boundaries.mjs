@@ -24,15 +24,15 @@ async function checkViewport(page){
  assert.equal(await page.evaluate(({x,y,width,height})=>Boolean(document.elementFromPoint(x+width/2,y+height/2)?.closest('[data-testid="hero-orb"]')),ball),true,'the resting ball receives taps through Home');
 }
 try{
- for(const viewport of [{width:375,height:667},{width:440,height:956}])for(const largeText of [false,true]){
+ for(const viewport of [{width:375,height:667},{width:440,height:956}]){
   const context=await browser.newContext({viewport,reducedMotion:'reduce'});
   try{
-   await context.addInitScript(largeText=>{
+   await context.addInitScript(()=>{
     const day=offset=>{const d=new Date();d.setDate(d.getDate()+offset);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
     const today=day(0);
-    localStorage.setItem('crystal-ball-v1',JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:['history','about','insight','bond','sky','library']},facts:{},history:[],credits:2,plus:false,usage:{day:today,count:0},reduceMotion:true,largeText,ritual:{days:{},stars:[],opened:[day(-2),day(-1)],notify:{daily:false,time:'08:30',offered:day(-3)},counts:{}}}));
+    localStorage.setItem('crystal-ball-v1',JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:['history','about','insight','bond','sky','library']},facts:{},history:[],credits:2,plus:false,usage:{day:today,count:0},reduceMotion:true,ritual:{days:{},stars:[],opened:[day(-2),day(-1)],notify:{daily:false,time:'08:30',offered:day(-3)},counts:{}}}));
     localStorage.setItem('crystal-ball-personal-omen-v1',JSON.stringify({day:today,text:'A small step opens a new possibility.'}));
-   },largeText);
+   });
    const page=await context.newPage();
    await page.goto(base,{timeout:120000});
    await page.getByTestId('tap-to-ask').waitFor();
@@ -48,7 +48,7 @@ try{
    await page.getByTestId('close-flow').click();
    await page.getByTestId('tab-you').click();await page.getByTestId('open-inner-library').click();
    await expect(page.getByTestId('hero-orb')).toHaveCount(0);
-   results.push({viewport,largeText,status:'passed'});
+   results.push({viewport,status:'passed'});
   }finally{await context.close()}
  }
  console.log(JSON.stringify(results));

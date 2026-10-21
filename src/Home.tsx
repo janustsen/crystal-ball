@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {Animated,Easing,Platform,Pressable,ScrollView,View,type GestureResponderEvent} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {type BallSpin} from './RoomScene';
-import {Action,Txt,EdgeFade,NewDot,colors,fonts,styles} from './ui';
+import {Action,Txt,EdgeFade,NewDot,backIcon,colors,fonts,styles} from './ui';
 import {haptic} from './native';
 import {Surface} from './Surface';
 import {Enter} from './Enter';
@@ -80,7 +80,6 @@ export function PlansPill({count,ready,reduce=false,onPress}:{count:string;ready
 // Where the shared tab header ends, below the safe area.
 export const headerBottom=(top:number)=>Math.max(52,top+6)+44;
 const gear='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
-const backIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 export function RoomHeader({title,count,ready,reduce,onPlans,onSettings,onBack,settings,top}:{title:string;count:string;ready:boolean;reduce?:boolean;onPlans:()=>void;onSettings:()=>void;onBack?:()=>void;settings:boolean;top:number}){
  return <View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,top:headerBottom(top)-44,flexDirection:'row',alignItems:'center',gap:12}}>
   {onBack?<Pressable testID="header-back" accessibilityRole="button" accessibilityLabel="Back" disabled={!ready} onPress={onBack} style={{width:44,height:44,marginLeft:-8,alignItems:'center',justifyContent:'center'}}><View style={{width:32,height:32,alignItems:'center',justifyContent:'center'}}><Surface kind="pill" state={ready?undefined:'disabled'}/><View><SvgXml aria-hidden xml={backIcon} width={18} height={18}/></View></View></Pressable>:null}

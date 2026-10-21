@@ -24,8 +24,7 @@ try{
  await page.getByRole('button',{name:'Privacy and entertainment',exact:true}).click();
  await expect(page.getByText(/Forecasts are speculative entertainment/)).toBeVisible();
  results.push('You hides unavailable Apple backup and shows readable privacy details');
- await page.getByRole('switch',{name:'Large text',exact:true}).click();
- await page.setViewportSize({width:375,height:667});
+  await page.setViewportSize({width:375,height:667});
  await page.getByTestId('tab-you').click();
  await page.getByText('What the Ball remembers',{exact:true}).scrollIntoViewIfNeeded();
  await expect(page.getByText('Keep your glimpses',{exact:true})).toHaveCount(0);
@@ -33,7 +32,7 @@ try{
  await expect(page.getByRole('button',{name:/Apple/})).toHaveCount(0);
  await page.screenshot({path:`${evidenceDir}/launch-you-large.png`});
  await expect(page.getByRole('tab',{name:'You',exact:true})).toBeVisible();
- results.push('Unavailable backup stays absent at 375px and 200% text; navigation remains visible');
+ results.push('Unavailable backup stays absent at 375px; navigation remains visible');
  await tapToAsk(page);
  await page.getByTestId('type-instead').click();
  // The entertainment disclosure lives in Settings' Privacy and entertainment (checked above), not under the Ask ball.

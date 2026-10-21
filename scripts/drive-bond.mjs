@@ -1,6 +1,6 @@
 // Drives a Bond reading end to end on the live engine: You entry, first-name validation, the two-ball reveal with its
 // named bond, percentage and dated shared forecast, stability on a second reading, the two-ball story PNG, History and
-// a 375 px large-text layout. Evidence (screenshots, PNG, engine log) goes to EVIDENCE (default .local/bond-evidence).
+// a 375 px layout. Evidence (screenshots, PNG, engine log) goes to EVIDENCE (default .local/bond-evidence).
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
@@ -40,10 +40,10 @@ try{
  await home();await page.reload();await page.getByTestId('tab-history').click();
  const saved=page.getByRole('button').filter({hasText:'What lies ahead for me and Maya?'});await expect(saved).toHaveCount(2);await shot('history');
  await saved.first().click();await expect(page.getByTestId('bond-name')).toHaveText(first.name);await expect(page.getByTestId('check-in-yes')).toBeVisible();
- await home();await page.getByTestId('open-settings').click();await page.getByLabel('Large text',{exact:true}).click();await page.setViewportSize({width:375,height:667});
+ await home();await page.setViewportSize({width:375,height:667});
  await page.getByTestId('tab-history').click();await saved.first().click();await page.getByTestId('bond-pair').waitFor();
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);expect(overflow).toBeLessThanOrEqual(0);await shot('reveal-375-large');
  expect(errors).toEqual([]);
  log.push({first,second});
- console.log(`PASS: bond entry and name validation, live reveal ${first.name} ${first.percent}, stable on a second reading, two-ball 1080×1920 card, History and 375 px large text.`);
+ console.log(`PASS: bond entry and name validation, live reveal ${first.name} ${first.percent}, stable on a second reading, two-ball 1080×1920 card, History and 375 px layout.`);
 }catch(error){log.push({failure:String(error),pageErrors:errors});await shot('failure');throw error;}finally{await writeFile(`${out}/bond-drive.json`,JSON.stringify(log,null,2));await context.close();}
