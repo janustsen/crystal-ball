@@ -9,7 +9,7 @@ try{
  for(const entry of ['fresh','friend','legacy'])for(const accept of [false,true]){
   const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844}}),page=await context.newPage(),requests=[];
   try{
-   if(entry==='legacy')await page.addInitScript(()=>{if(!localStorage.getItem('crystal-ball-v1'))localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{level:'Intermediate'},history:[],credits:3,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},onboardingDone:true,ageBand:'adult',sunSign:'aries',reduceMotion:true,largeText:false}));});
+   if(entry==='legacy')await page.addInitScript(()=>{if(!localStorage.getItem('crystal-ball-v1'))localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{level:'Intermediate'},history:[],credits:3,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},onboardingDone:true,ageBand:'adult',sunSign:'aries',reduceMotion:true}));});
    await page.route('**/*',async route=>{
     const request=route.request();let body;try{body=request.postDataJSON()}catch{}
     if(request.method()!=='POST'||!['plan','predict'].includes(body?.action))return route.continue();

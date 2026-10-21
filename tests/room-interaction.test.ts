@@ -422,7 +422,7 @@ test('cramped Ask content keeps controls reachable and tracks the ball while scr
   'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
   './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
  });
- const props={width:375,height:407,top:96,bottom:12,value:'Will things improve?',onChangeText(){},refused:0,reduce:false,largeText:true,chip:'person controls',note:'disclosure',controls:'submit',onCamera:(cam:room.Camera)=>cameras.push(cam)};
+ const props={width:375,height:407,top:96,bottom:12,value:'Will things improve?',onChangeText(){},refused:0,reduce:false,chip:'person controls',note:'disclosure',controls:'submit',onCamera:(cam:room.Camera)=>cameras.push(cam)};
  let tree=render('AskBall',props);
  for(const node of nodes(tree)){
   if(node.children.includes('person controls'))node.props.onLayout({nativeEvent:{layout:{height:70}}});
@@ -460,7 +460,7 @@ test('Ask reserves the supplied keyboard and notice space through resize and dis
  for(const height of [667,844,956])for(const keyboard of [0,300])for(const notice of [0,120,200]){
   const bottom=Math.max(12,keyboard)+notice;
   listeners.keyboardWillChangeFrame?.({endCoordinates:{screenY:844-keyboard}});
-  const tree=render('AskBall',{width:390,height,top:96,bottom,value:'Will Alex learn?',onChangeText(){},refused:0,reduce:true,largeText:false,chip:null,note:null,controls:null,onCamera(){}});
+  const tree=render('AskBall',{width:390,height,top:96,bottom,value:'Will Alex learn?',onChangeText(){},refused:0,reduce:true,chip:null,note:null,controls:null,onCamera(){}});
   assert.equal(tree.props.style.top+tree.props.style.height,height-bottom-12);
   assert.ok(tree.props.contentContainerStyle.height>=tree.props.style.height);
  }

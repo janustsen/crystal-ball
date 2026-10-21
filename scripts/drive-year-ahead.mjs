@@ -94,13 +94,11 @@ try{
  await library(plan);
  await plan.getByTestId('year-ahead-seal').waitFor();
  assert.deepEqual((await saved(plan)).yearAhead,{kind:'owned',source:'yearly'});
- // 200% text at 360px: the shelf stays inside the phone shell.
- await plan.evaluate(()=>{const s=JSON.parse(localStorage.getItem('crystal-ball-v1'));localStorage.setItem('crystal-ball-v1',JSON.stringify({...s,largeText:true}))});
- await plan.reload();await plan.getByTestId('hero-orb').waitFor();await library(plan);
+ // At 360px the shelf stays inside the phone shell.
  const overflow=await plan.evaluate(()=>{const shell=document.querySelector('[data-testid="app-shell"]').getBoundingClientRect();return [...document.querySelectorAll('[data-testid="year-ahead"] *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&(r.left<shell.left-1||r.right>shell.right+1)}).length+(document.documentElement.scrollWidth>innerWidth?1:0)});
- assert.equal(overflow,0,'Year ahead overflows the shell at 200% text');
- await plan.screenshot({path:`${out}/yearly-large-text.png`,fullPage:true});
- results.yearly='Yearly not offered; saved Yearly grant; no overflow at 360px and 200% text';
+ assert.equal(overflow,0,'Year ahead overflows the shell at 360px');
+ await plan.screenshot({path:`${out}/yearly-360.png`,fullPage:true});
+ results.yearly='Yearly not offered; saved Yearly grant; no overflow at 360px';
  await yearly.close();
  assert.deepEqual(errors.filter(e=>!/room clip unavailable|favicon/.test(e)),[],'console errors');
  writeFileSync(`${out}/drive-year-ahead.json`,JSON.stringify(results,null,1)+'\n');

@@ -10,7 +10,7 @@ try{
  for(const [name,width,height,scale=1] of phones){
   const context=await browser.newContext({viewport:{width,height},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   try{
-   await context.addInitScript(()=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,largeText:false,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']},onboardingDone:true,ageConfirmed:true})));
+   await context.addInitScript(()=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']},onboardingDone:true,ageConfirmed:true})));
    const page=await context.newPage();
    await page.goto(base,{timeout:120000});
    await page.getByTestId('open-settings').click();
@@ -25,7 +25,7 @@ try{
     },scale);
     const overflow=await toggle.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(['auto','scroll'].includes(getComputedStyle(p).overflowY))return p.scrollHeight-p.clientHeight;return 0});
     assert.ok(overflow<=1,`${name} daily=${daily}: settings scroll by ${overflow}px`);
-    const controls=[toggle,page.getByTestId('ambient-sound'),page.getByRole('switch',{name:'Reduce motion'}),page.getByRole('switch',{name:'Large text'}),page.getByTestId('privacy-and-entertainment'),page.getByTestId('forget-everything'),page.getByTestId('you-footer'),...(daily?['08:30','12:30','18:00'].map(time=>page.getByTestId(`notify-time-${time}`)):[])];
+    const controls=[toggle,page.getByTestId('ambient-sound'),page.getByRole('switch',{name:'Reduce motion'}),page.getByTestId('privacy-and-entertainment'),page.getByTestId('forget-everything'),page.getByTestId('you-footer'),...(daily?['08:30','12:30','18:00'].map(time=>page.getByTestId(`notify-time-${time}`)):[])];
     const bar=await page.getByRole('tablist').boundingBox();
     for(const control of controls){const box=await control.boundingBox();assert.ok(box&&box.y>=0&&box.y+box.height<=bar.y,`${name} daily=${daily}: ${await control.evaluate(el=>el.dataset.testid||el.getAttribute('aria-label'))} sits above the tab bar`)}
     if(daily){

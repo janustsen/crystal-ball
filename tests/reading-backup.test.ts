@@ -43,7 +43,7 @@ function load(path:string,imports:Record<string,any>,warnings:string[],globals:R
 async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={},account:Record<string,unknown>={}){
  const day=new Date().toISOString().slice(0,10),warnings:string[]=[],uploads:string[][]=[];
  // Past the free starter, so the daily reading and packs are what these cases spend.
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,largeText:false,...account});
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',backupOwner:'owner',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:true,...account});
  const card={id:'receipt',asker_id:'owner',circle_id:'circle',charged_at:null,question:'Will we learn?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let fail!:(error:Error)=>void,blocking=true;
  const remote=new Promise<void>((_resolve,reject)=>{fail=reject});
@@ -172,7 +172,7 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
  const h=hooks(),warnings:string[]=[],day=new Date().toISOString().slice(0,10);
  const oldBalance={owner:'anonymous',asOf:stamp(10),plus:false,plusUntil:null,packs:0,used:1,day};
  const paidBalance={owner:'paid',asOf:stamp(1),plus:true,plusUntil:'2099-01-01',packs:5,used:0,day};
- let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
+ let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false});
  let owner='anonymous',finishHydration!:(b:typeof oldBalance)=>void;
  const pending=new Promise<typeof oldBalance>(resolve=>{finishHydration=resolve});
  const store=load('../src/store.tsx',{
@@ -202,8 +202,6 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
  assert.equal(render().state.chartWeather,undefined);
  current.update((s:any)=>({...s,chartWeather:{month,text:'Paid weather'}}));
  assert.equal(render().state.chartWeather.text,'Paid weather');
- current.update((s:any)=>({...s,largeText:true}));
- assert.equal(render().state.largeText,true);
  await earlier.applyBalance(oldBalance);
  await assert.rejects(earlier.savePrediction({id:'old-reading'},{},oldBalance),/account changed/);
  current=render();assert.equal(current.state.plus,true);assert.equal(current.remaining,15);
@@ -237,7 +235,7 @@ for(const purchaseMode of ['store','mock'])test(`Plus labels match ${purchaseMod
 for(const fails of [false,true])test(`initial balance settles before purchases are admitted (failure=${fails})`,async()=>{
  const h=hooks(),warnings:string[]=[],day=new Date().toISOString().slice(0,10);
  const exhausted={owner:'owner',asOf:stamp(1),plus:false,plusUntil:null,packs:0,used:1,day};
- let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
+ let disk=JSON.stringify({sunSign:null,ageBand:'adult',ageConfirmed:true,facts:{},history:[],credits:0,plus:false,usage:{day,count:1},reduceMotion:false});
  let finish!:(b:typeof exhausted)=>void,fail!:(error:Error)=>void;
  const pending=new Promise<typeof exhausted>((resolve,reject)=>{finish=resolve;fail=reject});
  const store=load('../src/store.tsx',{

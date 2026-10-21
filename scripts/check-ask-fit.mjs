@@ -5,17 +5,16 @@ const base=process.env.PREVIEW_URL||'http://localhost:8087',evidence=process.env
 await mkdir(evidence,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true}),failures=[];
 try{
- for(const [width,height,keyboard,large] of [[375,667,260,false],[390,844,336,false],[440,956,346,false],[375,667,260,true],[440,956,346,true]]){
+ for(const [width,height,keyboard] of [[375,667,260],[390,844,336],[440,956,346]]){
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:2,isMobile:true,hasTouch:true});
   try{
-   if(large)await context.addInitScript(()=>{if(!localStorage.getItem('crystal-ball-v1'))localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:true}))});
    await context.addInitScript(keyboard=>{
     const view=new EventTarget();let open=false;
     Object.defineProperties(view,{height:{get:()=>innerHeight-(open?keyboard:0)},offsetTop:{get:()=>0},width:{get:()=>innerWidth}});
     Object.defineProperty(window,'visualViewport',{get:()=>view});
     window.__keyboard=value=>{open=value;view.dispatchEvent(new Event('resize'))};
    },keyboard);
-   const page=await context.newPage(),name=`${width}x${height}${large?'-large':''}`;
+   const page=await context.newPage(),name=`${width}x${height}`;
    await page.goto(base,{timeout:120000});
    // An adult profile shows the widest chip row: Ask about someone plus Love timing's When will it happen?
    await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill('1992');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();

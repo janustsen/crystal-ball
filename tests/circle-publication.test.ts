@@ -15,7 +15,7 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
 // The server charges publication; the Store only serializes it and keeps the asker's copy.
 for(const lost of [false,true])test(`Store serializes publication with ${lost?'lost':'successful'} response`,async()=>{
  const day=new Date().toISOString().slice(0,10);
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false});
  const card={id:'receipt',asker_id:'asker',circle_id:'circle',charged_at:null,question:'Will we learn together?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let respond!:(value:typeof card)=>void,reject!:(error:Error)=>void,started=false;
  const response=new Promise<typeof card>((resolve,fail)=>{respond=resolve;reject=fail});
@@ -50,7 +50,7 @@ for(const lost of [false,true])test(`Store serializes publication with ${lost?'l
 
 for(const replacement of ['none','forget','restore'])test(`private saves survive Circle publication before ${replacement}`,async()=>{
  const day=new Date().toISOString().slice(0,10);
- let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false,largeText:false});
+ let disk=JSON.stringify({onboardingDone:true,ageConfirmed:true,ageBand:'adult',ladder:{asked:20,opened:[]},sunSign:null,facts:{},history:[],credits:2,plus:false,usage:{day,count:1},reduceMotion:false});
  const card={id:'receipt',asker_id:'asker',circle_id:'circle',charged_at:null,question:'Will we learn together?',headline:'A shared skill awaits.',due_date:'2099-01-01',created_at:new Date().toISOString()};
  let respond!:(value:typeof card)=>void,reject!:(error:Error)=>void,started=false;
  const response=new Promise<typeof card>((resolve,fail)=>{respond=resolve;reject=fail});

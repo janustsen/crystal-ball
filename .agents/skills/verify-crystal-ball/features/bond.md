@@ -7,7 +7,7 @@ A reading about you and one person by first name: a named bond (src/bond.ts, sta
 Home → Bond reading, or Ask → Bond reading chip; the first name is written into the ball, then Read our bond. Circle friend: Sky → Circles → an opted-in friend → first name → Read our bond.
 
 ## Driving it
-`VERIFY_URL=http://localhost:<web-port> EVIDENCE=<owned dir> node scripts/drive-bond.mjs` against the live Ollama engine: entry, first-name validation, thinking copy, reveal (bond name, percentage, `You and <name> will … within N months.`, due date), Why, two-ball 1080×1920 PNG, a second reading of the same name giving the same bond and percentage, History persistence and 375 px large text with no horizontal overflow. `tests/bond.test.ts` covers the model, the feelings tripwire's repair-then-fail-closed, the engine's first-name gate and the Circle-friend path with fake Supabase.
+`VERIFY_URL=http://localhost:<web-port> EVIDENCE=<owned dir> node scripts/drive-bond.mjs` against the live Ollama engine: entry, first-name validation, thinking copy, reveal (bond name, percentage, `You and <name> will … within N months.`, due date), Why, two-ball 1080×1920 PNG, a second reading of the same name giving the same bond and percentage, History persistence and 375 px with no horizontal overflow. `tests/bond.test.ts` covers the model, the feelings tripwire's repair-then-fail-closed, the engine's first-name gate and the Circle-friend path with fake Supabase.
 
 ## Gotchas
 A bond costs one reading. Web-trial visitors get the install message instead. The Circle-friend path needs the social stack (see SKILL.md's isolated social verification); its unit test fakes Supabase. The percentage is entertainment and never an accuracy or feelings score.
