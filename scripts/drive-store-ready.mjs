@@ -22,7 +22,7 @@ async function open(){
 async function finish(page){await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await page.getByTestId('tap-to-ask').waitFor()}
 try{
  const {page,context,reported}=await open();activePage=page;
- const question=page.getByRole('radiogroup',{name:'Where did you hear about Crystal Ball? Optional'});
+ const question=page.getByRole('radiogroup',{name:'Where did you hear about us? (Optional)'});
  await expect(question.getByRole('radio')).toHaveCount(4);
  for(const name of ['TikTok','Instagram','A friend','Other']){
   const option=question.getByRole('radio',{name,exact:true});await option.click();await expect(option).toHaveAttribute('aria-checked','true');await option.click();await expect(option).toHaveAttribute('aria-checked','false');

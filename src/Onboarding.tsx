@@ -1,8 +1,8 @@
 import {useEffect,useRef,useState} from 'react';
-import {Animated,Easing,Keyboard,Platform,Pressable,TextInput,View} from 'react-native';
+import {Animated,Easing,InputAccessoryView,Keyboard,Platform,Pressable,TextInput,View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {SvgXml} from 'react-native-svg';
-import {Action,Txt,styles,colors,fonts,Field} from './ui';
+import {Action,Txt,styles,colors,fonts,Field,backIcon} from './ui';
 import {ageGroup,joinBirthday,typeBirthday,type BirthdayParts} from './profile';
 import {motion} from './motion';
 import type {Facts} from './types';
@@ -15,6 +15,8 @@ const sparkle='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path
 // Sparkles around the intro line: position (percent of the line's box), size and when each first glints.
 const sparkles=[{x:-4,y:-30,size:18,delay:500},{x:88,y:-46,size:12,delay:850},{x:102,y:28,size:20,delay:1150},{x:8,y:96,size:11,delay:1400},{x:62,y:118,size:15,delay:700},{x:40,y:-62,size:9,delay:1650}];
 const introHold=2600;
+// iOS number pads have no return key, so the fields share a Next/Done bar docked above the keyboard (or above the home indicator with a hardware keyboard).
+const keysBar='birthday-keys';
 const fields=[{label:'Month',placeholder:'MM',autoComplete:'birthdate-month',width:72},{label:'Day',placeholder:'DD',autoComplete:'birthdate-day',width:72},{label:'Year',placeholder:'YYYY',autoComplete:'birthdate-year',width:104}] as const;
 
 function Sparkle({x,y,size,delay,reduce}:{x:number;y:number;size:number;delay:number;reduce:boolean}){
@@ -32,6 +34,7 @@ function Sparkle({x,y,size,delay,reduce}:{x:number;y:number;size:number;delay:nu
 export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}:{onFinish:(facts:Facts,ageConfirmed:boolean|undefined,answers:Record<string,string>)=>void;onBlock:()=>void;onHeard?:(source:HeardFrom)=>void;blocked?:boolean;reduce?:boolean}){
  const [heard,setHeard]=useState<HeardFrom|null>(null);
  const [sheet,setSheet]=useState(reduce||blocked),[parts,setParts]=useState<BirthdayParts>(['','','']),[error,setError]=useState(''),[confirming,setConfirming]=useState(false),[sheetHeight,setSheetHeight]=useState(0);
+ const [focused,setFocused]=useState(0);
  const [about,setAbout]=useState<{facts:Facts;ageConfirmed?:boolean}|null>(null),[answers,setAnswers]=useState<Record<string,string>>({});
  const line=useRef(new Animated.Value(reduce?1:0)).current,rise=useRef(new Animated.Value(sheet?1:0)).current;
  const sheetRef=useRef<View>(null);
@@ -58,6 +61,7 @@ export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}
   const next=typeBirthday(parts,index,text);setParts(next.parts);setError('');
   if(next.focus!==index)inputs.current[next.focus]?.focus();
  }
+ function advance(index:number){if(index===2)next();else inputs.current[index+1]?.focus()}
  function finish(facts:Facts,ageConfirmed?:boolean){Keyboard.dismiss();setConfirming(false);setAbout({facts,ageConfirmed})}
  function pick(id:string,option:string){setAnswers(({[id]:current,...rest})=>current===option?rest:{...rest,[id]:option})}
  function next(){
@@ -86,26 +90,27 @@ export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}
   <Animated.View ref={sheetRef} pointerEvents={sheet?'auto':'none'} aria-hidden={!sheet} importantForAccessibility={sheet?'auto':'no-hide-descendants'} onLayout={e=>setSheetHeight(e.nativeEvent.layout.height)} style={{opacity:rise.interpolate({inputRange:[0,.3,1],outputRange:[0,1,1]}),transform:[{translateY:rise.interpolate({inputRange:[0,1],outputRange:[360,0]})}]}}>
    <View style={{padding:22,paddingBottom:12}}><Surface kind="card">
     {about?<>
-     <Txt style={[styles.label,{color:colors.gold,textAlign:'center'}]}>About you · optional</Txt>
-     <Txt display accessibilityRole="header" style={[styles.hero,{textAlign:'center',marginTop:8}]}>A little about you</Txt>
-     <Txt style={[styles.caption,{textAlign:'center',marginTop:6}]}>One tap each, skip any. A few answers make forecasts more personal.</Txt>
-     {aboutYou.map(ask=><View key={ask.id} accessibilityRole="radiogroup" accessibilityLabel={ask.question} style={{marginTop:16}}>
+     {aboutYou.map((ask,i)=><View key={ask.id} accessibilityRole="radiogroup" accessibilityLabel={ask.question} style={{marginTop:i?16:0,alignItems:'center'}}>
       <Txt style={{textAlign:'center'}}>{ask.question}</Txt>
-      <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{ask.options.map((option,i)=>{const on=answers[ask.id]===option;return <Pressable key={option} testID={`about-${ask.id}-${i}`} accessibilityRole="radio" aria-checked={on} accessibilityState={{checked:on}} onPress={()=>pick(ask.id,option)} style={{minHeight:44,paddingHorizontal:14,paddingVertical:10}}><Surface kind="chip" state={on?'selected':undefined}><Txt style={styles.chip}>{option}</Txt></Surface></Pressable>})}</View>
+      <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',alignSelf:'stretch',gap:6,marginTop:6}}>{ask.options.map((option,i)=>{const on=answers[ask.id]===option;return <Pressable key={option} testID={`about-${ask.id}-${i}`} accessibilityRole="radio" aria-checked={on} accessibilityState={{checked:on}} onPress={()=>pick(ask.id,option)} style={{minHeight:44,paddingHorizontal:14,paddingVertical:10,justifyContent:'center'}}><Surface kind="chip" state={on?'selected':undefined}><Txt style={styles.chip}>{option}</Txt></Surface></Pressable>})}</View>
      </View>)}
-     <Action testID="about-done" label={Object.keys(answers).length?'Continue':'Skip for now'} quiet={!Object.keys(answers).length} onPress={()=>{if(heard)onHeard?.(heard);onFinish(about.facts,about.ageConfirmed,answers)}}/>
+     {/* Back keeps the birthday, source and answers already given. */}
+     <View style={{flexDirection:'row',gap:10}}>
+      <Pressable testID="about-back" accessibilityRole="button" accessibilityLabel="Back" onPress={()=>setAbout(null)} style={{width:52,marginTop:14,alignItems:'center',justifyContent:'center'}}><Surface kind="row"/><SvgXml aria-hidden xml={backIcon} width={18} height={18}/></Pressable>
+      <View style={{flex:1}}><Action testID="about-done" label={Object.keys(answers).length?'Continue':'Skip for now'} quiet={!Object.keys(answers).length} onPress={()=>{if(heard)onHeard?.(heard);onFinish(about.facts,about.ageConfirmed,answers)}}/></View>
+     </View>
     </>:<>
      {blocked?<Txt accessibilityRole="alert" style={{marginBottom:8}}>Crystal Ball is for ages 13 and up.</Txt>:null}
      <Txt display style={[styles.hero,{textAlign:'center'}]}>What’s your birthday?</Txt>
      <View accessibilityRole="none" style={{flexDirection:'row',justifyContent:'center',gap:10,marginTop:20}}>
       {fields.map((f,i)=><View key={f.label} style={{width:f.width}}>
        <Txt style={[styles.label,{textAlign:'center',marginBottom:6}]}>{f.label}</Txt>
-       <Field ref={el=>{inputs.current[i]=el}} testID={`birthday-${f.label.toLowerCase()}`} accessibilityLabel={`Birthday ${f.label.toLowerCase()}`} autoComplete={f.autoComplete} keyboardType="number-pad" returnKeyType={i===2?'done':'next'} placeholder={f.placeholder} value={parts[i]} onChangeText={text=>type(i,text)} onKeyPress={e=>{if(e.nativeEvent.key==='Backspace'&&!parts[i]&&i>0)inputs.current[i-1]?.focus()}} onSubmitEditing={i===2?next:()=>inputs.current[i+1]?.focus()} style={[styles.input,{textAlign:'center',paddingHorizontal:8}]}/>
+       <Field ref={el=>{inputs.current[i]=el}} testID={`birthday-${f.label.toLowerCase()}`} accessibilityLabel={`Birthday ${f.label.toLowerCase()}`} autoComplete={f.autoComplete} keyboardType="number-pad" returnKeyType={i===2?'done':'next'} inputAccessoryViewID={keysBar} onFocus={()=>setFocused(i)} placeholder={f.placeholder} value={parts[i]} onChangeText={text=>type(i,text)} onKeyPress={e=>{if(e.nativeEvent.key==='Backspace'&&!parts[i]&&i>0)inputs.current[i-1]?.focus()}} onSubmitEditing={()=>advance(i)} style={[styles.input,{textAlign:'center',paddingHorizontal:8,fontVariant:['lining-nums']}]}/>
       </View>)}
      </View>
-     <Txt style={[styles.caption,{textAlign:'center',marginTop:12}]}>Sets your Sun sign. 13 and up.</Txt>
-    {blocked?null:<View accessibilityRole="radiogroup" accessibilityLabel="Where did you hear about Crystal Ball? Optional" style={{marginTop:14}}>
-     <Txt style={[styles.caption,{textAlign:'center'}]}>Where did you hear about Crystal Ball? Optional.</Txt>
+     <Txt style={[styles.caption,{textAlign:'center',marginTop:12}]}>Sets your zodiac sign.</Txt>
+    {blocked?null:<View accessibilityRole="radiogroup" accessibilityLabel="Where did you hear about us? (Optional)" style={{marginTop:14}}>
+     <Txt style={[styles.caption,{textAlign:'center'}]}>Where did you hear about us? (Optional)</Txt>
      <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:6,marginTop:6}}>{heardFromChoices.map(source=><Pressable key={source} testID={`heard-${source.toLowerCase().replace(/\W+/g,'-')}`} accessibilityRole="radio" aria-checked={heard===source} accessibilityState={{checked:heard===source}} onPress={()=>setHeard(heard===source?null:source)} style={{minHeight:44,paddingVertical:10,paddingHorizontal:12,justifyContent:'center'}}><Surface kind="chip" state={heard===source?'selected':undefined}><Txt style={styles.chip}>{heardFromLabel(source)}</Txt></Surface></Pressable>)}</View>
     </View>}
      {error?<Txt accessibilityRole="alert" style={[styles.caption,{color:colors.gold,textAlign:'center',marginTop:8}]}>{error}</Txt>:null}
@@ -114,5 +119,6 @@ export function Onboarding({onFinish,onBlock,onHeard,blocked=false,reduce=false}
     </>}
    </Surface></View>
   </Animated.View>
+  {Platform.OS==='ios'&&!about?<InputAccessoryView nativeID={keysBar}><View style={{alignItems:'flex-end',paddingHorizontal:16,paddingVertical:8}}><Pressable testID="birthday-key" accessibilityRole="button" onPress={()=>advance(focused)} style={{minHeight:44,paddingHorizontal:18,justifyContent:'center'}}><Surface kind="chip"/><Txt style={styles.chip}>{focused===2?'Done':'Next'}</Txt></Pressable></View></InputAccessoryView>:null}
  </View>;
 }
