@@ -39,11 +39,15 @@ test('source is reported only on eligible completion; Other preserves the existi
  assert.equal(heard.isHeardFrom('untrusted'),false);
 });
 
-test('About you Back returns to the birthday step with the birthday kept',()=>{
- const f=fixture(),ids=['birthday-month','birthday-day','birthday-year'],field=(id:string)=>f.render().find(n=>n.props.testID===id);
- ids.forEach((id,i)=>field(id).props.onChangeText(['03','14','1990'][i]));
- f.render().find(n=>n.props.label==='Continue').props.onPress();
- assert.ok(field('about-done'));
- f.press('about-back');
- assert.deepEqual(ids.map(id=>field(id).props.value),['03','14','1990']);
+test('About you Back returns to the birthday step with the birthday, source and answers kept',()=>{
+ const f=fixture(),ids=['birthday-month','birthday-day','birthday-year'],node=(id:string)=>f.render().find(n=>n.props.testID===id),proceed=()=>f.render().find(n=>n.props.label==='Continue').props.onPress();
+ ids.forEach((id,i)=>node(id).props.onChangeText(['03','14','1990'][i]));
+ f.press('heard-tiktok');proceed();
+ const chip=f.render().find(n=>n.props.accessibilityRole==='radio'&&n.props.testID?.startsWith('about-')).props.testID;
+ f.press(chip);f.press('about-back');
+ assert.deepEqual(ids.map(id=>node(id).props.value),['03','14','1990']);
+ assert.equal(node('heard-tiktok').props['aria-checked'],true);
+ proceed();assert.equal(node(chip).props['aria-checked'],true);
+ f.press('about-done');assert.deepEqual(f.sent,['TikTok']);
+ assert.equal(Object.keys(f.finished[0][2]).length,1);assert.equal(f.finished[0][0].birthday,'1990-03-14');
 });
