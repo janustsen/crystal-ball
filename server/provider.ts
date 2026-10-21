@@ -4,6 +4,11 @@ export type Validator = (value: unknown) => Validation | Promise<Validation>;
 // `signal` cancels the call, including its repair attempt, once its caller has given up.
 export interface ModelProvider { json<T>(system: string, input: unknown, schema: JsonSchema, valid: Validator, signal?: AbortSignal): Promise<T> }
 
+export interface HostedAccounting {
+ reserve(body:string):Promise<string>;
+ settle(reservation:string,usage:unknown):Promise<void>;
+}
+
 export type ModelMessage = {role: string; content: string};
 export function validatedProvider(complete:(messages:ModelMessage[],schema:JsonSchema,signal?:AbortSignal)=>Promise<string>):ModelProvider {
  return {async json<T>(system:string,input:unknown,schema:JsonSchema,valid:Validator,signal?:AbortSignal){
@@ -20,7 +25,7 @@ export function validatedProvider(complete:(messages:ModelMessage[],schema:JsonS
 }
 
 // The shared/deployed factory deliberately cannot launch a local CLI.
-export function provider(env:(key:string)=>string|undefined,maxTokens?:number,timeoutMs=45000):ModelProvider {
+export function provider(env:(key:string)=>string|undefined,maxTokens?:number,timeoutMs=45000,accounting?:HostedAccounting):ModelProvider {
  const mode=env('MODEL_PROVIDER')||'ollama';
  if(!['ollama','hosted'].includes(mode))throw new Error('Unknown model provider.');
  const hosted=mode==='hosted';
@@ -37,9 +42,13 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number,ti
       model, messages, temperature: 0, max_tokens: maxTokens ?? 1200, stream: false,
       response_format: {type: 'json_schema', json_schema: {name: 'result', strict: true, schema}},
     } : {model: env('OLLAMA_MODEL') || 'qwen3:4b-instruct-2507-q4_K_M', messages, stream: false, think: false, format: schema, options: {temperature: 0, num_predict: maxTokens ?? 600}};
-    const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: JSON.stringify(body), signal: signal ? AbortSignal.any([AbortSignal.timeout(timeoutMs), signal]) : AbortSignal.timeout(timeoutMs)});
+    const serialized=JSON.stringify(body);
+    const reservation=hosted&&accounting?await accounting.reserve(serialized):undefined;
+    signal?.throwIfAborted();
+    const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: serialized, signal: signal ? AbortSignal.any([AbortSignal.timeout(timeoutMs), signal]) : AbortSignal.timeout(timeoutMs)});
     if (!response.ok) throw new Error(`Model unavailable (${response.status}).`);
     const raw = await response.json();
+    if(reservation&&accounting)await accounting.settle(reservation,raw.usage);
     return hosted ? raw.choices?.[0]?.message?.content : raw.message?.content;
 
  });

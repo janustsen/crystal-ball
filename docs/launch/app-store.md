@@ -2,6 +2,8 @@
 
 **Not submission-ready.** Entertainment disclosure follows the [UI rules](../design/ui-rules.md#palette-and-composition); data-flow disclosure in Settings, optional Apple backup/restore, and opt-in disclosure before hosted AI processing remain implemented. It does not establish predictive accuracy or guarantee approval.
 
+The 2026-10-20 launch plan is about one week of TestFlight with friends and Stanford testers, then App Store submission after the release checks pass. The account holder will enroll personally as an **Individual**; the Apple Developer account is not active yet.
+
 ## Review checklist
 
 | Area | Current evidence / remaining action |
@@ -49,6 +51,12 @@ Before release, verify the integrated [social safeguards](../social/model.md) an
 Social-worker requirements: every published Star is an AI-filtered anonymous rewrite approved by its author; never publish the raw question. Users can report content and block people; repeated reports auto-hide. Verify failures stay unpublished, blocked users cannot bypass controls, and the operator has a timely review/contact process. AI filtering plus controls must be demonstrated, not described as automatic compliance. No public chat is proposed, but Stars are UGC and must be declared/reviewed accordingly. [Apple UGC requirements](https://developer.apple.com/app-store/review/guidelines/#user-generated-content).
 
 Answer the rating questionnaire for the actual astrology, generated person readings, UGC, mature themes, fear/horror, health references and news links. No wagering or prizes; Golden forecasts are cosmetic and must never imply greater accuracy. No Kids Category launch is proposed.
+
+## DeepInfra processing disclosure
+
+Privacy-policy wording for the selected hosted reading service: With your permission, Crystal Ball sends your question, relevant answers and saved reading headlines to DeepInfra, Inc. to generate readings, insights and sharing safety checks using Qwen/Qwen3.5-9B. Friend readings also use the friend's sun sign and shared themes. DeepInfra states that these inference inputs and outputs exist in memory during processing, are deleted afterward, and are not used for training. It retains request metadata such as request ID, cost and sampling parameters; its documentation does not specify a metadata retention duration. See [DeepInfra data privacy](https://docs.deepinfra.com/account/data-privacy) and [privacy policy](https://deepinfra.com/privacy), checked 2026-10-20. Avoid sensitive details. Revoking AI permission in Settings stops new AI requests; it does not delete previously saved readings. Local development continues to use its configured local provider.
+
+The budget ledger stores amounts and random reservation IDs; per-user quota rows contain the Supabase user ID, UTC date, action category and attempt count. They do not store prompts or generated text. Existing reading/social storage has its own retention and deletion behavior. Publish this wording at the final privacy URL and reconcile App Privacy Details before release; a document in this repository is not a published policy.
 
 ## School-location privacy follow-up
 

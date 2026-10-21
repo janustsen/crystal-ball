@@ -417,3 +417,8 @@ enabled = true
 # RevenueCat sends its dashboard-configured Authorization value, not a Supabase JWT.
 [functions.revenuecat]
 verify_jwt = false
+
+# predict checks every inference caller through Auth /user in publicHandler, including anonymous users.
+# This permits modern signing keys and the identity-free aggregate attribution counter.
+[functions.predict]
+verify_jwt = false
