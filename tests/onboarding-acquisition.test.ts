@@ -25,7 +25,7 @@ function fixture(){
 
 test('launch onboarding has four optional, deselectable sources and skips without reporting',()=>{
  const f=fixture();assert.deepEqual(f.render().filter(n=>n.props.accessibilityRole==='radio').map(n=>n.children[0].children[0].children[0]),['TikTok','Instagram','A friend','Other']);
- assert.ok(f.render().some(n=>n.children.includes('Where did you hear about Crystal Ball? Optional.')));
+ assert.ok(f.render().some(n=>n.children.includes('Where did you hear about us? (Optional)')));
  f.press('heard-tiktok');assert.equal(f.render().find(n=>n.props.testID==='heard-tiktok').props['aria-checked'],true);
  f.press('heard-tiktok');f.finish();assert.deepEqual(f.sent,[]);assert.equal(f.finished.length,1);
  const skipped=fixture();skipped.finish();assert.deepEqual(skipped.sent,[]);assert.equal(skipped.finished.length,1);
@@ -37,4 +37,13 @@ test('source is reported only on eligible completion; Other preserves the existi
  }
  assert.equal(heard.isHeardFrom('App Store'),true,'old clients remain accepted');
  assert.equal(heard.isHeardFrom('untrusted'),false);
+});
+
+test('About you Back returns to the birthday step with the birthday kept',()=>{
+ const f=fixture(),ids=['birthday-month','birthday-day','birthday-year'],field=(id:string)=>f.render().find(n=>n.props.testID===id);
+ ids.forEach((id,i)=>field(id).props.onChangeText(['03','14','1990'][i]));
+ f.render().find(n=>n.props.label==='Continue').props.onPress();
+ assert.ok(field('about-done'));
+ f.press('about-back');
+ assert.deepEqual(ids.map(id=>field(id).props.value),['03','14','1990']);
 });

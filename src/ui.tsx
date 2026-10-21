@@ -37,6 +37,7 @@ export function Action({onBlocked,...props}:ActionProps&{onBlocked?:()=>void}){
 }
 type ActionProps={label:string;onPress:()=>void;quiet?:boolean;disabled?:boolean;testID?:string};
 function ActionButton({label,onPress,quiet=false,disabled=false,testID}:ActionProps){return <Pressable testID={testID||label.toLowerCase().replace(/[^a-z0-9]+/g,"-")} accessibilityRole="button" accessibilityLabel={label} aria-disabled={disabled} disabled={disabled} onPress={onPress} style={[styles.action,quiet&&styles.quiet]}>{({pressed})=><Surface kind={quiet?'row':'primary'} state={disabled?'disabled':pressed?'pressed':undefined}><Txt style={[styles.strong,{lineHeight:24,color:quiet?colors.ivory:colors.onGold,textAlign:'center',opacity:disabled?.6:1}]}>{label}</Txt></Surface>}</Pressable>}
+export const backIcon='<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EBDD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 const chevron='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E3C78F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 // The small gold dot on something newly opened, until it is tapped once.
 export function NewDot(){return <View testID="new-dot" aria-hidden style={{width:8,height:8,borderRadius:4,backgroundColor:colors.gold}}/>}
