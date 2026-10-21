@@ -2,6 +2,8 @@
 
 **Not submission-ready.** Entertainment disclosure follows the [UI rules](../design/ui-rules.md#palette-and-composition); data-flow disclosure in Settings, optional Apple backup/restore, and opt-in disclosure before hosted AI processing remain implemented. It does not establish predictive accuracy or guarantee approval.
 
+The 2026-10-20 launch plan is about one week of TestFlight with friends and Stanford testers, then App Store submission after the release checks pass. The account holder will enroll personally as an **Individual**; the Apple Developer account is not active yet.
+
 ## Review checklist
 
 | Area | Current evidence / remaining action |
