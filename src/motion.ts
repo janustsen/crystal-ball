@@ -1,6 +1,7 @@
 // One motion vocabulary for web compositor animations and native-driver animations.
 // ease: smoke and glass settling. spring: brass and card arrivals that overshoot once, like a cartoon object landing.
-export const motion={ease:[.2,.75,.2,1] as const,spring:[.34,1.56,.64,1] as const,press:180,tap:420,pick:360,glow:7300};
+// glide: the camera's push into the room, easing in and out like the room's own flights.
+export const motion={ease:[.2,.75,.2,1] as const,spring:[.34,1.56,.64,1] as const,glide:[.4,0,.2,1] as const,press:180,tap:420,pick:360,glow:7300,push:1000};
 // Each kind is a named transition in docs/design/motion-language.md; web keyframes live in motionCss.
 export const entrances={
  // Screens slide in from the side of the destination: `direction` -1 enters from the left, 1 from the right.

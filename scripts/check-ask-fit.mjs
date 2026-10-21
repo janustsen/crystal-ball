@@ -17,7 +17,7 @@ try{
    },keyboard);
    const page=await context.newPage(),name=`${width}x${height}${large?'-large':''}`;
    await page.goto(base,{timeout:120000});
-   // An adult profile shows the widest chip row: Ask about someone plus Love timing's When will it happen?
+   // An adult profile shows the widest chip row: Ask about someone else plus Love timing's When will I find love?
    await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill('1992');await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
    await tapToAsk(page);await page.getByTestId('type-instead').click();
    await page.getByTestId('question-input').fill('What will my life be like next year? '.repeat(4).trim());
@@ -28,7 +28,7 @@ try{
      await page.evaluate(value=>window.__keyboard(value),open);await page.waitForTimeout(900);
      const bottom=height-(open?keyboard:0),bad=[];
      const header=await page.getByTestId('close-flow').boundingBox(),viewport=await page.getByTestId('ask-content').boundingBox();
-     const ids=[...(mode==='person'?['person-name','ask-about-myself']:mode==='love'?['love-timing-label','leave-love-timing']:['ask-about-someone','love-timing']),'question-input','ask-disclosure','speak-instead','look-into-the-future'];
+     const ids=[...(mode==='person'?['person-name','ask-about-myself']:mode==='love'?['love-timing-label','leave-love-timing']:['ask-about-someone','love-timing']),'question-input',...(mode?['ask-disclosure']:[]),'speak-instead','look-into-the-future'];
      // A build with an AI provider (EXPO_PUBLIC_AI_PROVIDER_NAME) adds its permission switch and What's shared link.
      const controls=ids.map(id=>[id,page.getByTestId(id)]);
      if(await page.getByTestId('ai-details').count())controls.push(['ai-details',page.getByTestId('ai-details')],['ai-permission',page.getByRole('switch',{name:'Allow AI processing'})]);

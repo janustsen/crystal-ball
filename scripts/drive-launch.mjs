@@ -36,7 +36,8 @@ try{
  results.push('Unavailable backup stays absent at 375px and 200% text; navigation remains visible');
  await tapToAsk(page);
  await page.getByTestId('type-instead').click();
- await expect(page.getByText('For entertainment · questions and answers go to your prediction engine.')).toBeVisible();
+ // The entertainment disclosure lives in Settings' Privacy and entertainment (checked above), not under the Ask ball.
+ await expect(page.getByText(/For entertainment/)).toHaveCount(0);
  if(process.env.CHECK_AI_CONSENT==='1'){
   await page.getByTestId('question-input').fill('Will I learn Spanish?');
   const ask=page.getByTestId('look-into-the-future');

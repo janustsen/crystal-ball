@@ -1,8 +1,8 @@
 import * as T from 'three';
 import type {BallSpin} from './RoomScene';
 
-// The glass ball, ported from the Claude Design canvas artboard project/Library.dc.html ("Library"). Keep its look
-// identical to that source. Its library room only lights and reflects in the glass: scripts/bake-ball-env.mjs captures
+// The glass ball, ported from the Claude Design canvas artboard project/Library.dc.html ("Library"), with the warmer,
+// brighter and busier fog of its "Home — realistic" artboard (docs/design/motion.md#room). Its library room only lights and reflects in the glass: scripts/bake-ball-env.mjs captures
 // the room as a cube map from the ball's centre (assets/room/ball-env.bin), which the web and native scenes share.
 export const BALL=new T.Vector3(0,1.55,0);
 const CANDLE=new T.Vector3(-1.22,1.13,-1.15);
@@ -64,7 +64,7 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
   uTime:{value:0},uSwirl:{value:0},uGlow:{value:1},
   uCenter:{value:BALL.clone()},uRadius:{value:1},
   uLightPos:{value:CANDLE.clone()},uLightCol:{value:new T.Color(0xffb070)},
-  uGlowCol:{value:new T.Color(0xffb46a)},uMist:{value:new T.Color(0x6a3a8a)},
+  uGlowCol:{value:new T.Color(0xffc48e)},uMist:{value:new T.Color(0x9c5646)},
   uRot:{value:new T.Matrix3()},
   uStyle:{value:null as T.Texture|null},uClean:{value:null as T.Texture|null},uStyled:{value:0}
  };
@@ -95,8 +95,11 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
     float ang = uSwirl*(1.35 - r) + p.y*1.8;
     float cs = cos(ang), sn = sin(ang);
     vec3 q = vec3(cs*p.x - sn*p.z, p.y*1.3, sn*p.x + cs*p.z);
-    float n = fbm(q*2.1 + vec3(0.0, uTime*0.04, 0.0));
-    float fil = exp(-pow((n - 0.6)*22.0, 2.0)) + 0.2*smoothstep(0.64, 0.8, n);
+    // Two fog layers drifting against each other keep it visibly churning, as in the Home (realistic) reference.
+    vec3 drift = vec3(uTime*0.08, uTime*0.28, -uTime*0.06);
+    float n = fbm(q*1.8 + drift);
+    float m = 0.62*noise(q*3.4 - drift*1.7 + vec3(4.0)) + 0.38*noise(q*6.9 + drift*1.2);
+    float fil = exp(-pow((n - 0.58)*14.0, 2.0)) + 0.25*smoothstep(0.55, 0.8, n) + 0.45*smoothstep(0.55, 0.85, m);
     return fil * smoothstep(0.98, 0.5, r) * smoothstep(0.08, 0.32, r);
    }
    vec3 tone(vec3 c){
@@ -150,11 +153,12 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
      vec3 p = ro + Tdir*(jit + dt*float(i));
      float r = length(p);
      float d = density(p);
-     vec3 col = mix(uGlowCol*1.15, uMist, smoothstep(0.35, 0.95, r));
-     float lit = 0.25 + 2.2*exp(-pow((r - 0.32)*3.2, 2.0));
-     acc += trans * d * col * lit * uGlow * dt * 1.8;
-     acc += trans * uGlowCol * 0.1 * exp(-pow((r - 0.3)*4.5, 2.0)) * uGlow * dt;
-     trans *= exp(-d * dt * 2.6);
+     // Dense fog glows cream; thin wisps and the outer shell fall to a dusky rose.
+     vec3 col = mix(uMist, uGlowCol*1.35, smoothstep(0.18, 0.65, d) * (1.0 - 0.6*smoothstep(0.55, 1.0, r)));
+     float lit = 0.3 + 2.0*exp(-pow(r*1.8, 2.0));
+     acc += trans * d * col * lit * uGlow * dt * 2.0;
+     acc += trans * uGlowCol * 0.16 * exp(-pow(r*2.4, 2.0)) * uGlow * dt;
+     trans *= exp(-d * dt * 3.2);
     }
     vec3 col = refr*0.9*(0.3 + 0.7*trans) + acc;
     col = mix(col, refl, F) + spec;
@@ -228,7 +232,7 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
   const reduced=motion.reduce;
   const dt=Math.min(clock.getDelta(),0.05);
   t+=dt;
-  swirl+=dt*(reduced?0.03:0.16);
+  swirl+=dt*(reduced?0.03:0.5);
 
   if(spin.ax||spin.ay){
    turn(spin.ax*KROT,spin.ay*KROT,spin.orb);

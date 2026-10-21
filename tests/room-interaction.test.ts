@@ -414,13 +414,16 @@ test('submission enlarges the ball from typing or the resting room, and the stat
  }
 });
 
+// AskBall's settle-in fade and toast, inert: these tests read layout, not motion.
+const animated={Animated:{ScrollView:'ScrollView',View:'View',Value:class{constructor(public value:number){}setValue(){}interpolate(){return 1}},timing:()=>({start(){},stop(){}})},Easing:{bezier:()=>0}};
+const askImports={'./Enter':{Shake:'Shake'},'./motion':{motion:{ease:[0,0,1,1]},entrances:{typing:{},toast:{}}},'./room':room,'./Surface':{Surface:'Surface'},'./ui':{colors:{},fonts:{},Txt:'Txt'}};
 
 test('cramped Ask content keeps controls reachable and tracks the ball while scrolling',()=>{
  const cameras:room.Camera[]=[];
  const render=component('../src/AskBall.tsx',{
-  ...sky,'react-native':{Platform:{OS:'android'},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  ...sky,'react-native':{...animated,Platform:{OS:'android'},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
   'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
-  './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
+  ...askImports,
  });
  const props={width:375,height:407,top:96,bottom:12,value:'Will things improve?',onChangeText(){},refused:0,reduce:false,largeText:true,chip:'person controls',note:'disclosure',controls:'submit',onCamera:(cam:room.Camera)=>cameras.push(cam)};
  let tree=render('AskBall',props);
@@ -453,9 +456,9 @@ test('cramped Ask content keeps controls reachable and tracks the ball while scr
 test('Ask reserves the supplied keyboard and notice space through resize and dismissal',()=>{
  const listeners:Record<string,(event:any)=>void>={};
  const render=component('../src/AskBall.tsx',{
-  ...sky,'react-native':{Platform:{OS:'ios'},Dimensions:{get:()=>({height:844})},Keyboard:{addListener:(event:string,callback:(event:any)=>void)=>{listeners[event]=callback;return {remove(){}}}},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  ...sky,'react-native':{Platform:{OS:'ios'},Dimensions:{get:()=>({height:844})},Keyboard:{addListener:(event:string,callback:(event:any)=>void)=>{listeners[event]=callback;return {remove(){}}}},ScrollView:'ScrollView',View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable',...animated},
   'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
-  './Enter':{Shake:'Shake'},'./motion':{motion:{}},'./room':room,'./ui':{colors:{},fonts:{}},
+  ...askImports,
  });
  for(const height of [667,844,956])for(const keyboard of [0,300])for(const notice of [0,120,200]){
   const bottom=Math.max(12,keyboard)+notice;
