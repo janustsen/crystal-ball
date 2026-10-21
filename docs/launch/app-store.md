@@ -6,18 +6,29 @@
 
 The account holder enrolls personally in the **Individual** Apple Developer Program. Do not create Apple, Expo or App Store Connect accounts from this checklist. There is no App Store Connect access until Apple approves membership. Friends and Stanford testers are external testers; plan roughly one week of TestFlight feedback before submitting to the public App Store.
 
-Prepared in this repository: bundle ID `com.janustsen.crystalball`, marketing version `0.1.0`, initial iOS build number `1`, and EAS `production` with `distribution: store`, real purchases and automatic remote build-number increments. Remote EAS numbering is authoritative once linked; record the actual build number on upload. `preview` is ad hoc distribution, not TestFlight. There is no EAS project ID yet. On 2026-10-20, `npx eas-cli whoami` returned **Not logged in**. No archive or upload has been attempted.
+Prepared in this repository: bundle ID `com.janustsen.crystalball`, marketing version `0.1.0`, initial iOS build number `1`, and the native `CrystalBall` scheme. **The launch route is local prebuild → Xcode Release archive → Organizer or Transporter upload.** It uses the same local native toolchain as the iPhone reinstall, with paid-team distribution signing instead of a Personal Team sideload. No Expo account or EAS project ID is required. There is no Expo account; do not create one. No signed archive or upload has been attempted.
 
 ### Before the Apple account is approved
 
-- [ ] Expo account holder runs `npx eas-cli login` using an existing account. If no account exists, the holder creates it personally.
-- [ ] Run `npx eas-cli whoami`, then `npx eas-cli init`; select the intended owner and link/create the EAS **project** (not an account). Commit the resulting `extra.eas.projectId`. Never invent an ID.
-- [ ] Configure the production EAS environment with the public RevenueCat iOS SDK key, Supabase URL/anon key, hosted HTTPS engine endpoint, named AI provider, shared web origin and install URL listed in [billing](billing.md) and the setup guide. Server keys stay server-only. Hosted readings, quotas and spend caps belong to the hosted-readings task; confirm that deployment is ready before building.
-- [ ] Run `npm ci`, `npm run check`, `npm test` and the project verification drives. Recheck native icon/splash, room asset delivery, permissions, privacy/terms/support URLs and the release checklist below; these remain required for a usable tester build.
+- [ ] Install/use the existing Xcode and CocoaPods toolchain. Run `npm ci`, `npm run check`, `npm test` and the project verification drives. Recheck native icon/splash, room asset delivery, permissions, privacy/terms/support URLs and the release checklist below.
+- [ ] Prepare the ignored local release environment (`.env.local`, loaded by Expo's native bundling step): `EXPO_PUBLIC_REVENUECAT_MODE=store`, `EXPO_PUBLIC_REVENUECAT_IOS_KEY`, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_ENGINE_URL` (hosted HTTPS endpoint including its engine route), `EXPO_PUBLIC_AI_PROVIDER_NAME`, `EXPO_PUBLIC_WEB_ORIGIN` and `EXPO_PUBLIC_INSTALL_URL`. See [billing](billing.md) and [Social v2 delivery](../../SETUP.md#social-v2-delivery). Keep `EXPO_PUBLIC_APPLE_LINK_ENABLED=false` until its separate native release gate is complete. Remove preview-token/tailnet overrides from the release environment; server service-role/provider/RevenueCat secret keys never enter the app. Hosted readings, quotas and spend caps belong to the hosted-readings task; confirm that deployment is ready before archiving.
+- [ ] Confirm `version: "0.1.0"` and `ios.buildNumber: "1"` in `app.json`. For each later upload, increment `ios.buildNumber` and rerun prebuild; local Xcode uploads do not use EAS remote auto-increment.
+- [ ] From the project root, generate/update the local native project and installed pods, then open the workspace:
+
+  ```sh
+  npx expo prebuild --platform ios
+  open ios/CrystalBall.xcworkspace
+  ```
+
+  Use the workspace, not the project alone, so CocoaPods/RevenueCat are linked. Preserve the existing iPhone build tooling; do not use `--clean` or a personal-sideload installer that rewrites the production bundle ID or strips capabilities. Review `ios/.xcode.env.local` for stale development overrides. Verify the generated app **and widget extension** Info plists show version `0.1.0` / build `1`. Expo can write these as literal plist values, so Xcode build-setting overrides alone are not a substitute for updating `app.json` and regenerating. In Product → Scheme → Edit Scheme, confirm **Archive** uses **Release**; keep the normal Release JavaScript bundle step enabled. A Debug/Metro install is not the archive for TestFlight.
+
+### Verified locally before signing
+
+On 2026-10-20, `xcodebuild -list -workspace ios/CrystalBall.xcworkspace -json` found scheme `CrystalBall`. The same workspace's Release build settings resolve `CrystalBall.app`, bundle ID `com.janustsen.crystalball`, version `0.1.0`, build `1` and the installed iPhoneOS SDK. The generated app and widget plists also contain `0.1.0` / `1`. These are configuration checks, not a successful archive, signing, upload or native-purchase test. Paid-team signing remains blocked on Apple approval.
 
 ### After Apple approves the Individual membership
 
-1. In App Store Connect, accept Paid Apps terms and finish tax/banking. Register the bundle ID above and create the Crystal Ball app record (iOS, version `0.1.0`); record its numeric Apple app ID. Configure the capabilities used by the app and EAS signing for the approved Individual team.
+1. In App Store Connect, accept Paid Apps terms and finish tax/banking. Register the bundle ID above and create the Crystal Ball app record (iOS, version `0.1.0`); record its numeric Apple app ID. Configure the capabilities used by the app for the approved Individual team.
 2. Create the following US-price products. All three subscriptions belong to the same **Crystal Ball Plus** group. Add descriptions, review information and required localizations. Introductory trials apply only to eligible new subscribers.
 
    | Product ID | Type | US price / introductory offer | Current offering |
@@ -30,14 +41,36 @@ Prepared in this repository: bundle ID `com.janustsen.crystalball`, marketing ve
 
    Leave `cb_year_ahead` out of this launch; it is a separate mock-only feature.
 3. Configure RevenueCat's iOS app, App Store credentials, entitlement `plus` and current offering per [billing](billing.md). Confirm the engine and webhook can reconcile purchases to the same Supabase user ID. Plus is 10 questions/day, never unlimited; Free is 20 starter questions, then 1/day.
-4. Verify `npx eas-cli whoami`, `npx eas-cli project:info` and `npx expo config --type public`. Confirm the linked project, bundle ID, production endpoints and store billing mode; keep `EXPO_PUBLIC_APPLE_LINK_ENABLED=false` until its separate native release gate is complete.
-5. Run `npx eas-cli build --platform ios --profile production`. Follow the account holder's Apple signing prompts. Record the **build ID** printed by this command and its version/build number.
-6. Run `npx eas-cli submit --platform ios --profile production --id <BUILD_ID>`. Select the existing App Store Connect record. Set `submit.production.ios.ascAppId` to that record's numeric ID for repeatable future submissions. Uploading sends the build to TestFlight, not to public sale.
+4. In Xcode → Settings → Accounts, sign in with the approved Individual account. In the workspace, choose scheme **CrystalBall**, then **Any iOS Device (arm64)** / the generic iOS device destination. In Signing & Capabilities, select the paid Developer team and automatic signing for the app and widget extension, retaining their app-group and other configured capabilities. Confirm the app's bundle ID matches the App Store Connect record; a free Personal Team sideload ID/profile cannot be uploaded. Select the `CrystalBall` archive scheme, not `RitualUITests`.
+5. Create the Release archive with Product → Archive. To use the same local toolchain from Terminal instead, replace `PAID_TEAM_ID` with the approved team's ID and run from the project root:
+
+   ```sh
+   mkdir -p /tmp/fm-cb-store-ready/archives
+   xcodebuild \
+     -workspace ios/CrystalBall.xcworkspace \
+     -scheme CrystalBall \
+     -configuration Release \
+     -sdk iphoneos \
+     -destination 'generic/platform=iOS' \
+     -derivedDataPath /tmp/fm-cb-store-ready/xcode-derived-data \
+     -archivePath /tmp/fm-cb-store-ready/archives/CrystalBall-0.1.0-1.xcarchive \
+     DEVELOPMENT_TEAM=PAID_TEAM_ID CODE_SIGN_STYLE=Automatic \
+     MARKETING_VERSION=0.1.0 CURRENT_PROJECT_VERSION=1 \
+     -allowProvisioningUpdates archive
+   open /tmp/fm-cb-store-ready/archives/CrystalBall-0.1.0-1.xcarchive
+   ```
+
+   Do not disable signing for the distributable archive. In Window → Organizer → Archives, confirm `Crystal Ball` version `0.1.0` / build `1` and inspect the archived app and embedded extension's version/bundle IDs. The `/tmp/fm-cb-store-ready/` archive/DerivedData are disposable task output; recreate them if cleanup has removed them.
+6. In Organizer, select that archive → **Distribute App** → **TestFlight & App Store**, then validate/upload with the approved team. On Xcode versions with the older flow, choose **App Store Connect → Upload**. Check the signing/provisioning summary and finish Upload. Do not choose **TestFlight Internal Only**, since this build must reach external testers and later App Store review. For a **Transporter** upload instead, use Organizer's custom **App Store Connect → Export** distribution flow to export a distribution-signed `.ipa` into `/tmp/fm-cb-store-ready/exports/`; sign in to Apple's Transporter app with the approved account, add that `.ipa`, validate and Deliver. Do not hand Transporter the raw `.xcarchive` or a Personal Team/ad hoc `.ipa`. Record the uploaded version/build and delivery result; Apple must finish processing before the build appears in TestFlight. Uploading does not put it on public sale.
 7. In TestFlight, complete export-compliance questions, beta description, contact and review access, then create an external friends/Stanford group. Submit the group's first build for Beta App Review; invite testers after approval. Do not grant friends App Store Connect roles just to bypass external review.
 8. Across roughly one tester week, verify launch/onboarding/skip, the first-reveal Plus offer, real readings, cancellation/pending purchases, eligible trial, renewal/expiration, both packs, reconciliation failure/retry and Restore on a second installation. TestFlight IAP uses Apple's sandbox; it does not collect real payments. Consumables restore from this app's server ledger under the same account, not Apple's consumable history; account restore must be verified before promising cross-install pack recovery.
-9. Fix tester blockers and rebuild/re-upload with a new build number. Then finish the public listing, screenshots, App Privacy, age rating, purchase review information and release checks below; choose the tested build and submit for App Review. TestFlight approval is not App Store approval.
+9. Fix tester blockers, increment `ios.buildNumber` in `app.json`, rerun prebuild and archive/upload again. Then finish the public listing, screenshots, App Privacy, age rating, purchase review information and release checks below; choose the tested build and submit for App Review. TestFlight approval is not App Store approval.
 
-[Expo TestFlight distribution](https://docs.expo.dev/submit/testflight/), [upload commands](https://docs.expo.dev/submit/ios/), [remote build numbering](https://docs.expo.dev/build-reference/app-versions/).
+[Expo local release builds](https://docs.expo.dev/guides/local-app-production/), [Apple archive distribution](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases), [Organizer upload](https://help.apple.com/xcode/mac/current/en.lproj/dev442d7f2ca.html), [Apple upload tools including Transporter](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds).
+
+### Optional later path: EAS
+
+The existing `eas.json` production profile remains available if an Expo account is authorized later. It is not a launch prerequisite. Do not create an Expo account or run EAS initialization for this launch. A future switch would need an account/project link, public build environment, distribution signing and its own build-number coordination; EAS remote auto-increment does not govern the local Xcode route above. Expo push-service registration also has a separate EAS project-ID requirement; the local archive route does not supply that ID or prove remote push delivery. Local notifications remain independent.
 
 ## Campaign source handling
 

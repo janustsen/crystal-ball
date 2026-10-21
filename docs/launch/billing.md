@@ -19,7 +19,7 @@ Real purchases go through RevenueCat (`react-native-purchases`) on iOS. The serv
 
 Modes (`EXPO_PUBLIC_REVENUECAT_MODE`):
 
-- `store`: real App Store purchases. Sandbox on development and TestFlight builds, production in the App Store. Every EAS profile sets this.
+- `store`: real App Store purchases. Sandbox on development and TestFlight builds, production in the App Store. The local Xcode release environment and every optional EAS profile set this.
 - `mock` (default for web previews; explicit development-build opt-in): labeled test purchases. With local Supabase and `SOCIAL_MOCK_ENTITLEMENTS=true` they still go through the real ledger (`/billing` `simulate`, refused for non-loopback Supabase). Without Supabase the preview counts on-device only.
 
 Release iOS builds always use `store`, including when the mode variable is absent or mistakenly set to `mock`; missing store/server configuration disables purchasing. Development native builds can explicitly opt into `mock`. Pending App Store approvals never grant Plus or packs; cancellation leaves the balance alone. Only reconciliation supplies entitlements.
@@ -32,7 +32,7 @@ Balance snapshots carry their owner and database-clock `asOf`. The app queues ap
 
 ## One-time setup (needs Janus's accounts)
 
-Nothing below can be done without the accounts; everything else is in the repository.
+Apple, RevenueCat and hosted-service setup needs the corresponding approved accounts. The primary native build path is local Xcode, as detailed in [the first TestFlight checklist](app-store.md#first-testflight-upload-individual-membership-then-one-tester-week); it needs no Expo account.
 
 1. **Apple Developer Program** membership for the team that owns `com.janustsen.crystalball`. Accept the Paid Apps agreement and complete banking and tax in App Store Connect; purchases fail without it.
 2. **App Store Connect**: create the app with bundle id `com.janustsen.crystalball`, then:
@@ -43,21 +43,21 @@ Nothing below can be done without the accounts; everything else is in the reposi
 3. **RevenueCat**: create the project and iOS app (bundle id above), upload the In-App Purchase key, import the five products, create entitlement `plus` attached to the three subscriptions, and a current offering containing Weekly, Monthly and both packs. Add Yearly only after the annual gate above passes. Add a webhook pointing at `https://<project-ref>.supabase.co/functions/v1/revenuecat` with an Authorization header value you choose.
 4. **Supabase (hosted)**: apply `supabase/migrations`, enable anonymous sign-ins, then set function secrets `REVENUECAT_SECRET_KEY` and `REVENUECAT_WEBHOOK_AUTH` (`supabase secrets set ...`) and deploy `supabase functions deploy revenuecat`. Supabase injects `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` into functions.
 5. **Engine**: the engine serving readings needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `REVENUECAT_SECRET_KEY` (sync after purchase and restore) in its server environment.
-6. **Expo / EAS**: `eas login`, `eas init` (writes `extra.eas.projectId` into app.json), then set EAS environment variables for each environment: `EXPO_PUBLIC_REVENUECAT_IOS_KEY`, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_ENGINE_URL` and the sharing configuration described in [Social v2 delivery](../../SETUP.md#social-v2-delivery). `eas build -p ios --profile development` lets EAS manage signing with the Apple account.
+6. **Local Xcode build**: configure the public release environment locally, run `npx expo prebuild --platform ios`, open `ios/CrystalBall.xcworkspace` and archive the `CrystalBall` scheme in Release with the approved Individual team. Follow [the exact archive/upload steps](app-store.md#after-apple-approves-the-individual-membership) for version/build numbers and Organizer/Transporter delivery. No Expo account is required or to be created. EAS is an optional later build service; its existing profiles are not used for this launch.
 
 ### Credentials and values needed
 
 | Value | From | Goes to |
 |---|---|---|
-| Apple ID with Developer Program membership + team id | Apple | `eas build` / `eas submit` login prompts |
-| App Store Connect app id (ascAppId) | App Store Connect | `eas submit` prompt, or `submit.production.ios.ascAppId` in eas.json |
+| Apple ID with Developer Program membership + team id | Apple | Xcode Accounts, Signing & Capabilities, Organizer / Transporter |
+| App Store Connect app id (ascAppId) | App Store Connect | Record for the selected App Store Connect app; optional EAS submission only needs `ascAppId` later |
 | In-App Purchase key (.p8, key id, issuer id) | App Store Connect | RevenueCat |
-| RevenueCat public iOS SDK key (`appl_…`) | RevenueCat | EAS env `EXPO_PUBLIC_REVENUECAT_IOS_KEY` |
+| RevenueCat public iOS SDK key (`appl_…`) | RevenueCat | Local release env `EXPO_PUBLIC_REVENUECAT_IOS_KEY` |
 | RevenueCat secret API key (`sk_…`, v1) | RevenueCat | Server/function secret `REVENUECAT_SECRET_KEY` |
 | Webhook Authorization value (choose one) | You | RevenueCat webhook header and secret `REVENUECAT_WEBHOOK_AUTH` (identical) |
-| Supabase project URL and anon key | Supabase | EAS env `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` |
+| Supabase project URL and anon key | Supabase | Local release env `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` |
 | Supabase service-role key | Supabase | Engine environment only, never `EXPO_PUBLIC` |
-| Public HTTPS engine URL | Your deployment | EAS env `EXPO_PUBLIC_ENGINE_URL` |
+| Public HTTPS engine URL | Your deployment | Local release env `EXPO_PUBLIC_ENGINE_URL` |
 | Sandbox tester Apple ID | App Store Connect | Settings › App Store › Sandbox Account on the test phone |
 
 ## Exercising a sandbox purchase
