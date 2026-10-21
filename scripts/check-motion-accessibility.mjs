@@ -11,10 +11,10 @@ try{
  await page.goto(process.env.PREVIEW_URL||'http://localhost:8087');await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();await openEverything(page);await still('OS reduced motion');
  await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForTimeout(300);const n=await page.evaluate(()=>window.drawCount);await expect.poll(()=>page.evaluate(()=>window.drawCount)).toBeGreaterThan(n);log.push({label:'motion resumes with OS preference'});
  await page.getByTestId('open-settings').click();await page.getByRole('switch',{name:'Reduce motion',exact:true}).click();await still('in-app reduced motion');
- await page.getByRole('switch',{name:'Large text',exact:true}).click();await page.getByTestId('tab-home').click();await still('large text reduced motion');
+ await page.getByTestId('tab-home').click();await still('home reduced motion');
  const balls=await Promise.all(['hero-orb','tap-to-ask'].map(id=>page.getByTestId(id).evaluate(n=>({width:n.getBoundingClientRect().width,visible:n.getBoundingClientRect().bottom<=innerHeight}))));expect(balls.every(b=>b.visible)).toBe(true);log.push({balls});
  await page.getByTestId('hero-orb').click();await expect(page.getByTestId('type-instead')).toBeVisible({timeout:1000});log.push({label:'approach delay skipped'});
  expect(styleErrors).toEqual([]);
  await mkdir('docs/evidence/motion-2026-09-30',{recursive:true});await writeFile('docs/evidence/motion-2026-09-30/reduced-motion.json',JSON.stringify(log,null,2)+'\n');
- console.log('Reduced motion, resume, large text and immediate listening passed.');
+ console.log('Reduced motion, resume and immediate listening passed.');
 }finally{await browser.close()}

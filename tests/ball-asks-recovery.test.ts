@@ -29,7 +29,7 @@ function load(path:string,imports:Record<string,any>){
  return module.exports;
 }
 async function fixture(count:number,api:Record<string,unknown>={}){
- let initial:any={sunSign:null,ageBand:'adult',facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-09',count:0},reduceMotion:true,largeText:false};
+ let initial:any={sunSign:null,ageBand:'adult',facts:{},history:[],credits:0,plus:false,usage:{day:'2026-10-09',count:0},reduceMotion:true};
  for(const ask of asks.deckFor(false).slice(0,count))initial=asks.answerAsk(initial,ask.id,ask.options[0]);
  let disk=JSON.stringify(initial),writeGate:{started:()=>void;wait:Promise<void>}|undefined,failWrite=false;
  const balance={owner:'owner',asOf:'2026-10-09T00:00:00.000001Z',plus:false,plusUntil:null,packs:0,used:0,day:'2026-10-09'};

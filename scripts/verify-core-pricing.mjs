@@ -39,16 +39,15 @@ try{
  await check(()=>document.body.innerText.includes('Native reminder preview'),'web answers with the native-only reminder preview (iOS and Android suppression is tested in tests/love-notifications.test.mjs)');
  await page.open(${JSON.stringify(base)});await click('tab-history');
  await check(()=>document.body.innerText.includes('Not yet'),'answer persists after reload');
- await click('open-settings');await page.eval(()=>document.querySelector('[role=switch][aria-label="Large text"]').click());
  await click('view-plans');
- console.log('PASS large-text paywall opened');
+ console.log('PASS paywall opened');
  `);
  writeFileSync(`${evidence}/browser.txt`,output);console.log(output);
  execFileSync('chrome-devtools-axi',['emulate','--viewport','375x667x1,mobile,touch'],{env,stdio:'pipe'});
  const layout=run(`
  const result=await page.eval(()=>{const radios=[...document.querySelectorAll('[role=radio]')];return {width:innerWidth,cards:radios.map(x=>{const r=x.getBoundingClientRect();return {left:r.left,right:r.right,scroll:x.scrollWidth,client:x.clientWidth,direction:getComputedStyle(x).flexDirection}})}});
  console.log(JSON.stringify(result));
- if(result.cards.some(x=>x.left<0||x.right>result.width||x.scroll>x.client+1||x.direction!=='column'))throw Error('Large-text plan overflow');
+ if(result.cards.some(x=>x.left<0||x.right>result.width||x.scroll>x.client+1))throw Error('Small-screen plan overflow');
  await page.eval(()=>document.querySelector('[role=radio]').scrollIntoView());
  `);writeFileSync(`${evidence}/layout.txt`,layout);console.log(layout);
  try{execFileSync('chrome-devtools-axi',['screenshot',`${evidence}/large-paywall.png`],{env,stdio:'pipe'})}catch(error){if(!existsSync(`${evidence}/large-paywall.png`))throw error}

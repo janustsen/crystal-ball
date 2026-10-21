@@ -30,7 +30,7 @@ const bundle=await build({stdin:{contents:`import React from 'react';import {cre
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 try{
  const page=await browser.newPage();await page.setContent('<div id="root"></div>');
- await page.evaluate(()=>{window.control={owner:'account-a',appleCalls:0,switches:0,reads:0,uploads:0,disk:JSON.stringify({sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,facts:{practice:'daily'},history:[{id:'local-reading'}],credits:5,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,largeText:false,backupOwner:'account-a'})}});
+ await page.evaluate(()=>{window.control={owner:'account-a',appleCalls:0,switches:0,reads:0,uploads:0,disk:JSON.stringify({sunSign:null,ageBand:'teen',ageConfirmed:true,onboardingDone:true,facts:{practice:'daily'},history:[{id:'local-reading'}],credits:5,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,backupOwner:'account-a'})}});
  await page.addScriptTag({content:bundle.outputFiles[0].text});
  await page.waitForFunction(()=>window.store?.ready&&window.control.uploads>0);
  const before=await page.evaluate(()=>window.control.disk);
@@ -43,7 +43,7 @@ try{
  await page.getByText('Restore could not finish.',{exact:false}).waitFor();
  const failed=await page.evaluate(()=>({owner:window.control.owner,backupOwner:window.store.state.backupOwner,disk:window.control.disk,appleCalls:window.control.appleCalls,reads:window.control.reads}));
  assert.deepEqual(failed,{owner:'account-a',backupOwner:'account-a',disk:before,appleCalls:0,reads:1});
- const uploads=await page.evaluate(()=>{const n=window.control.uploads;window.store.update(s=>({...s,largeText:true}));return n});
+ const uploads=await page.evaluate(()=>{const n=window.control.uploads;window.store.update(s=>({...s}));return n});
  await page.waitForFunction(n=>window.control.uploads>n,uploads);
  await page.evaluate(()=>{window.control.linked=false;window.control.links=0;window.store.update(s=>({...s,backupOwner:undefined}))});
  await page.getByRole('button',{name:'Save this device with Apple',exact:true}).click();

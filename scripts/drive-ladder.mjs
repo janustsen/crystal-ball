@@ -15,7 +15,7 @@ const features=[['history',1],['about',3],['insight',5],['bond',8],['sky',12],['
 function account(asked,{yesterday=false,usedToday=0,openAll=false}={}){
  const opened=features.filter(([,at])=>at<asked||openAll&&at<=asked).map(([f])=>f);
  const history=Array.from({length:asked},(_,i)=>({id:`seed-${i}`,question:`Will question ${i+1} come true?`,headline:'Something good is on its way.',dueDate:local(30+i),createdAt:new Date(Date.now()-(yesterday?864e5:0)-i*6e4).toISOString(),label:'For fun · Speculative forecast',why:'A seeded reading for the ladder check.',facts:{},sources:[],assumptions:[],friend:false}));
- return {onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history,credits:0,plus:false,ladder:{asked,opened},usage:yesterday?{day:utc(0),count:usedToday}:{day:utc(0),count:asked},reduceMotion:true,largeText:false};
+ return {onboardingDone:true,ageConfirmed:true,ageBand:'adult',sunSign:null,facts:{},history,credits:0,plus:false,ladder:{asked,opened},usage:yesterday?{day:utc(0),count:usedToday}:{day:utc(0),count:asked},reduceMotion:true};
 }
 async function open(state){
  const context=await browser.newContext({httpCredentials,viewport,isMobile:true,hasTouch:true,reducedMotion:'reduce'});

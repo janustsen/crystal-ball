@@ -6,7 +6,7 @@ import {circleReading,localStarter,saveReading} from '../src/reading-history.ts'
 import type {AccountState} from '../src/types.ts';
 
 const day='2026-10-15';
-const fresh0:AccountState={sunSign:null,ageBand:'adult',ageConfirmed:true,onboardingDone:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day,count:0},reduceMotion:false,largeText:false};
+const fresh0:AccountState={sunSign:null,ageBand:'adult',ageConfirmed:true,onboardingDone:true,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day,count:0},reduceMotion:false};
 const reading=(n:number)=>({...circleReading({id:`r${n}`,circle_id:'c',asker_id:'me',charged_at:null,question:'Will I?',headline:'Maybe.',due_date:'2099-01-01',created_at:'2026-10-15T00:00:00Z'}),circleId:undefined});
 let ids=0;
 const ask=(s:AccountState,times:number,on=day)=>{for(let i=0;i<times;i++)s=saveReading(s,reading(ids++),on);return s};

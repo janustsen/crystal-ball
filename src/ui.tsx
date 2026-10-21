@@ -14,16 +14,15 @@ import {Surface,SurfaceInk,onGold} from './Surface';
 export const colors={ink:'#140E0A',ivory:'#F4EBDD',gold:'#E3C78F',ice:'#E3C78F',muted:'#DCCFBA',label:'#CDB98F',inactive:'#A8987F',onGold,line:'rgba(227,199,143,.22)'};
 // IM Fell English for display and italics; Cormorant Garamond for copy and buttons; Jost for labels, captions and navigation. app/_layout.tsx loads these.
 export const fonts={display:'IMFellEnglish',italic:'IMFellEnglishItalic',semibold:'CormorantGaramondSemiBold',body:'CormorantGaramond',sans:'Jost',sansMedium:'JostMedium'};
-// Cormorant's small x-height reads a size smaller than a text face at body sizes, so serif body text sets a step larger
-// (large text's doubling already covers it).
+// Cormorant's small x-height reads a size smaller than a text face at body sizes, so serif body text sets a step larger.
 const bodyScale=1.12;
 // Bold weights map to the bundled faces instead of synthesized bold.
 const faces:Record<string,string>={CormorantGaramond:fonts.semibold,Jost:fonts.sansMedium};
 export function Txt({children,display=false,style,...props}:React.ComponentProps<typeof Text>&{display?:boolean}){
- const {state}=useStore(),ink=useContext(SurfaceInk);
+ const ink=useContext(SurfaceInk);
  const composed:TextStyle=StyleSheet.flatten([{color:colors.ivory,fontFamily:display?fonts.display:fonts.body,fontSize:display?36:16,lineHeight:display?40:24},style]);
  const family=composed.fontFamily??fonts.body,bold=Number(composed.fontWeight)>=(family.startsWith('Jost')?500:600)&&faces[family];
- const scale=state.largeText&&props.allowFontScaling!==false?2:display||family.startsWith('Jost')?1:bodyScale;
+ const scale=display||family.startsWith('Jost')?1:bodyScale;
  return <Text {...props} style={[composed,bold?{fontFamily:bold,fontWeight:'normal'}:null,ink?{color:ink}:null,{fontSize:Math.round((composed.fontSize||16)*scale),lineHeight:Math.round((composed.lineHeight||24)*scale)}]}>{children}</Text>;
 }
 
@@ -68,7 +67,7 @@ export function Toggle({value,onValueChange,disabled=false,testID,accessibilityL
   <View style={{width:52,height:32}}><Surface kind="chip" state={value?'selected':undefined}/><Animated.View style={{position:'absolute',top:3,left:3,width:26,height:26,borderRadius:13,backgroundColor:value?colors.onGold:colors.ivory,transform:[{translateX:knob}]}}/></View>
  </Pressable>;
 }
-// A segmented pill: one gold fill slides under the chosen segment; segments wrap (large text) and the fill follows.
+// A segmented pill: one gold fill slides under the chosen segment; segments wrap (larger system text) and the fill follows.
 export function Segmented<T extends string>({options,value,onChange,reduce=false}:{options:readonly {value:T;label:string;testID?:string}[];value:T;onChange:(value:T)=>void;reduce?:boolean}){
  const [frames,setFrames]=useState<Partial<Record<T,{x:number;y:number;width:number;height:number}>>>({}),frame=frames[value];
  const pill=useRef({x:new Animated.Value(0),y:new Animated.Value(0),width:new Animated.Value(0),height:new Animated.Value(0)}).current,placed=useRef(false);
@@ -83,7 +82,7 @@ export function Segmented<T extends string>({options,value,onChange,reduce=false
  </View>;
 }
 export function Orb({size=240,reduce=false,onPress,phase='idle'}:{size?:number;reduce?:boolean;onPress?:()=>void;phase?:'idle'|'research'|'reveal'}){
- const {state}=useStore();if(state.largeText)size=Math.min(size,96);
+ const {state}=useStore();
  const press=useRef(new Animated.Value(1)).current;
  const art=<Animated.View style={{width:size,height:size*1.125,transform:[{scale:press}]}}><OrbVisual size={size} phase={phase} reduce={reduce} ball={selectedStyle(state,'ball')}/></Animated.View>;
  return onPress?<Pressable testID="hero-orb" accessibilityRole="button" accessibilityLabel="Ask the crystal ball" onPressIn={()=>{haptic('touch');Platform.OS!=='web'&&Animated.timing(press,{toValue:.97,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start();}} onPressOut={()=>Platform.OS!=='web'&&Animated.timing(press,{toValue:1,duration:reduce?0:motion.press,easing:Easing.bezier(...motion.ease),useNativeDriver:true}).start()} onPress={onPress}>{art}</Pressable>:<View accessible={false} importantForAccessibility="no-hide-descendants">{art}</View>;
@@ -98,10 +97,10 @@ export function EdgeFade({top=0,soft=24,bottom=0,style,children}:React.PropsWith
 // `under` lets a tab's content scroll all the way up and fade out beneath the header that ends there; otherwise the
 // viewport starts just above the content. `ball` is reserved for the revealed reading; see docs/design/ui-rules.md.
 // Its box-none padding preserves ball input above the content.
-// `ground` darkens the room behind tab content and scrolls with it.
+// `ground` darkens the room behind tab content and scrolls with it. Content that fits never rubber-bands under the header.
 export function Screen({children,reduce=false,variant=0,zoom=false,kind="screen",direction,top=14,bottom=36,under,ball=false,keyboardInsets=true,ground}:React.PropsWithChildren<{reduce?:boolean;variant?:number;zoom?:boolean;kind?:MotionKind;direction?:number;top?:number;bottom?:number;under?:number;ball?:boolean;keyboardInsets?:boolean;ground?:number}>){
  const edge=under===undefined&&!ball?Math.max(0,top-24):0,through=ball?styles.through:undefined,scrolled=useRef(new Animated.Value(0)).current,fill=`rgba(20,14,10,${ground})`;
- return <EdgeFade top={under??0} soft={under===undefined&&!ball?24:36} bottom={under===undefined?0:24} style={[{marginTop:edge},through]}>{ball?<Animated.View pointerEvents="none" style={{position:'absolute',left:0,right:0,top:0,height:top+84,opacity:scrolled.interpolate({inputRange:[0,160],outputRange:[0,1],extrapolate:'clamp'})}}><View style={{flex:1,backgroundColor:'rgba(20,14,10,.88)'}}/><LinearGradient colors={['rgba(20,14,10,.88)','rgba(20,14,10,0)']} style={{height:140}}/></Animated.View>:null}<Animated.ScrollView style={through} onScroll={ball?Animated.event([{nativeEvent:{contentOffset:{y:scrolled}}}],{useNativeDriver:true}):undefined} scrollEventThrottle={16} showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets={keyboardInsets} keyboardShouldPersistTaps="handled" contentContainerStyle={[{paddingTop:top-edge,flexGrow:1},through]}>
+ return <EdgeFade top={under??0} soft={under===undefined&&!ball?24:36} bottom={under===undefined?0:24} style={[{marginTop:edge},through]}>{ball?<Animated.View pointerEvents="none" style={{position:'absolute',left:0,right:0,top:0,height:top+84,opacity:scrolled.interpolate({inputRange:[0,160],outputRange:[0,1],extrapolate:'clamp'})}}><View style={{flex:1,backgroundColor:'rgba(20,14,10,.88)'}}/><LinearGradient colors={['rgba(20,14,10,.88)','rgba(20,14,10,0)']} style={{height:140}}/></Animated.View>:null}<Animated.ScrollView style={through} alwaysBounceVertical={false} onScroll={ball?Animated.event([{nativeEvent:{contentOffset:{y:scrolled}}}],{useNativeDriver:true}):undefined} scrollEventThrottle={16} showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets={keyboardInsets} keyboardShouldPersistTaps="handled" contentContainerStyle={[{paddingTop:top-edge,flexGrow:1},through]}>
   {ground?<View pointerEvents="none" style={{position:'absolute',left:0,right:0,top:Math.max(0,top-edge-140),bottom:0}}><LinearGradient colors={['rgba(20,14,10,0)',fill]} style={{height:140}}/><View style={{flex:1,backgroundColor:fill}}/></View>:null}
   <Enter reduce={reduce} variant={variant} zoom={zoom} kind={kind} direction={direction} fill><View style={{flexGrow:1,paddingHorizontal:24,paddingBottom:bottom}}>{children}</View></Enter></Animated.ScrollView></EdgeFade>;
 }

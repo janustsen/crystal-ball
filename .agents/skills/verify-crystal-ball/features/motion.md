@@ -4,10 +4,10 @@
 The [room](../../../../docs/design/motion.md#room) flights, loops and live ball, and shared orbs’ continuous cel-shaded fog, levitating glass, escaping wisps and warm glow; shared entrances and feedback effects; squash-and-spark feedback on shared tappable controls; parallax star layers and ambient sky; reduced motion. The [motion language](../../../../docs/design/motion-language.md) owns the effect inventory, triggers and timings.
 
 ## How to get to it (user POV)
-Home's ball or Tap to ask starts the reading. Follow a real reading through the returned one or two questions, reveal and Share. Settings (the header gear, `open-settings`) contains Reduce motion and Large text.
+Home's ball or Tap to ask starts the reading. Follow a real reading through the returned one or two questions, reveal and Share. Settings (the header gear, `open-settings`) contains Reduce motion.
 
 ## Driving it
-Run `node scripts/drive-motion.mjs` serially after functional drives. It creates its own Chrome session, records a DevTools trace and actual WebGL draw cadence at 390×844, then closes only that browser. `node scripts/check-motion-accessibility.mjs` proves OS/app reduced motion, resume, large text and skipped approach delay.
+Run `node scripts/drive-motion.mjs` serially after functional drives. It creates its own Chrome session, records a DevTools trace and actual WebGL draw cadence at 390×844, then closes only that browser. `node scripts/check-motion-accessibility.mjs` proves OS/app reduced motion, resume and skipped approach delay.
 
 Run `PREVIEW_URL=<owned preview> node scripts/check-toggle-motion.mjs` against a fresh onboarding state to check the Ambient sound switch with app and OS motion preferences, including live OS changes. This is browser coverage; native preference handling still needs a device drive.
 
