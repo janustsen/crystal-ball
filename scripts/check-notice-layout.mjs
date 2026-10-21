@@ -21,6 +21,21 @@ async function dismiss(page,content){
  await action.scrollIntoViewIfNeeded();await expect(action).toBeInViewport({ratio:1});
  await action.click();await expect(action).toHaveCount(0);
 }
+// Typing shows a short notice as a toast over the glass: the field and Ask the Ball stay put, a tap dismisses it,
+// and left alone it fades out by itself.
+async function toast(page,field,ask,press){
+ // Tapping Ask the Ball scrolls it into view on a short screen first; measure from there.
+ await ask.scrollIntoViewIfNeeded();
+ const before=[await field.boundingBox(),await ask.boundingBox()];
+ await press();
+ const action=page.getByTestId('dismiss-notice');
+ await action.waitFor();
+ assert.deepEqual([await field.boundingBox(),await ask.boundingBox()],before,'the toast does not move the layout');
+ await expect(action).toBeInViewport({ratio:1});
+ const box=await action.boundingBox();assert.ok(box.height>=44,'the toast stays a 44 pt target');
+ await action.click();await expect(action).toHaveCount(0);
+ await press();await action.waitFor();await expect(action).toHaveCount(0,{timeout:8000});
+}
 try{
  for(const height of [390,844]){
   const context=await browser.newContext({viewport:{width:390,height},reducedMotion:'reduce'});
@@ -33,9 +48,9 @@ try{
    await tapToAsk(page);await page.getByTestId('type-instead').click();
    await page.getByTestId('ask-about-someone').click();await page.getByTestId('person-name').fill('Alex');
    const input=page.getByTestId('question-input');await input.fill('Will I finish my draft?');
-   await page.getByTestId('look-into-the-future').click();
-   await expect(page.getByText('Include Alex in your question, or change the first name to match.',{exact:true})).toHaveCount(1);
-   await dismiss(page,input);await expect(input).toHaveValue('Will I finish my draft?');
+   const ask=page.getByTestId('look-into-the-future');
+   await toast(page,input,ask,async()=>{await ask.click();await expect(page.getByText('Include Alex in your question, or change the first name to match.',{exact:true})).toHaveCount(1)});
+   await expect(input).toHaveValue('Will I finish my draft?');
    await input.fill('Will Alex learn Spanish?');await page.getByTestId('look-into-the-future').click();
    await page.getByTestId('option-1').click();
    const other=page.getByTestId('other-input');await other.fill('nonsense');await page.getByTestId('answer-next').click();

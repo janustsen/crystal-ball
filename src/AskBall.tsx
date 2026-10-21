@@ -2,9 +2,10 @@ import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {Animated,Dimensions,Easing,Keyboard,Platform,Pressable,ScrollView,Text,TextInput,View} from 'react-native';
 import Svg,{Circle,Defs,RadialGradient,Stop,SvgXml} from 'react-native-svg';
 import {Shake} from './Enter';
-import {motion} from './motion';
+import {entrances,motion} from './motion';
+import {Surface} from './Surface';
 import {ballOnScreen,cameraTransform,pushIn,stillFrame,thinkingBall,typingBall,type Camera} from './room';
-import {colors,fonts} from './ui';
+import {colors,fonts,Txt} from './ui';
 
 const native=Platform.OS!=='web';
 const spark='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E3C78F"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>';
@@ -28,16 +29,19 @@ export function useKeyboardInset(){
  return inset;
 }
 
-export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,chip,note,controls,onCamera,testID,placeholder='Type your question',label='Your question'}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;placeholder?:string;label?:string;refused:number;reduce:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
+export function AskBall({width,height,top,bottom,value,onChangeText,refused,reduce,chip,note,controls,toast,onCamera,testID,placeholder='Type your question',label='Your question'}:{width:number;height:number;top:number;bottom:number;value:string;onChangeText:(text:string)=>void;placeholder?:string;label?:string;refused:number;reduce:boolean;chip:ReactNode;note:ReactNode;controls:ReactNode;toast?:ReactNode;onCamera:(ball:Camera)=>void;testID?:string}){
  const [chipHeight,setChipHeight]=useState(44),[noteHeight,setNoteHeight]=useState(40),[controlsHeight,setControlsHeight]=useState(120),[textHeight,setTextHeight]=useState(0),[scroll,setScroll]=useState(0),input=useRef<TextInput>(null);
  const viewport=Math.max(1,height-top-bottom-12);
  const contentHeight=Math.max(viewport,chipHeight+12+2*(ballOnScreen(stillFrame('Ask'),width,height)?.r??0)+16+noteHeight+controlsHeight);
  const ball=typingBall(width,height,chipHeight+12,contentHeight-controlsHeight-noteHeight-16,thinkingBall(width,height,top).r/pushIn),offset=Math.min(scroll,contentHeight-viewport);
  useEffect(()=>{onCamera({...ball,y:top+ball.y-offset})},[ball.x,ball.y,ball.r,top,offset]);
+ // The question, chips and controls settle in as the camera's push lands, rather than before the glass arrives.
+ const shown=useRef(new Animated.Value(reduce?1:0)).current;
+ useEffect(()=>{if(reduce){shown.setValue(1);return}const settle=Animated.timing(shown,{toValue:1,duration:entrances.typing.duration,delay:motion.push*.4,easing:Easing.bezier(...motion.ease),useNativeDriver:native});settle.start();return()=>settle.stop()},[reduce]);
  // The text keeps to the square inside the glass and shrinks as the question grows; the field scrolls only past that.
  const side=Math.round(ball.r*1.42),base=ball.r*.21,size=Math.round(Math.max(13,Math.min(ball.r*.3,base*Math.sqrt(Math.min(1,40/Math.max(1,value.length))))));
  const font={fontFamily:fonts.italic,fontSize:size,lineHeight:Math.round(size*1.18),textAlign:'center' as const},box=Math.min(side,textHeight||side);
- return <ScrollView testID="ask-content" keyboardShouldPersistTaps="handled" scrollEnabled={contentHeight>viewport} onScroll={e=>setScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16} style={{position:'absolute',left:0,top,width,height:viewport}} contentContainerStyle={{height:contentHeight}}>
+ return <Animated.ScrollView testID="ask-content" keyboardShouldPersistTaps="handled" scrollEnabled={contentHeight>viewport} onScroll={e=>setScroll(e.nativeEvent.contentOffset.y)} scrollEventThrottle={16} style={{position:'absolute',left:0,top,width,height:viewport,opacity:shown}} contentContainerStyle={{height:contentHeight}}>
   <View onLayout={e=>setChipHeight(e.nativeEvent.layout.height)} pointerEvents="box-none" style={{position:'absolute',left:20,right:20,top:0,alignItems:'center'}}>{chip}</View>
   {/* The fog dims behind the words so they read on the glass; tapping anywhere on the ball writes into it. */}
   <Pressable accessible={false} onPress={()=>input.current?.focus()} style={{position:'absolute',left:ball.x-ball.r,top:ball.y-ball.r,width:ball.r*2,height:ball.r*2,borderRadius:ball.r}}>
@@ -49,22 +53,50 @@ export function AskBall({width,height,top,bottom,value,onChangeText,refused,redu
   </View>
   <View testID="ask-disclosure" onLayout={e=>setNoteHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:controlsHeight}}>{note}</View>
   <View onLayout={e=>setControlsHeight(e.nativeEvent.layout.height)} style={{position:'absolute',left:24,right:24,bottom:0}}>{controls}</View>
- </ScrollView>;
+  {toast?<View pointerEvents="box-none" style={{position:'absolute',left:24,right:24,bottom:controlsHeight,alignItems:'center'}}>{toast}</View>:null}
+ </Animated.ScrollView>;
+}
+
+// A short notice floating over the typing screen, so nothing beneath it moves: it rises in, holds long enough to read,
+// then fades out on its own. A tap dismisses it sooner.
+export function Toast({text,reduce,onDone}:{text:string;reduce:boolean;onDone:()=>void}){
+ const shown=useRef(new Animated.Value(reduce?1:0)).current,alive=useRef(true),done=useRef(onDone);done.current=onDone;
+ const leave=()=>{
+  if(reduce){done.current();return}
+  Animated.timing(shown,{toValue:0,duration:320,easing:Easing.bezier(...motion.ease),useNativeDriver:native}).start(({finished})=>{if(finished&&alive.current)done.current()});
+ };
+ useEffect(()=>{
+  const rise=Animated.timing(shown,{toValue:1,duration:entrances.toast.duration,easing:Easing.bezier(...motion.spring),useNativeDriver:native});
+  if(!reduce)rise.start();
+  const timer=setTimeout(leave,Math.max(4500,text.length*70));
+  return()=>{alive.current=false;rise.stop();clearTimeout(timer)};
+ },[]);
+ return <Animated.View style={{maxWidth:360,opacity:shown.interpolate({inputRange:[0,1],outputRange:[0,1],extrapolate:'clamp'}),transform:[{translateY:shown.interpolate({inputRange:[0,1],outputRange:[entrances.toast.y,0]})},{scale:shown.interpolate({inputRange:[0,1],outputRange:[entrances.toast.scale,1]})}]}}>
+  <Pressable testID="dismiss-notice" accessibilityRole="button" accessibilityHint="Dismisses this message" onPress={leave} style={{minHeight:44,justifyContent:'center',paddingHorizontal:18,paddingVertical:10,borderRadius:22,backgroundColor:'rgba(20,14,10,.9)'}}>
+   <Surface kind="card"/>
+   <Txt testID="notice" accessibilityLiveRegion="polite" style={{textAlign:'center'}}>{text}</Txt>
+  </Pressable>
+ </Animated.View>;
 }
 
 // The room behind Ask, filmed by a camera that eases between the resting view, the typing push-in and the thinking
-// plunge. Each Ask the Ball (`moment`) plunges with an overshoot, then the room shakes once as it lands.
+// plunge. Each Ask the Ball (`moment`) plunges with an overshoot, then the room shakes once as it lands. Entering typing
+// (`track`) glides in like a room flight; after that a scroll only pans, so the camera follows it at once, and a new
+// zoom (the keyboard) keeps pace with the keyboard so the glass stays under the question.
 export function RoomCamera({width,height,cam,reduce,moment,track=false,children}:{width:number;height:number;cam:Camera|null;reduce:boolean;moment:number;track?:boolean;children:ReactNode}){
  const {k,tx,ty}=cameraTransform(width,height,cam);
- const pose=useRef({k:new Animated.Value(k),tx:new Animated.Value(tx),ty:new Animated.Value(ty)}).current,quake=useRef(new Animated.Value(0)).current,plunged=useRef(moment);
+ const pose=useRef({k:new Animated.Value(k),tx:new Animated.Value(tx),ty:new Animated.Value(ty)}).current,quake=useRef(new Animated.Value(0)).current,plunged=useRef(moment),zoom=useRef(k),gliding=useRef(false),tracked=useRef(track),landing=useRef(0);
  useEffect(()=>{
-  const plunge=moment!==plunged.current;plunged.current=moment;
-  if(reduce||track){pose.k.setValue(k);pose.tx.setValue(tx);pose.ty.setValue(ty);quake.setValue(0);return}
-  const curve=Easing.bezier(...(plunge?[.34,1.3,.64,1]:motion.ease) as [number,number,number,number]);
-  const move=Animated.parallel(([[pose.k,k],[pose.tx,tx],[pose.ty,ty]] as const).map(([value,to])=>Animated.timing(value,{toValue:to,duration:plunge?900:480,easing:curve,useNativeDriver:native})));
+  const plunge=moment!==plunged.current,zoomed=k!==zoom.current;plunged.current=moment;zoom.current=k;
+  if(track&&!tracked.current)landing.current=Date.now()+motion.push;
+  tracked.current=track;
+  if(reduce||(track&&!zoomed&&!gliding.current)){pose.k.setValue(k);pose.tx.setValue(tx);pose.ty.setValue(ty);quake.setValue(0);return}
+  const curve=Easing.bezier(...(plunge?[.34,1.3,.64,1]:track?motion.glide:motion.ease) as [number,number,number,number]);
+  const move=Animated.parallel(([[pose.k,k],[pose.tx,tx],[pose.ty,ty]] as const).map(([value,to])=>Animated.timing(value,{toValue:to,duration:plunge?900:track?Math.max(280,landing.current-Date.now()):480,easing:curve,useNativeDriver:native})));
   const shake=plunge?Animated.timing(quake,{toValue:1,duration:560,delay:520,easing:Easing.linear,useNativeDriver:native}):null;
   if(shake)quake.setValue(0);
-  move.start();shake?.start();
+  gliding.current=true;
+  move.start(({finished})=>{if(finished)gliding.current=false});shake?.start();
   return()=>{move.stop();shake?.stop();quake.setValue(0)};
  },[k,tx,ty,reduce,moment,track]);
  const steps=[0,.12,.26,.4,.55,.7,.85,1];
