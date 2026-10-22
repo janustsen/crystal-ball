@@ -60,9 +60,10 @@ export function AskBall({width,height,top,bottom,value,onChangeText,refused,redu
 // A short notice floating over the typing screen, so nothing beneath it moves: it rises in, holds long enough to read,
 // then fades out on its own. A tap dismisses it sooner.
 export function Toast({text,reduce,onDone}:{text:string;reduce:boolean;onDone:()=>void}){
- const shown=useRef(new Animated.Value(reduce?1:0)).current,alive=useRef(true),done=useRef(onDone);done.current=onDone;
+ const shown=useRef(new Animated.Value(reduce?1:0)).current,alive=useRef(true),done=useRef(onDone),still=useRef(reduce);done.current=onDone;still.current=reduce;
+ // The timer's leave was made on the first render, so it reads Reduce Motion from a ref to honor a change made mid-toast.
  const leave=()=>{
-  if(reduce){done.current();return}
+  if(still.current){done.current();return}
   Animated.timing(shown,{toValue:0,duration:320,easing:Easing.bezier(...motion.ease),useNativeDriver:native}).start(({finished})=>{if(finished&&alive.current)done.current()});
  };
  useEffect(()=>{
