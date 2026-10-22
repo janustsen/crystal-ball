@@ -468,3 +468,18 @@ test('Ask reserves the supplied keyboard and notice space through resize and dis
   assert.ok(tree.props.contentContainerStyle.height>=tree.props.style.height);
  }
 });
+
+test('a toast honors Reduce Motion turned on while it is showing',()=>{
+ const timers:(()=>void)[]=[],fades:number[]=[];let done=0;
+ const render=component('../src/AskBall.tsx',{
+  ...sky,'react-native':{...animated,Animated:{...animated.Animated,timing:(_:any,{toValue}:{toValue:number})=>({start(){if(toValue===0)fades.push(toValue)},stop(){}})},Platform:{OS:'ios'},View:'View',Text:'Text',TextInput:'TextInput',Pressable:'Pressable'},
+  'react-native-svg':{default:'Svg',Circle:'Circle',Defs:'Defs',RadialGradient:'RadialGradient',Stop:'Stop'},
+  ...askImports,'./motion':{motion:{ease:[0,0,1,1],spring:[0,0,1,1]},entrances:{typing:{},toast:{}}},
+ },{setTimeout:(callback:()=>void)=>timers.push(callback),clearTimeout(){}});
+ const props={text:'Ask one question at a time.',reduce:false,onDone:()=>done++};
+ render('Toast',props);
+ render('Toast',{...props,reduce:true});
+ timers.forEach(fire=>fire());
+ assert.equal(done,1);
+ assert.deepEqual(fades,[]);
+});
