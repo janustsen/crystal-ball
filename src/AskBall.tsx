@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState,type ReactNode} from 'react';
-import {Animated,Dimensions,Easing,Keyboard,Platform,Pressable,ScrollView,Text,TextInput,View} from 'react-native';
+import {Animated,AppState,Dimensions,Easing,Keyboard,Platform,Pressable,ScrollView,Text,TextInput,View} from 'react-native';
 import Svg,{Circle,Defs,RadialGradient,Stop,SvgXml} from 'react-native-svg';
 import {Shake} from './Enter';
 import {entrances,motion} from './motion';
@@ -109,6 +109,24 @@ export function RoomCamera({width,height,cam,reduce,moment,track=false,children}
 // The magic as the camera lands in the ball: the question sinks into the glass, then a gold flash, one shockwave ring
 // and eighteen sparks thrown off it.
 const sparks=Array.from({length:18},(_,i)=>({angle:i/18*Math.PI*2+(i%2?.2:-.1),reach:1.25+(i%3)*.3,size:14+(i%4)*5,grow:.8+(i%3)*.3,start:(i%5)*.04}));
+export function ThinkingMist({cam,reduce}:{cam:Camera;reduce:boolean}){
+ const turn=useRef(new Animated.Value(0)).current;
+ useEffect(()=>{
+  turn.setValue(0);
+  if(reduce)return;
+  const drift=Animated.loop(Animated.timing(turn,{toValue:1,duration:5400,easing:Easing.linear,useNativeDriver:native,isInteraction:false}));
+  const sync=()=>{drift.reset();if(AppState.currentState==='active')drift.start()};
+  sync();const listener=AppState.addEventListener('change',sync);
+  return()=>{listener.remove();drift.stop()};
+ },[reduce,turn]);
+ const r=cam.r*.82,size=r*2;
+ return <View testID="thinking-mist" pointerEvents="none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',left:cam.x-r,top:cam.y-r,width:size,height:size,borderRadius:r,overflow:'hidden'}}>
+  <Animated.View testID="thinking-mist-drift" style={{width:size,height:size,transform:[{rotate:turn.interpolate({inputRange:[0,1],outputRange:['0deg','360deg']})}]}}>
+   <Svg width={size} height={size}><Defs><RadialGradient id="thinking-light"><Stop offset="0" stopColor={colors.gold} stopOpacity={.42}/><Stop offset=".45" stopColor={colors.gold} stopOpacity={.18}/><Stop offset="1" stopColor={colors.gold} stopOpacity={0}/></RadialGradient></Defs><Circle cx={r*.65} cy={r*.66} r={r*.8} fill="url(#thinking-light)"/><Circle cx={r*1.4} cy={r*1.3} r={r*.6} fill="url(#thinking-light)"/></Svg>
+   {[{x:.45,y:.8,s:10},{x:1.3,y:.48,s:7},{x:1.48,y:1.35,s:9}].map((p,i)=><View key={i} style={{position:'absolute',left:r*p.x,top:r*p.y,opacity:.7}}><SvgXml xml={spark} width={p.s} height={p.s}/></View>)}
+  </Animated.View>
+ </View>;
+}
 export function AskMoment({cam,from,question,moment,reduce}:{cam:Camera|null;from:Camera|null;question:string;moment:number;reduce:boolean}){
  const t=useRef(new Animated.Value(1)).current,sink=useRef(new Animated.Value(1)).current,seen=useRef(moment),[live,setLive]=useState(false);
  useEffect(()=>{

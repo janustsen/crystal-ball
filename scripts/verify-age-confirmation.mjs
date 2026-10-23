@@ -4,7 +4,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 const base=process.env.VERIFY_URL||'http://localhost:8087';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const results=[],stamp=new Date().toISOString().replaceAll(':','-');
-await mkdir('docs/evidence',{recursive:true});
+const out=process.env.EVIDENCE_DIR||'docs/evidence';await mkdir(out,{recursive:true});
 try{
  for(const entry of ['fresh','friend','legacy'])for(const accept of [false,true]){
   const context=await browser.newContext({httpCredentials,viewport:{width:390,height:844}}),page=await context.newPage(),requests=[];
@@ -28,14 +28,14 @@ try{
     const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')));
     expect(saved.ageConfirmed).toBe(true);expect(saved.ageBand).toBe('teen');expect(saved.sunSign).toBeNull();expect(saved.birthday).toBeUndefined();expect(saved.onboardingDone).toBe(true);
     if(entry==='friend'){
-     await expect(page.getByTestId('question-input')).toHaveValue('Will I finish writing in six months?');await page.getByTestId('look-into-the-future').click();await page.getByTestId('option-0').click();await page.getByTestId('share-this-glimpse').waitFor();
+     await expect(page.getByTestId('question-input')).toHaveValue('Will I finish writing in six months?');await page.getByTestId('look-into-the-future').click();for(let i=0;i<4;i++){await page.getByTestId('option-0').or(page.getByTestId('share-this-glimpse')).first().waitFor();if(await page.getByTestId('share-this-glimpse').count())break;await page.getByTestId('option-0').click();await page.waitForTimeout(800)}await page.getByTestId('share-this-glimpse').waitFor();
      await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).history.length)).toBe(1);
      expect(requests.map(r=>r.action)).toEqual(['plan','predict']);for(const r of requests){expect(r.ageConfirmed).toBe(true);expect(r.viewerBirthday).toBeUndefined();expect(r.friend).toBe(true);}
      expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('crystal-ball-v1')).facts)).toEqual({});
     }else await expect(page.getByTestId('tap-to-ask')).toBeVisible();
    }
    results.push({entry,accept,passed:true,model:'explicit boundary fixture; not live model evidence'});
-  }catch(error){await page.screenshot({path:`docs/evidence/age-confirmation-${stamp}-${entry}-${accept}-failure.png`});results.push({entry,accept,failure:String(error)});throw error;}finally{await context.close();}
+  }catch(error){await page.screenshot({path:`${out}/age-confirmation-${stamp}-${entry}-${accept}-failure.png`});results.push({entry,accept,failure:String(error)});throw error;}finally{await context.close();}
  }
-}finally{await writeFile(`docs/evidence/age-confirmation-${stamp}.json`,JSON.stringify(results,null,2));await browser.close();}
+}finally{await writeFile(`${out}/age-confirmation-${stamp}.json`,JSON.stringify(results,null,2));await browser.close();}
 console.log('PASS: fresh, friend and legacy age confirmation, decline, reload and friend reading persistence.');

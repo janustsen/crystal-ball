@@ -99,7 +99,7 @@ for(const [width,height] of [[375,667],[440,956]])for(const fixture of followups
   await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
   await page.getByTestId('tap-to-ask').click();await page.getByTestId('type-instead').click();
   await page.getByTestId('question-input').fill('Will I have a good month?');await page.getByTestId('look-into-the-future').click();
-  await page.getByTestId('option-0').click();
+  await page.waitForTimeout(300);await page.getByTestId('option-0').click();await expect(page.getByText(cards[0].question,{exact:true})).toBeVisible();await page.getByTestId('option-0').click();
   const question=page.getByText(cards[1].question,{exact:true});
   await expect(question).toBeVisible();await page.waitForTimeout(1800);
   await expect(question).toBeInViewport({ratio:1});
@@ -141,7 +141,6 @@ for(const width of [360,390,430,440]){
  const tap=id=>page.getByTestId(id).click();
  const text=value=>page.getByText(value,{exact:true});
  const check=(name,marker,delay)=>audit(page,width,name,marker,delay);
- const planning=text('Checking the question and finding what matters.');
  const research=text('Looking for current context and forming your forecast.');
  const error={kind:'error',message:'Layout fixture: the engine could not complete this reading. Nothing was charged.'};
  // The engine's own short error fits the desk card at normal text; the long fixture above keeps its lit panel.
@@ -169,11 +168,11 @@ for(const width of [360,390,430,440]){
  await tap('hero-orb');await check('approach',text('Come closer…'),0);
  await check('listening',page.getByTestId('type-instead'));
  await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await check('ask',page.getByTestId('question-input'));
- await tap('look-into-the-future');await check('planning',planning);
- await reply('plan',shortError);await check('error-plan',text('The mist is too thick.'));
- await tap('try-again');await expect(planning).toBeVisible();await reply('plan',blocked);
+ await tap('look-into-the-future');const opening=text('How often do you practice?');await check('opening-card',opening);
+ await reply('plan',shortError);await check('planning-unavailable-opening',opening);
+ await tap('close-flow');await tap('close-flow');await tap('tap-to-ask');await tap('type-instead');await page.getByTestId('question-input').fill(prediction.question);await tap('look-into-the-future');await expect(opening).toBeVisible();await reply('plan',blocked);
  await check('sensitive-plan',text('This one isn’t for the Ball.'));
- await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
+ await tap('edit-question');await tap('look-into-the-future');await expect(opening).toBeVisible();await reply('plan',{kind:'ok',value:plan});await page.waitForTimeout(100);await tap('option-0');
  await check('card-1',text(plan.cards[0].question));
  await tap('option-3');await check('card-other',page.getByTestId('other-input'));await page.getByTestId('other-input').fill('Somewhere between halfway and nearly');await tap('answer-next');
  await check('card-2',text(plan.cards[1].question));await tap('option-0');
@@ -182,7 +181,7 @@ for(const width of [360,390,430,440]){
  await check('error-predict',page.getByTestId('review-answers'));
  await tap('try-again');await expect(research).toBeVisible();await reply('predict',blocked);
  await check('sensitive-predict',text('This one isn’t for the Ball.'));
- await tap('edit-question');await tap('look-into-the-future');await expect(planning).toBeVisible();await reply('plan',{kind:'ok',value:plan});
+ await tap('edit-question');await tap('look-into-the-future');await expect(opening).toBeVisible();await reply('plan',{kind:'ok',value:plan});await page.waitForTimeout(100);await tap('option-0');
  for(const card of plan.cards){await expect(text(card.question)).toBeVisible();await tap('option-0')}
  await expect(research).toBeVisible();await reply('predict',{kind:'ok',value:prediction});
  await check('reveal',page.getByTestId('why-disclosure'));await tap('why-disclosure');await expect(text(prediction.why)).toBeVisible();

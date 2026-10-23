@@ -54,16 +54,17 @@ async function answersMismatch(cards:{question:string;options:string[]}[],model:
   value=>!!value&&typeof value==='object'&&'fits'in value&&typeof value.fits==='boolean'&&'reason'in value&&typeof value.reason==='string')));
  return verdicts.flatMap((verdict,i)=>verdict.fits?[]:[`Card ${i+1}: ${verdict.reason}`]);
 }
-export async function makePlan(question:string,known:Facts,model:ModelProvider,context:ReadingContext={}):Promise<Result<Plan>> {
+export async function makePlan(question:string,known:Facts,model:ModelProvider,context:ReadingContext={},signal?:AbortSignal):Promise<Result<Plan>> {
  const issue=personQuestionIssue(question,context.personName);if(issue)return {kind:'error',message:issue};
  const deadline=Date.now()+planTiming.budgetMs,source=model;
  let timer:ReturnType<typeof setTimeout>;
  // The deadline also cancels in-flight model calls, so a timed-out plan never starts its repair request.
  const cancel=new AbortController();
+ const planningSignal=signal?AbortSignal.any([cancel.signal,signal]):cancel.signal;
  const expired=new Promise<never>((_,reject)=>{timer=setTimeout(()=>{cancel.abort();reject(new Error('Planning timed out.'))},planTiming.budgetMs)});
  model={async json<T>(system:string,input:unknown,schema:JsonSchema,valid:Validator){
   if(Date.now()>=deadline)throw new Error('Planning timed out.');
-  const value=await Promise.race([source.json<T>(system,input,schema,valid,cancel.signal),expired]);
+  const value=await Promise.race([source.json<T>(system,input,schema,valid,planningSignal),expired]);
   if(Date.now()>=deadline)throw new Error('Planning timed out.');
   return value;
  }};
@@ -104,7 +105,7 @@ export async function predict(question:string,facts:Facts,friend:boolean,model:M
   if(ageGroup(context.viewerBirthday)==='under13')throw new Error('Crystal Ball is for ages 13 and up.');
   const teenSafe=ageGroup(context.viewerBirthday)!=='adult';
   const subject=planFor(question,{}).topic,love=loveTiming(context),topic=context.personName||love||facts.context_1?'general':subject;
-  if(context.personName)facts=Object.fromEntries(Object.entries(facts).filter(([key])=>['context_1','context_2','horizon'].includes(key)));
+  if(context.personName)facts=Object.fromEntries(Object.entries(facts).filter(([key])=>['context_1','context_2','horizon','session_open'].includes(key)));
   facts={...facts,...inferFacts(question,topic)};if(love)delete facts.horizon;
   const required=topic==='general'?['context_1',...(love?[]:['horizon'])]:registry[topic].map(card=>card.id);
   if(required.some(key=>!facts[key]?.trim()))throw new Error('Some context is missing. Please review your answers.');

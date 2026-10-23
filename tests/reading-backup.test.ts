@@ -18,6 +18,7 @@ import * as billing from '../src/billing';
 import * as storyCard from '../src/story-card';
 import * as webReading from '../src/web-reading';
 import {motion} from '../src/motion';
+import * as safetyPolicy from '../src/safety-policy';
 const {plans,packs}=billing;
 
 const stamp=(n:number)=>`2026-10-04T00:00:00.${String(n).padStart(6,'0')}Z`;
@@ -37,7 +38,7 @@ function hooks(effectsEnabled=true){
 function load(path:string,imports:Record<string,any>,warnings:string[],globals:Record<string,unknown>={}){
  const code=ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:true}}).outputText;
  const module={exports:{} as any};
- runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='./billing'||name==='../src/billing'?billing:name==='../src/ladder'?ladder:name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
+ runInNewContext(code,{module,exports:module.exports,require:(name:string)=>imports[name]??(name==='./billing'||name==='../src/billing'?billing:name==='../src/ladder'?ladder:name==='../src/safety-policy'?safetyPolicy:name==='../src/opening-plan'?{openingPlan:()=>({topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false}]}),appendTailored:(opening:any)=>opening}:name==='../src/story-card'?storyCard:name==='../src/uuid'?{uuid:()=>crypto.randomUUID()}:name==='../src/web-reading'?webReading:name==='../src/ball-asks'?ballAsks:name==='../src/BallAsks'?{BallAsks:'BallAsks'}:{}),AbortController,performance,setInterval:()=>0,clearInterval:()=>{},setTimeout:()=>0,clearTimeout:()=>{},console:{warn:(message:string)=>warnings.push(message)},...globals});
  return module.exports;
 }
 async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals:Record<string,unknown>={},account:Record<string,unknown>={}){
@@ -728,6 +729,7 @@ test('a tapped answer holds its highlight, ignores repeat taps and drops when Ba
   '../src/SocialScreen':{Social:'Social'},'../src/social':{syncSocialProfile:async()=>{}},'../src/native':{haptic:()=>{},watchCheckIns:()=>()=>{}},'../src/SocialPush':{watchSocialPushes:()=>()=>{}},
   '../src/questions':{validateAnswer:()=>{},adaptPlan:(plan:any)=>plan,factLabels:{}},
   '../src/purchases':{purchaseMode:'mock'},'../src/motion':{motion},
+  '../src/opening-plan':{openingPlan:()=>({topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false},{id:'pace',question:'Your pace?',options:['Slow','Fast'],remember:false}]}),appendTailored:(opening:any)=>opening},
   '../src/api':{webReadingVisitor:()=>false,request:async(action:string)=>{
    if(action==='plan')return {kind:'ok',value:{topic:'learning',provided:{},cards:[{id:'goal',question:'Your goal?',options:['Learn','Teach'],remember:false},{id:'pace',question:'Your pace?',options:['Slow','Fast'],remember:false}]}};
    predicts++;return new Promise(()=>{});

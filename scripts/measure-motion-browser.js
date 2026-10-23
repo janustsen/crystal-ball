@@ -13,9 +13,10 @@
  const sample=async(label,id,duration=2200,until=null)=>{
   await new Promise(r=>requestAnimationFrame(r));
   const start=performance.now(),before=draws,beforeFrames=drawFrames.size;let last=start,settled=0,visibleFrames=0;const frames=[];
+  const targets=(Array.isArray(until)?until:until?[until]:[]).map(target=>({selector:`[data-testid="${target}"]`,before:document.querySelector(`[data-testid="${target}"]`)}));
   performance.mark(label+'-start');if(id)click(id);
   await new Promise((resolve,reject)=>{function tick(t){frames.push(t-last);last=t;if(document.querySelector('.room canvas')?.style.visibility==='visible')visibleFrames++;
-   if(until&&document.querySelector(`[data-testid="${until}"]`))settled||=t;
+   if(targets.some(target=>{const node=document.querySelector(target.selector);return node&&node!==target.before}))settled||=t;
    if(t-start>65000)return reject(new Error('Timed out '+label));
    if(until?settled&&t-settled>1800:t-start>=duration)resolve();else requestAnimationFrame(tick);
   }requestAnimationFrame(tick)});

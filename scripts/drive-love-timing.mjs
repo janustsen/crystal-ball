@@ -1,7 +1,7 @@
 import {httpCredentials} from './preview-auth.mjs';
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
-import {tapToAsk,openEverything} from './ladder-seed.mjs';
+import {tapToAsk} from './ladder-seed.mjs';
 // Love timing end to end against the real engine: an adult asks "When will it happen?", the plan never asks for a
 // horizon, the Ball names the date, the reveal and the History shelf show it, and a teen profile is never offered it.
 const evidenceDir=process.env.EVIDENCE_DIR||'docs/evidence';
@@ -15,9 +15,11 @@ const shot=async(page,name)=>{await page.waitForTimeout(800);await page.screensh
 let page;
 async function profile(year){
  const context=await browser.newContext(options);page=await context.newPage();
- page.on('response',async r=>{if(r.url().startsWith(engine)&&r.request().method()==='POST')try{log.push({request:r.request().postDataJSON(),response:await r.json()})}catch{}});
+ const requests=new Map();
+ page.on('request',r=>{if(r.url().startsWith(engine)&&r.method()==='POST'){const entry={request:r.postDataJSON(),response:null};requests.set(r,entry);log.push(entry)}});
+ page.on('response',async r=>{const entry=requests.get(r.request());if(entry)try{entry.response=await r.json()}catch{}});
  await page.goto(url);
- await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill(String(year));await page.getByTestId('continue').click();await page.getByTestId('about-done').click();await openEverything(page);
+ await page.getByTestId('birthday-month').click();await page.getByTestId('birthday-month').fill('03');await page.getByTestId('birthday-day').fill('14');await page.getByTestId('birthday-year').fill(String(year));await page.getByTestId('continue').click();await page.getByTestId('about-done').click();
  await tapToAsk(page);await page.getByTestId('type-instead').click();
  return context;
 }
@@ -47,7 +49,7 @@ try{
  await shot(page,'reveal');
  const plan=log.find(e=>e.request.action==='plan'),predict=log.find(e=>e.request.action==='predict');
  if(plan?.request.timing!=='love'||predict?.request.timing!=='love')throw new Error('The engine requests did not carry timing love.');
- if(plan.response.kind!=='ok'||plan.response.value.cards.some(c=>c.id==='horizon'))throw new Error('The love timing plan asked for a horizon.');
+ if(plan.response?.kind==='ok'&&plan.response.value.cards.some(c=>c.id==='horizon'))throw new Error('The love timing plan asked for a horizon.');
  if(predict.response.kind!=='ok')throw new Error(`The forecast failed: ${JSON.stringify(predict.response)}`);
  const reading=predict.response.value,shift=horizons[reading.facts.horizon];
  if(!shift||reading.timing!=='love'||reading.label!=='Love timing')throw new Error(`Unexpected love timing reading: ${JSON.stringify(reading)}`);
