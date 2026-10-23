@@ -141,7 +141,7 @@ test('Home asks first, then shows one line of today’s insight that opens to th
  }
 });
 
-test('every room header exposes Settings beside Plans and Home omits its title',()=>{
+test('room headers expose Settings beside Plans except while already in Settings; Home omits its title',()=>{
  const events:string[]=[];
  const render=component('../src/Home.tsx',{
   ...sky,'react-native':{Platform:{OS:'web'},Pressable:'Pressable',ScrollView:'ScrollView',View:'View'},
@@ -152,14 +152,14 @@ test('every room header exposes Settings beside Plans and Home omits its title',
   for(const ready of [false,true]){
    const tree=render('RoomHeader',{title,count:'1 reading left',ready,settings:title==='Settings',top:59,onPlans:()=>events.push('plans'),onSettings:()=>events.push('settings')});
    const all=nodes(tree),settings=all.find(n=>n.props.testID==='open-settings');
-   assert.equal(settings.props.disabled,!ready);
-   assert.equal(settings.props.accessibilityState.selected,title==='Settings');
+   assert.equal(!!settings,title!=='Settings');
+   if(settings){assert.equal(settings.props.disabled,!ready);assert.equal(settings.props.accessibilityState.selected,false)}
    assert.equal(all.some(n=>n.props.accessibilityRole==='header'),!!title);
-   const row=all.find(n=>n.children.includes(settings));
-   const plans=row.children.find((n:any)=>typeof n.type==='function');
-   assert.ok(plans,'Plans shares the Settings row');
+   const plans=all.find(n=>n.props.count==='1 reading left');
+   assert.ok(plans,'Plans remains available on every screen');
+   if(settings)assert.ok(all.some(n=>n.children.includes(settings)&&n.children.includes(plans)),'Plans shares the Settings row');
    assert.equal(plans.props.ready,ready);
-   if(ready){plans.props.onPress();settings.props.onPress();assert.deepEqual(events.splice(0),['plans','settings'])}
+   if(ready){plans.props.onPress();settings?.props.onPress();assert.deepEqual(events.splice(0),settings?['plans','settings']:['plans'])}
   }
  }
  const bar=nodes(render('HomeTabBar',{shown:['Home','History','You'],dots:{You:true},current:'History',disabled:false,bottom:34,onTab:(tab:string)=>events.push(tab)}));

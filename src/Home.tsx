@@ -86,9 +86,9 @@ export function RoomHeader({title,count,ready,reduce,onPlans,onSettings,onBack,s
   {title?<View style={{flexShrink:1}}><Enter key={title} kind="status" reduce={reduce}><Txt accessibilityRole="header" allowFontScaling={false} numberOfLines={1} style={{fontFamily:fonts.italic,fontSize:36,lineHeight:44}}>{title}</Txt></Enter></View>:null}
   <View style={{marginLeft:'auto',flexDirection:'row',alignItems:'center',gap:6}}>
    <PlansPill count={count} ready={ready} reduce={reduce} onPress={onPlans}/>
-   <Pressable testID="open-settings" accessibilityRole="button" accessibilityLabel="Settings" accessibilityState={{selected:settings}} disabled={!ready} onPress={onSettings} style={{width:44,height:44,alignItems:'center',justifyContent:'center'}}>
-    <View style={{width:32,height:32,alignItems:'center',justifyContent:'center'}}><Surface kind="pill" state={ready?undefined:'disabled'}/><View><SvgXml aria-hidden xml={gear.replace('currentColor',settings?colors.gold:colors.ivory)} width={18} height={18}/></View></View>
-   </Pressable>
+   {!settings?<Pressable testID="open-settings" accessibilityRole="button" accessibilityLabel="Settings" accessibilityState={{selected:false}} disabled={!ready} onPress={onSettings} style={{width:44,height:44,alignItems:'center',justifyContent:'center'}}>
+    <View style={{width:32,height:32,alignItems:'center',justifyContent:'center'}}><Surface kind="pill" state={ready?undefined:'disabled'}/><View><SvgXml aria-hidden xml={gear.replace('currentColor',colors.ivory)} width={18} height={18}/></View></View>
+   </Pressable>:null}
   </View>
  </View>;
 }
