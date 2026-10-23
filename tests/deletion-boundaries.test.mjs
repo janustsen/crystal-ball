@@ -35,9 +35,9 @@ test('real iOS helper propagates synchronous and asynchronous cleanup failures, 
  assert.equal(calls,6);
 });
 
-test('cloud distinguishes explicit refusal from transport, parsing, server uncertainty and sign-out failures',async()=>{
- let response=()=>Response.json({deleted:true}),signOutError=null;
- const client={auth:{getSession:async()=>({data:{session:{access_token:'token',user:{id:'owner'}}}}),getUser:async()=>({error:null}),signOut:async()=>({error:signOutError})}};
+test('cloud separates remote deletion from retryable local sign-out and acquires a fresh identity',async()=>{
+ let response=()=>Response.json({deleted:true}),signOutError=null,session={access_token:'old-token',user:{id:'owner'}},anonymousCalls=0,signOutCalls=0;
+ const client={auth:{getSession:async()=>({data:{session}}),getUser:async()=>({error:null}),signOut:async()=>{signOutCalls++;if(!signOutError)session=null;return {error:signOutError}},signInAnonymously:async()=>{anonymousCalls++;session={access_token:'fresh-token',user:{id:'fresh-owner'}};return {data:{user:session.user}}}}};
  const api=await load('../src/cloud.ts',{
   '@supabase/supabase-js':{createClient:()=>client,isAuthRetryableFetchError:()=>false,isAuthSessionMissingError:()=>false},
   '@react-native-async-storage/async-storage':{default:{}},'./profile':{canRead:()=>true},'./ladder':{questionsAsked:()=>0},'./backup':{validFacts:()=>true,validPrediction:()=>true},'./ball-asks':{askFor:()=>{},asksOf:()=>{},selfAnswers:()=>{},teenSafe:()=>true},
@@ -48,9 +48,19 @@ test('cloud distinguishes explicit refusal from transport, parsing, server uncer
   response=result;
   await assert.rejects(api.deleteAppleAccount('code'),error=>!(error instanceof api.AccountDeletionRefused));
  }
- response=()=>Response.json({deleted:true});signOutError=Error('sign-out failed');
- await assert.rejects(api.deleteAppleAccount('code'),error=>error===signOutError);
- signOutError=null;await api.deleteAppleAccount('code');
+ assert.equal(signOutCalls,0);
+ assert.equal(await api.anonymousOwner(),'owner');
+ signOutError=Error('sign-out failed');
+ await assert.rejects(api.forgetAccountSession(),error=>error===signOutError);
+ assert.equal(session.user.id,'owner');
+ signOutError=null;await api.forgetAccountSession();
+ assert.equal(session,null);
+ assert.equal(await api.anonymousOwner(),'fresh-owner');
+ assert.equal((await api.authorization()).Authorization,'Bearer fresh-token');
+ assert.equal(anonymousCalls,1);
+ response=()=>Response.json({deleted:true});await api.deleteAppleAccount('code');
+ assert.equal(signOutCalls,2);
+ await api.forgetAccountSession();assert.equal(session,null);
 });
 
 test('server marks only refusals before admin deletion as definite',async()=>{

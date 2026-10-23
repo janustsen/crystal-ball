@@ -83,6 +83,12 @@ export async function deleteAppleAccount(authorizationCode:string){
  const result=await response.json();
  if(!response.ok&&result.refused===true)throw new AccountDeletionRefused(result.error||'Account deletion was refused.');
  if(!response.ok||result.deleted!==true)throw new Error(result.error||'Account deletion did not finish.');
- const signedOut=await supabase.auth.signOut({scope:'local'});
+}
+
+export async function forgetAccountSession(client:SupabaseClient|null=supabase){
+ if(!client)return;
+ await pendingOwners.get(client)?.catch(()=>{});
+ const signedOut=await client.auth.signOut({scope:'local'});
  if(signedOut.error)throw signedOut.error;
+ checkedOwners.delete(client);
 }

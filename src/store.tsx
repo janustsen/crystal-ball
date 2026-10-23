@@ -10,7 +10,7 @@ import {updateOmenWidget} from './omen-widget';
 import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts,StyleOf} from './types';
-import {mirror,restoreBackup,supabase,anonymousOwner,AccountDeletionRefused} from './cloud';
+import {mirror,restoreBackup,supabase,anonymousOwner,AccountDeletionRefused,forgetAccountSession} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1',deletionKey='crystal-ball-deletion-pending';
 const initial=():AccountState=>({sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false});
@@ -99,6 +99,7 @@ export function Store({children}:React.PropsWithChildren){
    AsyncStorage.setItem(key,JSON.stringify(current.current)),
    forgetOmen(AsyncStorage),
    forgetCheckIns(),
+   forgetAccountSession(),
    Promise.resolve().then(()=>updateOmenWidget(null,true)),
   ]);
   try{

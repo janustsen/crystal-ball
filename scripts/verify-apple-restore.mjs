@@ -16,6 +16,7 @@ const mocks={
   signInWithIdToken:async()=>{window.control.switches++;window.control.owner='account-b';return {data:{user:{id:'account-b'}},error:null}}
  }};
  export async function deleteAppleAccount(code){if(!window.control.deletionMarker)throw Error('Deletion intent was not persisted');if(code!=='fresh-code')throw Error('Apple code missing');window.control.deletions=(window.control.deletions||0)+1;if(window.control.deleteFails)throw new AccountDeletionRefused('Synthetic server deletion failed');if(window.control.uncertainDelete)throw Error('Response lost after deletion')}
+ export async function forgetAccountSession(){if(window.control.cleanupFailure==='auth')throw Error('Local sign-out failed');window.control.owner=null}
  export const anonymousOwner=async()=>window.control.owner;
  export async function restoreBackup(state){window.control.reads++;throw Error('Archive unavailable')}
  export async function mirror(state){if(state.backupOwner!==window.control.owner)throw Error('Wrong owner');window.control.uploads++}
@@ -104,14 +105,14 @@ try{
  await page.waitForFunction(()=>Object.keys(JSON.parse(window.control.disk).facts).length===0);
  const removed=await page.evaluate(()=>({history:window.store.state.history,facts:window.store.state.facts,owner:window.store.state.backupOwner,disk:JSON.parse(window.control.disk),deletions:window.control.deletions}));
  assert.deepEqual(removed.history,[]);assert.deepEqual(removed.facts,{});assert.equal(removed.owner,undefined);assert.equal(removed.disk.backupOwner,undefined);assert.deepEqual(removed.disk.history,[]);assert.equal(removed.deletions,2);
- for(const failure of ['archive','omen','notifications','widget']){
+ for(const failure of ['archive','omen','notifications','widget','auth']){
   await page.evaluate(()=>window.store.update(s=>({...s,facts:{practice:'private fact'},history:[{id:'private reading'}]})));
   await page.waitForFunction(()=>JSON.parse(window.control.disk).history.length===1);
   await page.getByRole('textbox',{name:'Private draft'}).fill('Private draft');
   await page.getByRole('button',{name:'Forget practice',exact:true}).click();
   await page.evaluate(failure=>{
    window.control.omen=JSON.stringify({day:new Date().toISOString().slice(0,10),text:'Private omen',whisper:'Private whisper',tries:1});
-   window.control.reminders=['old reminder'];window.control.widget='Private omen';window.control.cleanupFailure=failure;
+   window.control.owner='deleted-owner';window.control.reminders=['old reminder'];window.control.widget='Private omen';window.control.cleanupFailure=failure;
   },failure);
   const deletions=await page.evaluate(()=>window.control.deletions),appleCalls=await page.evaluate(()=>window.control.appleCalls);
   await deletion.click();await page.evaluate(()=>window.control.confirm());
@@ -129,12 +130,12 @@ try{
   assert.equal(await page.evaluate(()=>window.control.appleCalls),appleCalls+1);
   assert.deepEqual(await page.evaluate(()=>({deletions:window.control.deletions,history:JSON.parse(window.control.disk).history,omen:JSON.parse(window.control.omen).text,whisper:JSON.parse(window.control.omen).whisper,reminders:window.control.reminders,widget:window.control.widget})),{deletions:deletions+1,history:[],omen:null,whisper:null,reminders:[],widget:'Open the Ball for your personal insight.'});
  }
- for(const failure of ['archive','omen','notifications','marker-clear']){
+ for(const failure of ['archive','omen','notifications','marker-clear','auth']){
   await page.evaluate(()=>window.store.update(s=>({...s,facts:{practice:'private fact'},history:[{id:'private reading'}]})));
   await page.waitForFunction(()=>JSON.parse(window.control.disk).history.length===1);
   await page.evaluate(failure=>{
    window.control.omen=JSON.stringify({day:new Date().toISOString().slice(0,10),text:'Private omen',whisper:'Private whisper',tries:1});
-   window.control.reminders=['old reminder'];window.control.cleanupFailure=failure;
+   window.control.owner='deleted-owner';window.control.reminders=['old reminder'];window.control.cleanupFailure=failure;
   },failure);
   await deletion.click();await page.evaluate(()=>window.control.confirm());
   await page.getByRole('button',{name:'Retry local cleanup',exact:true}).waitFor();
@@ -151,7 +152,7 @@ try{
    await restarted.evaluate(()=>{window.control.cleanupFailure=null});
    await restarted.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
    await restarted.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
-   assert.deepEqual(await restarted.evaluate(()=>({reads:window.control.archiveReads,history:JSON.parse(window.control.disk).history,facts:JSON.parse(window.control.disk).facts,omen:JSON.parse(window.control.omen).text,reminders:window.control.reminders,marker:window.control.deletionMarker,deletions:window.control.deletions,appleCalls:window.control.appleCalls})),{reads:0,history:[],facts:{},omen:null,reminders:[],marker:undefined,deletions:persisted.deletions,appleCalls:persisted.appleCalls});
+   assert.deepEqual(await restarted.evaluate(()=>({reads:window.control.archiveReads,history:JSON.parse(window.control.disk).history,facts:JSON.parse(window.control.disk).facts,omen:JSON.parse(window.control.omen).text,reminders:window.control.reminders,marker:window.control.deletionMarker,owner:window.control.owner,deletions:window.control.deletions,appleCalls:window.control.appleCalls})),{reads:0,history:[],facts:{},omen:null,reminders:[],marker:undefined,owner:null,deletions:persisted.deletions,appleCalls:persisted.appleCalls});
   }finally{await restarted.close()}
   await page.evaluate(()=>{window.control.cleanupFailure=null});
   await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
@@ -159,7 +160,7 @@ try{
  }
  await page.evaluate(()=>window.store.update(s=>({...s,facts:{secret:'deleted'},history:[{id:'deleted'}]})));
  await page.waitForFunction(()=>JSON.parse(window.control.disk).history.length===1);
- await page.evaluate(()=>{window.control.uncertainDelete=true});
+ await page.evaluate(()=>{window.control.owner='deleted-owner';window.control.uncertainDelete=true});
  await deletion.click();await page.evaluate(()=>window.control.confirm());
  await page.getByRole('button',{name:'Retry local cleanup',exact:true}).waitFor();
  const uncertain=await page.evaluate(()=>({...window.control,confirm:undefined,confirmation:undefined,archiveReads:0}));
@@ -171,7 +172,7 @@ try{
   await recovered.evaluate(control=>{window.control=control},uncertain);
   await recovered.addScriptTag({content:bundle.outputFiles[0].text});
   await recovered.waitForFunction(()=>window.store?.ready&&!window.store.backupBusy);
-  assert.deepEqual(await recovered.evaluate(()=>({reads:window.control.archiveReads,facts:window.store.state.facts,history:window.store.state.history,marker:window.control.deletionMarker,deletions:window.control.deletions})),{reads:0,facts:{},history:[],marker:undefined,deletions:uncertain.deletions});
+  assert.deepEqual(await recovered.evaluate(()=>({reads:window.control.archiveReads,facts:window.store.state.facts,history:window.store.state.history,marker:window.control.deletionMarker,owner:window.control.owner,deletions:window.control.deletions})),{reads:0,facts:{},history:[],marker:undefined,owner:null,deletions:uncertain.deletions});
  }finally{await recovered.close()}
  await page.evaluate(()=>{window.control.uncertainDelete=false});
  await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
