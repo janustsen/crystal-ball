@@ -185,5 +185,5 @@ final class RitualUITests: XCTestCase {
 }
 extension XCUIElement{
  func waitForLabel(_ text:String,timeout:Double)->Bool{let end=Date().addingTimeInterval(timeout);while Date()<end{if label.contains(text){return true};Thread.sleep(forTimeInterval:2)};return false}
- func waitForLabelWithout(_ texts:[String],timeout:Double)->Bool{let end=Date().addingTimeInterval(timeout);while Date()<end{if !label.isEmpty&&!texts.contains(where:{label.contains($0)}){return true};Thread.sleep(forTimeInterval:2)};return false}
+ func waitForLabelWithout(_ texts:[String],timeout:Double)->Bool{let end=Date().addingTimeInterval(timeout);while Date()<end{if !label.isEmpty && !texts.contains(where:{label.contains($0)}){return true};Thread.sleep(forTimeInterval:2)};return false}
 }

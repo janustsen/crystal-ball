@@ -31,7 +31,7 @@ try{
  evaluate('async()=>{await new Promise(r=>setTimeout(r,1200));return true}');
  const idle=sample('idle-home-glass');if(!idle.glassVisibleThroughout||!idle.draws)throw new Error('Motion audit requires the rendered Home glass ball and measured WebGL draws');sample('orb-approach-listening','hero-orb');sample('listening');sample('typing','type-instead');
  evaluate('()=>{const e=document.querySelector("[data-testid=question-input]");Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,"value").set.call(e,"Will I be conversational in Spanish in six months?");e.dispatchEvent(new Event("input",{bubbles:true}));return true}');
- sample('planning-to-question-one','look-into-the-future',2200,'option-0');for(let i=0;i<4&&!evaluate('()=>!!document.querySelector("[data-testid=share-this-glimpse]")');i++){const last=evaluate('()=>{const m=document.body.innerText.match(/(\\d) of (\\d)/);return m&&m[1]===m[2]}');sample(last?'thinking-to-reveal':'next-question','option-0',2200,last?'share-this-glimpse':'option-0')}
+ sample('planning-to-question-one','look-into-the-future',2200,'option-0');for(let i=0;i<4&&!evaluate('()=>!!document.querySelector("[data-testid=share-this-glimpse]")');i++)sample('answer-to-followup-or-reveal','option-0',2200,['option-0','share-this-glimpse']);
  sample('share','share-this-glimpse');sample('return-reveal','close-flow');sample('return-home','close-flow');
  sample('sky','open-sky');sample('sky-back','header-back');
  for(const tab of ['history','you','home'])sample(tab+'-tab','tab-'+tab);

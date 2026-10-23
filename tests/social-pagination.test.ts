@@ -41,6 +41,16 @@ test('loadSocial includes every capped collection and recovers an unpaid forecas
  const unpaid=snapshot.forecasts.filter(f=>f.asker_id===snapshot.owner&&f.charged_at===null);
  assert.deepEqual(unpaid.map(f=>f.id),['1009']);
 
+ await t.test('withdrawn Star still counts toward the daily limit without offering removal',async()=>{
+  datasets.sky_stars=[{id:'own-star',withdrawn:false}] as any;
+  try{
+   const activeStar=await loadSocial(account);assert.equal(activeStar.ownStar,'own-star');
+   (datasets.sky_stars[0] as any).withdrawn=true;
+   const removedStar=await loadSocial(account);assert.equal(removedStar.ownStar,null);
+   assert.equal(activeStar.starSharedToday,true);assert.equal(removedStar.starSharedToday,true);
+  }finally{datasets.sky_stars=[]}
+ });
+
  const selected:string[]=[];let release!:()=>void;
  const first=new Promise<void>(resolve=>{release=resolve});
  (globalThis as any).socialPaginationDb.rpc=async(_name:string,{moment}:any)=>{

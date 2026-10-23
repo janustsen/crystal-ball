@@ -23,5 +23,8 @@ export function openingPlan(question:string,known:Facts,context:ReadingContext={
 // Freeze the card being answered; append the tailored questions only if they arrived before that answer.
 export function appendTailored(opening:Plan,tailored:Plan):Plan {
  if(opening.topic!=='general')return opening;
- return {...tailored,cards:[{...opening.cards[0],id:'session_open'},...tailored.cards]};
+ const first=opening.cards[0],key=(question:string)=>question.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim(),same=(card:Plan['cards'][number])=>key(card.question)===key(first.question);
+ // Reuse a repeated card’s fact key so the opening answer satisfies that required input.
+ const duplicate=tailored.cards.find(same);
+ return {...tailored,cards:[{...first,id:duplicate?.id??'session_open'},...tailored.cards.filter(card=>!same(card))]};
 }

@@ -19,3 +19,16 @@ test('tailored cards preserve the opening answer under its own key and keep all 
  const appended=appendTailored(quick,tailored);
  assert.deepEqual(appended.cards.map(c=>c.id),['session_open','context_1']);assert.equal(appended.cards[0].question,quick.cards[0].question);assert.deepEqual(appended.provided,tailored.provided);assert.equal(quick.cards[0].id,'context_1');
 });
+
+test('a ready planner reuses an identical opening answer instead of asking it twice',()=>{
+ const quick=openingPlan('Will I get promoted this year?',{});
+ const tailored={topic:'general' as const,provided:{horizon:'this year'},cards:[{id:'context_1',question:'How did your last review go?',options:['Very well','Mixed','Not yet','Other'],remember:false}]};
+ const result=appendTailored(quick,tailored);
+ assert.equal(result.cards.length,1);
+ assert.equal(result.cards[0].id,'context_1');
+ assert.equal(result.cards[0].question,quick.cards[0].question);
+ const punctuation={...tailored,cards:[{...tailored.cards[0],question:'  HOW did your last review go ? '}]};
+ assert.equal(appendTailored(quick,punctuation).cards.length,1);
+ const second={...tailored,cards:[{...tailored.cards[0],question:'What opportunity is coming up?'},{...tailored.cards[0],id:'context_2'}]};
+ assert.deepEqual(appendTailored(quick,second).cards.map(c=>c.id),['context_2','context_1']);
+});
