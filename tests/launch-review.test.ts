@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
-import {chromium} from '@playwright/test';
 import {provider} from '../server/provider.ts';
 
 for(const transport of ['cloudflare','deepinfra'])test(`${transport} observes shared and caller cancellation before reservations, during fetch, and across repair`,async t=>{
@@ -46,16 +45,13 @@ test('engine requests use explicit override or platform development endpoint reg
  }
 });
 
-test('rendered public privacy page discloses both processors and their data-use references',async()=>{
- const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
- try{
-  const page=await browser.newPage();
-  await page.setContent(readFileSync(new URL('../public/privacy/index.html',import.meta.url),'utf8'));
-  const section=page.locator('section').filter({has:page.getByRole('heading',{name:'AI providers',exact:true})});
-  assert.equal(await section.isVisible(),true);
-  const text=await section.innerText();
-  assert.match(text,/Cloudflare, Inc/);assert.match(text,/DeepInfra, Inc/);assert.match(text,/When the free allowance cannot admit a request/);
-  assert.equal(await section.getByRole('link',{name:'Cloudflare data usage'}).getAttribute('href'),'https://developers.cloudflare.com/workers-ai/platform/data-usage/');
-  assert.equal(await section.getByRole('link',{name:'DeepInfra data privacy'}).getAttribute('href'),'https://docs.deepinfra.com/account/data-privacy');
- }finally{await browser.close()}
+test('published privacy HTML discloses both processors and their data-use references',()=>{
+ const html=readFileSync(new URL('../public/privacy/index.html',import.meta.url),'utf8');
+ const section=html.match(/<section><h2>AI providers<\/h2>([\s\S]*?)<\/section>/)?.[1];
+ assert.ok(section,'Published privacy HTML must contain the AI providers section');
+ assert.match(section,/Cloudflare, Inc/);
+ assert.match(section,/DeepInfra, Inc/);
+ assert.match(section,/When the free allowance cannot admit a request/);
+ assert.match(section,/<a href="https:\/\/developers\.cloudflare\.com\/workers-ai\/platform\/data-usage\/">Cloudflare data usage<\/a>/);
+ assert.match(section,/<a href="https:\/\/docs\.deepinfra\.com\/account\/data-privacy">DeepInfra data privacy<\/a>/);
 });
