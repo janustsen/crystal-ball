@@ -10,7 +10,7 @@ import {updateOmenWidget} from './omen-widget';
 import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts,StyleOf} from './types';
-import {mirror,restoreBackup,supabase,anonymousOwner} from './cloud';
+import {mirror,restoreBackup,supabase,anonymousOwner,AccountDeletionRefused} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
 const key='crystal-ball-v1',deletionKey='crystal-ball-deletion-pending';
 const initial=():AccountState=>({sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false});
@@ -99,7 +99,7 @@ export function Store({children}:React.PropsWithChildren){
    AsyncStorage.setItem(key,JSON.stringify(current.current)),
    forgetOmen(AsyncStorage),
    forgetCheckIns(),
-   Promise.resolve().then(()=>updateOmenWidget(null)),
+   Promise.resolve().then(()=>updateOmenWidget(null,true)),
   ]);
   try{
    if(results.some(result=>result.status==='rejected'))throw new Error('Local cleanup incomplete');
@@ -116,9 +116,16 @@ export function Store({children}:React.PropsWithChildren){
    await writes.catch(()=>{});await uploads.catch(()=>{});
    accountVersion.current++;
    await AsyncStorage.setItem(deletionKey,'1');
-   try{await remove()}catch(error){await AsyncStorage.removeItem(deletionKey);throw error}
+   const confirmed=await remove().then(()=>true,async error=>{
+    if(error instanceof AccountDeletionRefused){await AsyncStorage.removeItem(deletionKey);throw error}
+    return false;
+   });
    deletionPending.current=true;setReady(false);serverClock.current=null;
    change(initial);setAccountReset(n=>n+1);
+   if(!confirmed){
+    setHydrationError('Account deletion could not be confirmed. Your local archive is locked. Try again to clear this device; contact support to confirm remote deletion.');
+    return;
+   }
    await cleanupDeletedAccount();
   });
  }

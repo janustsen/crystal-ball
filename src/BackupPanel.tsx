@@ -34,11 +34,10 @@ export function BackupPanel(){
  }
  async function removeAccount(){
   try{
-   await deleteAccount(async()=>{
-    const credential=await Apple.signInAsync({requestedScopes:[]});
-    if(!credential.authorizationCode)throw new Error('Apple confirmation is required.');
-    await deleteAppleAccount(credential.authorizationCode);
-   });
+   const credential=await Apple.signInAsync({requestedScopes:[]});
+   const code=credential.authorizationCode;
+   if(!code)throw new Error('Apple confirmation is required.');
+   await deleteAccount(()=>deleteAppleAccount(code));
   }catch(error){setNotice(error instanceof Error?error.message:'Deletion did not finish. Please try again.');}
  }
  if(!available||!configured)return null;

@@ -6,14 +6,16 @@ import {chromium} from '@playwright/test';
 const mocks={
  surface:`import React from 'react';export const Surface=({children})=><div>{children}</div>`,
  nativeActions:`export const forgetCheckIns=async()=>{window.control.notificationAttempts=(window.control.notificationAttempts||0)+1;if(window.control.cleanupFailure==='notifications')throw Error('Notification cleanup failed');window.control.reminders=[]}`,
- widget:`export const updateOmenWidget=()=>{if(window.control.cleanupFailure==='widget')throw Error('Widget cleanup failed');window.control.widget=null}`,
+ widget:`export default {updateTimeline:async timeline=>{if(window.control.cleanupFailure==='widget')throw Error('Widget cleanup failed');window.control.widget=timeline[0].props.text}}`,
+ constants:`export default {appOwnership:'standalone'}`,
  cloud:`
+ export class AccountDeletionRefused extends Error {}
  export const supabase={auth:{
   getSession:async()=>({data:{session:{user:{id:window.control.owner,is_anonymous:false,identities:window.control.linked===false?[]:[{provider:'apple'}]}}},error:null}),
   linkIdentity:async()=>{window.control.links++;window.control.linked=true;return {data:{user:{id:window.control.owner}},error:null}},
   signInWithIdToken:async()=>{window.control.switches++;window.control.owner='account-b';return {data:{user:{id:'account-b'}},error:null}}
  }};
- export async function deleteAppleAccount(code){if(!window.control.deletionMarker)throw Error('Deletion intent was not persisted');if(code!=='fresh-code')throw Error('Apple code missing');window.control.deletions=(window.control.deletions||0)+1;if(window.control.deleteFails)throw Error('Synthetic server deletion failed')}
+ export async function deleteAppleAccount(code){if(!window.control.deletionMarker)throw Error('Deletion intent was not persisted');if(code!=='fresh-code')throw Error('Apple code missing');window.control.deletions=(window.control.deletions||0)+1;if(window.control.deleteFails)throw new AccountDeletionRefused('Synthetic server deletion failed');if(window.control.uncertainDelete)throw Error('Response lost after deletion')}
  export const anonymousOwner=async()=>window.control.owner;
  export async function restoreBackup(state){window.control.reads++;throw Error('Archive unavailable')}
  export async function mirror(state){if(state.backupOwner!==window.control.owner)throw Error('Wrong owner');window.control.uploads++}
@@ -40,13 +42,14 @@ const mocks={
  crypto:`export const randomUUID=()=> 'nonce';export const getRandomValues=bytes=>bytes;export const CryptoDigestAlgorithm={SHA256:0};export const digestStringAsync=async()=> 'digest'`,
  ui:`import React from 'react';export const styles={panel:{},caption:{}};export const CardHeader=()=>null;export const Txt=({children})=><div>{children}</div>;export const Action=({label,onPress,disabled})=><button onClick={onPress} disabled={disabled}>{label}</button>`
 };
-const routes={'./native':'nativeActions','./omen-widget':'widget','./cloud':'cloud','@react-native-async-storage/async-storage':'storage','react-native':'native','expo-apple-authentication':'apple','expo-crypto':'crypto','./ui':'ui','./Surface':'surface'};
+const routes={'./native':'nativeActions','./OmenWidget':'widget','expo-constants':'constants','./cloud':'cloud','@react-native-async-storage/async-storage':'storage','react-native':'native','expo-apple-authentication':'apple','expo-crypto':'crypto','./ui':'ui','./Surface':'surface'};
 const bundle=await build({stdin:{contents:`import React from 'react';import {createRoot} from 'react-dom/client';import {Store,useStore} from './src/store';import {BackupPanel} from './src/BackupPanel';function Probe(){
  const store=useStore();window.store=store;
  const [undo,setUndo]=React.useState(null),[draft,setDraft]=React.useState('');
  if(!store.ready)return store.hydrationError?<><p>{store.hydrationError}</p><button onClick={store.retryHydration}>Retry local cleanup</button></>:null;
  return <><input aria-label="Private draft" value={draft} onChange={e=>setDraft(e.target.value)}/><button onClick={()=>{setUndo(store.state.facts.practice);store.update(s=>({...s,facts:{}}))}}>Forget practice</button>{undo?<button onClick={()=>{store.update(s=>({...s,facts:{practice:undo}}));setUndo(null)}}>Undo forget</button>:null}<BackupPanel/></>;
 }createRoot(document.getElementById('root')).render(<Store><Probe/></Store>);`,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,platform:'browser',format:'iife',define:{'process.env':'{}','process.env.NODE_ENV':'"development"','process.env.EXPO_PUBLIC_APPLE_LINK_ENABLED':'"true"'},plugins:[{name:'native-boundaries',setup(b){
+ b.onResolve({filter:/^\.\/omen-widget$/},()=>({path:process.cwd()+'/src/omen-widget.ios.ts'}));
  b.onResolve({filter:/.*/},args=>routes[args.path]?{path:routes[args.path],namespace:'mock'}:undefined);
  b.onLoad({filter:/.*/,namespace:'mock'},({path})=>({contents:mocks[path],loader:'tsx',resolveDir:process.cwd()}));
 }}]});
@@ -124,7 +127,7 @@ try{
   await page.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
   assert.equal(await page.getByRole('textbox',{name:'Private draft'}).inputValue(),'');
   assert.equal(await page.evaluate(()=>window.control.appleCalls),appleCalls+1);
-  assert.deepEqual(await page.evaluate(()=>({deletions:window.control.deletions,history:JSON.parse(window.control.disk).history,omen:JSON.parse(window.control.omen).text,whisper:JSON.parse(window.control.omen).whisper,reminders:window.control.reminders,widget:window.control.widget})),{deletions:deletions+1,history:[],omen:null,whisper:null,reminders:[],widget:null});
+  assert.deepEqual(await page.evaluate(()=>({deletions:window.control.deletions,history:JSON.parse(window.control.disk).history,omen:JSON.parse(window.control.omen).text,whisper:JSON.parse(window.control.omen).whisper,reminders:window.control.reminders,widget:window.control.widget})),{deletions:deletions+1,history:[],omen:null,whisper:null,reminders:[],widget:'Open the Ball for your personal insight.'});
  }
  for(const failure of ['archive','omen','notifications','marker-clear']){
   await page.evaluate(()=>window.store.update(s=>({...s,facts:{practice:'private fact'},history:[{id:'private reading'}]})));
@@ -154,6 +157,25 @@ try{
   await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
   await page.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
  }
+ await page.evaluate(()=>window.store.update(s=>({...s,facts:{secret:'deleted'},history:[{id:'deleted'}]})));
+ await page.waitForFunction(()=>JSON.parse(window.control.disk).history.length===1);
+ await page.evaluate(()=>{window.control.uncertainDelete=true});
+ await deletion.click();await page.evaluate(()=>window.control.confirm());
+ await page.getByRole('button',{name:'Retry local cleanup',exact:true}).waitFor();
+ const uncertain=await page.evaluate(()=>({...window.control,confirm:undefined,confirmation:undefined,archiveReads:0}));
+ assert.equal(uncertain.deletionMarker,'1');
+ assert.equal(await page.evaluate(()=>window.store.ready),false);
+ const recovered=await browser.newPage();
+ try{
+  await recovered.setContent('<div id="root"></div>');
+  await recovered.evaluate(control=>{window.control=control},uncertain);
+  await recovered.addScriptTag({content:bundle.outputFiles[0].text});
+  await recovered.waitForFunction(()=>window.store?.ready&&!window.store.backupBusy);
+  assert.deepEqual(await recovered.evaluate(()=>({reads:window.control.archiveReads,facts:window.store.state.facts,history:window.store.state.history,marker:window.control.deletionMarker,deletions:window.control.deletions})),{reads:0,facts:{},history:[],marker:undefined,deletions:uncertain.deletions});
+ }finally{await recovered.close()}
+ await page.evaluate(()=>{window.control.uncertainDelete=false});
+ await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
+ await page.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
  await page.evaluate(()=>{window.control.cleanupFailure='marker-write'});
  const callsBefore=await page.evaluate(()=>window.control.deletions);
  await deletion.click();await page.evaluate(()=>window.control.confirm());
