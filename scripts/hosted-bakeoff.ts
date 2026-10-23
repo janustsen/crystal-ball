@@ -39,23 +39,25 @@ type FreeLedger=Record<string,{reservedNeurons:number;requests:number}>;
 const evidenceDir=process.env.HOSTED_BAKEOFF_DIR||'docs/evidence/launch';
 const stateDir=process.env.HOSTED_BAKEOFF_STATE_DIR||'.local';
 const ledgerPath=`${stateDir}/hosted-budget.json`,freeLedgerPath=`${stateDir}/cloudflare-neurons.json`,output=`${evidenceDir}/hosted-bakeoff-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
-function reserveRequest(body:string,candidate:typeof candidates[number],used={reservedUSD:0,requests:0}){
+function reserveRequest(body:string,candidate:typeof candidates[number],maxTokens:number,used={reservedUSD:0,requests:0}){
  const parsed=JSON.parse(body);
- if(parsed.max_tokens!==1200||(candidate.name==='deepinfra'&&parsed.model!==deepinfra.model))throw new Error('Unexpected model budget.');
+ if(parsed.max_tokens!==maxTokens||(candidate.name==='deepinfra'&&parsed.model!==deepinfra.model))throw new Error('Unexpected model budget.');
  if(!Number.isFinite(used.reservedUSD)||used.reservedUSD<0||!Number.isInteger(used.requests)||used.requests<0)throw new Error('Invalid budget ledger.');
- const reserve=candidate.name==='cloudflare'?(cloudflare.contextTokens*cloudflare.inputMicro+1200*cloudflare.outputMicro)/1e6:reservationCost(body)/1e9;
+ const reserve=candidate.name==='cloudflare'?(cloudflare.contextTokens*cloudflare.inputMicro+maxTokens*cloudflare.outputMicro)/1e6:reservationCost(body)/1e9;
  if(used.reservedUSD+reserve>(candidate.name==='cloudflare'?10000:1)||used.requests>=80)throw new Error('Provider budget limit reached.');
  return {reservedUSD:used.reservedUSD+reserve,requests:used.requests+1};
 }
 async function main(){
 if(process.argv.includes('--check')){
- const body=JSON.stringify({model:'Qwen/Qwen3.5-9B',max_tokens:1200,messages:[]});
+ for(const maxTokens of [160,900,1200]){
+ const body=JSON.stringify({model:'Qwen/Qwen3.5-9B',max_tokens:maxTokens,messages:[]});
  for(const candidate of candidates.filter(c=>c.key)){
-  const first=reserveRequest(body,candidate);assert.ok(first.reservedUSD>0&&first.reservedUSD<(candidate.name==='cloudflare'?10000:1));assert.equal(first.requests,1);
-  assert.throws(()=>reserveRequest(body,candidate,{reservedUSD:candidate.name==='cloudflare'?10000:1,requests:0}),/limit/);
-  assert.throws(()=>reserveRequest(body,candidate,{reservedUSD:0,requests:80}),/limit/);
-  assert.throws(()=>reserveRequest(body,candidate,{reservedUSD:NaN,requests:0}),/Invalid/);
-  assert.throws(()=>reserveRequest('{}',candidate),/Unexpected/);
+  const first=reserveRequest(body,candidate,maxTokens);assert.ok(first.reservedUSD>0&&first.reservedUSD<(candidate.name==='cloudflare'?10000:1));assert.equal(first.requests,1);
+  assert.throws(()=>reserveRequest(body,candidate,maxTokens,{reservedUSD:candidate.name==='cloudflare'?10000:1,requests:0}),/limit/);
+  assert.throws(()=>reserveRequest(body,candidate,maxTokens,{reservedUSD:0,requests:80}),/limit/);
+  assert.throws(()=>reserveRequest(body,candidate,maxTokens,{reservedUSD:NaN,requests:0}),/Invalid/);
+  assert.throws(()=>reserveRequest('{}',candidate,maxTokens),/Unexpected/);
+ }
  }
  console.log('Offline budget checks pass; no credentials read or network calls made.');return;
 }
@@ -82,13 +84,14 @@ try{
   const hosted=candidate.name!=='ollama';let halted=false;
   const config:Record<string,string>=hosted?{MODEL_PROVIDER:'hosted',HOSTED_MODEL_URL:candidate.url,HOSTED_MODEL_NAME:'Qwen/Qwen3.5-9B',HOSTED_MODEL_KEY:keys[candidate.key]}:{MODEL_PROVIDER:'ollama',OLLAMA_URL:candidate.url,OLLAMA_MODEL:'qwen3:4b-instruct-2507-q4_K_M'};
   if(free)Object.assign(config,{CLOUDFLARE_QUALITY_APPROVED:'true',CLOUDFLARE_WORKERS_PLAN:keys.CLOUDFLARE_WORKERS_PLAN,CLOUDFLARE_ACCOUNT_ID:keys.CLOUDFLARE_ACCOUNT_ID,CLOUDFLARE_API_TOKEN:keys.CLOUDFLARE_API_TOKEN});
-  // The benchmark's persistent local ledger below replaces serving RPCs, using the same adapter.
-  const model=provider(k=>config[k],undefined,45000,free?{
-   async admit(){},async reserveFree(){return crypto.randomUUID()},async settleFree(){},
-   async reserve(){throw new Error('Paid fallback is forbidden in the free comparison.')},async settle(){},
-  }:undefined);
   for(const item of cases){
    if(halted)break;
+   const maxTokens=item.surface==='omen'?160:item.surface==='year'?900:1200;
+   const timeoutMs=item.surface==='year'?90000:45000;
+   const model=provider(k=>config[k],hosted||item.surface==='omen'||item.surface==='year'?maxTokens:undefined,timeoutMs,free?{
+    async admit(){},async reserveFree(){return crypto.randomUUID()},async settleFree(){},
+    async reserve(){throw new Error('Paid fallback is forbidden in the free comparison.')},async settle(){},
+   }:undefined);
    const calls:unknown[]=[];
    globalThis.fetch=async(input,init)=>{
     const endpoint=String(input),expected=hosted?hostedEndpoint:`${candidate.url}/api/chat`;
@@ -100,7 +103,7 @@ try{
      // Reserve before calling, retain after failures, and reuse across runs.
      try{
       const previous=freeLedger[ledgerKey];
-      const next=reserveRequest(body,candidate,free?(previous?{reservedUSD:previous.reservedNeurons,requests:previous.requests}:undefined):ledger[ledgerKey]);
+      const next=reserveRequest(body,candidate,maxTokens,free?(previous?{reservedUSD:previous.reservedNeurons,requests:previous.requests}:undefined):ledger[ledgerKey]);
       if(free)freeLedger[ledgerKey]={reservedNeurons:next.reservedUSD,requests:next.requests};else ledger[ledgerKey]=next;
      }catch{halted=true;throw new Error('Provider budget limit or configuration rejected.');}
      await writeFile(free?freeLedgerPath:ledgerPath,JSON.stringify(free?freeLedger:ledger,null,2));
@@ -114,9 +117,9 @@ try{
      calls.push({seconds:(performance.now()-start)/1000,status:response.status,inputTokens,outputTokens,costUSD,neurons:free&&Number.isFinite(inputTokens)&&Number.isFinite(outputTokens)?(inputTokens*cloudflare.inputMicro+outputTokens*cloudflare.outputMicro)/1e6:undefined,providerEstimatedCostUSD:raw?.usage?.estimated_cost,raw,finishReason:raw?.choices?.[0]?.finish_reason});
      if(hosted&&response.ok&&(!free||raw?.success===true)){
       const usage=free?raw?.result?.usage:raw?.usage;
-      const valid=usage&&Number.isSafeInteger(inputTokens)&&Number.isSafeInteger(outputTokens)&&inputTokens>=0&&outputTokens>=0&&inputTokens<=(free?cloudflare.contextTokens:deepinfra.contextTokens)&&outputTokens<=1200;
+      const valid=usage&&Number.isSafeInteger(inputTokens)&&Number.isSafeInteger(outputTokens)&&inputTokens>=0&&outputTokens>=0&&inputTokens<=(free?cloudflare.contextTokens:deepinfra.contextTokens)&&outputTokens<=maxTokens;
       if(valid){
-       const held=free?(cloudflare.contextTokens*cloudflare.inputMicro+1200*cloudflare.outputMicro)/1e6:reservationCost(body)/1e9;
+       const held=free?(cloudflare.contextTokens*cloudflare.inputMicro+maxTokens*cloudflare.outputMicro)/1e6:reservationCost(body)/1e9;
        const actual=free?(inputTokens*cloudflare.inputMicro+outputTokens*cloudflare.outputMicro)/1e6:usageCost(usage)!/1e9;
        if(free)freeLedger[ledgerKey].reservedNeurons-=held-actual;else ledger[ledgerKey].reservedUSD-=held-actual;
        await writeFile(free?freeLedgerPath:ledgerPath,JSON.stringify(free?freeLedger:ledger,null,2));

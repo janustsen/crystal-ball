@@ -47,9 +47,10 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number,ti
           const response=await fetch(endpoint,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json',Authorization:`Bearer ${env('CLOUDFLARE_API_TOKEN')}`},body,signal:signal?AbortSignal.any([AbortSignal.timeout(timeoutMs),signal]):AbortSignal.timeout(timeoutMs)});
           if(!response.ok)throw new Error(`Model unavailable (${response.status}).`);
           const raw=await response.json();
-          if(raw.success!==true||typeof raw.result?.response!=='string')throw new Error('Cloudflare response unavailable.');
+          const content=raw.result?.response;
+          if(raw.success!==true||(typeof content!=='string'&&(!content||typeof content!=='object'||Array.isArray(content))))throw new Error('Cloudflare response unavailable.');
           await accounting.settleFree(reservation,raw.result.usage);
-          return raw.result.response;
+          return typeof content==='string'?content:JSON.stringify(content);
         }
       }
       if(env('DEEPINFRA_QUALITY_APPROVED')!=='true'||!env('DEEPINFRA_API_KEY'))throw new Error('Public readings are not available yet. Please try again later.');

@@ -100,7 +100,7 @@ test('free first, repair across hosts, no double admission and no repair counter
   if(url.includes('api.cloudflare.com')){
    calls.push('free');freeAvailable=false;
    assert.deepEqual(value.response_format,{type:'json_schema',json_schema:{type:'object'}});
-   return Response.json({success:true,result:{response:'{"ok":false}',usage:{prompt_tokens:1000,completion_tokens:100}}});
+   return Response.json({success:true,result:{response:{ok:false},usage:{prompt_tokens:1000,completion_tokens:100}}});
   }
   calls.push('paid');assert.equal(value.model,deepinfra.model);assert.equal(value.messages.length,4);
   return Response.json({choices:[{message:{content:JSON.stringify({ok:validPaid})}}],usage:{prompt_tokens:1000,completion_tokens:100}});
@@ -126,7 +126,7 @@ test('free works at paid cap; only established free admission denial permits pai
   if(['429','401','500'].includes(mode))return Response.json({},{status:Number(mode)});
   if(mode==='network')throw new Error('network unavailable');
   if(mode==='envelope')return Response.json({success:false});
-  return Response.json({success:true,result:{response:'{}',usage:mode==='malformed'?{prompt_tokens:-1,completion_tokens:1}:undefined}});
+  return Response.json({success:true,result:{response:{},usage:mode==='malformed'?{prompt_tokens:-1,completion_tokens:1}:undefined}});
  });
  const call=()=>provider(get,160,45000,hostedAccounting(get,'viewer','omen')).json('test',{}, {},()=>true);
  assert.deepEqual(await call(),{});assert.equal(paid,0);assert.equal(settled,0);
