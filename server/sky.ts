@@ -22,12 +22,14 @@ export function skyWeeks(now:Date){
 // Run hourly in a trusted scheduler. Each School and Circle gets one moderated omen per week; failed groups retry next run.
 // The model sees only the group kind and that Friday's real sky, never member data, so no per-user AI consent is involved.
 export async function openSky(env:(key:string)=>string|undefined,model:ModelProvider,now=new Date(),transport:typeof fetch=fetch){
- const rpc=serviceRpc(env,transport),weeks=skyWeeks(now);
+ const rpc=serviceRpc(env,transport),weeks=skyWeeks(now),deadline=AbortSignal.timeout(105000),source=model;
+ model={json:(system,input,schema,valid,signal)=>source.json(system,input,schema,valid,signal?AbortSignal.any([deadline,signal]):deadline)};
  const targets:{week:string;school_id:string|null;circle_id:string|null}[]=[];
  for(const week of weeks)for(const target of await rpc('sky_omen_targets',{target_week:week}))targets.push({...target,week});
  let opened=0;
- // ponytail: sequential, ~25s per group on local Qwen and 500 targets per run; batch or parallelize when groups outgrow an hourly run.
+ // Missing groups retry hourly; a single worker stays inside Supabase’s free 150s wall limit.
  for(const target of targets){
+  if(deadline.aborted)break;
   try{
    const {text}=await model.json<{text:string}>(
     ballVoice+' Write one shared, astrology-flavored omen that a whole group opens together on a Friday night, for reflection and entertainment. The group is a school community or a small Circle of friends; speak to them as "you" together. Hopeful, inclusive and generic: no names, places, schools, dates, private facts, romance or feelings claims, guarantees, or advice. Build it around the supplied sky, that Friday night’s real Moon; mention no other planet or sky event. Use 8 to 16 words in one complete sentence ending with punctuation. Return text only in the JSON field.',

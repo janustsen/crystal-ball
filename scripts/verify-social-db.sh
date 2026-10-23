@@ -6,11 +6,12 @@ if [[ ! -x "$pg_bin/initdb" ]]; then
   echo 'Set PG_BIN to a PostgreSQL 17 bin directory.' >&2
   exit 1
 fi
-mkdir -p .local
-cluster=$(mktemp -d "$PWD/.local/social-pg.XXXXXX")
+proof_root="${SOCIAL_PROOF_DIR:-$PWD/.local}"
+mkdir -p "$proof_root"
+cluster=$(mktemp -d "$proof_root/social-pg.XXXXXX")
 port="${SOCIAL_PG_PORT:-55439}"
 # Per-run password: the loopback port is reachable by other local users. Other drivers find it by port.
-pgpass="$PWD/.local/social-pg-$port.pgpass" published=
+pgpass="$proof_root/social-pg-$port.pgpass" published=
 cleanup() {
   "$pg_bin/pg_ctl" -D "$cluster/data" -m immediate stop >/dev/null 2>&1 || true
   rm -rf "$cluster"
@@ -73,6 +74,7 @@ fi
 "${sql[@]}" -f scripts/billing-rls.sql
 "${sql[@]}" -f scripts/private-room-rls.sql
 "${sql[@]}" -f scripts/chart-weather-rls.sql
+"${sql[@]}" -f scripts/account-deletion.sql
 
 # Two distinct recipients race to open a fresh seal. Exactly one may succeed.
 token=$("${sql[@]}" -Atc "delete from public.social_blocks; update public.social_profiles set plus=true,plus_until=now()+interval '1 week' where user_id='00000000-0000-0000-0000-000000000001'; set role authenticated; set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001'; select public.seal_forecast('20000000-0000-0000-0000-000000000001');" | tail -1)

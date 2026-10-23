@@ -42,7 +42,7 @@ export const answersPerBonus=25;
 export const askBonuses=(answered:number)=>Math.floor(answered/answersPerBonus);
 export const readingsLeft=(b:Pick<Balance,'plus'|'packs'|'used'|'starter'>)=>freeLeft({...b,starter:b.starter??0})+b.packs;
 // Paywall copy: everything Plus unlocks, in order.
-export const plusUnlocks=[`${dailyReadings(true)} questions a day`,'The deeper Why: your answers, assumptions and news leads, with your Moon and rising','Monthly chart weather','A narrated Ball',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];
+export const plusUnlocks=[`${dailyReadings(true)} questions a day`,'The deeper Why: your answers and assumptions, with your Moon and rising','Monthly chart weather','A narrated Ball',`Golden forecasts 1 in ${goldenOdds(true)} instead of 1 in ${goldenOdds(false)}`,'The Inner Library, with ball and card styles','Unlimited sealed cards'];
 // The header pill: the starter's free questions, then today's free one; with any pack it is the plain total.
 export function countLabel({plus,starter,packs,remaining}:{plus:boolean;starter:number;packs:number;remaining:number}){
  if(plus)return 'Plus';

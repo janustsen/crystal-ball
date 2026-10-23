@@ -422,3 +422,15 @@ verify_jwt = false
 # This permits modern signing keys and the identity-free aggregate attribution counter.
 [functions.predict]
 verify_jwt = false
+import_map = "./functions/deno.json"
+
+# Scheduled functions check SCHEDULER_SECRET; they reject ordinary user sessions.
+[functions.open-sky]
+verify_jwt = false
+import_map = "./functions/deno.json"
+[functions.social-push]
+verify_jwt = false
+import_map = "./functions/deno.json"
+[functions.delete-account]
+verify_jwt = false
+import_map = "./functions/deno.json"

@@ -38,7 +38,7 @@ async function fixture(count:number,api:Record<string,unknown>={}){
   react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './cloud':{anonymousOwner:async()=>'owner',mirror:async()=>{},restoreBackup:async(s:any)=>s},
   './api':{serverMetered:false,loadBalance:async()=>balance,...api},'./social':{},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{const gate=writeGate;writeGate=undefined;if(gate){gate.started();await gate.wait}if(failWrite){failWrite=false;throw new Error('disk unavailable')}disk=value}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{const gate=writeGate;writeGate=undefined;if(gate){gate.started();await gate.wait}if(failWrite){failWrite=false;throw new Error('disk unavailable')}disk=value}},
   './native':{reopenCheckIn:()=>{}},'./daily-omen':{},'./omen-widget':{},
  });
  const store=()=>storeHooks.render(()=>storeModule.Store({})).props.value;

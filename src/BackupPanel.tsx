@@ -2,14 +2,14 @@ import React,{useEffect,useState} from 'react';
 import {Alert,Platform,View} from 'react-native';
 import * as Apple from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
-import {anonymousOwner,supabase} from './cloud';
+import {anonymousOwner,supabase,deleteAppleAccount} from './cloud';
 import {uuid} from './uuid';
 import {useStore} from './store';
 import {Action,styles,Txt,CardHeader} from './ui';
 import {Surface} from './Surface';
 
 export function BackupPanel(){
- const {backup,backupBusy}=useStore();
+ const {backup,backupBusy,deleteAccount}=useStore();
  const [available,setAvailable]=useState(false),[mode,setMode]=useState<'save'|'restore'>('save'),[notice,setNotice]=useState('');
  useEffect(()=>{if(Platform.OS==='ios')void Apple.isAvailableAsync().then(setAvailable).catch(()=>{})},[]);
  const configured=!!supabase&&process.env.EXPO_PUBLIC_APPLE_LINK_ENABLED==='true';
@@ -32,6 +32,14 @@ export function BackupPanel(){
    setNotice('History backed up. Your readings are here.');
   }catch{setNotice(action==='save'?'Backup could not finish. Already saved with Apple? Choose Restore. Your local readings are safe.':'Restore could not finish. Your local readings are safe. Try again when connected.')}
  }
+ async function removeAccount(){
+  try{
+   const credential=await Apple.signInAsync({requestedScopes:[]});
+   const code=credential.authorizationCode;
+   if(!code)throw new Error('Apple confirmation is required.');
+   await deleteAccount(()=>deleteAppleAccount(code));
+  }catch(error){setNotice(error instanceof Error?error.message:'Deletion did not finish. Please try again.');}
+ }
  if(!available||!configured)return null;
  return <View style={styles.panel}><Surface kind="card">
   <CardHeader title="Keep your glimpses" label="Optional"/>
@@ -39,6 +47,7 @@ export function BackupPanel(){
    <Action label={mode==='save'?'Restore an Apple backup':'Save this device with Apple'} quiet disabled={backupBusy} onPress={()=>{setMode(mode==='save'?'restore':'save');setNotice('')}}/>
    <Txt style={styles.caption}>{mode==='save'?'Save this device’s history':'Restore from your linked Apple account. If you haven’t linked Apple yet, sign in to choose your backup.'}</Txt>
    {backupBusy?<Txt accessibilityLiveRegion="polite">Saving your glimpses…</Txt>:<Apple.AppleAuthenticationButton buttonType={Apple.AppleAuthenticationButtonType.CONTINUE} buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE} cornerRadius={12} style={{height:52,marginTop:12}} onPress={()=>{if(mode==='restore')Alert.alert('Replace this device’s data?','Restore from your linked Apple account replaces this device’s readings and remembered answers. If you haven’t linked Apple yet, sign in to choose your backup. Use one device at a time.',[{text:'Cancel',style:'cancel'},{text:'Restore and replace',style:'destructive',onPress:()=>{void connect('restore')}}]);else void connect('save')}}/>}
+  <Action testID="delete-apple-account" label="Delete account and data" quiet disabled={backupBusy} onPress={()=>Alert.alert('Delete your account?','Revokes Apple access and permanently deletes your account, server backup, Stars, owned Circles and local readings. Subscriptions must be canceled separately in Apple Settings. This cannot be undone.',[{text:'Keep account',style:'cancel'},{text:'Delete account',style:'destructive',onPress:()=>void removeAccount()}])}/>
   {notice?<View style={styles.panel}><Surface kind="card"><Txt accessibilityLiveRegion="polite" style={styles.caption}>{notice}</Txt></Surface></View>:null}
  </Surface></View>;
 }

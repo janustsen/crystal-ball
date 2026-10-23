@@ -1,6 +1,5 @@
 import React,{useState} from 'react';
 import {Platform,View} from 'react-native';
-import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import {Action,CardHeader,styles,Txt,Toggle} from './ui';
 import {setSocialPush,setSkyPush} from './social';
@@ -10,11 +9,9 @@ import {ritualOf} from './ritual';
 import {allowNotifications} from './notify';
 // One shared device token; Circle and Friday Sky consent are saved separately with it.
 async function devicePushToken(){
- const projectId=Constants.expoConfig?.extra?.eas?.projectId??Constants.easConfig?.projectId;
- if(!projectId)throw new Error('Push notifications are not configured in this build.');
- if(Platform.OS==='android')await Notifications.setNotificationChannelAsync('default',{name:'Circle invitations and forecasts',importance:Notifications.AndroidImportance.DEFAULT});
+ if(Platform.OS!=='ios')throw new Error('Remote notifications are available on iPhone.');
  if((await Notifications.requestPermissionsAsync()).status!=='granted')throw new Error('Notifications are off. You can enable them in device settings.');
- return (await Notifications.getExpoPushTokenAsync({projectId})).data;
+ return (await Notifications.getDevicePushTokenAsync()).data;
 }
 function useLocalSky(){
  const {state,update}=useStore();

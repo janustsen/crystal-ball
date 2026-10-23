@@ -1,3 +1,4 @@
+import {appleFixture,nativeToken} from './apple-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {socialHandler} from '../server/social';
@@ -21,7 +22,7 @@ test('Circle question and forecast both pass teen moderation before a service re
   if('headline'in properties)return {headline:'A shared creative project may bring a bright chapter.',days:14} as T;
   return {category:'allow'} as T;
  }};
- const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]);
+ const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture',...appleFixture}[key as keyof typeof appleFixture|'SUPABASE_URL'|'SUPABASE_SERVICE_ROLE_KEY']);
  const request=()=>new Request('http://local/social',{method:'POST',headers:{Authorization:'Bearer fixture'},body:JSON.stringify({action:'circle',circle:'00000000-0000-0000-0000-000000000001',question:'Will we learn a skill together?'})});
  const handle=socialHandler(env,model);
  assert.equal((await handle(request())).status,200);assert.equal(saved,1);assert.deepEqual(audiences,[true,true]);
@@ -31,13 +32,13 @@ test('Circle question and forecast both pass teen moderation before a service re
 
 test('push worker sends only permitted generic messages and acknowledges accepted jobs',async()=>{
  const sent:Record<string,unknown>[]=[],finished:string[]=[];
- const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]);
+ const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture',...appleFixture}[key as keyof typeof appleFixture|'SUPABASE_URL'|'SUPABASE_SERVICE_ROLE_KEY']);
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input),body=JSON.parse(String(init?.body));
   if(url.endsWith('/claim_sky_pushes'))return Response.json([]);
-  if(url.endsWith('/claim_social_pushes'))return Response.json(['seal','invite','joined','forecast','vote'].map((kind,index)=>({id:String(index),kind,token:'ExpoPushToken[fixture]',circle_id:'circle'})));
+  if(url.endsWith('/claim_social_pushes'))return Response.json(['seal','invite','joined','forecast','vote'].map((kind,index)=>({id:String(index),kind,token:nativeToken,circle_id:'circle'})));
   if(url.endsWith('/finish_social_push')){finished.push(body.notification);return Response.json(null);}
-  assert.equal(url,'https://exp.host/--/api/v2/push/send');sent.push(body);return Response.json({data:{status:'ok',id:'ticket'}});
+  assert.equal(url,`https://api.sandbox.push.apple.com/3/device/${nativeToken}`);sent.push(body);return new Response(null,{status:200});
  };
  assert.deepEqual(await deliverSocialPushes(env,transport),{queued:5,accepted:5});
  assert.equal(sent.length,5);assert.equal(finished.length,5);
@@ -49,28 +50,28 @@ test('failed push delivery remains retryable and never acknowledges a rejected t
  const transport:typeof fetch=async(input)=>{
   const url=String(input);
   if(url.endsWith('/claim_sky_pushes'))return Response.json([]);
-  if(url.endsWith('claim_social_pushes'))return Response.json([{id:'job',kind:'invite',token:'ExpoPushToken[fixture]',circle_id:'circle'}]);
+  if(url.endsWith('claim_social_pushes'))return Response.json([{id:'job',kind:'invite',token:nativeToken,circle_id:'circle'}]);
   if(url.endsWith('finish_social_push')){finished=true;return Response.json(null);}
-  return Response.json({data:{status:'error',details:{error:'MessageRateExceeded'}}});
+  return Response.json({reason:'TooManyRequests'},{status:429});
  };
- const result=await deliverSocialPushes(key=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]),transport);
+ const result=await deliverSocialPushes(key=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture',...appleFixture}[key as keyof typeof appleFixture|'SUPABASE_URL'|'SUPABASE_SERVICE_ROLE_KEY']),transport);
  assert.deepEqual(result,{queued:1,accepted:0});assert.equal(finished,false);
 });
 
 
 test('unregistered devices remain retryable after token replacement',async()=>{
- let token='old',finished=false;
+ let token='b'.repeat(64),finished=false;
  const sent:string[]=[];
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input);
   if(url.endsWith('/claim_sky_pushes'))return Response.json([]);
   if(url.endsWith('claim_social_pushes'))return Response.json(finished?[]:[{id:'job',kind:'seal',token,circle_id:'circle'}]);
   if(url.endsWith('finish_social_push')){finished=true;return Response.json(null);}
-  sent.push(JSON.parse(String(init?.body)).to);
-  return Response.json({data:token==='old'?{status:'error',details:{error:'DeviceNotRegistered'}}:{status:'ok',id:'ticket'}});
+  sent.push(url.split('/').at(-1)!);
+  return new Response(null,{status:token==='b'.repeat(64)?410:200});
  };
- const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]);
+ const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture',...appleFixture}[key as keyof typeof appleFixture|'SUPABASE_URL'|'SUPABASE_SERVICE_ROLE_KEY']);
  assert.deepEqual(await deliverSocialPushes(env,transport),{queued:1,accepted:0});assert.equal(finished,false);
- token='replacement';assert.deepEqual(await deliverSocialPushes(env,transport),{queued:1,accepted:1});
- assert.equal(finished,true);assert.deepEqual(sent,['old','replacement']);
+ token='c'.repeat(64);assert.deepEqual(await deliverSocialPushes(env,transport),{queued:1,accepted:1});
+ assert.equal(finished,true);assert.deepEqual(sent,['b'.repeat(64),'c'.repeat(64)]);
 });

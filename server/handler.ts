@@ -15,8 +15,8 @@ import {billing,billingHandler,BillingError} from './billing.ts';
 import {assignEdition} from '../src/delight.ts';
 import {webReadings} from './web-reading.ts';
 import {heardFrom} from './heard-from.ts';
-export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider,accounting?:HostedAccounting) {
- const model=injectedModel??provider(env,undefined,45000,accounting),omenModel=injectedModel??provider(env,160,45000,accounting),insightModel=injectedModel??provider(env,240,45000,accounting),yearModel=injectedModel??provider(env,900,90000,accounting);
+export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelProvider,accounting?:HostedAccounting,deadline?:AbortSignal) {
+ const model=injectedModel??provider(env,undefined,45000,accounting,deadline),omenModel=injectedModel??provider(env,160,45000,accounting,deadline),insightModel=injectedModel??provider(env,240,45000,accounting,deadline),yearModel=injectedModel??provider(env,900,90000,accounting,deadline);
  const meter=billing(env),web=webReadings(env),heard=heardFrom(env),social=socialHandler(env,model,meter),store=billingHandler(env);
  return async(request:Request):Promise<Response>=>{
   const path=new URL(request.url).pathname;

@@ -24,7 +24,7 @@ export function usageCost(usage:unknown):number|null{
  return input*inputNano+output*outputNano;
 }
 
-export function hostedAccounting(env:Env,viewer:string,action:string):HostedAccounting{
+export function hostedAccounting(env:Env,viewer:string|null,action:string):HostedAccounting{
  const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY');
  let admitted:Promise<unknown>|undefined;
  async function rpc(name:string,args:object){
@@ -40,7 +40,8 @@ export function hostedAccounting(env:Env,viewer:string,action:string):HostedAcco
  }
  const admit=async()=>{
   if(!base||!key)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
-  admitted??=rpc('admit_ai_request',{viewer,action});await admitted;
+  if(viewer){admitted??=rpc('admit_ai_request',{viewer,action});await admitted;}
+  else if(action!=='sky')throw new Error('Account required for AI admission.');
  };
  return {
   admit,
@@ -83,6 +84,14 @@ export function hostedAccounting(env:Env,viewer:string,action:string):HostedAcco
 }
 
 // Only the Edge Function uses this boundary. The Node adapter remains private, local development tooling.
+export function requireHostedReady(env:Env){
+ const free=env('CLOUDFLARE_QUALITY_APPROVED')==='true',paid=env('DEEPINFRA_QUALITY_APPROVED')==='true';
+ if(env('MODEL_PROVIDER')!=='hosted'||env('HOSTED_MODEL_DISCLOSURE')!==hostedConsent||(!free&&!paid)||(paid&&!env('DEEPINFRA_API_KEY')))throw new BillingError('Public readings are not available yet. Please try again later.',503);
+ if(free){
+  if(env('CLOUDFLARE_WORKERS_PLAN')!=='free'||!env('CLOUDFLARE_API_TOKEN'))throw new BillingError('Public readings are not available yet. Please try again later.',503);
+  cloudflareEndpoint(env('CLOUDFLARE_ACCOUNT_ID')||'');
+ }
+}
 export function publicHandler(env:Env){
  return async(request:Request):Promise<Response>=>{
   const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':env('APP_ORIGIN')||'http://localhost:8087','Access-Control-Allow-Headers':'content-type, authorization, apikey','Access-Control-Allow-Methods':'POST, OPTIONS'};
@@ -99,14 +108,9 @@ export function publicHandler(env:Env){
    const meter=billing(env);
    if(!meter)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
    const viewer=await meter.user(request);
-   const free=env('CLOUDFLARE_QUALITY_APPROVED')==='true',paid=env('DEEPINFRA_QUALITY_APPROVED')==='true';
-   if(env('MODEL_PROVIDER')!=='hosted'||env('HOSTED_MODEL_DISCLOSURE')!==hostedConsent||(!free&&!paid)||(paid&&!env('DEEPINFRA_API_KEY')))throw new BillingError('Public readings are not available yet. Please try again later.',503);
-   if(free){
-    if(env('CLOUDFLARE_WORKERS_PLAN')!=='free'||!env('CLOUDFLARE_API_TOKEN'))throw new BillingError('Public readings are not available yet. Please try again later.',503);
-    cloudflareEndpoint(env('CLOUDFLARE_ACCOUNT_ID')||'');
-   }
+   requireHostedReady(env);
    const action=new URL(request.url).pathname.endsWith('/social')?`social:${body.action}`:body.action;
-   return await handler(env,undefined,hostedAccounting(env,viewer,action))(request);
+   return await handler(env,undefined,hostedAccounting(env,viewer,action),AbortSignal.timeout(110000))(request);
   }catch(cause){return error(cause instanceof BillingError?cause.message:'Readings are unavailable right now. Please try again later.',cause instanceof BillingError?cause.status:503)}
  };
 }

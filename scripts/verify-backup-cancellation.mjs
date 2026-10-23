@@ -27,7 +27,7 @@ const bundle=await build({stdin:{contents:`
   c.uploads++;c.archive=structuredClone({facts:state.facts,history:state.history});
  }
  `:`export default {
-  getItem:async()=>{const c=window.control;if(c.failLocal)throw Error('Storage unavailable');const raw=c.disk;if(c.delay)await new Promise(resolve=>{c.release=resolve});return raw},
+  getItem:async key=>{if(key!=='crystal-ball-v1')return null;const c=window.control;if(c.failLocal)throw Error('Storage unavailable');const raw=c.disk;if(c.delay)await new Promise(resolve=>{c.release=resolve});return raw},
   setItem:async(key,value)=>{window.control.saves++;window.control.disk=value}
  };` }));
 }}]});
