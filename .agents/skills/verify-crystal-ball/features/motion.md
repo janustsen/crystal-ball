@@ -7,7 +7,7 @@ The [room](../../../../docs/design/motion.md#room) flights, loops and live ball,
 Home's ball or Tap to ask starts the reading. Follow a real reading through the immediate opening and any ready tailored questions, reveal and Share. Settings (the header gear, `open-settings`) contains Reduce motion.
 
 ## Driving it
-Run `node scripts/drive-motion.mjs` serially after functional drives. It creates its own Chrome session, records a DevTools trace and actual WebGL draw cadence at 390×844, then closes only that browser. `node scripts/check-motion-accessibility.mjs` proves OS/app reduced motion, resume and skipped approach delay.
+Run `node scripts/drive-motion.mjs` serially after functional drives. It creates its own Chrome browser and AXI session, records a CPU/layout/frame trace and actual WebGL draw cadence at 390×844, then closes only that browser. Screenshots are captured between samples; continuous trace screenshots add GPU load and are excluded from the timing trace. `node scripts/check-motion-accessibility.mjs` proves OS/app reduced motion, resume and skipped approach delay.
 
 Run `PREVIEW_URL=<owned preview> node scripts/check-toggle-motion.mjs` against a fresh onboarding state to check the Ambient sound switch with app and OS motion preferences, including live OS changes. This is browser coverage; native preference handling still needs a device drive.
 
