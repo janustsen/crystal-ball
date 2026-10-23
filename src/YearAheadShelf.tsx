@@ -4,7 +4,7 @@ import {Action,CardHeader,Txt,colors,styles} from './ui';
 import {OrbVisual} from './OrbVisual';
 import {Surface} from './Surface';
 import {useStore} from './store';
-import {aiProvider,requestYearAhead,serverMetered,simulatePurchase} from './api';
+import {aiConsentValue,requestYearAhead,serverMetered,simulatePurchase} from './api';
 import {purchaseMode} from './purchases';
 import {yearAheadProduct} from './billing';
 import {saveReading} from './reading-history';
@@ -19,7 +19,7 @@ let sealing:Promise<void>|null=null;
 export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
  const {state,update,applyBalance,saveAskProgress,backupBusy}=useStore(),[busy,setBusy]=useState(()=>!!sealing),[notice,setNotice]=useState('');
  useEffect(()=>{let live=true;void sealing?.finally(()=>{if(live)setBusy(false)});return()=>{live=false}},[]);
- const year=state.yearAhead,today=localDay(),aiBlocked=!!aiProvider&&state.aiConsent!==aiProvider;
+ const year=state.yearAhead,today=localDay(),aiBlocked=!!aiConsentValue&&state.aiConsent!==aiConsentValue;
  const onSale=purchaseMode==='mock';
  const balls:ShelfBall[]=year?.kind==='sealed'?shelf(year,state.history,today):monthsFrom(today).map(month=>({month,id:month,headline:'',state:'sealed'}));
  function seal(buy=false){
@@ -30,7 +30,7 @@ export function YearAheadShelf({onOpen}:{onOpen:(p:Prediction)=>void}){
     if(serverMetered)await applyBalance(await simulatePurchase('yearAhead'));
     else update(s=>s.yearAhead?s:{...s,yearAhead:{kind:'owned',source:'purchase'}});
    }
-   const months=await requestYearAhead(state.facts,state,aiBlocked?'':aiProvider);
+   const months=await requestYearAhead(state.facts,state,aiBlocked?'':aiConsentValue);
    await saveAskProgress(s=>{
     if(s.yearAhead?.kind!=='owned')throw new Error('Your year ahead changed. Please try again.');
     return {...s,yearAhead:{kind:'sealed',source:s.yearAhead.source,sealedAt:new Date().toISOString(),months:months.map(m=>({...m,id:uuid()}))}};

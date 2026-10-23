@@ -20,7 +20,7 @@ try{
  await page.getByTestId('question-input').fill('Will I learn Spanish?');
  await expect(page.getByTestId('look-into-the-future')).toBeDisabled();
  await page.getByTestId('ai-details').click();
- await expect(page.getByText(/DeepInfra says it does not store or train on Qwen inputs or outputs/)).toBeVisible();
+ await expect(page.getByText(/Cloudflare processes your questions/)).toBeVisible();
  await page.waitForTimeout(300);
  await page.screenshot({path:`${folder}/hosted-consent.png`});
  await page.getByTestId('dismiss-notice').click();
@@ -33,7 +33,7 @@ try{
  await page.route('**/engine',async route=>{
   const body=route.request().postDataJSON();
   if(body.action!=='plan')return route.continue();
-  expect(body.aiConsent).toBe('DeepInfra');requests++;
+  expect(body.aiConsent).toBe('cloudflare-deepinfra-v1');requests++;
   await route.fulfill({status:429,contentType:'application/json',body:JSON.stringify({kind:'error',message})});
  });
  await page.getByTestId('look-into-the-future').click();
@@ -46,7 +46,7 @@ try{
  await page.waitForTimeout(300);
  await page.screenshot({path:`${folder}/hosted-daily-limit.png`});
  expect(requests).toBe(2);
- results.push('DeepInfra permission is required and its data wording is readable','Monthly budget and daily quota messages survive the real client/reading flow','Two labeled 429 planning faults; zero paid inference');
+ results.push('Cloudflare and DeepInfra permission is required and its data wording is readable','Monthly budget and daily quota messages survive the real client/reading flow','Two labeled 429 planning faults; zero paid inference');
  await writeFile(`${folder}/hosted-ui.json`,JSON.stringify({at:new Date().toISOString(),results},null,2));
  console.log(results);
 }catch(error){

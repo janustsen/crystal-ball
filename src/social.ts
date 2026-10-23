@@ -1,7 +1,7 @@
 import {localDay} from './retention';
 import {allRows} from './social-pagination';
 import {anonymousOwner,supabase} from './cloud';
-import {aiProvider,engineUrl,previewHeaders} from './api';
+import {aiProvider,aiConsentValue,engineUrl,previewHeaders} from './api';
 import type {Balance} from './billing';
 import {isSkyPrompt,safeSealedHeadline,socialUnavailable,type SkyPrompt,type SkyStar,type SocialProfile} from './social-policy';
 import type {Prediction,FriendTarget,ReadingContext} from './types';
@@ -36,7 +36,7 @@ async function rpc(name:string,args?:Record<string,unknown>){
  return data;
 }
 async function socialRequest<T>(body:Record<string,unknown>,signal?:AbortSignal):Promise<T>{
- if((body.action==='draft'||body.action==='friend'||body.action==='circle')&&aiProvider&&body.aiConsent!==aiProvider)throw new Error(`Allow ${aiProvider} AI processing in Ask before sharing a reading or asking about a friend.`);
+ if((body.action==='draft'||body.action==='friend'||body.action==='circle')&&aiProvider&&body.aiConsent!==aiConsentValue)throw new Error(`Allow ${aiProvider} AI processing in Ask before sharing a reading or asking about a friend.`);
  const {db}=await client(),session=await db.auth.getSession();
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),120000);
  try{
