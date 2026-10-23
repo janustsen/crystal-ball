@@ -4,7 +4,7 @@ import XCTest
 // engine, the notification offer and the iOS permission prompt, You's sky and counts, a local notification tap and a
 // server push delivered by scripts/simulator-push.mts. Screenshots and handshake files go to RITUAL_OUT on the host.
 final class RitualUITests: XCTestCase {
- let app=XCUIApplication(bundleIdentifier:"com.janustsen.crystalball")
+ let app=XCUIApplication(bundleIdentifier:ProcessInfo.processInfo.environment["CB_QA_BUNDLE_ID"] ?? "com.janustsen.crystalball")
  let springboard=XCUIApplication(bundleIdentifier:"com.apple.springboard")
  let out=ProcessInfo.processInfo.environment["RITUAL_OUT"] ?? "/tmp"
 
@@ -28,6 +28,38 @@ final class RitualUITests: XCTestCase {
   app.terminate();FileManager.default.createFile(atPath:"\(out)/ready-for-ladder",contents:nil)
   waitForFile("ladder-seeded",60);XCTAssertTrue(FileManager.default.fileExists(atPath:"\(out)/ladder-seeded"),"ladder never seeded")
   app.launch();_=wait(element("tab-you"),240,"You tab after seeding")
+ }
+
+ // Immediate local first card and the remaining loading state in a real installed build.
+ // This case needs no ladder/storage seeder or mocked engine reply.
+ func testImmediateOpeningAndLoading() throws {
+  continueAfterFailure=false
+  app.launch()
+  if element("skip-for-now").waitForExistence(timeout:60){
+   tap("skip-for-now");tap("confirm-age");tap("about-done")
+  }
+  _=wait(element("tap-to-ask"),60,"Home");shot("opening-01-home")
+  tap("tap-to-ask");allowAlert("Don’t Allow");allowAlert("Don’t Allow")
+  tap("type-instead",30)
+  let question=wait(element("question-input"),20,"question field")
+  question.tap();question.typeText("Will I finish my painting project this month?")
+  shot("opening-02-typed")
+  let start=Date();tap("look-into-the-future")
+  _=wait(element("option-0"),9,"immediate first card")
+  let elapsed=Date().timeIntervalSince(start)
+  try JSONSerialization.data(withJSONObject:["firstCardSecondsIncludingXCTestTap":elapsed]).write(to:URL(fileURLWithPath:"\(out)/opening-timing.json"))
+  XCTAssertLessThan(elapsed,10,"first card waited for model planning")
+  shot("opening-03-card")
+  tap("option-0")
+  _=wait(labelled("The mist is gathering",in:app),15,"forecast loading")
+  shot("opening-04-thinking");Thread.sleep(forTimeInterval:1.5);shot("opening-05-thinking")
+  let cancel=app.buttons["Cancel"].firstMatch
+  _=wait(cancel,5,"Cancel");cancel.tap()
+  _=wait(element("question-input"),15,"typed question after Cancel")
+  shot("opening-06-canceled")
+  tap("close-flow");tap("open-settings")
+  let reduce=app.switches["Reduce motion"]
+  _=wait(reduce,10,"Reduce motion");reduce.tap();shot("opening-07-reduced-motion")
  }
 
  func testDailyRitualAndNotifications() throws {

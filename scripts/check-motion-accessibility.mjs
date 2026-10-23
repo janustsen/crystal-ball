@@ -2,6 +2,7 @@ import {httpCredentials} from './preview-auth.mjs';
 import {openEverything} from './ladder-seed.mjs';
 import {chromium,expect} from '@playwright/test';
 import {writeFile,mkdir} from 'node:fs/promises';
+const out=process.env.EVIDENCE_DIR||'docs/evidence/motion-2026-09-30';
 const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:false});
 const page=await browser.newPage({httpCredentials,viewport:{width:390,height:844},reducedMotion:'reduce'}),log=[];
 const styleErrors=[];page.on('console',message=>{if(message.type()==='error'&&/style property during rerender/.test(message.text()))styleErrors.push(message.text());});
@@ -15,6 +16,6 @@ try{
  const balls=await Promise.all(['hero-orb','tap-to-ask'].map(id=>page.getByTestId(id).evaluate(n=>({width:n.getBoundingClientRect().width,visible:n.getBoundingClientRect().bottom<=innerHeight}))));expect(balls.every(b=>b.visible)).toBe(true);log.push({balls});
  await page.getByTestId('hero-orb').click();await expect(page.getByTestId('type-instead')).toBeVisible({timeout:1000});log.push({label:'approach delay skipped'});
  expect(styleErrors).toEqual([]);
- await mkdir('docs/evidence/motion-2026-09-30',{recursive:true});await writeFile('docs/evidence/motion-2026-09-30/reduced-motion.json',JSON.stringify(log,null,2)+'\n');
+ await mkdir(out,{recursive:true});await writeFile(`${out}/reduced-motion.json`,JSON.stringify(log,null,2)+'\n');
  console.log('Reduced motion, resume and immediate listening passed.');
 }finally{await browser.close()}

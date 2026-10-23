@@ -35,6 +35,10 @@ async function fixture(os='ios',clock=now){
  const notifications={setNotificationHandler(value){handler=value},SchedulableTriggerInputTypes:{DATE:'date'},getPermissionsAsync:async()=>({status:'granted'}),requestPermissionsAsync:async()=>({status:'granted'}),getAllScheduledNotificationsAsync:async()=>[...pending.values()],cancelScheduledNotificationAsync:async id=>{pending.delete(id)},scheduleNotificationAsync:async value=>{pending.set(value.identifier,value)},dismissAllNotificationsAsync:async()=>{},clearLastNotificationResponseAsync:async()=>{}};
  const imports={'react-native':{Platform:{OS:os}},'expo-notifications':notifications,'@react-native-async-storage/async-storage':{default:{getItem:async key=>disk.get(key)??null,setItem:async(key,value)=>{disk.set(key,value)}}},'./ritual':ritual,'./retention':retention};
  const context=createContext({Date:Clock});
+ const clockedRetention=new SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('../src/retention.ts',import.meta.url),'utf8')),{context});
+ await clockedRetention.link(()=>{throw new Error('Unexpected retention import')});
+ await clockedRetention.evaluate();
+ imports['./retention']=clockedRetention.namespace;
  const module=new SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('../src/notify.ts',import.meta.url),'utf8')),{context});
  await module.link(name=>new SyntheticModule(Object.keys(imports[name]),function(){for(const [key,value]of Object.entries(imports[name]))this.setExport(key,value)},{context}));
  await module.evaluate();

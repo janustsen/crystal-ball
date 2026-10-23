@@ -74,11 +74,11 @@ test('valid first names reach planning and forecasting through API and engine',a
  };
  try{
   for(name of ['Alex','Élodie','Jo-Anne','Will']){
-   const context={personName:name,viewerBirthday:'1995-06-15'},question=`Will ${name} learn Spanish in six months?`,facts={context_1:'Daily practice',horizon:'in 6 months'};
+   const context={personName:name,viewerBirthday:'1995-06-15'},question=`Will ${name} learn Spanish in six months?`,facts={context_1:'Daily practice',session_open:`What has ${name} already done about this? Taken a first step`,horizon:'in 6 months',self_private:'Only about the owner'};
    const plan=await makePlan(question,{},provider(()=>undefined),context);assert.equal(plan.kind,'ok');
    if(plan.kind==='ok')assert.equal(plan.value.cards[0].question,`How often does ${name} practice?`);
    const forecast=await predict(question,facts,false,provider(()=>undefined),context);assert.equal(forecast.kind,'ok');
-   if(forecast.kind==='ok')assert.equal(forecast.value.headline,`${name} will improve in 6 months.`);
+   if(forecast.kind==='ok'){assert.equal(forecast.value.headline,`${name} will improve in 6 months.`);assert.equal(forecast.value.facts.session_open,facts.session_open);assert.equal(forecast.value.facts.self_private,undefined);}
    for(const action of ['plan','predict']){
     const response=await handler(()=>undefined)(new Request('http://localhost',{method:'POST',body:JSON.stringify({action,question,facts,...context})}));
     assert.equal(response.status,200);assert.equal((await response.json()).kind,'ok');

@@ -100,7 +100,7 @@ export function handler(env:(key:string)=>string|undefined,injectedModel?:ModelP
     const sky=skyOn(localDate,body.timeZone);
     return new Response(JSON.stringify({kind:'ok',value:await personalOmen(facts,omenModel,sky)}),{headers});
    }
-   const result=await makePlan(question,facts,model,context);
+   const result=await makePlan(question,facts,model,context,request.signal);
    return new Response(JSON.stringify(result),{headers});
   } catch(error){return new Response(JSON.stringify({kind:'error',message:error instanceof Error?error.message:'Please try again.'}),{status:error instanceof BillingError?error.status:400,headers});}
  };
