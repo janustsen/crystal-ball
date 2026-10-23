@@ -9,7 +9,7 @@ import {solveProof,type WebReading} from './web-reading';
 import type {HeardFrom} from './heard-from';
 export const aiProvider=process.env.EXPO_PUBLIC_AI_PROVIDER_NAME||'';
 export const aiConsentValue=aiProvider===hostedProcessors?hostedConsent:aiProvider;
-export const engineUrl=process.env.EXPO_PUBLIC_ENGINE_URL||(process.env.EXPO_PUBLIC_SUPABASE_URL?`${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/predict`:undefined)||(typeof window!=='undefined'&&window.location?.protocol.startsWith('http')?`${window.location.origin}/engine`:'http://127.0.0.1:8787');
+export const engineUrl=process.env.EXPO_PUBLIC_ENGINE_URL||(typeof window!=='undefined'&&window.location?.protocol.startsWith('http')?`${window.location.origin}/engine`:'http://127.0.0.1:8787');
 export const previewHeaders:Record<string,string>=process.env.EXPO_PUBLIC_PREVIEW_SECRET?{'x-preview-token':process.env.EXPO_PUBLIC_PREVIEW_SECRET,...(typeof document==='undefined'?{Origin:new URL(engineUrl).origin}:{})}:{};
 // A metered forecast returns the server's balance after its charge.
 // A sealed-link browser visitor's free reading carries its bot-check proof instead of an account session.

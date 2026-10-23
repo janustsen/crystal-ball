@@ -1,6 +1,6 @@
 # Launch infrastructure — 2026-10-23
 
-Use Cloudflare Pages for the Expo web export and information pages, and one Supabase project for Auth, Postgres, Edge Functions and Cron. No production request or scheduled job needs the iMac. DeepInfra remains the selected hosted provider behind the existing quality-approval gate; this change does not select or approve a model. [Visual review](infrastructure.html).
+Use Cloudflare Pages for the Expo web export and information pages, and one Supabase project for Auth, Postgres, Edge Functions and Cron. No production request or scheduled job needs the iMac. Public inference uses the existing separately approved Cloudflare Free and DeepInfra paths; this change does not select or approve a model. [Visual review](infrastructure.html).
 
 | Path | Release execution | Persistent state |
 |---|---|---|
@@ -27,9 +27,11 @@ Names and destinations only: never paste secret values into source, this documen
 | `SUPABASE_DB_PASSWORD` | Local migration/deploy shell; passed privately to CLI | Supabase project owner |
 | Project reference | Supabase CLI `link --project-ref` / `--project-ref` | Supabase project owner |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Supabase’s built-in Edge Function environment | Platform provides these; never copy service key into the app |
-| `HOSTED_MODEL_KEY` | Supabase Function secrets | Captain’s selected provider account |
-| `MODEL_PROVIDER`, `HOSTED_MODEL_URL`, `HOSTED_MODEL_NAME`, `HOSTED_MODEL_DISCLOSURE` | Supabase Function secrets/settings | Existing selected-provider contract in `supabase/hosted.env.example`; deployment operator |
-| `HOSTED_QUALITY_APPROVED` | Supabase Function settings | Keep false until retained real-provider semantic/safety comparison is approved |
+| `DEEPINFRA_API_KEY` | Supabase Function secrets (predict and scheduled Sky inference) | DeepInfra account holder |
+| `MODEL_PROVIDER`, `HOSTED_MODEL_DISCLOSURE` | Supabase Function settings | Set to `hosted` and `cloudflare-deepinfra-v1`; see `supabase/hosted.env.example` |
+| `DEEPINFRA_QUALITY_APPROVED`, `CLOUDFLARE_QUALITY_APPROVED` | Supabase Function settings | Keep each false until that pinned provider/model’s own retained semantic/safety comparison is approved |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Supabase Function secrets/settings (predict and scheduled Sky inference) | Dedicated Workers Free account; token authorized for Workers AI inference |
+| `CLOUDFLARE_WORKERS_PLAN` | Supabase Function settings | Set to `free`; do not upgrade or enable billable overage |
 | `APP_ORIGIN` | Supabase Function settings | Set to the HTTPS Crystal Ball web origin |
 | `WEB_READING_SALT` | Supabase Function secrets | Operator generates a stable random secret for salted network hashes |
 | `WEB_READING_DAILY_CAP` | Supabase Function settings | Existing default 500; optional lower operational cap |
@@ -41,14 +43,14 @@ Names and destinations only: never paste secret values into source, this documen
 | `APPLE_KEY_ID`, `APPLE_TEAM_ID`, `APPLE_PRIVATE_KEY` | Supabase Function secrets | Apple Developer account holder: Sign in with Apple key ID, team ID and complete `.p8` PEM; distinct purpose from APNs key |
 | `APPLE_CLIENT_ID` | Supabase Function settings | Native app bundle identifier used to exchange the native Apple code |
 | `REVENUECAT_SECRET_KEY`, `REVENUECAT_WEBHOOK_AUTH` | Supabase Function secrets; webhook’s matching Authorization header in RevenueCat | RevenueCat operator; see [billing](billing.md) |
-| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Local deploy shell or protected deploy environment | Existing demo-host account; token needs Pages edit and zone DNS access for domain binding |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Local deploy shell or protected deploy environment | Pages deployment account; token needs Pages edit and zone DNS access for domain binding. Separate purpose from the dedicated inference account above |
 
 | Public build setting | Destination and value source |
 |---|---|
 | `EXPO_PUBLIC_SUPABASE_URL` | Ignored release env / Pages build environment; approved project’s HTTPS URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Same; project’s public anon key, never service role |
 | `EXPO_PUBLIC_ENGINE_URL` | Same; exactly that project’s `/functions/v1/predict` URL |
-| `EXPO_PUBLIC_AI_PROVIDER_NAME` | Same; must match server `HOSTED_MODEL_DISCLOSURE` |
+| `EXPO_PUBLIC_AI_PROVIDER_NAME` | Same; `Cloudflare and DeepInfra`, mapped by the app to consent ID `cloudflare-deepinfra-v1` matching server `HOSTED_MODEL_DISCLOSURE` |
 | `EXPO_PUBLIC_WEB_ORIGIN` | Same; `https://crystalball.janustsen.com` |
 | `EXPO_PUBLIC_INSTALL_URL` | Same; actual Apple app/campaign URL once the app record exists, preserving query parameters |
 | `EXPO_PUBLIC_APPLE_LINK_ENABLED` | Same; false until Apple linking, restore and deletion pass on a device; true in the verified launch build |
@@ -75,7 +77,7 @@ Cloudflare Pages is the existing demo-host precedent; the current account and `j
 1. Populate the public release settings above. Run `npm ci`, `npm run check`, `npm test`, then `npm run build:web`. The release guard rejects missing settings, a private/iMac engine URL or a preview token. Use `npm run prebuild:release` for native release preparation; the config plugin also sets the flag inside Xcode’s Release bundle phase, including GUI archives. `--no-dev` previews do not infer release from `NODE_ENV` or process arguments.
 2. Deploy `dist/` with the committed `wrangler.jsonc`. If the Pages project does not exist, create `crystal-ball` in the existing account on the free plan, then run `npx wrangler pages deploy dist --project-name crystal-ball --branch main`. For Git-integrated builds, set build command `npm run build:web`, output directory `dist`, and the public build variables in Pages. Never send server/provider/Apple secrets to Pages.
 3. In that Pages project, add Custom Domain `crystalball.janustsen.com` and let Cloudflare bind the matching DNS record in the existing zone. Use the actual deployment hostname returned by Pages; do not guess a CNAME target. Wait for active HTTPS and confirm the root app, `/privacy`, `/terms`, `/support`, and a sealed-link query URL. [Cloudflare custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/) and [free limits](https://developers.cloudflare.com/pages/platform/limits/).
-4. The static build contains standalone privacy/terms/support pages and the DeepInfra disclosure. `_redirects` serves clean information URLs; Pages’ built-in single-page-app fallback serves incoming app links (there is no top-level 404 page). Report contact is the existing public address `janustsen@outlook.com`. Monitor that inbox and the `star_reports` table for timely moderation; repeated-report auto-hide complements operator review. No moderation dashboard is introduced.
+4. The static build contains standalone privacy/terms/support pages and the Cloudflare/DeepInfra disclosure. `_redirects` serves clean information URLs; Pages’ built-in single-page-app fallback serves incoming app links (there is no top-level 404 page). Report contact is the existing public address `janustsen@outlook.com`. Monitor that inbox and the `star_reports` table for timely moderation; repeated-report auto-hide complements operator review. No moderation dashboard is introduced.
 
 ## Apple deletion and push behavior
 

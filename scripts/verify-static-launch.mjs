@@ -12,7 +12,7 @@ try{
  for(const [route,title] of [['privacy','Privacy policy'],['terms','Terms of use'],['support','Support']]){
   await page.goto(`${origin}/${route}/`);await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-  if(route==='privacy'){await expect(page.getByText(/DeepInfra, Inc/)).toBeVisible();await expect(page.getByText(/News lookups are off/)).toBeVisible();}
+  if(route==='privacy'){await expect(page.getByText(/Cloudflare, Inc/)).toBeVisible();await expect(page.getByText(/DeepInfra, Inc/)).toBeVisible();await expect(page.getByRole('link',{name:'Cloudflare data usage'})).toHaveAttribute('href','https://developers.cloudflare.com/workers-ai/platform/data-usage/');await expect(page.getByText(/News lookups are off/)).toBeVisible();}
   if(route==='support')await expect(page.getByRole('link',{name:'janustsen@outlook.com'}).first()).toHaveAttribute('href',/^mailto:janustsen@outlook.com/);
   await page.screenshot({path:`${evidence}/${route}.png`,fullPage:true});
  }

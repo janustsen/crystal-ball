@@ -34,6 +34,8 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number,ti
  if(!['ollama','hosted'].includes(mode))throw new Error('Unknown model provider.');
  const hosted=mode==='hosted';
  return validatedProvider(async(messages,schema,signal)=>{
+    signal=deadline?AbortSignal.any([deadline,...(signal?[signal]:[])]):signal;
+    signal?.throwIfAborted();
     if(hosted&&accounting){
       await accounting.admit();
       signal?.throwIfAborted();
@@ -67,11 +69,11 @@ export function provider(env:(key:string)=>string|undefined,maxTokens?:number,ti
       model, messages, temperature: 0, max_tokens: maxTokens ?? 1200, stream: false,
       response_format: {type: 'json_schema', json_schema: {name: 'result', strict: true, schema}},
     } : {model: env('OLLAMA_MODEL') || 'qwen3:4b-instruct-2507-q4_K_M', messages, stream: false, think: false, format: schema, options: {temperature: 0, num_predict: maxTokens ?? 600}};
-    deadline?.throwIfAborted();
+    signal?.throwIfAborted();
     const serialized=JSON.stringify(body);
     const reservation=hosted&&accounting?await accounting.reserve(serialized):undefined;
-    signal?.throwIfAborted();deadline?.throwIfAborted();
-    const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: serialized, signal: AbortSignal.any([AbortSignal.timeout(timeoutMs),...(signal?[signal]:[]),...(deadline?[deadline]:[])])});
+    signal?.throwIfAborted();
+    const response = await fetch(endpoint, {method: 'POST', redirect: 'error', headers: {'Content-Type': 'application/json', ...(hosted ? {Authorization: `Bearer ${key}`} : {})}, body: serialized, signal: AbortSignal.any([AbortSignal.timeout(timeoutMs),...(signal?[signal]:[])])});
     if (!response.ok) throw new Error(`Model unavailable (${response.status}).`);
     const raw = await response.json();
     if(reservation&&accounting)await accounting.settle(reservation,raw.usage);
