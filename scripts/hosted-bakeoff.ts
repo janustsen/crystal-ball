@@ -37,7 +37,7 @@ const cases:{name:string;question:string;facts?:Facts;blocked?:string;ageConfirm
 type Ledger=Record<string,{reservedUSD:number;requests:number}>;
 type FreeLedger=Record<string,{reservedNeurons:number;requests:number}>;
 const evidenceDir=process.env.HOSTED_BAKEOFF_DIR||'docs/evidence/launch';
-const stateDir=process.env.HOSTED_BAKEOFF_STATE_DIR||'.local';
+const stateDir='.local';
 const ledgerPath=`${stateDir}/hosted-budget.json`,freeLedgerPath=`${stateDir}/cloudflare-neurons.json`,output=`${evidenceDir}/hosted-bakeoff-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
 function reserveRequest(body:string,candidate:typeof candidates[number],maxTokens:number,used={reservedUSD:0,requests:0}){
  const parsed=JSON.parse(body);
