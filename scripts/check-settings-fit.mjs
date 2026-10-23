@@ -24,6 +24,18 @@ try{
      const sizes=[...document.querySelectorAll('*')].map(el=>{const style=getComputedStyle(el);return [el,parseFloat(style.fontSize),parseFloat(style.lineHeight)]});
      for(const [el,font,line] of sizes){el.style.fontSize=`${font*scale}px`;if(Number.isFinite(line))el.style.lineHeight=`${line*scale}px`}
     },scale);
+    const fade=await toggle.evaluate(el=>{
+     for(let p=el.parentElement;p;p=p.parentElement){
+      const mask=getComputedStyle(p).maskImage;
+      if(mask&&mask!=='none'){
+       const opaque=mask.match(/rgb\(0, 0, 0\) ([\d.]+)px/);
+       if(!opaque)throw new Error(`Unrecognized Settings fade: ${mask}`);
+       return {opaqueAt:p.getBoundingClientRect().top+Number(opaque[1]),rowTop:el.getBoundingClientRect().top};
+      }
+     }
+     throw new Error('Missing Settings edge fade');
+    });
+    assert.ok(fade.opaqueAt<=fade.rowTop,`${name} daily=${daily}: first setting begins at ${fade.rowTop}px inside header fade ending at ${fade.opaqueAt}px`);
     const overflow=await toggle.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(['auto','scroll'].includes(getComputedStyle(p).overflowY))return p.scrollHeight-p.clientHeight;return 0});
     assert.ok(overflow<=1,`${name} daily=${daily}: settings scroll by ${overflow}px`);
     const title=page.getByRole('heading',{name:'Settings',exact:true});
