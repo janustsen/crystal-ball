@@ -36,6 +36,10 @@ try{
      throw new Error('Missing Settings edge fade');
     });
     assert.ok(fade.opaqueAt<=fade.rowTop,`${name} daily=${daily}: first setting begins at ${fade.rowTop}px inside header fade ending at ${fade.opaqueAt}px`);
+    const plans=page.getByTestId('view-plans'),balance=(await plans.innerText()).trim();
+    const planName=await plans.getAttribute('aria-label'),notifyName=await toggle.getAttribute('aria-label');
+    assert.ok(planName?.toLowerCase().startsWith(balance.toLowerCase()),`${name}: spoken balance ${JSON.stringify(planName)} starts with visible ${JSON.stringify(balance)}`);
+    assert.ok(notifyName?.startsWith('Daily insight and nudge'),`${name}: notification name includes its adjacent visible label`);
     const overflow=await toggle.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(['auto','scroll'].includes(getComputedStyle(p).overflowY))return p.scrollHeight-p.clientHeight;return 0});
     assert.ok(overflow<=1,`${name} daily=${daily}: settings scroll by ${overflow}px`);
     const title=page.getByRole('heading',{name:'Settings',exact:true});
