@@ -66,7 +66,7 @@ export function PlansPill({count,ready,reduce=false,onPress}:{count:string;ready
  // The count pops only when a shown balance changes (not when it first loads).
  const [shown,setShown]=useState({count,ready,pop:false});
  if(shown.count!==count||shown.ready!==ready)setShown({count,ready,pop:shown.count!==count&&shown.ready&&ready});
- return <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel="View plans" disabled={!ready} onPress={onPress} style={{minHeight:44,justifyContent:'center'}}>
+ return <Pressable testID="view-plans" accessibilityRole="button" accessibilityLabel={`${count}. View plans`} disabled={!ready} onPress={onPress} style={{minHeight:44,justifyContent:'center'}}>
   <View style={{height:32,paddingHorizontal:14,flexDirection:'row',alignItems:'center',gap:8}}>
    <Surface kind="pill" state={ready?undefined:'disabled'}>
     <View><SvgXml aria-hidden xml={sparkle} width={12} height={12}/></View>

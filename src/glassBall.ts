@@ -166,7 +166,7 @@ export function startGlass(renderer:T.WebGLRenderer,{env,motion,aim,present,hidd
     #include <colorspace_fragment>
    }`
  });
- const ball=new T.Mesh(new T.SphereGeometry(1,64,48),ballMat);
+ const ball=new T.Mesh(new T.SphereGeometry(1,64,32),ballMat);
  ball.position.copy(BALL);
  scene.add(ball);
 
