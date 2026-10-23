@@ -136,6 +136,45 @@ with tempfile.TemporaryDirectory(prefix='hosted-limits-', dir=os.environ.get('TM
         assert sql('select count(*) from public.ai_monthly_spend;') == '2'
         assert sql('select sum(actual) from public.ai_monthly_spend;') == '25000000000'
         print('PASS UTC month rollover opens a new ledger and preserves previous spend')
+        account = 'a' * 32
+        def neurons(amount, ok=True):
+            key = str(uuid.uuid4())
+            result = sql(f"set role service_role; select public.reserve_ai_neurons('{key}','{account}',{amount});", ok)
+            return key if key in result else None
+
+        held = neurons(885798000)
+        sql(f"set role service_role; select public.settle_ai_neurons('{held}',100); select public.settle_ai_neurons('{held}',100);")
+        assert sql("select reserved||'/'||actual from public.ai_daily_neurons;") == '0/100'
+        unknown = neurons(885798000)
+        sql(f"set role service_role; select public.settle_ai_neurons('{unknown}',885798001);", False)
+        sql('update public.ai_daily_neurons set actual=10000000000-reserved-100;')
+        def neuron_race(_):
+            return neurons(30) is not None
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as pool:
+            assert sum(pool.map(neuron_race, range(20))) == 3
+        assert neurons(11) is None
+        assert neurons(10) is not None
+        assert neurons(1) is None
+        assert sql('select reserved+actual from public.ai_daily_neurons;') == '10000000000'
+        for role in ['anon', 'authenticated']:
+            sql(f"set role {role}; select public.reserve_ai_neurons('{uuid.uuid4()}','{account}',1);", False)
+            sql(f"set role {role}; select public.settle_ai_neurons('{unknown}',1);", False)
+            sql(f"set role {role}; select * from public.ai_daily_neurons;", False)
+            sql(f"set role {role}; select * from public.ai_neuron_reservations;", False)
+        # Keep old holds, start a fresh UTC bucket, then settle an in-flight old attempt.
+        sql('alter table public.ai_neuron_reservations drop constraint ai_neuron_reservations_provider_account_day_fkey;')
+        sql('update public.ai_daily_neurons set day=current_date-1; update public.ai_neuron_reservations set day=current_date-1;')
+        assert neurons(885798000) is not None
+        sql(f"set role service_role; select public.settle_ai_neurons('{unknown}',100);")
+        assert sql('select reserved from public.ai_daily_neurons where day=current_date;') == '885798000'
+        assert sql('select count(*) from public.ai_daily_neurons;') == '2'
+        # Exercise midnight start guard with a test-only clock in the actual function body.
+        definition = sql("select pg_get_functiondef('public.reserve_ai_neurons(uuid,text,bigint)'::regprocedure);")
+        late = definition.replace("now() at time zone 'UTC'", "(date_trunc('day',now() at time zone 'UTC')+interval '23 hours 59 minutes')")
+        sql(late)
+        assert neurons(1) is None
+        sql(definition)
+        print('PASS free neurons: concurrent exact 10,000/day cap, service-only, durable uncertain holds, idempotent settlement, UTC rollover/in-flight overlap and midnight guard')
     finally:
         if started:
             run('pg_ctl', '-D', str(tmp / 'data'), '-m', 'immediate', 'stop')

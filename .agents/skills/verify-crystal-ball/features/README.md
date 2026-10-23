@@ -9,7 +9,7 @@
 - [Bond reading](bond.md): you and one person, named bond, percentage, shared forecast and two-ball card.
 - [Sky and Circles](social.md): anonymous publication, explicit invitations, consented Friend readings and sealed cards.
 - [Plans and account](plans.md): purchases, anonymous identity and native boundaries.
-- [Hosted readings](hosted.md): public authentication, DeepInfra quality gate, monthly budget and daily quotas.
+- [Hosted readings](hosted.md): public authentication, Cloudflare/DeepInfra quality gates, daily free neurons, monthly paid budget and action quotas.
 - [Motion](motion.md): room-glass draw cadence, shared transitions, reduced motion and native boundaries.
 - [Orb delight](delight.md): room ball, sound preference, stable gold and native haptic boundaries.
 - [Daily ritual](ritual.md): Today card (in You), constellations, notification offer, planner and Simulator push.

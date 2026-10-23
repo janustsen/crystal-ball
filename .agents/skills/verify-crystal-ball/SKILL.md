@@ -12,7 +12,7 @@ For a bundled iOS build, follow the environment, prebuild and artifact-check ste
 
 `node --input-type=module -e "import {previewFetch} from './scripts/preview-auth.mjs'; console.log(await previewFetch('http://localhost:8087/engine/health').then(r=>r.json()))"` must identify crystal-ball and ollama. Unauthenticated engine requests must return 401. Run `npm run check` and `npm test`. The browser defaults to the same-origin Metro bridge; leave EXPO_PUBLIC_ENGINE_URL unset. This lets the private Tailscale preview use the iMac engine rather than the MacBook's loopback. Keep the development server on the trusted private network.
 
-For public-provider/auth/budget changes, also follow the [hosted readings checks](features/hosted.md): real migration races and consent/limit-message browser drives, followed by the credential-dependent DeepInfra comparison and deployed smoke. Local Node remains a development surface and does not prove the public auth boundary.
+For public-provider/auth/budget changes, also follow the [hosted readings checks](features/hosted.md): real migration races and consent/limit-message browser drives, followed by the credential-dependent per-provider comparisons and deployed smoke. Local Node remains a development surface and does not prove the public auth boundary.
 
 See [SETUP.md](../../../SETUP.md#local-development) for preview access and client-token constraints. Use a fresh profile without HTTP credentials to verify page access. Never put the token in evidence.
 

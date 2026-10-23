@@ -2,7 +2,9 @@ import {BillingError, billing} from './billing.ts';
 import {handler} from './handler.ts';
 import type {HostedAccounting} from './provider.ts';
 
-export const deepinfra={url:'https://api.deepinfra.com/v1/openai',model:'Qwen/Qwen3.5-9B',disclosure:'DeepInfra',contextTokens:262144} as const;
+import {cloudflare,cloudflareEndpoint,deepinfra} from './hosted-config.ts';
+import {hostedConsent} from '../src/ai-policy.ts';
+export {deepinfra} from './hosted-config.ts';
 // Nanodollars, using the more expensive priority tier as the accounting ceiling (2026-10-20).
 const inputNano=150,outputNano=225;
 export const budgetMessage='The Ball has reached its monthly reading budget. Please come back next month.';
@@ -27,7 +29,8 @@ export function hostedAccounting(env:Env,viewer:string,action:string):HostedAcco
  let admitted:Promise<unknown>|undefined;
  async function rpc(name:string,args:object){
   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key!,authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
-  const value=await response.json().catch(()=>null);
+  if(response.status===204&&['admit_ai_request','settle_ai_neurons','settle_ai_spend'].includes(name))return;
+  const value=await response.json().catch(()=>{throw new BillingError('Readings are unavailable right now. Please try again later.',503)});
   if(!response.ok){
    if(value?.message==='AI monthly budget reached')throw new BillingError(budgetMessage,429);
    if(value?.message==='AI daily quota reached')throw new BillingError(quotaMessage,429);
@@ -35,12 +38,36 @@ export function hostedAccounting(env:Env,viewer:string,action:string):HostedAcco
   }
   return value;
  }
+ const admit=async()=>{
+  if(!base||!key)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
+  admitted??=rpc('admit_ai_request',{viewer,action});await admitted;
+ };
  return {
+  admit,
+  async reserveFree(body){
+   await admit();
+   const value=JSON.parse(body),cap=value.max_tokens;
+   if(!Number.isInteger(cap)||cap<1||cap>1200)throw new Error('Unexpected free model budget.');
+   // Full-window input bound includes chat framing and schema; no heuristic tokenizer can undercount.
+   // Oversized prompts fail at the vendor boundary, without truncation or paid model shopping.
+   const amount=cloudflare.contextTokens*cloudflare.inputMicro+cap*cloudflare.outputMicro;
+   const id=crypto.randomUUID();
+   const result=await rpc('reserve_ai_neurons',{reservation:id,account:env('CLOUDFLARE_ACCOUNT_ID'),amount});
+   if(result===null)return null;
+   if(result!==id)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
+   return id;
+  },
+  async settleFree(reservation,usage){
+   if(!usage||typeof usage!=='object')return;
+   const u=usage as Record<string,unknown>,input=u.prompt_tokens,output=u.completion_tokens;
+   if(typeof input!=='number'||typeof output!=='number'||!Number.isSafeInteger(input)||!Number.isSafeInteger(output)||input<0||input>cloudflare.contextTokens||output<0||output>1200)return;
+   await rpc('settle_ai_neurons',{reservation,spent:input*cloudflare.inputMicro+output*cloudflare.outputMicro});
+  },
   async reserve(body){
    if(!base||!key)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
    const reserved=reservationCost(body);
    // One request quota covers all classification/generation calls and the single allowed repair.
-   admitted??=rpc('admit_ai_request',{viewer,action});await admitted;
+   await admit();
    const id=crypto.randomUUID();
    const value=await rpc('reserve_ai_spend',{reservation:id,amount:reserved});
    if(value!==id)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
@@ -72,7 +99,12 @@ export function publicHandler(env:Env){
    const meter=billing(env);
    if(!meter)throw new BillingError('Readings are unavailable right now. Please try again later.',503);
    const viewer=await meter.user(request);
-   if(env('HOSTED_QUALITY_APPROVED')!=='true'||env('MODEL_PROVIDER')!=='hosted'||env('HOSTED_MODEL_URL')!==deepinfra.url||env('HOSTED_MODEL_NAME')!==deepinfra.model||env('HOSTED_MODEL_DISCLOSURE')!==deepinfra.disclosure||!env('HOSTED_MODEL_KEY'))throw new BillingError('Public readings are not available yet. Please try again later.',503);
+   const free=env('CLOUDFLARE_QUALITY_APPROVED')==='true',paid=env('DEEPINFRA_QUALITY_APPROVED')==='true';
+   if(env('MODEL_PROVIDER')!=='hosted'||env('HOSTED_MODEL_DISCLOSURE')!==hostedConsent||(!free&&!paid)||(paid&&!env('DEEPINFRA_API_KEY')))throw new BillingError('Public readings are not available yet. Please try again later.',503);
+   if(free){
+    if(env('CLOUDFLARE_WORKERS_PLAN')!=='free'||!env('CLOUDFLARE_API_TOKEN'))throw new BillingError('Public readings are not available yet. Please try again later.',503);
+    cloudflareEndpoint(env('CLOUDFLARE_ACCOUNT_ID')||'');
+   }
    const action=new URL(request.url).pathname.endsWith('/social')?`social:${body.action}`:body.action;
    return await handler(env,undefined,hostedAccounting(env,viewer,action))(request);
   }catch(cause){return error(cause instanceof BillingError?cause.message:'Readings are unavailable right now. Please try again later.',cause instanceof BillingError?cause.status:503)}
