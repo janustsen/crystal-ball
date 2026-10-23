@@ -2,6 +2,7 @@ import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
 // Settings shows every control at once, without scrolling, from the smallest supported iPhone (SE) to the largest,
 // with daily notifications off and on, plus 115% rendered text on SE with notifications on.
+// The starter balance is longer than the daily allowance; test both on SE.
 // The largest accessibility sizes (including 200%) may scroll to keep every control reachable.
 const base=process.env.PREVIEW_URL||'http://localhost:8087',out=process.env.EVIDENCE_DIR;
 const phones=[['se',375,667],['mini',375,812],['17e',390,844],['pro-max',440,956],['se-115',375,667,1.15],['se-starter',375,667,1,0],['se-starter-115',375,667,1.15,0]];
