@@ -76,6 +76,7 @@ try{
  }
  const report:{at:string;budgetUSDPerProvider:number;rows:unknown[];firstCardGates:Record<string,ReturnType<typeof firstCardGate>>}={at:new Date().toISOString(),budgetUSDPerProvider:1,rows:[],firstCardGates:{}};
  const expectedSamples=cases.filter(item=>!item.surface&&!item.facts&&!item.blocked).length;
+ const completedGates:typeof report.firstCardGates={};
  for(const candidate of candidates){
   const firstCardSamples:(number|null)[]=[];
   report.firstCardGates[candidate.name]=firstCardGate(firstCardSamples,expectedSamples);
@@ -150,15 +151,19 @@ try{
      result=await predict(item.question,answers,false,model,context);
     }else result=plan;
    }
-   report.firstCardGates[candidate.name]=firstCardGate(firstCardSamples,expectedSamples);
+   report.firstCardGates[candidate.name]={...firstCardGate(firstCardSamples,expectedSamples),passed:false};
    report.rows.push({provider:candidate.name,model:hosted?(free?cloudflare.model:deepinfra.model):'qwen3:4b-instruct-2507-q4_K_M',case:item.name,question:item.question,answers,plan,result,expectedBlocked:item.blocked,firstCardSeconds,seconds:(performance.now()-start)/1000,calls});
    await writeFile(output,JSON.stringify(report,null,2));
    console.log(`${candidate.name}: ${item.name}: ${result.kind}`);
   }
-  const gate=report.firstCardGates[candidate.name];
+  const gate=firstCardGate(firstCardSamples,expectedSamples);
+  gate.passed=gate.passed&&!halted;
+  completedGates[candidate.name]=gate;
   console.log(`${candidate.name}: first-card gate ${JSON.stringify(gate)}`);
   if(hosted&&!gate.passed)process.exitCode=1;
  }
+ Object.assign(report.firstCardGates,completedGates);
+ await writeFile(output,JSON.stringify(report,null,2));
  console.log(`Evidence written to ${output}; usage-derived costs are estimates, not invoices.`);
 }finally{globalThis.fetch=realFetch;await lock.close();await unlink(`${stateDir}/hosted-bakeoff.lock`)}
 
