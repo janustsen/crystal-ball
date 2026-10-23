@@ -19,7 +19,7 @@ export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
  const [accountReset,setAccountReset]=useState(0);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
- const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
+ const locked=useRef(true),current=useRef(state),accountVersion=useRef(0),deletionPending=useRef(false);
  const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
  const serverClock=useRef<{offset:number;asOf:number;at:number}|null>(null);
@@ -34,7 +34,7 @@ export function Store({children}:React.PropsWithChildren){
   locked.current=true;setBackupBusy(true);
   const work=archiveWork.current.catch(()=>{}).then(action);
   archiveWork.current=work;
-  return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
+  return work.finally(()=>{if(archiveWork.current===work){locked.current=deletionPending.current;setBackupBusy(false)}});
  }
  // Server-metered days belong to the server: the last balance anchors two estimates of its clock, and either one passing midnight refreshes.
  // The wall-clock offset survives device sleep; the monotonic one survives a phone clock changed afterwards. Each refresh re-anchors both.
@@ -86,15 +86,29 @@ export function Store({children}:React.PropsWithChildren){
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
   });
  }
+ async function cleanupDeletedAccount(){
+  setHydrationError(null);
+  const results=await Promise.allSettled([
+   AsyncStorage.setItem(key,JSON.stringify(current.current)),
+   forgetOmen(AsyncStorage),
+   forgetCheckIns(),
+   Promise.resolve().then(()=>updateOmenWidget(null)),
+  ]);
+  if(results.some(result=>result.status==='rejected')){
+   setHydrationError('Your account was deleted, but this device could not finish clearing saved data and reminders. Try again to finish local cleanup.');
+   return;
+  }
+  deletionPending.current=false;setReady(true);
+ }
  async function deleteAccount(remove:()=>Promise<void>){
   if(!ready)throw new Error('Please wait for your archive.');
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});await uploads.catch(()=>{});
    accountVersion.current++;
    await remove();
-   const next=initial();await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);setAccountReset(n=>n+1);
-   updateOmenWidget(null);
-   await forgetOmen(AsyncStorage).catch(()=>{});await forgetCheckIns().catch(()=>{});
+   deletionPending.current=true;setReady(false);serverClock.current=null;
+   change(initial);setAccountReset(n=>n+1);
+   await cleanupDeletedAccount();
   });
  }
  async function forgetAll(){
@@ -167,7 +181,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,starter=serverMetered?state.starter??0:localStarter(state);
- return <Context.Provider key={accountReset} value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,deleteAccount,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:freeLeft({plus:state.plus,starter,used})+state.credits,starter,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider key={accountReset} value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){if(deletionPending.current){void withArchiveLock(cleanupDeletedAccount);return}setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,deleteAccount,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:freeLeft({plus:state.plus,starter,used})+state.credits,starter,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

@@ -5,8 +5,8 @@ import {chromium} from '@playwright/test';
 // Run the real panel and store; only native/auth/storage boundaries are replaced.
 const mocks={
  surface:`import React from 'react';export const Surface=({children})=><div>{children}</div>`,
- nativeActions:`export const forgetCheckIns=async()=>{}`,
- widget:`export const updateOmenWidget=()=>{}`,
+ nativeActions:`export const forgetCheckIns=async()=>{window.control.notificationAttempts=(window.control.notificationAttempts||0)+1;if(window.control.cleanupFailure==='notifications')throw Error('Notification cleanup failed');window.control.reminders=[]}`,
+ widget:`export const updateOmenWidget=()=>{if(window.control.cleanupFailure==='widget')throw Error('Widget cleanup failed');window.control.widget=null}`,
  cloud:`
  export const supabase={auth:{
   getSession:async()=>({data:{session:{user:{id:window.control.owner,is_anonymous:false,identities:window.control.linked===false?[]:[{provider:'apple'}]}}},error:null}),
@@ -18,7 +18,10 @@ const mocks={
  export async function restoreBackup(state){window.control.reads++;throw Error('Archive unavailable')}
  export async function mirror(state){if(state.backupOwner!==window.control.owner)throw Error('Wrong owner');window.control.uploads++}
  `,
- storage:`export default {getItem:async key=>key==='crystal-ball-v1'?window.control.disk:null,setItem:async(key,value)=>{if(key==='crystal-ball-v1')window.control.disk=value}}`,
+ storage:`export default {getItem:async key=>key==='crystal-ball-v1'?window.control.disk:window.control.omen??null,setItem:async(key,value)=>{
+ if(window.control.cleanupFailure===(key==='crystal-ball-v1'?'archive':'omen'))throw Error('Storage cleanup failed');
+ if(key==='crystal-ball-v1')window.control.disk=value;else window.control.omen=value;
+ }}`,
  native:`import React from 'react';export const Platform={OS:'ios'};export const View=({children})=><div>{children}</div>;export const Alert={alert:(title,body,actions)=>{window.control.confirmation={title,body};window.control.confirm=()=>actions.find(a=>a.style==='destructive').onPress()}}`,
  apple:`import React from 'react';export const isAvailableAsync=async()=>true;export const AppleAuthenticationButtonType={CONTINUE:0},AppleAuthenticationButtonStyle={WHITE:0};export const AppleAuthenticationButton=({onPress})=><button onClick={onPress}>Continue with Apple</button>;export async function signInAsync(){window.control.appleCalls++;return {identityToken:'synthetic',authorizationCode:'fresh-code'}}`,
  crypto:`export const randomUUID=()=> 'nonce';export const getRandomValues=bytes=>bytes;export const CryptoDigestAlgorithm={SHA256:0};export const digestStringAsync=async()=> 'digest'`,
@@ -28,6 +31,7 @@ const routes={'./native':'nativeActions','./omen-widget':'widget','./cloud':'clo
 const bundle=await build({stdin:{contents:`import React from 'react';import {createRoot} from 'react-dom/client';import {Store,useStore} from './src/store';import {BackupPanel} from './src/BackupPanel';function Probe(){
  const store=useStore();window.store=store;
  const [undo,setUndo]=React.useState(null),[draft,setDraft]=React.useState('');
+ if(!store.ready)return store.hydrationError?<><p>{store.hydrationError}</p><button onClick={store.retryHydration}>Retry local cleanup</button></>:null;
  return <><input aria-label="Private draft" value={draft} onChange={e=>setDraft(e.target.value)}/><button onClick={()=>{setUndo(store.state.facts.practice);store.update(s=>({...s,facts:{}}))}}>Forget practice</button>{undo?<button onClick={()=>{store.update(s=>({...s,facts:{practice:undo}}));setUndo(null)}}>Undo forget</button>:null}<BackupPanel/></>;
 }createRoot(document.getElementById('root')).render(<Store><Probe/></Store>);`,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,platform:'browser',format:'iife',define:{'process.env':'{}','process.env.NODE_ENV':'"development"','process.env.EXPO_PUBLIC_APPLE_LINK_ENABLED':'"true"'},plugins:[{name:'native-boundaries',setup(b){
  b.onResolve({filter:/.*/},args=>routes[args.path]?{path:routes[args.path],namespace:'mock'}:undefined);
@@ -83,6 +87,32 @@ try{
  await page.waitForFunction(()=>Object.keys(JSON.parse(window.control.disk).facts).length===0);
  const removed=await page.evaluate(()=>({history:window.store.state.history,facts:window.store.state.facts,owner:window.store.state.backupOwner,disk:JSON.parse(window.control.disk),deletions:window.control.deletions}));
  assert.deepEqual(removed.history,[]);assert.deepEqual(removed.facts,{});assert.equal(removed.owner,undefined);assert.equal(removed.disk.backupOwner,undefined);assert.deepEqual(removed.disk.history,[]);assert.equal(removed.deletions,2);
+ for(const failure of ['archive','omen','notifications','widget']){
+  await page.evaluate(()=>window.store.update(s=>({...s,facts:{practice:'private fact'},history:[{id:'private reading'}]})));
+  await page.waitForFunction(()=>JSON.parse(window.control.disk).history.length===1);
+  await page.getByRole('textbox',{name:'Private draft'}).fill('Private draft');
+  await page.getByRole('button',{name:'Forget practice',exact:true}).click();
+  await page.evaluate(failure=>{
+   window.control.omen=JSON.stringify({day:new Date().toISOString().slice(0,10),text:'Private omen',whisper:'Private whisper',tries:1});
+   window.control.reminders=['old reminder'];window.control.widget='Private omen';window.control.cleanupFailure=failure;
+  },failure);
+  const deletions=await page.evaluate(()=>window.control.deletions),appleCalls=await page.evaluate(()=>window.control.appleCalls);
+  await deletion.click();await page.evaluate(()=>window.control.confirm());
+  await page.getByText('Your account was deleted, but this device could not finish clearing saved data and reminders. Try again to finish local cleanup.',{exact:true}).waitFor();
+  assert.deepEqual(await page.evaluate(()=>({history:window.store.state.history,facts:window.store.state.facts,ready:window.store.ready})),{history:[],facts:{},ready:false});
+  assert.equal(await page.getByRole('button',{name:'Undo forget',exact:true}).count(),0);
+  await page.evaluate(()=>window.store.update(s=>({...s,facts:{leak:'blocked'}})));
+  assert.deepEqual(await page.evaluate(()=>window.store.state.facts),{});
+  await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
+  await page.getByText('Your account was deleted, but this device could not finish clearing saved data and reminders. Try again to finish local cleanup.',{exact:true}).waitFor();
+  await page.evaluate(()=>{window.control.cleanupFailure=null});
+  await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
+  await page.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
+  assert.equal(await page.getByRole('textbox',{name:'Private draft'}).inputValue(),'');
+  assert.equal(await page.evaluate(()=>window.control.appleCalls),appleCalls+1);
+  assert.deepEqual(await page.evaluate(()=>({deletions:window.control.deletions,history:JSON.parse(window.control.disk).history,omen:JSON.parse(window.control.omen).text,whisper:JSON.parse(window.control.omen).whisper,reminders:window.control.reminders,widget:window.control.widget})),{deletions:deletions+1,history:[],omen:null,whisper:null,reminders:[],widget:null});
+ }
+ console.log('Archive, omen, notification and widget failures: private memory cleared; local retry completes without repeating remote deletion.');
  console.log('Account UI reset: ordinary undo works; failed deletion retains draft and undo; successful deletion clears both and allows new updates.');
  console.log('Apple account deletion: failed server preserves archive; successful server clears local archive and backup owner. Native/remote boundaries are fixtures.');
  console.log('Restore account wording and confirmation; first-time Apple linking: passed');

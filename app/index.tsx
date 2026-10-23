@@ -337,7 +337,7 @@ useEffect(()=>{if(!ready)return;return watchCheckIns(id=>{const reading=state.hi
  const shownTabs=barTabs.filter(t=>t==='Home'||unlocked(state,t==='History'?'history':'about'));
  const tabDots={History:fresh(state,'history'),You:fresh(state,'about')||fresh(state,'bond')||fresh(state,'library')};
  function content(){
- if(!ready)return hydrationError?<View style={[styles.panel,{paddingHorizontal:30}]}><Surface kind="error"><Txt accessibilityLiveRegion="polite">{hydrationError}</Txt><Action testID="retry-hydration" label="Try opening again" onPress={retryHydration}/></Surface></View>:<Txt>Opening your sky…</Txt>;
+ if(!ready)return hydrationError?<View style={[styles.panel,{paddingHorizontal:30}]}><Surface kind="error"><Txt accessibilityLiveRegion="polite">{hydrationError}</Txt><Action testID="retry-hydration" label="Try again" onPress={retryHydration}/></Surface></View>:<Txt>Opening your sky…</Txt>;
  if(params.seal&&Platform.OS==='web')return <SealedCard token={params.seal} reduce={reduce} webTrial={webTrial} onAsk={webTrial&&webReadingSpent()?undefined:()=>openAsk()}/>;
  if(onboarding)return <Onboarding reduce={reduce} blocked={state.onboardingBlocked} onHeard={source=>{update(s=>({...s,heardFrom:source}));void reportHeardFrom(source).catch(()=>{})}} onBlock={()=>update(s=>({...s,onboardingBlocked:true,onboardingDone:false,ageConfirmed:false}))} onFinish={({birthday,...facts},confirmed,answers)=>update(s=>Object.entries(answers).reduce<AccountState>((next,[id,answer])=>answerAsk(next,id,answer),{...s,...birthdayProfile(birthday,confirmed),onboardingBlocked:false,onboardingDone:true,facts:{...s.facts,...facts}}))}/>;
  if(paywall){
