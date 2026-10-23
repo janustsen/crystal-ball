@@ -4,13 +4,13 @@ import assert from 'node:assert/strict';
 // with daily notifications off and on, plus 115% rendered text on SE with notifications on.
 // The largest accessibility sizes (including 200%) may scroll to keep every control reachable.
 const base=process.env.PREVIEW_URL||'http://localhost:8087',out=process.env.EVIDENCE_DIR;
-const phones=[['se',375,667],['mini',375,812],['17e',390,844],['pro-max',440,956],['se-115',375,667,1.15]];
+const phones=[['se',375,667],['mini',375,812],['17e',390,844],['pro-max',440,956],['se-115',375,667,1.15],['se-starter',375,667,1,0],['se-starter-115',375,667,1.15,0]];
 const browser=await chromium.launch({channel:'chrome',headless:true}),results=[];
 try{
- for(const [name,width,height,scale=1] of phones){
+ for(const [name,width,height,scale=1,asked=20] of phones){
   const context=await browser.newContext({viewport:{width,height},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   try{
-   await context.addInitScript(()=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,ladder:{asked:20,opened:['history','about','insight','bond','sky','library']},onboardingDone:true,ageConfirmed:true})));
+   await context.addInitScript(asked=>localStorage.setItem('crystal-ball-v1',JSON.stringify({facts:{current_focus:'Writing my draft'},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:true,ladder:{asked,opened:['history','about','insight','bond','sky','library']},onboardingDone:true,ageConfirmed:true})),asked);
    const page=await context.newPage();
    await page.goto(base,{timeout:120000});
    await page.getByTestId('open-settings').click();
@@ -29,7 +29,7 @@ try{
     assert.ok(await title.evaluate(el=>el.scrollWidth<=el.clientWidth+1),`${name}: Settings title is not truncated`);
     const links=['Privacy policy','Terms of use','Support and reports'].map(name=>page.getByRole('button',{name,exact:true}));
     const controls=[toggle,page.getByTestId('ambient-sound'),page.getByRole('switch',{name:'Reduce motion'}),...links,page.getByTestId('privacy-and-entertainment'),page.getByTestId('forget-everything'),page.getByTestId('you-footer'),...(daily?['08:30','12:30','18:00'].map(time=>page.getByTestId(`notify-time-${time}`)):[])];
-    const bar=await page.getByRole('tablist').boundingBox();
+    const bar=await page.getByRole('tablist').count()?await page.getByRole('tablist').boundingBox():{y:height};
     for(const control of controls){
      const box=await control.boundingBox(),id=await control.getAttribute('data-testid');
      assert.ok(box&&box.y>=0&&box.y+box.height<=bar.y,`${name} daily=${daily}: ${id||await control.getAttribute('aria-label')} sits above the tab bar`);
