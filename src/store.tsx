@@ -17,6 +17,7 @@ const initial=():AccountState=>({sunSign:null,ageBand:null,ladder:{asked:0,opene
 const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance|null)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;saveAskProgress:(fn:(s:AccountState)=>AccountState,balance?:Balance)=>Promise<void>;chooseStyle:<K extends keyof StyleOf>(kind:K,value:StyleOf[K])=>Promise<void>;remaining:number;starter:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean;deleteAccount:(remove:()=>Promise<void>)=>Promise<void>}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
+ const [accountReset,setAccountReset]=useState(0);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
  const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
  const version=accountVersion.current;
@@ -91,7 +92,7 @@ export function Store({children}:React.PropsWithChildren){
    await writes.catch(()=>{});await uploads.catch(()=>{});
    accountVersion.current++;
    await remove();
-   const next=initial();await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+   const next=initial();await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);setAccountReset(n=>n+1);
    updateOmenWidget(null);
    await forgetOmen(AsyncStorage).catch(()=>{});await forgetCheckIns().catch(()=>{});
   });
@@ -166,7 +167,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,starter=serverMetered?state.starter??0:localStarter(state);
- return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,deleteAccount,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:freeLeft({plus:state.plus,starter,used})+state.credits,starter,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider key={accountReset} value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,deleteAccount,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:freeLeft({plus:state.plus,starter,used})+state.credits,starter,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

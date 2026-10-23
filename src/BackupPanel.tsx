@@ -39,7 +39,6 @@ export function BackupPanel(){
     if(!credential.authorizationCode)throw new Error('Apple confirmation is required.');
     await deleteAppleAccount(credential.authorizationCode);
    });
-   setNotice('Your Apple access, account and saved data have been deleted.');
   }catch(error){setNotice(error instanceof Error?error.message:'Deletion did not finish. Please try again.');}
  }
  if(!available||!configured)return null;

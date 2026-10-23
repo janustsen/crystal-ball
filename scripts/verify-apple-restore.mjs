@@ -25,7 +25,11 @@ const mocks={
  ui:`import React from 'react';export const styles={panel:{},caption:{}};export const CardHeader=()=>null;export const Txt=({children})=><div>{children}</div>;export const Action=({label,onPress,disabled})=><button onClick={onPress} disabled={disabled}>{label}</button>`
 };
 const routes={'./native':'nativeActions','./omen-widget':'widget','./cloud':'cloud','@react-native-async-storage/async-storage':'storage','react-native':'native','expo-apple-authentication':'apple','expo-crypto':'crypto','./ui':'ui','./Surface':'surface'};
-const bundle=await build({stdin:{contents:`import React from 'react';import {createRoot} from 'react-dom/client';import {Store,useStore} from './src/store';import {BackupPanel} from './src/BackupPanel';function Probe(){window.store=useStore();return <BackupPanel/>}createRoot(document.getElementById('root')).render(<Store><Probe/></Store>);`,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,platform:'browser',format:'iife',define:{'process.env':'{}','process.env.NODE_ENV':'"development"','process.env.EXPO_PUBLIC_APPLE_LINK_ENABLED':'"true"'},plugins:[{name:'native-boundaries',setup(b){
+const bundle=await build({stdin:{contents:`import React from 'react';import {createRoot} from 'react-dom/client';import {Store,useStore} from './src/store';import {BackupPanel} from './src/BackupPanel';function Probe(){
+ const store=useStore();window.store=store;
+ const [undo,setUndo]=React.useState(null),[draft,setDraft]=React.useState('');
+ return <><input aria-label="Private draft" value={draft} onChange={e=>setDraft(e.target.value)}/><button onClick={()=>{setUndo(store.state.facts.practice);store.update(s=>({...s,facts:{}}))}}>Forget practice</button>{undo?<button onClick={()=>{store.update(s=>({...s,facts:{practice:undo}}));setUndo(null)}}>Undo forget</button>:null}<BackupPanel/></>;
+}createRoot(document.getElementById('root')).render(<Store><Probe/></Store>);`,resolveDir:process.cwd(),loader:'tsx'},bundle:true,write:false,platform:'browser',format:'iife',define:{'process.env':'{}','process.env.NODE_ENV':'"development"','process.env.EXPO_PUBLIC_APPLE_LINK_ENABLED':'"true"'},plugins:[{name:'native-boundaries',setup(b){
  b.onResolve({filter:/.*/},args=>routes[args.path]?{path:routes[args.path],namespace:'mock'}:undefined);
  b.onLoad({filter:/.*/,namespace:'mock'},({path})=>({contents:mocks[path],loader:'tsx',resolveDir:process.cwd()}));
 }}]});
@@ -54,17 +58,32 @@ try{
  await page.getByText('History backed up. Your readings are here.',{exact:true}).waitFor();
  assert.deepEqual(await page.evaluate(()=>({appleCalls:window.control.appleCalls,links:window.control.links,owner:window.store.state.backupOwner,switches:window.control.switches})),{appleCalls:1,links:1,owner:'account-a',switches:0});
  // A refused server deletion preserves the archive. A successful deletion clears it under the same lock.
+ await page.getByRole('textbox',{name:'Private draft'}).fill('Private account draft');
+ await page.getByRole('button',{name:'Forget practice',exact:true}).click();
+ await page.getByRole('button',{name:'Undo forget',exact:true}).click();
+ assert.equal(await page.evaluate(()=>window.store.state.facts.practice),'daily');
+ await page.getByRole('button',{name:'Forget practice',exact:true}).click();
  await page.evaluate(()=>{window.control.deleteFails=true;});
  const deletion=page.getByRole('button',{name:'Delete account and data',exact:true});
  await deletion.click();await page.evaluate(()=>window.control.confirm());
  await page.getByText('Synthetic server deletion failed',{exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>JSON.parse(window.control.disk).history.length),1);
  assert.equal(await page.evaluate(()=>window.store.state.backupOwner),'account-a');
+ assert.equal(await page.getByRole('button',{name:'Undo forget',exact:true}).count(),1);
+ assert.equal(await page.getByRole('textbox',{name:'Private draft'}).inputValue(),'Private account draft');
  await page.evaluate(()=>{window.control.deleteFails=false;});
  await deletion.click();await page.evaluate(()=>window.control.confirm());
- await page.getByText('Your Apple access, account and saved data have been deleted.',{exact:true}).waitFor();
+ await page.waitForFunction(()=>window.store.state.history.length===0&&!window.store.backupBusy);
+ assert.equal(await page.getByRole('button',{name:'Undo forget',exact:true}).count(),0);
+ assert.equal(await page.getByRole('textbox',{name:'Private draft'}).inputValue(),'');
+ assert.equal(await page.getByText('Synthetic server deletion failed',{exact:true}).count(),0);
+ await page.evaluate(()=>window.store.update(s=>({...s,facts:{newFact:'new account'}})));
+ await page.waitForFunction(()=>JSON.parse(window.control.disk).facts.newFact==='new account');
+ await page.evaluate(()=>window.store.update(s=>({...s,facts:{}})));
+ await page.waitForFunction(()=>Object.keys(JSON.parse(window.control.disk).facts).length===0);
  const removed=await page.evaluate(()=>({history:window.store.state.history,facts:window.store.state.facts,owner:window.store.state.backupOwner,disk:JSON.parse(window.control.disk),deletions:window.control.deletions}));
  assert.deepEqual(removed.history,[]);assert.deepEqual(removed.facts,{});assert.equal(removed.owner,undefined);assert.equal(removed.disk.backupOwner,undefined);assert.deepEqual(removed.disk.history,[]);assert.equal(removed.deletions,2);
+ console.log('Account UI reset: ordinary undo works; failed deletion retains draft and undo; successful deletion clears both and allows new updates.');
  console.log('Apple account deletion: failed server preserves archive; successful server clears local archive and backup owner. Native/remote boundaries are fixtures.');
  console.log('Restore account wording and confirmation; first-time Apple linking: passed');
  console.log('failed restore preserves the existing Apple session, local archive, and future automatic backups: passed');
