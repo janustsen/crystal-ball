@@ -169,14 +169,9 @@ process.exit(result.status??1);`,env);
  assert.equal(await sql("select string_agg(column_name,',' order by column_name) from information_schema.columns where table_name='heard_from'"),'answers,day,source');
 
  const sent:Record<string,unknown>[]=[];
- const transport:typeof fetch=async(input,init)=>{
-  if(String(input)==='https://exp.host/--/api/v2/push/send'){
-   sent.push(JSON.parse(String(init?.body)));
-   return Response.json({data:{status:'ok'}});
-  }
-  return fetch(input,init);
- };
- assert.deepEqual(await deliverSocialPushes(settings,transport),{queued:0,accepted:0});
+ const transport:typeof fetch=fetch;
+ const send=async(message:Record<string,unknown>)=>{sent.push(message);return true;};
+ assert.deepEqual(await deliverSocialPushes(settings,transport,send),{queued:0,accepted:0});
  const circle=randomUUID();
  await sql(`insert into public.circles(id,owner_id) values('${circle}','${viewer}');
  insert into public.circle_members(circle_id,user_id) values('${circle}','${viewer}');`);
@@ -207,16 +202,16 @@ process.exit(result.status??1);`,env);
  assert.deepEqual(await refused.json(),{message:'This friend has not enabled friend readings'});
  assert.deepEqual(await openSky(settings,model,new Date('2026-10-09T12:00Z')),{week:'2026-10-09',targets:1,opened:1});
  assert.deepEqual(await openSky(settings,model,new Date('2026-10-09T12:00Z')),{week:'2026-10-09',targets:0,opened:0});
- const token='ExpoPushToken[transport]';
+ const token='e'.repeat(64);
  const registered=await fetch(`${base}/rest/v1/rpc/set_social_push`,{method:'POST',headers:{authorization:`Bearer ${session.access_token}`},body:JSON.stringify({push_token:token})});
  assert.equal(registered.status,200);
  await sql(`update public.social_profiles set sky_push=true,time_zone='SKY'||(extract(epoch from ((now() at time zone 'UTC')-(date_trunc('week',now() at time zone 'UTC')+interval '4 days 20 hours 30 minutes')))/3600)::int::text where user_id='${viewer}';
  delete from public.sky_omens;
  insert into public.sky_omens(week,circle_id,omen) select (now() at time zone time_zone)::date,'${circle}','A bright shared spark gathers over all of you tonight.' from public.social_profiles where user_id='${viewer}';`);
- assert.deepEqual(await deliverSocialPushes(settings,transport),{queued:2,accepted:2});
+ assert.deepEqual(await deliverSocialPushes(settings,transport,send),{queued:2,accepted:2});
  assert.deepEqual(sent.map(push=>push.data),[{social:true,circle},{social:true,sky:true}]);
  assert.deepEqual(sent.map(push=>push.to),[token,token]);
  assert.equal(await sql('select count(*) from public.social_notifications where delivered_at is not null'),'1');
  assert.equal(await sql('select count(*) from public.sky_pushes where delivered_at is not null'),'1');
- assert.deepEqual(await deliverSocialPushes(settings,transport),{queued:0,accepted:0});
+ assert.deepEqual(await deliverSocialPushes(settings,transport,send),{queued:0,accepted:0});
 });

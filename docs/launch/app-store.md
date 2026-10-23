@@ -16,7 +16,7 @@ Prepared in this repository: bundle ID `com.janustsen.crystalball`, marketing ve
 - [ ] From the project root, generate/update the local native project and installed pods, then open the workspace:
 
   ```sh
-  npx expo prebuild --platform ios
+  npm run prebuild:release
   open ios/CrystalBall.xcworkspace
   ```
 
@@ -70,7 +70,7 @@ On 2026-10-20, `xcodebuild -list -workspace ios/CrystalBall.xcworkspace -json` f
 
 ### Optional later path: EAS
 
-The existing `eas.json` production profile remains available if an Expo account is authorized later. It is not a launch prerequisite. Do not create an Expo account or run EAS initialization for this launch. A future switch would need an account/project link, public build environment, distribution signing and its own build-number coordination; EAS remote auto-increment does not govern the local Xcode route above. Expo push-service registration also has a separate EAS project-ID requirement; the local archive route does not supply that ID or prove remote push delivery. Local notifications remain independent.
+The existing `eas.json` production profile remains available if an Expo account is authorized later. It is not a launch prerequisite. Do not create an Expo account or run EAS initialization for this launch. A future switch would need an account/project link, public build environment, distribution signing and its own build-number coordination; EAS remote auto-increment does not govern the local Xcode route above. Remote push uses direct APNs from Supabase, without an Expo account or EAS project ID; see [launch infrastructure](infrastructure.md). Local notifications remain independent.
 
 ## Campaign source handling
 
@@ -126,7 +126,7 @@ Before release, verify the integrated [social safeguards](../social/model.md) an
 
 Social-worker requirements: every published Star is an AI-filtered anonymous rewrite approved by its author; never publish the raw question. Users can report content and block people; repeated reports auto-hide. Verify failures stay unpublished, blocked users cannot bypass controls, and the operator has a timely review/contact process. AI filtering plus controls must be demonstrated, not described as automatic compliance. No public chat is proposed, but Stars are UGC and must be declared/reviewed accordingly. [Apple UGC requirements](https://developer.apple.com/app-store/review/guidelines/#user-generated-content).
 
-Answer the rating questionnaire for the actual astrology, generated person readings, UGC, mature themes, fear/horror, health references and news links. No wagering or prizes; Golden forecasts are cosmetic and must never imply greater accuracy. No Kids Category launch is proposed.
+Answer the rating questionnaire for the actual astrology, generated person readings, UGC, mature themes, fear/horror, health references and anonymous Stars. No wagering or prizes; Golden forecasts are cosmetic and must never imply greater accuracy. No Kids Category launch is proposed.
 
 ## Cloudflare and DeepInfra processing disclosure
 
@@ -148,6 +148,11 @@ Apply the ownership migration before enabling clients: predictions use `(user_id
 
 Follow [Supabase Apple auth](https://supabase.com/docs/guides/auth/social-login/auth-apple) and [identity linking](https://supabase.com/docs/guides/auth/auth-identity-linking): configure the Apple capability, signing identifiers, Supabase Apple provider and manual linking; retain nonce verification. Use a hosted Supabase project only after authorization. Existing Expo plugin/`usesAppleSignIn` remain in place.
 
-Before turning on for real users: implement in-app account deletion with server-side Apple token revocation and cascading data deletion. A local reset or sign-out is not sufficient. That server flow requires Apple developer credentials and must be verified end to end; do not put an admin key in the app. [Apple account deletion requirements](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
+In-app Delete account and data now invokes server-side Apple token revocation followed by cascading hard deletion; failed revocation leaves the account intact. A local reset or sign-out is not sufficient. The [deletion and infrastructure contract](infrastructure.md) lists exact credentials, retry behavior and remaining real-account/device checks. Keep Apple backup disabled until those checks pass; no admin or Apple key belongs in the app. [Apple account deletion requirements](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
 
 Device checks still required: initial link, cancellation, existing-account Restore on a second installation, offline restore/retry, revoked credentials, deletion/revocation, VoiceOver, microphone denial and actual IAP. See [recorded verification coverage](../../README.md); an iOS JS export cannot prove these native behaviors.
+
+
+## Infrastructure deployment
+
+See [launch infrastructure](infrastructure.md) for the account/secret checklist, Cloudflare static deploy, Supabase scheduler, direct APNs and deletion gates. News lookups are disabled for the first release. Public information URLs are prepared at `https://crystalball.janustsen.com/privacy`, `/terms` and `/support`; publication remains pending the real release environment.

@@ -164,7 +164,7 @@ select proof.reject(format('select public.open_forecast(%L)',:'direct_seal'),'P0
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000002';
 select proof.assert((select count(*)=1 from public.sealed_inbox()),'inbox exposes tokens without headlines');
 select proof.assert(public.open_forecast(:'direct_seal')='Your next chapter will bring a new skill.','intended recipient opens targeted card');
-select public.set_social_push('ExpoPushToken[fixture]');
+select public.set_social_push('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 select proof.reject('select public.claim_social_pushes()','42501');
 reset role;
 set role service_role;

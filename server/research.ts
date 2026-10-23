@@ -1,6 +1,8 @@
+import {newsLookupsEnabled} from '../src/launch.ts';
 import type { Source } from '../src/types.ts';
 function unescape(s:string){return s.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>');}
 export async function research(question:string):Promise<Source[]> {
+ if(!newsLookupsEnabled)return [];
  // Prototype headline leads only; no claim to full-article research or commercial RSS rights.
  const response=await fetch(`https://news.google.com/rss/search?q=${encodeURIComponent(question)}&hl=en-US&gl=US&ceid=US:en`,{signal:AbortSignal.timeout(8000)});
  if(!response.ok)return [];

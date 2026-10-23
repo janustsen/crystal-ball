@@ -68,7 +68,7 @@ A Circle owner with Plus can make the Circle a private room (`set_private_room`)
 
 Targeted seals use the same weekly quota and moderation gate as links. The inbox reveals only the token and opened state; the headline still requires the intended recipient’s ball tap. Link cards allow one anonymous browser claimant. Blocking and revocation apply at claim time.
 
-`social_notifications` accepts only seal/invite/join/forecast/vote events. A service-only leased queue dispatches generic Expo messages. See SETUP.md for native credentials, the install URL, scheduler setup and delivery limits. Browser proof does not establish native push delivery.
+`social_notifications` accepts only seal/invite/join/forecast/vote events. A service-only leased queue dispatches generic APNs messages directly. See SETUP.md for native credentials, the install URL, scheduler setup and delivery limits. Browser proof does not establish native push delivery.
 
 ### Friday Sky
 
