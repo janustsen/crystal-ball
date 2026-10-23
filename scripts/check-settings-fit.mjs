@@ -25,9 +25,16 @@ try{
     },scale);
     const overflow=await toggle.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(['auto','scroll'].includes(getComputedStyle(p).overflowY))return p.scrollHeight-p.clientHeight;return 0});
     assert.ok(overflow<=1,`${name} daily=${daily}: settings scroll by ${overflow}px`);
-    const controls=[toggle,page.getByTestId('ambient-sound'),page.getByRole('switch',{name:'Reduce motion'}),page.getByTestId('privacy-and-entertainment'),page.getByTestId('forget-everything'),page.getByTestId('you-footer'),...(daily?['08:30','12:30','18:00'].map(time=>page.getByTestId(`notify-time-${time}`)):[])];
+    const title=page.getByRole('heading',{name:'Settings',exact:true});
+    assert.ok(await title.evaluate(el=>el.scrollWidth<=el.clientWidth+1),`${name}: Settings title is not truncated`);
+    const links=['Privacy policy','Terms of use','Support and reports'].map(name=>page.getByRole('button',{name,exact:true}));
+    const controls=[toggle,page.getByTestId('ambient-sound'),page.getByRole('switch',{name:'Reduce motion'}),...links,page.getByTestId('privacy-and-entertainment'),page.getByTestId('forget-everything'),page.getByTestId('you-footer'),...(daily?['08:30','12:30','18:00'].map(time=>page.getByTestId(`notify-time-${time}`)):[])];
     const bar=await page.getByRole('tablist').boundingBox();
-    for(const control of controls){const box=await control.boundingBox();assert.ok(box&&box.y>=0&&box.y+box.height<=bar.y,`${name} daily=${daily}: ${await control.evaluate(el=>el.dataset.testid||el.getAttribute('aria-label'))} sits above the tab bar`)}
+    for(const control of controls){
+     const box=await control.boundingBox(),id=await control.getAttribute('data-testid');
+     assert.ok(box&&box.y>=0&&box.y+box.height<=bar.y,`${name} daily=${daily}: ${id||await control.getAttribute('aria-label')} sits above the tab bar`);
+     if(id!=='you-footer')assert.ok(box.width>=44&&box.height>=44,`${name}: Settings controls keep 44pt touch targets`);
+    }
     if(daily){
      const chips=await Promise.all(['08:30','12:30','18:00'].map(time=>page.getByTestId(`notify-time-${time}`).boundingBox()));
      assert.ok(chips.every(box=>box&&box.width>=44&&box.height>=44),`${name}: time chips keep 44pt touch targets`);
