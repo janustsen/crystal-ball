@@ -13,14 +13,27 @@ const mocks={
   linkIdentity:async()=>{window.control.links++;window.control.linked=true;return {data:{user:{id:window.control.owner}},error:null}},
   signInWithIdToken:async()=>{window.control.switches++;window.control.owner='account-b';return {data:{user:{id:'account-b'}},error:null}}
  }};
- export async function deleteAppleAccount(code){if(code!=='fresh-code')throw Error('Apple code missing');window.control.deletions=(window.control.deletions||0)+1;if(window.control.deleteFails)throw Error('Synthetic server deletion failed')}
+ export async function deleteAppleAccount(code){if(!window.control.deletionMarker)throw Error('Deletion intent was not persisted');if(code!=='fresh-code')throw Error('Apple code missing');window.control.deletions=(window.control.deletions||0)+1;if(window.control.deleteFails)throw Error('Synthetic server deletion failed')}
  export const anonymousOwner=async()=>window.control.owner;
  export async function restoreBackup(state){window.control.reads++;throw Error('Archive unavailable')}
  export async function mirror(state){if(state.backupOwner!==window.control.owner)throw Error('Wrong owner');window.control.uploads++}
  `,
- storage:`export default {getItem:async key=>key==='crystal-ball-v1'?window.control.disk:window.control.omen??null,setItem:async(key,value)=>{
+ storage:`export default {getItem:async key=>{
+ if(key==='crystal-ball-deletion-pending')return window.control.deletionMarker??null;
+ if(key==='crystal-ball-v1'){window.control.archiveReads=(window.control.archiveReads||0)+1;return window.control.disk;}
+ return window.control.omen??null;
+ },setItem:async(key,value)=>{
+ if(key==='crystal-ball-deletion-pending'){
+  if(window.control.cleanupFailure==='marker-write')throw Error('Marker write failed');
+  window.control.deletionMarker=value;return;
+ }
  if(window.control.cleanupFailure===(key==='crystal-ball-v1'?'archive':'omen'))throw Error('Storage cleanup failed');
  if(key==='crystal-ball-v1')window.control.disk=value;else window.control.omen=value;
+ },removeItem:async key=>{
+ if(key==='crystal-ball-deletion-pending'){
+  if(window.control.cleanupFailure==='marker-clear')throw Error('Marker removal failed');
+  delete window.control.deletionMarker;
+ }
  }}`,
  native:`import React from 'react';export const Platform={OS:'ios'};export const View=({children})=><div>{children}</div>;export const Alert={alert:(title,body,actions)=>{window.control.confirmation={title,body};window.control.confirm=()=>actions.find(a=>a.style==='destructive').onPress()}}`,
  apple:`import React from 'react';export const isAvailableAsync=async()=>true;export const AppleAuthenticationButtonType={CONTINUE:0},AppleAuthenticationButtonStyle={WHITE:0};export const AppleAuthenticationButton=({onPress})=><button onClick={onPress}>Continue with Apple</button>;export async function signInAsync(){window.control.appleCalls++;return {identityToken:'synthetic',authorizationCode:'fresh-code'}}`,
@@ -73,6 +86,7 @@ try{
  await page.getByText('Synthetic server deletion failed',{exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>JSON.parse(window.control.disk).history.length),1);
  assert.equal(await page.evaluate(()=>window.store.state.backupOwner),'account-a');
+ assert.equal(await page.evaluate(()=>window.control.deletionMarker),undefined);
  assert.equal(await page.getByRole('button',{name:'Undo forget',exact:true}).count(),1);
  assert.equal(await page.getByRole('textbox',{name:'Private draft'}).inputValue(),'Private account draft');
  await page.evaluate(()=>{window.control.deleteFails=false;});
@@ -112,6 +126,41 @@ try{
   assert.equal(await page.evaluate(()=>window.control.appleCalls),appleCalls+1);
   assert.deepEqual(await page.evaluate(()=>({deletions:window.control.deletions,history:JSON.parse(window.control.disk).history,omen:JSON.parse(window.control.omen).text,whisper:JSON.parse(window.control.omen).whisper,reminders:window.control.reminders,widget:window.control.widget})),{deletions:deletions+1,history:[],omen:null,whisper:null,reminders:[],widget:null});
  }
+ for(const failure of ['archive','omen','notifications','marker-clear']){
+  await page.evaluate(()=>window.store.update(s=>({...s,facts:{practice:'private fact'},history:[{id:'private reading'}]})));
+  await page.waitForFunction(()=>JSON.parse(window.control.disk).history.length===1);
+  await page.evaluate(failure=>{
+   window.control.omen=JSON.stringify({day:new Date().toISOString().slice(0,10),text:'Private omen',whisper:'Private whisper',tries:1});
+   window.control.reminders=['old reminder'];window.control.cleanupFailure=failure;
+  },failure);
+  await deletion.click();await page.evaluate(()=>window.control.confirm());
+  await page.getByRole('button',{name:'Retry local cleanup',exact:true}).waitFor();
+  const persisted=await page.evaluate(()=>({...window.control,confirm:undefined,confirmation:undefined,archiveReads:0}));
+  assert.equal(persisted.deletionMarker,'1');
+  if(failure==='archive')assert.equal(JSON.parse(persisted.disk).history[0].id,'private reading');
+  const restarted=await browser.newPage();
+  try{
+   await restarted.setContent('<div id="root"></div>');
+   await restarted.evaluate(control=>{window.control=control},persisted);
+   await restarted.addScriptTag({content:bundle.outputFiles[0].text});
+   await restarted.getByRole('button',{name:'Retry local cleanup',exact:true}).waitFor();
+   assert.deepEqual(await restarted.evaluate(()=>({reads:window.control.archiveReads,ready:window.store.ready,facts:window.store.state.facts,history:window.store.state.history,marker:window.control.deletionMarker})),{reads:0,ready:false,facts:{},history:[],marker:'1'});
+   await restarted.evaluate(()=>{window.control.cleanupFailure=null});
+   await restarted.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
+   await restarted.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
+   assert.deepEqual(await restarted.evaluate(()=>({reads:window.control.archiveReads,history:JSON.parse(window.control.disk).history,facts:JSON.parse(window.control.disk).facts,omen:JSON.parse(window.control.omen).text,reminders:window.control.reminders,marker:window.control.deletionMarker,deletions:window.control.deletions,appleCalls:window.control.appleCalls})),{reads:0,history:[],facts:{},omen:null,reminders:[],marker:undefined,deletions:persisted.deletions,appleCalls:persisted.appleCalls});
+  }finally{await restarted.close()}
+  await page.evaluate(()=>{window.control.cleanupFailure=null});
+  await page.getByRole('button',{name:'Retry local cleanup',exact:true}).click();
+  await page.waitForFunction(()=>window.store.ready&&!window.store.backupBusy);
+ }
+ await page.evaluate(()=>{window.control.cleanupFailure='marker-write'});
+ const callsBefore=await page.evaluate(()=>window.control.deletions);
+ await deletion.click();await page.evaluate(()=>window.control.confirm());
+ await page.getByText('Marker write failed',{exact:true}).waitFor();
+ assert.equal(await page.evaluate(()=>window.control.deletions),callsBefore);
+ assert.equal(await page.evaluate(()=>window.control.deletionMarker),undefined);
+ console.log('Deletion restart recovery: archive, omen, reminder and marker-clear failures block hydration; local retry clears the marker without repeating remote deletion.');
  console.log('Archive, omen, notification and widget failures: private memory cleared; local retry completes without repeating remote deletion.');
  console.log('Account UI reset: ordinary undo works; failed deletion retains draft and undo; successful deletion clears both and allows new updates.');
  console.log('Apple account deletion: failed server preserves archive; successful server clears local archive and backup owner. Native/remote boundaries are fixtures.');

@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts,StyleOf} from './types';
 import {mirror,restoreBackup,supabase,anonymousOwner} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
-const key='crystal-ball-v1';
+const key='crystal-ball-v1',deletionKey='crystal-ball-deletion-pending';
 const initial=():AccountState=>({sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false});
 const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance|null)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;saveAskProgress:(fn:(s:AccountState)=>AccountState,balance?:Balance)=>Promise<void>;chooseStyle:<K extends keyof StyleOf>(kind:K,value:StyleOf[K])=>Promise<void>;remaining:number;starter:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean;deleteAccount:(remove:()=>Promise<void>)=>Promise<void>}|null>(null);
 export function Store({children}:React.PropsWithChildren){
@@ -43,6 +43,13 @@ export function Store({children}:React.PropsWithChildren){
   let active=true;
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);
   void (async()=>{
+   const deleting=await AsyncStorage.getItem(deletionKey);
+   if(!active)return;
+   if(deleting!==null){
+    clearTimeout(timer);deletionPending.current=true;
+    await withArchiveLock(cleanupDeletedAccount);
+    return;
+   }
    let loaded=initial();const raw=await AsyncStorage.getItem(key);
    if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');loaded=restoreProfile({...initial(),...s})}
    if(!active)return;
@@ -94,7 +101,10 @@ export function Store({children}:React.PropsWithChildren){
    forgetCheckIns(),
    Promise.resolve().then(()=>updateOmenWidget(null)),
   ]);
-  if(results.some(result=>result.status==='rejected')){
+  try{
+   if(results.some(result=>result.status==='rejected'))throw new Error('Local cleanup incomplete');
+   await AsyncStorage.removeItem(deletionKey);
+  }catch{
    setHydrationError('Your account was deleted, but this device could not finish clearing saved data and reminders. Try again to finish local cleanup.');
    return;
   }
@@ -105,7 +115,8 @@ export function Store({children}:React.PropsWithChildren){
   return withArchiveLock(async()=>{
    await writes.catch(()=>{});await uploads.catch(()=>{});
    accountVersion.current++;
-   await remove();
+   await AsyncStorage.setItem(deletionKey,'1');
+   try{await remove()}catch(error){await AsyncStorage.removeItem(deletionKey);throw error}
    deletionPending.current=true;setReady(false);serverClock.current=null;
    change(initial);setAccountReset(n=>n+1);
    await cleanupDeletedAccount();

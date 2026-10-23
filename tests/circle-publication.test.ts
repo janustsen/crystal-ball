@@ -29,7 +29,7 @@ for(const lost of [false,true])test(`Store serializes publication with ${lost?'l
  const imports:Record<string,any>={
   react,'react-native':{},'./reading-history':readings,'./profile':profile,'./billing':billing,
   './social':{publishCircleForecast:async()=>{started=true;return response}},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  };
  const module={exports:{} as any};
@@ -65,7 +65,7 @@ for(const replacement of ['none','forget','restore'])test(`private saves survive
   react,'react-native':{},'./reading-history':readings,'./profile':profile,'./billing':billing,
   './cloud':{restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
   './social':{publishCircleForecast:async()=>{started=true;return response}},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  };
  const module={exports:{} as any};

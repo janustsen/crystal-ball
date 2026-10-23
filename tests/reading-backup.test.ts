@@ -54,7 +54,7 @@ async function fixture(earlierUpload=false,api:Record<string,unknown>={},globals
   './cloud':{anonymousOwner:async()=>'owner',mirror:async(state:any)=>{uploads.push(Array.from(state.history,(p:any)=>p.id));if((earlierUpload||state.history.length)&&blocking)await remote},restoreBackup:async(state:any)=>({...state,history:[],facts:{}})},
   './api':api,
   './social':{publishCircleForecast:async()=>card},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{disk=value}},
   './daily-omen':{forgetOmen:async()=>{}},'./native':{forgetCheckIns:async()=>{},reopenCheckIn:()=>{}},'./omen-widget':{updateOmenWidget:()=>{}},
  },warnings,globals);
  const render=()=>h.render(()=>storeModule.Store({})).props.value;
@@ -180,7 +180,7 @@ for(const mode of ['save','restore'] as const)for(const restoreFails of [false,t
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './api':{serverMetered:true,loadBalance:()=>owner==='anonymous'?pending:Promise.resolve(paidBalance)},
   './cloud':{anonymousOwner:async()=>owner,mirror:async()=>{if(restoreFails)throw new Error('backup offline')},restoreBackup:async(s:any)=>{if(restoreFails)throw new Error('backup offline');return {...s,backupOwner:owner}},supabase:{auth:{getSession:async()=>({data:{session:{user:{id:owner,is_anonymous:false}}}})}}},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{disk=value}},
   './native':{reopenCheckIn:()=>{}},
  },warnings);
  const render=()=>h.render(()=>store.Store({})).props.value;
@@ -243,7 +243,7 @@ for(const fails of [false,true])test(`initial balance settles before purchases a
   react:h.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './api':{serverMetered:true,loadBalance:()=>pending},
   './cloud':{anonymousOwner:async()=>'owner'},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{disk=value}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{disk=value}},
   './native':{reopenCheckIn:()=>{}},
  },warnings);
  const render=()=>h.render(()=>store.Store({})).props.value;
@@ -500,7 +500,7 @@ test('DailyOmen saves a displayed whisper after the balance archive lock release
  const store=load('../src/store.tsx',{
   react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,
   './cloud':{anonymousOwner:async()=>'owner'},'./api':{},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{if(pause){entered();await blocked;}disk=value;}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{if(pause){entered();await blocked;}disk=value;}},
   './native':{cancelCheckIn:async()=>{},reopenCheckIn:()=>{}},
  },[]);
  const renderStore=()=>storeHooks.render(()=>store.Store({})).props.value;
@@ -815,7 +815,7 @@ for(const mode of ['refresh','account-change','save-failure','entitlement-loss']
  const store=load('../src/store.tsx',{
   react:storeHooks.react,'react-native':{},'./reading-history':readings,'./profile':profile,'./api':{},
   './cloud':{anonymousOwner:async()=>'owner',restoreBackup:async(s:any)=>s},
-  '@react-native-async-storage/async-storage':{getItem:async()=>disk,setItem:async(_key:string,value:string)=>{
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?disk:null,setItem:async(_key:string,value:string)=>{
    if(pause){entered();await blocked}
    if(mode==='save-failure'&&JSON.parse(value).yearAhead?.kind==='sealed')throw new Error('Archive write failed');
    disk=value;
