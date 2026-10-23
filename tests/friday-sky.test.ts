@@ -1,10 +1,11 @@
+import {appleFixture,nativeToken} from './apple-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {openSky,skyWeek,skyWeeks} from '../server/sky';
 import {deliverSocialPushes} from '../server/social-push';
 import type {ModelProvider,JsonSchema} from '../server/provider';
 
-const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture'}[key]);
+const env=(key:string)=>({SUPABASE_URL:'http://db.local',SUPABASE_SERVICE_ROLE_KEY:'fixture',...appleFixture}[key as keyof typeof appleFixture|'SUPABASE_URL'|'SUPABASE_SERVICE_ROLE_KEY']);
 
 test('the generated week is the Friday whose night is under way somewhere, else the next one',()=>{
  assert.equal(skyWeek(new Date('2026-10-08T12:00Z')),'2026-10-09');
@@ -64,11 +65,11 @@ test('the Sky push is generic, opens the Sky and is acknowledged on its own leas
  const transport:typeof fetch=async(input,init)=>{
   const url=String(input),body=JSON.parse(String(init?.body));
   if(url.endsWith('/claim_social_pushes'))return Response.json([]);
-  if(url.endsWith('/claim_sky_pushes'))return Response.json([{id:'sky-job',kind:'sky',token:'ExpoPushToken[fixture]',circle_id:null}]);
+  if(url.endsWith('/claim_sky_pushes'))return Response.json([{id:'sky-job',kind:'sky',token:nativeToken,circle_id:null}]);
   if(url.endsWith('/finish_sky_push')){finished.push(body.notification);return Response.json(null);}
-  assert.equal(url,'https://exp.host/--/api/v2/push/send');sent.push(body);return Response.json({data:{status:'ok',id:'ticket'}});
+  assert.equal(url,`https://api.sandbox.push.apple.com/3/device/${nativeToken}`);sent.push(body);return new Response(null,{status:200});
  };
  assert.deepEqual(await deliverSocialPushes(env,transport),{queued:1,accepted:1});
- assert.deepEqual(sent,[{to:'ExpoPushToken[fixture]',title:'Crystal Ball',body:'The Sky is open.',data:{social:true,sky:true},sound:'default'}]);
+ assert.deepEqual(sent,[{aps:{alert:{title:'Crystal Ball',body:'The Sky is open.'},sound:'default'},body:{social:true,sky:true}}]);
  assert.deepEqual(finished,['sky-job']);
 });

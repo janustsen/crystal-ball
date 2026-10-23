@@ -74,3 +74,21 @@ export async function mirror(state:AccountState,client:SupabaseClient|null=supab
  if(state.history.length)removal=removal.not('id','in',`(${state.history.map(p=>p.id).join(',')})`);
  const removed=await removal;if(removed.error)throw removed.error;
 }
+
+// The admin and Apple keys remain on the Edge Function. The app sends only its session and fresh Apple code.
+export class AccountDeletionRefused extends Error {}
+export async function deleteAppleAccount(authorizationCode:string){
+ if(!supabase||!url)throw new AccountDeletionRefused('Account deletion is not configured.');
+ const response=await fetch(`${url}/functions/v1/delete-account`,{method:'POST',headers:{'Content-Type':'application/json',...await authorization()},body:JSON.stringify({authorizationCode}),signal:AbortSignal.timeout(60000)});
+ const result=await response.json();
+ if(!response.ok&&result.refused===true)throw new AccountDeletionRefused(result.error||'Account deletion was refused.');
+ if(!response.ok||result.deleted!==true)throw new Error(result.error||'Account deletion did not finish.');
+}
+
+export async function forgetAccountSession(client:SupabaseClient|null=supabase){
+ if(!client)return;
+ await pendingOwners.get(client)?.catch(()=>{});
+ const signedOut=await client.auth.signOut({scope:'local'});
+ if(signedOut.error)throw signedOut.error;
+ checkedOwners.delete(client);
+}

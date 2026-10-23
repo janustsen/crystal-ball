@@ -10,7 +10,9 @@
     "check": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts && npm run test:love-notifications",
     "test:love-notifications": "node --experimental-vm-modules --experimental-strip-types --test tests/love-notifications.test.mjs",
-    "test:reveal-recording": "node scripts/verify-reveal-recording.mjs"
+    "test:reveal-recording": "node scripts/verify-reveal-recording.mjs",
+    "build:web": "CRYSTAL_BALL_RELEASE=true expo export --platform web",
+    "prebuild:release": "CRYSTAL_BALL_RELEASE=true expo prebuild --platform ios"
   },
   "dependencies": {
     "@expo/ui": "~57.0.21",

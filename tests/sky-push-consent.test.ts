@@ -24,7 +24,7 @@ function fixture(platform='ios',initialLocalSky=false){
   'expo-constants':{expoConfig:{extra:{eas:{projectId:'test-project'}}}},
   'expo-notifications':{
    requestPermissionsAsync:async()=>{calls.push('permission');return {status:permission}},
-   getExpoPushTokenAsync:async()=>{calls.push('token');if(tokenFails)throw new Error('Token failed');return {data:'test-token'}},
+   getDevicePushTokenAsync:async()=>{calls.push('token');if(tokenFails)throw new Error('Token failed');return {data:'test-token'}},
    setNotificationChannelAsync:async()=>{calls.push('channel')},AndroidImportance:{DEFAULT:3},
   },
   './store':{useStore:()=>({state:local,update:(fn:(s:any)=>any)=>{local=fn(local)}})},
@@ -81,13 +81,13 @@ test('a failed answer save does not request permission or silently dismiss',asyn
 });
 
 test('settings default off, allow later opt-in and opt-out, and Circle enable never opts into Sky',async()=>{
- const f=fixture('android');
+ const f=fixture('ios');
  const toggle=()=>f.render(true).find(n=>n.props.testID==='sky-push-toggle');
  assert.equal(toggle().props.value,false);
  f.render(true).find(n=>n.props.label==='Enable Circle notifications').props.onPress();await settle();
  assert.equal(f.account.enabled,false);assert.equal(f.account.answered,false);
  f.calls.length=0;toggle().props.onValueChange(true);await settle();
- assert.deepEqual(f.calls,['local-permission','channel','permission','token','sky:true:test-token']);assert.equal(f.localSky(),true);
+ assert.deepEqual(f.calls,['local-permission','permission','token','sky:true:test-token']);assert.equal(f.localSky(),true);
  assert.equal(toggle().props.value,true);
  assert.equal(f.account.circle,true);
  f.render(true).find(n=>n.props.label==='Turn off Circle notifications').props.onPress();await settle();

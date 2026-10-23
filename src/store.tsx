@@ -10,15 +10,16 @@ import {updateOmenWidget} from './omen-widget';
 import {restoreProfile,canRead,updateBirthday} from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {AccountState,Prediction,Facts,StyleOf} from './types';
-import {mirror,restoreBackup,supabase,anonymousOwner} from './cloud';
+import {mirror,restoreBackup,supabase,anonymousOwner,AccountDeletionRefused,forgetAccountSession} from './cloud';
 let writes:Promise<void>=Promise.resolve(),uploads:Promise<void>=Promise.resolve();
-const key='crystal-ball-v1';
+const key='crystal-ball-v1',deletionKey='crystal-ball-deletion-pending';
 const initial=():AccountState=>({sunSign:null,ageBand:null,ladder:{asked:0,opened:[]},facts:{},history:[],credits:0,plus:false,usage:{day:new Date().toISOString().slice(0,10),count:0},reduceMotion:false,ambientSound:false});
-const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance|null)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;saveAskProgress:(fn:(s:AccountState)=>AccountState,balance?:Balance)=>Promise<void>;chooseStyle:<K extends keyof StyleOf>(kind:K,value:StyleOf[K])=>Promise<void>;remaining:number;starter:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean}|null>(null);
+const Context=createContext<{state:AccountState;ready:boolean;hydrationError:string|null;retryHydration:()=>void;update:(fn:(s:AccountState)=>AccountState)=>void;savePrediction:(prediction:Prediction,facts?:Facts,balance?:Balance|null)=>Promise<void>;publishCircle:(draft:string)=>Promise<CircleForecast>;applyBalance:(balance:Balance)=>Promise<void>;saveAskProgress:(fn:(s:AccountState)=>AccountState,balance?:Balance)=>Promise<void>;chooseStyle:<K extends keyof StyleOf>(kind:K,value:StyleOf[K])=>Promise<void>;remaining:number;starter:number;reset:()=>void;forgetAll:()=>Promise<void>;backup:(mode:'save'|'restore',authenticate:()=>Promise<void>)=>Promise<void>;backupBusy:boolean;deleteAccount:(remove:()=>Promise<void>)=>Promise<void>}|null>(null);
 export function Store({children}:React.PropsWithChildren){
  const [state,setState]=useState(initial),[ready,setReady]=useState(false),[backupBusy,setBackupBusy]=useState(false);
+ const [accountReset,setAccountReset]=useState(0);
  const [hydrationError,setHydrationError]=useState<string|null>(null),[hydrationAttempt,setHydrationAttempt]=useState(0);
- const locked=useRef(true),current=useRef(state),accountVersion=useRef(0);
+ const locked=useRef(true),current=useRef(state),accountVersion=useRef(0),deletionPending=useRef(false);
  const version=accountVersion.current;
  const archiveWork=useRef<Promise<unknown>>(Promise.resolve());
  const serverClock=useRef<{offset:number;asOf:number;at:number}|null>(null);
@@ -33,7 +34,7 @@ export function Store({children}:React.PropsWithChildren){
   locked.current=true;setBackupBusy(true);
   const work=archiveWork.current.catch(()=>{}).then(action);
   archiveWork.current=work;
-  return work.finally(()=>{if(archiveWork.current===work){locked.current=false;setBackupBusy(false)}});
+  return work.finally(()=>{if(archiveWork.current===work){locked.current=deletionPending.current;setBackupBusy(false)}});
  }
  // Server-metered days belong to the server: the last balance anchors two estimates of its clock, and either one passing midnight refreshes.
  // The wall-clock offset survives device sleep; the monotonic one survives a phone clock changed afterwards. Each refresh re-anchors both.
@@ -42,6 +43,13 @@ export function Store({children}:React.PropsWithChildren){
   let active=true;
   const timer=setTimeout(()=>{active=false;setHydrationError('Opening your saved readings timed out. Your archive has not been changed.')},10000);
   void (async()=>{
+   const deleting=await AsyncStorage.getItem(deletionKey);
+   if(!active)return;
+   if(deleting!==null){
+    clearTimeout(timer);deletionPending.current=true;
+    await withArchiveLock(cleanupDeletedAccount);
+    return;
+   }
    let loaded=initial();const raw=await AsyncStorage.getItem(key);
    if(raw!==null){const s=JSON.parse(raw);if(!s||!s.facts||!Array.isArray(s.history)||!Number.isFinite(s.credits))throw new Error('Local archive is unreadable.');loaded=restoreProfile({...initial(),...s})}
    if(!active)return;
@@ -83,6 +91,43 @@ export function Store({children}:React.PropsWithChildren){
     await mirror(next);
    }
    await AsyncStorage.setItem(key,JSON.stringify(next));change(()=>next);
+  });
+ }
+ async function cleanupDeletedAccount(){
+  setHydrationError(null);
+  const results=await Promise.allSettled([
+   AsyncStorage.setItem(key,JSON.stringify(current.current)),
+   forgetOmen(AsyncStorage),
+   forgetCheckIns(),
+   forgetAccountSession(),
+   Promise.resolve().then(()=>updateOmenWidget(null,true)),
+  ]);
+  try{
+   if(results.some(result=>result.status==='rejected'))throw new Error('Local cleanup incomplete');
+   await AsyncStorage.removeItem(deletionKey);
+  }catch{
+   setHydrationError('Your account was deleted, but this device could not finish clearing saved data and reminders. Try again to finish local cleanup.');
+   return;
+  }
+  deletionPending.current=false;setReady(true);
+ }
+ async function deleteAccount(remove:()=>Promise<void>){
+  if(!ready)throw new Error('Please wait for your archive.');
+  return withArchiveLock(async()=>{
+   await writes.catch(()=>{});await uploads.catch(()=>{});
+   accountVersion.current++;
+   await AsyncStorage.setItem(deletionKey,'1');
+   const confirmed=await remove().then(()=>true,async error=>{
+    if(error instanceof AccountDeletionRefused){await AsyncStorage.removeItem(deletionKey);throw error}
+    return false;
+   });
+   deletionPending.current=true;setReady(false);serverClock.current=null;
+   change(initial);setAccountReset(n=>n+1);
+   if(!confirmed){
+    setHydrationError('Account deletion could not be confirmed. Your local archive is locked. Try again to clear this device; contact support to confirm remote deletion.');
+    return;
+   }
+   await cleanupDeletedAccount();
   });
  }
  async function forgetAll(){
@@ -155,7 +200,7 @@ export function Store({children}:React.PropsWithChildren){
  }
 
  const day=new Date().toISOString().slice(0,10),used=serverMetered||state.usage.day===day?state.usage.count:0,starter=serverMetered?state.starter??0:localStarter(state);
- return <Context.Provider value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:freeLeft({plus:state.plus,starter,used})+state.credits,starter,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
+ return <Context.Provider key={accountReset} value={{state,ready,hydrationError,publishCircle,applyBalance,saveAskProgress,chooseStyle,retryHydration:()=>{if(hydrationError){if(deletionPending.current){void withArchiveLock(cleanupDeletedAccount);return}setHydrationError(null);setHydrationAttempt(n=>n+1)}},backup,deleteAccount,backupBusy:backupBusy||!ready,update:fn=>{if(!locked.current&&version===accountVersion.current)change(fn)},remaining:freeLeft({plus:state.plus,starter,used})+state.credits,starter,reset:()=>{if(!locked.current)change(s=>({...initial(),backupOwner:s.backupOwner}))},forgetAll,savePrediction}}>{children}</Context.Provider>;
 }
 export function useStore(){const value=useContext(Context);if(!value)throw new Error('Store unavailable');return value;}
 export function learnedFacts(cards:{id:string;remember:boolean}[],answers:Facts):Facts{return Object.fromEntries(cards.filter(c=>c.remember&&answers[c.id]).map(c=>[c.id,answers[c.id]]));}

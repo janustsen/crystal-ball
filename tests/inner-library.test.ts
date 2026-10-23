@@ -45,7 +45,7 @@ async function library(serverMetered=true){
    const pending=deferred();requests.push({ballStyle,cardStyle,pending});await pending.promise;
    server={...server,ballStyle,cardStyle};return snapshot();
   }},
-  '@react-native-async-storage/async-storage':{getItem:async()=>JSON.stringify({facts:{},history:[],credits:0,plus:true}),setItem:async()=>{await persistence?.promise}},
+  '@react-native-async-storage/async-storage':{getItem:async(key:string)=>key==='crystal-ball-v1'?JSON.stringify({facts:{},history:[],credits:0,plus:true}):null,setItem:async()=>{await persistence?.promise}},
   './native':{cancelCheckIn:async()=>{},reopenCheckIn:()=>{}},'./daily-omen':{},'./omen-widget':{},'./social':{},
  });
  const state=()=>storeHooks.render(()=>store.Store({})).props.value;
