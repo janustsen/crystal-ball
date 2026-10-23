@@ -21,7 +21,7 @@ try{
   await page.getByTestId('option-0').click();
   if(ready){
    await expect(page.getByText('How many days have you painted?',{exact:true})).toBeVisible();await page.screenshot({path:`${out}/tailored-next.png`});
-   await page.getByRole('button',{name:'Back',exact:true}).click();await expect(page.getByText('How far along are you?',{exact:true})).toBeVisible();await page.getByTestId('option-2').click();await page.getByTestId('option-0').click();
+   await page.getByRole('button',{name:'Back',exact:true}).click();await expect(page.getByText('How far along are you?',{exact:true})).toBeVisible();await page.getByTestId('option-2').click();await expect(page.getByText('How many days have you painted?',{exact:true})).toBeVisible();await page.getByTestId('option-0').click();
   }
   try{await expect.poll(()=>prediction,{timeout:10000}).toBeTruthy()}catch(error){await page.screenshot({path:`${out}/failure.png`});console.log(await page.locator('body').innerText());throw error};await expect(page.getByText(/Your answers are kept/)).toBeVisible();
   expect(prediction.facts.context_1).toContain(ready?'How many days have you painted? One':'How far along are you? Just starting');
