@@ -69,7 +69,7 @@ Check-in date resolution uses a valid forecast `dueDate` (YYYY-MM-DD), falling b
 
 Device widget rendering remains unverified. Earlier retention evidence is in `docs/evidence/retention-validation.md`; dated notification delivery and tap observations are in [engagement evidence](docs/evidence/engagement-2026-10-09/README.md), not a verification of subsequent scheduler changes. After creating a real reading in a named chrome-devtools-axi session, `scripts/drive-retention.sh` repeats the retention checks; its default session is `cb-retention` (override `CHROME_DEVTOOLS_AXI_SESSION` when needed).
 
-For concurrent local verification, use the engine-port settings in [Local development](#local-development). Use the browser engine override documented there to retain the same-origin bridge.
+For concurrent local verification, follow the engine-port and browser routing settings in [Local development](#local-development).
 
 ## Reading profile and birth chart
 

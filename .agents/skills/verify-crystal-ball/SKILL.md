@@ -10,7 +10,7 @@ Run from this checkout. `npm install`, then `npm run server` (127.0.0.1:8787) an
 ## Doctor
 For a bundled iOS build, follow the environment, prebuild and artifact-check steps in [native setup](../../../SETUP.md#native-development) before installation. The artifact check does not prove a reading on a physical phone.
 
-`node --input-type=module -e "import {previewFetch} from './scripts/preview-auth.mjs'; console.log(await previewFetch('http://localhost:8087/engine/health').then(r=>r.json()))"` must identify crystal-ball and ollama. Unauthenticated engine requests must return 401. Run `npm run check` and `npm test`. Use the browser engine override in [local setup](../../../SETUP.md#local-development) for the same-origin Metro bridge, including private Tailscale previews. Keep the development server on the trusted private network.
+`node --input-type=module -e "import {previewFetch} from './scripts/preview-auth.mjs'; console.log(await previewFetch('http://localhost:8087/engine/health').then(r=>r.json()))"` must identify crystal-ball and ollama. Unauthenticated engine requests must return 401. Run `npm run check` and `npm test`. Follow the browser routing settings in [local setup](../../../SETUP.md#local-development) for the same-origin Metro bridge, including private Tailscale previews. Keep the development server on the trusted private network.
 
 For public-provider/auth/budget changes, also follow the [hosted readings checks](features/hosted.md): real migration races and consent/limit-message browser drives, followed by the credential-dependent per-provider comparisons and deployed smoke. Local Node remains a development surface and does not prove the public auth boundary.
 
