@@ -18,9 +18,9 @@ test('every repair reserves before fetch; usage settles once and daily admission
  const calls:string[]=[];let attempts=0;
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=String(input),value=JSON.parse(String(init?.body));
-  if(url.endsWith('/admit_ai_request')){calls.push('admit');return Response.json(null)}
+  if(url.endsWith('/admit_ai_request')){calls.push('admit');return new Response(null,{status:204})}
   if(url.endsWith('/reserve_ai_spend')){calls.push('reserve');assert.equal(value.amount,reservationCost(body));return Response.json(value.reservation)}
-  if(url.endsWith('/settle_ai_spend')){calls.push('settle');assert.equal(value.spent,172500);return Response.json(null)}
+  if(url.endsWith('/settle_ai_spend')){calls.push('settle');assert.equal(value.spent,172500);return new Response(null,{status:204})}
   assert.equal(url,`${deepinfra.url}/chat/completions`);calls.push('model');attempts++;
   return Response.json({choices:[{message:{content:JSON.stringify({ok:attempts===2})}}],usage:{prompt_tokens:1000,completion_tokens:100}});
  });
@@ -32,9 +32,9 @@ test('daily and monthly limits refuse the paid fetch; failed transports keep res
  let mode='quota',paid=0,settled=0;
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=String(input),value=JSON.parse(String(init?.body));
-  if(url.endsWith('/admit_ai_request'))return mode==='quota'?Response.json({message:'AI daily quota reached'},{status:400}):Response.json(null);
+  if(url.endsWith('/admit_ai_request'))return mode==='quota'?Response.json({message:'AI daily quota reached'},{status:400}):new Response(null,{status:204});
   if(url.endsWith('/reserve_ai_spend'))return mode==='budget'?Response.json({message:'AI monthly budget reached'},{status:400}):Response.json(value.reservation);
-  if(url.endsWith('/settle_ai_spend')){settled++;return Response.json(null)}
+  if(url.endsWith('/settle_ai_spend')){settled++;return new Response(null,{status:204})}
   paid++;
   if(mode==='missing')return Response.json({choices:[{message:{content:'{}'}}]});
   throw new Error('network failed');
@@ -78,7 +78,7 @@ test('planning preserves the monthly limit message through the real handler',asy
  t.mock.method(globalThis,'fetch',async(input:unknown)=>{
   const url=String(input);
   if(url.endsWith('/auth/v1/user'))return Response.json({id:'viewer'});
-  if(url.endsWith('/admit_ai_request'))return Response.json(null);
+  if(url.endsWith('/admit_ai_request'))return new Response(null,{status:204});
   if(url.endsWith('/reserve_ai_spend'))return Response.json({message:'AI monthly budget reached'},{status:400});
   throw new Error('Paid fetch must not happen');
  });
@@ -92,11 +92,11 @@ test('free first, repair across hosts, no double admission and no repair counter
  const calls:string[]=[];let freeAvailable=true,validPaid=true;
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=String(input),value=JSON.parse(String(init?.body));
-  if(url.endsWith('/admit_ai_request')){calls.push('admit');return Response.json(null)}
+  if(url.endsWith('/admit_ai_request')){calls.push('admit');return new Response(null,{status:204})}
   if(url.endsWith('/reserve_ai_neurons')){calls.push('free-reserve');assert.equal(value.amount,885798000);return Response.json(freeAvailable?value.reservation:null)}
-  if(url.endsWith('/settle_ai_neurons')){calls.push('free-settle');assert.equal(value.spent,47148500);return Response.json(null)}
+  if(url.endsWith('/settle_ai_neurons')){calls.push('free-settle');assert.equal(value.spent,47148500);return new Response(null,{status:204})}
   if(url.endsWith('/reserve_ai_spend')){calls.push('paid-reserve');return Response.json(value.reservation)}
-  if(url.endsWith('/settle_ai_spend')){calls.push('paid-settle');return Response.json(null)}
+  if(url.endsWith('/settle_ai_spend')){calls.push('paid-settle');return new Response(null,{status:204})}
   if(url.includes('api.cloudflare.com')){
    calls.push('free');freeAvailable=false;
    assert.deepEqual(value.response_format,{type:'json_schema',json_schema:{type:'object'}});
@@ -118,9 +118,9 @@ test('free works at paid cap; only established free admission denial permits pai
  const get=(k:string)=>values[k];let mode='success',paid=0,free=0,settled=0;
  t.mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>{
   const url=String(input),value=JSON.parse(String(init?.body));
-  if(url.endsWith('/admit_ai_request'))return mode==='quota'?Response.json({message:'AI daily quota reached'},{status:400}):Response.json(null);
+  if(url.endsWith('/admit_ai_request'))return mode==='quota'?Response.json({message:'AI daily quota reached'},{status:400}):new Response(null,{status:204});
   if(url.endsWith('/reserve_ai_neurons'))return mode==='malformed-db'?new Response('not JSON'):mode==='db'?Response.json({message:'db unavailable'},{status:500}):Response.json(mode==='exhausted'?null:value.reservation);
-  if(url.endsWith('/settle_ai_neurons')){settled++;return Response.json(null)}
+  if(url.endsWith('/settle_ai_neurons')){settled++;return new Response(null,{status:204})}
   if(url.endsWith('/reserve_ai_spend')){paid++;return Response.json({message:'AI monthly budget reached'},{status:400})}
   free++;
   if(['429','401','500'].includes(mode))return Response.json({},{status:Number(mode)});
@@ -137,4 +137,12 @@ test('free works at paid cap; only established free admission denial permits pai
  const priorFree=free;values.CLOUDFLARE_QUALITY_APPROVED='false';
  await assert.rejects(call(),e=>e instanceof Error&&e.message===budgetMessage);assert.equal(free,priorFree);
  values.DEEPINFRA_QUALITY_APPROVED='false';await assert.rejects(call(),/not available yet/);assert.equal(paid,2);
+});
+
+test('empty reservation responses fail closed for both providers',async t=>{
+ t.mock.method(globalThis,'fetch',async()=>new Response(null,{status:204}));
+ const accounting=hostedAccounting(env,'viewer','plan');
+ await accounting.admit();
+ await assert.rejects(accounting.reserve(body),/unavailable/);
+ await assert.rejects(accounting.reserveFree(body),/unavailable/);
 });

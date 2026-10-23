@@ -29,6 +29,7 @@ export function hostedAccounting(env:Env,viewer:string,action:string):HostedAcco
  let admitted:Promise<unknown>|undefined;
  async function rpc(name:string,args:object){
   const response=await fetch(`${base}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key!,authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(args),signal:AbortSignal.timeout(5000)});
+  if(response.status===204&&['admit_ai_request','settle_ai_neurons','settle_ai_spend'].includes(name))return;
   const value=await response.json().catch(()=>{throw new BillingError('Readings are unavailable right now. Please try again later.',503)});
   if(!response.ok){
    if(value?.message==='AI monthly budget reached')throw new BillingError(budgetMessage,429);
