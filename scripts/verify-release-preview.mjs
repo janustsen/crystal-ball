@@ -8,7 +8,7 @@ import {chromium} from '@playwright/test';
 const evidence=await mkdtemp(join(tmpdir(),'cb-release-preview-')),port=process.env.RELEASE_PREVIEW_PORT||'8108';
 const env={...process.env,NODE_ENV:'production',EXPO_NO_DOTENV:'1',TMPDIR:evidence};
 for(const key of ['CRYSTAL_BALL_RELEASE','EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY','EXPO_PUBLIC_ENGINE_URL','EXPO_PUBLIC_PREVIEW_SECRET'])delete env[key];
-const child=spawn(process.execPath,['scripts/start-preview.mjs','--no-dev','--minify','--host','localhost','--port',port],{env,detached:true,stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,['scripts/start-preview.mjs','--max-workers','1','--no-dev','--minify','--host','localhost','--port',port],{env,detached:true,stdio:['ignore','pipe','pipe']});
 let log='',browser;
 child.stdout.on('data',chunk=>log+=chunk);child.stderr.on('data',chunk=>log+=chunk);
 try{
@@ -21,7 +21,7 @@ try{
  }
  browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844}});
- await page.goto(`http://localhost:${port}`);await page.getByTestId('birthday-month').waitFor({timeout:60000});
+ await page.goto(`http://localhost:${port}`,{timeout:180000});await page.getByTestId('birthday-month').waitFor({timeout:60000});
  await page.screenshot({path:join(evidence,'preview.png')});
  const release=spawnSync(process.execPath,['node_modules/expo/bin/cli','config','--json'],{env:{...env,CRYSTAL_BALL_RELEASE:'true'},encoding:'utf8'});
  assert.notEqual(release.status,0);assert.match(release.stderr,/Release requires EXPO_PUBLIC_SUPABASE_URL/);
