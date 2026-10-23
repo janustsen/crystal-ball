@@ -1,6 +1,8 @@
-# Live research path
+# Historical research path
 
-Use light retrieval for tonight: fixed public-topic queries against Google News RSS only, maximum three relevant results, 8-second fetch deadline, preserve source URL/title/date and retrieved-at time. Never send personal answers, names, income or a friend's identity to a search engine. Generate a short public-topic query separately. Headline RSS is a lead, not full-article verification: label it “news headlines” in Why, never “deep research.” If sources fail or do not match the topic, say so and allow retry or a context-only forecast with explanation wording governed by the [voice guide](../voice.md).
+For the current release decision, see [launch infrastructure](../launch/infrastructure.md). The probes and conditional grounding rules below retain the prototype evidence; they do not describe an enabled release feature.
+
+The prototype used light retrieval: fixed public-topic queries against Google News RSS only, maximum three relevant results, 8-second fetch deadline, preserve source URL/title/date and retrieved-at time. Never send personal answers, names, income or a friend's identity to a search engine. Generate a short public-topic query separately. Headline RSS is a lead, not full-article verification: label it “news headlines” in Why, never “deep research.” If sources fail or do not match the topic, say so and allow retry or a context-only forecast with explanation wording governed by the [voice guide](../voice.md).
 
 ## Probe on this Mac, 2026-09-29
 
@@ -35,7 +37,7 @@ Returned sources are server-owned, never URLs invented by the LLM. Explanation w
 | Language learning practice | Two app roundups are weak evidence for learning efficacy; Northeastern evening-practice story relevant. 1/3 strong match. | Disambiguation weak; second-language acquisition and computer-assisted learning relevant background. |
 | EV adoption | ICCT, copper-demand and Europe sales headlines all topical; geography differs. 3/3 topic matches, not interchangeable forecasts. | All three related background definitions/adoption pages. |
 
-This rules out indiscriminate “we researched it” claims. Filter by topic and geography; surface evidence quality and do not infer outcome data from sports governance headlines. If retrieval cannot support the question, the result is a context-based prediction or a retry; wording follows the [voice guide](../voice.md). Search is prototype-only: Google News RSS availability does not establish a commercial content license. [Google's terms](https://policies.google.com/terms) do not waive third-party content rights and restrict automation contrary to machine-readable instructions. No commercial permission or guaranteed feed availability is claimed. Production must replace this with a licensed source before public rollout.
+This rules out indiscriminate “we researched it” claims. Filter by topic and geography; surface evidence quality and do not infer outcome data from sports governance headlines. If retrieval cannot support the question, the result is a context-based prediction or a retry; wording follows the [voice guide](../voice.md). Search is prototype-only: Google News RSS availability does not establish a commercial content license. [Google's terms](https://policies.google.com/terms) do not waive third-party content rights and restrict automation contrary to machine-readable instructions. No commercial permission or guaranteed feed availability is claimed. Any future production retrieval requires a licensed source; see the release decision linked above.
 
 Bing's response [URL](https://www.bing.com/search?format=rss&q=US+inflation+outlook) restricts results to “personal, non-commercial use” and requires “express written permission” for other uses. Those short phrases are the relevant terms evidence; Bing is not in the generation engine.
 
