@@ -40,6 +40,23 @@ test('each School and Circle gets one teen-moderated omen of that Friday’s rea
  ]);
 });
 
+test('a Friday with the Moon in Cancer still opens its omen',async()=>{
+ const saved:string[]=[],inputs:unknown[]=[];
+ const transport:typeof fetch=async(input,init)=>{
+  const url=String(input),body=JSON.parse(String(init?.body));
+  if(url.endsWith('/sky_omen_targets'))return Response.json(body.target_week==='2026-11-27'?[{school_id:'sfusd-lowell',circle_id:null}]:[]);
+  if(url.endsWith('/save_sky_omen')){saved.push(body.text_value);return Response.json(null);}
+  throw new Error(`Unexpected URL ${url}`);
+ };
+ const model:ModelProvider={async json<T>(_system:string,input:unknown,schema:JsonSchema){
+  if('safe'in(schema.properties as Record<string,unknown>))return {safe:true} as T;
+  inputs.push(input);return {text:'The waning Moon in Cancer hints at shared stories growing from quiet group moments.'} as T;
+ }};
+ assert.deepEqual(await openSky(env,model,new Date('2026-11-26T12:00Z'),transport),{week:'2026-11-27',targets:1,opened:1});
+ assert.deepEqual(inputs,[{group:'school',sky:'waning Moon in Cancer'}]);
+ assert.deepEqual(saved,['The waning Moon in Cancer hints at shared stories growing from quiet group moments.']);
+});
+
 test('a missed omen is retried for the still-open week before the upcoming Friday',async()=>{
  assert.deepEqual(skyWeeks(new Date('2026-10-11T00:00Z')),['2026-10-09','2026-10-16']);
  assert.deepEqual(skyWeeks(new Date('2026-10-08T23:59Z')),['2026-10-02','2026-10-09']);

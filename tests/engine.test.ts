@@ -161,3 +161,7 @@ test('a remembered fact that no longer validates is re-asked instead of breaking
  assert.ok(!plan.cards.some(c=>c.id==='location'));
  assert.ok(!planFor('Will I move to Berlin?',{location:'Boston',destination:'Berlin',runway:'6 months'}).cards.some(c=>c.id==='runway'));
 });
+test('astrological Cancer placements are not illness; real cancer mentions stay blocked',()=>{
+ for(const q of ['The waning Moon in Cancer hints at shared stories growing from quiet group moments.','The Sun in Cancer warms a quiet week.','Cancer season invites a slower pace.','Mercury retrograde in Cancer slows a busy plan.','A Cancer Moon steadies the group tonight.'])assert.equal(phraseSafety(q),undefined,q);
+ for(const q of ['Will my cancer diagnosis change?','My aunt has cancer; will chemo work?','Will her cancer come back?','The Moon in Cancer is bright: will my cancer come back?','The Moon in Cancer is bright, and my aunt has cancer.','Will my chemo go well?'])assert.equal(phraseSafety(q),'illness',q);
+});
