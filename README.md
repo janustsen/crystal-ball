@@ -11,7 +11,7 @@ Your prediction, then check back. An astrology-flavoured Expo / React Native ora
 
 ## Quick start
 
-Requires Node 22+. Running readings locally also needs Ollama and local Supabase; see [SETUP.md](SETUP.md).
+First follow the [local development setup](SETUP.md#local-development) for prerequisites, model setup, optional Supabase configuration and test tooling.
 
 ```sh
 npm install
