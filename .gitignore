@@ -2,6 +2,9 @@ node_modules/
 .local/
 .expo/
 dist/
+build/
+.npm/
+*.tsbuildinfo
 .env*
 !.env.example
 supabase/.temp/
@@ -9,8 +12,16 @@ supabase/.branches/
 ios/
 android/
 .DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+venv/
+.venv/
 public/room/
 
 .wrangler/
