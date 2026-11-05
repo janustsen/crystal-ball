@@ -24,6 +24,8 @@ export function safeContext(question:string){
  text=text.replace(/\b(?:legal|immigration|medical|visa|court|paralegal)\s+(?:receptionist|assistant|caseworker|clerk|section|certification|exam|career|job)\b/gi,'professional work');
  text=text.replace(/\b(?:public defender|hospice chaplain|criminal lawyer|immigration lawyer|oncologist|psychiatrist)\b/gi,'professional');
  text=text.replace(/\bdeath metal\b/gi,'music');
+ // Astrological placements ("Moon in Cancer", "Cancer season") name the sign, not the illness; other mentions stay.
+ if(!clinical)text=text.replace(/\b((?:sun|moon|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto)\b(?:\s+\w+){0,2}?\s+(?:in|into|through)\s+)cancer\b/gi,'$1the Crab').replace(/\bcancer(?=\s+(?:sun|moon|season)\b)/gi,'Crab');
  if(!clinical&&/\b(zodiac|horoscope|star sign|sun sign)\b/i.test(text))text=text.replace(/\bcancer\b/gi,'zodiac sign');
  return text;
 }
