@@ -1,5 +1,6 @@
 import {chromium,expect} from '@playwright/test';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {openEverything} from './ladder-seed.mjs';
 
 const evidence=process.env.BACKUP_RACE_EVIDENCE||`.local/forget-backup-${Date.now()}`;
 await mkdir(evidence,{recursive:true});
@@ -11,7 +12,7 @@ try{
   try{
    await page.goto(process.env.VERIFY_URL||'http://localhost:8092');
    await page.getByTestId('skip-for-now').click();await page.getByTestId('confirm-age').click();await page.getByTestId('about-done').click();
-   await page.getByTestId('tab-you').click();
+   await openEverything(page);await page.getByTestId('tab-you').click();
    const result=await page.evaluate(async order=>{
     // Exercise the actual Store operations; hold only the external authentication boundary.
     function store(){
